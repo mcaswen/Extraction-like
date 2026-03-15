@@ -137,7 +137,14 @@ echo ===== Files currently staged after git add =====
 git diff --cached --name-only
 
 git diff --cached --quiet
-if not errorlevel 1 goto :has_staged_changes
+
+if errorlevel 2 (
+    echo [Error] Failed to check staged changes.
+    echo [Hint] Please screenshot or copy the full output above and contact the programming team.
+    goto :fail
+)
+
+if errorlevel 1 goto :has_staged_changes
 
 echo.
 echo [Hint] There is nothing staged to commit.
