@@ -43,7 +43,7 @@ set "STDERR_FILE=%temp%\git_stderr_%random%_%random%.txt"
 echo.
 echo ===== %STEP_NAME% =====
 
-call %* > "%STDOUT_FILE%" 2> "%STDERR_FILE%"
+call "%~1" %2 %3 %4 %5 %6 %7 %8 %9 > "%STDOUT_FILE%" 2> "%STDERR_FILE%"
 set "EXIT_CODE=%ERRORLEVEL%"
 
 for %%A in ("%STDOUT_FILE%") do (

@@ -23,6 +23,16 @@ break > "%STAGED_FILES_FILE%"
 
 call :run_command "Pulling latest changes" git pull --rebase --autostash
 
+set "AHEAD_COUNT=0"
+for /f %%I in ('git rev-list --count @{u}..HEAD 2^>nul') do set "AHEAD_COUNT=%%I"
+
+if not "!AHEAD_COUNT!"=="0" (
+    echo.
+    echo ===== Unpushed local commits detected =====
+    echo [Hint] This branch has !AHEAD_COUNT! local commit(s) that have not been pushed.
+    call :run_command "Pushing existing local commits" git push
+)
+
 git diff --name-only >> "%ALL_CHANGES_FILE%"
 git diff --cached --name-only >> "%ALL_CHANGES_FILE%"
 git ls-files --others --exclude-standard >> "%ALL_CHANGES_FILE%"
@@ -168,7 +178,7 @@ set "STDERR_FILE=%temp%\git_stderr_%random%_%random%.txt"
 echo.
 echo ===== %STEP_NAME% =====
 
-call %* > "%STDOUT_FILE%" 2> "%STDERR_FILE%"
+call "%~1" %2 %3 %4 %5 %6 %7 %8 %9 > "%STDOUT_FILE%" 2> "%STDERR_FILE%"
 set "EXIT_CODE=%ERRORLEVEL%"
 
 for %%A in ("%STDOUT_FILE%") do (
