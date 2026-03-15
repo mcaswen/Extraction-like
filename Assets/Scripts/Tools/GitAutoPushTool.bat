@@ -116,20 +116,25 @@ echo ===== Staging changes =====
 if "!STAGE_ALL!"=="1" (
     call :run_command "Staging all changes" git add -A
 ) else (
-    set "HAS_STAGE_TARGET=0"
+    set "STAGE_ARGS="
     for %%D in (%ALLOWED_DIRS%) do (
         if exist "%%D" (
-            call :run_command "Staging folder: %%D" git add -A -- "%%D"
-            set "HAS_STAGE_TARGET=1"
+            set "STAGE_ARGS=!STAGE_ARGS! "%%D""
         )
     )
 
-    if "!HAS_STAGE_TARGET!"=="0" (
+    if not defined STAGE_ARGS (
         echo [Error] No allowed directories were found. Please check the ALLOWED_DIRS setting at the top of the script.
-        echo Please screenshot or copy the full output above and contact the programming team.
+        echo [Hint] Please screenshot or copy the full output above and contact the programming team.
         goto :fail
     )
+
+    call :run_command "Staging allowed folders" git add -A -- !STAGE_ARGS!
 )
+
+echo.
+echo ===== Files currently staged after git add =====
+git diff --cached --name-only
 
 git diff --cached --quiet
 if not errorlevel 1 goto :has_staged_changes
