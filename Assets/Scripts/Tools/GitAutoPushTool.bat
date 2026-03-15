@@ -43,7 +43,7 @@ for /f %%I in ('git rev-list --count @{u}..HEAD 2^>nul') do set "AHEAD_COUNT=%%I
 if not "!AHEAD_COUNT!"=="0" (
     echo.
     echo ===== Unpushed local commits detected =====
-    echo [Hint] This branch has !AHEAD_COUNT! local commit(s) that have not been pushed.
+    echo [Hint] This branch has !AHEAD_COUNT! local commit^(s^) that have not been pushed.
     call :run_command "Pushing existing local commits" git push
 )
 
@@ -88,7 +88,7 @@ if "!HAS_OUTSIDE_CHANGE!"=="1" (
     echo.
     echo y = Revert these non-target-folder changes and commit only the target folders
     echo n = Keep these changes and commit them together
-    set /p "USER_CHOICE=Do you want to revert changes outside the target folders? (y/n): "
+    set /p "USER_CHOICE=Do you want to revert changes outside the target folders? ^(y/n^): "
 
     if /I "!USER_CHOICE!"=="Y" (
         echo.
