@@ -3,8 +3,8 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 for /f "delims=" %%I in ('git rev-parse --show-toplevel 2^>nul') do set "REPO_ROOT=%%I"
 if not defined REPO_ROOT (
-    echo [错误] 当前目录不在 Git 仓库中，或 Git 未正确安装
-    echo [提示] 请将以上完整输出截图或复制，联系程序组处理
+    echo [Error] The current directory is not inside a Git repository, or Git is not installed correctly.
+    echo [Hint] Please screenshot or copy the full output above and contact the programming team.
     exit /b 1
 )
 
@@ -14,23 +14,23 @@ set "CURRENT_BRANCH="
 for /f "delims=" %%I in ('git branch --show-current 2^>nul') do set "CURRENT_BRANCH=%%I"
 
 if not defined CURRENT_BRANCH (
-    echo [错误] 当前未检测到有效分支，可能处于 detached HEAD 状态
-    echo [提示] 请将以上完整输出截图或复制，联系程序组处理
+    echo [Error] No valid branch was detected. The repository may be in a detached HEAD state.
+    echo [Hint] Please screenshot or copy the full output above and contact the programming team.
     goto :fail
 )
 
 echo.
-echo ===== 当前仓库 =====
+echo ===== Current repository =====
 echo %REPO_ROOT%
 
 echo.
-echo ===== 当前分支 =====
+echo ===== Current branch =====
 echo %CURRENT_BRANCH%
 
-call :run_command "拉取最新版本" git pull --rebase --autostash
+call :run_command "Pulling latest changes" git pull --rebase --autostash
 
 echo.
-echo [完成] 拉取成功
+echo [Done] Pull completed successfully.
 goto :success
 
 :run_command
@@ -54,16 +54,16 @@ for %%A in ("%STDOUT_FILE%") do (
 
 if not "%EXIT_CODE%"=="0" (
     echo.
-    echo ----- Git 报错信息 -----
+    echo ----- Git error output -----
     for %%A in ("%STDERR_FILE%") do (
         if %%~zA gtr 0 (
             type "%STDERR_FILE%"
         ) else (
-            echo [无额外 stderr 输出]
+            echo [No additional stderr output]
         )
     )
     echo.
-    echo [提示] 请将以上完整报错信息截图或复制，联系程序组处理。
+    echo [Hint] Please screenshot or copy the full Git error output above and contact the programming team.
     del /f /q "%STDOUT_FILE%" >nul 2>nul
     del /f /q "%STDERR_FILE%" >nul 2>nul
     goto :fail

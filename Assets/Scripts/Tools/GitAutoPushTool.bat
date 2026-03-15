@@ -1,13 +1,13 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-rem 允许提交的目录
+rem Allowed directories
 set "ALLOWED_DIRS=Assets/Art Assets/Audio Assets/Scenes Assets/SO Assets/Docs"
 
 for /f "delims=" %%I in ('git rev-parse --show-toplevel 2^>nul') do set "REPO_ROOT=%%I"
 if not defined REPO_ROOT (
-    echo [错误] 当前目录不在 Git 仓库中，或 Git 未正确安装
-    echo 请将以上信息截图或复制，联系程序组处理
+    echo [Error] The current directory is not inside a Git repository, or Git is not installed correctly.
+    echo Please screenshot or copy the full output above and contact the programming team.
     exit /b 1
 )
 
@@ -21,7 +21,7 @@ break > "%ALL_CHANGES_FILE%"
 break > "%OUTSIDE_CHANGES_FILE%"
 break > "%STAGED_FILES_FILE%"
 
-call :run_command "拉取最新代码" git pull --rebase --autostash
+call :run_command "Pulling latest changes" git pull --rebase --autostash
 
 git diff --name-only >> "%ALL_CHANGES_FILE%"
 git diff --cached --name-only >> "%ALL_CHANGES_FILE%"
@@ -43,66 +43,66 @@ for /f "usebackq delims=" %%F in ("%ALL_CHANGES_FILE%") do (
 
 if "!HAS_ANY_CHANGE!"=="0" (
     echo.
-    echo [提示] 当前没有可提交的改动
+    echo [Hint] There are no changes to commit.
     goto :success
 )
 
 echo.
-echo ===== 当前检测到的改动概览 =====
+echo ===== Detected change summary =====
 git status --short
 
 echo.
-echo ===== 当前检测到的改动文件 =====
+echo ===== Detected changed files =====
 type "%ALL_CHANGES_FILE%"
 
 set "STAGE_ALL=0"
 
 if "!HAS_OUTSIDE_CHANGE!"=="1" (
     echo.
-    echo ===== 检测到非目标文件夹改动 =====
+    echo ===== Changes detected outside target folders =====
     type "%OUTSIDE_CHANGES_FILE%"
     echo.
-    echo y = 回退这些非目标文件夹改动，只提交目标文件夹
-    echo n = 保留这些改动，并一起提交
-    set /p "USER_CHOICE=是否回退这些非目标文件夹的改动？(y/n): "
+    echo y = Revert these non-target-folder changes and commit only the target folders
+    echo n = Keep these changes and commit them together
+    set /p "USER_CHOICE=Do you want to revert changes outside the target folders? (y/n): "
 
     if /I "!USER_CHOICE!"=="Y" (
         echo.
-        echo ===== 正在回退非目标文件夹改动 =====
+        echo ===== Reverting changes outside target folders =====
         for /f "usebackq delims=" %%F in ("%OUTSIDE_CHANGES_FILE%") do (
             if not "%%F"=="" (
                 git ls-files --error-unmatch -- "%%F" >nul 2>nul
                 if errorlevel 1 (
-                    call :run_command "移除未跟踪文件或目录：%%F" git clean -fd -- "%%F"
+                    call :run_command "Removing untracked file or folder: %%F" git clean -fd -- "%%F"
                 ) else (
-                    call :run_command "回退文件：%%F" git restore --staged --worktree -- "%%F"
+                    call :run_command "Reverting file: %%F" git restore --staged --worktree -- "%%F"
                 )
             )
         )
     ) else (
         set "STAGE_ALL=1"
         echo.
-        echo [警告] 本次将一并提交非目标文件夹的改动。
-        echo [警告] 请在提交信息中说明原因。
+        echo [Warning] This commit will include changes outside the target folders.
+        echo [Warning] Please explain the reason in the commit message.
     )
 )
 
 echo.
-echo ===== 暂存改动 =====
+echo ===== Staging changes =====
 if "!STAGE_ALL!"=="1" (
-    call :run_command "暂存全部改动" git add -A
+    call :run_command "Staging all changes" git add -A
 ) else (
     set "HAS_STAGE_TARGET=0"
     for %%D in (%ALLOWED_DIRS%) do (
         if exist "%%D" (
-            call :run_command "暂存目录：%%D" git add -A -- "%%D"
+            call :run_command "Staging folder: %%D" git add -A -- "%%D"
             set "HAS_STAGE_TARGET=1"
         )
     )
 
     if "!HAS_STAGE_TARGET!"=="0" (
-        echo [错误] 没有找到任何允许提交的目录，请检查脚本顶部 ALLOWED_DIRS 配置。
-        echo 请将以上信息截图或复制，联系程序组处理
+        echo [Error] No allowed directories were found. Please check the ALLOWED_DIRS setting at the top of the script.
+        echo Please screenshot or copy the full output above and contact the programming team.
         goto :fail
     )
 )
@@ -111,35 +111,35 @@ git diff --cached --quiet
 if not errorlevel 1 goto :has_staged_changes
 
 echo.
-echo [提示] 暂存区没有可提交内容
+echo [Hint] There is nothing staged to commit.
 goto :success
 
 :has_staged_changes
 echo.
-echo ===== 当前将要提交的改动概览 =====
+echo ===== Summary of changes to be committed =====
 git status --short
 
 echo.
-echo ===== 当前将要提交的所有文件 =====
+echo ===== Files to be committed =====
 git diff --cached --name-only > "%STAGED_FILES_FILE%"
 type "%STAGED_FILES_FILE%"
 
 echo.
 if "!STAGE_ALL!"=="1" (
-    echo [提示] 本次包含非目标文件夹改动，请在提交信息里写明原因
+    echo [Hint] This commit includes changes outside the target folders. Please explain the reason in the commit message.
 )
 
-set /p "COMMIT_MESSAGE=请输入提交信息: "
+set /p "COMMIT_MESSAGE=Enter commit message: "
 if "%COMMIT_MESSAGE%"=="" (
-    echo [错误] 提交信息不能为空
+    echo [Error] Commit message cannot be empty.
     goto :fail
 )
 
-call :run_command "创建提交" git commit -m "%COMMIT_MESSAGE%"
-call :run_command "推送到远程" git push
+call :run_command "Creating commit" git commit -m "%COMMIT_MESSAGE%"
+call :run_command "Pushing to remote" git push
 
 echo.
-echo [完成] 提交并推送成功
+echo [Done] Commit and push completed successfully.
 goto :success
 
 :is_allowed
@@ -179,16 +179,16 @@ for %%A in ("%STDOUT_FILE%") do (
 
 if not "%EXIT_CODE%"=="0" (
     echo.
-    echo ----- Git 报错信息 -----
+    echo ----- Git error output -----
     for %%A in ("%STDERR_FILE%") do (
         if %%~zA gtr 0 (
             type "%STDERR_FILE%"
         ) else (
-            echo [无额外 stderr 输出]
+            echo [No additional stderr output]
         )
     )
     echo.
-    echo [提示] 请将以上完整报错信息截图或复制，联系程序组处理
+    echo [Hint] Please screenshot or copy the full Git error output above and contact the programming team.
     del /f /q "%STDOUT_FILE%" >nul 2>nul
     del /f /q "%STDERR_FILE%" >nul 2>nul
     goto :fail
