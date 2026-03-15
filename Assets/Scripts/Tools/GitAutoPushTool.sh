@@ -64,6 +64,18 @@ is_allowed() {
 
 run_cmd "拉取最新版本" git pull --rebase --autostash
 
+ahead_count="0"
+if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+    ahead_count="$(git rev-list --count @{u}..HEAD 2>/dev/null)"
+fi
+
+if [[ "$ahead_count" != "0" ]]; then
+    echo
+    echo "===== 检测到未推送的本地提交 ====="
+    echo "[提示] 当前分支有 ${ahead_count} 个本地提交尚未推送到远程"
+    run_cmd "推送已有的本地提交" git push
+fi
+
 changed_files=()
 while IFS= read -r line; do
     [[ -n "$line" ]] && changed_files+=("$line")
