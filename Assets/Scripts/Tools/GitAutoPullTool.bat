@@ -11,10 +11,16 @@ if not defined REPO_ROOT (
 pushd "%REPO_ROOT%" >nul
 
 set "CURRENT_BRANCH="
-for /f "delims=" %%I in ('git branch --show-current 2^>nul') do set "CURRENT_BRANCH=%%I"
+for /f "delims=" %%I in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "CURRENT_BRANCH=%%I"
 
 if not defined CURRENT_BRANCH (
-    echo [Error] No valid branch was detected. The repository may be in a detached HEAD state.
+    echo [Error] No valid branch was detected.
+    echo [Hint] Please screenshot or copy the full output above and contact the programming team.
+    goto :fail
+)
+
+if /I "%CURRENT_BRANCH%"=="HEAD" (
+    echo [Error] The repository appears to be in a detached HEAD state.
     echo [Hint] Please screenshot or copy the full output above and contact the programming team.
     goto :fail
 )
