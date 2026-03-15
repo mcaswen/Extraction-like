@@ -64,7 +64,10 @@ is_allowed() {
 
 run_cmd "拉取最新版本" git pull --rebase --autostash
 
-mapfile -t changed_files < <(
+changed_files=()
+while IFS= read -r line; do
+    [[ -n "$line" ]] && changed_files+=("$line")
+done < <(
     {
         git diff --name-only
         git diff --cached --name-only
