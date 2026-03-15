@@ -4,10 +4,24 @@ setlocal EnableExtensions EnableDelayedExpansion
 rem Allowed directories
 set "ALLOWED_DIRS=Assets/Art Assets/Audio Assets/Scenes Assets/SO Assets/Docs"
 
-for /f "delims=" %%I in ('git rev-parse --show-toplevel 2^>nul') do set "REPO_ROOT=%%I"
-if not defined REPO_ROOT (
+set "REPO_ROOT="
+set "INSIDE_WORK_TREE="
+
+for /f "delims=" %%I in ('git rev-parse --is-inside-work-tree 2^>nul') do set "INSIDE_WORK_TREE=%%I"
+
+if /I not "%INSIDE_WORK_TREE%"=="true" (
     echo [Error] The current directory is not inside a Git repository, or Git is not installed correctly.
-    echo Please screenshot or copy the full output above and contact the programming team.
+    echo [Hint] Please screenshot or copy the full output above and contact the programming team.
+    pause
+    exit /b 1
+)
+
+for /f "delims=" %%I in ('git rev-parse --show-toplevel 2^>nul') do set "REPO_ROOT=%%I"
+
+if not defined REPO_ROOT (
+    echo [Error] Failed to locate the repository root directory.
+    echo [Hint] Please screenshot or copy the full output above and contact the programming team.
+    pause
     exit /b 1
 )
 
