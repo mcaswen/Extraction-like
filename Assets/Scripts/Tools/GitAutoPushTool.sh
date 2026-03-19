@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # 允许提交的目录（相对于仓库根目录）
-allowed_paths=("Assets/Art" "Assets/Audio" "Assets/Scenes" "Assets/SO" "Assets/Docs")
+allowed_paths=("Assets/Art" "Assets/Audio" "Assets/Scenes" "Assets/SO" "Assets/Docs Assets/ThirdParty Assets/Prefabs Assets/Shader")
 
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -z "$repo_root" ]]; then
