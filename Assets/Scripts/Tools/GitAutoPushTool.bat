@@ -2,7 +2,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 rem Allowed directories
-set "ALLOWED_DIRS=Assets/Art Assets/Audio Assets/Scenes Assets/SO Assets/Docs"
+set "ALLOWED_DIRS=Assets/Art Assets/Audio Assets/Scenes Assets/SO Assets/Docs Assets/ThirdParty Assets/Prefabs Assets/Shader"
 
 set "REPO_ROOT="
 set "INSIDE_WORK_TREE="
