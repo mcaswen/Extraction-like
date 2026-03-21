@@ -51,7 +51,7 @@ namespace Core.BehaviorTree.Runtime
                 _isAborted = false;
             }
 
-            // 执行根节点的 Tick，并更新最后的状态
+            // 执行根节点的 Tick，并更新最后状态
             _lastResult = _behaviorTree.RootNode.Execute(_context);
 
             // 如果节点不再 Running，退出节点并重置状态
