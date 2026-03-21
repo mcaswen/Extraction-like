@@ -3,7 +3,10 @@ using Core.BehaviorTree.Runtime;
 namespace Core.BehaviorTree.Nodes.Composites
 {
     /// <summary>
-    /// 序列节点类定义，不断地按照顺序执行子节点，直到遇到第一个执行失败的节点
+    /// 序列节点类定义，是按顺序组合节点：
+        /// 一个子节点失败，整体失败
+        /// 全成功，整体成功
+        /// 某个子节点还在跑，整体继续跑
     /// </summary>
     public sealed class SequenceNode : CompositeNode
     {
@@ -28,47 +31,47 @@ namespace Core.BehaviorTree.Nodes.Composites
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected override BehaviorNodeStatus Tick(BehaviorTreeContext context)
+        protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
             while (_currentChildIndex < Children.Count)
             {
                 BehaviorNode currentChild = Children[_currentChildIndex];
-                BehaviorNodeStatus childStatus = currentChild.Execute(context);
+                BehaviorNodeResult childResult = currentChild.Execute(context);
 
-                switch (childStatus)
+                // 若遇到成功的子节点，则继续执行
+                if (childResult.IsSuccess)
                 {
-                    // 若成功则继续执行
-                    case BehaviorNodeStatus.Success:
-                        currentChild.Exit(context, BehaviorNodeStatus.Success);
-                        _currentChildIndex++;
-                        continue;
-
-                    // 若失败则退出，并返回失败状态
-                    case BehaviorNodeStatus.Failure:
-                        currentChild.Exit(context, BehaviorNodeStatus.Failure);
-                        return BehaviorNodeStatus.Failure;
-
-                    case BehaviorNodeStatus.Running:
-                        return BehaviorNodeStatus.Running;
+                    currentChild.Exit(context, childResult);
+                    _currentChildIndex++;
+                    continue;
                 }
+
+                // 若遇到失败的子节点则直接退出，并返回失败状态
+                if (childResult.IsFailure)
+                {
+                    currentChild.Exit(context, childResult);
+                    return Fail(childResult.FailureReason);
+                }
+
+                return Running();
             }
 
             // 全部子节点成功，返回成功状态
-            return BehaviorNodeStatus.Success;
+            return Succeed();
         }
 
         /// <summary>
-        /// 退出时重置当前子节点索引，可覆写
+        /// 退出时重置当前子节点索引
         /// </summary>
         /// <param name="context"></param>
         /// <param name="status"></param>
-        protected override void OnExit(BehaviorTreeContext context, BehaviorNodeStatus status)
+        protected override void OnExit(BehaviorTreeContext context, BehaviorNodeResult status)
         {
             _currentChildIndex = 0;
         }
 
         /// <summary>
-        /// 中断时重置当前子节点索引，可覆写
+        /// 中断时重置当前子节点索引
         /// </summary>
         /// <param name="context"></param>
         protected override void OnAbortChildren(BehaviorTreeContext context)

@@ -1,4 +1,5 @@
 using Core.BehaviorTree.Runtime;
+using System;
 
 namespace Core.BehaviorTree.Nodes.Decorators
 {
@@ -13,6 +14,13 @@ namespace Core.BehaviorTree.Nodes.Decorators
         public CooldownDecorator(string nodeName, float cooldownSeconds, BehaviorNode childNode)
             : base(nodeName, childNode)
         {
+            if (cooldownSeconds <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(cooldownSeconds),
+                    "Cooldown seconds must be greater than zero.");
+            }
+
             _cooldownSeconds = cooldownSeconds;
         }
 
@@ -21,22 +29,24 @@ namespace Core.BehaviorTree.Nodes.Decorators
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected override BehaviorNodeStatus Tick(BehaviorTreeContext context)
+        protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
             if (context.TimeSeconds < _nextAvailableTime)
             {
-                return BehaviorNodeStatus.Failure;
+                return Fail(
+                    BehaviorFailureCode.CooldownBlocked,
+                    $"Node is cooling down until {_nextAvailableTime:F3}.");
             }
 
-            BehaviorNodeStatus childStatus = ChildNode.Execute(context);
+            BehaviorNodeResult childResult = ChildNode.Execute(context);
 
-            if (childStatus == BehaviorNodeStatus.Success || childStatus == BehaviorNodeStatus.Failure)
+            if (!childResult.IsRunning)
             {
-                ChildNode.Exit(context, childStatus);
+                ChildNode.Exit(context, childResult);
                 _nextAvailableTime = context.TimeSeconds + _cooldownSeconds;
             }
 
-            return childStatus;
+            return childResult;
         }
 
         protected override void OnAbort(BehaviorTreeContext context)

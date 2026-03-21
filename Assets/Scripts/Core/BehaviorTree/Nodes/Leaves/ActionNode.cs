@@ -12,6 +12,6 @@ namespace Core.BehaviorTree.Nodes.Leaves
         {
         }
 
-        protected override abstract BehaviorNodeStatus Tick(BehaviorTreeContext context);
+        protected override abstract BehaviorNodeResult Tick(BehaviorTreeContext context);
     }
 }

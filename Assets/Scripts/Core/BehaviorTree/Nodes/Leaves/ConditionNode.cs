@@ -12,9 +12,11 @@ namespace Core.BehaviorTree.Nodes.Leaves
         {
         }
 
-        protected sealed override BehaviorNodeStatus Tick(BehaviorTreeContext context)
+        protected sealed override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
-            return Evaluate(context) ? BehaviorNodeStatus.Success : BehaviorNodeStatus.Failure;
+            return Evaluate(context)
+                ? Succeed()
+                : Fail(BehaviorFailureCode.ConditionFailed, "Condition evaluated to false.");
         }
 
         protected abstract bool Evaluate(BehaviorTreeContext context);

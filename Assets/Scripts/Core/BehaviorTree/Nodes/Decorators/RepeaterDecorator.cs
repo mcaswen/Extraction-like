@@ -1,4 +1,5 @@
 using Core.BehaviorTree.Runtime;
+using System;
 
 namespace Core.BehaviorTree.Nodes.Decorators
 {
@@ -13,6 +14,13 @@ namespace Core.BehaviorTree.Nodes.Decorators
         public RepeaterDecorator(string nodeName, int repeatCount, BehaviorNode childNode)
             : base(nodeName, childNode)
         {
+            if (repeatCount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(repeatCount),
+                    "Repeat count must be greater than zero.");
+            }
+
             _repeatCount = repeatCount;
         }
 
@@ -26,29 +34,29 @@ namespace Core.BehaviorTree.Nodes.Decorators
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected override BehaviorNodeStatus Tick(BehaviorTreeContext context)
+        protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
             if (_currentCount >= _repeatCount)
             {
-                return BehaviorNodeStatus.Success;
+                return Succeed();
             }
 
-            BehaviorNodeStatus childStatus = ChildNode.Execute(context);
+            BehaviorNodeResult childResult = ChildNode.Execute(context);
 
-            if (childStatus == BehaviorNodeStatus.Running)
+            if (childResult.IsRunning)
             {
-                return BehaviorNodeStatus.Running;
+                return Running();
             }
 
-            ChildNode.Exit(context, childStatus);
+            ChildNode.Exit(context, childResult);
             _currentCount++;
 
-            if (_currentCount >= _repeatCount)
+            if (_repeatCount >= 0 && _currentCount >= _repeatCount)
             {
-                return BehaviorNodeStatus.Success;
+                return Succeed();
             }
 
-            return BehaviorNodeStatus.Running;
+            return Running();
         }
     }
 }

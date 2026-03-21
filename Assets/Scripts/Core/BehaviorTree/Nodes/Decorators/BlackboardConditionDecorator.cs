@@ -32,28 +32,32 @@ namespace Core.BehaviorTree.Nodes.Decorators
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected override BehaviorNodeStatus Tick(BehaviorTreeContext context)
+        protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
             if (!context.Blackboard.TryGetValue(_blackboardKey, out T value))
             {
                 return _treatMissingAsFailure
-                    ? BehaviorNodeStatus.Failure
+                    ? Fail(
+                        BehaviorFailureCode.MissingBlackboardValue,
+                        $"Missing blackboard key [{_blackboardKey}].")
                     : ChildNode.Execute(context);
             }
 
             if (!_predicate(value))
             {
-                return BehaviorNodeStatus.Failure;
+                return Fail(
+                    BehaviorFailureCode.ConditionFailed,
+                    $"Blackboard key [{_blackboardKey}] does not satisfy the predicate.");
             }
 
-            BehaviorNodeStatus childStatus = ChildNode.Execute(context);
+            BehaviorNodeResult childResult = ChildNode.Execute(context);
 
-            if (childStatus != BehaviorNodeStatus.Running)
+            if (!childResult.IsRunning)
             {
-                ChildNode.Exit(context, childStatus);
+                ChildNode.Exit(context, childResult);
             }
 
-            return childStatus;
+            return childResult;
         }
     }
 }

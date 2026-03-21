@@ -35,13 +35,13 @@ namespace Core.BehaviorTree.Nodes
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public BehaviorNodeStatus Execute(BehaviorTreeContext context)
+        public BehaviorNodeResult Execute(BehaviorTreeContext context)
         {
             if (!_hasEntered) Enter(context);
 
-            BehaviorNodeStatus status = Tick(context);
-            context.LogNodeEvent(NodeName, $"Tick => {status}");
-            return status;
+            BehaviorNodeResult result = Tick(context);
+            context.LogNodeEvent(NodeName, $"Tick => {result}");
+            return result;
         }
 
         /// <summary>
@@ -49,12 +49,12 @@ namespace Core.BehaviorTree.Nodes
         /// </summary>
         /// <param name="context"></param>
         /// <param name="status"></param>
-        public void Exit(BehaviorTreeContext context, BehaviorNodeStatus status)
+        public void Exit(BehaviorTreeContext context, BehaviorNodeResult result)
         {
             if (!_hasEntered) return;
 
-            OnExit(context, status);
-            context.LogNodeEvent(NodeName, $"Exit => {status}");
+            OnExit(context, result);
+            context.LogNodeEvent(NodeName, $"Exit => {result}");
             _hasEntered = false;
         }
 
@@ -74,10 +74,32 @@ namespace Core.BehaviorTree.Nodes
         // 供子类重写的虚方法，可用节点的具体逻辑填充
         protected virtual void OnEnter(BehaviorTreeContext context) { }
 
-        protected abstract BehaviorNodeStatus Tick(BehaviorTreeContext context);
+        protected abstract BehaviorNodeResult Tick(BehaviorTreeContext context);
 
-        protected virtual void OnExit(BehaviorTreeContext context, BehaviorNodeStatus status) { }
+        protected virtual void OnExit(BehaviorTreeContext context, BehaviorNodeResult result) { }
 
         protected virtual void OnAbort(BehaviorTreeContext context) { }
+
+        // 辅助方法，方便子类快速返回成功、失败或运行中的结果
+        protected BehaviorNodeResult Succeed()
+        {
+            return BehaviorNodeResult.Success();
+        }
+
+        protected BehaviorNodeResult Running()
+        {
+            return BehaviorNodeResult.Running();
+        }
+
+        protected BehaviorNodeResult Fail(BehaviorFailureCode code, string detail)
+        {
+            return BehaviorNodeResult.Failure(
+                new BehaviorFailureReason(code, NodeName, detail));
+        }
+
+        protected BehaviorNodeResult Fail(BehaviorFailureReason failureReason)
+        {
+            return BehaviorNodeResult.Failure(failureReason);
+        }
     }
 }

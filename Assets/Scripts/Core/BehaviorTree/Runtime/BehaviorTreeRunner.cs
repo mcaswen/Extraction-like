@@ -14,7 +14,11 @@ namespace Core.BehaviorTree.Runtime
 
         private bool _isStarted;
         private bool _isAborted;
-        private BehaviorNodeStatus _lastStatus = BehaviorNodeStatus.Failure;
+        private BehaviorNodeResult _lastResult = BehaviorNodeResult.Failure(
+            new BehaviorFailureReason(
+                BehaviorFailureCode.ExternalAbort,
+                "BehaviorTreeRunner",
+                "Tree has not run yet."));
 
         public BehaviorTreeRunner(BehaviorTree behaviorTree, BehaviorTreeContext context)
         {
@@ -22,8 +26,9 @@ namespace Core.BehaviorTree.Runtime
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public BehaviorNodeStatus LastStatus => _lastStatus; // 当前节点的执行状态
-        public bool IsRunning => _isStarted && !_isAborted && _lastStatus == BehaviorNodeStatus.Running;
+        public BehaviorNodeResult LastResult => _lastResult;
+        public BehaviorFailureReason LastFailureReason => _lastResult.FailureReason;
+        public bool IsRunning => _isStarted && !_isAborted && _lastResult.IsRunning;
 
         /// <summary>
         /// 行为树的单次 Tick 更新
@@ -31,7 +36,7 @@ namespace Core.BehaviorTree.Runtime
         /// <param name="deltaTime"></param>
         /// <param name="timeSeconds"></param>
         /// <returns></returns>
-        public BehaviorNodeStatus Tick(float deltaTime, double timeSeconds)
+        public BehaviorNodeResult Tick(float deltaTime, double timeSeconds)
         {
             // 更新上下文的时间戳和版本号
             _context.TickVersion++;
@@ -47,32 +52,46 @@ namespace Core.BehaviorTree.Runtime
             }
 
             // 执行根节点的 Tick，并更新最后的状态
-            _lastStatus = _behaviorTree.RootNode.Execute(_context);
+            _lastResult = _behaviorTree.RootNode.Execute(_context);
 
             // 如果节点不再 Running，退出节点并重置状态
-            if (_lastStatus != BehaviorNodeStatus.Running)
+            if (!_lastResult.IsRunning)
             {
-                _behaviorTree.RootNode.Exit(_context, _lastStatus);
+                _behaviorTree.RootNode.Exit(_context, _lastResult);
                 _isStarted = false;
             }
 
-            return _lastStatus;
+            return _lastResult;
         }
 
         /// <summary>
-        /// 中断行为树的执行，强制退出当前节点并将状态设置为 Failure
+        /// 中断行为树的执行，强制退出当前节点并返回 ExternalAbort 和原因
         /// </summary>
         public void Abort()
         {
+            Abort(new BehaviorFailureReason(
+                BehaviorFailureCode.ExternalAbort,
+                "BehaviorTreeRunner",
+                "Tree was aborted externally."));
+        }
+        
+        /// <summary>
+        /// 带原因的重载版本，执行真正的中断逻辑并重置状态
+        /// </summary>
+        /// <param name="failureReason"></param>
+        public void Abort(BehaviorFailureReason failureReason)
+        {
             if (!_isStarted)
             {
+                _lastResult = BehaviorNodeResult.Failure(failureReason);
+                _isAborted = true;
                 return;
             }
 
             _behaviorTree.RootNode.Abort(_context);
+            _lastResult = BehaviorNodeResult.Failure(failureReason);
             _isStarted = false;
             _isAborted = true;
-            _lastStatus = BehaviorNodeStatus.Failure;
         }
 
         /// <summary>
@@ -86,7 +105,11 @@ namespace Core.BehaviorTree.Runtime
             }
 
             _isAborted = false;
-            _lastStatus = BehaviorNodeStatus.Failure;
+            _lastResult = BehaviorNodeResult.Failure(
+                new BehaviorFailureReason(
+                    BehaviorFailureCode.ExternalAbort,
+                    "BehaviorTreeRunner",
+                    "Tree was reset."));
         }
     }
 }
