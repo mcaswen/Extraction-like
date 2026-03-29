@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 /// <summary>
-/// 为 URP 主相机开启深度纹理（_CameraDepthTexture），供透明水面等 Shader 做场景深度采样。
+/// 为 URP 主相机开启深度纹理（_CameraDepthTexture），供透明水面等 Shader 做场景深度采样
+/// （含 TA/OceanFFT_URP 的浅水检测与近岸浪顶点位移）。
+/// 与 <see cref="OceanFFTGenerator"/> 同场景使用时，主相机应挂载本组件或于 URP Asset 中启用 Depth Texture。
 /// 挂在主摄像机上；与内置 DepthTextureMode 及 URP 的 requiresDepthTexture 同时设置，兼容不同版本。
 /// </summary>
 [RequireComponent(typeof(Camera))]

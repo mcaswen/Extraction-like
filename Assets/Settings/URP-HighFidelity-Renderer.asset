@@ -48,8 +48,8 @@ MonoBehaviour:
   m_Name: PixelDitherFeature
   m_EditorClassIdentifier: 
   m_Active: 1
-  downSampleFactor: 3
-  ditherMaterial: {fileID: 2100000, guid: 4f49365842bd34243b87feb018f9c9c4, type: 2}
+  downSampleFactor: 2
+  ditherMaterial: {fileID: 2100000, guid: 5773066d5cfee2d42ad9fb5958b3e1a4, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
