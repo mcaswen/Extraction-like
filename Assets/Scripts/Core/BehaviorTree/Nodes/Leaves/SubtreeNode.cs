@@ -1,5 +1,6 @@
 using System;
 using Core.BehaviorTree.Runtime;
+using BehaviorTreeType = global::Core.BehaviorTree.Runtime.BehaviorTree;
 
 namespace Core.BehaviorTree.Nodes.Leaves
 {
@@ -8,10 +9,10 @@ namespace Core.BehaviorTree.Nodes.Leaves
     /// </summary>
     public sealed class SubtreeNode : ActionNode
     {
-        private readonly Runtime.BehaviorTree _subtree;
+        private readonly BehaviorTreeType _subtree;
         private BehaviorTreeRunner _subtreeRunner;
 
-        public SubtreeNode(string nodeName, Runtime.BehaviorTree subtree)
+        public SubtreeNode(string nodeName, BehaviorTreeType subtree)
             : base(nodeName)
         {
             _subtree = subtree ?? throw new ArgumentNullException(nameof(subtree));
