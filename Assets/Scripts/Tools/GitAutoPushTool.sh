@@ -2,7 +2,16 @@
 set -euo pipefail
 
 # 允许提交的目录（相对于仓库根目录）
-allowed_paths=("Assets/Art" "Assets/Audio" "Assets/Scenes" "Assets/SO" "Assets/Docs Assets/ThirdParty Assets/Prefabs Assets/Shader")
+llowed_paths=(
+    "Assets/Art"
+    "Assets/Audio"
+    "Assets/Scenes"
+    "Assets/SO"
+    "Assets/Docs"
+    "Assets/ThirdParty"
+    "Assets/Prefabs"
+    "Assets/Shader"
+)
 
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -z "$repo_root" ]]; then
@@ -82,7 +91,7 @@ while IFS= read -r line; do
 done < <(
     {
         git diff --name-only
-        git diff --cached --name-only
+        git --no-pager diff --cached --name-only
         git ls-files --others --exclude-standard
     } | awk 'NF' | sort -u
 )
@@ -95,7 +104,7 @@ fi
 
 echo
 echo "===== 当前检测到的改动概览 ====="
-git status --short
+git --no-pager status --short
 
 echo
 echo "===== 当前检测到的改动文件 ====="
@@ -166,11 +175,11 @@ fi
 
 echo
 echo "===== 当前将要提交的改动概览 ====="
-git status --short
+git --no-pager status --short
 
 echo
 echo "===== 当前将要提交的所有文件 ====="
-git diff --cached --name-only
+git --no-pager diff --cached --name-only
 
 echo
 if [[ "$stage_all" -eq 1 ]]; then

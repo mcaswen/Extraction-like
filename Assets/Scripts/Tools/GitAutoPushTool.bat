@@ -48,7 +48,7 @@ if not "!AHEAD_COUNT!"=="0" (
 )
 
 git diff --name-only >> "%ALL_CHANGES_FILE%"
-git diff --cached --name-only >> "%ALL_CHANGES_FILE%"
+git --no-pager diff --cached --name-only >> "%ALL_CHANGES_FILE%"
 git ls-files --others --exclude-standard >> "%ALL_CHANGES_FILE%"
 
 set "HAS_ANY_CHANGE=0"
@@ -73,7 +73,7 @@ if "!HAS_ANY_CHANGE!"=="0" (
 
 echo.
 echo ===== Detected change summary =====
-git status --short
+git --no-pager status --short
 
 echo.
 echo ===== Detected changed files =====
@@ -134,7 +134,7 @@ if "!STAGE_ALL!"=="1" (
 
 echo.
 echo ===== Files currently staged after git add =====
-git diff --cached --name-only
+git --no-pager diff --cached --name-only
 
 git diff --cached --quiet
 
@@ -153,11 +153,11 @@ goto :success
 :has_staged_changes
 echo.
 echo ===== Summary of changes to be committed =====
-git status --short
+git --no-pager status --short
 
 echo.
 echo ===== Files to be committed =====
-git diff --cached --name-only > "%STAGED_FILES_FILE%"
+git --no-pager diff --cached --name-only > "%STAGED_FILES_FILE%"
 type "%STAGED_FILES_FILE%"
 
 echo.
