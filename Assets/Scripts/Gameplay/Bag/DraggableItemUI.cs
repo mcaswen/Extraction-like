@@ -120,12 +120,17 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         // 3. 算出纯净偏差！(物品左上角坐标 - 鼠标坐标)
         _localGridOffset = startItemLocalPos - startMouseLocalPos;
-        
 
-        // --- 下面是视觉UI拖拽层转移，保持不变 ---
+
+        // 1. 转移父物体
         transform.SetParent(InventoryItemFactory.Instance.GlobalDragLayer, true);
 
-        // 4. 变成半透明，并关闭射线阻挡（让鼠标射线能穿透物品去探测下面的背包格子）
+        // 2. 【核心保险】：强制将自己设为 GlobalDragLayer 里的最后一个子物体
+        // 这保证了在拖拽层内部，你抓着的这个也是渲染在最顶层的
+        transform.SetAsLastSibling();
+
+
+        // 3. 计算偏移 (你现在的计算代码) ...
         _canvasGroup.alpha = 0.6f;
         _canvasGroup.blocksRaycasts = false;
 
@@ -156,6 +161,7 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         // 4. 如果鼠标当前确实停留在某个背包上方
         if (hoveredGrid != null)
         {
+            Debug.Log($"正在经过容器: {hoveredGrid.gameObject.name}");
             // 1. 拿到此时此刻，鼠标在【目标悬停背包】里的局部坐标
             RectTransformUtility.ScreenPointToLocalPointInRectangle(hoveredGrid.ItemContainer, eventData.position, eventData.pressEventCamera, out Vector2 currentMouseLocalPos);
 
@@ -192,6 +198,8 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 currentW = _currentPreviewIsRotated ? ItemData.Height : ItemData.Width;
                 currentH = _currentPreviewIsRotated ? ItemData.Width : ItemData.Height;
             }
+
+              Debug.Log($"预测格子索引: {hoverIndex}");
 
             // 4.4 【裁判判定】：去底层大脑询问，现在这个格子加上现在的宽高，到底能不能放下？
             bool canPlace = hoveredGrid.GetGridController().IsSpaceAvailable(hoverIndex.x, hoverIndex.y, currentW, currentH);
@@ -517,41 +525,27 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
 
     // 执行跨容器快捷转移
-    // 执行跨容器快捷转移
+   // 执行跨容器快捷转移
     private void ExecuteQuickTransfer()
     {
-        // 1. 问交警：我要去哪里？
-        InventoryUIController targetGrid = GameUIController.Instance.GetQuickTransferTarget(CurrentGrid);
-
-        // =========================================================
-        // 【防呆提示】：如果没反应，立刻在控制台爆红警告你！
-        // =========================================================
-        if (targetGrid == null)
+        // 直接问雷达交警：整个系统里，还有哪个格子能容得下我？
+        if (GameUIController.Instance.TryFindQuickTransferTarget(CurrentGrid, ItemData, out InventoryUIController targetGrid, out Vector2Int newPos, out bool needsRot))
         {
-            Debug.LogError($"❌ 快捷转移失败：找不到目标容器！请检查 GameManager 上的 GameUIController 脚本，【Backpack Grid】和【Loot Chest Grid】是否已经拖拽赋值！当前物品所在容器是：{CurrentGrid.name}");
-            return;
-        }
-
-        InventoryGridController targetGridController = targetGrid.GetGridController();
-
-        // 2. 问目标大脑：你有空位吗？给我找一个最近的！
-        if (targetGridController.FindFirstAvailableSpace(ItemData.Width, ItemData.Height, out Vector2Int newPos, out bool needsRot))
-        {
-            // 3. 拔出老家
+            // 1. 拔出老家
             CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
 
-            // 4. 认新主人，落户新家
+            // 2. 认新主人，落户新家
             transform.SetParent(targetGrid.ItemContainer, false);
             CurrentGrid = targetGrid;
-
+            
+            // 3. 在算好的坐标上完美降落
             PlaceSuccessfully(newPos, needsRot);
-
-            Debug.Log($"✅ 快捷转移成功！{ItemData.ItemName} 瞬间飞入了 {targetGrid.name}");
+            
+            Debug.Log($"✅ 快捷转移成功！{ItemData.ItemName} 瞬间飞入了 {targetGrid.gameObject.name}");
         }
         else
         {
-            // 没空位就飘黄字警告
-            Debug.LogWarning($"⚠️ 快捷转移失败：目标容器 ({targetGrid.name}) 空间已满！");
+            Debug.LogWarning($"⚠️ 快捷转移失败：全身的容器空间都满啦（或放不下大件物品）！");
         }
     }
 

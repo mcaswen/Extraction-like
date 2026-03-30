@@ -9,6 +9,10 @@ public class InventoryGridController : MonoBehaviour
     public int Columns = 10;//列
     public int Rows = 5;//行
 
+    // 【新增】：配置哪些坐标是“死区”（不让放东西的空隙）[Header("空间分割 (死区坐标)")]
+    public List<Vector2Int> BlockedCells = new List<Vector2Int>();
+
+
     // 核心底层数据：二维数组
     public GridCellData[,] _grid;
 
@@ -23,6 +27,15 @@ public class InventoryGridController : MonoBehaviour
                 for (int y = 0; y < Rows; y++)
                 {
                     _grid[x, y] = new GridCellData(x, y);
+                }
+            }
+
+            // 【核心逻辑】：强行封死死区！
+            foreach (var pos in BlockedCells)
+            {
+                if (pos.x >= 0 && pos.x < Columns && pos.y >= 0 && pos.y < Rows)
+                {
+                    _grid[pos.x, pos.y].State = GridState.Blocked;
                 }
             }
         }

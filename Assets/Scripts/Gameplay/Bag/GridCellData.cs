@@ -3,7 +3,8 @@ public enum GridState//格子状态
 {
     Empty,
     Occupied_Item,
-    Locked_Searching
+    Locked_Searching,
+    Blocked // 【新增】：死区状态，无法放置任何物品，也无法被清空
 }
 /// <summary>
 /// 格子数据

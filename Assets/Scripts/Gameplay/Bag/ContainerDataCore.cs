@@ -12,6 +12,8 @@ public class ContainerItemSaveData
     public int X;                      // 在网格中的 X 坐标
     public int Y;                      // 在网格中的 Y 坐标
     public bool IsRotated;             // 是否旋转
+
+   
 }
 
 // =========================================================

@@ -5,8 +5,11 @@ using UnityEngine.UI;
 public class InventoryUIController : MonoBehaviour
 {   
 
+
     [Header("UI 核心引用")]
     public RectTransform ItemContainer;
+    public Transform GridBackground; // 【新增】：拖入你的 GridBackground 节点
+
     public float CellSize = 50f;
     public float Spacing = 2f; // 【核心修复1】：加入缝隙计算，必须与 GridBackground 的 Spacing 一致
 
@@ -29,6 +32,29 @@ public class InventoryUIController : MonoBehaviour
 
 
         _gridController = GetComponent<InventoryGridController>();
+    }
+
+
+    void Start()
+    {
+        // 游戏开始时，自动隐藏死区的背景格子，制造视觉上的“分割”错觉
+        if (GridBackground != null)
+        {
+            InventoryGridController gridCtrl = GetGridController();
+            foreach (var pos in gridCtrl.BlockedCells)
+            {
+                // 计算当前坐标在 GridLayoutGroup 里的子物体索引 (从左到右，从上到下)
+                int childIndex = pos.y * gridCtrl.Columns + pos.x;
+                if (childIndex >= 0 && childIndex < GridBackground.childCount)
+                {
+                    Image cellImage = GridBackground.GetChild(childIndex).GetComponent<Image>();
+                    if (cellImage != null)
+                    {
+                        cellImage.enabled = false; // 关掉图片显示，但保留物体以维持 Layout 排版！
+                    }
+                }
+            }
+        }
     }
 
 
@@ -63,9 +89,9 @@ public class InventoryUIController : MonoBehaviour
 
         Highlighter.gameObject.SetActive(true);
 
-        // 【重要】：每当显示高亮框时，强制它在 ItemContainer 里的层级排到最后
-        // 在 UI 渲染规则里，层级越靠后，显示越靠前（不会被物品遮挡）
-        Highlighter.SetAsLastSibling();
+        // 【核心修复】：将 SetAsLastSibling 改为 SetAsFirstSibling
+        // 这会让绿框在层级里排到最顶端，即渲染在最底层
+        Highlighter.transform.SetAsFirstSibling();
 
         Highlighter.anchoredPosition = GetLocalPosition(x, y);
         Highlighter.sizeDelta = GetItemActualSize(width, height);
@@ -73,7 +99,9 @@ public class InventoryUIController : MonoBehaviour
         if (_highlighterImage == null) _highlighterImage = Highlighter.GetComponent<Image>();
         if (_highlighterImage != null)
         {
-            _highlighterImage.color = isValid ? new Color(0, 1f, 0, 0.4f) : new Color(1f, 0, 0, 0.4f);
+            // 建议把 Alpha (第四个参数) 调低一点，比如 0.3f 或 0.4f
+            // 这样既能看到绿色，又不会觉得刺眼，还能透出底部的网格线
+            _highlighterImage.color = isValid ? new Color(0, 1f, 0, 0.35f) : new Color(1f, 0, 0, 0.35f);
         }
     }
 
@@ -164,9 +192,102 @@ public class InventoryUIController : MonoBehaviour
             {
                 for (int y = 0; y < rows; y++)
                 {
-                    GetGridController()._grid[x, y].Clear();
+                    // 【核心修复】：千万不要清除死区！
+                    if (GetGridController()._grid[x, y].State != GridState.Blocked)
+                    {
+                        GetGridController()._grid[x, y].Clear();
+                    }
                 }
             }
         }
+    }
+
+    // =========================================================
+    // 【PRD 核心：一键整理终极算法 (One-Click Auto Sort)】
+    // =========================================================
+    public void AutoSort()
+    {
+        // 1. 获取当前背包内所有物品的纯数据
+        List<ContainerItemSaveData> allItems = ExtractSaveData();
+        if (allItems.Count == 0) return; // 空背包直接返回
+
+        // ==========================================
+        // Step 1: 全局强制合并 (Global Auto-Merge)
+        // ==========================================
+        Dictionary<InventoryItemData, int> mergedStackables = new Dictionary<InventoryItemData, int>();
+        List<ContainerItemSaveData> nonStackables = new List<ContainerItemSaveData>();
+
+        foreach (var item in allItems)
+        {
+            if (item.ItemData.IsStackable)
+            {
+                // 如果是子弹、医疗包等可堆叠物，把它们的数量全部提取出来相加！
+                if (mergedStackables.ContainsKey(item.ItemData))
+                    mergedStackables[item.ItemData] += item.Amount;
+                else
+                    mergedStackables[item.ItemData] = item.Amount;
+            }
+            else
+            {
+                // 枪械、背包等不可堆叠物，直接单独存放
+                nonStackables.Add(item);
+            }
+        }
+
+        // 重新切分合并后的物品（比如一共 140 发子弹，切分成 60 + 60 + 20）
+        List<ContainerItemSaveData> itemsToPlace = new List<ContainerItemSaveData>();
+        itemsToPlace.AddRange(nonStackables);
+
+        foreach (var kvp in mergedStackables)
+        {
+            int remainingAmount = kvp.Value;
+            int maxStack = kvp.Key.MaxStack;
+            while (remainingAmount > 0)
+            {
+                int amountToCreate = Mathf.Min(remainingAmount, maxStack);
+                itemsToPlace.Add(new ContainerItemSaveData { ItemData = kvp.Key, Amount = amountToCreate });
+                remainingAmount -= amountToCreate;
+            }
+        }
+
+        // ==========================================
+        // Step 2 & 3: 面积装箱排序 与 类型次级排序
+        // ==========================================
+        itemsToPlace.Sort((a, b) =>
+        {
+            // 首要权重：计算面积 (宽 * 高)
+            int areaA = a.ItemData.Width * a.ItemData.Height;
+            int areaB = b.ItemData.Width * b.ItemData.Height;
+
+            if (areaA != areaB)
+            {
+                return areaB.CompareTo(areaA); // 面积大的排在前面（优先霸占左上角）
+            }
+
+            // 次级权重：如果面积一样大，按物品类别 (ItemType) 排序，保证同类挨在一起
+            return a.ItemData.Type.CompareTo(b.ItemData.Type);
+        });
+
+        // ==========================================
+        // 执行整理：清空全场，按最优解重新发牌！
+        // ==========================================
+        ClearUI(); // 瞬间抹除当前所有 UI 和网格记录 (Highlighter 会被安全保留)
+
+        foreach (var item in itemsToPlace)
+        {
+            // 利用底层大脑的寻找空位功能 (包含自动旋转预测)
+            if (GetGridController().FindFirstAvailableSpace(item.ItemData.Width, item.ItemData.Height, out Vector2Int pos, out bool needsRot))
+            {
+                // 让工厂在这个算好的最佳空位上，重新生成 UI 实体
+                InventoryItemFactory.Instance.SpawnItemInGrid(item.ItemData, this, pos.x, pos.y, item.Amount, needsRot);
+            }
+            else
+            {
+                // 极限情况：由于空间碎片化被消除，整理后空间绝对只会变大不会变小，所以理论上绝对不可能放不下。
+                Debug.LogError($"一键整理异常：物品 {item.ItemData.ItemName} 无法放入！");
+            }
+        }
+
+        Debug.Log($"[{gameObject.name}] 一键整理完成！");
     }
 }

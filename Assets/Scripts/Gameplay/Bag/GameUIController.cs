@@ -15,6 +15,8 @@ public class GameUIController : MonoBehaviour
     public InventoryUIController BackpackGrid;  // 大背包的网格控制器
     public InventoryUIController LootChestGrid; // 宝箱的网格控制器
 
+    // 【换回单一的 UI 控制器】
+    public InventoryUIController TacticalRigGrid;
 
     void Awake()
     {
@@ -97,10 +99,36 @@ public class GameUIController : MonoBehaviour
     // =========================================================
     // 【PRD 核心：快捷转移路由 (Quick Transfer Routing)】
     // =========================================================
-    public InventoryUIController GetQuickTransferTarget(InventoryUIController sourceGrid)
+    // =========================================================
+    // 【PRD 模块二：快捷转移 (Quick Transfer) 优先级排布】
+    // 智能扫描：背包 (Backpack) > 战术胸挂 (Rig) 的各个小网格
+    // =========================================================
+    // 【极简路由：大背包 > 胸挂】
+    public bool TryFindQuickTransferTarget(InventoryUIController sourceGrid, InventoryItemData item, out InventoryUIController targetGrid, out Vector2Int pos, out bool needsRot)
     {
-        if (sourceGrid == LootChestGrid) return BackpackGrid;
-        if (sourceGrid == BackpackGrid && CurrentLootBox != null) return LootChestGrid; // 只有开着宝箱时，背包的东西才能快捷转移给宝箱
-        return null;
+        targetGrid = null; pos = Vector2Int.zero; needsRot = false;
+
+        // 如果物品在宝箱里，按顺序找
+        if (sourceGrid == LootChestGrid)
+        {
+            if (BackpackGrid != null && BackpackGrid.GetGridController().FindFirstAvailableSpace(item.Width, item.Height, out pos, out needsRot))
+            {
+                targetGrid = BackpackGrid; return true;
+            }
+
+            if (TacticalRigGrid != null && TacticalRigGrid.GetGridController().FindFirstAvailableSpace(item.Width, item.Height, out pos, out needsRot))
+            {
+                targetGrid = TacticalRigGrid; return true;
+            }
+        }
+        // 如果在身上，回退给宝箱
+        else if (CurrentLootBox != null && sourceGrid != LootChestGrid)
+        {
+            if (LootChestGrid != null && LootChestGrid.GetGridController().FindFirstAvailableSpace(item.Width, item.Height, out pos, out needsRot))
+            {
+                targetGrid = LootChestGrid; return true;
+            }
+        }
+        return false;
     }
 }
