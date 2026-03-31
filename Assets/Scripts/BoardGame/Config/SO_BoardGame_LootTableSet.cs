@@ -72,6 +72,7 @@ namespace BoardGame.Config
         [SerializeField] private int _minValue; // 随机价值下限
         [SerializeField] private int _maxValue; // 随机价值上限
         [SerializeField] private float _capacityCost; // 单件占用容量
+        [SerializeField] private int _experienceValue; // 获得该物品时提供的经验值
         [SerializeField] private BoardConsumableType _consumableType; // 消耗品类型
         [SerializeField] private int _consumeValue; // 使用时产生的数值效果
 
@@ -83,6 +84,7 @@ namespace BoardGame.Config
             int minValue,
             int maxValue,
             float capacityCost,
+            int experienceValue = 0,
             BoardConsumableType consumableType = BoardConsumableType.None,
             int consumeValue = 0)
         {
@@ -93,6 +95,7 @@ namespace BoardGame.Config
             _minValue = minValue;
             _maxValue = maxValue;
             _capacityCost = capacityCost;
+            _experienceValue = Mathf.Max(0, experienceValue);
             _consumableType = consumableType;
             _consumeValue = consumeValue;
         }
@@ -104,6 +107,7 @@ namespace BoardGame.Config
         public int MinValue => _minValue;
         public int MaxValue => _maxValue;
         public float CapacityCost => _capacityCost;
+        public int ExperienceValue => _experienceValue;
         public BoardConsumableType ConsumableType => _consumableType;
         public int ConsumeValue => _consumeValue;
     }

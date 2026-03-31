@@ -34,6 +34,12 @@ namespace BoardGame.Runtime.State
         [SerializeField] private int _attack = 7;
         // 当前防御力
         [SerializeField] private int _defense;
+        // 当前等级
+        [SerializeField] private int _level = 1;
+        // 当前经验值
+        [SerializeField] private int _currentExperience;
+        // 升至下一级所需经验值
+        [SerializeField] private int _requiredExperienceToNextLevel = 50;
         // 当前世界坐标，用于地图表现层插值显示
         [SerializeField] private Vector2 _worldPosition;
         // 当前背包与收益状态
@@ -134,6 +140,24 @@ namespace BoardGame.Runtime.State
         {
             get => _defense;
             set => _defense = Mathf.Max(0, value);
+        }
+
+        public int Level
+        {
+            get => _level;
+            set => _level = Mathf.Max(1, value);
+        }
+
+        public int CurrentExperience
+        {
+            get => _currentExperience;
+            set => _currentExperience = Mathf.Max(0, value);
+        }
+
+        public int RequiredExperienceToNextLevel
+        {
+            get => _requiredExperienceToNextLevel;
+            set => _requiredExperienceToNextLevel = Mathf.Max(1, value);
         }
 
         public Vector2 WorldPosition

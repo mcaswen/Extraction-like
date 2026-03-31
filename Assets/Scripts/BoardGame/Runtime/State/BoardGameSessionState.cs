@@ -24,6 +24,12 @@ namespace BoardGame.Runtime.State
         [SerializeField] private List<BoardNodeRuntimeState> _nodeStates = new List<BoardNodeRuntimeState>();
         // 角色运行时状态
         [SerializeField] private BoardAgentState _agentState;
+        // 当前是否正在等待升级选择
+        [SerializeField] private bool _isAwaitingLevelUpChoice;
+        // 当前待选升级项
+        [SerializeField] private List<BoardLevelUpChoice> _pendingLevelUpChoices = new List<BoardLevelUpChoice>();
+        // 已经升级但尚未结算增益的次数
+        [SerializeField] private int _pendingLevelUpCount;
 
         public BoardGameSessionState(string mapId, BoardAgentState agentState, List<BoardNodeRuntimeState> nodeStates)
         {
@@ -60,5 +66,19 @@ namespace BoardGame.Runtime.State
 
         public List<BoardNodeRuntimeState> NodeStates => _nodeStates;
         public BoardAgentState AgentState => _agentState;
+
+        public bool IsAwaitingLevelUpChoice
+        {
+            get => _isAwaitingLevelUpChoice;
+            set => _isAwaitingLevelUpChoice = value;
+        }
+
+        public List<BoardLevelUpChoice> PendingLevelUpChoices => _pendingLevelUpChoices;
+
+        public int PendingLevelUpCount
+        {
+            get => _pendingLevelUpCount;
+            set => _pendingLevelUpCount = Mathf.Max(0, value);
+        }
     }
 }

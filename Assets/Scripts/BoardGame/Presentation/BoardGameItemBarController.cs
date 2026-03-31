@@ -56,7 +56,8 @@ namespace BoardGame.Presentation
                 _itemSlots[slotIndex].Bind(
                     firstItem.DisplayName,
                     itemGroup.Count(),
-                    () => _prototypeController.TryUseItem(useItem.InstanceId));
+                    () => _prototypeController.TryUseItem(useItem.InstanceId),
+                    !_prototypeController.IsInteractionLocked);
                 slotIndex++;
             }
 

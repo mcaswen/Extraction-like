@@ -24,6 +24,7 @@ namespace BoardGame.Config
         [SerializeField] private BoardSearchDurationDefinition _searchDurations = new BoardSearchDurationDefinition(); // 各档资源点搜索时长
         [SerializeField] private BoardCombatRuleDefinition _combatRules = new BoardCombatRuleDefinition(); // 战斗 tick 与敌人模板
         [SerializeField] private BoardExtractRuleDefinition _extractRules = new BoardExtractRuleDefinition(); // 撤离规则
+        [SerializeField] private BoardProgressionRuleDefinition _progressionRules = new BoardProgressionRuleDefinition(); // 经验与升级规则
 
         public string RuleSetId => _ruleSetId;
         public BoardAgentStatDefinition AgentStats => _agentStats;
@@ -32,6 +33,7 @@ namespace BoardGame.Config
         public BoardSearchDurationDefinition SearchDurations => _searchDurations;
         public BoardCombatRuleDefinition CombatRules => _combatRules;
         public BoardExtractRuleDefinition ExtractRules => _extractRules;
+        public BoardProgressionRuleDefinition ProgressionRules => _progressionRules;
 
         /// <summary>
         /// 按当前策划预设写入规则 SO
@@ -45,6 +47,7 @@ namespace BoardGame.Config
             _searchDurations = BoardGamePlannerPresetConfig.CreateSearchDurations();
             _combatRules = BoardGamePlannerPresetConfig.CreateCombatRules();
             _extractRules = BoardGamePlannerPresetConfig.CreateExtractRules();
+            _progressionRules = BoardGamePlannerPresetConfig.CreateProgressionRules();
             MarkDirty();
         }
 
@@ -286,5 +289,115 @@ namespace BoardGame.Config
             get => _preserveProgressOnInterrupt;
             set => _preserveProgressOnInterrupt = value;
         }
+    }
+
+    /// <summary>
+    /// 经验与升级规则
+    /// </summary>
+    [Serializable]
+    public sealed class BoardProgressionRuleDefinition
+    {
+        [SerializeField] private bool _enabled = true;
+        [SerializeField] private int _startingLevel = 1;
+        [SerializeField] private int _startingRequiredExperience = 50;
+        [SerializeField] private int _requiredExperienceGrowthPerLevel = 25;
+        [SerializeField] private int _choicesPerLevel = 3;
+        [SerializeField] private int _bossExperienceValue = 120;
+        [SerializeField] private List<BoardEncounterExperienceDefinition> _encounterExperienceDefinitions =
+            new List<BoardEncounterExperienceDefinition>();
+        [SerializeField] private List<BoardLevelUpBuffDefinition> _buffDefinitions =
+            new List<BoardLevelUpBuffDefinition>();
+
+        public bool Enabled
+        {
+            get => _enabled;
+            set => _enabled = value;
+        }
+
+        public int StartingLevel
+        {
+            get => _startingLevel;
+            set => _startingLevel = Mathf.Max(1, value);
+        }
+
+        public int StartingRequiredExperience
+        {
+            get => _startingRequiredExperience;
+            set => _startingRequiredExperience = Mathf.Max(1, value);
+        }
+
+        public int RequiredExperienceGrowthPerLevel
+        {
+            get => _requiredExperienceGrowthPerLevel;
+            set => _requiredExperienceGrowthPerLevel = Mathf.Max(1, value);
+        }
+
+        public int ChoicesPerLevel
+        {
+            get => _choicesPerLevel;
+            set => _choicesPerLevel = Mathf.Max(1, value);
+        }
+
+        public int BossExperienceValue
+        {
+            get => _bossExperienceValue;
+            set => _bossExperienceValue = Mathf.Max(0, value);
+        }
+
+        public List<BoardEncounterExperienceDefinition> EncounterExperienceDefinitions
+        {
+            get => _encounterExperienceDefinitions;
+            set => _encounterExperienceDefinitions = value ?? new List<BoardEncounterExperienceDefinition>();
+        }
+
+        public List<BoardLevelUpBuffDefinition> BuffDefinitions
+        {
+            get => _buffDefinitions;
+            set => _buffDefinitions = value ?? new List<BoardLevelUpBuffDefinition>();
+        }
+    }
+
+    /// <summary>
+    /// 敌人与 Boss 的经验值配置
+    /// </summary>
+    [Serializable]
+    public sealed class BoardEncounterExperienceDefinition
+    {
+        [SerializeField] private bool _isBoss;
+        [SerializeField] private BoardDangerTier _dangerTier = BoardDangerTier.Low;
+        [SerializeField] private int _experienceValue = 10;
+
+        public BoardEncounterExperienceDefinition(bool isBoss, BoardDangerTier dangerTier, int experienceValue)
+        {
+            _isBoss = isBoss;
+            _dangerTier = dangerTier;
+            _experienceValue = Mathf.Max(0, experienceValue);
+        }
+
+        public bool IsBoss => _isBoss;
+        public BoardDangerTier DangerTier => _dangerTier;
+        public int ExperienceValue => _experienceValue;
+    }
+
+    /// <summary>
+    /// 升级增益值范围配置
+    /// </summary>
+    [Serializable]
+    public sealed class BoardLevelUpBuffDefinition
+    {
+        [SerializeField] private BoardLevelUpBuffType _buffType = BoardLevelUpBuffType.AttackFlat;
+        [SerializeField] private int _minValue = 1;
+        [SerializeField] private int _maxValue = 3;
+
+        public BoardLevelUpBuffDefinition(BoardLevelUpBuffType buffType, int minValue, int maxValue)
+        {
+            _buffType = buffType;
+            _minValue = Mathf.Max(1, minValue);
+            _maxValue = Mathf.Max(_minValue, maxValue);
+        }
+
+        public BoardLevelUpBuffType BuffType => _buffType;
+        public int MinValue => _minValue;
+        public int MaxValue => _maxValue;
     }
 }

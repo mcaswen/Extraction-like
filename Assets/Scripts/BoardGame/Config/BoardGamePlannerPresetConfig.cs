@@ -111,19 +111,47 @@ namespace BoardGame.Config
         }
 
         /// <summary>
+        /// 生成经验与升级规则
+        /// </summary>
+        public static BoardProgressionRuleDefinition CreateProgressionRules()
+        {
+            return new BoardProgressionRuleDefinition
+            {
+                Enabled = true,
+                StartingLevel = 1,
+                StartingRequiredExperience = 50,
+                RequiredExperienceGrowthPerLevel = 25,
+                ChoicesPerLevel = 3,
+                BossExperienceValue = 120,
+                EncounterExperienceDefinitions = new List<BoardEncounterExperienceDefinition>
+                {
+                    new BoardEncounterExperienceDefinition(false, BoardDangerTier.Low, 20),
+                    new BoardEncounterExperienceDefinition(false, BoardDangerTier.Medium, 35),
+                    new BoardEncounterExperienceDefinition(false, BoardDangerTier.High, 55)
+                },
+                BuffDefinitions = new List<BoardLevelUpBuffDefinition>
+                {
+                    new BoardLevelUpBuffDefinition(BoardLevelUpBuffType.AttackFlat, 1, 3),
+                    new BoardLevelUpBuffDefinition(BoardLevelUpBuffType.DefenseFlat, 1, 2),
+                    new BoardLevelUpBuffDefinition(BoardLevelUpBuffType.MaxHealthFlat, 8, 18)
+                }
+            };
+        }
+
+        /// <summary>
         /// 生成全部物品模板
         /// </summary>
         public static List<BoardItemDefinition> CreateItemDefinitions()
         {
             return new List<BoardItemDefinition>
             {
-                new BoardItemDefinition("loot_green", "Green Loot", BoardItemCategory.Loot, BoardItemRarity.Common, 10, 30, 0.1f),
-                new BoardItemDefinition("loot_blue", "Blue Loot", BoardItemCategory.Loot, BoardItemRarity.Uncommon, 40, 80, 0.5f),
-                new BoardItemDefinition("loot_purple", "Purple Loot", BoardItemCategory.Loot, BoardItemRarity.Rare, 80, 120, 0.5f),
-                new BoardItemDefinition("loot_gold", "Gold Loot", BoardItemCategory.Loot, BoardItemRarity.Epic, 300, 500, 1f),
-                new BoardItemDefinition("loot_red", "Red Loot", BoardItemCategory.Loot, BoardItemRarity.Legendary, 1000, 2000, 2f),
+                new BoardItemDefinition("loot_green", "Green Loot", BoardItemCategory.Loot, BoardItemRarity.Common, 10, 30, 0.1f, 6),
+                new BoardItemDefinition("loot_blue", "Blue Loot", BoardItemCategory.Loot, BoardItemRarity.Uncommon, 40, 80, 0.5f, 12),
+                new BoardItemDefinition("loot_purple", "Purple Loot", BoardItemCategory.Loot, BoardItemRarity.Rare, 80, 120, 0.5f, 18),
+                new BoardItemDefinition("loot_gold", "Gold Loot", BoardItemCategory.Loot, BoardItemRarity.Epic, 300, 500, 1f, 30),
+                new BoardItemDefinition("loot_red", "Red Loot", BoardItemCategory.Loot, BoardItemRarity.Legendary, 1000, 2000, 2f, 50),
                 // 血瓶的结算价值按策划口径放在中级物资之上 高级物资之下
-                new BoardItemDefinition("healing_potion", "Healing Potion", BoardItemCategory.Consumable, BoardItemRarity.Uncommon, 150, 250, 0.5f, BoardConsumableType.HealingPotion, 10)
+                new BoardItemDefinition("healing_potion", "Healing Potion", BoardItemCategory.Consumable, BoardItemRarity.Uncommon, 150, 250, 0.5f, 16, BoardConsumableType.HealingPotion, 10)
             };
         }
 

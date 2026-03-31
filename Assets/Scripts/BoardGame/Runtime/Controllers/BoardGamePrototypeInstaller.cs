@@ -36,6 +36,8 @@ namespace BoardGame.Runtime.Controllers
         [SerializeField] private BoardGameHudController _hudController;
         // 道具栏控制器，展示并触发消耗品使用
         [SerializeField] private BoardGameItemBarController _itemBarController;
+        // 升级弹窗控制器，展示 3 选 1 增益
+        [SerializeField] private BoardGameLevelUpController _levelUpController;
         // 输入控制器，负责鼠标选中与重定向操作
         [SerializeField] private BoardGameSelectionController _selectionController;
         // 世界相机，负责把鼠标位置投到 2D 地图上
@@ -62,6 +64,7 @@ namespace BoardGame.Runtime.Controllers
 
             _hudController?.Bind(_prototypeController);
             _itemBarController?.Bind(_prototypeController);
+            ResolveLevelUpController()?.Bind(_prototypeController);
             _selectionController?.Bind(_prototypeController, _worldCamera != null ? _worldCamera : Camera.main);
         }
 
@@ -82,6 +85,55 @@ namespace BoardGame.Runtime.Controllers
             }
 
             return true;
+        }
+
+        private BoardGameLevelUpController ResolveLevelUpController()
+        {
+            if (_levelUpController != null)
+            {
+                return _levelUpController;
+            }
+
+            _levelUpController = FindObjectOfType<BoardGameLevelUpController>();
+
+            if (_levelUpController != null)
+            {
+                return _levelUpController;
+            }
+
+            Canvas parentCanvas = null;
+
+            if (_hudController != null)
+            {
+                parentCanvas = _hudController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _itemBarController != null)
+            {
+                parentCanvas = _itemBarController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _selectionController != null)
+            {
+                parentCanvas = _selectionController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null)
+            {
+                return null;
+            }
+
+            GameObject levelUpObject = new GameObject("LevelUpOverlay", typeof(RectTransform), typeof(BoardGameLevelUpController));
+            RectTransform rectTransform = levelUpObject.GetComponent<RectTransform>();
+            rectTransform.SetParent(parentCanvas.transform, false);
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+            rectTransform.SetAsLastSibling();
+
+            _levelUpController = levelUpObject.GetComponent<BoardGameLevelUpController>();
+            return _levelUpController;
         }
     }
 }

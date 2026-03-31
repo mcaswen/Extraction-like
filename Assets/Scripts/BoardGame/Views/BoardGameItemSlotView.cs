@@ -20,7 +20,7 @@ namespace BoardGame.Views
         /// <summary>
         /// 绑定槽位显示和点击事件
         /// </summary>
-        public void Bind(string itemName, int count, UnityAction onClick)
+        public void Bind(string itemName, int count, UnityAction onClick, bool isInteractable = true)
         {
             gameObject.SetActive(true);
 
@@ -38,7 +38,7 @@ namespace BoardGame.Views
             {
                 _button.onClick.RemoveAllListeners();
                 _button.onClick.AddListener(onClick);
-                _button.interactable = true;
+                _button.interactable = isInteractable;
             }
         }
 

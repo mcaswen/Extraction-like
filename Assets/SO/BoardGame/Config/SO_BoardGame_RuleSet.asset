@@ -55,3 +55,30 @@ MonoBehaviour:
     _durationSeconds: 4
     _canInterrupt: 1
     _preserveProgressOnInterrupt: 1
+  _progressionRules:
+    _enabled: 0
+    _startingLevel: 1
+    _startingRequiredExperience: 50
+    _requiredExperienceGrowthPerLevel: 25
+    _choicesPerLevel: 3
+    _bossExperienceValue: 120
+    _encounterExperienceDefinitions:
+    - _isBoss: 0
+      _dangerTier: 1
+      _experienceValue: 20
+    - _isBoss: 0
+      _dangerTier: 2
+      _experienceValue: 35
+    - _isBoss: 0
+      _dangerTier: 3
+      _experienceValue: 55
+    _buffDefinitions:
+    - _buffType: 0
+      _minValue: 1
+      _maxValue: 3
+    - _buffType: 1
+      _minValue: 1
+      _maxValue: 2
+    - _buffType: 2
+      _minValue: 8
+      _maxValue: 18

@@ -6,17 +6,20 @@ using UnityEngine;
 namespace BoardGame.Runtime.Services
 {
     /// <summary>
-    /// 原型核心状态机，负责移动、搜索、战斗、撤离和玩家打断
+    /// 原型核心状态机，负责移动、默认决策、玩家打断与节点动作调度
     /// </summary>
     public sealed class BoardAgentActionStateMachine
     {
         private readonly BoardGraphService _graphService;
         private readonly BoardPathfindingService _pathfindingService;
         private readonly BoardAgentDecisionService _decisionService;
-        private readonly BoardCombatResolutionService _combatResolutionService;
-        private readonly BoardLootResolutionService _lootResolutionService;
         private readonly BoardInterruptService _interruptService;
         private readonly SO_BoardGame_RuleSet _ruleSet;
+        private readonly BoardNodeActionHandlerContext _nodeActionHandlerContext;
+        private readonly Dictionary<BoardNodeType, IBoardNodeActionHandler> _nodeActionHandlersByNodeType =
+            new Dictionary<BoardNodeType, IBoardNodeActionHandler>();
+        private readonly Dictionary<BoardActionType, IBoardNodeActionHandler> _nodeActionHandlersByActionType =
+            new Dictionary<BoardActionType, IBoardNodeActionHandler>();
 
         public BoardAgentActionStateMachine(
             BoardGraphService graphService,
@@ -24,16 +27,25 @@ namespace BoardGame.Runtime.Services
             BoardAgentDecisionService decisionService,
             BoardCombatResolutionService combatResolutionService,
             BoardLootResolutionService lootResolutionService,
+            BoardProgressionService progressionService,
             BoardInterruptService interruptService,
             SO_BoardGame_RuleSet ruleSet)
         {
             _graphService = graphService;
             _pathfindingService = pathfindingService;
             _decisionService = decisionService;
-            _combatResolutionService = combatResolutionService;
-            _lootResolutionService = lootResolutionService;
             _interruptService = interruptService;
             _ruleSet = ruleSet;
+            _nodeActionHandlerContext = new BoardNodeActionHandlerContext(
+                ruleSet,
+                combatResolutionService,
+                lootResolutionService,
+                progressionService);
+
+            RegisterNodeActionHandler(new BoardSearchActionHandler());
+            RegisterNodeActionHandler(new BoardCombatActionHandler(false));
+            RegisterNodeActionHandler(new BoardCombatActionHandler(true));
+            RegisterNodeActionHandler(new BoardExtractActionHandler());
         }
 
         /// <summary>
@@ -66,16 +78,10 @@ namespace BoardGame.Runtime.Services
                     TickMoving(sessionState, nodeStatesById, deltaTime);
                     break;
                 case BoardActionType.Searching:
-                    TickSearching(sessionState, nodeStatesById, deltaTime);
-                    break;
                 case BoardActionType.FightingEnemy:
-                    TickCombat(sessionState, nodeStatesById, deltaTime, false);
-                    break;
                 case BoardActionType.FightingBoss:
-                    TickCombat(sessionState, nodeStatesById, deltaTime, true);
-                    break;
                 case BoardActionType.Extracting:
-                    TickExtracting(sessionState, nodeStatesById, deltaTime);
+                    TickCurrentNodeAction(sessionState, nodeStatesById, deltaTime);
                     break;
             }
 
@@ -249,12 +255,20 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
-        /// 搜索状态处理
-        /// 搜索进度直接写回节点状态，因此被打断后天然可以续接
+        /// 推进当前所在节点上的持续动作
+        /// 具体实现由节点动作处理器负责
         /// </summary>
-        private void TickSearching(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById, float deltaTime)
+        private void TickCurrentNodeAction(
+            BoardGameSessionState sessionState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
+            float deltaTime)
         {
             BoardAgentState agentState = sessionState.AgentState;
+
+            if (!_nodeActionHandlersByActionType.TryGetValue(agentState.CurrentActionType, out IBoardNodeActionHandler handler))
+            {
+                return;
+            }
 
             if (!TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState))
             {
@@ -262,97 +276,7 @@ namespace BoardGame.Runtime.Services
                 return;
             }
 
-            nodeState.ResourceState = BoardResourceStateType.Searching;
-            nodeState.SearchProgressSeconds = Mathf.Min(nodeState.SearchRequiredSeconds, nodeState.SearchProgressSeconds + deltaTime);
-            agentState.CurrentActionDuration = nodeState.SearchRequiredSeconds;
-            agentState.CurrentActionProgress = nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
-
-            if (nodeState.SearchProgressSeconds < nodeState.SearchRequiredSeconds)
-            {
-                return;
-            }
-
-            nodeState.ResourceState = BoardResourceStateType.SearchCompleted;
-            List<BoardItemInstance> generatedItems = _lootResolutionService.GenerateResourceLoot(nodeState);
-            BoardAutoCollectResult collectResult = _lootResolutionService.AutoCollect(agentState.InventoryState, generatedItems);
-            nodeState.ResourceState = BoardResourceStateType.Looted;
-            FinishCurrentTarget(sessionState, $"Search complete{collectResult.Summary}");
-        }
-
-        /// <summary>
-        /// 普通战斗与 Boss 战的统一处理
-        /// 通过 isBoss 区分不同节点状态字段和打断规则
-        /// </summary>
-        private void TickCombat(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById, float deltaTime, bool isBoss)
-        {
-            BoardAgentState agentState = sessionState.AgentState;
-
-            if (!TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState))
-            {
-                agentState.CurrentActionType = BoardActionType.Idle;
-                return;
-            }
-
-            agentState.CurrentActionAccumulatorSeconds += deltaTime;
-            int currentHealth = isBoss ? nodeState.BossCurrentHealth : nodeState.EnemyCurrentHealth;
-            int maxHealth = Mathf.Max(1, isBoss ? nodeState.BossMaxHealth : nodeState.EnemyMaxHealth);
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionProgress = 1f - (float)currentHealth / maxHealth;
-
-            // 战斗按固定 tick 结算，避免帧率变化直接影响数值结果
-            while (agentState.CurrentActionAccumulatorSeconds >= _ruleSet.CombatRules.TickIntervalSeconds)
-            {
-                agentState.CurrentActionAccumulatorSeconds -= _ruleSet.CombatRules.TickIntervalSeconds;
-                BoardCombatTickResult result = _combatResolutionService.ResolveCombatTick(agentState, nodeState, isBoss);
-
-                if (result.AgentDefeated)
-                {
-                    return;
-                }
-
-                if (!result.EncounterDefeated)
-                {
-                    sessionState.StatusMessage = $"Combat ongoing  AI dealt {result.DamageDealt} damage and took {result.DamageTaken} damage";
-                    continue;
-                }
-
-                List<BoardItemInstance> generatedItems = _lootResolutionService.GenerateEncounterLoot(nodeState, isBoss);
-                BoardAutoCollectResult collectResult = _lootResolutionService.AutoCollect(agentState.InventoryState, generatedItems);
-                FinishCurrentTarget(sessionState, isBoss ? $"Boss defeated{collectResult.Summary}" : $"Enemy cleared{collectResult.Summary}");
-                return;
-            }
-        }
-
-        /// <summary>
-        /// 撤离状态处理
-        /// 撤离进度保存在节点状态里，是否允许打断与是否保留进度由配置决定
-        /// </summary>
-        private void TickExtracting(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById, float deltaTime)
-        {
-            BoardAgentState agentState = sessionState.AgentState;
-
-            if (!TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState))
-            {
-                agentState.CurrentActionType = BoardActionType.Idle;
-                return;
-            }
-
-            nodeState.ExtractState = BoardExtractStateType.Extracting;
-            nodeState.ExtractProgressSeconds = Mathf.Min(_ruleSet.ExtractRules.DurationSeconds, nodeState.ExtractProgressSeconds + deltaTime);
-            agentState.CurrentActionDuration = _ruleSet.ExtractRules.DurationSeconds;
-            agentState.CurrentActionProgress = nodeState.ExtractProgressSeconds / _ruleSet.ExtractRules.DurationSeconds;
-
-            if (nodeState.ExtractProgressSeconds < _ruleSet.ExtractRules.DurationSeconds)
-            {
-                return;
-            }
-
-            nodeState.ExtractState = BoardExtractStateType.Extracted;
-            agentState.CurrentActionType = BoardActionType.Completed;
-            agentState.CurrentActionProgress = 1f;
-            sessionState.FinalExtractedValue = agentState.InventoryState.TotalValue;
-            sessionState.Outcome = BoardSessionOutcome.Success;
-            sessionState.StatusMessage = $"Extraction complete, final extracted value {sessionState.FinalExtractedValue}";
+            handler.Tick(_nodeActionHandlerContext, sessionState, nodeState, deltaTime);
         }
 
         /// <summary>
@@ -453,66 +377,30 @@ namespace BoardGame.Runtime.Services
         /// 当角色真正抵达“当前目标节点”时，尝试进入对应的持续动作
         /// 中途路过的节点不会触发这里的逻辑
         /// </summary>
-        private bool TryBeginActionOnCurrentTargetNode(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
+        private bool TryBeginActionOnCurrentTargetNode(
+            BoardGameSessionState sessionState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
             BoardAgentState agentState = sessionState.AgentState;
 
             if (string.IsNullOrEmpty(agentState.CurrentNodeId) ||
                 string.IsNullOrEmpty(agentState.CurrentTargetNodeId) ||
                 agentState.CurrentNodeId != agentState.CurrentTargetNodeId ||
-                !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState))
+                !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState) ||
+                !_nodeActionHandlersByNodeType.TryGetValue(nodeState.NodeType, out IBoardNodeActionHandler handler))
             {
                 return false;
             }
 
-            switch (nodeState.NodeType)
-            {
-                case BoardNodeType.Resource:
-                    if (!nodeState.HasUnfinishedSearch()) return false;
-                    nodeState.ResourceState = BoardResourceStateType.Searching;
-                    agentState.CurrentActionType = BoardActionType.Searching;
-                    agentState.CurrentActionDuration = nodeState.SearchRequiredSeconds;
-                    agentState.CurrentActionProgress = nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
-                    sessionState.StatusMessage = $"Started searching {nodeState.NodeId}";
-                    return true;
-
-                case BoardNodeType.Enemy:
-                    if (!nodeState.HasUnclearedEnemy()) return false;
-                    nodeState.EnemyState = BoardEnemyStateType.Engaged;
-                    agentState.CurrentActionType = BoardActionType.FightingEnemy;
-                    agentState.CurrentActionDuration = 1f;
-                    agentState.CurrentActionAccumulatorSeconds = 0f;
-                    agentState.CurrentActionProgress = 1f - (float)nodeState.EnemyCurrentHealth / Mathf.Max(1, nodeState.EnemyMaxHealth);
-                    sessionState.StatusMessage = $"Started engaging {nodeState.NodeId}";
-                    return true;
-
-                case BoardNodeType.Boss:
-                    if (!nodeState.HasUndefeatedBoss()) return false;
-                    nodeState.BossState = BoardBossStateType.Engaged;
-                    agentState.CurrentActionType = BoardActionType.FightingBoss;
-                    agentState.CurrentActionDuration = 1f;
-                    agentState.CurrentActionAccumulatorSeconds = 0f;
-                    agentState.CurrentActionProgress = 1f - (float)nodeState.BossCurrentHealth / Mathf.Max(1, nodeState.BossMaxHealth);
-                    sessionState.StatusMessage = $"Started boss fight at {nodeState.NodeId}";
-                    return true;
-
-                case BoardNodeType.Extract:
-                    if (nodeState.ExtractState == BoardExtractStateType.Extracted) return false;
-                    nodeState.ExtractState = BoardExtractStateType.Extracting;
-                    agentState.CurrentActionType = BoardActionType.Extracting;
-                    agentState.CurrentActionDuration = _ruleSet.ExtractRules.DurationSeconds;
-                    agentState.CurrentActionProgress = nodeState.ExtractProgressSeconds / _ruleSet.ExtractRules.DurationSeconds;
-                    sessionState.StatusMessage = $"Started extracting at {nodeState.NodeId}";
-                    return true;
-            }
-
-            return false;
+            return handler.TryBegin(_nodeActionHandlerContext, sessionState, nodeState);
         }
 
         /// <summary>
         /// 默认 AI 只有在当前撤离点周围已经没有别的可做节点时，才会启动撤离
         /// </summary>
-        private bool TryBeginAutonomousExtract(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
+        private bool TryBeginAutonomousExtract(
+            BoardGameSessionState sessionState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
             BoardAgentState agentState = sessionState.AgentState;
 
@@ -584,33 +472,18 @@ namespace BoardGame.Runtime.Services
 
         /// <summary>
         /// 玩家改写目标前，对当前动作做安全收口
-        /// 搜索保留进度，普通敌人保留剩余血量，撤离按配置保留或重置进度
+        /// 具体节点动作的收口逻辑交给对应处理器
         /// </summary>
-        private void FinalizeCurrentActionForRedirect(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
+        private void FinalizeCurrentActionForRedirect(
+            BoardGameSessionState sessionState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
             BoardAgentState agentState = sessionState.AgentState;
 
-            if (agentState.CurrentActionType == BoardActionType.Searching &&
-                TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState searchNode))
+            if (_nodeActionHandlersByActionType.TryGetValue(agentState.CurrentActionType, out IBoardNodeActionHandler handler) &&
+                TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState))
             {
-                searchNode.ResourceState = searchNode.SearchProgressSeconds > 0f ? BoardResourceStateType.PartiallySearched : BoardResourceStateType.Unsearched;
-            }
-
-            if (agentState.CurrentActionType == BoardActionType.FightingEnemy &&
-                TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState enemyNode))
-            {
-                enemyNode.EnemyState = enemyNode.EnemyCurrentHealth < enemyNode.EnemyMaxHealth ? BoardEnemyStateType.Damaged : BoardEnemyStateType.Disengaged;
-            }
-
-            if (agentState.CurrentActionType == BoardActionType.Extracting &&
-                TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState extractNode))
-            {
-                if (!_ruleSet.ExtractRules.PreserveProgressOnInterrupt)
-                {
-                    extractNode.ExtractProgressSeconds = 0f;
-                }
-
-                extractNode.ExtractState = BoardExtractStateType.Available;
+                handler.FinalizeForRedirect(_nodeActionHandlerContext, sessionState, nodeState);
             }
 
             if (agentState.CurrentActionType != BoardActionType.Moving)
@@ -623,25 +496,12 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
-        /// 完成当前目标节点动作后，重置为可继续默认决策的空闲状态
-        /// </summary>
-        private void FinishCurrentTarget(BoardGameSessionState sessionState, string statusMessage)
-        {
-            BoardAgentState agentState = sessionState.AgentState;
-            agentState.CurrentActionType = BoardActionType.Idle;
-            agentState.CurrentActionProgress = 0f;
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentTargetNodeId = string.Empty;
-            agentState.IntentSource = BoardIntentSource.Autonomous;
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
-            sessionState.StatusMessage = statusMessage;
-        }
-
-        /// <summary>
         /// 从节点索引中读取角色当前所在节点状态
         /// </summary>
-        private static bool TryGetCurrentNodeState(BoardAgentState agentState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById, out BoardNodeRuntimeState nodeState)
+        private static bool TryGetCurrentNodeState(
+            BoardAgentState agentState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
+            out BoardNodeRuntimeState nodeState)
         {
             nodeState = null;
             return !string.IsNullOrEmpty(agentState.CurrentNodeId) &&
@@ -657,6 +517,12 @@ namespace BoardGame.Runtime.Services
             sessionState.AgentState.CurrentActionType = BoardActionType.Downed;
             sessionState.AgentState.CurrentActionProgress = 0f;
             sessionState.StatusMessage = message;
+        }
+
+        private void RegisterNodeActionHandler(IBoardNodeActionHandler handler)
+        {
+            _nodeActionHandlersByNodeType[handler.SupportedNodeType] = handler;
+            _nodeActionHandlersByActionType[handler.SupportedActionType] = handler;
         }
     }
 }

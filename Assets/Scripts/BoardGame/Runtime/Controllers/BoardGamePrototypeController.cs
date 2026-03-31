@@ -19,6 +19,7 @@ namespace BoardGame.Runtime.Controllers
         private readonly BoardPathfindingService _pathfindingService;
         private readonly BoardCombatResolutionService _combatResolutionService;
         private readonly BoardLootResolutionService _lootResolutionService;
+        private readonly BoardProgressionService _progressionService;
         private readonly BoardAgentDecisionService _decisionService;
         private readonly BoardInterruptService _interruptService;
         private readonly BoardAgentActionStateMachine _actionStateMachine;
@@ -42,6 +43,7 @@ namespace BoardGame.Runtime.Controllers
             _pathfindingService = new BoardPathfindingService(_graphService);
             _combatResolutionService = new BoardCombatResolutionService(ruleSet);
             _lootResolutionService = new BoardLootResolutionService(lootTableSet);
+            _progressionService = new BoardProgressionService(ruleSet, lootTableSet);
             _decisionService = new BoardAgentDecisionService(_graphService);
             _interruptService = new BoardInterruptService(ruleSet);
             _actionStateMachine = new BoardAgentActionStateMachine(
@@ -50,12 +52,19 @@ namespace BoardGame.Runtime.Controllers
                 _decisionService,
                 _combatResolutionService,
                 _lootResolutionService,
+                _progressionService,
                 _interruptService,
                 ruleSet);
 
             List<BoardNodeRuntimeState> nodeStates = BuildNodeStates();
             BoardAgentState agentState = BuildAgentState();
             _sessionState = new BoardGameSessionState(mapDefinition.MapId, agentState, nodeStates);
+
+            if (!IsProgressionEnabled)
+            {
+                ClearPendingLevelUpState();
+            }
+
             NotifySessionChanged();
         }
 
@@ -69,12 +78,29 @@ namespace BoardGame.Runtime.Controllers
         public BoardGameSessionState SessionState => _sessionState;
         public string SelectedNodeId => _selectedNodeId;
         public bool IsRedirectModeActive => false;
+        public bool IsProgressionEnabled => _ruleSet.ProgressionRules.Enabled;
+        public bool IsAwaitingLevelUpChoice => IsProgressionEnabled && _sessionState.IsAwaitingLevelUpChoice;
+        public bool IsInteractionLocked => IsAwaitingLevelUpChoice;
 
         /// <summary>
         /// 推进整套原型运行时逻辑
         /// </summary>
         public void Tick(float deltaTime)
         {
+            if (!IsProgressionEnabled &&
+                (_sessionState.IsAwaitingLevelUpChoice ||
+                 _sessionState.PendingLevelUpCount > 0 ||
+                 _sessionState.PendingLevelUpChoices.Count > 0))
+            {
+                ClearPendingLevelUpState();
+            }
+
+            if (IsAwaitingLevelUpChoice)
+            {
+                NotifySessionChanged();
+                return;
+            }
+
             _actionStateMachine.Tick(_sessionState, _nodeStatesById, deltaTime);
             NotifySessionChanged();
         }
@@ -120,6 +146,13 @@ namespace BoardGame.Runtime.Controllers
                 return false;
             }
 
+            if (IsAwaitingLevelUpChoice)
+            {
+                _sessionState.StatusMessage = "Choose a level-up upgrade before redirecting";
+                NotifySessionChanged();
+                return false;
+            }
+
             bool success = _actionStateMachine.TryRedirect(_sessionState, _nodeStatesById, nodeId, out _);
 
             NotifySessionChanged();
@@ -131,8 +164,38 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryUseItem(string instanceId)
         {
+            if (IsAwaitingLevelUpChoice)
+            {
+                _sessionState.StatusMessage = "Choose a level-up upgrade before using items";
+                NotifySessionChanged();
+                return false;
+            }
+
             bool success = _lootResolutionService.TryConsumeItem(_sessionState.AgentState, instanceId, out string message);
             _sessionState.StatusMessage = message;
+            NotifySessionChanged();
+            return success;
+        }
+
+        /// <summary>
+        /// 应用一个升级选项
+        /// </summary>
+        public bool TryApplyLevelUpChoice(int choiceIndex)
+        {
+            if (!IsProgressionEnabled)
+            {
+                _sessionState.StatusMessage = "Level-up progression is currently disabled";
+                NotifySessionChanged();
+                return false;
+            }
+
+            bool success = _progressionService.TryApplyLevelUpChoice(_sessionState, choiceIndex, out string message);
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                _sessionState.StatusMessage = message;
+            }
+
             NotifySessionChanged();
             return success;
         }
@@ -142,6 +205,11 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool IsNodeValidRedirectTarget(string nodeId)
         {
+            if (IsAwaitingLevelUpChoice)
+            {
+                return false;
+            }
+
             BoardInterruptEvaluation evaluation = _interruptService.Evaluate(_sessionState, _nodeStatesById, nodeId);
             return evaluation.CanInterrupt;
         }
@@ -259,6 +327,9 @@ namespace BoardGame.Runtime.Controllers
                 _ruleSet.AgentStats.Attack,
                 _ruleSet.AgentStats.Defense,
                 _ruleSet.AgentStats.MaxCarryCapacity);
+            agentState.Level = _ruleSet.ProgressionRules.StartingLevel;
+            agentState.CurrentExperience = 0;
+            agentState.RequiredExperienceToNextLevel = _ruleSet.ProgressionRules.StartingRequiredExperience;
 
             string startNodeId = _graphService.GetStartNodeId();
             agentState.CurrentNodeId = startNodeId;
@@ -297,6 +368,13 @@ namespace BoardGame.Runtime.Controllers
         private void NotifySessionChanged()
         {
             SessionChanged?.Invoke();
+        }
+
+        private void ClearPendingLevelUpState()
+        {
+            _sessionState.IsAwaitingLevelUpChoice = false;
+            _sessionState.PendingLevelUpCount = 0;
+            _sessionState.PendingLevelUpChoices.Clear();
         }
     }
 }

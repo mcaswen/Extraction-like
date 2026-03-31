@@ -178,6 +178,24 @@ namespace BoardGame.Runtime
         }
 
         /// <summary>
+        /// 获取升级增益类型标签
+        /// </summary>
+        public static string GetLevelUpBuffLabel(BoardLevelUpBuffType buffType)
+        {
+            switch (buffType)
+            {
+                case BoardLevelUpBuffType.AttackFlat:
+                    return "Attack";
+                case BoardLevelUpBuffType.DefenseFlat:
+                    return "Defense";
+                case BoardLevelUpBuffType.MaxHealthFlat:
+                    return "Max HP";
+                default:
+                    return buffType.ToString();
+            }
+        }
+
+        /// <summary>
         /// 获取节点颜色，用于地图表现层区分类型和等级
         /// </summary>
         public static Color GetNodeColor(BoardNodeType nodeType, BoardResourceTier resourceTier, BoardDangerTier dangerTier)
@@ -341,6 +359,16 @@ namespace BoardGame.Runtime
     {
         None = 0,
         HealingPotion = 1
+    }
+
+    /// <summary>
+    /// 升级可选增益类型
+    /// </summary>
+    public enum BoardLevelUpBuffType
+    {
+        AttackFlat = 0,
+        DefenseFlat = 1,
+        MaxHealthFlat = 2
     }
 
     /// <summary>
