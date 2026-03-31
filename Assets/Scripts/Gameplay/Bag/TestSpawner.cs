@@ -1,39 +1,62 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// 背包系统调试生成器。
+/// 仅用于快速搭建测试数据，不参与正式业务流程。
+/// </summary>
 public class TestSpawner : MonoBehaviour
 {
-    [Header("测试物品数据")]
+    [Header("Debug Item Data")]
     public InventoryItemData WeaponData;
     public InventoryItemData AmmoData;
     public InventoryItemData MedkitData;
-
-    // 【新增】：小背包的测试数据
     public InventoryItemData SmallBagData;
 
-    [Header("目标容器面板")]
+    [Header("Target Panels")]
     public InventoryUIController BackpackPanel;
     public InventoryUIController LootChestPanel;
 
-    IEnumerator Start()
+    private IEnumerator Start()
     {
         yield return null;
 
-        if (InventoryItemFactory.Instance == null) { Debug.LogError("缺失工厂！"); yield break; }
-        if (BackpackPanel == null || LootChestPanel == null) { Debug.LogError("缺失面板！"); yield break; }
+        if (InventoryItemFactory.Instance == null)
+        {
+            Debug.LogError("InventoryItemFactory is missing.");
+            yield break;
+        }
 
-        // === 大背包生成区 ===
+        if (BackpackPanel == null || LootChestPanel == null)
+        {
+            Debug.LogError("Debug target panels are missing.");
+            yield break;
+        }
+
+        SpawnBackpackItems();
+        SpawnLootChestItems();
+    }
+
+    private void SpawnBackpackItems()
+    {
         if (WeaponData != null)
+        {
             InventoryItemFactory.Instance.SpawnItemInGrid(WeaponData, BackpackPanel, 0, 0, 1, false);
+        }
 
         if (AmmoData != null)
+        {
             InventoryItemFactory.Instance.SpawnItemInGrid(AmmoData, BackpackPanel, 0, 3, 30, false);
+        }
+    }
 
-        // === 宝箱生成区 ===
+    private void SpawnLootChestItems()
+    {
         if (AmmoData != null)
+        {
             InventoryItemFactory.Instance.SpawnItemInGrid(AmmoData, LootChestPanel, 0, 0, 50, false);
+        }
 
-        // 【新增】：在宝箱的右侧 [3, 0] 位置，刷出一个 SmallBag！
         if (SmallBagData != null)
         {
             InventoryItemFactory.Instance.SpawnItemInGrid(SmallBagData, LootChestPanel, 3, 0, 1, false);

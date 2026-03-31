@@ -1,614 +1,1187 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-[RequireComponent(typeof(Image))] // 强制要求挂载此脚本的物体必须有Image组件
-public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+
+/// <summary>
+/// 单个背包物品的运行时视图。
+/// 负责拖拽交互与基础显示，不直接管理网格规则本身。
+/// </summary>
+[RequireComponent(typeof(Image))]
+public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IInventoryItemView
 {
-    // ==========================================
-    // 变量声明区
-    // ==========================================
+    [Header("Ownership")]
+    public InventoryUIController CurrentGrid;
 
-    [Header("容器归属")]
-    public InventoryUIController CurrentGrid;      // 记录当前物品挂在哪个背包/宝箱面板下
-    private InventoryUIController _lastHoveredGrid;// 记录拖拽时，鼠标上一帧悬停的背包（用于跨背包时关闭高亮框）
-    private Transform _originalParent;             // 记录开始拖拽前，物品原本的父物体层级[Header("物品数据与状态")]
-    public InventoryItemData ItemData;             // 物品的数据模板（占几格、能不能堆叠等）
+    [Header("Item Data")]
+    public InventoryItemData ItemData;
+    public bool IsDebugItem;
 
-    [Header("测试配置")]
-    public bool IsDebugItem = false;               // 是否为开局自动放置的测试物品
-    public Vector2Int StartGridIndex;              // 测试物品的初始行列坐标
+    [Header("Stack")]
+    public int CurrentAmount = 1;
+    public Text AmountText;
 
-    // 【新增】：全局记录当前正飞在天上的物品，用于被强中断保护拦截！
+    public Vector2Int _originalGridIndex;
+    public bool _originalIsRotated;
+    public List<ContainerItemSaveData> InternalItems = new List<ContainerItemSaveData>();
+    public List<ContainerCellStateSaveData> InternalCellStates = new List<ContainerCellStateSaveData>();
+
+    private InventoryUIController _lastHoveredGrid;
+    private bool _currentPreviewIsRotated;
+    private Vector2 _localGridOffset;
+    private Vector3 _visualDragOffset;
+    private RectTransform _rectTransform;
+    private CanvasGroup _canvasGroup;
+    private Image _itemImage;
+    private Transform _originalParent;
+    private bool _requiresSearch;
+    private bool _isSearched = true;
+    private float _searchProgressSeconds;
+    private float _searchDurationSeconds;
+    private RectTransform _searchOverlayRoot;
+    private CanvasGroup _searchOverlayCanvasGroup;
+    private Image _searchBackdropImage;
+    private Image _searchOuterTrackImage;
+    private Image _searchProgressImage;
+    private Image _searchPulseRingImage;
+    private Image _searchSweepImage;
+    private Image _searchCenterGlowImage;
+    private Image _searchRevealFlashImage;
+    private Text _searchStateText;
+    private Text _searchRarityText;
+    private bool _isRevealAnimating;
+    private float _revealAnimationTimer;
+
+    private static Sprite _defaultSearchSprite;
+    private static Font _defaultSearchFont;
+    private const float RevealAnimationDuration = 0.32f;
+
     public static DraggableItemUI CurrentlyDraggedItem;
 
-    // UI 组件缓存
-    private RectTransform _rectTransform;          // 控制UI坐标和大小的核心组件
-    private CanvasGroup _canvasGroup;              // 控制UI透明度、拦截鼠标射线的组件
-    private Image _itemImage;                      // 物品的图片组件
+    InventoryItemData IInventoryItemView.ItemData => ItemData;
 
-    // 拖拽前的数据记录（用于失败时弹回老家）
-    public Vector2Int _originalGridIndex;         // 拖拽前的二维数组行列坐标
-    public bool _originalIsRotated;               // 拖拽前的旋转状态
-    // 【替换为】：纯粹的局部网格偏移量，绝对免疫任何 Canvas 屏幕缩放！
-    private Vector2 _localGridOffset;
-    // 保留这个用于控制物品UI跟着鼠标飞的视觉偏差
-    private Vector3 _visualDragOffset;
-
-    // 拖拽过程中的状态记录
-    private bool _currentPreviewIsRotated;         // 拖拽时，系统预测的当前旋转状态
-    private Vector2 _screenDragOffset;             // 【极其关键】：记录鼠标点击点与物品左上角在屏幕像素上的绝对差值
-
-    private Canvas _mainCanvas;                    // 物品所在的主画布（用于获取缩放比例等）
-
-    [Header("堆叠与数量")]
-    public int CurrentAmount = 1;                  // 当前堆叠数量
-    public Text AmountText;                        // 显示数量的文字 UI
-
-    // 【终极救命稻草】：确保组件绝对存在！
-    private void EnsureComponents()
-    {
-        if (_rectTransform == null)
-        {
-            _rectTransform = GetComponent<RectTransform>();
-            _itemImage = GetComponent<Image>();
-
-            _canvasGroup = GetComponent<CanvasGroup>();
-            if (_canvasGroup == null) _canvasGroup = gameObject.AddComponent<CanvasGroup>();
-
-            _rectTransform.anchorMin = new Vector2(0, 1);
-            _rectTransform.anchorMax = new Vector2(0, 1);
-            _rectTransform.pivot = new Vector2(0, 1);
-
-            _mainCanvas = GetComponentInParent<Canvas>();
-        }
-    }
-
-
-    // ==========================================
-    // 生命周期与初始化
-    // ==========================================
-
-    void Awake()
+    private void Awake()
     {
         EnsureComponents();
     }
 
-    // 由工厂或测试脚本调用，正式初始化这个物品
+    private void Update()
+    {
+        TickSearchProgress();
+        TickSearchRevealAnimation();
+    }
+
+    /// <summary>
+    /// 初始化运行时物品视图。
+    /// </summary>
     public void InitializeItem(InventoryItemData data, Vector2Int startPos, bool isRotated)
     {
-        // 【核心修复】：在被生成并初始化时，无视是否隐藏，强行装配组件！防死空指针！
         EnsureComponents();
 
         ItemData = data;
         _originalGridIndex = startPos;
         _originalIsRotated = isRotated;
-
-        // 强行同步预测旋转状态，防止克隆体生成时状态错乱
         _currentPreviewIsRotated = isRotated;
 
-        // 替换UI图片
-        if (data.ItemIcon != null) _itemImage.sprite = data.ItemIcon;
+        if (data != null && data.ItemIcon != null)
+        {
+            _itemImage.sprite = data.ItemIcon;
+        }
 
-        // 更新UI的实际像素大小（长和宽）
         UpdateVisualSize(isRotated);
-        // 将UI移动到背包面板下的精确局部坐标位置
-        _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(startPos.x, startPos.y);
+        if (CurrentGrid != null)
+        {
+            _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(startPos.x, startPos.y);
+        }
 
-        // 刷新数量显示
         UpdateAmountText();
+        UpdateSearchVisualState();
     }
 
-    // 拖拽核心逻辑
+    /// <summary>
+    /// 应用持久化的运行时状态，例如搜索进度。
+    /// </summary>
+    public void ApplyContainerRuntimeState(ContainerItemSaveData saveData)
+    {
+        if (saveData == null)
+        {
+            return;
+        }
 
-    // 当鼠标刚刚按下并拖动的那一帧触发
+        _requiresSearch = saveData.RequiresSearch;
+        _searchDurationSeconds = saveData.SearchDurationSeconds > 0f
+            ? saveData.SearchDurationSeconds
+            : (ItemData != null ? ItemData.GetSearchDurationSeconds() : 0f);
+        _searchProgressSeconds = Mathf.Clamp(saveData.SearchProgressSeconds, 0f, _searchDurationSeconds);
+        _isSearched = !_requiresSearch || saveData.IsSearched || _searchProgressSeconds >= _searchDurationSeconds;
+        _isRevealAnimating = false;
+        _revealAnimationTimer = 0f;
+
+        if (_isSearched)
+        {
+            _searchProgressSeconds = _searchDurationSeconds;
+        }
+
+        UpdateAmountText();
+        UpdateSearchVisualState();
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
-        CurrentlyDraggedItem = this; // 记录自己正在被拖拽
+        if (!CanInteractWithItem())
+        {
+            return;
+        }
 
-        // 如果开着拆分窗口，立刻关掉
-        if (SplitUIController.Instance != null) SplitUIController.Instance.CloseWindow();
+        EnsureComponents();
+        CurrentlyDraggedItem = this;
+        SplitUIController.Instance?.CloseWindow();
+        _originalParent = transform.parent;
 
-        // 1. 将自己从底层数组的大脑中除名（腾出空位，方便后面自己和其他物品的检测）
-        CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
+        if (TryDetachFromEquipmentSlot())
+        {
+            CurrentGrid = null;
+            _localGridOffset = Vector2.zero;
+        }
+        else if (CurrentGrid != null)
+        {
+            CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
+            Vector2 startMouseLocal = CurrentGrid.GetGridLocalPoint(eventData.position, eventData.pressEventCamera);
+            Vector2 startItemLocal = CurrentGrid.GetLocalPosition(_originalGridIndex.x, _originalGridIndex.y);
+            _localGridOffset = startItemLocal - startMouseLocal;
+        }
 
-        // 1. 算出鼠标点下去的那一瞬间，鼠标在【当前背包】里的局部坐标
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(CurrentGrid.ItemContainer, eventData.position, eventData.pressEventCamera, out Vector2 startMouseLocalPos);
-
-        // 2. 拿到物品左上角本来在【当前背包】里的绝对正确局部坐标
-        Vector2 startItemLocalPos = CurrentGrid.GetLocalPosition(_originalGridIndex.x, _originalGridIndex.y);
-
-        // 3. 算出纯净偏差！(物品左上角坐标 - 鼠标坐标)
-        _localGridOffset = startItemLocalPos - startMouseLocalPos;
-
-
-        // 1. 转移父物体
-        transform.SetParent(InventoryItemFactory.Instance.GlobalDragLayer, true);
-
-        // 2. 【核心保险】：强制将自己设为 GlobalDragLayer 里的最后一个子物体
-        // 这保证了在拖拽层内部，你抓着的这个也是渲染在最顶层的
-        transform.SetAsLastSibling();
-
-
-        // 3. 计算偏移 (你现在的计算代码) ...
-        _canvasGroup.alpha = 0.6f;
-        _canvasGroup.blocksRaycasts = false;
-
-        RectTransformUtility.ScreenPointToWorldPointInRectangle((RectTransform)InventoryItemFactory.Instance.GlobalDragLayer, eventData.position, eventData.pressEventCamera, out Vector3 globalMousePos);
-        _visualDragOffset = _rectTransform.position - globalMousePos;
+        PrepareDragVisual(eventData);
     }
 
-    // 当鼠标拖拽过程中，每一帧都会触发
     public void OnDrag(PointerEventData eventData)
     {
-        // 1. 【更新物品UI的位置】：
-        // eventData.position (当前鼠标像素) + _screenDragOffset (按下时记录的偏差) = 物品左上角理论上应该在的屏幕像素位置
-        // 将这个屏幕像素位置，转换成拖拽层(GlobalDragLayer)里的世界坐标，并直接赋予物品！
-        // （调试思路：如果你发现物品跟鼠标偏移了，一定是 GlobalDragLayer 的缩放/坐标系有畸变，导致这里转算 WorldPoint 不准）
-        // 视觉跟随保持不变
-        if (RectTransformUtility.ScreenPointToWorldPointInRectangle((RectTransform)InventoryItemFactory.Instance.GlobalDragLayer, eventData.position, eventData.pressEventCamera, out Vector3 globalMousePos))
-        {
-            _rectTransform.position = globalMousePos + _visualDragOffset;
-        }
-
-        // 2. 发射射线，探测鼠标当前指在哪一个背包/宝箱面板上
-        InventoryUIController hoveredGrid = GetHoveredGrid(eventData);
-
-        // 3. 跨面板处理：如果鼠标离开了上一个背包，把上一个背包的预测绿框关掉
-        if (_lastHoveredGrid != null && _lastHoveredGrid != hoveredGrid) _lastHoveredGrid.HideHighlight();
-        _lastHoveredGrid = hoveredGrid;
-
-        // 4. 如果鼠标当前确实停留在某个背包上方
-        if (hoveredGrid != null)
-        {
-            Debug.Log($"正在经过容器: {hoveredGrid.gameObject.name}");
-            // 1. 拿到此时此刻，鼠标在【目标悬停背包】里的局部坐标
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(hoveredGrid.ItemContainer, eventData.position, eventData.pressEventCamera, out Vector2 currentMouseLocalPos);
-
-            // 2. 预测坐标 = 当前鼠标的局部坐标 + 刚才算出的绝对纯净偏差！
-            Vector2 predictedLocalPos = currentMouseLocalPos + _localGridOffset;
-
-            // 3. 将预测的坐标换算成第几行第几列
-            Vector2Int hoverIndex = hoveredGrid.GetGridIndex(predictedLocalPos);
-
-            // 4.2 拿到当前背包的最大宽高，和物品在当前旋转状态下的宽高
-            int cols = hoveredGrid.GetGridController().Columns;
-            int rows = hoveredGrid.GetGridController().Rows;
-            int currentW = _currentPreviewIsRotated ? ItemData.Height : ItemData.Width;
-            int currentH = _currentPreviewIsRotated ? ItemData.Width : ItemData.Height;
-
-            // 4.3 【智能挤压旋转算法】：
-            // 算出物品在X轴和Y轴上，分别超出了背包边界多少格？
-            int overshootX = hoverIndex.x < 0 ? -hoverIndex.x : (hoverIndex.x + currentW > cols ? (hoverIndex.x + currentW) - cols : 0);
-            int overshootY = hoverIndex.y < 0 ? -hoverIndex.y : (hoverIndex.y + currentH > rows ? (hoverIndex.y + currentH) - rows : 0);
-
-            // 假设下一秒的状态等于当前状态，然后开始纠正：
-            bool nextRotatedState = _currentPreviewIsRotated;
-
-            // 如果X轴挤压得更厉害，且当前的宽度更长，转过去可以缩短宽度，那就旋转！
-            if (overshootX > 0 && overshootX >= overshootY && currentW > currentH) nextRotatedState = !_currentPreviewIsRotated;
-            // 反之，如果Y轴挤压更厉害，且高度更长，那就旋转！
-            else if (overshootY > 0 && overshootY > overshootX && currentH > currentW) nextRotatedState = !_currentPreviewIsRotated;
-
-            // 如果预测的状态发生了变化，立刻更新物品UI的大小，并重新计算当前的宽和高
-            if (nextRotatedState != _currentPreviewIsRotated)
-            {
-                _currentPreviewIsRotated = nextRotatedState;
-                UpdateVisualSize(_currentPreviewIsRotated);
-                currentW = _currentPreviewIsRotated ? ItemData.Height : ItemData.Width;
-                currentH = _currentPreviewIsRotated ? ItemData.Width : ItemData.Height;
-            }
-
-              Debug.Log($"预测格子索引: {hoverIndex}");
-
-            // 4.4 【裁判判定】：去底层大脑询问，现在这个格子加上现在的宽高，到底能不能放下？
-            bool canPlace = hoveredGrid.GetGridController().IsSpaceAvailable(hoverIndex.x, hoverIndex.y, currentW, currentH);
-
-            // 4.5 呼叫当前背包，把高亮框画出来（能放下画绿框，放不下画红框）
-            hoveredGrid.ShowHighlight(hoverIndex.x, hoverIndex.y, currentW, currentH, canPlace);
-        }
+        UpdateDraggedVisual(eventData);
+        UpdateHighlightPreview(eventData);
     }
 
-    // 【PRD 模块三：丢弃到 3D 场景并保留持久化数据】
-    // =========================================================
-    private void DropToWorld()
+    public void OnEndDrag(PointerEventData eventData)
     {
-        if (ItemData.WorldPrefab != null)
+        EquipmentSlotUI targetSlot = GetHoveredEquipmentSlot(eventData);
+        InventoryUIController targetGrid = targetSlot == null ? GetHoveredGrid(eventData) : null;
+
+        RestoreDragVisualState();
+
+        if (targetSlot != null && targetSlot.TryHandleDrop(this))
         {
-            // 找到玩家的位置（假设用 Tag 寻找，或者通过 GameManager 引用）
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            Vector3 dropPosition = player != null ? player.transform.position + player.transform.forward * 1.5f + Vector3.up : Vector3.zero;
-
-            // 在 3D 世界中生成该物品的物理模型
-            GameObject dropObj = Instantiate(ItemData.WorldPrefab, dropPosition, Quaternion.identity);
-
-            // 挂载或获取掉落物脚本，把“记忆”传给它
-            WorldLootItem worldItem = dropObj.GetComponent<WorldLootItem>();
-            if (worldItem == null) worldItem = dropObj.AddComponent<WorldLootItem>();
-
-            worldItem.InitializeDrop(ItemData, CurrentAmount);
-
-            Debug.Log($"丢弃操作：{ItemData.ItemName} 被扔到了地上！");
-
-            // 彻底销毁自己这个 UI
-            Destroy(this.gameObject);
+            return;
         }
-        else
+
+        if (targetGrid == null)
         {
-            Debug.LogWarning($"该物品没有配置 3D WorldPrefab，无法丢弃！已弹回。");
+            DropToWorld();
+            return;
+        }
+
+        if (!CanBePlacedInGrid(targetGrid))
+        {
             BounceBack();
+            return;
+        }
+
+        Vector2Int targetIndex = GetPredictedGridIndex(targetGrid, eventData);
+        GetCurrentFootprint(_currentPreviewIsRotated, out int width, out int height);
+        InventoryGridController targetController = targetGrid.GetGridController();
+
+        if (TryPlaceInEmptySpace(targetGrid, targetController, targetIndex, width, height))
+        {
+            return;
+        }
+
+        if (TryMergeWithBlockingItem(targetController, targetIndex, width, height))
+        {
+            return;
+        }
+
+        if (TrySwapWithinSameGrid(targetGrid, targetController, targetIndex, width, height))
+        {
+            return;
+        }
+
+        BounceBack();
+    }
+
+    /// <summary>
+    /// 物品成功放入新位置后，同步网格和视图状态。
+    /// </summary>
+    public void PlaceSuccessfully(Vector2Int index, bool isRotated)
+    {
+        if (CurrentGrid == null)
+        {
+            return;
+        }
+
+        CurrentGrid.GetGridController().PlaceItem(this, index.x, index.y, isRotated);
+        _originalGridIndex = index;
+        _originalIsRotated = isRotated;
+        _currentPreviewIsRotated = isRotated;
+        _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(index.x, index.y);
+        UpdateVisualSize(isRotated);
+    }
+
+    /// <summary>
+    /// 将物品恢复到拖拽前的位置或槽位。
+    /// </summary>
+    public void BounceBack()
+    {
+        if (TryRestoreToGrid())
+        {
+            return;
+        }
+
+        if (TryRestoreToEquipmentSlot())
+        {
+            return;
+        }
+
+        if (_originalParent != null)
+        {
+            transform.SetParent(_originalParent, false);
+            _rectTransform.anchoredPosition = Vector2.zero;
+            _currentPreviewIsRotated = _originalIsRotated;
+            UpdateVisualSize(_originalIsRotated);
         }
     }
 
-    // =========================================================
-    // 【PRD 模块三：严格的防套娃约束 (Anti-Nesting Rules)】
-    // =========================================================
-    private bool CheckAntiMatryoshka(InventoryUIController targetGrid)
+    /// <summary>
+    /// 刷新堆叠数量文本。
+    /// </summary>
+    public void UpdateAmountText()
     {
-        // 规则 2：【背包】绝对禁止放入任何容器（防止无限套娃）
-        if (this.ItemData.Type == ItemType.Bag)
+        if (AmountText == null)
         {
-            Debug.LogWarning("防套娃保护：背包类物品禁止放入其他网格容器中！");
+            return;
+        }
+
+        bool shouldShow = ItemData != null && ItemData.IsStackable && CurrentAmount > 0 && CanInteractWithItem();
+        AmountText.gameObject.SetActive(shouldShow);
+        if (shouldShow)
+        {
+            AmountText.text = CurrentAmount.ToString();
+        }
+    }
+
+    /// <summary>
+    /// 强制结束拖拽态，不改变物品最终位置。
+    /// </summary>
+    public void ForceEndDrag()
+    {
+        RestoreDragVisualState();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!CanInteractWithItem())
+        {
+            return;
+        }
+
+        if (eventData.button != PointerEventData.InputButton.Left || eventData.dragging)
+        {
+            return;
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+        {
+            ExecuteQuickTransfer();
+            return;
+        }
+
+        if (ItemData != null && ItemData.IsStackable && CurrentAmount > 1)
+        {
+            SplitUIController.Instance?.OpenSplitWindow(this);
+        }
+    }
+
+    /// <summary>
+    /// 执行堆叠拆分。
+    /// </summary>
+    public void ExecuteSplit(int splitAmount)
+    {
+        if (CurrentGrid == null || ItemData == null)
+        {
+            return;
+        }
+
+        if (!CurrentGrid.GetGridController().FindSpaceAround(_originalGridIndex.x, _originalGridIndex.y, ItemData.Width, ItemData.Height, out Vector2Int position, out bool needsRotation))
+        {
+            return;
+        }
+
+        CurrentAmount -= splitAmount;
+        UpdateAmountText();
+
+        GameObject clone = Instantiate(gameObject, CurrentGrid.ItemContainer, false);
+        DraggableItemUI cloneItem = clone.GetComponent<DraggableItemUI>();
+        cloneItem.CurrentGrid = CurrentGrid;
+        cloneItem.IsDebugItem = false;
+        cloneItem.name = name + "_Split";
+
+        CanvasGroup cloneCanvasGroup = cloneItem.GetComponent<CanvasGroup>();
+        if (cloneCanvasGroup != null)
+        {
+            cloneCanvasGroup.alpha = 1f;
+            cloneCanvasGroup.blocksRaycasts = true;
+        }
+
+        cloneItem.CurrentAmount = splitAmount;
+        cloneItem.InternalItems = CloneSaveDataList(InternalItems);
+        cloneItem.InternalCellStates = CloneCellStateList(InternalCellStates);
+        cloneItem.InitializeItem(ItemData, position, needsRotation);
+        CurrentGrid.GetGridController().PlaceItem(cloneItem, position.x, position.y, needsRotation);
+    }
+
+    /// <summary>
+    /// 导出当前物品的持久化快照。
+    /// </summary>
+    public ContainerItemSaveData CreateSaveDataSnapshot()
+    {
+        return new ContainerItemSaveData
+        {
+            ItemData = ItemData,
+            Amount = CurrentAmount,
+            X = _originalGridIndex.x,
+            Y = _originalGridIndex.y,
+            IsRotated = _originalIsRotated,
+            RequiresSearch = _requiresSearch,
+            IsSearched = _isSearched,
+            SearchProgressSeconds = _searchProgressSeconds,
+            SearchDurationSeconds = _searchDurationSeconds,
+            InternalItems = CloneSaveDataList(InternalItems),
+            InternalCellStates = CloneCellStateList(InternalCellStates)
+        };
+    }
+
+    /// <summary>
+    /// 判断当前容器物品的内部是否完全为空。
+    /// </summary>
+    public bool IsContainerCompletelyEmpty()
+    {
+        bool hasInternalItems = InternalItems != null && InternalItems.Count > 0;
+        bool hasInternalCellStates = InternalCellStates != null && InternalCellStates.Count > 0;
+        return !hasInternalItems && !hasInternalCellStates;
+    }
+
+    /// <summary>
+    /// 判断当前物品是否允许放入目标网格。
+    /// </summary>
+    public bool CanBePlacedInGrid(InventoryUIController targetGrid)
+    {
+        if (targetGrid == null || ItemData == null)
+        {
             return false;
         }
 
-        // 规则 1：【胸挂】放入时必须检查内部是否为空（这里先做类型拦截，后续有了多网格再校验内部）
-        if (this.ItemData.Type == ItemType.Rig)
+        if (ItemData.Type == ItemType.Bag && IsBackpackGrid(targetGrid))
         {
-            // TODO: 后续接入容器数据后，这里要 if (this.ContainerData.IsEmpty == false) return false;
-            Debug.Log("防套娃检查：胸挂正在放入，请确保其内部为空！(目前暂时放行)");
+            return false;
         }
 
-        return true; // 校验通过
+        if (ItemData.Type == ItemType.Rig && IsBackpackGrid(targetGrid) && !IsContainerCompletelyEmpty())
+        {
+            return false;
+        }
+
+        return true;
     }
 
-
-
-    // 当玩家松开鼠标，结束拖拽的那一帧触发
-    public void OnEndDrag(PointerEventData eventData)
+    private void EnsureComponents()
     {
-        CurrentlyDraggedItem = this; // 记录自己正在被拖拽
-
-        // 1. 恢复UI透明度，开启射线拦截（允许再次被点击）
-        _canvasGroup.alpha = 1f;
-        _canvasGroup.blocksRaycasts = true;
-
-        // 隐藏绿框
-        if (_lastHoveredGrid != null) _lastHoveredGrid.HideHighlight();
-
-        // 再次发射射线，确认最终扔在了哪个背包上
-        InventoryUIController targetGrid = GetHoveredGrid(eventData);
-
-        // 【核心修改 1：丢弃物品到 3D 场景】
-        // 如果扔在了没有背包面板的空地上（UI 外）
-        // =========================================================
-        if (targetGrid == null)
+        if (_rectTransform == null)
         {
-            DropToWorld(); // <--- 替换掉原来的 BounceBack()
-            return;
+            _rectTransform = GetComponent<RectTransform>();
         }
 
-        // =========================================================
-        // 【核心修改 2：放入前，进行防套娃安全性扫描】
-        // =========================================================
-        if (!CheckAntiMatryoshka(targetGrid))
+        if (_itemImage == null)
         {
-            BounceBack(); // 触发防套娃，弹回老家！
-            return;
+            _itemImage = GetComponent<Image>();
         }
 
-        // 2. 重复 OnDrag 里的计算：利用 鼠标位置+屏幕偏差 推算出物品在目标背包里的绝对格子索引
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(targetGrid.ItemContainer, eventData.position, eventData.pressEventCamera, out Vector2 currentMouseLocalPos);
-
-        Vector2 predictedLocalPos = currentMouseLocalPos + _localGridOffset;
-        Vector2Int targetIndex = targetGrid.GetGridIndex(predictedLocalPos);
-
-        int finalW = _currentPreviewIsRotated ? ItemData.Height : ItemData.Width;
-        int finalH = _currentPreviewIsRotated ? ItemData.Width : ItemData.Height;
-        InventoryGridController targetGridController = targetGrid.GetGridController();
-
-        // 3. 终极判定：目标位置是纯净的空格子吗？
-        bool isSpaceAvailable = targetGridController.IsSpaceAvailable(targetIndex.x, targetIndex.y, finalW, finalH);
-
-        // 如果不是纯净的空格子（被占用了）
-        if (!isSpaceAvailable)
+        if (_canvasGroup == null)
         {
-            // 获取被压住的物品都有谁
-            HashSet<DraggableItemUI> blockingItems = targetGridController.GetItemsInArea(targetIndex.x, targetIndex.y, finalW, finalH);
-
-            // 目前仅支持1换1的操作
-            if (blockingItems.Count == 1)
+            _canvasGroup = GetComponent<CanvasGroup>();
+            if (_canvasGroup == null)
             {
-                DraggableItemUI blockingUI = null;
-                foreach (var item in blockingItems) blockingUI = item; // 取出被压住的那个倒霉蛋
-
-                // 【判定 A：堆叠系统】
-                // 如果是同类型、且支持堆叠的物品
-                if (this.ItemData == blockingUI.ItemData && this.ItemData.IsStackable)
-                {
-                    int totalAmount = this.CurrentAmount + blockingUI.CurrentAmount;
-
-                    // 没有超出上限：全部融合给目标
-                    if (totalAmount <= this.ItemData.MaxStack)
-                    {
-                        blockingUI.CurrentAmount = totalAmount;
-                        blockingUI.UpdateAmountText();
-                        Destroy(this.gameObject); // 自己销毁
-                        return;
-                    }
-                    else
-                    {
-                        // 溢出：目标补满，自己扣除差值并弹回原处
-                        int overflow = totalAmount - this.ItemData.MaxStack;
-                        blockingUI.CurrentAmount = this.ItemData.MaxStack;
-                        blockingUI.UpdateAmountText();
-
-                        this.CurrentAmount = overflow;
-                        this.UpdateAmountText();
-                        BounceBack();
-                        return;
-                    }
-                }
-
-                // 【判定 B：完美互换系统 (仅限同容器)】
-                if (targetGrid == CurrentGrid)
-                {
-                    // 1. 把倒霉蛋拿出来
-                    targetGridController.RemoveItem(blockingUI, blockingUI._originalGridIndex.x, blockingUI._originalGridIndex.y, blockingUI._originalIsRotated);
-
-                    // 2. 看看现在有位置放自己了吗？
-                    if (targetGridController.IsSpaceAvailable(targetIndex.x, targetIndex.y, finalW, finalH))
-                    {
-                        // 自己先占住这个坑，防Bug
-                        targetGridController.PlaceItem(this, targetIndex.x, targetIndex.y, _currentPreviewIsRotated);
-
-                        int targetW = blockingUI._originalIsRotated ? blockingUI.ItemData.Height : blockingUI.ItemData.Width;
-                        int targetH = blockingUI._originalIsRotated ? blockingUI.ItemData.Width : blockingUI.ItemData.Height;
-                        bool targetFoundSpace = false;
-                        Vector2Int targetNewPos = Vector2Int.zero;
-                        bool targetNewRot = false;
-
-                        // 尝试把倒霉蛋放到自己以前的位置（原地互换）
-                        if (targetGridController.IsSpaceAvailable(_originalGridIndex.x, _originalGridIndex.y, targetW, targetH))
-                        {
-                            targetFoundSpace = true;
-                            targetNewPos = _originalGridIndex;
-                            targetNewRot = blockingUI._originalIsRotated;
-                        }
-                        // 尝试让倒霉蛋在背包里另找一个空位
-                        else if (targetGridController.FindFirstAvailableSpace(blockingUI.ItemData.Width, blockingUI.ItemData.Height, out targetNewPos, out targetNewRot))
-                        {
-                            targetFoundSpace = true;
-                        }
-
-                        // 自己从坑里退出来
-                        targetGridController.RemoveItem(this, targetIndex.x, targetIndex.y, _currentPreviewIsRotated);
-
-                        // 互换成功执行
-                        if (targetFoundSpace)
-                        {
-                            blockingUI.PlaceSuccessfully(targetNewPos, targetNewRot);
-                            transform.SetParent(targetGrid.ItemContainer, false);
-                            PlaceSuccessfully(targetIndex, _currentPreviewIsRotated);
-                            return;
-                        }
-                    }
-                    // 互换失败，把倒霉蛋放回原位
-                    targetGridController.PlaceItem(blockingUI, blockingUI._originalGridIndex.x, blockingUI._originalGridIndex.y, blockingUI._originalIsRotated);
-                }
+                _canvasGroup = gameObject.AddComponent<CanvasGroup>();
             }
+        }
 
-            // 非堆叠、或者是跨容器的非法挤压：全部拦截并弹回！
-            Debug.LogWarning("目标位置有冲突，且不可堆叠/不可跨界互换！零容忍弹回！");
+        _rectTransform.anchorMin = new Vector2(0f, 1f);
+        _rectTransform.anchorMax = new Vector2(0f, 1f);
+        _rectTransform.pivot = new Vector2(0f, 1f);
+
+        EnsureSearchOverlay();
+    }
+
+    private bool TryDetachFromEquipmentSlot()
+    {
+        EquipmentSlotUI sourceSlot = GetComponentInParent<EquipmentSlotUI>();
+        if (sourceSlot == null || sourceSlot.EquippedItem != this)
+        {
+            return false;
+        }
+
+        sourceSlot.Unequip();
+        return true;
+    }
+
+    private void PrepareDragVisual(PointerEventData eventData)
+    {
+        RectTransform dragLayer = InventoryItemFactory.Instance != null
+            ? InventoryItemFactory.Instance.GlobalDragLayer as RectTransform
+            : null;
+
+        if (dragLayer == null)
+        {
+            return;
+        }
+
+        transform.SetParent(dragLayer, true);
+        transform.SetAsLastSibling();
+
+        RectTransformUtility.ScreenPointToWorldPointInRectangle(dragLayer, eventData.position, eventData.pressEventCamera, out Vector3 worldMousePosition);
+        _visualDragOffset = _rectTransform.position - worldMousePosition;
+
+        _canvasGroup.alpha = 0.6f;
+        _canvasGroup.blocksRaycasts = false;
+    }
+
+    private void UpdateDraggedVisual(PointerEventData eventData)
+    {
+        RectTransform dragLayer = InventoryItemFactory.Instance != null
+            ? InventoryItemFactory.Instance.GlobalDragLayer as RectTransform
+            : null;
+
+        if (dragLayer == null)
+        {
+            return;
+        }
+
+        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(dragLayer, eventData.position, eventData.pressEventCamera, out Vector3 worldMousePosition))
+        {
+            _rectTransform.position = worldMousePosition + _visualDragOffset;
+        }
+    }
+
+    private void UpdateHighlightPreview(PointerEventData eventData)
+    {
+        InventoryUIController hoveredGrid = GetHoveredGrid(eventData);
+        if (_lastHoveredGrid != null && _lastHoveredGrid != hoveredGrid)
+        {
+            _lastHoveredGrid.HideHighlight();
+        }
+
+        _lastHoveredGrid = hoveredGrid;
+        if (hoveredGrid == null || ItemData == null)
+        {
+            return;
+        }
+
+        Vector2Int hoverIndex = GetPredictedGridIndex(hoveredGrid, eventData);
+        GetCurrentFootprint(_currentPreviewIsRotated, out int width, out int height);
+        UpdatePreviewRotationIfNeeded(hoveredGrid, hoverIndex, ref width, ref height);
+
+        bool canPlace = hoveredGrid.GetGridController().IsSpaceAvailable(hoverIndex.x, hoverIndex.y, width, height);
+        hoveredGrid.ShowHighlight(hoverIndex.x, hoverIndex.y, width, height, canPlace);
+    }
+
+    private Vector2Int GetPredictedGridIndex(InventoryUIController grid, PointerEventData eventData)
+    {
+        Vector2 currentMouseLocal = grid.GetGridLocalPoint(eventData.position, eventData.pressEventCamera);
+        Vector2 predictedLocalPosition = currentMouseLocal + _localGridOffset;
+        return grid.GetGridIndex(predictedLocalPosition);
+    }
+
+    private void UpdatePreviewRotationIfNeeded(InventoryUIController hoveredGrid, Vector2Int hoverIndex, ref int width, ref int height)
+    {
+        int cols = hoveredGrid.GetGridController().Columns;
+        int rows = hoveredGrid.GetGridController().Rows;
+
+        int overX = hoverIndex.x < 0 ? -hoverIndex.x : Mathf.Max(0, hoverIndex.x + width - cols);
+        int overY = hoverIndex.y < 0 ? -hoverIndex.y : Mathf.Max(0, hoverIndex.y + height - rows);
+
+        bool nextRotation = _currentPreviewIsRotated;
+        if (overX > 0 && overX >= overY && width > height)
+        {
+            nextRotation = !_currentPreviewIsRotated;
+        }
+        else if (overY > 0 && overY > overX && height > width)
+        {
+            nextRotation = !_currentPreviewIsRotated;
+        }
+
+        if (nextRotation == _currentPreviewIsRotated)
+        {
+            return;
+        }
+
+        _currentPreviewIsRotated = nextRotation;
+        UpdateVisualSize(_currentPreviewIsRotated);
+        GetCurrentFootprint(_currentPreviewIsRotated, out width, out height);
+    }
+
+    private bool TryPlaceInEmptySpace(InventoryUIController targetGrid, InventoryGridController targetController, Vector2Int targetIndex, int width, int height)
+    {
+        if (!targetController.IsSpaceAvailable(targetIndex.x, targetIndex.y, width, height))
+        {
+            return false;
+        }
+
+        transform.SetParent(targetGrid.ItemContainer, false);
+        CurrentGrid = targetGrid;
+        PlaceSuccessfully(targetIndex, _currentPreviewIsRotated);
+        return true;
+    }
+
+    private bool TryMergeWithBlockingItem(InventoryGridController targetController, Vector2Int targetIndex, int width, int height)
+    {
+        HashSet<DraggableItemUI> blockingItems = targetController.GetItemsInArea(targetIndex.x, targetIndex.y, width, height);
+        if (blockingItems.Count != 1)
+        {
+            return false;
+        }
+
+        DraggableItemUI blockingItem = GetSingleItem(blockingItems);
+        if (blockingItem == null || ItemData != blockingItem.ItemData || ItemData == null || !ItemData.IsStackable)
+        {
+            return false;
+        }
+
+        int totalAmount = CurrentAmount + blockingItem.CurrentAmount;
+        if (totalAmount <= ItemData.MaxStack)
+        {
+            blockingItem.CurrentAmount = totalAmount;
+            blockingItem.UpdateAmountText();
+            Destroy(gameObject);
+        }
+        else
+        {
+            CurrentAmount = totalAmount - ItemData.MaxStack;
+            blockingItem.CurrentAmount = ItemData.MaxStack;
+            UpdateAmountText();
+            blockingItem.UpdateAmountText();
+            BounceBack();
+        }
+
+        return true;
+    }
+
+    private bool TrySwapWithinSameGrid(InventoryUIController targetGrid, InventoryGridController targetController, Vector2Int targetIndex, int width, int height)
+    {
+        if (targetGrid != CurrentGrid)
+        {
+            return false;
+        }
+
+        HashSet<DraggableItemUI> blockingItems = targetController.GetItemsInArea(targetIndex.x, targetIndex.y, width, height);
+        if (blockingItems.Count != 1)
+        {
+            return false;
+        }
+
+        DraggableItemUI blockingItem = GetSingleItem(blockingItems);
+        if (blockingItem == null)
+        {
+            return false;
+        }
+
+        targetController.RemoveItem(blockingItem, blockingItem._originalGridIndex.x, blockingItem._originalGridIndex.y, blockingItem._originalIsRotated);
+        if (!targetController.IsSpaceAvailable(targetIndex.x, targetIndex.y, width, height))
+        {
+            targetController.PlaceItem(blockingItem, blockingItem._originalGridIndex.x, blockingItem._originalGridIndex.y, blockingItem._originalIsRotated);
+            return false;
+        }
+
+        targetController.PlaceItem(this, targetIndex.x, targetIndex.y, _currentPreviewIsRotated);
+
+        GetCurrentFootprint(blockingItem._originalIsRotated, blockingItem, out int blockingWidth, out int blockingHeight);
+        if (targetController.IsSpaceAvailable(_originalGridIndex.x, _originalGridIndex.y, blockingWidth, blockingHeight))
+        {
+            blockingItem.PlaceSuccessfully(_originalGridIndex, blockingItem._originalIsRotated);
+            transform.SetParent(targetGrid.ItemContainer, false);
+            PlaceSuccessfully(targetIndex, _currentPreviewIsRotated);
+            return true;
+        }
+
+        if (targetController.FindFirstAvailableSpace(blockingItem.ItemData.Width, blockingItem.ItemData.Height, out Vector2Int newPosition, out bool needsRotation))
+        {
+            blockingItem.PlaceSuccessfully(newPosition, needsRotation);
+            transform.SetParent(targetGrid.ItemContainer, false);
+            PlaceSuccessfully(targetIndex, _currentPreviewIsRotated);
+            return true;
+        }
+
+        targetController.RemoveItem(this, targetIndex.x, targetIndex.y, _currentPreviewIsRotated);
+        targetController.PlaceItem(blockingItem, blockingItem._originalGridIndex.x, blockingItem._originalGridIndex.y, blockingItem._originalIsRotated);
+        return false;
+    }
+
+    private bool TryRestoreToGrid()
+    {
+        if (CurrentGrid == null)
+        {
+            return false;
+        }
+
+        transform.SetParent(CurrentGrid.ItemContainer, false);
+        CurrentGrid.GetGridController().PlaceItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
+        _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(_originalGridIndex.x, _originalGridIndex.y);
+        _currentPreviewIsRotated = _originalIsRotated;
+        UpdateVisualSize(_originalIsRotated);
+        return true;
+    }
+
+    private bool TryRestoreToEquipmentSlot()
+    {
+        EquipmentSlotUI originalSlot = _originalParent != null ? _originalParent.GetComponent<EquipmentSlotUI>() : null;
+        if (originalSlot == null)
+        {
+            return false;
+        }
+
+        bool equipped = originalSlot.TryEquip(this);
+        if (equipped)
+        {
+            _currentPreviewIsRotated = _originalIsRotated;
+            UpdateVisualSize(_originalIsRotated);
+        }
+
+        return equipped;
+    }
+
+    private void UpdateVisualSize(bool isRotated)
+    {
+        if (ItemData == null)
+        {
+            return;
+        }
+
+        GetCurrentFootprint(isRotated, out int width, out int height);
+        if (CurrentGrid != null)
+        {
+            _rectTransform.sizeDelta = CurrentGrid.GetItemActualSize(width, height);
+        }
+        else
+        {
+            _rectTransform.sizeDelta = new Vector2(width * 50 + (width - 1) * 2, height * 50 + (height - 1) * 2);
+        }
+
+        _rectTransform.localEulerAngles = Vector3.zero;
+        ResizeSearchOverlay();
+    }
+
+    private void DropToWorld()
+    {
+        if (ItemData == null || ItemData.WorldPrefab == null)
+        {
             BounceBack();
             return;
         }
 
-        // --- 如果是完美的空位，直接放入新位置 ---
-        transform.SetParent(targetGrid.ItemContainer, false);
-        CurrentGrid = targetGrid;
-        PlaceSuccessfully(targetIndex, _currentPreviewIsRotated);
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        Vector3 spawnPosition = player != null
+            ? player.transform.position + player.transform.forward * 1.5f + Vector3.up
+            : Vector3.zero;
+
+        GameObject droppedObject = Instantiate(ItemData.WorldPrefab, spawnPosition, Quaternion.identity);
+        droppedObject.GetComponent<WorldLootItem>()?.InitializeDrop(
+            ItemData,
+            CurrentAmount,
+            CloneSaveDataList(InternalItems),
+            CloneCellStateList(InternalCellStates));
+        Destroy(gameObject);
     }
 
-    // 被 GameUIController 强行中断时调用
-    public void ForceEndDrag()
+    private void RestoreDragVisualState()
     {
         _canvasGroup.alpha = 1f;
         _canvasGroup.blocksRaycasts = true;
 
-        // =========================================================
-        // 【核心修复】：强中断时，别忘了把刚才悬停的绿框/红框也一起关掉！
-        // =========================================================
         if (_lastHoveredGrid != null)
         {
             _lastHoveredGrid.HideHighlight();
         }
 
+        _lastHoveredGrid = null;
         CurrentlyDraggedItem = null;
-        if (SplitUIController.Instance != null) SplitUIController.Instance.CloseWindow();
     }
 
-
-
-    // ==========================================
-    // 内部助手函数
-    // ==========================================
-
-    // 成功放置到目标格子
-    public void PlaceSuccessfully(Vector2Int index, bool isRotated)
+    private bool CanInteractWithItem()
     {
-        // 写入底层二维数组
-        CurrentGrid.GetGridController().PlaceItem(this, index.x, index.y, isRotated);
-        _originalGridIndex = index;
-        _originalIsRotated = isRotated;
-
-        // 根据当前的背包(CurrentGrid)获取精准的UI局部坐标，强行覆盖给物品！
-        _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(index.x, index.y);
-
-        _currentPreviewIsRotated = isRotated;
-        UpdateVisualSize(isRotated);
+        return (!_requiresSearch || _isSearched) && !_isRevealAnimating;
     }
 
-    // 放置失败，弹回老家
-    public void BounceBack()
-    {
-        // 认回老父亲，防止流落在全局拖拽层
-        transform.SetParent(CurrentGrid.ItemContainer, false);
-
-        CurrentGrid.GetGridController().PlaceItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
-
-        // 读取原本的格子坐标进行还原
-        _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(_originalGridIndex.x, _originalGridIndex.y);
-
-        _currentPreviewIsRotated = _originalIsRotated;
-        UpdateVisualSize(_originalIsRotated);
-    }
-
-    // 更新物品在UI上的宽和高
-    private void UpdateVisualSize(bool isRotated)
-    {
-        int actualWidth = isRotated ? ItemData.Height : ItemData.Width;
-        int actualHeight = isRotated ? ItemData.Width : ItemData.Height;
-
-        if (CurrentGrid != null)
-        {
-            // 通过所属的 UI Controller 获取包含了边距(Spacing)的真实尺寸
-            _rectTransform.sizeDelta = CurrentGrid.GetItemActualSize(actualWidth, actualHeight);
-        }
-        // 彻底禁止Z轴旋转，防止UI错位
-        _rectTransform.localEulerAngles = Vector3.zero;
-    }
-
-    // 刷新物品右下角的堆叠数量显示
-    public void UpdateAmountText()
-    {
-        if (AmountText == null) return;
-
-        if (ItemData != null && ItemData.IsStackable && CurrentAmount > 0)
-        {
-            AmountText.text = CurrentAmount.ToString();
-            AmountText.gameObject.SetActive(true);
-        }
-        else
-        {
-            AmountText.gameObject.SetActive(false);
-        }
-    }
-
-
-    // ==========================================
-    // 拆分与交互功能
-    // ==========================================
-
-    // 接口实现：监听鼠标单击
-    // 接口实现：监听鼠标单击
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left && !eventData.dragging)
-        {
-            // =========================================================
-            // 【PRD 核心：快捷转移 (Quick Transfer)】
-            // 判定：按住了左侧或右侧的 Ctrl 键 + 鼠标左键
-            // =========================================================
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-            {
-                ExecuteQuickTransfer();
-                return; // 执行完转移后直接返回，防止弹出拆分窗口
-            }
-
-            // 原来的拆分判定
-            if (ItemData != null && ItemData.IsStackable && CurrentAmount > 1)
-            {
-                SplitUIController.Instance.OpenSplitWindow(this);
-            }
-        }
-    }
-
-    // 执行跨容器快捷转移
-   // 执行跨容器快捷转移
     private void ExecuteQuickTransfer()
     {
-        // 直接问雷达交警：整个系统里，还有哪个格子能容得下我？
-        if (GameUIController.Instance.TryFindQuickTransferTarget(CurrentGrid, ItemData, out InventoryUIController targetGrid, out Vector2Int newPos, out bool needsRot))
+        if (CurrentGrid == null || ItemData == null || GameUIController.Instance == null)
         {
-            // 1. 拔出老家
-            CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
+            return;
+        }
 
-            // 2. 认新主人，落户新家
-            transform.SetParent(targetGrid.ItemContainer, false);
-            CurrentGrid = targetGrid;
-            
-            // 3. 在算好的坐标上完美降落
-            PlaceSuccessfully(newPos, needsRot);
-            
-            Debug.Log($"✅ 快捷转移成功！{ItemData.ItemName} 瞬间飞入了 {targetGrid.gameObject.name}");
-        }
-        else
+        if (!GameUIController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
         {
-            Debug.LogWarning($"⚠️ 快捷转移失败：全身的容器空间都满啦（或放不下大件物品）！");
+            return;
         }
+
+        CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
+        transform.SetParent(targetGrid.ItemContainer, false);
+        CurrentGrid = targetGrid;
+        PlaceSuccessfully(position, needsRotation);
     }
 
-    // 被拆分窗口点击确定时调用
-    public void ExecuteSplit(int splitAmount)
-    {
-        InventoryGridController gridController = CurrentGrid.GetGridController();
-
-        // 以原物品为中心向四周扫描空位
-        if (gridController.FindSpaceAround(_originalGridIndex.x, _originalGridIndex.y, ItemData.Width, ItemData.Height, out Vector2Int newPos, out bool needsRot))
-        {
-            // 扣除本体数量
-            this.CurrentAmount -= splitAmount;
-            this.UpdateAmountText();
-
-            // 生成克隆体（false 参数保证使用局部的纯净坐标，防止克隆体漂移）
-            GameObject cloneObj = Instantiate(this.gameObject, CurrentGrid.ItemContainer, false);
-
-            DraggableItemUI cloneUI = cloneObj.GetComponent<DraggableItemUI>();
-            cloneUI.IsDebugItem = false;
-            cloneUI.name = this.gameObject.name + "_SplitClone";
-            // 【极其重要】：赋予克隆体原本的主人，防止它是孤儿导致拖拽报空指针
-            cloneUI.CurrentGrid = this.CurrentGrid;
-
-            // 恢复克隆体的透明度和射线接收
-            CanvasGroup cloneCanvasGroup = cloneUI.GetComponent<CanvasGroup>();
-            if (cloneCanvasGroup != null)
-            {
-                cloneCanvasGroup.alpha = 1f;
-                cloneCanvasGroup.blocksRaycasts = true;
-            }
-
-            cloneUI.CurrentAmount = splitAmount;
-
-            // 初始化克隆体并在新位置写入数据
-            cloneUI.InitializeItem(ItemData, newPos, needsRot);
-            gridController.PlaceItem(cloneUI, newPos.x, newPos.y, needsRot);
-            cloneUI.UpdateAmountText();
-        }
-        else
-        {
-            Debug.LogWarning("背包空间不足，无法进行拆分！");
-        }
-    }
-
-    // ==========================================
-    // 雷达探测
-    // ==========================================
-
-    // 发射射线探测鼠标此时此刻停留在哪个背包的 UI 上
     private InventoryUIController GetHoveredGrid(PointerEventData eventData)
     {
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
-        foreach (var result in results)
+        foreach (RaycastResult result in results)
         {
-            // 向上遍历父节点，只要找到了挂载着 InventoryUIController 的面板就返回它
             InventoryUIController grid = result.gameObject.GetComponentInParent<InventoryUIController>();
-            if (grid != null) return grid;
+            if (grid != null)
+            {
+                return grid;
+            }
         }
-        return null; // 鼠标指在了空气中
+
+        return null;
     }
 
+    private EquipmentSlotUI GetHoveredEquipmentSlot(PointerEventData eventData)
+    {
+        if (GameUIController.Instance != null)
+        {
+            EquipmentSlotUI slotFromScreenPoint = GameUIController.Instance.GetEquipmentSlotAtScreenPosition(
+                eventData.position,
+                eventData.pressEventCamera);
+            if (slotFromScreenPoint != null)
+            {
+                return slotFromScreenPoint;
+            }
+        }
 
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            EquipmentSlotUI slot = result.gameObject.GetComponentInParent<EquipmentSlotUI>();
+            if (slot != null)
+            {
+                return slot;
+            }
+        }
+
+        return null;
+    }
+
+    private void GetCurrentFootprint(bool isRotated, out int width, out int height)
+    {
+        GetCurrentFootprint(isRotated, this, out width, out height);
+    }
+
+    private static void GetCurrentFootprint(bool isRotated, DraggableItemUI itemUI, out int width, out int height)
+    {
+        width = isRotated ? itemUI.ItemData.Height : itemUI.ItemData.Width;
+        height = isRotated ? itemUI.ItemData.Width : itemUI.ItemData.Height;
+    }
+
+    private static DraggableItemUI GetSingleItem(HashSet<DraggableItemUI> items)
+    {
+        foreach (DraggableItemUI item in items)
+        {
+            return item;
+        }
+
+        return null;
+    }
+
+    private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
+    {
+        List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerItemSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
+    }
+
+    private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
+    {
+        List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerCellStateSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
+    }
+
+    private static bool IsBackpackGrid(InventoryUIController targetGrid)
+    {
+        return GameUIController.Instance != null && GameUIController.Instance.BackpackGrid == targetGrid;
+    }
+
+    private void TickSearchProgress()
+    {
+        if (!_requiresSearch || _isSearched || !gameObject.activeInHierarchy)
+        {
+            return;
+        }
+
+        _searchProgressSeconds = Mathf.Min(_searchProgressSeconds + Time.unscaledDeltaTime, _searchDurationSeconds);
+        if (_searchProgressSeconds >= _searchDurationSeconds)
+        {
+            _isSearched = true;
+            _isRevealAnimating = true;
+            _revealAnimationTimer = 0f;
+            UpdateAmountText();
+        }
+
+        UpdateSearchVisualState();
+    }
+
+    private void TickSearchRevealAnimation()
+    {
+        if (!_isRevealAnimating)
+        {
+            return;
+        }
+
+        _revealAnimationTimer += Time.unscaledDeltaTime;
+        if (_revealAnimationTimer >= RevealAnimationDuration)
+        {
+            _isRevealAnimating = false;
+            _revealAnimationTimer = 0f;
+        }
+
+        UpdateSearchVisualState();
+    }
+
+    private void EnsureSearchOverlay()
+    {
+        if (_searchOverlayRoot != null)
+        {
+            return;
+        }
+
+        if (_defaultSearchSprite == null)
+        {
+            Texture2D whiteTexture = Texture2D.whiteTexture;
+            _defaultSearchSprite = Sprite.Create(
+                whiteTexture,
+                new Rect(0f, 0f, whiteTexture.width, whiteTexture.height),
+                new Vector2(0.5f, 0.5f));
+        }
+
+        if (_defaultSearchFont == null)
+        {
+            _defaultSearchFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        }
+
+        GameObject overlayRootObject = new GameObject("SearchOverlay", typeof(RectTransform));
+        overlayRootObject.transform.SetParent(transform, false);
+        _searchOverlayRoot = overlayRootObject.GetComponent<RectTransform>();
+        _searchOverlayCanvasGroup = overlayRootObject.AddComponent<CanvasGroup>();
+        _searchOverlayRoot.anchorMin = Vector2.zero;
+        _searchOverlayRoot.anchorMax = Vector2.one;
+        _searchOverlayRoot.offsetMin = Vector2.zero;
+        _searchOverlayRoot.offsetMax = Vector2.zero;
+        _searchOverlayRoot.pivot = new Vector2(0.5f, 0.5f);
+
+        GameObject backdropObject = new GameObject("Backdrop", typeof(Image));
+        backdropObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchBackdropImage = backdropObject.GetComponent<Image>();
+        RectTransform backdropRect = _searchBackdropImage.rectTransform;
+        backdropRect.anchorMin = Vector2.zero;
+        backdropRect.anchorMax = Vector2.one;
+        backdropRect.offsetMin = Vector2.zero;
+        backdropRect.offsetMax = Vector2.zero;
+        _searchBackdropImage.sprite = _defaultSearchSprite;
+        _searchBackdropImage.type = Image.Type.Simple;
+        _searchBackdropImage.color = new Color(0.02f, 0.03f, 0.04f, 0.78f);
+
+        GameObject outerTrackObject = new GameObject("OuterTrack", typeof(Image));
+        outerTrackObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchOuterTrackImage = outerTrackObject.GetComponent<Image>();
+        RectTransform outerTrackRect = _searchOuterTrackImage.rectTransform;
+        outerTrackRect.anchorMin = new Vector2(0.08f, 0.08f);
+        outerTrackRect.anchorMax = new Vector2(0.92f, 0.92f);
+        outerTrackRect.offsetMin = Vector2.zero;
+        outerTrackRect.offsetMax = Vector2.zero;
+        _searchOuterTrackImage.sprite = _defaultSearchSprite;
+        _searchOuterTrackImage.type = Image.Type.Simple;
+        _searchOuterTrackImage.color = new Color(0.15f, 0.18f, 0.22f, 0.9f);
+
+        GameObject progressObject = new GameObject("Progress", typeof(Image));
+        progressObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchProgressImage = progressObject.GetComponent<Image>();
+        RectTransform progressRect = _searchProgressImage.rectTransform;
+        progressRect.anchorMin = new Vector2(0.12f, 0.12f);
+        progressRect.anchorMax = new Vector2(0.88f, 0.88f);
+        progressRect.offsetMin = Vector2.zero;
+        progressRect.offsetMax = Vector2.zero;
+        _searchProgressImage.sprite = _defaultSearchSprite;
+        _searchProgressImage.type = Image.Type.Filled;
+        _searchProgressImage.fillMethod = Image.FillMethod.Radial360;
+        _searchProgressImage.fillOrigin = 2;
+        _searchProgressImage.fillClockwise = false;
+        _searchProgressImage.color = new Color(0.98f, 0.92f, 0.52f, 0.95f);
+
+        GameObject pulseRingObject = new GameObject("PulseRing", typeof(Image));
+        pulseRingObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchPulseRingImage = pulseRingObject.GetComponent<Image>();
+        RectTransform pulseRect = _searchPulseRingImage.rectTransform;
+        pulseRect.anchorMin = new Vector2(0.16f, 0.16f);
+        pulseRect.anchorMax = new Vector2(0.84f, 0.84f);
+        pulseRect.offsetMin = Vector2.zero;
+        pulseRect.offsetMax = Vector2.zero;
+        _searchPulseRingImage.sprite = _defaultSearchSprite;
+        _searchPulseRingImage.type = Image.Type.Simple;
+        _searchPulseRingImage.color = new Color(1f, 1f, 1f, 0.15f);
+
+        GameObject sweepObject = new GameObject("Sweep", typeof(Image));
+        sweepObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchSweepImage = sweepObject.GetComponent<Image>();
+        RectTransform sweepRect = _searchSweepImage.rectTransform;
+        sweepRect.anchorMin = new Vector2(0.485f, 0.1f);
+        sweepRect.anchorMax = new Vector2(0.515f, 0.9f);
+        sweepRect.offsetMin = Vector2.zero;
+        sweepRect.offsetMax = Vector2.zero;
+        _searchSweepImage.sprite = _defaultSearchSprite;
+        _searchSweepImage.type = Image.Type.Simple;
+        _searchSweepImage.color = new Color(0.96f, 0.99f, 1f, 0.18f);
+
+        GameObject centerGlowObject = new GameObject("CenterGlow", typeof(Image));
+        centerGlowObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchCenterGlowImage = centerGlowObject.GetComponent<Image>();
+        RectTransform centerGlowRect = _searchCenterGlowImage.rectTransform;
+        centerGlowRect.anchorMin = new Vector2(0.28f, 0.28f);
+        centerGlowRect.anchorMax = new Vector2(0.72f, 0.72f);
+        centerGlowRect.offsetMin = Vector2.zero;
+        centerGlowRect.offsetMax = Vector2.zero;
+        _searchCenterGlowImage.sprite = _defaultSearchSprite;
+        _searchCenterGlowImage.type = Image.Type.Simple;
+        _searchCenterGlowImage.color = new Color(1f, 1f, 1f, 0.08f);
+
+        GameObject revealFlashObject = new GameObject("RevealFlash", typeof(Image));
+        revealFlashObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchRevealFlashImage = revealFlashObject.GetComponent<Image>();
+        RectTransform revealFlashRect = _searchRevealFlashImage.rectTransform;
+        revealFlashRect.anchorMin = Vector2.zero;
+        revealFlashRect.anchorMax = Vector2.one;
+        revealFlashRect.offsetMin = Vector2.zero;
+        revealFlashRect.offsetMax = Vector2.zero;
+        _searchRevealFlashImage.sprite = _defaultSearchSprite;
+        _searchRevealFlashImage.type = Image.Type.Simple;
+        _searchRevealFlashImage.color = new Color(1f, 1f, 1f, 0f);
+
+        GameObject labelObject = new GameObject("StateText", typeof(Text));
+        labelObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchStateText = labelObject.GetComponent<Text>();
+        RectTransform labelRect = _searchStateText.rectTransform;
+        labelRect.anchorMin = new Vector2(0.1f, 0.26f);
+        labelRect.anchorMax = new Vector2(0.9f, 0.74f);
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+        _searchStateText.alignment = TextAnchor.MiddleCenter;
+        _searchStateText.font = _defaultSearchFont;
+        _searchStateText.fontSize = 17;
+        _searchStateText.fontStyle = FontStyle.Bold;
+        _searchStateText.color = new Color(0.96f, 0.97f, 0.98f, 0.98f);
+        _searchStateText.text = "搜索中";
+
+        GameObject rarityLabelObject = new GameObject("RarityText", typeof(Text));
+        rarityLabelObject.transform.SetParent(_searchOverlayRoot, false);
+        _searchRarityText = rarityLabelObject.GetComponent<Text>();
+        RectTransform rarityLabelRect = _searchRarityText.rectTransform;
+        rarityLabelRect.anchorMin = new Vector2(0.08f, 0.04f);
+        rarityLabelRect.anchorMax = new Vector2(0.92f, 0.22f);
+        rarityLabelRect.offsetMin = Vector2.zero;
+        rarityLabelRect.offsetMax = Vector2.zero;
+        _searchRarityText.alignment = TextAnchor.MiddleCenter;
+        _searchRarityText.font = _defaultSearchFont;
+        _searchRarityText.fontSize = 11;
+        _searchRarityText.fontStyle = FontStyle.Bold;
+        _searchRarityText.color = new Color(0.8f, 0.84f, 0.9f, 0.9f);
+        _searchRarityText.text = "SCANNING";
+
+        _searchOverlayRoot.gameObject.SetActive(false);
+    }
+
+    private void ResizeSearchOverlay()
+    {
+        if (_searchOverlayRoot == null)
+        {
+            return;
+        }
+
+        _searchOverlayRoot.SetAsLastSibling();
+    }
+
+    private void UpdateSearchVisualState()
+    {
+        EnsureSearchOverlay();
+
+        bool showOverlay = _requiresSearch && !_isSearched;
+        bool showReveal = _isRevealAnimating;
+        if (_searchOverlayRoot != null)
+        {
+            _searchOverlayRoot.gameObject.SetActive(showOverlay || showReveal);
+        }
+
+        if (!showOverlay && !showReveal)
+        {
+            if (_itemImage != null)
+            {
+                _itemImage.color = Color.white;
+            }
+
+            return;
+        }
+
+        Color rarityColor = GetSearchRarityColor();
+        float normalizedProgress = _searchDurationSeconds <= 0f
+            ? 1f
+            : Mathf.Clamp01(_searchProgressSeconds / _searchDurationSeconds);
+        float revealNormalized = _isRevealAnimating
+            ? Mathf.Clamp01(_revealAnimationTimer / RevealAnimationDuration)
+            : 0f;
+
+        if (_searchOverlayCanvasGroup != null)
+        {
+            _searchOverlayCanvasGroup.alpha = _isRevealAnimating ? 1f - revealNormalized : 1f;
+        }
+
+        if (_itemImage != null)
+        {
+            Color hiddenColor = new Color(0.16f, 0.18f, 0.2f, 0.94f);
+            _itemImage.color = Color.Lerp(hiddenColor, Color.white, revealNormalized);
+        }
+
+        if (_searchBackdropImage != null)
+        {
+            float backdropPulse = 0.76f + Mathf.Sin(Time.unscaledTime * 3.8f) * 0.06f;
+            _searchBackdropImage.color = new Color(0.02f, 0.03f, 0.04f, backdropPulse);
+        }
+
+        if (_searchOuterTrackImage != null)
+        {
+            _searchOuterTrackImage.color = new Color(0.15f, 0.18f, 0.22f, 0.92f);
+        }
+
+        if (_searchProgressImage != null)
+        {
+            _searchProgressImage.fillAmount = normalizedProgress;
+            _searchProgressImage.color = Color.Lerp(rarityColor * 0.75f, rarityColor, 0.5f + Mathf.Sin(Time.unscaledTime * 4.5f) * 0.15f);
+            _searchProgressImage.rectTransform.localEulerAngles = new Vector3(0f, 0f, -Time.unscaledTime * 210f);
+        }
+
+        if (_searchPulseRingImage != null)
+        {
+            float pulseScale = 0.94f + Mathf.Sin(Time.unscaledTime * 5.1f) * 0.06f;
+            _searchPulseRingImage.rectTransform.localScale = new Vector3(pulseScale, pulseScale, 1f);
+            _searchPulseRingImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.08f + (1f - normalizedProgress) * 0.12f);
+        }
+
+        if (_searchSweepImage != null)
+        {
+            _searchSweepImage.rectTransform.localEulerAngles = new Vector3(0f, 0f, -Time.unscaledTime * 280f);
+            _searchSweepImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.16f);
+        }
+
+        if (_searchCenterGlowImage != null)
+        {
+            float glowStrength = 0.08f + normalizedProgress * 0.18f;
+            _searchCenterGlowImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, glowStrength);
+        }
+
+        if (_searchRevealFlashImage != null)
+        {
+            if (_isRevealAnimating)
+            {
+                float flashAlpha = Mathf.Clamp01(1f - revealNormalized) * 0.85f;
+                _searchRevealFlashImage.color = new Color(1f, 1f, 1f, flashAlpha);
+                float flashScale = 0.88f + revealNormalized * 0.25f;
+                _searchRevealFlashImage.rectTransform.localScale = new Vector3(flashScale, flashScale, 1f);
+            }
+            else
+            {
+                _searchRevealFlashImage.color = new Color(1f, 1f, 1f, 0f);
+                _searchRevealFlashImage.rectTransform.localScale = Vector3.one;
+            }
+        }
+
+        if (_searchStateText != null)
+        {
+            float remainingSeconds = Mathf.Max(0f, _searchDurationSeconds - _searchProgressSeconds);
+            _searchStateText.text = _isRevealAnimating
+                ? "完成"
+                : (remainingSeconds > 0.08f ? $"{remainingSeconds:0.0}s" : "解析中");
+            _searchStateText.color = Color.Lerp(new Color(0.92f, 0.96f, 1f, 0.98f), rarityColor, 0.25f);
+        }
+
+        if (_searchRarityText != null)
+        {
+            _searchRarityText.text = _isRevealAnimating ? "REVEALED" : GetSearchRarityLabel();
+            _searchRarityText.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.92f);
+        }
+    }
+
+    private Color GetSearchRarityColor()
+    {
+        if (ItemData == null)
+        {
+            return new Color(0.95f, 0.92f, 0.52f, 1f);
+        }
+
+        return ItemData.Rarity switch
+        {
+            ItemRarity.Common => new Color(0.78f, 0.84f, 0.9f, 1f),
+            ItemRarity.Uncommon => new Color(0.53f, 0.9f, 0.66f, 1f),
+            ItemRarity.Rare => new Color(0.45f, 0.72f, 1f, 1f),
+            ItemRarity.Epic => new Color(0.93f, 0.54f, 1f, 1f),
+            ItemRarity.Legendary => new Color(1f, 0.8f, 0.34f, 1f),
+            _ => new Color(0.95f, 0.92f, 0.52f, 1f)
+        };
+    }
+
+    private string GetSearchRarityLabel()
+    {
+        if (ItemData == null)
+        {
+            return "SCANNING";
+        }
+
+        return ItemData.Rarity switch
+        {
+            ItemRarity.Common => "COMMON SIGNAL",
+            ItemRarity.Uncommon => "UNCOMMON SIGNAL",
+            ItemRarity.Rare => "RARE SIGNAL",
+            ItemRarity.Epic => "EPIC SIGNAL",
+            ItemRarity.Legendary => "LEGENDARY SIGNAL",
+            _ => "SCANNING"
+        };
+    }
 }

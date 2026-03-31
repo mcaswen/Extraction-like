@@ -1,32 +1,97 @@
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-// =========================================================
-// 【纯数据结构】：用于 100% 持久化保存容器内的物品状态
-// =========================================================
-[System.Serializable]
+/// <summary>
+/// 容器内单个物品的存档快照。
+/// </summary>
+[Serializable]
 public class ContainerItemSaveData
 {
-    public InventoryItemData ItemData; // 物品种类
-    public int Amount;                 // 叠加数量
-    public int X;                      // 在网格中的 X 坐标
-    public int Y;                      // 在网格中的 Y 坐标
-    public bool IsRotated;             // 是否旋转
+    public InventoryItemData ItemData;
+    public int Amount;
+    public int X;
+    public int Y;
+    public bool IsRotated;
+    public bool RequiresSearch;
+    public bool IsSearched = true;
+    public float SearchProgressSeconds;
+    public float SearchDurationSeconds;
+    public List<ContainerItemSaveData> InternalItems = new List<ContainerItemSaveData>();
+    public List<ContainerCellStateSaveData> InternalCellStates = new List<ContainerCellStateSaveData>();
 
-   
+    public ContainerItemSaveData DeepCopy()
+    {
+        ContainerItemSaveData copy = new ContainerItemSaveData
+        {
+            ItemData = ItemData,
+            Amount = Amount,
+            X = X,
+            Y = Y,
+            IsRotated = IsRotated,
+            RequiresSearch = RequiresSearch,
+            IsSearched = IsSearched,
+            SearchProgressSeconds = SearchProgressSeconds,
+            SearchDurationSeconds = SearchDurationSeconds,
+            InternalItems = new List<ContainerItemSaveData>(),
+            InternalCellStates = new List<ContainerCellStateSaveData>()
+        };
+
+        if (InternalItems != null)
+        {
+            foreach (ContainerItemSaveData internalItem in InternalItems)
+            {
+                if (internalItem != null)
+                {
+                    copy.InternalItems.Add(internalItem.DeepCopy());
+                }
+            }
+        }
+
+        if (InternalCellStates != null)
+        {
+            foreach (ContainerCellStateSaveData cellState in InternalCellStates)
+            {
+                if (cellState != null)
+                {
+                    copy.InternalCellStates.Add(cellState.DeepCopy());
+                }
+            }
+        }
+
+        return copy;
+    }
 }
 
-// =========================================================
-// 【多态接口】：PRD中点名要求的通用容器接口
-// 不管是地上的宝箱、尸体、还是丢在地上的背包，只要实现了它，就能和UI通信！
-// =========================================================
+/// <summary>
+/// 容器内特殊格状态的持久化快照。
+/// 用于保留搜索读条、锁定格等非物品占用状态。
+/// </summary>
+[Serializable]
+public class ContainerCellStateSaveData
+{
+    public int X;
+    public int Y;
+    public GridState State;
+
+    public ContainerCellStateSaveData DeepCopy()
+    {
+        return new ContainerCellStateSaveData
+        {
+            X = X,
+            Y = Y,
+            State = State
+        };
+    }
+}
+
+/// <summary>
+/// 所有可打开容器的统一数据接口。
+/// </summary>
 public interface IInteractableContainer
 {
-    string GetContainerName(); // 获取容器名字 (比如 "军用战利品箱")
+    string GetContainerName();
 
-    // 获取这个 3D 实体内部保存的所有物品数据
     List<ContainerItemSaveData> GetSavedItems();
 
-    // UI 关闭时，把最新的物品状态保存回这个 3D 实体里！
     void SaveItems(List<ContainerItemSaveData> items);
 }

@@ -1,48 +1,153 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+/// <summary>
+/// 物品视图工厂。
+/// 负责创建 DraggableItemUI，并把静态配置与运行时数据装配到 view 上。
+/// </summary>
 public class InventoryItemFactory : MonoBehaviour
 {
     public static InventoryItemFactory Instance { get; private set; }
 
-    [Header("全局预制体配置")]
-    public GameObject DraggableItemPrefab; // 拖入你之前做好的挂载了 DraggableItemUI 的预制体
-    public Transform GlobalDragLayer;      // 【核心】：新建一个Canvas下的空物体，用于拖拽时悬浮，防止被其他UI遮挡
+    [Header("Factory References")]
+    public GameObject DraggableItemPrefab;
+    public Transform GlobalDragLayer;
 
-    void Awake()
+    private void Awake()
     {
         Instance = this;
     }
 
     /// <summary>
-    /// 【物品工厂 API】：在指定的容器中生成一个物品
+    /// 在指定网格中生成一个物品视图。
     /// </summary>
-    public DraggableItemUI SpawnItemInGrid(InventoryItemData itemData, InventoryUIController targetGrid, int startX, int startY, int amount, bool isRotated = false)
+    public DraggableItemUI SpawnItemInGrid(
+        InventoryItemData itemData,
+        InventoryUIController targetGrid,
+        int startX,
+        int startY,
+        int amount,
+        bool isRotated = false,
+        List<ContainerItemSaveData> internalItems = null,
+        List<ContainerCellStateSaveData> internalCellStates = null)
     {
-        int w = isRotated ? itemData.Height : itemData.Width;
-        int h = isRotated ? itemData.Width : itemData.Height;
+        if (itemData == null || targetGrid == null || DraggableItemPrefab == null)
+        {
+            return null;
+        }
 
-            // 1. 数据层安全校验：这个容器的这个位置能放下吗？
-            if (targetGrid.GetGridController().IsSpaceAvailable(startX, startY, w, h))
+        int width = isRotated ? itemData.Height : itemData.Width;
+        int height = isRotated ? itemData.Width : itemData.Height;
+        if (!targetGrid.GetGridController().IsSpaceAvailable(startX, startY, width, height))
+        {
+            return null;
+        }
+
+        GameObject itemObject = Instantiate(DraggableItemPrefab, targetGrid.ItemContainer, false);
+        DraggableItemUI itemView = itemObject.GetComponent<DraggableItemUI>();
+        if (itemView == null)
+        {
+            Destroy(itemObject);
+            return null;
+        }
+
+        ConfigureItemView(itemView, itemData, amount, targetGrid, internalItems, internalCellStates);
+        itemView.InitializeItem(itemData, new Vector2Int(startX, startY), isRotated);
+        targetGrid.GetGridController().PlaceItem(itemView, startX, startY, isRotated);
+        return itemView;
+    }
+
+    /// <summary>
+    /// 创建一个未附着在网格上的悬浮物品视图。
+    /// </summary>
+    public DraggableItemUI CreateFloatingItem(
+        InventoryItemData itemData,
+        int amount,
+        List<ContainerItemSaveData> internalItems = null,
+        List<ContainerCellStateSaveData> internalCellStates = null)
+    {
+        if (itemData == null || DraggableItemPrefab == null || GlobalDragLayer == null)
+        {
+            return null;
+        }
+
+        GameObject itemObject = Instantiate(DraggableItemPrefab, GlobalDragLayer, false);
+        DraggableItemUI itemView = itemObject.GetComponent<DraggableItemUI>();
+        if (itemView == null)
+        {
+            Destroy(itemObject);
+            return null;
+        }
+
+        ConfigureItemView(itemView, itemData, amount, null, internalItems, internalCellStates);
+
+        Image image = itemView.GetComponent<Image>();
+        if (image != null && itemData.ItemIcon != null)
+        {
+            image.sprite = itemData.ItemIcon;
+        }
+
+        itemView.UpdateAmountText();
+        itemView.GetComponent<RectTransform>().sizeDelta = new Vector2(
+            itemData.Width * 50 + (itemData.Width - 1) * 2,
+            itemData.Height * 50 + (itemData.Height - 1) * 2);
+
+        return itemView;
+    }
+
+    private static void ConfigureItemView(
+        DraggableItemUI itemView,
+        InventoryItemData itemData,
+        int amount,
+        InventoryUIController targetGrid,
+        List<ContainerItemSaveData> internalItems,
+        List<ContainerCellStateSaveData> internalCellStates)
+    {
+        itemView.name = itemData.ItemName;
+        itemView.IsDebugItem = false;
+        itemView.CurrentGrid = targetGrid;
+        itemView.CurrentAmount = amount;
+        itemView.ItemData = itemData;
+        itemView.InternalItems = CloneSaveDataList(internalItems);
+        itemView.InternalCellStates = CloneCellStateList(internalCellStates);
+    }
+
+    private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
+    {
+        List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerItemSaveData item in source)
+        {
+            if (item != null)
             {
-                // 2. 实例化 UI 预制体，放置到目标容器的 ItemContainer 下
-                GameObject obj = Instantiate(DraggableItemPrefab, targetGrid.ItemContainer, false);
-                DraggableItemUI itemUI = obj.GetComponent<DraggableItemUI>();
-
-                itemUI.name = itemData.ItemName;
-                itemUI.IsDebugItem = false; // 关闭手动 Debug 模式
-                itemUI.CurrentGrid = targetGrid; // 认主：记录自己属于哪个容器
-                itemUI.CurrentAmount = amount;
-
-                // 3. 初始化并写入底层数据
-                itemUI.InitializeItem(itemData, new Vector2Int(startX, startY), isRotated);
-                targetGrid.GetGridController().PlaceItem(itemUI, startX, startY, isRotated);
-
-                return itemUI;
+                clone.Add(item.DeepCopy());
             }
-        
-        else { Debug.Log("没有TargetGrid物体"); }
+        }
 
-            Debug.LogWarning($"工厂生成失败：容器 {targetGrid.name} 的 [{startX},{startY}] 位置空间不足！");
-        return null;
+        return clone;
+    }
+
+    private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
+    {
+        List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerCellStateSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
     }
 }

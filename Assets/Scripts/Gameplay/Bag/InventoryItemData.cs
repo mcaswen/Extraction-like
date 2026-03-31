@@ -1,24 +1,92 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-// 【PRD】：定义物品类型枚举
-public enum ItemType { Weapon, Ammo, Medical, Rig, Bag, Junk }
-[CreateAssetMenu(fileName = "NewItemData", menuName = "HardcoreInventory/ItemData")]
+/// <summary>
+/// 物品主类型。
+/// </summary>
+public enum ItemType
+{
+    Weapon,
+    Ammo,
+    Medical,
+    Rig,
+    Bag,
+    Junk
+}
+
+/// <summary>
+/// 物品稀有度。
+/// 用于决定搜索耗时和表现优先级。
+/// </summary>
+public enum ItemRarity
+{
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary
+}
+
+/// <summary>
+/// 物品静态配置。
+/// ScriptableObject 只承载配置，不承载运行时状态。
+/// </summary>
+[CreateAssetMenu(fileName = "SO_Bag_NewItemData", menuName = "HardcoreInventory/ItemData")]
 public class InventoryItemData : ScriptableObject
 {
+    [Header("Container")]
+    public int ContainerColumns;
+    public int ContainerRows;
+    public List<Vector2Int> BlockedCells = new List<Vector2Int>();
+
+    [Header("Identity")]
     public string ItemID;
     public string ItemName;
     public Sprite ItemIcon;
 
-    [Header("核心类别")]
-    public ItemType Type = ItemType.Junk; // 物品类型
+    [Header("Category")]
+    public ItemType Type = ItemType.Junk;
+    public ItemRarity Rarity = ItemRarity.Common;
 
-    [Header("形态标准")][Range(1, 10)] public int Width = 1;
-    [Range(1, 10)] public int Height = 1;
+    [Header("Shape")]
+    [Range(1, 10)]
+    public int Width = 1;
 
-    [Header("堆叠机制")]
-    public bool IsStackable = false;
+    [Range(1, 10)]
+    public int Height = 1;
+
+    [Header("Stack")]
+    public bool IsStackable;
     public int MaxStack = 1;
 
-    [Header("3D 实体配置")]
-    public GameObject WorldPrefab; // 掉落在 3D 世界时的预制体模型
+    [Header("World")]
+    public GameObject WorldPrefab;
+
+    [Header("Search")]
+    public bool RequiresSearchInLootContainer = true;
+    public float SearchDurationOverride = -1f;
+
+    /// <summary>
+    /// 获取该物品在战利品容器中的默认搜索时长。
+    /// </summary>
+    public float GetSearchDurationSeconds()
+    {
+        if (SearchDurationOverride >= 0f)
+        {
+            return SearchDurationOverride;
+        }
+
+        float rarityDuration = Rarity switch
+        {
+            ItemRarity.Common => 0.45f,
+            ItemRarity.Uncommon => 0.75f,
+            ItemRarity.Rare => 1.1f,
+            ItemRarity.Epic => 1.55f,
+            ItemRarity.Legendary => 2.1f,
+            _ => 0.45f
+        };
+
+        float sizePenalty = Mathf.Max(0f, (Width * Height - 1) * 0.12f);
+        return rarityDuration + sizePenalty;
+    }
 }

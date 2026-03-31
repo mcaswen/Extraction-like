@@ -10,21 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: MedicalKit
+  m_Name: SmallRig
   m_EditorClassIdentifier: 
-  ContainerColumns: 0
-  ContainerRows: 0
-  BlockedCells: []
-  ItemID: 3
-  ItemName: MedicalKit
+  ContainerColumns: 4
+  ContainerRows: 2
+  BlockedCells:
+  - {x: 0, y: 0}
+  - {x: 3, y: 0}
+  ItemID: 8
+  ItemName: "\u5C0F\u80F8\u6302"
   ItemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  Type: 2
-  Rarity: 1
+  Type: 3
+  Rarity: 2
   Width: 2
   Height: 2
-  IsStackable: 1
+  IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 6139913516932788578, guid: 50797aa59a83f254699da2c4f127173c,
+  WorldPrefab: {fileID: 1456185909571655197, guid: da90c938d8ecc0b4689a72cd6c5b670e,
     type: 3}
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

@@ -1,27 +1,142 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class WorldLootItem : MonoBehaviour
+/// <summary>
+/// 场景中的地面掉落物。
+/// </summary>
+public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractable
 {
-    [Header("持久化数据")]
+    [Header("Runtime Data")]
     public InventoryItemData ItemData;
     public int CurrentAmount;
+    public List<ContainerItemSaveData> InternalItems = new List<ContainerItemSaveData>();
+    public List<ContainerCellStateSaveData> InternalCellStates = new List<ContainerCellStateSaveData>();
 
-    // 当物品被丢弃到地上时，由背包系统调用来写入数据
-    public void InitializeDrop(InventoryItemData data, int amount)
+    /// <summary>
+    /// 初始化一个掉落物实体。
+    /// </summary>
+    public void InitializeDrop(
+        InventoryItemData data,
+        int amount,
+        List<ContainerItemSaveData> internalItems = null,
+        List<ContainerCellStateSaveData> internalCellStates = null)
     {
         ItemData = data;
         CurrentAmount = amount;
-
-        Debug.Log($"实体化成功：生成了一个 {data.ItemName}，数量为 {amount}");
-
-        // 如果你们有 3D 物理需求，可以在这里给刚体加上一点随机抛物线推力
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            Vector3 randomDirection = new Vector3(Random.Range(-1f, 1f), 1f, Random.Range(-1f, 1f)).normalized;
-            rb.AddForce(randomDirection * 3f, ForceMode.Impulse);
-        }
+        InternalItems = CloneSaveDataList(internalItems);
+        InternalCellStates = CloneCellStateList(internalCellStates);
+        ApplyRandomImpulse();
     }
 
-    // 后续可以用射线或者碰撞触发拾取，调用 InventoryItemFactory.Instance 重新塞回背包
+    public string GetPromptText()
+    {
+        if (ItemData == null)
+        {
+            return "[F] 拾取";
+        }
+
+        if (ItemData.Type == ItemType.Bag || ItemData.Type == ItemType.Rig)
+        {
+            return $"[F] 收纳 {ItemData.ItemName}";
+        }
+
+        if (ItemData.IsStackable)
+        {
+            return $"[F] 拾取 {ItemData.ItemName} x{CurrentAmount}";
+        }
+
+        return $"[F] 拾取 {ItemData.ItemName}";
+    }
+
+    public void Interact()
+    {
+        if (GameUIController.Instance == null || !GameUIController.Instance.TryStoreWorldItem(this))
+        {
+            return;
+        }
+
+        Debug.Log($"Picked up {ItemData.ItemName}.");
+        Destroy(gameObject);
+    }
+
+    public string GetSecondaryPromptText()
+    {
+        if (ItemData == null)
+        {
+            return string.Empty;
+        }
+
+        if (ItemData.Type == ItemType.Bag || ItemData.Type == ItemType.Rig)
+        {
+            return $"[E] 装备/替换 {ItemData.ItemName}";
+        }
+
+        return string.Empty;
+    }
+
+    public void SecondaryInteract()
+    {
+        if (ItemData == null || (ItemData.Type != ItemType.Bag && ItemData.Type != ItemType.Rig))
+        {
+            return;
+        }
+
+        if (GameUIController.Instance == null || !GameUIController.Instance.TryEquipWorldContainer(this))
+        {
+            return;
+        }
+
+        Debug.Log($"Equipped {ItemData.ItemName}.");
+        Destroy(gameObject);
+    }
+
+    private void ApplyRandomImpulse()
+    {
+        Rigidbody rigidbodyComponent = GetComponent<Rigidbody>();
+        if (rigidbodyComponent == null)
+        {
+            return;
+        }
+
+        Vector3 randomDirection = new Vector3(Random.Range(-1f, 1f), 1f, Random.Range(-1f, 1f)).normalized;
+        rigidbodyComponent.AddForce(randomDirection * 3f, ForceMode.Impulse);
+    }
+
+    private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
+    {
+        List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerItemSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
+    }
+
+    private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
+    {
+        List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerCellStateSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
+    }
 }

@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e699de92a0103bd47958198475447a2a, type: 3}
   m_Name: PixelDitherFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   downSampleFactor: 2
   ditherMaterial: {fileID: 2100000, guid: 5773066d5cfee2d42ad9fb5958b3e1a4, type: 2}
 --- !u!114 &11400000

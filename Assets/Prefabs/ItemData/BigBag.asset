@@ -10,15 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: SmallBag
+  m_Name: BigBag
   m_EditorClassIdentifier: 
-  ItemID: 
-  ItemName: 
-  ItemIcon: {fileID: 0}
+  ContainerColumns: 6
+  ContainerRows: 6
+  BlockedCells: []
+  ItemID: 7
+  ItemName: "\u5927\u80CC\u5305"
+  ItemIcon: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
   Type: 4
+  Rarity: 3
   Width: 2
   Height: 2
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 6455776157467775250, guid: 746b2dce3ea77de4785d807ce3568306,
+  WorldPrefab: {fileID: 7505939381856358824, guid: 5fee55593120647469ca5e867b9a9bff,
     type: 3}
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1

@@ -12,13 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
   m_Name: M4A1
   m_EditorClassIdentifier: 
+  ContainerColumns: 0
+  ContainerRows: 0
+  BlockedCells: []
   ItemID: 2
   ItemName: M4A1
   ItemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   Type: 0
+  Rarity: 2
   Width: 4
   Height: 2
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 6455776157467775250, guid: 746b2dce3ea77de4785d807ce3568306,
+  WorldPrefab: {fileID: 5750375239088482751, guid: e7e526c4a753fed47a1695deb58238ad,
     type: 3}
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1

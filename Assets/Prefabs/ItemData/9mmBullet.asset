@@ -12,13 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
   m_Name: 9mmBullet
   m_EditorClassIdentifier: 
+  ContainerColumns: 0
+  ContainerRows: 0
+  BlockedCells: []
   ItemID: 4
   ItemName: 9mmBullet
   ItemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   Type: 1
+  Rarity: 0
   Width: 1
   Height: 1
   IsStackable: 1
   MaxStack: 60
-  WorldPrefab: {fileID: 6455776157467775250, guid: 746b2dce3ea77de4785d807ce3568306,
+  WorldPrefab: {fileID: 3987410821390805242, guid: b8ff2185912319c4191c664263379d11,
     type: 3}
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1

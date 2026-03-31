@@ -1,64 +1,55 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 背包网格视图。
+/// 负责坐标换算、高亮显示、格子背景绘制，以及和物品 view 的装配。
+/// </summary>
 public class InventoryUIController : MonoBehaviour
-{   
-
-
-    [Header("UI 核心引用")]
+{
+    [Header("View References")]
     public RectTransform ItemContainer;
-    public Transform GridBackground; // 【新增】：拖入你的 GridBackground 节点
-
+    public Transform GridBackground;
     public float CellSize = 50f;
-    public float Spacing = 2f; // 【核心修复1】：加入缝隙计算，必须与 GridBackground 的 Spacing 一致
+    public float Spacing = 2f;
 
-    [Header("预测高亮框 (需求新增)")]
-    public RectTransform Highlighter; // 拖入一个新建的半透明 Image
+    [Header("Highlight")]
+    public RectTransform Highlighter;
+
     private Image _highlighterImage;
-
     private InventoryGridController _gridController;
 
-    void Awake()
+    private void Awake()
     {
-        if (Highlighter != null)
-        {
-            _highlighterImage = Highlighter.GetComponent<Image>();
-            Highlighter.gameObject.SetActive(false);
-            Highlighter.anchorMin = new Vector2(0, 1);
-            Highlighter.anchorMax = new Vector2(0, 1);
-            Highlighter.pivot = new Vector2(0, 1);
-        }
+        _gridController = GetComponent<InventoryGridController>();
+        ConfigureHighlighter();
+        ConfigureGridLayerTransforms(Vector2.zero);
+    }
 
+    private void OnValidate()
+    {
+        if (Application.isPlaying)
+        {
+            return;
+        }
 
         _gridController = GetComponent<InventoryGridController>();
+        ConfigureHighlighter();
+
+        int cols = _gridController != null ? Mathf.Max(1, _gridController.Columns) : 1;
+        int rows = _gridController != null ? Mathf.Max(1, _gridController.Rows) : 1;
+        ConfigureGridLayerTransforms(GetItemActualSize(cols, rows));
     }
 
-
-    void Start()
+    private void Start()
     {
-        // 游戏开始时，自动隐藏死区的背景格子，制造视觉上的“分割”错觉
-        if (GridBackground != null)
-        {
-            InventoryGridController gridCtrl = GetGridController();
-            foreach (var pos in gridCtrl.BlockedCells)
-            {
-                // 计算当前坐标在 GridLayoutGroup 里的子物体索引 (从左到右，从上到下)
-                int childIndex = pos.y * gridCtrl.Columns + pos.x;
-                if (childIndex >= 0 && childIndex < GridBackground.childCount)
-                {
-                    Image cellImage = GridBackground.GetChild(childIndex).GetComponent<Image>();
-                    if (cellImage != null)
-                    {
-                        cellImage.enabled = false; // 关掉图片显示，但保留物体以维持 Layout 排版！
-                    }
-                }
-            }
-        }
+        RefreshBlockedCellVisuals();
     }
 
-
-    // 将二维数组坐标转换为 UI 局部坐标 (加入 Spacing)
+    /// <summary>
+    /// 将格子索引换算为 ItemContainer 内左上角坐标系下的局部坐标。
+    /// </summary>
     public Vector2 GetLocalPosition(int x, int y)
     {
         float posX = x * (CellSize + Spacing);
@@ -66,7 +57,9 @@ public class InventoryUIController : MonoBehaviour
         return new Vector2(posX, posY);
     }
 
-    // 将鼠标局部坐标转换回二维数组索引 (加入 Spacing)
+    /// <summary>
+    /// 将局部坐标换算回格子索引。
+    /// </summary>
     public Vector2Int GetGridIndex(Vector2 localPosition)
     {
         int x = Mathf.FloorToInt(localPosition.x / (CellSize + Spacing));
@@ -74,220 +67,546 @@ public class InventoryUIController : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    // 计算物品占用 UI 的实际像素大小 (包含内部的缝隙)
-    public Vector2 GetItemActualSize(int width, int height)
+    /// <summary>
+    /// 将屏幕坐标转换为以网格左上角为原点的局部坐标。
+    /// </summary>
+    public Vector2 GetGridLocalPoint(Vector2 screenPosition, Camera eventCamera)
     {
-        float w = width * CellSize + (width - 1) * Spacing;
-        float h = height * CellSize + (height - 1) * Spacing;
-        return new Vector2(w, h);
+        if (ItemContainer == null)
+        {
+            return Vector2.zero;
+        }
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(ItemContainer, screenPosition, eventCamera, out Vector2 pivotLocalPoint);
+
+        Rect rect = ItemContainer.rect;
+        Vector2 pivot = ItemContainer.pivot;
+        Vector2 topLeftOffset = new Vector2(rect.width * pivot.x, -rect.height * (1f - pivot.y));
+        return pivotLocalPoint + topLeftOffset;
     }
 
-    // 控制高亮框显示
+    /// <summary>
+    /// 计算物品在 UI 中应占据的实际像素尺寸。
+    /// </summary>
+    public Vector2 GetItemActualSize(int width, int height)
+    {
+        float actualWidth = width * CellSize + (width - 1) * Spacing;
+        float actualHeight = height * CellSize + (height - 1) * Spacing;
+        return new Vector2(actualWidth, actualHeight);
+    }
+
+    /// <summary>
+    /// 显示拖拽预测高亮。
+    /// </summary>
     public void ShowHighlight(int x, int y, int width, int height, bool isValid)
     {
-        if (Highlighter == null) return;
+        if (Highlighter == null)
+        {
+            return;
+        }
 
         Highlighter.gameObject.SetActive(true);
-
-        // 【核心修复】：将 SetAsLastSibling 改为 SetAsFirstSibling
-        // 这会让绿框在层级里排到最顶端，即渲染在最底层
         Highlighter.transform.SetAsFirstSibling();
-
         Highlighter.anchoredPosition = GetLocalPosition(x, y);
         Highlighter.sizeDelta = GetItemActualSize(width, height);
 
-        if (_highlighterImage == null) _highlighterImage = Highlighter.GetComponent<Image>();
+        if (_highlighterImage == null)
+        {
+            _highlighterImage = Highlighter.GetComponent<Image>();
+        }
+
         if (_highlighterImage != null)
         {
-            // 建议把 Alpha (第四个参数) 调低一点，比如 0.3f 或 0.4f
-            // 这样既能看到绿色，又不会觉得刺眼，还能透出底部的网格线
-            _highlighterImage.color = isValid ? new Color(0, 1f, 0, 0.35f) : new Color(1f, 0, 0, 0.35f);
+            _highlighterImage.color = isValid
+                ? new Color(0f, 1f, 0f, 0.35f)
+                : new Color(1f, 0f, 0f, 0.35f);
         }
     }
 
+    /// <summary>
+    /// 隐藏拖拽预测高亮。
+    /// </summary>
     public void HideHighlight()
     {
-        if (Highlighter != null) Highlighter.gameObject.SetActive(false);
+        if (Highlighter != null)
+        {
+            Highlighter.gameObject.SetActive(false);
+        }
     }
 
+    /// <summary>
+    /// 获取绑定在当前对象上的网格控制器。
+    /// </summary>
     public InventoryGridController GetGridController()
     {
         if (_gridController == null)
         {
             _gridController = GetComponent<InventoryGridController>();
         }
+
         return _gridController;
     }
 
-    // =========================================================
-    // 【MVC 架构】：将底层数据转化为 UI 表现 (Load)
-    // =========================================================
+    /// <summary>
+    /// 用存档数据重建当前网格里的物品视图。
+    /// </summary>
     public void LoadFromData(List<ContainerItemSaveData> saveDataList)
     {
-        ClearUI(); // 先清空当前 UI 面板里的所有旧东西
-
-        // 遍历传入的数据，让工厂把它们全部作为 UI 实体刷出来！
-        foreach (var data in saveDataList)
-        {
-            if (data.ItemData != null)
-            {
-                InventoryItemFactory.Instance.SpawnItemInGrid(
-                    data.ItemData, this, data.X, data.Y, data.Amount, data.IsRotated);
-            }
-        }
+        LoadFromRuntimeState(saveDataList, null);
     }
 
-    // =========================================================
-    // 【MVC 架构】：将当前的 UI 表现打包成纯数据 (Save)
-    // =========================================================
-    public List<ContainerItemSaveData> ExtractSaveData()
+    /// <summary>
+    /// 用完整容器快照重建当前网格里的物品和特殊格状态。
+    /// </summary>
+    public void LoadFromRuntimeState(List<ContainerItemSaveData> saveDataList, List<ContainerCellStateSaveData> cellStates)
     {
-        List<ContainerItemSaveData> saveDataList = new List<ContainerItemSaveData>();
+        ClearUI();
 
-        // 遍历整个 ItemContainer 下所有的 UI 物品
-        foreach (Transform child in ItemContainer)
+        if (saveDataList != null)
         {
-            DraggableItemUI itemUI = child.GetComponent<DraggableItemUI>();
-            if (itemUI != null && itemUI.ItemData != null)
+            foreach (ContainerItemSaveData data in saveDataList)
             {
-                // 把它们的状态提取出来，存入纯数据类
-                ContainerItemSaveData saveData = new ContainerItemSaveData
+                if (data?.ItemData == null)
                 {
-                    ItemData = itemUI.ItemData,
-                    Amount = itemUI.CurrentAmount,
-                    X = itemUI._originalGridIndex.x, // 这里需要把 _originalGridIndex 改为 public 才能访问！(见下方说明)
-                    Y = itemUI._originalGridIndex.y,
-                    IsRotated = itemUI._originalIsRotated // 这里需要把 _originalIsRotated 改为 public 才能访问！
-                };
-                saveDataList.Add(saveData);
-            }
-        }
-        return saveDataList;
-    }
+                    continue;
+                }
 
-    // =========================================================
-    // 清空 UI 和底层大脑（用于换宝箱时刷新面板）
-    // =========================================================
-    public void ClearUI()
-    {
-        // 1. 销毁所有 UI 实体，但要跳过我们的 Highlighter
-        foreach (Transform child in ItemContainer)
-        {
-            // 如果这个子物体就是我们要保护的高亮框，或者是它的脚本，就跳过它不删
-            if (child == Highlighter) continue;
-
-            // 另一种双重保险：只删除挂载了 DraggableItemUI 脚本的物体
-            if (child.GetComponent<DraggableItemUI>() != null)
-            {
-                Destroy(child.gameObject);
-            }
-        }
-
-        // 2. 清空底层二维数组大脑
-        if (GetGridController() != null && GetGridController()._grid != null)
-        {
-            int cols = GetGridController().Columns;
-            int rows = GetGridController().Rows;
-            for (int x = 0; x < cols; x++)
-            {
-                for (int y = 0; y < rows; y++)
+                DraggableItemUI itemView = InventoryItemFactory.Instance.SpawnItemInGrid(
+                    data.ItemData,
+                    this,
+                    data.X,
+                    data.Y,
+                    data.Amount,
+                    data.IsRotated,
+                    CloneSaveDataList(data.InternalItems),
+                    CloneCellStateList(data.InternalCellStates));
+                if (itemView != null)
                 {
-                    // 【核心修复】：千万不要清除死区！
-                    if (GetGridController()._grid[x, y].State != GridState.Blocked)
-                    {
-                        GetGridController()._grid[x, y].Clear();
-                    }
+                    itemView.ApplyContainerRuntimeState(data);
                 }
             }
         }
+
+        GetGridController().ApplyRuntimeCellStates(CloneCellStateList(cellStates));
     }
 
-    // =========================================================
-    // 【PRD 核心：一键整理终极算法 (One-Click Auto Sort)】
-    // =========================================================
-    public void AutoSort()
+    /// <summary>
+    /// 从当前物品视图提取可持久化数据。
+    /// </summary>
+    public List<ContainerItemSaveData> ExtractSaveData()
     {
-        // 1. 获取当前背包内所有物品的纯数据
-        List<ContainerItemSaveData> allItems = ExtractSaveData();
-        if (allItems.Count == 0) return; // 空背包直接返回
-
-        // ==========================================
-        // Step 1: 全局强制合并 (Global Auto-Merge)
-        // ==========================================
-        Dictionary<InventoryItemData, int> mergedStackables = new Dictionary<InventoryItemData, int>();
-        List<ContainerItemSaveData> nonStackables = new List<ContainerItemSaveData>();
-
-        foreach (var item in allItems)
+        List<ContainerItemSaveData> saveDataList = new List<ContainerItemSaveData>();
+        if (ItemContainer == null)
         {
-            if (item.ItemData.IsStackable)
+            return saveDataList;
+        }
+
+        foreach (Transform child in ItemContainer)
+        {
+            if (child == Highlighter)
             {
-                // 如果是子弹、医疗包等可堆叠物，把它们的数量全部提取出来相加！
-                if (mergedStackables.ContainsKey(item.ItemData))
-                    mergedStackables[item.ItemData] += item.Amount;
-                else
-                    mergedStackables[item.ItemData] = item.Amount;
+                continue;
             }
-            else
+
+            DraggableItemUI itemView = child.GetComponent<DraggableItemUI>();
+            if (itemView != null && itemView.ItemData != null)
             {
-                // 枪械、背包等不可堆叠物，直接单独存放
-                nonStackables.Add(item);
+                saveDataList.Add(itemView.CreateSaveDataSnapshot());
             }
         }
 
-        // 重新切分合并后的物品（比如一共 140 发子弹，切分成 60 + 60 + 20）
-        List<ContainerItemSaveData> itemsToPlace = new List<ContainerItemSaveData>();
-        itemsToPlace.AddRange(nonStackables);
+        return saveDataList;
+    }
 
-        foreach (var kvp in mergedStackables)
+    /// <summary>
+    /// 提取当前容器内需要持久化的特殊格状态。
+    /// </summary>
+    public List<ContainerCellStateSaveData> ExtractCellStateData()
+    {
+        return GetGridController().ExtractRuntimeCellStates();
+    }
+
+    /// <summary>
+    /// 清空当前网格里的所有物品 view，并同步清空动态占用数据。
+    /// </summary>
+    public void ClearUI()
+    {
+        if (ItemContainer != null)
         {
-            int remainingAmount = kvp.Value;
-            int maxStack = kvp.Key.MaxStack;
+            List<GameObject> objectsToDestroy = new List<GameObject>();
+            foreach (Transform child in ItemContainer)
+            {
+                if (child == Highlighter)
+                {
+                    continue;
+                }
+
+                if (child.GetComponent<DraggableItemUI>() != null)
+                {
+                    objectsToDestroy.Add(child.gameObject);
+                }
+            }
+
+            foreach (GameObject target in objectsToDestroy)
+            {
+                Destroy(target);
+            }
+        }
+
+        GetGridController().ClearDynamicCells();
+        HideHighlight();
+    }
+
+    /// <summary>
+    /// 根据当前物品数据重新计算更优摆放方案。
+    /// </summary>
+    public void AutoSort()
+    {
+        List<ContainerItemSaveData> currentItems = ExtractSaveData();
+        if (currentItems.Count == 0)
+        {
+            return;
+        }
+
+        if (!InventoryAutoSortService.TryBuildSortedLayout(
+                GetGridController().Columns,
+                GetGridController().Rows,
+                GetGridController().BlockedCells,
+                currentItems,
+                out List<ContainerItemSaveData> sortedLayout))
+        {
+            Debug.LogError($"[{name}] Auto sort failed because at least one item could not be placed.");
+            return;
+        }
+
+        ClearUI();
+        LoadFromData(sortedLayout);
+    }
+
+    /// <summary>
+    /// 按新的列数、行数和阻塞格重建网格视图。
+    /// </summary>
+    public void RebuildGridUI(int cols, int rows, List<Vector2Int> blockedCells)
+    {
+        gameObject.SetActive(true);
+        GetGridController().ConfigureGrid(cols, rows, blockedCells);
+
+        Vector2 gridSize = GetItemActualSize(cols, rows);
+        ResizeGrid(gridSize);
+        ConfigureGridLayerTransforms(gridSize);
+        RebuildBackgroundCells(cols, rows, blockedCells);
+        ForceLayoutRefresh();
+        HideHighlight();
+    }
+
+    private void ConfigureHighlighter()
+    {
+        if (Highlighter == null)
+        {
+            return;
+        }
+
+        _highlighterImage = Highlighter.GetComponent<Image>();
+        Highlighter.gameObject.SetActive(false);
+        Highlighter.anchorMin = new Vector2(0f, 1f);
+        Highlighter.anchorMax = new Vector2(0f, 1f);
+        Highlighter.pivot = new Vector2(0f, 1f);
+    }
+
+    private void RefreshBlockedCellVisuals()
+    {
+        if (GridBackground == null)
+        {
+            return;
+        }
+
+        HashSet<Vector2Int> blockedSet = new HashSet<Vector2Int>(GetGridController().BlockedCells);
+        for (int index = 0; index < GridBackground.childCount; index++)
+        {
+            int x = index % GetGridController().Columns;
+            int y = index / GetGridController().Columns;
+            Image cellImage = GridBackground.GetChild(index).GetComponent<Image>();
+            if (cellImage != null)
+            {
+                cellImage.enabled = !blockedSet.Contains(new Vector2Int(x, y));
+            }
+        }
+    }
+
+    private void ResizeGrid(Vector2 gridSize)
+    {
+        RectTransform selfRect = GetComponent<RectTransform>();
+        if (selfRect != null)
+        {
+            selfRect.sizeDelta = gridSize;
+        }
+
+        if (GridBackground is RectTransform backgroundRect)
+        {
+            backgroundRect.sizeDelta = gridSize;
+        }
+
+        if (ItemContainer != null)
+        {
+            ItemContainer.sizeDelta = gridSize;
+        }
+    }
+
+    private void ConfigureGridLayerTransforms(Vector2 gridSize)
+    {
+        if (GridBackground is RectTransform backgroundRect)
+        {
+            ConfigureTopLeftLayer(backgroundRect, gridSize);
+        }
+
+        if (ItemContainer != null)
+        {
+            ConfigureTopLeftLayer(ItemContainer, gridSize);
+        }
+    }
+
+    private static void ConfigureTopLeftLayer(RectTransform rectTransform, Vector2 size)
+    {
+        rectTransform.anchorMin = new Vector2(0f, 1f);
+        rectTransform.anchorMax = new Vector2(0f, 1f);
+        rectTransform.pivot = new Vector2(0f, 1f);
+        rectTransform.anchoredPosition = Vector2.zero;
+        rectTransform.sizeDelta = size;
+        rectTransform.localScale = Vector3.one;
+        rectTransform.localRotation = Quaternion.identity;
+    }
+
+    private void RebuildBackgroundCells(int cols, int rows, List<Vector2Int> blockedCells)
+    {
+        if (GridBackground == null)
+        {
+            return;
+        }
+
+        foreach (Transform child in GridBackground)
+        {
+            Destroy(child.gameObject);
+        }
+
+        GridLayoutGroup layout = GridBackground.GetComponent<GridLayoutGroup>();
+        if (layout != null)
+        {
+            layout.cellSize = new Vector2(CellSize, CellSize);
+            layout.spacing = new Vector2(Spacing, Spacing);
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            layout.constraintCount = cols;
+        }
+
+        HashSet<Vector2Int> blockedSet = new HashSet<Vector2Int>(blockedCells ?? new List<Vector2Int>());
+        for (int y = 0; y < rows; y++)
+        {
+            for (int x = 0; x < cols; x++)
+            {
+                GameObject cell = new GameObject($"Cell_{x}_{y}", typeof(Image));
+                cell.transform.SetParent(GridBackground, false);
+
+                Image image = cell.GetComponent<Image>();
+                image.color = new Color(0.15f, 0.15f, 0.15f, 0.8f);
+                image.enabled = !blockedSet.Contains(new Vector2Int(x, y));
+            }
+        }
+    }
+
+    private void ForceLayoutRefresh()
+    {
+        if (GridBackground is RectTransform backgroundRect)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(backgroundRect);
+        }
+
+        if (transform.parent is RectTransform parentRect)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+        }
+    }
+
+    private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
+    {
+        List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerItemSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
+    }
+
+    private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
+    {
+        List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        foreach (ContainerCellStateSaveData item in source)
+        {
+            if (item != null)
+            {
+                clone.Add(item.DeepCopy());
+            }
+        }
+
+        return clone;
+    }
+}
+
+/// <summary>
+/// 背包整理服务。
+/// 只负责根据当前数据计算新的摆放结果，不直接操作 UI。
+/// </summary>
+public static class InventoryAutoSortService
+{
+    public static List<ContainerItemSaveData> BuildPackedLayout(
+        int columns,
+        int rows,
+        List<Vector2Int> blockedCells,
+        IReadOnlyList<ContainerItemSaveData> sourceItems)
+    {
+        List<ContainerItemSaveData> packedLayout = new List<ContainerItemSaveData>();
+        if (sourceItems == null || sourceItems.Count == 0)
+        {
+            return packedLayout;
+        }
+
+        List<ContainerItemSaveData> itemsToPlace = BuildSortedPlacementCandidates(sourceItems);
+        InventoryGridModel layoutModel = new InventoryGridModel();
+        layoutModel.Configure(columns, rows, blockedCells, true);
+
+        foreach (ContainerItemSaveData item in itemsToPlace)
+        {
+            if (!layoutModel.FindFirstAvailableSpace(item.ItemData.Width, item.ItemData.Height, out Vector2Int position, out bool needsRotation))
+            {
+                continue;
+            }
+
+            int width = needsRotation ? item.ItemData.Height : item.ItemData.Width;
+            int height = needsRotation ? item.ItemData.Width : item.ItemData.Height;
+
+            layoutModel.PlaceItem(null, position.x, position.y, width, height, needsRotation);
+            item.X = position.x;
+            item.Y = position.y;
+            item.IsRotated = needsRotation;
+            packedLayout.Add(item);
+        }
+
+        return packedLayout;
+    }
+
+    public static bool TryBuildSortedLayout(
+        int columns,
+        int rows,
+        List<Vector2Int> blockedCells,
+        IReadOnlyList<ContainerItemSaveData> sourceItems,
+        out List<ContainerItemSaveData> sortedLayout)
+    {
+        sortedLayout = new List<ContainerItemSaveData>();
+        if (sourceItems == null || sourceItems.Count == 0)
+        {
+            return true;
+        }
+
+        List<ContainerItemSaveData> itemsToPlace = BuildSortedPlacementCandidates(sourceItems);
+
+        InventoryGridModel layoutModel = new InventoryGridModel();
+        layoutModel.Configure(columns, rows, blockedCells, true);
+
+        foreach (ContainerItemSaveData item in itemsToPlace)
+        {
+            if (!layoutModel.FindFirstAvailableSpace(item.ItemData.Width, item.ItemData.Height, out Vector2Int position, out bool needsRotation))
+            {
+                sortedLayout.Clear();
+                return false;
+            }
+
+            int width = needsRotation ? item.ItemData.Height : item.ItemData.Width;
+            int height = needsRotation ? item.ItemData.Width : item.ItemData.Height;
+
+            layoutModel.PlaceItem(null, position.x, position.y, width, height, needsRotation);
+            item.X = position.x;
+            item.Y = position.y;
+            item.IsRotated = needsRotation;
+            sortedLayout.Add(item);
+        }
+
+        return true;
+    }
+
+    private static List<ContainerItemSaveData> BuildSortedPlacementCandidates(IReadOnlyList<ContainerItemSaveData> sourceItems)
+    {
+        Dictionary<InventoryItemData, ContainerItemSaveData> mergedStackables = new Dictionary<InventoryItemData, ContainerItemSaveData>();
+        List<ContainerItemSaveData> nonStackables = new List<ContainerItemSaveData>();
+
+        foreach (ContainerItemSaveData item in sourceItems)
+        {
+            if (item == null || item.ItemData == null)
+            {
+                continue;
+            }
+
+            if (item.ItemData.IsStackable)
+            {
+                if (!mergedStackables.TryGetValue(item.ItemData, out ContainerItemSaveData mergedItem))
+                {
+                    mergedItem = item.DeepCopy();
+                    mergedItem.Amount = 0;
+                    mergedStackables[item.ItemData] = mergedItem;
+                }
+
+                mergedItem.Amount += item.Amount;
+                mergedItem.RequiresSearch |= item.RequiresSearch;
+                mergedItem.IsSearched &= item.IsSearched;
+                mergedItem.SearchProgressSeconds = Mathf.Max(mergedItem.SearchProgressSeconds, item.SearchProgressSeconds);
+                mergedItem.SearchDurationSeconds = Mathf.Max(mergedItem.SearchDurationSeconds, item.SearchDurationSeconds);
+                continue;
+            }
+
+            nonStackables.Add(item.DeepCopy());
+        }
+
+        List<ContainerItemSaveData> itemsToPlace = new List<ContainerItemSaveData>(nonStackables);
+        foreach (KeyValuePair<InventoryItemData, ContainerItemSaveData> stackableGroup in mergedStackables)
+        {
+            int remainingAmount = stackableGroup.Value.Amount;
+            int maxStack = Mathf.Max(1, stackableGroup.Key.MaxStack);
+
             while (remainingAmount > 0)
             {
                 int amountToCreate = Mathf.Min(remainingAmount, maxStack);
-                itemsToPlace.Add(new ContainerItemSaveData { ItemData = kvp.Key, Amount = amountToCreate });
+                ContainerItemSaveData stackItem = stackableGroup.Value.DeepCopy();
+                stackItem.Amount = amountToCreate;
+                itemsToPlace.Add(stackItem);
                 remainingAmount -= amountToCreate;
             }
         }
 
-        // ==========================================
-        // Step 2 & 3: 面积装箱排序 与 类型次级排序
-        // ==========================================
-        itemsToPlace.Sort((a, b) =>
+        itemsToPlace.Sort(CompareItemPriority);
+        return itemsToPlace;
+    }
+
+    private static int CompareItemPriority(ContainerItemSaveData left, ContainerItemSaveData right)
+    {
+        int leftArea = left.ItemData.Width * left.ItemData.Height;
+        int rightArea = right.ItemData.Width * right.ItemData.Height;
+
+        if (leftArea != rightArea)
         {
-            // 首要权重：计算面积 (宽 * 高)
-            int areaA = a.ItemData.Width * a.ItemData.Height;
-            int areaB = b.ItemData.Width * b.ItemData.Height;
-
-            if (areaA != areaB)
-            {
-                return areaB.CompareTo(areaA); // 面积大的排在前面（优先霸占左上角）
-            }
-
-            // 次级权重：如果面积一样大，按物品类别 (ItemType) 排序，保证同类挨在一起
-            return a.ItemData.Type.CompareTo(b.ItemData.Type);
-        });
-
-        // ==========================================
-        // 执行整理：清空全场，按最优解重新发牌！
-        // ==========================================
-        ClearUI(); // 瞬间抹除当前所有 UI 和网格记录 (Highlighter 会被安全保留)
-
-        foreach (var item in itemsToPlace)
-        {
-            // 利用底层大脑的寻找空位功能 (包含自动旋转预测)
-            if (GetGridController().FindFirstAvailableSpace(item.ItemData.Width, item.ItemData.Height, out Vector2Int pos, out bool needsRot))
-            {
-                // 让工厂在这个算好的最佳空位上，重新生成 UI 实体
-                InventoryItemFactory.Instance.SpawnItemInGrid(item.ItemData, this, pos.x, pos.y, item.Amount, needsRot);
-            }
-            else
-            {
-                // 极限情况：由于空间碎片化被消除，整理后空间绝对只会变大不会变小，所以理论上绝对不可能放不下。
-                Debug.LogError($"一键整理异常：物品 {item.ItemData.ItemName} 无法放入！");
-            }
+            return rightArea.CompareTo(leftArea);
         }
 
-        Debug.Log($"[{gameObject.name}] 一键整理完成！");
+        return left.ItemData.Type.CompareTo(right.ItemData.Type);
     }
 }

@@ -1,12 +1,15 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // 必须引入以支持拖拽
 
+/// <summary>
+/// 堆叠拆分面板。
+/// </summary>
 public class SplitUIController : MonoBehaviour, IDragHandler
 {
     public static SplitUIController Instance { get; private set; }
 
-    [Header("UI 组件引用")]
+    [Header("View References")]
     public Slider SplitSlider;
     public Text AmountText;
     public Button ConfirmButton;
@@ -16,83 +19,99 @@ public class SplitUIController : MonoBehaviour, IDragHandler
     private RectTransform _rectTransform;
     private Canvas _parentCanvas;
 
-    void Awake()
+    private void Awake()
     {
         Instance = this;
         _rectTransform = GetComponent<RectTransform>();
         _parentCanvas = GetComponentInParent<Canvas>();
 
-        SplitSlider.onValueChanged.AddListener(OnSliderValueChanged);
-        ConfirmButton.onClick.AddListener(OnConfirmClicked);
+        if (SplitSlider != null)
+        {
+            SplitSlider.onValueChanged.AddListener(OnSliderValueChanged);
+        }
 
-        if (CloseButton != null) CloseButton.onClick.AddListener(CloseWindow);
+        if (ConfirmButton != null)
+        {
+            ConfirmButton.onClick.AddListener(OnConfirmClicked);
+        }
+
+        if (CloseButton != null)
+        {
+            CloseButton.onClick.AddListener(CloseWindow);
+        }
 
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// 打开拆分窗口并绑定目标物品。
+    /// </summary>
     public void OpenSplitWindow(DraggableItemUI item)
     {
+        if (item == null || item.CurrentAmount <= 1)
+        {
+            return;
+        }
+
         _targetItem = item;
-
         gameObject.SetActive(true);
-        transform.SetAsLastSibling(); // 浮在最上层
+        transform.SetAsLastSibling();
+        PositionNextToItem(item);
 
-        // =========================================================
-        // 【精准定位法】：获取物品在屏幕上的四个绝对顶角坐标
-        // corners[0]=左下, [1]=左上, [2]=右上, [3]=右下
-        // =========================================================
-        RectTransform itemRect = item.GetComponent<RectTransform>();
-        Vector3[] corners = new Vector3[4];
-        itemRect.GetWorldCorners(corners);
-
-        // 将窗口的左上角，直接对齐到物品的右上角 (corners[2])，并向右偏移 10 个像素防遮挡
-        transform.position = corners[2];
-        _rectTransform.anchoredPosition += new Vector2(10, 0);
-
-        // 初始化滑块
         SplitSlider.minValue = 1;
         SplitSlider.maxValue = item.CurrentAmount - 1;
         SplitSlider.value = Mathf.FloorToInt(item.CurrentAmount / 2f);
-
         UpdateAmountText();
     }
 
-    private void OnSliderValueChanged(float value)
+    public void CloseWindow()
     {
-        UpdateAmountText();
+        gameObject.SetActive(false);
+        _targetItem = null;
     }
 
-    private void UpdateAmountText()
+    public void OnDrag(PointerEventData eventData)
     {
-        if (_targetItem != null && AmountText != null)
+        if (_parentCanvas == null)
         {
-            AmountText.text = $"拆分: {SplitSlider.value} / {_targetItem.CurrentAmount}";
+            return;
         }
+
+        _rectTransform.anchoredPosition += eventData.delta / _parentCanvas.scaleFactor;
+    }
+
+    private void OnSliderValueChanged(float _)
+    {
+        UpdateAmountText();
     }
 
     private void OnConfirmClicked()
     {
         if (_targetItem != null)
         {
-            int splitAmount = (int)SplitSlider.value;
-            _targetItem.ExecuteSplit(splitAmount);
+            _targetItem.ExecuteSplit((int)SplitSlider.value);
         }
+
         CloseWindow();
     }
 
-    public void CloseWindow()
+    private void UpdateAmountText()
     {
-        gameObject.SetActive(false);
+        if (_targetItem == null || AmountText == null || SplitSlider == null)
+        {
+            return;
+        }
+
+        AmountText.text = $"拆分: {SplitSlider.value} / {_targetItem.CurrentAmount}";
     }
 
-    // =========================================================
-    // 【悬浮窗拖拽算法】：无视层级，直接累加鼠标物理移动距离
-    // =========================================================
-    public void OnDrag(PointerEventData eventData)
+    private void PositionNextToItem(DraggableItemUI item)
     {
-        if (_parentCanvas == null) return;
+        RectTransform itemRect = item.GetComponent<RectTransform>();
+        Vector3[] corners = new Vector3[4];
+        itemRect.GetWorldCorners(corners);
 
-        // 按照 Canvas 的缩放比例完美移动窗口，绝对跟手！
-        _rectTransform.anchoredPosition += eventData.delta / _parentCanvas.scaleFactor;
+        transform.position = corners[2];
+        _rectTransform.anchoredPosition += new Vector2(10f, 0f);
     }
 }

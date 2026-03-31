@@ -1,57 +1,107 @@
 using UnityEngine;
 using UnityEngine.UI;
+
 /// <summary>
-/// 敌人血条控制脚本
+/// 敌人生命控制器。
+/// 负责受伤、血条刷新、死亡和死亡掉落容器生成。
 /// </summary>
 public class EnemyHealthController : MonoBehaviour
 {
-    public float MaxHealth = 100f;//生命值
+    public float MaxHealth = 100f;
 
-    // 内部使用的当前血量
+    [Header("Health UI")]
+    public Image HealthFillImage;
+
+    [Header("Death Loot")]
+    public bool SpawnLootContainerOnDeath = true;
+    public GameObject DeathLootContainerPrefab;
+    public Transform DeathLootSpawnPoint;
+    public Vector3 DeathLootSpawnOffset = new Vector3(0f, 0.1f, 0f);
+
     private float _currentHealth;
+    private bool _hasDied;
 
-    [Header("血条UI引用")]
-    public Image HealthFillImage;//血条组件
-    /// <summary>
-    /// 开始脚本
-    /// </summary>
-    void Start()
+    private void Start()
     {
-        _currentHealth = MaxHealth;//初始化血条
-        UpdateHealthBar();//更新血条UI
+        _currentHealth = MaxHealth;
+        UpdateHealthBar();
     }
+
     /// <summary>
-    /// 扣血
+    /// 对敌人造成伤害。
     /// </summary>
-    /// <param name="damageAmount"></param>扣出数量
     public void TakeDamage(float damageAmount)
     {
-        _currentHealth -= damageAmount;//扣除伤害
-        _currentHealth = Mathf.Clamp(_currentHealth, 0, MaxHealth);//控制血量范围
-
-        UpdateHealthBar();//更新血条UI
-
-        if (_currentHealth <= 0)
+        if (_hasDied)
         {
-            Die();//死
+            return;
+        }
+
+        _currentHealth -= damageAmount;
+        _currentHealth = Mathf.Clamp(_currentHealth, 0f, MaxHealth);
+
+        UpdateHealthBar();
+        if (_currentHealth <= 0f)
+        {
+            Die();
         }
     }
-    /// <summary>
-    /// 更新血条UI
-    /// </summary>
+
     private void UpdateHealthBar()
     {
-        if (HealthFillImage != null)//判空血条UI
+        if (HealthFillImage != null)
         {
-            HealthFillImage.fillAmount = _currentHealth / MaxHealth;//控制百分比
+            HealthFillImage.fillAmount = MaxHealth <= 0f ? 0f : _currentHealth / MaxHealth;
         }
     }
+
     /// <summary>
-    /// 死亡函数
+    /// 处理敌人死亡。
     /// </summary>
     private void Die()
     {
-        Debug.Log("敌人死亡！");//输出文字
-        Destroy(gameObject);//消除物体
+        if (_hasDied)
+        {
+            return;
+        }
+
+        _hasDied = true;
+        Debug.Log("敌人死亡。");
+        SpawnDeathLootContainer();
+        Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// 在敌人死亡位置生成一个真实可交互的尸体盒子/宝箱。
+    /// </summary>
+    private void SpawnDeathLootContainer()
+    {
+        if (!SpawnLootContainerOnDeath || DeathLootContainerPrefab == null)
+        {
+            return;
+        }
+
+        Vector3 spawnPosition = DeathLootSpawnPoint != null
+            ? DeathLootSpawnPoint.position
+            : transform.position + DeathLootSpawnOffset;
+        Quaternion spawnRotation = DeathLootSpawnPoint != null
+            ? DeathLootSpawnPoint.rotation
+            : Quaternion.identity;
+
+        GameObject lootContainerObject = Instantiate(DeathLootContainerPrefab, spawnPosition, spawnRotation);
+        LootBoxEntity lootBox = lootContainerObject.GetComponent<LootBoxEntity>();
+        if (lootBox == null)
+        {
+            lootBox = lootContainerObject.GetComponentInChildren<LootBoxEntity>();
+        }
+
+        if (lootBox != null)
+        {
+            lootBox.PrecalculateLootIfNeeded();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] 死亡掉落预制体 {DeathLootContainerPrefab.name} 上没有找到 LootBoxEntity。");
+        }
     }
 }
