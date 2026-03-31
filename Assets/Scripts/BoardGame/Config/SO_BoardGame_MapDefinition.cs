@@ -76,6 +76,19 @@ namespace BoardGame.Config
             bool removeMissingNodes,
             string importedStartNodeId)
         {
+            ImportSceneNodeLayout(importEntries, removeMissingNodes, importedStartNodeId, false);
+        }
+
+        /// <summary>
+        /// 用场景节点数据回写地图 SO
+        /// 可选按策划固定表基于节点 ID 回填类型 等级 和边
+        /// </summary>
+        public void ImportSceneNodeLayout(
+            IReadOnlyList<BoardMapSceneNodeImportEntry> importEntries,
+            bool removeMissingNodes,
+            string importedStartNodeId,
+            bool applyPlannerPresetByNodeId)
+        {
             if (importEntries == null)
             {
                 return;
@@ -92,6 +105,22 @@ namespace BoardGame.Config
                 }
             }
 
+            Dictionary<string, BoardPlannerMapNodePresetDefinition> plannerNodesById = null;
+
+            if (applyPlannerPresetByNodeId)
+            {
+                plannerNodesById = new Dictionary<string, BoardPlannerMapNodePresetDefinition>(StringComparer.Ordinal);
+
+                foreach (BoardPlannerMapNodePresetDefinition presetDefinition in BoardGamePlannerPresetConfig.CreatePlannerMapNodePresets())
+                {
+                    if (!string.IsNullOrEmpty(presetDefinition.NodeId) &&
+                        !plannerNodesById.ContainsKey(presetDefinition.NodeId))
+                    {
+                        plannerNodesById.Add(presetDefinition.NodeId, presetDefinition);
+                    }
+                }
+            }
+
             List<BoardMapNodeDefinition> mergedNodes = new List<BoardMapNodeDefinition>(importEntries.Count);
             HashSet<string> importedNodeIds = new HashSet<string>(StringComparer.Ordinal);
 
@@ -102,7 +131,27 @@ namespace BoardGame.Config
                     continue;
                 }
 
-                if (existingNodesById.TryGetValue(importEntry.NodeId, out BoardMapNodeDefinition existingNode))
+                bool hasExistingNode = existingNodesById.TryGetValue(importEntry.NodeId, out BoardMapNodeDefinition existingNode);
+
+                if (plannerNodesById != null && plannerNodesById.TryGetValue(importEntry.NodeId, out BoardPlannerMapNodePresetDefinition plannerNode))
+                {
+                    string description = !string.IsNullOrEmpty(plannerNode.Description)
+                        ? plannerNode.Description
+                        : hasExistingNode ? existingNode.Description : string.Empty;
+
+                    BoardNodeType mergedNodeType = importEntry.IsStartNode || plannerNode.NodeType == BoardNodeType.Start
+                        ? BoardNodeType.Start
+                        : plannerNode.NodeType;
+
+                    mergedNodes.Add(new BoardMapNodeDefinition(
+                        importEntry.NodeId,
+                        mergedNodeType,
+                        importEntry.Position,
+                        plannerNode.ResourceTier,
+                        plannerNode.DangerTier,
+                        description));
+                }
+                else if (hasExistingNode)
                 {
                     BoardNodeType mergedNodeType = importEntry.IsStartNode ? BoardNodeType.Start : existingNode.NodeType;
                     mergedNodes.Add(new BoardMapNodeDefinition(
@@ -122,7 +171,7 @@ namespace BoardGame.Config
                 importedNodeIds.Add(importEntry.NodeId);
             }
 
-            if (!removeMissingNodes)
+            if (!applyPlannerPresetByNodeId && !removeMissingNodes)
             {
                 foreach (BoardMapNodeDefinition existingNode in _nodes)
                 {
@@ -135,7 +184,14 @@ namespace BoardGame.Config
 
             _nodes = mergedNodes;
 
-            if (!string.IsNullOrEmpty(importedStartNodeId))
+            if (applyPlannerPresetByNodeId)
+            {
+                _edges = BoardGamePlannerPresetConfig.CreatePlannerMapEdgePresets();
+                _startNodeId = !string.IsNullOrEmpty(importedStartNodeId)
+                    ? importedStartNodeId
+                    : BoardGamePlannerPresetConfig.PlannerMapStartNodeId;
+            }
+            else if (!string.IsNullOrEmpty(importedStartNodeId))
             {
                 _startNodeId = importedStartNodeId;
             }

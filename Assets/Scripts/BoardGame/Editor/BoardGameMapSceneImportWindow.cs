@@ -45,8 +45,8 @@ namespace BoardGame.Editor
             EditorGUILayout.HelpBox(
                 "Add BoardGameSceneNodeMarker to scene node objects\n" +
                 "Fill NodeId and write positions plus the start node back into the map asset\n" +
-                "This import currently syncs NodeId, position and start node id only\n" +
-                "Existing node type, tier and description will be preserved",
+                "Use the normal write button to sync scene positions only\n" +
+                "Use the planner preset button to fill node type, tier and edges by NodeId",
                 MessageType.Info);
 
             EditorGUI.BeginChangeCheck();
@@ -78,9 +78,14 @@ namespace BoardGame.Editor
 
                 using (new EditorGUI.DisabledScope(_mapDefinition == null))
                 {
-                    if (GUILayout.Button("Write To Map Asset"))
+                    if (GUILayout.Button("Write Positions To Map Asset"))
                     {
-                        ImportMarkersToMap();
+                        ImportMarkersToMap(false);
+                    }
+
+                    if (GUILayout.Button("Write Planner Preset To Map Asset"))
+                    {
+                        ImportMarkersToMap(true);
                     }
                 }
             }
@@ -124,7 +129,7 @@ namespace BoardGame.Editor
         /// <summary>
         /// 校验场景节点数据并写回地图 SO
         /// </summary>
-        private void ImportMarkersToMap()
+        private void ImportMarkersToMap(bool applyPlannerPresetByNodeId)
         {
             RefreshMarkers();
 
@@ -149,19 +154,88 @@ namespace BoardGame.Editor
                 return;
             }
 
+            if (applyPlannerPresetByNodeId &&
+                !TryValidatePlannerPreset(importEntries, importedStartNodeId, out errorMessage))
+            {
+                EditorUtility.DisplayDialog("Import Failed", errorMessage, "OK");
+                return;
+            }
+
             Undo.RecordObject(_mapDefinition, "Import Scene Nodes To Map Asset");
-            _mapDefinition.ImportSceneNodeLayout(importEntries, _removeMissingNodes, importedStartNodeId);
+            _mapDefinition.ImportSceneNodeLayout(
+                importEntries,
+                _removeMissingNodes,
+                importedStartNodeId,
+                applyPlannerPresetByNodeId);
             EditorUtility.SetDirty(_mapDefinition);
             Selection.activeObject = _mapDefinition;
 
-            string startNodeText = string.IsNullOrEmpty(importedStartNodeId)
+            string finalStartNodeId = !string.IsNullOrEmpty(importedStartNodeId)
+                ? importedStartNodeId
+                : applyPlannerPresetByNodeId
+                    ? BoardGamePlannerPresetConfig.PlannerMapStartNodeId
+                    : string.Empty;
+
+            string startNodeText = string.IsNullOrEmpty(finalStartNodeId)
                 ? "Start node unchanged"
-                : $"Start node  {importedStartNodeId}";
+                : $"Start node  {finalStartNodeId}";
 
             EditorUtility.DisplayDialog(
                 "Import Complete",
                 $"Nodes written  {importEntries.Count}\n{startNodeText}",
                 "OK");
+        }
+
+        /// <summary>
+        /// 校验场景中的节点 ID 是否能完整匹配策划固定表
+        /// </summary>
+        private static bool TryValidatePlannerPreset(
+            IReadOnlyList<BoardMapSceneNodeImportEntry> importEntries,
+            string importedStartNodeId,
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            HashSet<string> importedNodeIds = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (BoardMapSceneNodeImportEntry importEntry in importEntries)
+            {
+                if (!string.IsNullOrEmpty(importEntry.NodeId))
+                {
+                    importedNodeIds.Add(importEntry.NodeId);
+                }
+            }
+
+            HashSet<string> plannerNodeIds = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (BoardPlannerMapNodePresetDefinition plannerNode in BoardGamePlannerPresetConfig.CreatePlannerMapNodePresets())
+            {
+                plannerNodeIds.Add(plannerNode.NodeId);
+
+                if (!importedNodeIds.Contains(plannerNode.NodeId))
+                {
+                    errorMessage = $"Planner preset node is missing in scene  {plannerNode.NodeId}";
+                    return false;
+                }
+            }
+
+            foreach (BoardMapSceneNodeImportEntry importEntry in importEntries)
+            {
+                if (!plannerNodeIds.Contains(importEntry.NodeId))
+                {
+                    errorMessage = $"Scene node id is not defined in planner preset  {importEntry.NodeId}";
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(importedStartNodeId) &&
+                !string.Equals(importedStartNodeId, BoardGamePlannerPresetConfig.PlannerMapStartNodeId, StringComparison.Ordinal))
+            {
+                errorMessage = $"Planner preset start node must be {BoardGamePlannerPresetConfig.PlannerMapStartNodeId} but scene marked {importedStartNodeId}";
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

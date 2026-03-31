@@ -15,6 +15,9 @@ namespace BoardGame.Config
         // 掉落表唯一 ID
         public const string LootSetId = "planner_loot_set_v1";
 
+        // 当前策划固定地图预设的起点节点 ID
+        public const string PlannerMapStartNodeId = "1";
+
         // 各品质策划期望价值
         // 绿色 20 蓝色 60 紫色 100 金色 400 红色 1500
         // 这些值已经隐含在对应的价值区间里
@@ -216,5 +219,85 @@ namespace BoardGame.Config
                 })
             };
         }
+
+        /// <summary>
+        /// 生成策划固定地图的节点元数据
+        /// 位置由场景摆点导入 这里只定义类型与等级
+        /// </summary>
+        public static List<BoardPlannerMapNodePresetDefinition> CreatePlannerMapNodePresets()
+        {
+            return new List<BoardPlannerMapNodePresetDefinition>
+            {
+                new BoardPlannerMapNodePresetDefinition("1", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("2", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("3", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("4", BoardNodeType.Resource, BoardResourceTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("5", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("6", BoardNodeType.Boss),
+                new BoardPlannerMapNodePresetDefinition("7", BoardNodeType.Resource, BoardResourceTier.High),
+                new BoardPlannerMapNodePresetDefinition("8", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("9", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("10", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("11", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("12", BoardNodeType.Resource, BoardResourceTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("13", BoardNodeType.Boss),
+                new BoardPlannerMapNodePresetDefinition("14", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("15", BoardNodeType.Resource, BoardResourceTier.High),
+                new BoardPlannerMapNodePresetDefinition("0", BoardNodeType.Extract)
+            };
+        }
+
+        /// <summary>
+        /// 生成策划固定地图的连边定义
+        /// </summary>
+        public static List<BoardMapEdgeDefinition> CreatePlannerMapEdgePresets()
+        {
+            return new List<BoardMapEdgeDefinition>
+            {
+                new BoardMapEdgeDefinition("01", "1", "2", 2f),
+                new BoardMapEdgeDefinition("02", "2", "3", 2f),
+                new BoardMapEdgeDefinition("03", "3", "5", 2f),
+                new BoardMapEdgeDefinition("04", "5", "4", 2f),
+                new BoardMapEdgeDefinition("05", "5", "6", 2f),
+                new BoardMapEdgeDefinition("06", "6", "7", 2f),
+                new BoardMapEdgeDefinition("07", "1", "8", 2f),
+                new BoardMapEdgeDefinition("08", "3", "9", 2f),
+                new BoardMapEdgeDefinition("09", "8", "10", 2f),
+                new BoardMapEdgeDefinition("10", "8", "11", 2f),
+                new BoardMapEdgeDefinition("11", "11", "0", 3f),
+                new BoardMapEdgeDefinition("12", "9", "0", 3f),
+                new BoardMapEdgeDefinition("13", "9", "12", 3f),
+                new BoardMapEdgeDefinition("14", "11", "14", 2f),
+                new BoardMapEdgeDefinition("15", "10", "13", 2f),
+                new BoardMapEdgeDefinition("16", "13", "15", 2f)
+            };
+        }
+    }
+
+    /// <summary>
+    /// 策划固定地图节点预设
+    /// 按节点 ID 提供类型与等级
+    /// </summary>
+    public readonly struct BoardPlannerMapNodePresetDefinition
+    {
+        public BoardPlannerMapNodePresetDefinition(
+            string nodeId,
+            BoardNodeType nodeType,
+            BoardResourceTier resourceTier = BoardResourceTier.None,
+            BoardDangerTier dangerTier = BoardDangerTier.None,
+            string description = "")
+        {
+            NodeId = nodeId;
+            NodeType = nodeType;
+            ResourceTier = resourceTier;
+            DangerTier = dangerTier;
+            Description = description;
+        }
+
+        public string NodeId { get; }
+        public BoardNodeType NodeType { get; }
+        public BoardResourceTier ResourceTier { get; }
+        public BoardDangerTier DangerTier { get; }
+        public string Description { get; }
     }
 }
