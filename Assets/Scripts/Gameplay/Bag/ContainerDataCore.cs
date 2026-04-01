@@ -7,6 +7,7 @@ using System.Collections.Generic;
 [Serializable]
 public class ContainerItemSaveData
 {
+    public string RuntimeItemId;
     public InventoryItemData ItemData;
     public int Amount;
     public int X;
@@ -23,6 +24,7 @@ public class ContainerItemSaveData
     {
         ContainerItemSaveData copy = new ContainerItemSaveData
         {
+            RuntimeItemId = RuntimeItemId,
             ItemData = ItemData,
             Amount = Amount,
             X = X,

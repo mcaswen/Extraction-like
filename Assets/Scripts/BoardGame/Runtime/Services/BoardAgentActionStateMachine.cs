@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 using UnityEngine;
 
@@ -29,7 +30,8 @@ namespace BoardGame.Runtime.Services
             BoardLootResolutionService lootResolutionService,
             BoardProgressionService progressionService,
             BoardInterruptService interruptService,
-            SO_BoardGame_RuleSet ruleSet)
+            SO_BoardGame_RuleSet ruleSet,
+            BoardGameBagLayoutSettings bagLayoutSettings)
         {
             _graphService = graphService;
             _pathfindingService = pathfindingService;
@@ -40,7 +42,8 @@ namespace BoardGame.Runtime.Services
                 ruleSet,
                 combatResolutionService,
                 lootResolutionService,
-                progressionService);
+                progressionService,
+                bagLayoutSettings);
 
             RegisterNodeActionHandler(new BoardSearchActionHandler());
             RegisterNodeActionHandler(new BoardCombatActionHandler(false));
@@ -386,8 +389,17 @@ namespace BoardGame.Runtime.Services
             if (string.IsNullOrEmpty(agentState.CurrentNodeId) ||
                 string.IsNullOrEmpty(agentState.CurrentTargetNodeId) ||
                 agentState.CurrentNodeId != agentState.CurrentTargetNodeId ||
-                !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState) ||
-                !_nodeActionHandlersByNodeType.TryGetValue(nodeState.NodeType, out IBoardNodeActionHandler handler))
+                !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState))
+            {
+                return false;
+            }
+
+            if (TryBeginPendingLootInteraction(sessionState, nodeState))
+            {
+                return true;
+            }
+
+            if (!_nodeActionHandlersByNodeType.TryGetValue(nodeState.NodeType, out IBoardNodeActionHandler handler))
             {
                 return false;
             }
@@ -517,6 +529,34 @@ namespace BoardGame.Runtime.Services
             sessionState.AgentState.CurrentActionType = BoardActionType.Downed;
             sessionState.AgentState.CurrentActionProgress = 0f;
             sessionState.StatusMessage = message;
+        }
+
+        private bool TryBeginPendingLootInteraction(BoardGameSessionState sessionState, BoardNodeRuntimeState nodeState)
+        {
+            if (nodeState == null || !nodeState.HasPendingLootContainer() || !nodeState.HasRemainingLootItems())
+            {
+                return false;
+            }
+
+            BoardAgentState agentState = sessionState.AgentState;
+            sessionState.ActiveLootNodeId = nodeState.NodeId;
+            sessionState.IsLootInteractionOpen = false;
+            agentState.CurrentActionType = BoardActionType.Searching;
+            agentState.CurrentActionDuration = 1f;
+            agentState.CurrentActionAccumulatorSeconds = 0f;
+            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+
+            if (nodeState.NodeType == BoardNodeType.Resource)
+            {
+                nodeState.ResourceState = nodeState.IsLootRevealComplete()
+                    ? BoardResourceStateType.SearchCompleted
+                    : BoardResourceStateType.Searching;
+            }
+
+            sessionState.StatusMessage = nodeState.IsLootRevealComplete()
+                ? $"Loot remains at {nodeState.NodeId}, press F to reopen"
+                : $"Loot remains at {nodeState.NodeId}, press F to continue searching";
+            return true;
         }
 
         private void RegisterNodeActionHandler(IBoardNodeActionHandler handler)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 using UnityEngine;
 
@@ -123,6 +124,53 @@ namespace BoardGame.Runtime.Services
             }
 
             return generatedItems;
+        }
+
+        /// <summary>
+        /// 将一批掉落转成节点可持久化的战利品容器内容，按生成顺序从左到右摆放。
+        /// </summary>
+        public void PrepareNodeLootContainer(
+            BoardNodeRuntimeState nodeState,
+            IReadOnlyList<BoardItemInstance> generatedItems,
+            BoardGameBagLayoutSettings layoutSettings)
+        {
+            nodeState.ResetLootContainer();
+
+            if (generatedItems == null || generatedItems.Count == 0)
+            {
+                return;
+            }
+
+            int rows = layoutSettings != null ? layoutSettings.LootContainerRows : 3;
+            int columns = layoutSettings != null
+                ? layoutSettings.ResolveLootContainerColumns(generatedItems.Count)
+                : Mathf.Max(3, Mathf.CeilToInt(generatedItems.Count / 3f));
+
+            nodeState.LootContainerColumns = columns;
+            nodeState.LootContainerRows = rows;
+            nodeState.LootTotalItemCount = generatedItems.Count;
+            nodeState.LootRevealedItemCount = 0;
+
+            for (int index = 0; index < generatedItems.Count; index++)
+            {
+                BoardItemInstance itemInstance = generatedItems[index];
+
+                if (itemInstance == null)
+                {
+                    continue;
+                }
+
+                int x = index % columns;
+                int y = index / columns;
+                nodeState.LootContainerItems.Add(new BoardLootContainerItemState(
+                    itemInstance,
+                    x,
+                    y,
+                    index,
+                    GetRevealDurationSeconds(itemInstance.ItemRarity)));
+            }
+
+            nodeState.SyncSearchProgressFromLootReveal();
         }
 
         /// <summary>
@@ -294,6 +342,25 @@ namespace BoardGame.Runtime.Services
                 itemDefinition.CapacityCost,
                 itemDefinition.ConsumableType,
                 itemDefinition.ConsumeValue);
+        }
+
+        private static float GetRevealDurationSeconds(BoardItemRarity rarity)
+        {
+            switch (rarity)
+            {
+                case BoardItemRarity.Common:
+                    return 0.45f;
+                case BoardItemRarity.Uncommon:
+                    return 0.75f;
+                case BoardItemRarity.Rare:
+                    return 1.1f;
+                case BoardItemRarity.Epic:
+                    return 1.55f;
+                case BoardItemRarity.Legendary:
+                    return 2.1f;
+                default:
+                    return 0.45f;
+            }
         }
     }
 

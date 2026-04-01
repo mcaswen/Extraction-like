@@ -20,6 +20,8 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     [Header("Stack")]
     public int CurrentAmount = 1;
     public Text AmountText;
+    public string RuntimeItemId;
+    public bool AutoTickSearchProgress = true;
 
     public Vector2Int _originalGridIndex;
     public bool _originalIsRotated;
@@ -59,6 +61,10 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public static DraggableItemUI CurrentlyDraggedItem;
 
     InventoryItemData IInventoryItemView.ItemData => ItemData;
+    public bool RequiresSearch => _requiresSearch;
+    public bool IsSearched => _isSearched;
+    public float SearchProgressSeconds => _searchProgressSeconds;
+    public float SearchDurationSeconds => _searchDurationSeconds;
 
     private void Awake()
     {
@@ -67,7 +73,11 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     private void Update()
     {
-        TickSearchProgress();
+        if (AutoTickSearchProgress)
+        {
+            TickSearchProgress();
+        }
+
         TickSearchRevealAnimation();
     }
 
@@ -109,6 +119,7 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         }
 
         _requiresSearch = saveData.RequiresSearch;
+        RuntimeItemId = saveData.RuntimeItemId;
         _searchDurationSeconds = saveData.SearchDurationSeconds > 0f
             ? saveData.SearchDurationSeconds
             : (ItemData != null ? ItemData.GetSearchDurationSeconds() : 0f);
@@ -343,6 +354,7 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         return new ContainerItemSaveData
         {
+            RuntimeItemId = RuntimeItemId,
             ItemData = ItemData,
             Amount = CurrentAmount,
             X = _originalGridIndex.x,
@@ -355,6 +367,37 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             InternalItems = CloneSaveDataList(InternalItems),
             InternalCellStates = CloneCellStateList(InternalCellStates)
         };
+    }
+
+    public void SetSearchAutoTickEnabled(bool isEnabled)
+    {
+        AutoTickSearchProgress = isEnabled;
+    }
+
+    public bool AdvanceSearchProgressManually(float deltaSeconds)
+    {
+        if (!_requiresSearch || _isSearched)
+        {
+            return false;
+        }
+
+        float previousProgress = _searchProgressSeconds;
+        _searchProgressSeconds = Mathf.Min(_searchProgressSeconds + Mathf.Max(0f, deltaSeconds), _searchDurationSeconds);
+
+        if (_searchProgressSeconds >= _searchDurationSeconds)
+        {
+            _isSearched = true;
+            _isRevealAnimating = true;
+            _revealAnimationTimer = 0f;
+            UpdateAmountText();
+        }
+
+        if (!Mathf.Approximately(previousProgress, _searchProgressSeconds) || _isSearched)
+        {
+            UpdateSearchVisualState();
+        }
+
+        return _isSearched;
     }
 
     /// <summary>

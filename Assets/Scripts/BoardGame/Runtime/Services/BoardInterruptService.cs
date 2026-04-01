@@ -37,6 +37,11 @@ namespace BoardGame.Runtime.Services
 
             BoardAgentState agentState = sessionState.AgentState;
 
+            if (sessionState.IsAwaitingLootInteraction)
+            {
+                return BoardInterruptEvaluation.Fail("Target redirection is disabled while loot interaction is pending");
+            }
+
             if (agentState.CurrentActionType == BoardActionType.FightingBoss)
             {
                 return BoardInterruptEvaluation.Fail("Target redirection is disabled during a boss fight");

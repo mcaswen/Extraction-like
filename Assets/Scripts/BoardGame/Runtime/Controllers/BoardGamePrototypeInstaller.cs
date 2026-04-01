@@ -1,5 +1,6 @@
 using BoardGame.Config;
 using BoardGame.Presentation;
+using BoardGame.Runtime;
 using BoardGame.Views;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ namespace BoardGame.Runtime.Controllers
         [SerializeField] private SO_BoardGame_RuleSet _ruleSet;
         // 掉落配置，提供资源点与敌人的战利品表
         [SerializeField] private SO_BoardGame_LootTableSet _lootTableSet;
+        // BoardGame 与背包网格的桥接布局配置
+        [SerializeField] private BoardGameBagLayoutSettings _bagLayoutSettings = new BoardGameBagLayoutSettings();
 
         [Header("Map View")]
         // 地图运行时表现对象的父节点，留空时会退回当前物体
@@ -38,6 +41,8 @@ namespace BoardGame.Runtime.Controllers
         [SerializeField] private BoardGameItemBarController _itemBarController;
         // 升级弹窗控制器，展示 3 选 1 增益
         [SerializeField] private BoardGameLevelUpController _levelUpController;
+        // 战利品背包桥接控制器，负责在桌游场景里运行时创建背包 UI
+        [SerializeField] private BoardGameLootInventoryController _lootInventoryController;
         // 输入控制器，负责鼠标选中与重定向操作
         [SerializeField] private BoardGameSelectionController _selectionController;
         // 世界相机，负责把鼠标位置投到 2D 地图上
@@ -55,7 +60,7 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            _prototypeController = new BoardGamePrototypeController(_mapDefinition, _ruleSet, _lootTableSet);
+            _prototypeController = new BoardGamePrototypeController(_mapDefinition, _ruleSet, _lootTableSet, _bagLayoutSettings);
 
             if (_mapViewController != null)
             {
@@ -66,6 +71,7 @@ namespace BoardGame.Runtime.Controllers
             _itemBarController?.Bind(_prototypeController);
             ResolveLevelUpController()?.Bind(_prototypeController);
             _selectionController?.Bind(_prototypeController, _worldCamera != null ? _worldCamera : Camera.main);
+            ResolveLootInventoryController()?.Bind(_prototypeController, ResolveParentCanvas());
         }
 
         private void Update()
@@ -134,6 +140,48 @@ namespace BoardGame.Runtime.Controllers
 
             _levelUpController = levelUpObject.GetComponent<BoardGameLevelUpController>();
             return _levelUpController;
+        }
+
+        private BoardGameLootInventoryController ResolveLootInventoryController()
+        {
+            if (_lootInventoryController != null)
+            {
+                return _lootInventoryController;
+            }
+
+            _lootInventoryController = FindObjectOfType<BoardGameLootInventoryController>();
+
+            if (_lootInventoryController != null)
+            {
+                return _lootInventoryController;
+            }
+
+            GameObject inventoryBridgeObject = new GameObject("BoardGameLootInventoryController", typeof(BoardGameLootInventoryController));
+            inventoryBridgeObject.transform.SetParent(transform, false);
+            _lootInventoryController = inventoryBridgeObject.GetComponent<BoardGameLootInventoryController>();
+            return _lootInventoryController;
+        }
+
+        private Canvas ResolveParentCanvas()
+        {
+            Canvas parentCanvas = null;
+
+            if (_hudController != null)
+            {
+                parentCanvas = _hudController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _itemBarController != null)
+            {
+                parentCanvas = _itemBarController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _selectionController != null)
+            {
+                parentCanvas = _selectionController.GetComponentInParent<Canvas>();
+            }
+
+            return parentCanvas;
         }
     }
 }

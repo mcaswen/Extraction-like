@@ -23,11 +23,38 @@ namespace BoardGame.Runtime.Services
             }
 
             BoardAgentState agentState = sessionState.AgentState;
+            if (!nodeState.HasPendingLootContainer())
+            {
+                List<BoardItemInstance> generatedItems = context.LootResolutionService.GenerateResourceLoot(nodeState);
+                BoardExperienceGrantResult experienceResult = context.ProgressionService.GrantExperienceFromItems(sessionState, generatedItems);
+                context.LootResolutionService.PrepareNodeLootContainer(nodeState, generatedItems, context.BagLayoutSettings);
+
+                if (!nodeState.HasPendingLootContainer())
+                {
+                    nodeState.ResourceState = BoardResourceStateType.Looted;
+                    BoardNodeActionHandlerUtility.FinishCurrentTarget(
+                        context,
+                        sessionState,
+                        $"Search complete{experienceResult.Summary}");
+                    return true;
+                }
+
+                sessionState.StatusMessage = $"Loot ready at {nodeState.NodeId}, press F to start searching{experienceResult.Summary}";
+            }
+            else
+            {
+                sessionState.StatusMessage = nodeState.IsLootRevealComplete()
+                    ? $"Search complete at {nodeState.NodeId}, close the loot bag to continue"
+                    : $"Loot ready at {nodeState.NodeId}, press F to continue searching";
+            }
+
             nodeState.ResourceState = BoardResourceStateType.Searching;
+            nodeState.SyncSearchProgressFromLootReveal();
+            sessionState.ActiveLootNodeId = nodeState.NodeId;
+            sessionState.IsLootInteractionOpen = false;
             agentState.CurrentActionType = BoardActionType.Searching;
-            agentState.CurrentActionDuration = nodeState.SearchRequiredSeconds;
-            agentState.CurrentActionProgress = nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
-            sessionState.StatusMessage = $"Started searching {nodeState.NodeId}";
+            agentState.CurrentActionDuration = 1f;
+            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
             return true;
         }
 
@@ -39,24 +66,9 @@ namespace BoardGame.Runtime.Services
         {
             BoardAgentState agentState = sessionState.AgentState;
             nodeState.ResourceState = BoardResourceStateType.Searching;
-            nodeState.SearchProgressSeconds = Mathf.Min(nodeState.SearchRequiredSeconds, nodeState.SearchProgressSeconds + deltaTime);
-            agentState.CurrentActionDuration = nodeState.SearchRequiredSeconds;
-            agentState.CurrentActionProgress = nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
-
-            if (nodeState.SearchProgressSeconds < nodeState.SearchRequiredSeconds)
-            {
-                return;
-            }
-
-            nodeState.ResourceState = BoardResourceStateType.SearchCompleted;
-            List<BoardItemInstance> generatedItems = context.LootResolutionService.GenerateResourceLoot(nodeState);
-            BoardExperienceGrantResult experienceResult = context.ProgressionService.GrantExperienceFromItems(sessionState, generatedItems);
-            BoardAutoCollectResult collectResult = context.LootResolutionService.AutoCollect(agentState.InventoryState, generatedItems);
-            nodeState.ResourceState = BoardResourceStateType.Looted;
-            BoardNodeActionHandlerUtility.FinishCurrentTarget(
-                context,
-                sessionState,
-                $"Search complete{collectResult.Summary}{experienceResult.Summary}");
+            nodeState.SyncSearchProgressFromLootReveal();
+            agentState.CurrentActionDuration = 1f;
+            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
         }
 
         public void FinalizeForRedirect(

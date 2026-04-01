@@ -83,13 +83,29 @@ namespace BoardGame.Runtime.Services
 
                 BoardExperienceGrantResult experienceResult = context.ProgressionService.GrantExperienceFromEncounter(sessionState, nodeState, _isBoss);
                 List<BoardItemInstance> generatedItems = context.LootResolutionService.GenerateEncounterLoot(nodeState, _isBoss);
-                BoardAutoCollectResult collectResult = context.LootResolutionService.AutoCollect(agentState.InventoryState, generatedItems);
-                BoardNodeActionHandlerUtility.FinishCurrentTarget(
-                    context,
-                    sessionState,
-                    _isBoss
-                        ? $"Boss defeated{collectResult.Summary}{experienceResult.Summary}"
-                        : $"Enemy cleared{collectResult.Summary}{experienceResult.Summary}");
+                BoardExperienceGrantResult itemExperienceResult = context.ProgressionService.GrantExperienceFromItems(sessionState, generatedItems);
+
+                if (generatedItems.Count == 0)
+                {
+                    BoardNodeActionHandlerUtility.FinishCurrentTarget(
+                        context,
+                        sessionState,
+                        _isBoss
+                            ? $"Boss defeated{experienceResult.Summary}"
+                            : $"Enemy cleared{experienceResult.Summary}");
+                    return;
+                }
+
+                context.LootResolutionService.PrepareNodeLootContainer(nodeState, generatedItems, context.BagLayoutSettings);
+                sessionState.ActiveLootNodeId = nodeState.NodeId;
+                sessionState.IsLootInteractionOpen = false;
+                agentState.CurrentActionType = BoardActionType.Searching;
+                agentState.CurrentActionDuration = 1f;
+                agentState.CurrentActionAccumulatorSeconds = 0f;
+                agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+                sessionState.StatusMessage = _isBoss
+                    ? $"Boss defeated, press F to search the loot{experienceResult.Summary}{itemExperienceResult.Summary}"
+                    : $"Enemy cleared, press F to search the loot{experienceResult.Summary}{itemExperienceResult.Summary}";
                 return;
             }
         }

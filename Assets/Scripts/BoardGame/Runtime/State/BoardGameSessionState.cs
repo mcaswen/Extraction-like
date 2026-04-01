@@ -30,6 +30,10 @@ namespace BoardGame.Runtime.State
         [SerializeField] private List<BoardLevelUpChoice> _pendingLevelUpChoices = new List<BoardLevelUpChoice>();
         // 已经升级但尚未结算增益的次数
         [SerializeField] private int _pendingLevelUpCount;
+        // 当前卡住 AI 的战利品节点
+        [SerializeField] private string _activeLootNodeId = string.Empty;
+        // 战利品 UI 当前是否处于打开状态
+        [SerializeField] private bool _isLootInteractionOpen;
 
         public BoardGameSessionState(string mapId, BoardAgentState agentState, List<BoardNodeRuntimeState> nodeStates)
         {
@@ -79,6 +83,20 @@ namespace BoardGame.Runtime.State
         {
             get => _pendingLevelUpCount;
             set => _pendingLevelUpCount = Mathf.Max(0, value);
+        }
+
+        public string ActiveLootNodeId
+        {
+            get => _activeLootNodeId;
+            set => _activeLootNodeId = value ?? string.Empty;
+        }
+
+        public bool IsAwaitingLootInteraction => !string.IsNullOrEmpty(_activeLootNodeId);
+
+        public bool IsLootInteractionOpen
+        {
+            get => _isLootInteractionOpen;
+            set => _isLootInteractionOpen = value;
         }
     }
 }

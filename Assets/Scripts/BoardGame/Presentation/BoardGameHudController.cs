@@ -100,7 +100,8 @@ namespace BoardGame.Presentation
 
             if (_capacityText != null)
             {
-                _capacityText.text = $"Capacity: {agentState.InventoryState.UsedCapacity:0.0}/{agentState.InventoryState.MaxCapacity:0.0}";
+                _capacityText.text = string.Empty;
+                _capacityText.gameObject.SetActive(false);
             }
 
             if (_actionText != null)
@@ -134,7 +135,9 @@ namespace BoardGame.Presentation
             {
                 _redirectStateText.text = _prototypeController.IsAwaitingLevelUpChoice
                     ? "Level Up: Press 1/2/3 or choose an upgrade"
-                    : "Control: Hover and click a node to redirect";
+                    : (_prototypeController.IsAwaitingLootInteraction
+                        ? "Loot: Press F to open or continue searching"
+                        : "Control: Hover and click a node to redirect");
             }
 
             SetProgressionWidgetsVisible(progressionEnabled);

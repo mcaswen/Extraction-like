@@ -32,7 +32,7 @@ public class InventoryItemFactory : MonoBehaviour
         List<ContainerItemSaveData> internalItems = null,
         List<ContainerCellStateSaveData> internalCellStates = null)
     {
-        if (itemData == null || targetGrid == null || DraggableItemPrefab == null)
+        if (itemData == null || targetGrid == null)
         {
             return null;
         }
@@ -44,7 +44,12 @@ public class InventoryItemFactory : MonoBehaviour
             return null;
         }
 
-        GameObject itemObject = Instantiate(DraggableItemPrefab, targetGrid.ItemContainer, false);
+        GameObject itemObject = CreateItemObject(targetGrid.ItemContainer);
+        if (itemObject == null)
+        {
+            return null;
+        }
+
         DraggableItemUI itemView = itemObject.GetComponent<DraggableItemUI>();
         if (itemView == null)
         {
@@ -67,12 +72,17 @@ public class InventoryItemFactory : MonoBehaviour
         List<ContainerItemSaveData> internalItems = null,
         List<ContainerCellStateSaveData> internalCellStates = null)
     {
-        if (itemData == null || DraggableItemPrefab == null || GlobalDragLayer == null)
+        if (itemData == null || GlobalDragLayer == null)
         {
             return null;
         }
 
-        GameObject itemObject = Instantiate(DraggableItemPrefab, GlobalDragLayer, false);
+        GameObject itemObject = CreateItemObject(GlobalDragLayer);
+        if (itemObject == null)
+        {
+            return null;
+        }
+
         DraggableItemUI itemView = itemObject.GetComponent<DraggableItemUI>();
         if (itemView == null)
         {
@@ -111,6 +121,37 @@ public class InventoryItemFactory : MonoBehaviour
         itemView.ItemData = itemData;
         itemView.InternalItems = CloneSaveDataList(internalItems);
         itemView.InternalCellStates = CloneCellStateList(internalCellStates);
+    }
+
+    private GameObject CreateItemObject(Transform parent)
+    {
+        if (DraggableItemPrefab != null)
+        {
+            return Instantiate(DraggableItemPrefab, parent, false);
+        }
+
+        GameObject itemObject = new GameObject("RuntimeItem", typeof(RectTransform), typeof(CanvasGroup), typeof(Image), typeof(DraggableItemUI));
+        itemObject.transform.SetParent(parent, false);
+
+        GameObject amountObject = new GameObject("AmountText", typeof(RectTransform), typeof(Text));
+        amountObject.transform.SetParent(itemObject.transform, false);
+
+        RectTransform amountRect = amountObject.GetComponent<RectTransform>();
+        amountRect.anchorMin = Vector2.zero;
+        amountRect.anchorMax = Vector2.one;
+        amountRect.offsetMin = Vector2.zero;
+        amountRect.offsetMax = Vector2.zero;
+
+        Text amountText = amountObject.GetComponent<Text>();
+        amountText.alignment = TextAnchor.LowerRight;
+        amountText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        amountText.fontSize = 14;
+        amountText.color = Color.white;
+        amountText.raycastTarget = false;
+
+        DraggableItemUI itemView = itemObject.GetComponent<DraggableItemUI>();
+        itemView.AmountText = amountText;
+        return itemObject;
     }
 
     private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)

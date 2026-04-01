@@ -1,4 +1,5 @@
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 
 namespace BoardGame.Runtime.Services
@@ -27,18 +28,21 @@ namespace BoardGame.Runtime.Services
             SO_BoardGame_RuleSet ruleSet,
             BoardCombatResolutionService combatResolutionService,
             BoardLootResolutionService lootResolutionService,
-            BoardProgressionService progressionService)
+            BoardProgressionService progressionService,
+            BoardGameBagLayoutSettings bagLayoutSettings)
         {
             RuleSet = ruleSet;
             CombatResolutionService = combatResolutionService;
             LootResolutionService = lootResolutionService;
             ProgressionService = progressionService;
+            BagLayoutSettings = bagLayoutSettings;
         }
 
         public SO_BoardGame_RuleSet RuleSet { get; }
         public BoardCombatResolutionService CombatResolutionService { get; }
         public BoardLootResolutionService LootResolutionService { get; }
         public BoardProgressionService ProgressionService { get; }
+        public BoardGameBagLayoutSettings BagLayoutSettings { get; }
     }
 
     /// <summary>

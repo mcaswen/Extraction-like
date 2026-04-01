@@ -31,6 +31,16 @@ namespace BoardGame.Runtime.State
         [SerializeField] private bool _hasGeneratedResourceLoot;
         // 资源点已生成的掉落实例缓存
         [SerializeField] private List<BoardItemInstance> _generatedResourceItems = new List<BoardItemInstance>();
+        // 节点当前战利品容器内剩余物品
+        [SerializeField] private List<BoardLootContainerItemState> _lootContainerItems = new List<BoardLootContainerItemState>();
+        // 战利品容器列数
+        [SerializeField] private int _lootContainerColumns = 3;
+        // 战利品容器行数
+        [SerializeField] private int _lootContainerRows = 3;
+        // 该节点本次总共生成的战利品件数
+        [SerializeField] private int _lootTotalItemCount;
+        // 已揭露的战利品件数
+        [SerializeField] private int _lootRevealedItemCount;
 
         // 普通敌人点当前状态
         [SerializeField] private BoardEnemyStateType _enemyState = BoardEnemyStateType.Unengaged;
@@ -106,6 +116,31 @@ namespace BoardGame.Runtime.State
         }
 
         public List<BoardItemInstance> GeneratedResourceItems => _generatedResourceItems;
+        public List<BoardLootContainerItemState> LootContainerItems => _lootContainerItems;
+
+        public int LootContainerColumns
+        {
+            get => Mathf.Max(1, _lootContainerColumns);
+            set => _lootContainerColumns = Mathf.Max(1, value);
+        }
+
+        public int LootContainerRows
+        {
+            get => Mathf.Max(1, _lootContainerRows);
+            set => _lootContainerRows = Mathf.Max(1, value);
+        }
+
+        public int LootTotalItemCount
+        {
+            get => Mathf.Max(0, _lootTotalItemCount);
+            set => _lootTotalItemCount = Mathf.Max(0, value);
+        }
+
+        public int LootRevealedItemCount
+        {
+            get => Mathf.Clamp(_lootRevealedItemCount, 0, LootTotalItemCount);
+            set => _lootRevealedItemCount = Mathf.Clamp(value, 0, LootTotalItemCount);
+        }
 
         public BoardEnemyStateType EnemyState
         {
@@ -191,6 +226,62 @@ namespace BoardGame.Runtime.State
         public bool HasUnfinishedSearch()
         {
             return _nodeType == BoardNodeType.Resource && _resourceState != BoardResourceStateType.Looted;
+        }
+
+        public bool HasPendingLootContainer()
+        {
+            return _lootTotalItemCount > 0;
+        }
+
+        public bool HasRemainingLootItems()
+        {
+            return _lootContainerItems.Count > 0;
+        }
+
+        public bool HasHiddenLootItems()
+        {
+            foreach (BoardLootContainerItemState itemState in _lootContainerItems)
+            {
+                if (itemState != null && !itemState.IsRevealed)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsLootRevealComplete()
+        {
+            return _lootTotalItemCount <= 0 || LootRevealedItemCount >= _lootTotalItemCount;
+        }
+
+        public float GetLootRevealProgress01()
+        {
+            return _lootTotalItemCount <= 0
+                ? 1f
+                : Mathf.Clamp01((float)LootRevealedItemCount / _lootTotalItemCount);
+        }
+
+        public void ResetLootContainer()
+        {
+            _lootContainerItems.Clear();
+            _lootContainerColumns = 3;
+            _lootContainerRows = 3;
+            _lootTotalItemCount = 0;
+            _lootRevealedItemCount = 0;
+            SyncSearchProgressFromLootReveal();
+        }
+
+        public void SyncSearchProgressFromLootReveal()
+        {
+            if (_nodeType != BoardNodeType.Resource)
+            {
+                return;
+            }
+
+            _searchRequiredSeconds = Mathf.Max(1f, _lootTotalItemCount);
+            _searchProgressSeconds = Mathf.Clamp(_lootRevealedItemCount, 0f, _searchRequiredSeconds);
         }
 
         /// <summary>
