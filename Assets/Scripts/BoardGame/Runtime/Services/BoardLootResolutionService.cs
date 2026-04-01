@@ -162,12 +162,13 @@ namespace BoardGame.Runtime.Services
 
                 int x = index % columns;
                 int y = index / columns;
+                float revealDuration = ResolveRevealDurationSeconds(itemInstance);
                 nodeState.LootContainerItems.Add(new BoardLootContainerItemState(
                     itemInstance,
                     x,
                     y,
                     index,
-                    GetRevealDurationSeconds(itemInstance.ItemRarity)));
+                    revealDuration));
             }
 
             nodeState.SyncSearchProgressFromLootReveal();
@@ -266,23 +267,18 @@ namespace BoardGame.Runtime.Services
                 itemDefinition.ConsumeValue);
         }
 
-        private static float GetRevealDurationSeconds(BoardItemRarity rarity)
+        private float ResolveRevealDurationSeconds(BoardItemInstance itemInstance)
         {
-            switch (rarity)
+            if (itemInstance != null &&
+                !string.IsNullOrEmpty(itemInstance.ItemId) &&
+                _itemDefinitionsById.TryGetValue(itemInstance.ItemId, out BoardItemDefinition itemDefinition) &&
+                itemDefinition != null)
             {
-                case BoardItemRarity.Common:
-                    return 0.45f;
-                case BoardItemRarity.Uncommon:
-                    return 0.75f;
-                case BoardItemRarity.Rare:
-                    return 1.1f;
-                case BoardItemRarity.Epic:
-                    return 1.55f;
-                case BoardItemRarity.Legendary:
-                    return 2.1f;
-                default:
-                    return 0.45f;
+                return itemDefinition.RevealDurationSeconds;
             }
+
+            return BoardItemDefinition.GetDefaultRevealDurationSeconds(
+                itemInstance != null ? itemInstance.ItemRarity : BoardItemRarity.Common);
         }
     }
 

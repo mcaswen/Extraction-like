@@ -21,6 +21,8 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _experienceText;
         // 当前已携带总收益显示文本
         [SerializeField] private TMP_Text _valueText;
+        // 当前背包占用格数 / 总格数显示文本
+        [SerializeField] private TMP_Text _capacityText;
         // 当前动作类型显示文本
         [SerializeField] private TMP_Text _actionText;
         // 当前锁定目标节点显示文本
@@ -94,6 +96,14 @@ namespace BoardGame.Presentation
             if (_valueText != null)
             {
                 _valueText.text = $"Value: {agentState.InventoryState.TotalValue}";
+            }
+
+            if (_capacityText != null)
+            {
+                int totalSlots = _prototypeController.BagLayoutSettings.PlayerInventoryColumns *
+                                 _prototypeController.BagLayoutSettings.PlayerInventoryRows;
+                int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
+                _capacityText.text = $"Capacity: {occupiedSlots}/{totalSlots}";
             }
 
             if (_actionText != null)

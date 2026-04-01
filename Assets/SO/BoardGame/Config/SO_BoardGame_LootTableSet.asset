@@ -20,7 +20,8 @@ MonoBehaviour:
     _itemRarity: 0
     _minValue: 10
     _maxValue: 30
-    _capacityCost: 0.1
+    _revealDurationSeconds: 0.45
+    _experienceValue: 6
     _consumableType: 0
     _consumeValue: 0
   - _itemId: loot_blue
@@ -29,7 +30,8 @@ MonoBehaviour:
     _itemRarity: 1
     _minValue: 40
     _maxValue: 80
-    _capacityCost: 0.5
+    _revealDurationSeconds: 0.75
+    _experienceValue: 12
     _consumableType: 0
     _consumeValue: 0
   - _itemId: loot_purple
@@ -38,7 +40,8 @@ MonoBehaviour:
     _itemRarity: 2
     _minValue: 80
     _maxValue: 120
-    _capacityCost: 0.5
+    _revealDurationSeconds: 1.1
+    _experienceValue: 18
     _consumableType: 0
     _consumeValue: 0
   - _itemId: loot_gold
@@ -47,7 +50,8 @@ MonoBehaviour:
     _itemRarity: 3
     _minValue: 300
     _maxValue: 500
-    _capacityCost: 1
+    _revealDurationSeconds: 1.55
+    _experienceValue: 30
     _consumableType: 0
     _consumeValue: 0
   - _itemId: loot_red
@@ -56,7 +60,8 @@ MonoBehaviour:
     _itemRarity: 4
     _minValue: 1000
     _maxValue: 2000
-    _capacityCost: 2
+    _revealDurationSeconds: 2.1
+    _experienceValue: 50
     _consumableType: 0
     _consumeValue: 0
   - _itemId: healing_potion
@@ -65,7 +70,8 @@ MonoBehaviour:
     _itemRarity: 1
     _minValue: 150
     _maxValue: 250
-    _capacityCost: 0.5
+    _revealDurationSeconds: 0.75
+    _experienceValue: 16
     _consumableType: 1
     _consumeValue: 10
   _resourcePools:
