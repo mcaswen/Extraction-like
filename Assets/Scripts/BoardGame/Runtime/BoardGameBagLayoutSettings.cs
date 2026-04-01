@@ -9,10 +9,17 @@ namespace BoardGame.Runtime
     [Serializable]
     public sealed class BoardGameBagLayoutSettings
     {
+        [SerializeField] private bool _enableBagSystem = false;
         [SerializeField] private int _playerInventoryColumns = 6;
         [SerializeField] private int _playerInventoryRows = 4;
         [SerializeField] private int _lootContainerRows = 3;
         [SerializeField] private int _minimumLootContainerColumns = 3;
+
+        public bool EnableBagSystem
+        {
+            get => _enableBagSystem;
+            set => _enableBagSystem = value;
+        }
 
         public int PlayerInventoryColumns
         {

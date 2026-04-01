@@ -71,7 +71,11 @@ namespace BoardGame.Runtime.Controllers
             _itemBarController?.Bind(_prototypeController);
             ResolveLevelUpController()?.Bind(_prototypeController);
             _selectionController?.Bind(_prototypeController, _worldCamera != null ? _worldCamera : Camera.main);
-            ResolveLootInventoryController()?.Bind(_prototypeController, ResolveParentCanvas());
+
+            if (_prototypeController.IsBagSystemEnabled)
+            {
+                ResolveLootInventoryController()?.Bind(_prototypeController, ResolveParentCanvas());
+            }
         }
 
         private void Update()

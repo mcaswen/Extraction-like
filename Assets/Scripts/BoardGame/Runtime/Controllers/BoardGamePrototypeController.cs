@@ -84,6 +84,7 @@ namespace BoardGame.Runtime.Controllers
         public BoardGraphService GraphService => _graphService;
         public BoardGameSessionState SessionState => _sessionState;
         public string SelectedNodeId => _selectedNodeId;
+        public bool IsBagSystemEnabled => _bagLayoutSettings.EnableBagSystem;
         public bool IsRedirectModeActive => false;
         public bool IsProgressionEnabled => _ruleSet.ProgressionRules.Enabled;
         public bool IsAwaitingLevelUpChoice => IsProgressionEnabled && _sessionState.IsAwaitingLevelUpChoice;
@@ -112,9 +113,23 @@ namespace BoardGame.Runtime.Controllers
 
             if (IsAwaitingLootInteraction)
             {
-                SyncLootActionProgress();
-                NotifySessionChanged();
-                return;
+                if (!IsBagSystemEnabled)
+                {
+                    ResolveActiveLootWithoutBagSystem();
+                }
+                else
+                {
+                    SyncLootActionProgress();
+                    NotifySessionChanged();
+                    return;
+                }
+
+                if (IsAwaitingLootInteraction)
+                {
+                    SyncLootActionProgress();
+                    NotifySessionChanged();
+                    return;
+                }
             }
 
             _actionStateMachine.Tick(_sessionState, _nodeStatesById, deltaTime);
@@ -269,7 +284,7 @@ namespace BoardGame.Runtime.Controllers
         {
             nodeState = GetActiveLootNodeState();
 
-            if (nodeState == null || !CanOpenActiveLootNode())
+            if (!IsBagSystemEnabled || nodeState == null || !CanOpenActiveLootNode())
             {
                 return false;
             }
@@ -409,6 +424,32 @@ namespace BoardGame.Runtime.Controllers
             }
 
             return edgeIds;
+        }
+
+        private void ResolveActiveLootWithoutBagSystem()
+        {
+            BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
+
+            if (nodeState == null)
+            {
+                return;
+            }
+
+            List<BoardItemInstance> collectedItems = _sessionState.AgentState.InventoryState.Items
+                .Where(item => item != null)
+                .ToList();
+
+            foreach (BoardLootContainerItemState itemState in nodeState.LootContainerItems)
+            {
+                if (itemState?.ItemInstance != null)
+                {
+                    collectedItems.Add(itemState.ItemInstance);
+                }
+            }
+
+            int revealedItemCount = Mathf.Max(nodeState.LootTotalItemCount, nodeState.LootContainerItems.Count);
+            CloseActiveLootNode(new List<BoardLootContainerItemState>(), collectedItems, revealedItemCount);
+            _sessionState.StatusMessage = $"Auto collected loot at {nodeState.NodeId}";
         }
 
         /// <summary>

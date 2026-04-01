@@ -57,6 +57,16 @@ namespace BoardGame.Presentation
                 return;
             }
 
+            if (!_prototypeController.IsBagSystemEnabled)
+            {
+                if (_isOpen)
+                {
+                    CloseLootNode();
+                }
+
+                return;
+            }
+
             if (!_isOpen)
             {
                 if (Input.GetKeyDown(KeyCode.F) && _prototypeController.TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState))
