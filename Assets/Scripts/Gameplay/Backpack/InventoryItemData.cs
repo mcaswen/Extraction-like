@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 物品主类型。
+/// 物品主类型
 /// </summary>
 public enum ItemType
 {
@@ -15,8 +15,8 @@ public enum ItemType
 }
 
 /// <summary>
-/// 物品稀有度。
-/// 用于决定搜索耗时和表现优先级。
+/// 物品稀有度
+/// 用于决定搜索耗时和表现优先级
 /// </summary>
 public enum ItemRarity
 {
@@ -28,8 +28,8 @@ public enum ItemRarity
 }
 
 /// <summary>
-/// 物品静态配置。
-/// ScriptableObject 只承载配置，不承载运行时状态。
+/// 物品静态配置
+/// ScriptableObject 只承载配置，不承载运行时状态
 /// </summary>
 [CreateAssetMenu(fileName = "SO_Bag_NewItemData", menuName = "HardcoreInventory/ItemData")]
 public class InventoryItemData : ScriptableObject
@@ -67,8 +67,11 @@ public class InventoryItemData : ScriptableObject
     public float SearchDurationOverride = -1f;
 
     /// <summary>
-    /// 获取该物品在战利品容器中的默认搜索时长。
+    /// 获取该物品在战利品容器中的默认搜索时长
+    /// 如果配置里手动覆盖了时长，则优先使用覆盖值；
+    /// 否则按稀有度基础时长叠加体积惩罚计算
     /// </summary>
+    /// <returns>搜索该物品所需的默认秒数</returns>
     public float GetSearchDurationSeconds()
     {
         if (SearchDurationOverride >= 0f)

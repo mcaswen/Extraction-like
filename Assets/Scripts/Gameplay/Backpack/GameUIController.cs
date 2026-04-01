@@ -2,8 +2,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 背包模块总控制器。
-/// 负责背包开关、容器打开、快捷转移和拾取路由。
+/// 背包模块总控制器
+/// 负责背包开关、容器打开、快捷转移和拾取路由
 /// </summary>
 public class GameUIController : MonoBehaviour
 {
@@ -51,8 +51,9 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 打开一个场景容器。
+    /// 打开一个场景容器
     /// </summary>
+    /// <param name="lootBox">要打开的场景容器实体</param>
     public void OpenLootBox(LootBoxEntity lootBox)
     {
         if (lootBox == null || LootChestGrid == null)
@@ -83,7 +84,7 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 切换背包面板显示状态。
+    /// 切换背包面板显示状态
     /// </summary>
     public void ToggleInventory()
     {
@@ -100,8 +101,14 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 根据源网格和物品信息查找快速转移目标。
+    /// 根据源网格和物品信息查找快速转移目标
     /// </summary>
+    /// <param name="sourceGrid">当前物品所在网格</param>
+    /// <param name="itemView">需要转移的物品视图</param>
+    /// <param name="targetGrid">解析出的目标网格</param>
+    /// <param name="position">解析出的目标坐标</param>
+    /// <param name="needsRotation">目标位置是否需要旋转</param>
+    /// <returns>是否找到合法目标</returns>
     public bool TryFindQuickTransferTarget(
         InventoryUIController sourceGrid,
         DraggableItemUI itemView,
@@ -144,8 +151,11 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 尝试将一个物品直接拾取到角色身上的任意可用网格。
+    /// 尝试将一个物品直接拾取到角色身上的任意可用网格
     /// </summary>
+    /// <param name="itemData">要拾取的静态物品配置</param>
+    /// <param name="amount">拾取数量</param>
+    /// <returns>是否成功放入角色容器</returns>
     public bool TryPickupItem(InventoryItemData itemData, int amount)
     {
         if (itemData == null)
@@ -177,8 +187,10 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 处理世界物品拾取与自动装备。
+    /// 处理世界物品拾取与自动装备
     /// </summary>
+    /// <param name="worldItem">场景中的掉落物对象</param>
+    /// <returns>是否成功收入角色容器</returns>
     public bool TryStoreWorldItem(WorldLootItem worldItem)
     {
         if (worldItem == null || worldItem.ItemData == null)
@@ -234,8 +246,10 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 使用装备交互键尝试装备或替换世界中的容器。
+    /// 使用装备交互键尝试装备或替换世界中的容器
     /// </summary>
+    /// <param name="worldItem">场景中的容器掉落物</param>
+    /// <returns>是否成功装备</returns>
     public bool TryEquipWorldContainer(WorldLootItem worldItem)
     {
         if (worldItem == null || worldItem.ItemData == null)
@@ -259,8 +273,11 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 处理拖拽物品投放到已占用装备槽时的替换逻辑。
+    /// 处理拖拽物品投放到已占用装备槽时的替换逻辑
     /// </summary>
+    /// <param name="slot">目标装备槽</param>
+    /// <param name="incomingItem">即将放入槽位的物品</param>
+    /// <returns>是否替换成功</returns>
     public bool TryReplaceEquippedContainerFromDrag(EquipmentSlotUI slot, DraggableItemUI incomingItem)
     {
         if (slot == null || incomingItem == null || incomingItem.ItemData == null)
@@ -295,6 +312,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 打开背包面板时，同步角色容器状态并释放鼠标
     private void OpenInventoryInternal()
     {
         if (InventoryPanel != null)
@@ -308,6 +326,7 @@ public class GameUIController : MonoBehaviour
         Cursor.visible = true;
     }
 
+    // 关闭背包面板时，回收拖拽态并保存当前容器运行时数据
     private void CloseInventoryInternal()
     {
         if (DraggableItemUI.CurrentlyDraggedItem != null)
@@ -328,6 +347,7 @@ public class GameUIController : MonoBehaviour
         Cursor.visible = false;
     }
 
+    // 若当前正打开场景容器，则在关闭面板前把运行时内容写回实体
     private void CloseLootBoxIfNeeded()
     {
         if (CurrentLootBox == null || LootChestGrid == null)
@@ -343,6 +363,7 @@ public class GameUIController : MonoBehaviour
         CurrentLootBox = null;
     }
 
+    // 只有对应装备槽已装备时，才允许把物品转入它关联的内部网格
     private static bool TryResolveAvailableSpace(
         EquipmentSlotUI slot,
         InventoryUIController grid,
@@ -363,6 +384,7 @@ public class GameUIController : MonoBehaviour
         return TryResolveAvailableSpace(grid, itemView, out targetGrid, out position, out needsRotation);
     }
 
+    // 解析运行时物品视图的合法落点，同时复用物品自己的放置限制判断
     private static bool TryResolveAvailableSpace(
         InventoryUIController grid,
         DraggableItemUI itemView,
@@ -388,6 +410,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 静态配置版的落点解析，供直接拾取逻辑使用
     private static bool TryResolveAvailableSpace(
         EquipmentSlotUI slot,
         InventoryUIController grid,
@@ -408,6 +431,7 @@ public class GameUIController : MonoBehaviour
         return TryResolveAvailableSpace(grid, item, out targetGrid, out position, out needsRotation);
     }
 
+    // 根据静态物品尺寸在目标网格中寻找首个可用空位
     private static bool TryResolveAvailableSpace(
         InventoryUIController grid,
         InventoryItemData item,
@@ -433,6 +457,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 世界掉落物版本的落点解析，额外考虑容器内部快照的限制
     private static bool TryResolveAvailableSpace(
         EquipmentSlotUI slot,
         InventoryUIController grid,
@@ -453,6 +478,7 @@ public class GameUIController : MonoBehaviour
         return TryResolveAvailableSpace(grid, worldItem, out targetGrid, out position, out needsRotation);
     }
 
+    // 世界掉落物进入目标网格前，需要先通过背包规则校验
     private static bool TryResolveAvailableSpace(
         InventoryUIController grid,
         WorldLootItem worldItem,
@@ -478,6 +504,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 统一处理世界容器的拾取入口，按类型分发到对应装备或替换逻辑
     private bool TryHandleContainerPickup(WorldLootItem worldItem, EquipmentSlotUI slot)
     {
         if (slot == null)
@@ -507,6 +534,7 @@ public class GameUIController : MonoBehaviour
         return false;
     }
 
+    // 胸挂替换只做装备交换，不迁移内部内容
     private bool TrySwapRig(WorldLootItem worldItem, EquipmentSlotUI slot)
     {
         slot.InitializeRuntimeState(false);
@@ -546,6 +574,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 背包替换会优先尝试把旧包内容重排进新包，失败后再做普通交换
     private bool TrySwapBackpack(WorldLootItem worldItem, EquipmentSlotUI slot)
     {
         slot.InitializeRuntimeState(false);
@@ -594,6 +623,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 当新包容量更大时，尝试把新包原内容和旧包内容合并重排成一套布局
     private static bool TryBuildReplacementBagLayout(
         DraggableItemUI oldBagItem,
         WorldLootItem newBagWorldItem,
@@ -623,6 +653,7 @@ public class GameUIController : MonoBehaviour
             out sortedLayout);
     }
 
+    // 为世界容器创建临时 UI 物品，并尝试直接装备到指定槽位
     private bool TryEquipWorldContainer(
         EquipmentSlotUI slot,
         WorldLootItem worldItem,
@@ -644,6 +675,7 @@ public class GameUIController : MonoBehaviour
         return false;
     }
 
+    // 把世界掉落容器转换成可装备的浮动物品视图
     private static DraggableItemUI CreateWorldContainerView(
         WorldLootItem worldItem,
         List<ContainerItemSaveData> internalItems,
@@ -661,6 +693,7 @@ public class GameUIController : MonoBehaviour
             internalCellStates);
     }
 
+    // 将卸下来的容器重新生成到场景里，并保留它当前的内部状态
     private static void DropItemViewToWorld(
         DraggableItemUI itemView,
         List<ContainerItemSaveData> internalItems,
@@ -685,6 +718,7 @@ public class GameUIController : MonoBehaviour
         Destroy(itemView.gameObject);
     }
 
+    // 掉落物默认生成在玩家前方，避免直接压在角色脚下
     private static Vector3 GetWorldDropPosition()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -696,6 +730,7 @@ public class GameUIController : MonoBehaviour
         return Vector3.zero;
     }
 
+    // 以总格数减去 blocked cell 的方式估算容器容量
     private static int GetContainerCapacity(InventoryItemData itemData)
     {
         if (itemData == null)
@@ -707,6 +742,7 @@ public class GameUIController : MonoBehaviour
         return Mathf.Max(0, itemData.ContainerColumns * itemData.ContainerRows - blockedCount);
     }
 
+    // 世界容器入格时，需要补充校验背包不能装背包以及非空胸挂不能进背包
     private static bool CanWorldItemEnterGrid(WorldLootItem worldItem, InventoryUIController targetGrid)
     {
         if (worldItem == null || worldItem.ItemData == null || targetGrid == null)
@@ -730,6 +766,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 静态配置版规则校验，主要用于直接拾取和自动放置
     private static bool CanStaticItemEnterGrid(InventoryItemData itemData, InventoryUIController targetGrid)
     {
         if (itemData == null || targetGrid == null)
@@ -745,6 +782,7 @@ public class GameUIController : MonoBehaviour
         return true;
     }
 
+    // 仅以保存快照中的物品列表和格子状态判断容器是否为空
     private static bool IsContainerSnapshotEmpty(
         List<ContainerItemSaveData> internalItems,
         List<ContainerCellStateSaveData> internalCellStates)
@@ -754,6 +792,7 @@ public class GameUIController : MonoBehaviour
         return !hasItems && !hasCellStates;
     }
 
+    // 根据界面开关状态决定是否展示背包和胸挂的联动内部网格
     private void RefreshCharacterContainerState(bool showLinkedGrids)
     {
         BackpackSlot?.InitializeRuntimeState(showLinkedGrids);
@@ -761,9 +800,12 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 根据屏幕坐标命中装备槽。
-    /// 用显式矩形检测替代纯 UI 射线，避免拖拽物挡住槽位。
+    /// 根据屏幕坐标命中装备槽
+    /// 用显式矩形检测替代纯 UI 射线，避免拖拽物挡住槽位
     /// </summary>
+    /// <param name="screenPosition">当前屏幕坐标</param>
+    /// <param name="eventCamera">用于 UI 计算的相机</param>
+    /// <returns>命中的装备槽，没有则返回空</returns>
     public EquipmentSlotUI GetEquipmentSlotAtScreenPosition(Vector2 screenPosition, Camera eventCamera)
     {
         if (IsScreenPointInsideSlot(BackpackSlot, screenPosition, eventCamera))
@@ -779,6 +821,7 @@ public class GameUIController : MonoBehaviour
         return null;
     }
 
+    // 深拷贝容器物品快照，确保 UI 编辑和世界实例不会共享状态引用
     private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
     {
         List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
@@ -798,6 +841,7 @@ public class GameUIController : MonoBehaviour
         return clone;
     }
 
+    // 用矩形包含关系检测装备槽命中，避免被拖拽物体的 Raycast 阻挡
     private static bool IsScreenPointInsideSlot(EquipmentSlotUI slot, Vector2 screenPosition, Camera eventCamera)
     {
         if (slot == null)
@@ -809,6 +853,7 @@ public class GameUIController : MonoBehaviour
         return slotRect != null && RectTransformUtility.RectangleContainsScreenPoint(slotRect, screenPosition, eventCamera);
     }
 
+    // 深拷贝容器格子状态，避免多个运行时对象互相污染 blocked cell 数据
     private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
     {
         List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();

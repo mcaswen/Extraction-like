@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 物品视图工厂。
-/// 负责创建 DraggableItemUI，并把静态配置与运行时数据装配到 view 上。
+/// 物品视图工厂
+/// 负责创建 DraggableItemUI，并把静态配置与运行时数据装配到 view 上
 /// </summary>
 public class InventoryItemFactory : MonoBehaviour
 {
@@ -20,8 +20,17 @@ public class InventoryItemFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// 在指定网格中生成一个物品视图。
+    /// 在指定网格中生成一个物品视图
     /// </summary>
+    /// <param name="itemData">静态物品配置</param>
+    /// <param name="targetGrid">要生成到的目标网格</param>
+    /// <param name="startX">起始横坐标</param>
+    /// <param name="startY">起始纵坐标</param>
+    /// <param name="amount">生成数量</param>
+    /// <param name="isRotated">是否以旋转后的占格生成</param>
+    /// <param name="internalItems">容器类物品的内部物品快照</param>
+    /// <param name="internalCellStates">容器类物品的内部格子状态快照</param>
+    /// <returns>生成出的物品视图，失败则返回空</returns>
     public DraggableItemUI SpawnItemInGrid(
         InventoryItemData itemData,
         InventoryUIController targetGrid,
@@ -64,8 +73,13 @@ public class InventoryItemFactory : MonoBehaviour
     }
 
     /// <summary>
-    /// 创建一个未附着在网格上的悬浮物品视图。
+    /// 创建一个未附着在网格上的悬浮物品视图
     /// </summary>
+    /// <param name="itemData">静态物品配置</param>
+    /// <param name="amount">生成数量</param>
+    /// <param name="internalItems">容器类物品的内部物品快照</param>
+    /// <param name="internalCellStates">容器类物品的内部格子状态快照</param>
+    /// <returns>生成出的悬浮物品视图，失败则返回空</returns>
     public DraggableItemUI CreateFloatingItem(
         InventoryItemData itemData,
         int amount,
@@ -106,6 +120,7 @@ public class InventoryItemFactory : MonoBehaviour
         return itemView;
     }
 
+    // 把静态配置和运行时快照统一灌入物品视图，避免生成入口分散赋值
     private static void ConfigureItemView(
         DraggableItemUI itemView,
         InventoryItemData itemData,
@@ -123,6 +138,7 @@ public class InventoryItemFactory : MonoBehaviour
         itemView.InternalCellStates = CloneCellStateList(internalCellStates);
     }
 
+    // 创建物品 GameObject；如果没有配置 prefab，则构建最小可用的运行时视图
     private GameObject CreateItemObject(Transform parent)
     {
         if (DraggableItemPrefab != null)
@@ -154,6 +170,7 @@ public class InventoryItemFactory : MonoBehaviour
         return itemObject;
     }
 
+    // 深拷贝容器内物品列表，防止多个运行时实例意外共享引用
     private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
     {
         List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
@@ -173,6 +190,7 @@ public class InventoryItemFactory : MonoBehaviour
         return clone;
     }
 
+    // 深拷贝运行时格子状态列表，保持各容器实例相互独立
     private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
     {
         List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();

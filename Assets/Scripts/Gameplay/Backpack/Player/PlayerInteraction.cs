@@ -2,8 +2,8 @@
 using UnityEngine.UI;
 
 /// <summary>
-/// 玩家交互扫描器。
-/// 负责寻找最近可交互对象，并驱动场景中的悬浮提示 UI。
+/// 玩家交互扫描器
+/// 负责寻找最近可交互对象，并驱动场景中的悬浮提示 UI
 /// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
@@ -37,6 +37,7 @@ public class PlayerInteraction : MonoBehaviour
         HandleInteractionInput();
     }
 
+    // 扫描交互半径内最近的可交互对象，供提示和按键入口复用
     private void ScanForInteractables()
     {
         Collider[] hits = InteractableLayer.value == 0
@@ -73,6 +74,7 @@ public class PlayerInteraction : MonoBehaviour
         _closestTransform = nearestTransform;
     }
 
+    // 刷新世界空间悬浮提示，并在背包打开时隐藏提示避免 UI 干扰
     private void UpdateFloatingUI()
     {
         if (FloatingPromptUI == null || PromptText == null || _mainCamera == null)
@@ -117,6 +119,7 @@ public class PlayerInteraction : MonoBehaviour
         FloatingPromptUI.position = screenPosition;
     }
 
+    // 统一处理主交互键和副交互键输入
     private void HandleInteractionInput()
     {
         if (Input.GetKeyDown(KeyCode.F) && _closestInteractable != null)
@@ -130,6 +133,7 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
+    // 当目标是背包或胸挂时，额外补一行装备指引，帮助玩家理解 F/E 的区别
     private string GetEquipmentGuidePrompt()
     {
         WorldLootItem worldLootItem = _closestTransform != null
@@ -165,6 +169,7 @@ public class PlayerInteraction : MonoBehaviour
         return string.Empty;
     }
 
+    // 在 Scene 视图里绘制交互半径，方便调试交互范围
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

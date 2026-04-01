@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 场景中的地面掉落物。
+/// 场景中的地面掉落物
 /// </summary>
 public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractable
 {
@@ -13,8 +13,12 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
     public List<ContainerCellStateSaveData> InternalCellStates = new List<ContainerCellStateSaveData>();
 
     /// <summary>
-    /// 初始化一个掉落物实体。
+    /// 初始化一个掉落物实体
     /// </summary>
+    /// <param name="data">掉落物对应的静态物品配置</param>
+    /// <param name="amount">掉落数量</param>
+    /// <param name="internalItems">容器类掉落物的内部物品快照</param>
+    /// <param name="internalCellStates">容器类掉落物的内部格子状态快照</param>
     public void InitializeDrop(
         InventoryItemData data,
         int amount,
@@ -28,6 +32,10 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         ApplyRandomImpulse();
     }
 
+    /// <summary>
+    /// 获取主交互提示文本
+    /// </summary>
+    /// <returns>展示给玩家的主交互文案</returns>
     public string GetPromptText()
     {
         if (ItemData == null)
@@ -48,6 +56,9 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         return $"[F] 拾取 {ItemData.ItemName}";
     }
 
+    /// <summary>
+    /// 执行主交互逻辑，尝试把地面物品收纳进角色容器
+    /// </summary>
     public void Interact()
     {
         if (GameUIController.Instance == null || !GameUIController.Instance.TryStoreWorldItem(this))
@@ -59,6 +70,10 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// 获取第二交互提示文本
+    /// </summary>
+    /// <returns>展示给玩家的第二交互文案</returns>
     public string GetSecondaryPromptText()
     {
         if (ItemData == null)
@@ -74,6 +89,9 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         return string.Empty;
     }
 
+    /// <summary>
+    /// 执行第二交互逻辑，尝试直接装备或替换容器类掉落物
+    /// </summary>
     public void SecondaryInteract()
     {
         if (ItemData == null || (ItemData.Type != ItemType.Bag && ItemData.Type != ItemType.Rig))
@@ -90,6 +108,7 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         Destroy(gameObject);
     }
 
+    // 给新生成的地面掉落物一个轻微随机抛散力，避免物体完全重叠
     private void ApplyRandomImpulse()
     {
         Rigidbody rigidbodyComponent = GetComponent<Rigidbody>();
@@ -102,6 +121,7 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         rigidbodyComponent.AddForce(randomDirection * 3f, ForceMode.Impulse);
     }
 
+    // 深拷贝掉落物内部物品快照，保证世界掉落和角色容器不会共用引用
     private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
     {
         List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
@@ -121,6 +141,7 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         return clone;
     }
 
+    // 深拷贝掉落物内部格子状态快照
     private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
     {
         List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();
