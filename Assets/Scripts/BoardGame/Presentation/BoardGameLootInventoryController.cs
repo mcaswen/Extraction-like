@@ -10,8 +10,8 @@ using UnityEngine.UI;
 namespace BoardGame.Presentation
 {
     /// <summary>
-    /// BoardGame 运行时战利品背包桥接。
-    /// 运行时创建最小可用的玩家背包和战利品网格，并复用 Bag 系统的拖拽交互。
+    /// BoardGame 运行时战利品背包桥接
+    /// 运行时创建最小可用的玩家背包和战利品网格，并复用 Bag 系统的拖拽交互
     /// </summary>
     public sealed class BoardGameLootInventoryController : MonoBehaviour
     {
@@ -43,6 +43,11 @@ namespace BoardGame.Presentation
         private int _revealedItemCount;
         private int _totalItemCount;
 
+        /// <summary>
+        /// 绑定运行时总控和父级画布，并初始化 loot overlay
+        /// </summary>
+        /// <param name="prototypeController"></param>
+        /// <param name="parentCanvas"></param>
         public void Bind(BoardGamePrototypeController prototypeController, Canvas parentCanvas)
         {
             _prototypeController = prototypeController;
@@ -50,6 +55,9 @@ namespace BoardGame.Presentation
             EnsureOverlay();
         }
 
+        /// <summary>
+        /// 处理 loot 面板的打开、关闭和逐件揭露流程
+        /// </summary>
         private void Update()
         {
             if (_prototypeController == null)
@@ -85,6 +93,10 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 打开当前节点的 loot 面板，并把节点与玩家库存投影成 Bag 运行时网格
+        /// </summary>
+        /// <param name="nodeState"></param>
         private void OpenLootNode(BoardNodeRuntimeState nodeState)
         {
             if (nodeState == null)
@@ -92,6 +104,7 @@ namespace BoardGame.Presentation
                 return;
             }
 
+            // overlay 和 EventSystem 都可能来自运行时补建，所以每次打开前都确保依赖齐全
             EnsureOverlay();
             EnsureEventSystem();
 
@@ -103,11 +116,15 @@ namespace BoardGame.Presentation
             _revealedItemCount = nodeState.LootRevealedItemCount;
             _totalItemCount = Mathf.Max(nodeState.LootTotalItemCount, nodeState.LootContainerItems.Count);
 
+            // 左侧玩家背包和右侧 loot 网格都从运行时状态重新投影，避免残留上次 UI 状态
             BuildPlayerInventoryGrid();
             BuildLootInventoryGrid(nodeState);
             RefreshTexts(nodeState);
         }
 
+        /// <summary>
+        /// 关闭 loot 面板，并把两个网格中的结果回写回 BoardGame 运行时状态
+        /// </summary>
         private void CloseLootNode()
         {
             if (!_isOpen || _prototypeController == null)
@@ -121,6 +138,7 @@ namespace BoardGame.Presentation
                 DraggableItemUI.CurrentlyDraggedItem.ForceEndDrag();
             }
 
+            // 关闭时从两个网格重新抽取结果，再统一交回 PrototypeController 做状态回写
             List<BoardItemInstance> playerItems = ExtractPlayerInventoryItems();
             List<BoardLootContainerItemState> remainingLootItems = ExtractRemainingLootItems();
             _prototypeController.CloseActiveLootNode(remainingLootItems, playerItems, _revealedItemCount);
@@ -128,6 +146,11 @@ namespace BoardGame.Presentation
             _isOpen = false;
         }
 
+        /// <summary>
+        /// 推进当前待揭露物品的搜索进度
+        /// 每次只允许一件物品前进，保持 BoardGame 的顺序揭露节奏
+        /// </summary>
+        /// <param name="deltaTime"></param>
         private void TickReveal(float deltaTime)
         {
             DraggableItemUI currentRevealItem = GetCurrentRevealItem();
@@ -149,6 +172,10 @@ namespace BoardGame.Presentation
             RefreshTexts(_prototypeController.GetActiveLootNodeState());
         }
 
+        /// <summary>
+        /// 根据当前玩家库存构造背包网格快照
+        /// 若历史数据中的物品数量超出配置槽位，则临时扩列避免吞物品
+        /// </summary>
         private void BuildPlayerInventoryGrid()
         {
             List<ContainerItemSaveData> playerItems = new List<ContainerItemSaveData>();
@@ -171,6 +198,7 @@ namespace BoardGame.Presentation
 
             if (playerItems.Count > availableSlots)
             {
+                // 这里不直接丢物品，而是临时扩列兜底，让旧存档或异常数据至少能被看见和手动整理
                 columns = Mathf.CeilToInt(playerItems.Count / (float)rows);
                 Debug.LogWarning(
                     $"BoardGame inventory currently contains {playerItems.Count} item(s), exceeding the configured backpack size of {availableSlots} slots. " +
@@ -182,6 +210,10 @@ namespace BoardGame.Presentation
             _playerGrid.LoadFromRuntimeState(playerItems, new List<ContainerCellStateSaveData>());
         }
 
+        /// <summary>
+        /// 根据节点 loot 容器状态构造右侧战利品网格，并关闭 Bag 默认的自动搜索推进
+        /// </summary>
+        /// <param name="nodeState"></param>
         private void BuildLootInventoryGrid(BoardNodeRuntimeState nodeState)
         {
             List<ContainerItemSaveData> lootItems = new List<ContainerItemSaveData>();
@@ -193,6 +225,7 @@ namespace BoardGame.Presentation
                     continue;
                 }
 
+                // reveal 顺序和进度都要保留下来，关闭后节点才能继续上次未完成的搜索流程
                 _lootSequenceByRuntimeId[itemState.ItemInstance.InstanceId] = itemState.RevealSequenceIndex;
                 lootItems.Add(CreateSaveDataForBoardItem(
                     itemState.ItemInstance,
@@ -208,12 +241,16 @@ namespace BoardGame.Presentation
             _lootGrid.RebuildGridUI(nodeState.LootContainerColumns, nodeState.LootContainerRows, new List<Vector2Int>());
             _lootGrid.LoadFromRuntimeState(lootItems, new List<ContainerCellStateSaveData>());
 
+            // BoardGame 自己驱动逐件 reveal，所以这里显式关掉 Bag 默认的自动推进
             foreach (DraggableItemUI itemView in EnumerateGridItems(_lootGrid))
             {
                 itemView.SetSearchAutoTickEnabled(false);
             }
         }
 
+        /// <summary>
+        /// 从玩家网格和被拖进玩家侧的物品中抽回最终库存列表
+        /// </summary>
         private List<BoardItemInstance> ExtractPlayerInventoryItems()
         {
             List<BoardItemInstance> extractedItems = new List<BoardItemInstance>();
@@ -255,6 +292,9 @@ namespace BoardGame.Presentation
             return extractedItems;
         }
 
+        /// <summary>
+        /// 从 loot 网格中抽回仍然属于节点的剩余物品，并恢复揭露顺序与进度
+        /// </summary>
         private List<BoardLootContainerItemState> ExtractRemainingLootItems()
         {
             List<BoardLootContainerItemState> remainingItems = new List<BoardLootContainerItemState>();
@@ -266,6 +306,7 @@ namespace BoardGame.Presentation
                     continue;
                 }
 
+                // 只有原本就属于 loot 节点的物品，关闭时才写回节点剩余掉落
                 if (!_lootSequenceByRuntimeId.ContainsKey(saveData.RuntimeItemId))
                 {
                     continue;
@@ -299,6 +340,10 @@ namespace BoardGame.Presentation
             return remainingItems;
         }
 
+        /// <summary>
+        /// 找到当前应当被揭露的下一件物品
+        /// 规则是所有未揭露物品里 reveal sequence 最小的那一个
+        /// </summary>
         private DraggableItemUI GetCurrentRevealItem()
         {
             DraggableItemUI nextItem = null;
@@ -327,6 +372,9 @@ namespace BoardGame.Presentation
             return nextItem;
         }
 
+        /// <summary>
+        /// 把 BoardGame 物品实例投影成 Bag 运行时保存结构
+        /// </summary>
         private ContainerItemSaveData CreateSaveDataForBoardItem(
             BoardItemInstance itemInstance,
             bool requiresSearch,
@@ -356,6 +404,12 @@ namespace BoardGame.Presentation
             };
         }
 
+        /// <summary>
+        /// 为 BoardGame 物品懒创建一个最小可用的 Bag 物品配置
+        /// 这里只保留拖拽、显示和搜索所需的数据，不承载 BoardGame 的真实领域状态
+        /// </summary>
+        /// <param name="itemInstance"></param>
+        /// <returns></returns>
         private InventoryItemData GetOrCreateRuntimeItemData(BoardItemInstance itemInstance)
         {
             string itemId = string.IsNullOrEmpty(itemInstance.ItemId)
@@ -386,6 +440,13 @@ namespace BoardGame.Presentation
             return itemData;
         }
 
+        /// <summary>
+        /// 按稀有度和类型生成一个纯色占位图标
+        /// BoardGame 当前不依赖正式背包图标资源，所以在运行时即时生成即可
+        /// </summary>
+        /// <param name="rarity"></param>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
         private Sprite GetOrCreateRaritySprite(ItemRarity rarity, ItemType itemType)
         {
             int key = ((int)rarity << 8) | (int)itemType;
@@ -429,6 +490,10 @@ namespace BoardGame.Presentation
             };
         }
 
+        /// <summary>
+        /// 刷新 loot 面板头部文案与揭露进度文本
+        /// </summary>
+        /// <param name="nodeState"></param>
         private void RefreshTexts(BoardNodeRuntimeState nodeState)
         {
             if (_headerText != null)
@@ -443,6 +508,10 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 创建 loot overlay 及其内部的双栏网格 UI
+        /// 整个桥接界面都在运行时搭建，避免要求场景额外维护一套专用预制
+        /// </summary>
         private void EnsureOverlay()
         {
             if (_overlayRoot != null)
@@ -479,6 +548,8 @@ namespace BoardGame.Presentation
             overlayImage.color = new Color(0.04f, 0.06f, 0.08f, 0.82f);
             overlayImage.raycastTarget = true;
 
+            // 中央面板只负责布局两列网格，标题和提示文本直接挂在 overlay 根节点上
+            // 这样无论网格内部如何重建，都不会影响顶部文案的锚点
             GameObject panelObject = new GameObject("Panel", typeof(RectTransform), typeof(Image), typeof(HorizontalLayoutGroup));
             panelObject.transform.SetParent(_overlayRoot.transform, false);
             RectTransform panelRect = panelObject.GetComponent<RectTransform>();
@@ -534,6 +605,9 @@ namespace BoardGame.Presentation
             _overlayRoot.SetActive(false);
         }
 
+        /// <summary>
+        /// 创建单侧网格列容器，包含标题和网格挂载区域
+        /// </summary>
         private static Transform CreateGridColumn(string name, Transform parent, string title)
         {
             GameObject columnObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup), typeof(LayoutElement));
@@ -558,6 +632,9 @@ namespace BoardGame.Presentation
             return columnObject.transform;
         }
 
+        /// <summary>
+        /// 创建一个最小可运行的背包网格视图
+        /// </summary>
         private static InventoryUIController CreateGridView(string name, Transform parent, int columns, int rows)
         {
             GameObject gridObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(LayoutElement), typeof(InventoryGridController), typeof(InventoryUIController));
@@ -596,6 +673,9 @@ namespace BoardGame.Presentation
             return uiController;
         }
 
+        /// <summary>
+        /// 创建一个运行时文本标签
+        /// </summary>
         private static Text CreateLabel(string name, Transform parent, int fontSize, FontStyle fontStyle, TextAnchor alignment)
         {
             GameObject textObject = new GameObject(name, typeof(RectTransform), typeof(Text));
@@ -611,6 +691,9 @@ namespace BoardGame.Presentation
             return text;
         }
 
+        /// <summary>
+        /// 按顺序把一组物品重新摆成从左到右、从上到下的网格位置
+        /// </summary>
         private static void AssignSequentialPositions(List<ContainerItemSaveData> items, int columns)
         {
             for (int index = 0; index < items.Count; index++)
@@ -622,6 +705,9 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 枚举某个网格容器下当前存在的所有物品视图
+        /// </summary>
         private static IEnumerable<DraggableItemUI> EnumerateGridItems(InventoryUIController grid)
         {
             if (grid == null || grid.ItemContainer == null)
@@ -640,6 +726,9 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 保证运行时存在 EventSystem，避免纯原型场景里无法响应 UI 输入
+        /// </summary>
         private static void EnsureEventSystem()
         {
             if (EventSystem.current != null)

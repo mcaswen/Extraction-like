@@ -9,23 +9,14 @@ namespace BoardGame.Runtime.State
     [Serializable]
     public sealed class BoardItemInstance
     {
-        // 运行时实例唯一 ID
         [SerializeField] private string _instanceId;
-        // 物品模板 ID
         [SerializeField] private string _itemId;
-        // 物品显示名称
         [SerializeField] private string _displayName;
-        // 物品大类
         [SerializeField] private BoardItemCategory _itemCategory;
-        // 物品稀有度
         [SerializeField] private BoardItemRarity _itemRarity;
-        // 物品价值
         [SerializeField] private int _value;
-        // 单件容量占用
         [SerializeField] private float _capacityCost;
-        // 消耗品类型
         [SerializeField] private BoardConsumableType _consumableType;
-        // 消耗品使用数值
         [SerializeField] private int _consumeValue;
 
         public BoardItemInstance(

@@ -98,6 +98,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public void Tick(float deltaTime)
         {
+            // 升级系统关闭时，要把历史遗留的待选状态清掉，避免表现层还停留在锁定态
             if (!IsProgressionEnabled &&
                 (_sessionState.IsAwaitingLevelUpChoice ||
                  _sessionState.PendingLevelUpCount > 0 ||
@@ -116,10 +117,12 @@ namespace BoardGame.Runtime.Controllers
             {
                 if (!IsBagSystemEnabled)
                 {
+                    // 关闭背包系统时，不再等待玩家手动拖拽，直接按旧容量规则结算当前节点 loot
                     ResolveActiveLootWithoutBagSystem();
                 }
                 else
                 {
+                    // 开着背包系统时，Searching 的动作进度完全由 reveal 进度驱动
                     SyncLootActionProgress();
                     NotifySessionChanged();
                     return;
@@ -127,6 +130,7 @@ namespace BoardGame.Runtime.Controllers
 
                 if (IsAwaitingLootInteraction)
                 {
+                    // 自动结算后若节点仍未真正收口，继续维持 Searching 表现并等待后续流程完成
                     SyncLootActionProgress();
                     NotifySessionChanged();
                     return;
@@ -153,16 +157,16 @@ namespace BoardGame.Runtime.Controllers
         }
 
         /// <summary>
-        /// 兼容旧接口
-        /// 当前版本不再使用显式重定向模式
+        /// 保留旧版场景调用入口
+        /// 当前版本的重定向流程不再依赖显式进入该模式
         /// </summary>
         public void EnterRedirectMode()
         {
         }
 
         /// <summary>
-        /// 兼容旧接口
-        /// 当前版本不再使用显式重定向模式
+        /// 保留旧版场景调用入口
+        /// 当前版本的重定向流程不再依赖显式退出该模式
         /// </summary>
         public void ExitRedirectMode()
         {
@@ -253,11 +257,17 @@ namespace BoardGame.Runtime.Controllers
             return evaluation.CanInterrupt;
         }
 
+        /// <summary>
+        /// 获取当前被鼠标选中的节点状态
+        /// </summary>
         public BoardNodeRuntimeState GetSelectedNodeState()
         {
             return GetNodeState(_selectedNodeId);
         }
 
+        /// <summary>
+        /// 按节点 ID 查询对应的运行时状态
+        /// </summary>
         public BoardNodeRuntimeState GetNodeState(string nodeId)
         {
             return !string.IsNullOrEmpty(nodeId) && _nodeStatesById.TryGetValue(nodeId, out BoardNodeRuntimeState nodeState)
@@ -265,11 +275,17 @@ namespace BoardGame.Runtime.Controllers
                 : null;
         }
 
+        /// <summary>
+        /// 获取当前正在进行 loot 交互的节点状态
+        /// </summary>
         public BoardNodeRuntimeState GetActiveLootNodeState()
         {
             return GetNodeState(_sessionState.ActiveLootNodeId);
         }
 
+        /// <summary>
+        /// 判断当前是否允许打开活跃的 loot 节点
+        /// </summary>
         public bool CanOpenActiveLootNode()
         {
             if (!_sessionState.IsAwaitingLootInteraction || _sessionState.IsLootInteractionOpen)
@@ -281,6 +297,11 @@ namespace BoardGame.Runtime.Controllers
             return nodeState != null && nodeState.HasPendingLootContainer();
         }
 
+        /// <summary>
+        /// 尝试打开当前活跃节点的 loot 面板
+        /// </summary>
+        /// <param name="nodeState"></param>
+        /// <returns></returns>
         public bool TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState)
         {
             nodeState = GetActiveLootNodeState();
@@ -298,6 +319,10 @@ namespace BoardGame.Runtime.Controllers
             return true;
         }
 
+        /// <summary>
+        /// 同步当前 loot 揭露进度到节点状态和动作表现
+        /// </summary>
+        /// <param name="revealedItemCount"></param>
         public void ApplyLootRevealProgress(int revealedItemCount)
         {
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
@@ -321,6 +346,12 @@ namespace BoardGame.Runtime.Controllers
             NotifySessionChanged();
         }
 
+        /// <summary>
+        /// 关闭当前 loot 节点，并把剩余掉落和玩家背包结果回写到运行时状态
+        /// </summary>
+        /// <param name="remainingLootItems"></param>
+        /// <param name="playerInventoryItems"></param>
+        /// <param name="revealedItemCount"></param>
         public void CloseActiveLootNode(
             IReadOnlyList<BoardLootContainerItemState> remainingLootItems,
             IReadOnlyList<BoardItemInstance> playerInventoryItems,
@@ -427,6 +458,9 @@ namespace BoardGame.Runtime.Controllers
             return edgeIds;
         }
 
+        /// <summary>
+        /// 背包系统关闭时，直接按旧的数字容量规则结算当前节点掉落
+        /// </summary>
         private void ResolveActiveLootWithoutBagSystem()
         {
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
@@ -441,6 +475,7 @@ namespace BoardGame.Runtime.Controllers
                 .Select(itemState => itemState.ItemInstance)
                 .ToList();
 
+            // 先让自动收取逻辑直接改写当前库存，再把节点 loot 清空并统一走关闭流程
             BoardAutoCollectResult autoCollectResult = _lootResolutionService.AutoCollect(
                 _sessionState.AgentState.InventoryState,
                 sourceItems);
@@ -546,7 +581,7 @@ namespace BoardGame.Runtime.Controllers
         }
 
         /// <summary>
-        /// 广播会话更新事件，供地图视图和 UI 刷新
+        /// 将当前 loot 揭露进度同步到角色动作表现
         /// </summary>
         private void SyncLootActionProgress()
         {
@@ -563,8 +598,12 @@ namespace BoardGame.Runtime.Controllers
             agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
         }
 
+        /// <summary>
+        /// 完成当前 loot 节点的最终结算，并把角色动作重置回空闲态
+        /// </summary>
         private void FinalizeActiveLootNode(BoardNodeRuntimeState nodeState)
         {
+            // 节点最终状态要根据节点类型分别落到各自的终态字段上，避免混用通用状态
             switch (nodeState.NodeType)
             {
                 case BoardNodeType.Resource:
@@ -578,6 +617,7 @@ namespace BoardGame.Runtime.Controllers
                     break;
             }
 
+            // loot 交互结束后，要把动作、目标和自动决策计时全部收回到 Idle 基线
             _sessionState.ActiveLootNodeId = string.Empty;
             _sessionState.IsLootInteractionOpen = false;
             nodeState.ResetLootContainer();
@@ -587,12 +627,25 @@ namespace BoardGame.Runtime.Controllers
             agentState.CurrentActionProgress = 0f;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentTargetNodeId = string.Empty;
-            agentState.IntentSource = BoardIntentSource.Autonomous;
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
+
+            // 玩家指定远点且后续路径还没走完时，搜完当前节点后要继续朝最终目标前进
+            if (ShouldResumeRedirectPathAfterLoot())
+            {
+                agentState.AutonomousDecisionElapsedSeconds = 0f;
+            }
+            else
+            {
+                agentState.CurrentTargetNodeId = string.Empty;
+                agentState.IntentSource = BoardIntentSource.Autonomous;
+                agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
+            }
+
             _sessionState.StatusMessage = $"Finished searching {nodeState.NodeId}";
         }
 
+        /// <summary>
+        /// 暂停当前 loot 交互并恢复自动行动，保留节点剩余掉落供后续回访
+        /// </summary>
         private void ResumeAfterLootInteraction(BoardNodeRuntimeState nodeState, string statusMessage)
         {
             _sessionState.ActiveLootNodeId = string.Empty;
@@ -603,17 +656,43 @@ namespace BoardGame.Runtime.Controllers
             agentState.CurrentActionProgress = 0f;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentTargetNodeId = string.Empty;
-            agentState.IntentSource = BoardIntentSource.Autonomous;
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
+
+            if (ShouldResumeRedirectPathAfterLoot())
+            {
+                agentState.AutonomousDecisionElapsedSeconds = 0f;
+            }
+            else
+            {
+                agentState.CurrentTargetNodeId = string.Empty;
+                agentState.IntentSource = BoardIntentSource.Autonomous;
+                agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
+            }
+
             _sessionState.StatusMessage = statusMessage;
         }
 
+        /// <summary>
+        /// 判断当前 loot 收口后是否应继续沿玩家指定的远点路径前进
+        /// </summary>
+        private bool ShouldResumeRedirectPathAfterLoot()
+        {
+            BoardAgentState agentState = _sessionState.AgentState;
+            return agentState.IntentSource == BoardIntentSource.PlayerRedirect &&
+                   agentState.RemainingPathNodeIds.Count > 0 &&
+                   !string.IsNullOrEmpty(agentState.CurrentTargetNodeId);
+        }
+
+        /// <summary>
+        /// 广播会话变更事件，供地图和 HUD 刷新
+        /// </summary>
         private void NotifySessionChanged()
         {
             SessionChanged?.Invoke();
         }
 
+        /// <summary>
+        /// 关闭升级系统时，清空所有等待中的升级选择状态
+        /// </summary>
         private void ClearPendingLevelUpState()
         {
             _sessionState.IsAwaitingLevelUpChoice = false;

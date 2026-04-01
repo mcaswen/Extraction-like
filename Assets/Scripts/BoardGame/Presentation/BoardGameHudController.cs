@@ -13,29 +13,17 @@ namespace BoardGame.Presentation
     /// </summary>
     public sealed class BoardGameHudController : MonoBehaviour
     {
-        // AI 当前生命值显示文本
         [SerializeField] private TMP_Text _healthText;
-        // AI 当前等级显示文本
         [SerializeField] private TMP_Text _levelText;
-        // AI 当前经验值显示文本
         [SerializeField] private TMP_Text _experienceText;
-        // 当前已携带总收益显示文本
         [SerializeField] private TMP_Text _valueText;
-        // 当前背包占用格数 / 总格数显示文本
         [SerializeField] private TMP_Text _capacityText;
-        // 当前动作类型显示文本
         [SerializeField] private TMP_Text _actionText;
-        // 当前锁定目标节点显示文本
         [SerializeField] private TMP_Text _targetText;
-        // 当前路径节点串显示文本
         [SerializeField] private TMP_Text _pathText;
-        // 最近一次系统状态消息显示文本
         [SerializeField] private TMP_Text _statusText;
-        // 当前是否处于玩家重定向模式的显示文本
         [SerializeField] private TMP_Text _redirectStateText;
-        // 当前动作公共进度条填充图
         [SerializeField] private Image _actionProgressFillImage;
-        // 当前经验条填充图
         [SerializeField] private Image _experienceProgressFillImage;
 
         private BoardGamePrototypeController _prototypeController;
@@ -102,6 +90,7 @@ namespace BoardGame.Presentation
             {
                 if (_prototypeController.IsBagSystemEnabled)
                 {
+                    // 开背包系统时，Capacity 展示的是格子占用，而不是旧版数字容量
                     int totalSlots = _prototypeController.BagLayoutSettings.PlayerInventoryColumns *
                                      _prototypeController.BagLayoutSettings.PlayerInventoryRows;
                     int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
@@ -142,6 +131,7 @@ namespace BoardGame.Presentation
 
             if (_redirectStateText != null)
             {
+                // 右下角提示优先反映当前是否被升级或 loot 交互锁住，避免玩家误判控制状态
                 _redirectStateText.text = _prototypeController.IsAwaitingLevelUpChoice
                     ? "Level Up: Press 1/2/3 or choose an upgrade"
                     : (_prototypeController.IsAwaitingLootInteraction
@@ -164,6 +154,9 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 在运行时补齐升级相关的 HUD 文本与进度条
+        /// </summary>
         private void EnsureProgressionWidgets()
         {
             if (_prototypeController != null && !_prototypeController.IsProgressionEnabled)
@@ -205,6 +198,7 @@ namespace BoardGame.Presentation
 
             if (_experienceProgressFillImage == null)
             {
+                // 运行时补建时沿用 HUD 现有层级，避免再维护一份单独的升级 UI 预制
                 _experienceProgressFillImage = CreateRuntimeProgressBar(
                     "XP_ProgressBar",
                     new Vector2(-684.97906f, 66f),
@@ -212,6 +206,9 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 基于现有文本样式克隆一个运行时文本控件
+        /// </summary>
         private TMP_Text CreateRuntimeText(
             string objectName,
             Vector2 anchoredPosition,
@@ -240,6 +237,9 @@ namespace BoardGame.Presentation
             return text;
         }
 
+        /// <summary>
+        /// 创建一个简单的运行时横向填充进度条
+        /// </summary>
         private Image CreateRuntimeProgressBar(string objectName, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
             GameObject backgroundObject = new GameObject(objectName, typeof(RectTransform), typeof(Image));
@@ -275,6 +275,9 @@ namespace BoardGame.Presentation
             return fillImage;
         }
 
+        /// <summary>
+        /// 批量切换升级相关 HUD 控件的显隐
+        /// </summary>
         private void SetProgressionWidgetsVisible(bool isVisible)
         {
             SetWidgetVisible(_levelText, isVisible);
@@ -282,6 +285,9 @@ namespace BoardGame.Presentation
             SetProgressBarVisible(_experienceProgressFillImage, isVisible);
         }
 
+        /// <summary>
+        /// 切换单个控件的显隐状态
+        /// </summary>
         private static void SetWidgetVisible(Component component, bool isVisible)
         {
             if (component == null)
@@ -295,6 +301,10 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 切换经验条显示状态
+        /// 若填充图有独立背景，则连同背景一起切换
+        /// </summary>
         private static void SetProgressBarVisible(Image fillImage, bool isVisible)
         {
             if (fillImage == null)

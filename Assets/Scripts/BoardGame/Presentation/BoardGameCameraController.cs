@@ -21,6 +21,15 @@ namespace BoardGame.Presentation
         private Vector3 _pointerDownScreenPosition;
         private Vector3 _cameraDragStartPosition;
 
+        /// <summary>
+        /// 创建地图相机输入控制器
+        /// </summary>
+        /// <param name="cameraDragStartPixelThreshold"></param>
+        /// <param name="mouseWheelZoomStep"></param>
+        /// <param name="minOrthographicSize"></param>
+        /// <param name="maxOrthographicSize"></param>
+        /// <param name="minPerspectiveFieldOfView"></param>
+        /// <param name="maxPerspectiveFieldOfView"></param>
         public BoardGameCameraController(
             float cameraDragStartPixelThreshold,
             float mouseWheelZoomStep,
@@ -37,11 +46,18 @@ namespace BoardGame.Presentation
             _maxPerspectiveFieldOfView = maxPerspectiveFieldOfView;
         }
 
+        /// <summary>
+        /// 绑定地图相机
+        /// </summary>
+        /// <param name="worldCamera"></param>
         public void Bind(Camera worldCamera)
         {
             _worldCamera = worldCamera;
         }
 
+        /// <summary>
+        /// 记录一次可能开始的空白拖拽
+        /// </summary>
         public void BeginPotentialDrag()
         {
             if (_worldCamera == null)
@@ -55,6 +71,9 @@ namespace BoardGame.Presentation
             _cameraDragStartPosition = _worldCamera.transform.position;
         }
 
+        /// <summary>
+        /// 在按住鼠标时推进相机拖拽
+        /// </summary>
         public void HandlePointerHold()
         {
             if (_worldCamera == null || !_isPointerDownOnEmptySpace || !Input.GetMouseButton(0))
@@ -81,6 +100,9 @@ namespace BoardGame.Presentation
             _worldCamera.transform.position = nextCameraPosition;
         }
 
+        /// <summary>
+        /// 处理鼠标抬起，收起拖拽状态
+        /// </summary>
         public void HandlePointerUp()
         {
             if (_isPointerDownOnEmptySpace && Input.GetMouseButtonUp(0))
@@ -89,6 +111,10 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 处理滚轮缩放，并尽量保持鼠标下方世界点不漂移
+        /// </summary>
+        /// <param name="isPointerOverUi"></param>
         public void HandleMouseWheelZoom(bool isPointerOverUi)
         {
             if (_worldCamera == null || isPointerOverUi)
@@ -123,6 +149,9 @@ namespace BoardGame.Presentation
             _worldCamera.transform.position = nextCameraPosition;
         }
 
+        /// <summary>
+        /// 重置相机拖拽状态
+        /// </summary>
         public void ResetDragState()
         {
             _isPointerDownOnEmptySpace = false;

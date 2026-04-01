@@ -4,7 +4,7 @@ using UnityEngine;
 namespace BoardGame.Runtime
 {
     /// <summary>
-    /// BoardGame 对接背包网格时使用的布局配置。
+    /// BoardGame 对接背包网格时使用的布局配置�
     /// </summary>
     [Serializable]
     public sealed class BoardGameBagLayoutSettings

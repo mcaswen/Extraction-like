@@ -13,12 +13,21 @@ namespace BoardGame.Presentation
         private BoardGamePrototypeController _prototypeController;
         private Camera _worldCamera;
 
+        /// <summary>
+        /// 绑定节点输入所需的运行时总控与世界相机
+        /// </summary>
+        /// <param name="prototypeController"></param>
+        /// <param name="worldCamera"></param>
         public void Bind(BoardGamePrototypeController prototypeController, Camera worldCamera)
         {
             _prototypeController = prototypeController;
             _worldCamera = worldCamera;
         }
 
+        /// <summary>
+        /// 刷新鼠标当前悬停的节点高亮
+        /// </summary>
+        /// <param name="isPointerOverUi"></param>
         public void UpdateHoveredNode(bool isPointerOverUi)
         {
             if (_prototypeController == null || _worldCamera == null)
@@ -44,6 +53,10 @@ namespace BoardGame.Presentation
             _prototypeController.SelectNode(string.Empty);
         }
 
+        /// <summary>
+        /// 处理一次鼠标按下命中，优先尝试节点改写，其次尝试命中 AI 本体
+        /// </summary>
+        /// <returns></returns>
         public bool TryHandlePointerDown()
         {
             if (_prototypeController == null || _worldCamera == null)

@@ -14,21 +14,20 @@ namespace BoardGame.Presentation
     /// </summary>
     public sealed class BoardGameLevelUpController : MonoBehaviour
     {
-        // 弹窗根节点，不填时默认使用当前物体
         [SerializeField] private GameObject _panelRoot;
-        // 标题文本
         [SerializeField] private TMP_Text _titleText;
-        // 提示文本
         [SerializeField] private TMP_Text _hintText;
-        // 升级选项槽位
         [SerializeField] private List<BoardGameLevelUpOptionView> _optionViews = new List<BoardGameLevelUpOptionView>();
-        // 可选图标资源
         [SerializeField] private Sprite _attackIconSprite;
         [SerializeField] private Sprite _defenseIconSprite;
         [SerializeField] private Sprite _healthIconSprite;
 
         private BoardGamePrototypeController _prototypeController;
 
+        /// <summary>
+        /// 绑定运行时总控，并根据当前开关状态初始化升级面板
+        /// </summary>
+        /// <param name="prototypeController"></param>
         public void Bind(BoardGamePrototypeController prototypeController)
         {
             _prototypeController = prototypeController;
@@ -46,6 +45,9 @@ namespace BoardGame.Presentation
             Refresh();
         }
 
+        /// <summary>
+        /// 根据当前升级状态刷新弹窗显隐和三个选项的展示内容
+        /// </summary>
         private void Refresh()
         {
             if (_prototypeController == null)
@@ -82,6 +84,7 @@ namespace BoardGame.Presentation
                 _hintText.text = "Choose 1 of 3 upgrades";
             }
 
+            // UI 固定只有三个槽位，所以这里按索引把当前待选项逐个映射进去
             for (int index = 0; index < _optionViews.Count; index++)
             {
                 if (_optionViews[index] == null)
@@ -108,6 +111,9 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 清空全部选项槽位
+        /// </summary>
         private void ClearOptions()
         {
             foreach (BoardGameLevelUpOptionView optionView in _optionViews)
@@ -116,12 +122,19 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 切换升级面板显隐
+        /// </summary>
+        /// <param name="isVisible"></param>
         private void SetVisible(bool isVisible)
         {
             GameObject target = _panelRoot != null ? _panelRoot : gameObject;
             target.SetActive(isVisible);
         }
 
+        /// <summary>
+        /// 在场景未预摆升级 UI 时，运行时构造一套可用的弹窗层级
+        /// </summary>
         private void EnsureRuntimeUi()
         {
             if (_panelRoot != null && _titleText != null && _hintText != null && _optionViews.Count > 0)
@@ -179,6 +192,7 @@ namespace BoardGame.Presentation
                 FontStyles.Normal,
                 TextAlignmentOptions.Center);
 
+            // 选项列表交给 LayoutGroup 自动排版，避免后续增删卡片时还要手调位置
             GameObject optionsContainer = new GameObject(
                 "Options",
                 typeof(RectTransform),
@@ -226,6 +240,11 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 把升级选择转换成 UI 展示需要的标题、描述、图标和主题色
+        /// </summary>
+        /// <param name="choice"></param>
+        /// <returns></returns>
         private BoardLevelUpOptionPresentation BuildOptionPresentation(BoardLevelUpChoice choice)
         {
             switch (choice.BuffType)
@@ -261,6 +280,9 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 创建一个基础面板节点
+        /// </summary>
         private static GameObject CreatePanel(string objectName, Transform parent, Vector2 sizeDelta)
         {
             GameObject panelObject = new GameObject(objectName, typeof(RectTransform), typeof(Image));
@@ -275,6 +297,9 @@ namespace BoardGame.Presentation
             return panelObject;
         }
 
+        /// <summary>
+        /// 创建一个运行时 TextMeshPro 文本节点
+        /// </summary>
         private static TMP_Text CreateText(
             string objectName,
             Transform parent,

@@ -18,6 +18,15 @@ namespace BoardGame.Views
         [SerializeField] private TMP_Text _titleText;
         [SerializeField] private TMP_Text _descriptionText;
 
+        /// <summary>
+        /// 绑定单个升级选项的标题、描述、图标和点击事件
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="description"></param>
+        /// <param name="iconText"></param>
+        /// <param name="iconSprite"></param>
+        /// <param name="accentColor"></param>
+        /// <param name="onClick"></param>
         public void Bind(
             string title,
             string description,
@@ -77,6 +86,9 @@ namespace BoardGame.Views
             }
         }
 
+        /// <summary>
+        /// 清空当前选项并隐藏槽位
+        /// </summary>
         public void Clear()
         {
             if (_button != null)

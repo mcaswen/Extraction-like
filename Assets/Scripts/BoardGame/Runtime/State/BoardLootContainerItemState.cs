@@ -4,7 +4,7 @@ using UnityEngine;
 namespace BoardGame.Runtime.State
 {
     /// <summary>
-    /// 节点战利品容器中的单个物品状态。
+    /// 节点战利品容器中的单个物品状态�
     /// </summary>
     [Serializable]
     public sealed class BoardLootContainerItemState

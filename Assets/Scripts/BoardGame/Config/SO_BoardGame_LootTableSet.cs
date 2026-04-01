@@ -17,10 +17,10 @@ namespace BoardGame.Config
         menuName = "BoardGame/Loot Table")]
     public sealed class SO_BoardGame_LootTableSet : ScriptableObject
     {
-        [SerializeField] private string _lootSetId = "sample_loot_set"; // 掉落表唯一 ID
-        [SerializeField] private List<BoardItemDefinition> _itemDefinitions = new List<BoardItemDefinition>(); // 所有可生成物品定义
-        [SerializeField] private List<BoardResourceLootPoolDefinition> _resourcePools = new List<BoardResourceLootPoolDefinition>(); // 资源点掉落池
-        [SerializeField] private List<BoardEncounterLootPoolDefinition> _encounterPools = new List<BoardEncounterLootPoolDefinition>(); // 敌人和 Boss 掉落池
+        [SerializeField] private string _lootSetId = "sample_loot_set";
+        [SerializeField] private List<BoardItemDefinition> _itemDefinitions = new List<BoardItemDefinition>();
+        [SerializeField] private List<BoardResourceLootPoolDefinition> _resourcePools = new List<BoardResourceLootPoolDefinition>();
+        [SerializeField] private List<BoardEncounterLootPoolDefinition> _encounterPools = new List<BoardEncounterLootPoolDefinition>();
 
         public string LootSetId => _lootSetId;
         public IReadOnlyList<BoardItemDefinition> ItemDefinitions => _itemDefinitions;
@@ -65,17 +65,17 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardItemDefinition
     {
-        [SerializeField] private string _itemId; // 物品唯一 ID
-        [SerializeField] private string _displayName; // 物品显示名称
-        [SerializeField] private BoardItemCategory _itemCategory; // 物品大类
-        [SerializeField] private BoardItemRarity _itemRarity; // 物品稀有度
-        [SerializeField] private int _minValue; // 随机价值下限
-        [SerializeField] private int _maxValue; // 随机价值上限
-        [SerializeField] private float _capacityCost; // 关闭背包系统时使用的数字容量
-        [SerializeField] private float _revealDurationSeconds; // 单件物资的揭露时长
-        [SerializeField] private int _experienceValue; // 获得该物品时提供的经验值
-        [SerializeField] private BoardConsumableType _consumableType; // 消耗品类型
-        [SerializeField] private int _consumeValue; // 使用时产生的数值效果
+        [SerializeField] private string _itemId;
+        [SerializeField] private string _displayName;
+        [SerializeField] private BoardItemCategory _itemCategory;
+        [SerializeField] private BoardItemRarity _itemRarity;
+        [SerializeField] private int _minValue;
+        [SerializeField] private int _maxValue;
+        [SerializeField] private float _capacityCost;
+        [SerializeField] private float _revealDurationSeconds;
+        [SerializeField] private int _experienceValue;
+        [SerializeField] private BoardConsumableType _consumableType;
+        [SerializeField] private int _consumeValue;
 
         public BoardItemDefinition(
             string itemId,
@@ -119,6 +119,11 @@ namespace BoardGame.Config
         public BoardConsumableType ConsumableType => _consumableType;
         public int ConsumeValue => _consumeValue;
 
+        /// <summary>
+        /// 获取关闭背包系统时使用的默认数字容量
+        /// </summary>
+        /// <param name="rarity"></param>
+        /// <returns></returns>
         public static float GetDefaultCapacityCost(BoardItemRarity rarity)
         {
             return rarity switch
@@ -132,6 +137,11 @@ namespace BoardGame.Config
             };
         }
 
+        /// <summary>
+        /// 获取物资揭露流程使用的默认时长
+        /// </summary>
+        /// <param name="rarity"></param>
+        /// <returns></returns>
         public static float GetDefaultRevealDurationSeconds(BoardItemRarity rarity)
         {
             return rarity switch
@@ -152,8 +162,8 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardWeightedItemReference
     {
-        [SerializeField] private string _itemId; // 指向的物品模板 ID
-        [SerializeField] private float _weight = 1f; // 抽取权重
+        [SerializeField] private string _itemId;
+        [SerializeField] private float _weight = 1f;
 
         public BoardWeightedItemReference(string itemId, float weight)
         {
@@ -171,10 +181,10 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardResourceLootPoolDefinition
     {
-        [SerializeField] private BoardResourceTier _resourceTier = BoardResourceTier.Low; // 资源点等级
-        [SerializeField] private int _minRollCount = 1; // 最少生成件数
-        [SerializeField] private int _maxRollCount = 1; // 最多生成件数
-        [SerializeField] private List<BoardWeightedItemReference> _entries = new List<BoardWeightedItemReference>(); // 掉落候选条目
+        [SerializeField] private BoardResourceTier _resourceTier = BoardResourceTier.Low;
+        [SerializeField] private int _minRollCount = 1;
+        [SerializeField] private int _maxRollCount = 1;
+        [SerializeField] private List<BoardWeightedItemReference> _entries = new List<BoardWeightedItemReference>();
 
         public BoardResourceLootPoolDefinition(
             BoardResourceTier resourceTier,
@@ -200,12 +210,12 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardEncounterLootPoolDefinition
     {
-        [SerializeField] private bool _isBoss; // 是否为 Boss 掉落池
-        [SerializeField] private BoardDangerTier _dangerTier = BoardDangerTier.Low; // 对应危险等级
-        [SerializeField] private int _minRollCount = 1; // 最少生成件数
-        [SerializeField] private int _maxRollCount = 1; // 最多生成件数
-        [SerializeField] private float _healingPotionChance = 0.1f; // 额外血瓶掉落概率
-        [SerializeField] private List<BoardWeightedItemReference> _entries = new List<BoardWeightedItemReference>(); // 掉落候选条目
+        [SerializeField] private bool _isBoss;
+        [SerializeField] private BoardDangerTier _dangerTier = BoardDangerTier.Low;
+        [SerializeField] private int _minRollCount = 1;
+        [SerializeField] private int _maxRollCount = 1;
+        [SerializeField] private float _healingPotionChance = 0.1f;
+        [SerializeField] private List<BoardWeightedItemReference> _entries = new List<BoardWeightedItemReference>();
 
         public BoardEncounterLootPoolDefinition(
             bool isBoss,
