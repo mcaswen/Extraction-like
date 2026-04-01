@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 宝箱随机生成配置。
+/// 宝箱随机生成配置
 /// </summary>
 [System.Serializable]
 public class LootGenerationEntry
@@ -17,8 +17,8 @@ public class LootGenerationEntry
 }
 
 /// <summary>
-/// 场景中的可交互容器实体。
-/// 支持在生成时预计算战利品列表，并提前完成二维装箱。
+/// 场景中的可交互容器实体
+/// 支持在生成时预计算战利品列表，并提前完成二维装箱
 /// </summary>
 public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractable
 {
@@ -53,22 +53,38 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         }
     }
 
+    /// <summary>
+    /// 获取容器名称
+    /// </summary>
+    /// <returns>当前容器名称</returns>
     public string GetContainerName()
     {
         return BoxName;
     }
 
+    /// <summary>
+    /// 获取当前保存的战利品快照
+    /// </summary>
+    /// <returns>容器中的物品快照副本</returns>
     public List<ContainerItemSaveData> GetSavedItems()
     {
         PrecalculateLootIfNeeded();
         return CloneSaveDataList(_savedItems);
     }
 
+    /// <summary>
+    /// 仅覆盖容器中的物品快照，保留当前格子状态快照
+    /// </summary>
+    /// <param name="items">新的物品快照列表</param>
     public void SaveItems(List<ContainerItemSaveData> items)
     {
         SaveRuntimeState(items, _savedCellStates);
     }
 
+    /// <summary>
+    /// 获取主交互提示文本
+    /// </summary>
+    /// <returns>展示给玩家的交互文案</returns>
     public string GetPromptText()
     {
         return HasUnsearchedItems()
@@ -76,6 +92,9 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
             : $"[F] 打开 {BoxName}";
     }
 
+    /// <summary>
+    /// 执行主交互逻辑，打开该容器的战利品界面
+    /// </summary>
     public void Interact()
     {
         if (GameUIController.Instance == null || GameUIController.Instance.IsInventoryOpen)
@@ -86,6 +105,11 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         GameUIController.Instance.OpenLootBox(this);
     }
 
+    /// <summary>
+    /// 保存完整的战利品运行时状态
+    /// </summary>
+    /// <param name="items">要保存的物品快照</param>
+    /// <param name="cellStates">要保存的格子状态快照</param>
     public void SaveRuntimeState(List<ContainerItemSaveData> items, List<ContainerCellStateSaveData> cellStates)
     {
         _savedItems = CloneSaveDataList(items);
@@ -95,17 +119,29 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         Debug.Log($"[{BoxName}] Saved {_savedItems.Count} items.");
     }
 
+    /// <summary>
+    /// 获取当前保存的格子状态快照
+    /// </summary>
+    /// <returns>容器中的格子状态快照副本</returns>
     public List<ContainerCellStateSaveData> GetSavedCellStates()
     {
         PrecalculateLootIfNeeded();
         return CloneCellStateList(_savedCellStates);
     }
 
+    /// <summary>
+    /// 获取配置上的阻塞格列表副本
+    /// </summary>
+    /// <returns>阻塞格坐标列表副本</returns>
     public List<Vector2Int> GetBlockedCells()
     {
         return BlockedCells != null ? new List<Vector2Int>(BlockedCells) : new List<Vector2Int>();
     }
 
+    /// <summary>
+    /// 如有需要则预生成战利品并完成一次自动装箱
+    /// 只会执行一次，后续读取都复用缓存结果
+    /// </summary>
     public void PrecalculateLootIfNeeded()
     {
         if (_hasPrecalculatedLoot)
@@ -124,6 +160,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         _isFirstTimeOpen = false;
     }
 
+    // 生成本次容器应包含的战利品候选列表
     private List<ContainerItemSaveData> GenerateLootCandidates()
     {
         List<ContainerItemSaveData> generatedLoot = new List<ContainerItemSaveData>();
@@ -154,6 +191,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return generatedLoot;
     }
 
+    // 根据权重和概率从掉落表里选出一次实际掉落项
     private LootGenerationEntry RollLootEntry()
     {
         List<LootGenerationEntry> candidates = new List<LootGenerationEntry>();
@@ -194,6 +232,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return candidates[candidates.Count - 1];
     }
 
+    // 把配置项转换为可直接进入容器的运行时快照，并附带搜索状态
     private static ContainerItemSaveData CreateGeneratedLoot(InventoryItemData itemData, int amount)
     {
         bool requiresSearch = itemData != null && itemData.RequiresSearchInLootContainer;
@@ -215,6 +254,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         };
     }
 
+    // 判断当前容器内是否仍有未搜索完成的物品，用于切换“搜索/打开”提示文案
     private bool HasUnsearchedItems()
     {
         PrecalculateLootIfNeeded();
@@ -229,6 +269,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return false;
     }
 
+    // 深拷贝物品快照列表，防止外部直接改写容器内部缓存
     private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
     {
         List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
@@ -248,6 +289,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return clone;
     }
 
+    // 深拷贝格子状态快照列表
     private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
     {
         List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();

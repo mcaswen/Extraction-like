@@ -2,8 +2,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 背包系统调试生成器。
-/// 仅用于快速搭建测试数据，不参与正式业务流程。
+/// 背包系统调试生成器
+/// 仅用于快速搭建测试数据，不参与正式业务流程
 /// </summary>
 public class TestSpawner : MonoBehaviour
 {
@@ -17,6 +17,10 @@ public class TestSpawner : MonoBehaviour
     public InventoryUIController BackpackPanel;
     public InventoryUIController LootChestPanel;
 
+    /// <summary>
+    /// 延迟一帧等待运行时 UI 初始化完成，再注入测试数据
+    /// </summary>
+    /// <returns>等待初始化完成的协程</returns>
     private IEnumerator Start()
     {
         yield return null;
@@ -37,6 +41,7 @@ public class TestSpawner : MonoBehaviour
         SpawnLootChestItems();
     }
 
+    // 往角色背包区域生成一组基础测试物品
     private void SpawnBackpackItems()
     {
         if (WeaponData != null)
@@ -50,6 +55,7 @@ public class TestSpawner : MonoBehaviour
         }
     }
 
+    // 往右侧战利品区域生成一组测试掉落
     private void SpawnLootChestItems()
     {
         if (AmmoData != null)

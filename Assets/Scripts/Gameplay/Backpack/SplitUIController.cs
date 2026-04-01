@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// 堆叠拆分面板。
+/// 堆叠拆分面板
 /// </summary>
 public class SplitUIController : MonoBehaviour, IDragHandler
 {
@@ -44,8 +44,9 @@ public class SplitUIController : MonoBehaviour, IDragHandler
     }
 
     /// <summary>
-    /// 打开拆分窗口并绑定目标物品。
+    /// 打开拆分窗口并绑定目标物品
     /// </summary>
+    /// <param name="item">要进行拆分的物品</param>
     public void OpenSplitWindow(DraggableItemUI item)
     {
         if (item == null || item.CurrentAmount <= 1)
@@ -64,12 +65,19 @@ public class SplitUIController : MonoBehaviour, IDragHandler
         UpdateAmountText();
     }
 
+    /// <summary>
+    /// 关闭拆分窗口并清理当前目标物品引用
+    /// </summary>
     public void CloseWindow()
     {
         gameObject.SetActive(false);
         _targetItem = null;
     }
 
+    /// <summary>
+    /// 处理拆分面板拖拽，让窗口可以在画布内移动
+    /// </summary>
+    /// <param name="eventData">当前拖拽事件数据</param>
     public void OnDrag(PointerEventData eventData)
     {
         if (_parentCanvas == null)
@@ -80,11 +88,13 @@ public class SplitUIController : MonoBehaviour, IDragHandler
         _rectTransform.anchoredPosition += eventData.delta / _parentCanvas.scaleFactor;
     }
 
+    // 滑条变化时同步刷新拆分数量文案
     private void OnSliderValueChanged(float _)
     {
         UpdateAmountText();
     }
 
+    // 确认拆分后把当前滑条值交给目标物品执行拆分
     private void OnConfirmClicked()
     {
         if (_targetItem != null)
@@ -95,6 +105,7 @@ public class SplitUIController : MonoBehaviour, IDragHandler
         CloseWindow();
     }
 
+    // 根据当前滑条值刷新面板上的拆分数量显示
     private void UpdateAmountText()
     {
         if (_targetItem == null || AmountText == null || SplitSlider == null)
@@ -105,6 +116,7 @@ public class SplitUIController : MonoBehaviour, IDragHandler
         AmountText.text = $"拆分: {SplitSlider.value} / {_targetItem.CurrentAmount}";
     }
 
+    // 把拆分窗口摆到目标物品右上侧，降低首次打开时遮挡物品的概率
     private void PositionNextToItem(DraggableItemUI item)
     {
         RectTransform itemRect = item.GetComponent<RectTransform>();
