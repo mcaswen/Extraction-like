@@ -11,9 +11,7 @@ namespace BoardGame.Runtime.State
     [Serializable]
     public sealed class BoardInventoryState
     {
-        // 背包总容量上限
         [SerializeField] private float _maxCapacity = 9f;
-        // 当前已持有的全部物品实例
         [SerializeField] private List<BoardItemInstance> _items = new List<BoardItemInstance>();
 
         public BoardInventoryState()

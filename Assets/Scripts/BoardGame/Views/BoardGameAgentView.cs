@@ -12,9 +12,7 @@ namespace BoardGame.Views
     {
         private static readonly Color SelectionHaloColor = new Color(0.22f, 0.62f, 1f, 1f);
 
-        // AI 主体精灵
         [SerializeField] private SpriteRenderer _bodyRenderer;
-        // 角色头顶动作文本
         [SerializeField] private TMP_Text _labelText;
 
         private BoardGameSelectionHalo _selectionHalo;

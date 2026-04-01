@@ -13,9 +13,7 @@ namespace BoardGame.Runtime
     [DisallowMultipleComponent]
     public sealed class BoardGameSceneNodeMarker : MonoBehaviour
     {
-        // 对应地图 SO 中的节点唯一 ID
         [SerializeField] private string _nodeId;
-        // 是否作为地图起点导入
         [SerializeField] private bool _isStartNode;
 
         public string NodeId => _nodeId;

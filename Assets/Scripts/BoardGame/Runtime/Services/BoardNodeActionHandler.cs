@@ -1,3 +1,4 @@
+using System;
 using BoardGame.Config;
 using BoardGame.Runtime;
 using BoardGame.Runtime.State;
@@ -56,13 +57,28 @@ namespace BoardGame.Runtime.Services
             string statusMessage)
         {
             BoardAgentState agentState = sessionState.AgentState;
+            bool shouldResumeRedirectPath =
+                agentState.IntentSource == BoardIntentSource.PlayerRedirect &&
+                agentState.RemainingPathNodeIds.Count > 0 &&
+                !string.IsNullOrEmpty(agentState.CurrentTargetNodeId);
+
             agentState.CurrentActionType = BoardActionType.Idle;
             agentState.CurrentActionProgress = 0f;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentTargetNodeId = string.Empty;
-            agentState.IntentSource = BoardIntentSource.Autonomous;
-            agentState.AutonomousDecisionElapsedSeconds = context.RuleSet.AutonomousRules.ReevaluateIntervalSeconds;
+
+            // 玩家指定远点时，中途节点动作结束后要继续沿既定路径前进，而不是把最终目标直接清空
+            if (shouldResumeRedirectPath)
+            {
+                agentState.AutonomousDecisionElapsedSeconds = 0f;
+            }
+            else
+            {
+                agentState.CurrentTargetNodeId = string.Empty;
+                agentState.IntentSource = BoardIntentSource.Autonomous;
+                agentState.AutonomousDecisionElapsedSeconds = context.RuleSet.AutonomousRules.ReevaluateIntervalSeconds;
+            }
+
             sessionState.StatusMessage = statusMessage;
         }
     }

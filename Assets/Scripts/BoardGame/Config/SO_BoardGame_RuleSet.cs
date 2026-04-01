@@ -17,14 +17,14 @@ namespace BoardGame.Config
         menuName = "BoardGame/Rule Set")]
     public sealed class SO_BoardGame_RuleSet : ScriptableObject
     {
-        [SerializeField] private string _ruleSetId = "sample_rule_set"; // 规则集唯一 ID
-        [SerializeField] private BoardAgentStatDefinition _agentStats = new BoardAgentStatDefinition(); // 角色基础属性
-        [SerializeField] private BoardAutonomousRuleDefinition _autonomousRules = new BoardAutonomousRuleDefinition(); // AI 默认决策规则
-        [SerializeField] private BoardMovementRuleDefinition _movementRules = new BoardMovementRuleDefinition(); // 沿边移动规则
-        [SerializeField] private BoardSearchDurationDefinition _searchDurations = new BoardSearchDurationDefinition(); // 各档资源点搜索时长
-        [SerializeField] private BoardCombatRuleDefinition _combatRules = new BoardCombatRuleDefinition(); // 战斗 tick 与敌人模板
-        [SerializeField] private BoardExtractRuleDefinition _extractRules = new BoardExtractRuleDefinition(); // 撤离规则
-        [SerializeField] private BoardProgressionRuleDefinition _progressionRules = new BoardProgressionRuleDefinition(); // 经验与升级规则
+        [SerializeField] private string _ruleSetId = "sample_rule_set";
+        [SerializeField] private BoardAgentStatDefinition _agentStats = new BoardAgentStatDefinition();
+        [SerializeField] private BoardAutonomousRuleDefinition _autonomousRules = new BoardAutonomousRuleDefinition();
+        [SerializeField] private BoardMovementRuleDefinition _movementRules = new BoardMovementRuleDefinition();
+        [SerializeField] private BoardSearchDurationDefinition _searchDurations = new BoardSearchDurationDefinition();
+        [SerializeField] private BoardCombatRuleDefinition _combatRules = new BoardCombatRuleDefinition();
+        [SerializeField] private BoardExtractRuleDefinition _extractRules = new BoardExtractRuleDefinition();
+        [SerializeField] private BoardProgressionRuleDefinition _progressionRules = new BoardProgressionRuleDefinition();
 
         public string RuleSetId => _ruleSetId;
         public BoardAgentStatDefinition AgentStats => _agentStats;
@@ -77,11 +77,11 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardAgentStatDefinition
     {
-        [SerializeField] private int _maxHealth = 100; // 最大生命值
-        [SerializeField] private int _attack = 7; // 基础攻击力
-        [SerializeField] private int _defense; // 基础防御力
-        [SerializeField] private float _maxCarryCapacity = 9f; // 关闭背包系统时使用的数字容量上限
-        [SerializeField] private int _startingHealingPotionCount = 1; // 开局自带血瓶数量
+        [SerializeField] private int _maxHealth = 100;
+        [SerializeField] private int _attack = 7;
+        [SerializeField] private int _defense;
+        [SerializeField] private float _maxCarryCapacity = 9f;
+        [SerializeField] private int _startingHealingPotionCount = 1;
 
         public int MaxHealth
         {
@@ -120,8 +120,8 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardAutonomousRuleDefinition
     {
-        [SerializeField] private int _lowHealthRetreatThreshold = 35; // 预留字段 当前笨 AI 默认决策未使用
-        [SerializeField] private float _reevaluateIntervalSeconds = 1.5f; // 默认逻辑重新评估目标的时间间隔
+        [SerializeField] private int _lowHealthRetreatThreshold = 35;
+        [SerializeField] private float _reevaluateIntervalSeconds = 1.5f;
 
         public int LowHealthRetreatThreshold
         {
@@ -142,7 +142,7 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardMovementRuleDefinition
     {
-        [SerializeField] private float _secondsPerLengthUnit = 1f; // 每单位边长度对应的移动秒数
+        [SerializeField] private float _secondsPerLengthUnit = 1f;
 
         public float SecondsPerLengthUnit
         {
@@ -157,9 +157,9 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardSearchDurationDefinition
     {
-        [SerializeField] private float _lowTierSeconds = 3f; // 低级资源点搜索总时长
-        [SerializeField] private float _mediumTierSeconds = 5f; // 中级资源点搜索总时长
-        [SerializeField] private float _highTierSeconds = 7f; // 高级资源点搜索总时长
+        [SerializeField] private float _lowTierSeconds = 3f;
+        [SerializeField] private float _mediumTierSeconds = 5f;
+        [SerializeField] private float _highTierSeconds = 7f;
 
         public float LowTierSeconds
         {
@@ -186,9 +186,9 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardCombatRuleDefinition
     {
-        [SerializeField] private float _tickIntervalSeconds = 0.3f; // 战斗结算 tick 间隔
-        [SerializeField] private List<BoardEnemyStatDefinition> _enemyDefinitions = new List<BoardEnemyStatDefinition>(); // 普通敌人模板列表
-        [SerializeField] private BoardBossStatDefinition _bossDefinition = new BoardBossStatDefinition(24, 7, 0, 1); // Boss 模板
+        [SerializeField] private float _tickIntervalSeconds = 0.3f;
+        [SerializeField] private List<BoardEnemyStatDefinition> _enemyDefinitions = new List<BoardEnemyStatDefinition>();
+        [SerializeField] private BoardBossStatDefinition _bossDefinition = new BoardBossStatDefinition(24, 7, 0, 1);
 
         public float TickIntervalSeconds
         {
@@ -215,11 +215,11 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardEnemyStatDefinition
     {
-        [SerializeField] private BoardDangerTier _dangerTier = BoardDangerTier.Low; // 对应危险等级
-        [SerializeField] private int _maxHealth = 10; // 最大生命值
-        [SerializeField] private int _attack = 3; // 攻击力
-        [SerializeField] private int _defenseMin; // 防御随机下限
-        [SerializeField] private int _defenseMax = 1; // 防御随机上限
+        [SerializeField] private BoardDangerTier _dangerTier = BoardDangerTier.Low;
+        [SerializeField] private int _maxHealth = 10;
+        [SerializeField] private int _attack = 3;
+        [SerializeField] private int _defenseMin;
+        [SerializeField] private int _defenseMax = 1;
 
         public BoardEnemyStatDefinition(BoardDangerTier dangerTier, int maxHealth, int attack, int defenseMin, int defenseMax)
         {
@@ -243,10 +243,10 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardBossStatDefinition
     {
-        [SerializeField] private int _maxHealth = 24; // 最大生命值
-        [SerializeField] private int _attack = 7; // 攻击力
-        [SerializeField] private int _defenseMin; // 防御随机下限
-        [SerializeField] private int _defenseMax = 1; // 防御随机上限
+        [SerializeField] private int _maxHealth = 24;
+        [SerializeField] private int _attack = 7;
+        [SerializeField] private int _defenseMin;
+        [SerializeField] private int _defenseMax = 1;
 
         public BoardBossStatDefinition(int maxHealth, int attack, int defenseMin, int defenseMax)
         {
@@ -268,9 +268,9 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardExtractRuleDefinition
     {
-        [SerializeField] private float _durationSeconds = 4f; // 撤离总时长
-        [SerializeField] private bool _canInterrupt = true; // 撤离过程是否允许被玩家打断
-        [SerializeField] private bool _preserveProgressOnInterrupt = true; // 被打断后是否保留撤离进度
+        [SerializeField] private float _durationSeconds = 4f;
+        [SerializeField] private bool _canInterrupt = true;
+        [SerializeField] private bool _preserveProgressOnInterrupt = true;
 
         public float DurationSeconds
         {

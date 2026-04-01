@@ -10,17 +10,11 @@ namespace BoardGame.Presentation
     /// </summary>
     public sealed class BoardGameSelectionController : MonoBehaviour
     {
-        // 空白处按下后，鼠标移动超过该像素阈值才开始拖拽相机
         [SerializeField] private float _cameraDragStartPixelThreshold = 8f;
-        // 滑轮缩放步长
         [SerializeField] private float _mouseWheelZoomStep = 1.2f;
-        // 正交相机最小尺寸
         [SerializeField] private float _minOrthographicSize = 3f;
-        // 正交相机最大尺寸
         [SerializeField] private float _maxOrthographicSize = 18f;
-        // 透视相机最小视野角
         [SerializeField] private float _minPerspectiveFieldOfView = 25f;
-        // 透视相机最大视野角
         [SerializeField] private float _maxPerspectiveFieldOfView = 70f;
 
         private BoardGamePrototypeController _prototypeController;
@@ -45,6 +39,10 @@ namespace BoardGame.Presentation
             _cameraController.Bind(worldCamera);
         }
 
+        /// <summary>
+        /// 协调地图输入主循环
+        /// 先处理悬停与交互锁定，再根据当前状态决定走升级输入、节点点击还是相机拖拽
+        /// </summary>
         private void Update()
         {
             if (_prototypeController == null || _worldCamera == null)
@@ -54,6 +52,8 @@ namespace BoardGame.Presentation
 
             bool isPointerOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
             bool isInteractionLocked = _prototypeController.IsInteractionLocked;
+
+            // 悬停高亮始终先刷新，这样即使后面因为交互锁定提前 return，地图表现也还是最新的
             _nodeInputController.UpdateHoveredNode(isPointerOverUi || isInteractionLocked);
 
             if (isInteractionLocked)
@@ -73,6 +73,9 @@ namespace BoardGame.Presentation
             _cameraController.HandlePointerUp();
         }
 
+        /// <summary>
+        /// 在升级等待态下处理 1/2/3 快捷选择
+        /// </summary>
         private void HandlePendingLevelUpInput()
         {
             if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
@@ -89,6 +92,11 @@ namespace BoardGame.Presentation
             }
         }
 
+        /// <summary>
+        /// 处理鼠标按下
+        /// 若没有命中可交互目标，则把这次按下视为一次可能的相机拖拽起点
+        /// </summary>
+        /// <param name="isPointerOverUi"></param>
         private void HandlePointerDown(bool isPointerOverUi)
         {
             if (isPointerOverUi)
@@ -106,6 +114,9 @@ namespace BoardGame.Presentation
             _cameraController.BeginPotentialDrag();
         }
 
+        /// <summary>
+        /// 懒创建输入子控制器，保持 MonoBehaviour 只负责场景绑定和参数序列化
+        /// </summary>
         private void EnsureControllers()
         {
             if (_nodeInputController == null)

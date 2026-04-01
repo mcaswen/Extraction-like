@@ -20,17 +20,11 @@ namespace BoardGame.Views
         private static readonly Color RedirectHaloColor = new Color(0.35f, 0.78f, 1f, 1f);
         private static readonly Color TargetHaloColor = new Color(0.97f, 0.78f, 0.18f, 1f);
 
-        // 节点主体精灵，用颜色区分节点类型
         [SerializeField] private SpriteRenderer _bodyRenderer;
-        // 节点过程小进度条的填充节点
         [SerializeField] private Transform _progressFillTransform;
-        // 节点过程小进度条的填充精灵
         [SerializeField] private SpriteRenderer _progressFillRenderer;
-        // 节点类型文本
         [SerializeField] private TMP_Text _titleText;
-        // 节点类型下方的等级信息文本
         [SerializeField] private TMP_Text _statusText;
-        // 节点实时数值信息文本
         [SerializeField] private TMP_Text _detailText;
 
         private string _nodeId;

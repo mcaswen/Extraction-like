@@ -138,17 +138,20 @@ namespace BoardGame.Runtime.Services
         {
             BoardAgentState agentState = sessionState.AgentState;
 
+            // 已经有剩余路径时，Idle 只负责继续推进移动，不重复做新的选点
             if (agentState.RemainingPathNodeIds.Count > 0)
             {
                 BeginNextMovementSegment(sessionState);
                 return;
             }
 
+            // 到达目标点后，优先尝试消费这个目标点上的动作
             if (TryBeginActionOnCurrentTargetNode(sessionState, nodeStatesById))
             {
                 return;
             }
 
+            // 当前节点本身是可撤离点时，先判断是否满足默认 AI 的撤离条件
             if (TryBeginAutonomousExtract(sessionState, nodeStatesById))
             {
                 return;
@@ -163,6 +166,7 @@ namespace BoardGame.Runtime.Services
                 sessionState.StatusMessage = "Player target reached, AI resumed default behavior";
             }
 
+            // 默认 AI 不是每帧重新选点，而是按固定 reevaluate 间隔重算一次目标
             if (agentState.AutonomousDecisionElapsedSeconds < _ruleSet.AutonomousRules.ReevaluateIntervalSeconds)
             {
                 return;
@@ -184,6 +188,7 @@ namespace BoardGame.Runtime.Services
                 return;
             }
 
+            // 只有当决策和寻路都成功时，才真正把目标和路径写回角色状态
             ApplyPathPlan(sessionState, nodeStatesById, pathPlan, BoardIntentSource.Autonomous);
             sessionState.StatusMessage = decision.Reason;
         }
@@ -245,12 +250,20 @@ namespace BoardGame.Runtime.Services
                 agentState.RemainingPathNodeIds.RemoveAt(0);
             }
 
+            // 玩家把目标改到更远节点时，沿途碰到可处理节点也要先停下来执行，而不是直接一路穿过去
+            if (TryBeginActionOnVisitedRedirectNode(sessionState, nodeStatesById))
+            {
+                return;
+            }
+
             if (agentState.RemainingPathNodeIds.Count > 0)
             {
+                // 还有后续节点时，立刻衔接下一段移动，避免先回 Idle 再重新起步
                 BeginNextMovementSegment(sessionState);
                 return;
             }
 
+            // 路径走完后，优先尝试开始当前节点动作，若没有可做动作再退回 Idle 选点
             if (!TryBeginActionOnCurrentTargetNode(sessionState, nodeStatesById))
             {
                 TickIdle(sessionState, nodeStatesById);
@@ -377,19 +390,61 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
-        /// 当角色真正抵达“当前目标节点”时，尝试进入对应的持续动作
-        /// 中途路过的节点不会触发这里的逻辑
+        /// 当角色真正抵达当前目标节点时，尝试进入对应的持续动作
+        /// 玩家远点引导下的沿途节点会走单独的中途停靠逻辑
         /// </summary>
         private bool TryBeginActionOnCurrentTargetNode(
             BoardGameSessionState sessionState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
+            return TryBeginActionOnCurrentNode(sessionState, nodeStatesById, true);
+        }
+
+        /// <summary>
+        /// 玩家指定远处目标时，允许沿途节点先执行自己的动作
+        /// 这样重定向既能表达前进方向，也不会跳过路上的资源点或战斗点
+        /// </summary>
+        private bool TryBeginActionOnVisitedRedirectNode(
+            BoardGameSessionState sessionState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
+        {
+            BoardAgentState agentState = sessionState.AgentState;
+
+            if (agentState.IntentSource != BoardIntentSource.PlayerRedirect ||
+                agentState.RemainingPathNodeIds.Count == 0)
+            {
+                return false;
+            }
+
+            if (!TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState) ||
+                nodeState.NodeType == BoardNodeType.Extract)
+            {
+                return false;
+            }
+
+            return TryBeginActionOnCurrentNode(sessionState, nodeStatesById, false);
+        }
+
+        /// <summary>
+        /// 尝试在当前节点开始动作
+        /// 可选择是否要求该节点必须等于当前目标节点
+        /// </summary>
+        private bool TryBeginActionOnCurrentNode(
+            BoardGameSessionState sessionState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
+            bool requireCurrentTargetMatch)
+        {
             BoardAgentState agentState = sessionState.AgentState;
 
             if (string.IsNullOrEmpty(agentState.CurrentNodeId) ||
-                string.IsNullOrEmpty(agentState.CurrentTargetNodeId) ||
-                agentState.CurrentNodeId != agentState.CurrentTargetNodeId ||
                 !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState))
+            {
+                return false;
+            }
+
+            if (requireCurrentTargetMatch &&
+                (string.IsNullOrEmpty(agentState.CurrentTargetNodeId) ||
+                 agentState.CurrentNodeId != agentState.CurrentTargetNodeId))
             {
                 return false;
             }

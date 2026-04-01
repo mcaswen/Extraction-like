@@ -17,11 +17,11 @@ namespace BoardGame.Config
         menuName = "BoardGame/Map Definition")]
     public sealed class SO_BoardGame_MapDefinition : ScriptableObject
     {
-        [SerializeField] private string _mapId = "sample_board_map"; // 地图唯一 ID
-        [SerializeField] private string _displayName = "Sample Fixed Map"; // 地图显示名称
-        [SerializeField] private string _startNodeId = "start"; // AI 开局所在节点 ID
-        [SerializeField] private List<BoardMapNodeDefinition> _nodes = new List<BoardMapNodeDefinition>(); // 地图节点列表
-        [SerializeField] private List<BoardMapEdgeDefinition> _edges = new List<BoardMapEdgeDefinition>(); // 地图边列表
+        [SerializeField] private string _mapId = "sample_board_map";
+        [SerializeField] private string _displayName = "Sample Fixed Map";
+        [SerializeField] private string _startNodeId = "start";
+        [SerializeField] private List<BoardMapNodeDefinition> _nodes = new List<BoardMapNodeDefinition>();
+        [SerializeField] private List<BoardMapEdgeDefinition> _edges = new List<BoardMapEdgeDefinition>();
 
         public string MapId => _mapId;
         public string DisplayName => _displayName;
@@ -215,12 +215,12 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardMapNodeDefinition
     {
-        [SerializeField] private string _nodeId; // 节点唯一 ID
-        [SerializeField] private string _description; // 节点补充说明
-        [SerializeField] private BoardNodeType _nodeType; // 节点主类型
-        [SerializeField] private BoardResourceTier _resourceTier; // 资源点等级，仅资源点使用
-        [SerializeField] private BoardDangerTier _dangerTier; // 危险等级，仅敌人点和 Boss 点使用
-        [SerializeField] private Vector2 _position; // 2D 地图上的坐标
+        [SerializeField] private string _nodeId;
+        [SerializeField] private string _description;
+        [SerializeField] private BoardNodeType _nodeType;
+        [SerializeField] private BoardResourceTier _resourceTier;
+        [SerializeField] private BoardDangerTier _dangerTier;
+        [SerializeField] private Vector2 _position;
 
         public BoardMapNodeDefinition(
             string nodeId,
@@ -270,10 +270,10 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardMapEdgeDefinition
     {
-        [SerializeField] private string _edgeId; // 边唯一 ID
-        [SerializeField] private string _fromNodeId; // 边起点节点 ID
-        [SerializeField] private string _toNodeId; // 边终点节点 ID
-        [SerializeField] private float _lengthUnits = 1f; // 边长度，用于换算移动时长
+        [SerializeField] private string _edgeId;
+        [SerializeField] private string _fromNodeId;
+        [SerializeField] private string _toNodeId;
+        [SerializeField] private float _lengthUnits = 1f;
 
         public BoardMapEdgeDefinition(
             string edgeId,

@@ -13,7 +13,6 @@ namespace BoardGame.Presentation
     /// </summary>
     public sealed class BoardGameItemBarController : MonoBehaviour
     {
-        // 预先摆好的道具槽位列表，不在运行时动态创建 UI
         [SerializeField] private List<BoardGameItemSlotView> _itemSlots = new List<BoardGameItemSlotView>();
 
         private BoardGamePrototypeController _prototypeController;
