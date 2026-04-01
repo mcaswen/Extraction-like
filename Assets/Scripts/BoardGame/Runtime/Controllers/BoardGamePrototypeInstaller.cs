@@ -53,18 +53,34 @@ namespace BoardGame.Runtime.Controllers
             if (_mapViewController != null)
             {
                 // 地图视图先初始化，后续 HUD 和输入控制器才能立刻读取到完整节点状态
-                _mapViewController.Initialize(_prototypeController, _mapRoot, _nodeViewPrefab, _edgeViewPrefab, _agentViewPrefab);
+                _mapViewController.Initialize(
+                    _mapDefinition,
+                    _prototypeController.GraphService,
+                    _prototypeController.RuntimeQueryController,
+                    _prototypeController.SelectionStateController,
+                    _mapRoot,
+                    _nodeViewPrefab,
+                    _edgeViewPrefab,
+                    _agentViewPrefab);
             }
 
-            _hudController?.Bind(_prototypeController);
-            _itemBarController?.Bind(_prototypeController);
-            ResolveLevelUpController()?.Bind(_prototypeController);
-            _selectionController?.Bind(_prototypeController, _worldCamera != null ? _worldCamera : Camera.main);
+            _hudController?.Bind(_prototypeController.RuntimeQueryController);
+            _itemBarController?.Bind(_prototypeController.RuntimeQueryController, _prototypeController.ItemUseController);
+            ResolveLevelUpController()?.Bind(_prototypeController.RuntimeQueryController, _prototypeController.ProgressionController);
+            _selectionController?.Bind(
+                _prototypeController.RuntimeQueryController,
+                _prototypeController.SelectionStateController,
+                _prototypeController.TargetRedirectController,
+                _prototypeController.ProgressionController,
+                _worldCamera != null ? _worldCamera : Camera.main);
 
             if (_prototypeController.IsBagSystemEnabled)
             {
                 // 只有开背包系统时才装配 Bag bridge，避免旧容量模式额外创建运行时 UI
-                ResolveLootInventoryController()?.Bind(_prototypeController, ResolveParentCanvas());
+                ResolveLootInventoryController()?.Bind(
+                    _prototypeController.RuntimeQueryController,
+                    _prototypeController.LootInteractionController,
+                    ResolveParentCanvas());
             }
         }
 
