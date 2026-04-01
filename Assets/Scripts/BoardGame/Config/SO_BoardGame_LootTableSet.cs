@@ -71,6 +71,7 @@ namespace BoardGame.Config
         [SerializeField] private BoardItemRarity _itemRarity; // 物品稀有度
         [SerializeField] private int _minValue; // 随机价值下限
         [SerializeField] private int _maxValue; // 随机价值上限
+        [SerializeField] private float _capacityCost; // 关闭背包系统时使用的数字容量
         [SerializeField] private float _revealDurationSeconds; // 单件物资的揭露时长
         [SerializeField] private int _experienceValue; // 获得该物品时提供的经验值
         [SerializeField] private BoardConsumableType _consumableType; // 消耗品类型
@@ -83,6 +84,7 @@ namespace BoardGame.Config
             BoardItemRarity itemRarity,
             int minValue,
             int maxValue,
+            float capacityCost,
             float revealDurationSeconds,
             int experienceValue = 0,
             BoardConsumableType consumableType = BoardConsumableType.None,
@@ -94,6 +96,7 @@ namespace BoardGame.Config
             _itemRarity = itemRarity;
             _minValue = minValue;
             _maxValue = maxValue;
+            _capacityCost = Mathf.Max(0f, capacityCost);
             _revealDurationSeconds = Mathf.Max(0.01f, revealDurationSeconds);
             _experienceValue = Mathf.Max(0, experienceValue);
             _consumableType = consumableType;
@@ -106,12 +109,28 @@ namespace BoardGame.Config
         public BoardItemRarity ItemRarity => _itemRarity;
         public int MinValue => _minValue;
         public int MaxValue => _maxValue;
+        public float CapacityCost => _capacityCost > 0f
+            ? _capacityCost
+            : GetDefaultCapacityCost(_itemRarity);
         public float RevealDurationSeconds => _revealDurationSeconds > 0f
             ? _revealDurationSeconds
             : GetDefaultRevealDurationSeconds(_itemRarity);
         public int ExperienceValue => _experienceValue;
         public BoardConsumableType ConsumableType => _consumableType;
         public int ConsumeValue => _consumeValue;
+
+        public static float GetDefaultCapacityCost(BoardItemRarity rarity)
+        {
+            return rarity switch
+            {
+                BoardItemRarity.Common => 0.1f,
+                BoardItemRarity.Uncommon => 0.5f,
+                BoardItemRarity.Rare => 0.5f,
+                BoardItemRarity.Epic => 1f,
+                BoardItemRarity.Legendary => 2f,
+                _ => 0.1f
+            };
+        }
 
         public static float GetDefaultRevealDurationSeconds(BoardItemRarity rarity)
         {

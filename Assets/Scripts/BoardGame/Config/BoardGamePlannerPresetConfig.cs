@@ -37,6 +37,7 @@ namespace BoardGame.Config
                 MaxHealth = 100,
                 Attack = 7,
                 Defense = 0,
+                MaxCarryCapacity = 9f,
                 StartingHealingPotionCount = 1
             };
         }
@@ -147,13 +148,13 @@ namespace BoardGame.Config
         {
             return new List<BoardItemDefinition>
             {
-                new BoardItemDefinition("loot_green", "Green Loot", BoardItemCategory.Loot, BoardItemRarity.Common, 10, 30, 0.45f, 6),
-                new BoardItemDefinition("loot_blue", "Blue Loot", BoardItemCategory.Loot, BoardItemRarity.Uncommon, 40, 80, 0.75f, 12),
-                new BoardItemDefinition("loot_purple", "Purple Loot", BoardItemCategory.Loot, BoardItemRarity.Rare, 80, 120, 1.1f, 18),
-                new BoardItemDefinition("loot_gold", "Gold Loot", BoardItemCategory.Loot, BoardItemRarity.Epic, 300, 500, 1.55f, 30),
-                new BoardItemDefinition("loot_red", "Red Loot", BoardItemCategory.Loot, BoardItemRarity.Legendary, 1000, 2000, 2.1f, 50),
+                new BoardItemDefinition("loot_green", "Green Loot", BoardItemCategory.Loot, BoardItemRarity.Common, 10, 30, 0.1f, 0.45f, 6),
+                new BoardItemDefinition("loot_blue", "Blue Loot", BoardItemCategory.Loot, BoardItemRarity.Uncommon, 40, 80, 0.5f, 0.75f, 12),
+                new BoardItemDefinition("loot_purple", "Purple Loot", BoardItemCategory.Loot, BoardItemRarity.Rare, 80, 120, 0.5f, 1.1f, 18),
+                new BoardItemDefinition("loot_gold", "Gold Loot", BoardItemCategory.Loot, BoardItemRarity.Epic, 300, 500, 1f, 1.55f, 30),
+                new BoardItemDefinition("loot_red", "Red Loot", BoardItemCategory.Loot, BoardItemRarity.Legendary, 1000, 2000, 2f, 2.1f, 50),
                 // 血瓶的结算价值按策划口径放在中级物资之上 高级物资之下
-                new BoardItemDefinition("healing_potion", "Healing Potion", BoardItemCategory.Consumable, BoardItemRarity.Uncommon, 150, 250, 0.75f, 16, BoardConsumableType.HealingPotion, 10)
+                new BoardItemDefinition("healing_potion", "Healing Potion", BoardItemCategory.Consumable, BoardItemRarity.Uncommon, 150, 250, 0.5f, 0.75f, 16, BoardConsumableType.HealingPotion, 10)
             };
         }
 

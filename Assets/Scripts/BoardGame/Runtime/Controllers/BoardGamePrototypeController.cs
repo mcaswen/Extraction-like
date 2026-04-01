@@ -5,6 +5,7 @@ using BoardGame.Config;
 using BoardGame.Runtime;
 using BoardGame.Runtime.Services;
 using BoardGame.Runtime.State;
+using UnityEngine;
 
 namespace BoardGame.Runtime.Controllers
 {
@@ -435,21 +436,18 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            List<BoardItemInstance> collectedItems = _sessionState.AgentState.InventoryState.Items
-                .Where(item => item != null)
+            List<BoardItemInstance> sourceItems = nodeState.LootContainerItems
+                .Where(itemState => itemState?.ItemInstance != null)
+                .Select(itemState => itemState.ItemInstance)
                 .ToList();
 
-            foreach (BoardLootContainerItemState itemState in nodeState.LootContainerItems)
-            {
-                if (itemState?.ItemInstance != null)
-                {
-                    collectedItems.Add(itemState.ItemInstance);
-                }
-            }
+            BoardAutoCollectResult autoCollectResult = _lootResolutionService.AutoCollect(
+                _sessionState.AgentState.InventoryState,
+                sourceItems);
 
             int revealedItemCount = Mathf.Max(nodeState.LootTotalItemCount, nodeState.LootContainerItems.Count);
-            CloseActiveLootNode(new List<BoardLootContainerItemState>(), collectedItems, revealedItemCount);
-            _sessionState.StatusMessage = $"Auto collected loot at {nodeState.NodeId}";
+            CloseActiveLootNode(new List<BoardLootContainerItemState>(), _sessionState.AgentState.InventoryState.Items.ToList(), revealedItemCount);
+            _sessionState.StatusMessage = $"Auto collected loot at {nodeState.NodeId}. {autoCollectResult.Summary}";
         }
 
         /// <summary>
@@ -510,7 +508,8 @@ namespace BoardGame.Runtime.Controllers
             BoardAgentState agentState = new BoardAgentState(
                 _ruleSet.AgentStats.MaxHealth,
                 _ruleSet.AgentStats.Attack,
-                _ruleSet.AgentStats.Defense);
+                _ruleSet.AgentStats.Defense,
+                _ruleSet.AgentStats.MaxCarryCapacity);
             agentState.Level = _ruleSet.ProgressionRules.StartingLevel;
             agentState.CurrentExperience = 0;
             agentState.RequiredExperienceToNextLevel = _ruleSet.ProgressionRules.StartingRequiredExperience;

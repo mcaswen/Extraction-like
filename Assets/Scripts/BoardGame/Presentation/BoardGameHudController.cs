@@ -100,10 +100,17 @@ namespace BoardGame.Presentation
 
             if (_capacityText != null)
             {
-                int totalSlots = _prototypeController.BagLayoutSettings.PlayerInventoryColumns *
-                                 _prototypeController.BagLayoutSettings.PlayerInventoryRows;
-                int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
-                _capacityText.text = $"Capacity: {occupiedSlots}/{totalSlots}";
+                if (_prototypeController.IsBagSystemEnabled)
+                {
+                    int totalSlots = _prototypeController.BagLayoutSettings.PlayerInventoryColumns *
+                                     _prototypeController.BagLayoutSettings.PlayerInventoryRows;
+                    int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
+                    _capacityText.text = $"Capacity: {occupiedSlots}/{totalSlots}";
+                }
+                else
+                {
+                    _capacityText.text = $"Capacity: {agentState.InventoryState.UsedCapacity:0.#}/{agentState.InventoryState.MaxCapacity:0.#}";
+                }
             }
 
             if (_actionText != null)

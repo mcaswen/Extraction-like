@@ -21,6 +21,8 @@ namespace BoardGame.Runtime.State
         [SerializeField] private BoardItemRarity _itemRarity;
         // 物品价值
         [SerializeField] private int _value;
+        // 单件容量占用
+        [SerializeField] private float _capacityCost;
         // 消耗品类型
         [SerializeField] private BoardConsumableType _consumableType;
         // 消耗品使用数值
@@ -32,6 +34,7 @@ namespace BoardGame.Runtime.State
             BoardItemCategory itemCategory,
             BoardItemRarity itemRarity,
             int value,
+            float capacityCost,
             BoardConsumableType consumableType = BoardConsumableType.None,
             int consumeValue = 0)
         {
@@ -41,6 +44,7 @@ namespace BoardGame.Runtime.State
             _itemCategory = itemCategory;
             _itemRarity = itemRarity;
             _value = value;
+            _capacityCost = Mathf.Max(0f, capacityCost);
             _consumableType = consumableType;
             _consumeValue = Mathf.Max(0, consumeValue);
         }
@@ -51,8 +55,10 @@ namespace BoardGame.Runtime.State
         public BoardItemCategory ItemCategory => _itemCategory;
         public BoardItemRarity ItemRarity => _itemRarity;
         public int Value => _value;
+        public float CapacityCost => _capacityCost;
         public BoardConsumableType ConsumableType => _consumableType;
         public int ConsumeValue => _consumeValue;
+        public float UnitValue => _capacityCost <= Mathf.Epsilon ? _value : _value / _capacityCost;
 
         /// <summary>
         /// 复制一个新的物品实例，用于运行时掉落生成
@@ -65,6 +71,7 @@ namespace BoardGame.Runtime.State
                 _itemCategory,
                 _itemRarity,
                 _value,
+                _capacityCost,
                 _consumableType,
                 _consumeValue);
         }
