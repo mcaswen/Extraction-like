@@ -29,8 +29,12 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public List<ContainerCellStateSaveData> InternalCellStates = new List<ContainerCellStateSaveData>();
 
     private InventoryUIController _lastHoveredGrid;
+    private InventoryUIController _lastPreviewGrid;
+    private Vector2Int _lastPreviewIndex;
+    private int _lastPreviewWidth;
+    private int _lastPreviewHeight;
+    private bool _hasPreviewPlacement;
     private bool _currentPreviewIsRotated;
-    private Vector2 _localGridOffset;
     private Vector3 _visualDragOffset;
     private RectTransform _rectTransform;
     private CanvasGroup _canvasGroup;
@@ -49,13 +53,10 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Image _searchSweepImage;
     private Image _searchCenterGlowImage;
     private Image _searchRevealFlashImage;
-    private Text _searchStateText;
-    private Text _searchRarityText;
     private bool _isRevealAnimating;
     private float _revealAnimationTimer;
 
     private static Sprite _defaultSearchSprite;
-    private static Font _defaultSearchFont;
     private const float RevealAnimationDuration = 0.32f;
 
     public static DraggableItemUI CurrentlyDraggedItem;
@@ -152,14 +153,10 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         if (TryDetachFromEquipmentSlot())
         {
             CurrentGrid = null;
-            _localGridOffset = Vector2.zero;
         }
         else if (CurrentGrid != null)
         {
             CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
-            Vector2 startMouseLocal = CurrentGrid.GetGridLocalPoint(eventData.position, eventData.pressEventCamera);
-            Vector2 startItemLocal = CurrentGrid.GetLocalPosition(_originalGridIndex.x, _originalGridIndex.y);
-            _localGridOffset = startItemLocal - startMouseLocal;
         }
 
         PrepareDragVisual(eventData);
@@ -167,8 +164,8 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
-        UpdateDraggedVisual(eventData);
         UpdateHighlightPreview(eventData);
+        UpdateDraggedVisual(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -195,8 +192,20 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
         }
 
-        Vector2Int targetIndex = GetPredictedGridIndex(targetGrid, eventData);
-        GetCurrentFootprint(_currentPreviewIsRotated, out int width, out int height);
+        Vector2Int targetIndex;
+        int width;
+        int height;
+        if (_hasPreviewPlacement && _lastPreviewGrid == targetGrid)
+        {
+            targetIndex = _lastPreviewIndex;
+            width = _lastPreviewWidth;
+            height = _lastPreviewHeight;
+        }
+        else
+        {
+            ResolvePreviewPlacement(targetGrid, eventData, out targetIndex, out width, out height);
+        }
+
         InventoryGridController targetController = targetGrid.GetGridController();
 
         if (TryPlaceInEmptySpace(targetGrid, targetController, targetIndex, width, height))
@@ -488,7 +497,8 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         transform.SetAsLastSibling();
 
         RectTransformUtility.ScreenPointToWorldPointInRectangle(dragLayer, eventData.position, eventData.pressEventCamera, out Vector3 worldMousePosition);
-        _visualDragOffset = _rectTransform.position - worldMousePosition;
+        RefreshDragVisualOffsetForCenter();
+        _rectTransform.position = worldMousePosition + _visualDragOffset;
 
         _canvasGroup.alpha = 0.6f;
         _canvasGroup.blocksRaycasts = false;
@@ -522,25 +532,56 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         _lastHoveredGrid = hoveredGrid;
         if (hoveredGrid == null || ItemData == null)
         {
+            _hasPreviewPlacement = false;
+            _lastPreviewGrid = null;
             return;
         }
 
-        Vector2Int hoverIndex = GetPredictedGridIndex(hoveredGrid, eventData);
-        GetCurrentFootprint(_currentPreviewIsRotated, out int width, out int height);
-        UpdatePreviewRotationIfNeeded(hoveredGrid, hoverIndex, ref width, ref height);
+        ResolvePreviewPlacement(hoveredGrid, eventData, out Vector2Int hoverIndex, out int width, out int height);
+
+        _hasPreviewPlacement = true;
+        _lastPreviewGrid = hoveredGrid;
+        _lastPreviewIndex = hoverIndex;
+        _lastPreviewWidth = width;
+        _lastPreviewHeight = height;
 
         bool canPlace = hoveredGrid.GetGridController().IsSpaceAvailable(hoverIndex.x, hoverIndex.y, width, height);
-        hoveredGrid.ShowHighlight(hoverIndex.x, hoverIndex.y, width, height, canPlace);
+        hoveredGrid.ShowHighlight(_lastPreviewIndex.x, _lastPreviewIndex.y, _lastPreviewWidth, _lastPreviewHeight, canPlace);
     }
 
-    private Vector2Int GetPredictedGridIndex(InventoryUIController grid, PointerEventData eventData)
+    private void ResolvePreviewPlacement(
+        InventoryUIController hoveredGrid,
+        PointerEventData eventData,
+        out Vector2Int hoverIndex,
+        out int width,
+        out int height)
     {
-        Vector2 currentMouseLocal = grid.GetGridLocalPoint(eventData.position, eventData.pressEventCamera);
-        Vector2 predictedLocalPosition = currentMouseLocal + _localGridOffset;
-        return grid.GetGridIndex(predictedLocalPosition);
+        GetCurrentFootprint(_currentPreviewIsRotated, out width, out height);
+        hoverIndex = GetPredictedGridIndex(hoveredGrid, eventData, width, height);
+        UpdatePreviewRotationIfNeeded(hoveredGrid, eventData, ref hoverIndex, ref width, ref height);
     }
 
-    private void UpdatePreviewRotationIfNeeded(InventoryUIController hoveredGrid, Vector2Int hoverIndex, ref int width, ref int height)
+    private Vector2Int GetPredictedGridIndex(InventoryUIController grid, PointerEventData eventData, int width, int height)
+    {
+        if (grid == null)
+        {
+            return Vector2Int.zero;
+        }
+
+        Vector2 currentMouseLocal = grid.GetGridLocalPoint(eventData.position, eventData.pressEventCamera);
+        Vector2 itemSize = grid.GetItemActualSize(width, height);
+        float gridPitch = grid.CellSize + grid.Spacing;
+        int predictedX = Mathf.RoundToInt((currentMouseLocal.x - itemSize.x * 0.5f) / gridPitch);
+        int predictedY = Mathf.RoundToInt((-currentMouseLocal.y - itemSize.y * 0.5f) / gridPitch);
+        return new Vector2Int(predictedX, predictedY);
+    }
+
+    private void UpdatePreviewRotationIfNeeded(
+        InventoryUIController hoveredGrid,
+        PointerEventData eventData,
+        ref Vector2Int hoverIndex,
+        ref int width,
+        ref int height)
     {
         int cols = hoveredGrid.GetGridController().Columns;
         int rows = hoveredGrid.GetGridController().Rows;
@@ -565,7 +606,9 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         _currentPreviewIsRotated = nextRotation;
         UpdateVisualSize(_currentPreviewIsRotated);
+        RefreshDragVisualOffsetForCenter();
         GetCurrentFootprint(_currentPreviewIsRotated, out width, out height);
+        hoverIndex = GetPredictedGridIndex(hoveredGrid, eventData, width, height);
     }
 
     private bool TryPlaceInEmptySpace(InventoryUIController targetGrid, InventoryGridController targetController, Vector2Int targetIndex, int width, int height)
@@ -718,6 +761,18 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         ResizeSearchOverlay();
     }
 
+    private void RefreshDragVisualOffsetForCenter()
+    {
+        if (_rectTransform == null)
+        {
+            return;
+        }
+
+        Vector3 centerWorldOffset = _rectTransform.TransformVector(
+            new Vector3(_rectTransform.rect.width * 0.5f, -_rectTransform.rect.height * 0.5f, 0f));
+        _visualDragOffset = -centerWorldOffset;
+    }
+
     private void DropToWorld()
     {
         if (ItemData == null || ItemData.WorldPrefab == null)
@@ -751,6 +806,8 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         }
 
         _lastHoveredGrid = null;
+        _lastPreviewGrid = null;
+        _hasPreviewPlacement = false;
         CurrentlyDraggedItem = null;
     }
 
@@ -938,11 +995,6 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 new Vector2(0.5f, 0.5f));
         }
 
-        if (_defaultSearchFont == null)
-        {
-            _defaultSearchFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        }
-
         GameObject overlayRootObject = new GameObject("SearchOverlay", typeof(RectTransform));
         overlayRootObject.transform.SetParent(transform, false);
         _searchOverlayRoot = overlayRootObject.GetComponent<RectTransform>();
@@ -1040,36 +1092,6 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         _searchRevealFlashImage.type = Image.Type.Simple;
         _searchRevealFlashImage.color = new Color(1f, 1f, 1f, 0f);
 
-        GameObject labelObject = new GameObject("StateText", typeof(Text));
-        labelObject.transform.SetParent(_searchOverlayRoot, false);
-        _searchStateText = labelObject.GetComponent<Text>();
-        RectTransform labelRect = _searchStateText.rectTransform;
-        labelRect.anchorMin = new Vector2(0.1f, 0.26f);
-        labelRect.anchorMax = new Vector2(0.9f, 0.74f);
-        labelRect.offsetMin = Vector2.zero;
-        labelRect.offsetMax = Vector2.zero;
-        _searchStateText.alignment = TextAnchor.MiddleCenter;
-        _searchStateText.font = _defaultSearchFont;
-        _searchStateText.fontSize = 17;
-        _searchStateText.fontStyle = FontStyle.Bold;
-        _searchStateText.color = new Color(0.96f, 0.97f, 0.98f, 0.98f);
-        _searchStateText.text = "搜索中";
-
-        GameObject rarityLabelObject = new GameObject("RarityText", typeof(Text));
-        rarityLabelObject.transform.SetParent(_searchOverlayRoot, false);
-        _searchRarityText = rarityLabelObject.GetComponent<Text>();
-        RectTransform rarityLabelRect = _searchRarityText.rectTransform;
-        rarityLabelRect.anchorMin = new Vector2(0.08f, 0.04f);
-        rarityLabelRect.anchorMax = new Vector2(0.92f, 0.22f);
-        rarityLabelRect.offsetMin = Vector2.zero;
-        rarityLabelRect.offsetMax = Vector2.zero;
-        _searchRarityText.alignment = TextAnchor.MiddleCenter;
-        _searchRarityText.font = _defaultSearchFont;
-        _searchRarityText.fontSize = 11;
-        _searchRarityText.fontStyle = FontStyle.Bold;
-        _searchRarityText.color = new Color(0.8f, 0.84f, 0.9f, 0.9f);
-        _searchRarityText.text = "SCANNING";
-
         _searchOverlayRoot.gameObject.SetActive(false);
     }
 
@@ -1104,7 +1126,6 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
         }
 
-        Color rarityColor = GetSearchRarityColor();
         float normalizedProgress = _searchDurationSeconds <= 0f
             ? 1f
             : Mathf.Clamp01(_searchProgressSeconds / _searchDurationSeconds);
@@ -1131,13 +1152,15 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         if (_searchOuterTrackImage != null)
         {
-            _searchOuterTrackImage.color = new Color(0.15f, 0.18f, 0.22f, 0.92f);
+            float trackPulse = 0.78f + Mathf.Sin(Time.unscaledTime * 4.2f) * 0.08f;
+            _searchOuterTrackImage.color = new Color(0.16f, 0.2f, 0.24f, trackPulse);
         }
 
         if (_searchProgressImage != null)
         {
             _searchProgressImage.fillAmount = normalizedProgress;
-            _searchProgressImage.color = Color.Lerp(rarityColor * 0.75f, rarityColor, 0.5f + Mathf.Sin(Time.unscaledTime * 4.5f) * 0.15f);
+            float progressAlpha = 0.72f + Mathf.Sin(Time.unscaledTime * 4.5f) * 0.12f;
+            _searchProgressImage.color = new Color(0.92f, 0.97f, 1f, progressAlpha);
             _searchProgressImage.rectTransform.localEulerAngles = new Vector3(0f, 0f, -Time.unscaledTime * 210f);
         }
 
@@ -1145,19 +1168,19 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             float pulseScale = 0.94f + Mathf.Sin(Time.unscaledTime * 5.1f) * 0.06f;
             _searchPulseRingImage.rectTransform.localScale = new Vector3(pulseScale, pulseScale, 1f);
-            _searchPulseRingImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.08f + (1f - normalizedProgress) * 0.12f);
+            _searchPulseRingImage.color = new Color(0.88f, 0.95f, 1f, 0.1f + (1f - normalizedProgress) * 0.12f);
         }
 
         if (_searchSweepImage != null)
         {
             _searchSweepImage.rectTransform.localEulerAngles = new Vector3(0f, 0f, -Time.unscaledTime * 280f);
-            _searchSweepImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.16f);
+            _searchSweepImage.color = new Color(0.94f, 0.99f, 1f, 0.2f);
         }
 
         if (_searchCenterGlowImage != null)
         {
             float glowStrength = 0.08f + normalizedProgress * 0.18f;
-            _searchCenterGlowImage.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, glowStrength);
+            _searchCenterGlowImage.color = new Color(0.92f, 0.97f, 1f, glowStrength);
         }
 
         if (_searchRevealFlashImage != null)
@@ -1176,55 +1199,5 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             }
         }
 
-        if (_searchStateText != null)
-        {
-            float remainingSeconds = Mathf.Max(0f, _searchDurationSeconds - _searchProgressSeconds);
-            _searchStateText.text = _isRevealAnimating
-                ? "完成"
-                : (remainingSeconds > 0.08f ? $"{remainingSeconds:0.0}s" : "解析中");
-            _searchStateText.color = Color.Lerp(new Color(0.92f, 0.96f, 1f, 0.98f), rarityColor, 0.25f);
-        }
-
-        if (_searchRarityText != null)
-        {
-            _searchRarityText.text = _isRevealAnimating ? "REVEALED" : GetSearchRarityLabel();
-            _searchRarityText.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, 0.92f);
-        }
-    }
-
-    private Color GetSearchRarityColor()
-    {
-        if (ItemData == null)
-        {
-            return new Color(0.95f, 0.92f, 0.52f, 1f);
-        }
-
-        return ItemData.Rarity switch
-        {
-            ItemRarity.Common => new Color(0.78f, 0.84f, 0.9f, 1f),
-            ItemRarity.Uncommon => new Color(0.53f, 0.9f, 0.66f, 1f),
-            ItemRarity.Rare => new Color(0.45f, 0.72f, 1f, 1f),
-            ItemRarity.Epic => new Color(0.93f, 0.54f, 1f, 1f),
-            ItemRarity.Legendary => new Color(1f, 0.8f, 0.34f, 1f),
-            _ => new Color(0.95f, 0.92f, 0.52f, 1f)
-        };
-    }
-
-    private string GetSearchRarityLabel()
-    {
-        if (ItemData == null)
-        {
-            return "SCANNING";
-        }
-
-        return ItemData.Rarity switch
-        {
-            ItemRarity.Common => "COMMON SIGNAL",
-            ItemRarity.Uncommon => "UNCOMMON SIGNAL",
-            ItemRarity.Rare => "RARE SIGNAL",
-            ItemRarity.Epic => "EPIC SIGNAL",
-            ItemRarity.Legendary => "LEGENDARY SIGNAL",
-            _ => "SCANNING"
-        };
     }
 }

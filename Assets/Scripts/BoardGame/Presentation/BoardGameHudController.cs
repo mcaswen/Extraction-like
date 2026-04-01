@@ -21,8 +21,6 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _experienceText;
         // 当前已携带总收益显示文本
         [SerializeField] private TMP_Text _valueText;
-        // 当前背包容量占用显示文本
-        [SerializeField] private TMP_Text _capacityText;
         // 当前动作类型显示文本
         [SerializeField] private TMP_Text _actionText;
         // 当前锁定目标节点显示文本
@@ -96,12 +94,6 @@ namespace BoardGame.Presentation
             if (_valueText != null)
             {
                 _valueText.text = $"Value: {agentState.InventoryState.TotalValue}";
-            }
-
-            if (_capacityText != null)
-            {
-                _capacityText.text = string.Empty;
-                _capacityText.gameObject.SetActive(false);
             }
 
             if (_actionText != null)

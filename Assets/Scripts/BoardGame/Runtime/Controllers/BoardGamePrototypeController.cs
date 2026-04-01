@@ -469,8 +469,7 @@ namespace BoardGame.Runtime.Controllers
             BoardAgentState agentState = new BoardAgentState(
                 _ruleSet.AgentStats.MaxHealth,
                 _ruleSet.AgentStats.Attack,
-                _ruleSet.AgentStats.Defense,
-                _ruleSet.AgentStats.MaxCarryCapacity);
+                _ruleSet.AgentStats.Defense);
             agentState.Level = _ruleSet.ProgressionRules.StartingLevel;
             agentState.CurrentExperience = 0;
             agentState.RequiredExperienceToNextLevel = _ruleSet.ProgressionRules.StartingRequiredExperience;

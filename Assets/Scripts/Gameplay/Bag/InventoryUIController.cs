@@ -105,9 +105,17 @@ public class InventoryUIController : MonoBehaviour
             return;
         }
 
+        if (ItemContainer != null && Highlighter.parent != ItemContainer)
+        {
+            Highlighter.SetParent(ItemContainer, false);
+        }
+
+        ConfigureHighlighterTransform();
+
+        Vector2 highlightPosition = GetLocalPosition(x, y);
         Highlighter.gameObject.SetActive(true);
         Highlighter.transform.SetAsFirstSibling();
-        Highlighter.anchoredPosition = GetLocalPosition(x, y);
+        Highlighter.anchoredPosition3D = new Vector3(highlightPosition.x, highlightPosition.y, 0f);
         Highlighter.sizeDelta = GetItemActualSize(width, height);
 
         if (_highlighterImage == null)
@@ -308,9 +316,7 @@ public class InventoryUIController : MonoBehaviour
 
         _highlighterImage = Highlighter.GetComponent<Image>();
         Highlighter.gameObject.SetActive(false);
-        Highlighter.anchorMin = new Vector2(0f, 1f);
-        Highlighter.anchorMax = new Vector2(0f, 1f);
-        Highlighter.pivot = new Vector2(0f, 1f);
+        ConfigureHighlighterTransform();
     }
 
     private void RefreshBlockedCellVisuals()
@@ -363,6 +369,26 @@ public class InventoryUIController : MonoBehaviour
         {
             ConfigureTopLeftLayer(ItemContainer, gridSize);
         }
+
+        if (Highlighter != null)
+        {
+            ConfigureHighlighterTransform();
+        }
+    }
+
+    private void ConfigureHighlighterTransform()
+    {
+        if (Highlighter == null)
+        {
+            return;
+        }
+
+        Highlighter.anchorMin = new Vector2(0f, 1f);
+        Highlighter.anchorMax = new Vector2(0f, 1f);
+        Highlighter.pivot = new Vector2(0f, 1f);
+        Highlighter.localScale = Vector3.one;
+        Highlighter.localRotation = Quaternion.identity;
+        Highlighter.anchoredPosition3D = Vector3.zero;
     }
 
     private static void ConfigureTopLeftLayer(RectTransform rectTransform, Vector2 size)

@@ -43,7 +43,7 @@ namespace BoardGame.Runtime.State
         // 当前世界坐标，用于地图表现层插值显示
         [SerializeField] private Vector2 _worldPosition;
         // 当前背包与收益状态
-        [SerializeField] private BoardInventoryState _inventoryState = new BoardInventoryState(9f);
+        [SerializeField] private BoardInventoryState _inventoryState = new BoardInventoryState();
         // 当前目标来源，区分 AI 默认意图和玩家改写意图
         [SerializeField] private BoardIntentSource _intentSource = BoardIntentSource.Autonomous;
 
@@ -65,13 +65,13 @@ namespace BoardGame.Runtime.State
         // 距离上次默认决策后的累计时间
         [SerializeField] private float _autonomousDecisionElapsedSeconds;
 
-        public BoardAgentState(int maxHealth, int attack, int defense, float maxCapacity)
+        public BoardAgentState(int maxHealth, int attack, int defense)
         {
             _currentHealth = maxHealth;
             _maxHealth = maxHealth;
             _attack = attack;
             _defense = defense;
-            _inventoryState = new BoardInventoryState(maxCapacity);
+            _inventoryState = new BoardInventoryState();
         }
 
         public string CurrentNodeId

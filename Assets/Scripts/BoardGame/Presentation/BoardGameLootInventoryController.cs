@@ -155,9 +155,17 @@ namespace BoardGame.Presentation
             }
 
             int rows = _prototypeController.BagLayoutSettings.PlayerInventoryRows;
-            int columns = Mathf.Max(
-                _prototypeController.BagLayoutSettings.PlayerInventoryColumns,
-                playerItems.Count <= 0 ? _prototypeController.BagLayoutSettings.PlayerInventoryColumns : Mathf.CeilToInt(playerItems.Count / (float)rows));
+            int configuredColumns = _prototypeController.BagLayoutSettings.PlayerInventoryColumns;
+            int columns = configuredColumns;
+            int availableSlots = configuredColumns * rows;
+
+            if (playerItems.Count > availableSlots)
+            {
+                columns = Mathf.CeilToInt(playerItems.Count / (float)rows);
+                Debug.LogWarning(
+                    $"BoardGame inventory currently contains {playerItems.Count} item(s), exceeding the configured backpack size of {availableSlots} slots. " +
+                    "Temporarily expanding the runtime grid to avoid dropping items.");
+            }
 
             AssignSequentialPositions(playerItems, columns);
             _playerGrid.RebuildGridUI(columns, rows, new List<Vector2Int>());

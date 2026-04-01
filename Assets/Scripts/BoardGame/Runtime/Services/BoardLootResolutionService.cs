@@ -8,7 +8,7 @@ using UnityEngine;
 namespace BoardGame.Runtime.Services
 {
     /// <summary>
-    /// 掉落生成、背包替换和道具使用服务
+    /// 掉落生成和道具使用服务
     /// </summary>
     public sealed class BoardLootResolutionService
     {
@@ -174,35 +174,6 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
-        /// 将一批掉落自动尝试放入背包
-        /// 若空间不足，则会按单位容量价值替换背包中的低收益物品
-        /// </summary>
-        public BoardAutoCollectResult AutoCollect(BoardInventoryState inventoryState, IEnumerable<BoardItemInstance> sourceItems)
-        {
-            List<BoardItemInstance> addedItems = new List<BoardItemInstance>();
-            List<BoardItemInstance> droppedItems = new List<BoardItemInstance>();
-            List<BoardItemInstance> replacedItems = new List<BoardItemInstance>();
-
-            foreach (BoardItemInstance sourceItem in sourceItems.OrderByDescending(item => item.UnitValue))
-            {
-                BoardItemInstance itemToAdd = sourceItem.Clone();
-
-                if (TryAddItemWithReplacement(inventoryState, itemToAdd, out List<BoardItemInstance> removedItems))
-                {
-                    addedItems.Add(itemToAdd);
-                    replacedItems.AddRange(removedItems);
-                }
-                else
-                {
-                    droppedItems.Add(sourceItem);
-                }
-            }
-
-            string summary = $" Auto-collected {addedItems.Count} item(s), dropped {droppedItems.Count} item(s)";
-            return new BoardAutoCollectResult(addedItems, droppedItems, replacedItems, summary);
-        }
-
-        /// <summary>
         /// 使用一个背包内的可消耗物品
         /// </summary>
         public bool TryConsumeItem(BoardAgentState agentState, string instanceId, out string message)
@@ -231,54 +202,6 @@ namespace BoardGame.Runtime.Services
             }
 
             message = "This consumable is not implemented yet";
-            return false;
-        }
-
-        /// <summary>
-        /// 尝试将单个物品加入背包
-        /// 若空间不足，则移除单位容量价值更低的旧物品来腾位置
-        /// </summary>
-        private bool TryAddItemWithReplacement(
-            BoardInventoryState inventoryState,
-            BoardItemInstance itemToAdd,
-            out List<BoardItemInstance> replacedItems)
-        {
-            replacedItems = new List<BoardItemInstance>();
-
-            if (inventoryState.UsedCapacity + itemToAdd.CapacityCost <= inventoryState.MaxCapacity + 0.001f)
-            {
-                inventoryState.Items.Add(itemToAdd);
-                return true;
-            }
-
-            List<BoardItemInstance> sortedItems = inventoryState.Items
-                .OrderBy(item => item.UnitValue)
-                .ThenBy(item => item.Value)
-                .ToList();
-
-            foreach (BoardItemInstance existingItem in sortedItems)
-            {
-                if (existingItem.UnitValue >= itemToAdd.UnitValue)
-                {
-                    break;
-                }
-
-                replacedItems.Add(existingItem);
-                inventoryState.Items.Remove(existingItem);
-
-                if (inventoryState.UsedCapacity + itemToAdd.CapacityCost <= inventoryState.MaxCapacity + 0.001f)
-                {
-                    inventoryState.Items.Add(itemToAdd);
-                    return true;
-                }
-            }
-
-            foreach (BoardItemInstance replacedItem in replacedItems)
-            {
-                inventoryState.Items.Add(replacedItem);
-            }
-
-            replacedItems.Clear();
             return false;
         }
 
@@ -339,7 +262,6 @@ namespace BoardGame.Runtime.Services
                 itemDefinition.ItemCategory,
                 itemDefinition.ItemRarity,
                 value,
-                itemDefinition.CapacityCost,
                 itemDefinition.ConsumableType,
                 itemDefinition.ConsumeValue);
         }
@@ -364,26 +286,4 @@ namespace BoardGame.Runtime.Services
         }
     }
 
-    /// <summary>
-    /// 自动收取结果
-    /// </summary>
-    public sealed class BoardAutoCollectResult
-    {
-        public BoardAutoCollectResult(
-            List<BoardItemInstance> addedItems,
-            List<BoardItemInstance> droppedItems,
-            List<BoardItemInstance> replacedItems,
-            string summary)
-        {
-            AddedItems = addedItems;
-            DroppedItems = droppedItems;
-            ReplacedItems = replacedItems;
-            Summary = summary;
-        }
-
-        public List<BoardItemInstance> AddedItems { get; }
-        public List<BoardItemInstance> DroppedItems { get; }
-        public List<BoardItemInstance> ReplacedItems { get; }
-        public string Summary { get; }
-    }
 }

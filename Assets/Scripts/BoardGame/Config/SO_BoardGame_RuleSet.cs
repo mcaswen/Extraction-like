@@ -80,7 +80,6 @@ namespace BoardGame.Config
         [SerializeField] private int _maxHealth = 100; // 最大生命值
         [SerializeField] private int _attack = 7; // 基础攻击力
         [SerializeField] private int _defense; // 基础防御力
-        [SerializeField] private float _maxCarryCapacity = 9f; // 背包总容量上限
         [SerializeField] private int _startingHealingPotionCount = 1; // 开局自带血瓶数量
 
         public int MaxHealth
@@ -99,12 +98,6 @@ namespace BoardGame.Config
         {
             get => _defense;
             set => _defense = Mathf.Max(0, value);
-        }
-
-        public float MaxCarryCapacity
-        {
-            get => _maxCarryCapacity;
-            set => _maxCarryCapacity = Mathf.Max(0f, value);
         }
 
         public int StartingHealingPotionCount
