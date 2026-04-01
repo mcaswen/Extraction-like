@@ -26,16 +26,16 @@ namespace BoardGame.Presentation
         [SerializeField] private Image _actionProgressFillImage;
         [SerializeField] private Image _experienceProgressFillImage;
 
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
 
         /// <summary>
-        /// 绑定运行时总控
+        /// 绑定运行时只读查询控制器
         /// </summary>
-        public void Bind(BoardGamePrototypeController prototypeController)
+        public void Bind(BoardGameRuntimeQueryController runtimeQueryController)
         {
-            _prototypeController = prototypeController;
+            _runtimeQueryController = runtimeQueryController;
 
-            if (_prototypeController.IsProgressionEnabled)
+            if (_runtimeQueryController.IsProgressionEnabled)
             {
                 EnsureProgressionWidgets();
             }
@@ -44,8 +44,7 @@ namespace BoardGame.Presentation
                 SetProgressionWidgetsVisible(false);
             }
 
-            _prototypeController.SessionChanged += Refresh;
-            _prototypeController.SelectionChanged += Refresh;
+            _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
 
@@ -54,15 +53,15 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Refresh()
         {
-            if (_prototypeController == null)
+            if (_runtimeQueryController == null)
             {
                 return;
             }
 
-            BoardGameSessionState sessionState = _prototypeController.SessionState;
+            BoardGameSessionState sessionState = _runtimeQueryController.SessionState;
             BoardAgentState agentState = sessionState.AgentState;
-            BoardNodeRuntimeState targetNode = _prototypeController.GetNodeState(agentState.CurrentTargetNodeId);
-            bool progressionEnabled = _prototypeController.IsProgressionEnabled;
+            BoardNodeRuntimeState targetNode = _runtimeQueryController.GetNodeState(agentState.CurrentTargetNodeId);
+            bool progressionEnabled = _runtimeQueryController.IsProgressionEnabled;
 
             if (_healthText != null)
             {
@@ -88,11 +87,11 @@ namespace BoardGame.Presentation
 
             if (_capacityText != null)
             {
-                if (_prototypeController.IsBagSystemEnabled)
+                if (_runtimeQueryController.IsBagSystemEnabled)
                 {
                     // 开背包系统时，Capacity 展示的是格子占用，而不是旧版数字容量
-                    int totalSlots = _prototypeController.BagLayoutSettings.PlayerInventoryColumns *
-                                     _prototypeController.BagLayoutSettings.PlayerInventoryRows;
+                    int totalSlots = _runtimeQueryController.BagLayoutSettings.PlayerInventoryColumns *
+                                     _runtimeQueryController.BagLayoutSettings.PlayerInventoryRows;
                     int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
                     _capacityText.text = $"Capacity: {occupiedSlots}/{totalSlots}";
                 }
@@ -118,7 +117,7 @@ namespace BoardGame.Presentation
                     ? "None"
                     : string.Join(" -> ", agentState.RemainingPathNodeIds.Select(nodeId =>
                     {
-                        BoardNodeRuntimeState nodeState = _prototypeController.GetNodeState(nodeId);
+                        BoardNodeRuntimeState nodeState = _runtimeQueryController.GetNodeState(nodeId);
                         return nodeState != null ? nodeState.NodeId : nodeId;
                     }));
                 _pathText.text = $"Path: {path}";
@@ -132,9 +131,9 @@ namespace BoardGame.Presentation
             if (_redirectStateText != null)
             {
                 // 右下角提示优先反映当前是否被升级或 loot 交互锁住，避免玩家误判控制状态
-                _redirectStateText.text = _prototypeController.IsAwaitingLevelUpChoice
+                _redirectStateText.text = _runtimeQueryController.IsAwaitingLevelUpChoice
                     ? "Level Up: Press 1/2/3 or choose an upgrade"
-                    : (_prototypeController.IsAwaitingLootInteraction
+                    : (_runtimeQueryController.IsAwaitingLootInteraction
                         ? "Loot: Press F to open or continue searching"
                         : "Control: Hover and click a node to redirect");
             }
@@ -159,7 +158,7 @@ namespace BoardGame.Presentation
         /// </summary>
         private void EnsureProgressionWidgets()
         {
-            if (_prototypeController != null && !_prototypeController.IsProgressionEnabled)
+            if (_runtimeQueryController != null && !_runtimeQueryController.IsProgressionEnabled)
             {
                 return;
             }

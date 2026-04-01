@@ -30,7 +30,8 @@ namespace BoardGame.Presentation
         private readonly Dictionary<int, Sprite> _raritySpritesByKey =
             new Dictionary<int, Sprite>();
 
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameLootInteractionController _lootInteractionController;
         private Canvas _parentCanvas;
         private GameObject _overlayRoot;
         private InventoryUIController _playerGrid;
@@ -44,13 +45,15 @@ namespace BoardGame.Presentation
         private int _totalItemCount;
 
         /// <summary>
-        /// 绑定运行时总控和父级画布，并初始化 loot overlay
+        /// 绑定 loot 模块和只读查询控制器，并初始化 loot overlay
         /// </summary>
-        /// <param name="prototypeController"></param>
-        /// <param name="parentCanvas"></param>
-        public void Bind(BoardGamePrototypeController prototypeController, Canvas parentCanvas)
+        public void Bind(
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameLootInteractionController lootInteractionController,
+            Canvas parentCanvas)
         {
-            _prototypeController = prototypeController;
+            _runtimeQueryController = runtimeQueryController;
+            _lootInteractionController = lootInteractionController;
             _parentCanvas = parentCanvas;
             EnsureOverlay();
         }
@@ -60,12 +63,12 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Update()
         {
-            if (_prototypeController == null)
+            if (_runtimeQueryController == null || _lootInteractionController == null)
             {
                 return;
             }
 
-            if (!_prototypeController.IsBagSystemEnabled)
+            if (!_runtimeQueryController.IsBagSystemEnabled)
             {
                 if (_isOpen)
                 {
@@ -77,7 +80,7 @@ namespace BoardGame.Presentation
 
             if (!_isOpen)
             {
-                if (Input.GetKeyDown(KeyCode.F) && _prototypeController.TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState))
+                if (Input.GetKeyDown(KeyCode.F) && _lootInteractionController.TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState))
                 {
                     OpenLootNode(nodeState);
                 }
@@ -127,7 +130,7 @@ namespace BoardGame.Presentation
         /// </summary>
         private void CloseLootNode()
         {
-            if (!_isOpen || _prototypeController == null)
+            if (!_isOpen || _lootInteractionController == null)
             {
                 return;
             }
@@ -138,10 +141,10 @@ namespace BoardGame.Presentation
                 DraggableItemUI.CurrentlyDraggedItem.ForceEndDrag();
             }
 
-            // 关闭时从两个网格重新抽取结果，再统一交回 PrototypeController 做状态回写
+            // 关闭时从两个网格重新抽取结果，再统一交回 loot 模块做状态回写
             List<BoardItemInstance> playerItems = ExtractPlayerInventoryItems();
             List<BoardLootContainerItemState> remainingLootItems = ExtractRemainingLootItems();
-            _prototypeController.CloseActiveLootNode(remainingLootItems, playerItems, _revealedItemCount);
+            _lootInteractionController.CloseActiveLootNode(remainingLootItems, playerItems, _revealedItemCount);
             _overlayRoot.SetActive(false);
             _isOpen = false;
         }
@@ -168,8 +171,8 @@ namespace BoardGame.Presentation
             }
 
             _revealedItemCount = Mathf.Min(_revealedItemCount + 1, _totalItemCount);
-            _prototypeController.ApplyLootRevealProgress(_revealedItemCount);
-            RefreshTexts(_prototypeController.GetActiveLootNodeState());
+            _lootInteractionController.ApplyLootRevealProgress(_revealedItemCount);
+            RefreshTexts(_lootInteractionController.GetActiveLootNodeState());
         }
 
         /// <summary>
@@ -179,7 +182,7 @@ namespace BoardGame.Presentation
         private void BuildPlayerInventoryGrid()
         {
             List<ContainerItemSaveData> playerItems = new List<ContainerItemSaveData>();
-            IReadOnlyList<BoardItemInstance> inventoryItems = _prototypeController.SessionState.AgentState.InventoryState.Items;
+            IReadOnlyList<BoardItemInstance> inventoryItems = _runtimeQueryController.SessionState.AgentState.InventoryState.Items;
 
             foreach (BoardItemInstance itemInstance in inventoryItems)
             {
@@ -191,8 +194,8 @@ namespace BoardGame.Presentation
                 playerItems.Add(CreateSaveDataForBoardItem(itemInstance, false, 0f, true));
             }
 
-            int rows = _prototypeController.BagLayoutSettings.PlayerInventoryRows;
-            int configuredColumns = _prototypeController.BagLayoutSettings.PlayerInventoryColumns;
+            int rows = _runtimeQueryController.BagLayoutSettings.PlayerInventoryRows;
+            int configuredColumns = _runtimeQueryController.BagLayoutSettings.PlayerInventoryColumns;
             int columns = configuredColumns;
             int availableSlots = configuredColumns * rows;
 

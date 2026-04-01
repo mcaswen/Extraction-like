@@ -10,17 +10,23 @@ namespace BoardGame.Presentation
     /// </summary>
     internal sealed class BoardGameNodeInputController
     {
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameSelectionStateController _selectionStateController;
+        private BoardGameTargetRedirectController _targetRedirectController;
         private Camera _worldCamera;
 
         /// <summary>
-        /// 绑定节点输入所需的运行时总控与世界相机
+        /// 绑定节点输入所需的模块控制器与世界相机
         /// </summary>
-        /// <param name="prototypeController"></param>
-        /// <param name="worldCamera"></param>
-        public void Bind(BoardGamePrototypeController prototypeController, Camera worldCamera)
+        public void Bind(
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameSelectionStateController selectionStateController,
+            BoardGameTargetRedirectController targetRedirectController,
+            Camera worldCamera)
         {
-            _prototypeController = prototypeController;
+            _runtimeQueryController = runtimeQueryController;
+            _selectionStateController = selectionStateController;
+            _targetRedirectController = targetRedirectController;
             _worldCamera = worldCamera;
         }
 
@@ -30,14 +36,16 @@ namespace BoardGame.Presentation
         /// <param name="isPointerOverUi"></param>
         public void UpdateHoveredNode(bool isPointerOverUi)
         {
-            if (_prototypeController == null || _worldCamera == null)
+            if (_runtimeQueryController == null ||
+                _selectionStateController == null ||
+                _worldCamera == null)
             {
                 return;
             }
 
             if (isPointerOverUi)
             {
-                _prototypeController.SelectNode(string.Empty);
+                _selectionStateController.SelectNode(string.Empty);
                 return;
             }
 
@@ -46,11 +54,11 @@ namespace BoardGame.Presentation
 
             if (TryGetHoveredNode(hits, out BoardGameNodeView nodeView))
             {
-                _prototypeController.SelectNode(nodeView.NodeId);
+                _selectionStateController.SelectNode(nodeView.NodeId);
                 return;
             }
 
-            _prototypeController.SelectNode(string.Empty);
+            _selectionStateController.SelectNode(string.Empty);
         }
 
         /// <summary>
@@ -59,7 +67,7 @@ namespace BoardGame.Presentation
         /// <returns></returns>
         public bool TryHandlePointerDown()
         {
-            if (_prototypeController == null || _worldCamera == null)
+            if (_targetRedirectController == null || _worldCamera == null)
             {
                 return false;
             }
@@ -69,7 +77,7 @@ namespace BoardGame.Presentation
 
             if (TryGetHoveredNode(hits, out BoardGameNodeView nodeView))
             {
-                _prototypeController.TryRedirectToNode(nodeView.NodeId);
+                _targetRedirectController.TryRedirectToNode(nodeView.NodeId);
                 return true;
             }
 

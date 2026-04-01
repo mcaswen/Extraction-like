@@ -22,17 +22,20 @@ namespace BoardGame.Presentation
         [SerializeField] private Sprite _defenseIconSprite;
         [SerializeField] private Sprite _healthIconSprite;
 
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameProgressionController _progressionController;
 
         /// <summary>
-        /// 绑定运行时总控，并根据当前开关状态初始化升级面板
+        /// 绑定升级所需的只读查询和流程控制器
         /// </summary>
-        /// <param name="prototypeController"></param>
-        public void Bind(BoardGamePrototypeController prototypeController)
+        public void Bind(
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameProgressionController progressionController)
         {
-            _prototypeController = prototypeController;
+            _runtimeQueryController = runtimeQueryController;
+            _progressionController = progressionController;
 
-            if (_prototypeController.IsProgressionEnabled)
+            if (_runtimeQueryController.IsProgressionEnabled)
             {
                 EnsureRuntimeUi();
             }
@@ -41,7 +44,7 @@ namespace BoardGame.Presentation
                 SetVisible(false);
             }
 
-            _prototypeController.SessionChanged += Refresh;
+            _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
 
@@ -50,12 +53,12 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Refresh()
         {
-            if (_prototypeController == null)
+            if (_runtimeQueryController == null || _progressionController == null)
             {
                 return;
             }
 
-            if (!_prototypeController.IsProgressionEnabled)
+            if (!_runtimeQueryController.IsProgressionEnabled)
             {
                 ClearOptions();
                 SetVisible(false);
@@ -64,7 +67,7 @@ namespace BoardGame.Presentation
 
             EnsureRuntimeUi();
 
-            BoardGameSessionState sessionState = _prototypeController.SessionState;
+            BoardGameSessionState sessionState = _runtimeQueryController.SessionState;
             bool isVisible = sessionState.IsAwaitingLevelUpChoice && sessionState.PendingLevelUpChoices.Count > 0;
             SetVisible(isVisible);
 
@@ -107,7 +110,7 @@ namespace BoardGame.Presentation
                     optionPresentation.IconText,
                     optionPresentation.IconSprite,
                     optionPresentation.AccentColor,
-                    () => _prototypeController.TryApplyLevelUpChoice(capturedIndex));
+                    () => _progressionController.TryApplyLevelUpChoice(capturedIndex));
             }
         }
 

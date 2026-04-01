@@ -17,7 +17,8 @@ namespace BoardGame.Presentation
         [SerializeField] private float _minPerspectiveFieldOfView = 25f;
         [SerializeField] private float _maxPerspectiveFieldOfView = 70f;
 
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameProgressionController _progressionController;
         private Camera _worldCamera;
         private BoardGameNodeInputController _nodeInputController;
         private BoardGameCameraController _cameraController;
@@ -28,14 +29,20 @@ namespace BoardGame.Presentation
         }
 
         /// <summary>
-        /// 绑定运行时总控与场景相机
+        /// 绑定节点输入和升级流程所需的模块控制器与场景相机
         /// </summary>
-        public void Bind(BoardGamePrototypeController prototypeController, Camera worldCamera)
+        public void Bind(
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameSelectionStateController selectionStateController,
+            BoardGameTargetRedirectController targetRedirectController,
+            BoardGameProgressionController progressionController,
+            Camera worldCamera)
         {
             EnsureControllers();
-            _prototypeController = prototypeController;
+            _runtimeQueryController = runtimeQueryController;
+            _progressionController = progressionController;
             _worldCamera = worldCamera;
-            _nodeInputController.Bind(prototypeController, worldCamera);
+            _nodeInputController.Bind(runtimeQueryController, selectionStateController, targetRedirectController, worldCamera);
             _cameraController.Bind(worldCamera);
         }
 
@@ -45,13 +52,13 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Update()
         {
-            if (_prototypeController == null || _worldCamera == null)
+            if (_runtimeQueryController == null || _progressionController == null || _worldCamera == null)
             {
                 return;
             }
 
             bool isPointerOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-            bool isInteractionLocked = _prototypeController.IsInteractionLocked;
+            bool isInteractionLocked = _runtimeQueryController.IsInteractionLocked;
 
             // 悬停高亮始终先刷新，这样即使后面因为交互锁定提前 return，地图表现也还是最新的
             _nodeInputController.UpdateHoveredNode(isPointerOverUi || isInteractionLocked);
@@ -80,15 +87,15 @@ namespace BoardGame.Presentation
         {
             if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
             {
-                _prototypeController.TryApplyLevelUpChoice(0);
+                _progressionController.TryApplyLevelUpChoice(0);
             }
             else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
             {
-                _prototypeController.TryApplyLevelUpChoice(1);
+                _progressionController.TryApplyLevelUpChoice(1);
             }
             else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
             {
-                _prototypeController.TryApplyLevelUpChoice(2);
+                _progressionController.TryApplyLevelUpChoice(2);
             }
         }
 
