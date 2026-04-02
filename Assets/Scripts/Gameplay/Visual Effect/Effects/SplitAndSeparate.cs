@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class SplitAndSeparate : MonoBehaviour
 {
-    [Header("¼ì²âÉèÖÃ")]
+    [Header("æ£€æµ‹è®¾ç½®")]
     public float detectRange = 5f; 
     private bool hasSplit = false; 
 
-    [Header("ÒÆ¶¯ÉèÖÃ")]
+    [Header("ç§»åŠ¨è®¾ç½®")]
     public float moveSpeed = 2f; 
     private GameObject cloneObject; 
     private Vector3 originalPos; 
@@ -66,7 +66,7 @@ public class SplitAndSeparate : MonoBehaviour
             cloneScript.enabled = false;
         }
 
-        Debug.Log($"·ÖÁÑÍê³É£¡¿ËÂ¡ÌåÃû³Æ£º{cloneObject.name}");
+        Debug.Log($"åˆ†è£‚å®Œæˆï¼å…‹éš†ä½“åç§°ï¼š{cloneObject.name}");
     }
 
   
