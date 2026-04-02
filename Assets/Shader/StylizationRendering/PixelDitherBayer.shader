@@ -1,4 +1,4 @@
-Shader "Hidden/PixelDitherBayer"
+Shader "TA/PixelDitherBayer"
 {
     Properties
     {

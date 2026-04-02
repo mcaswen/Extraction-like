@@ -23,6 +23,21 @@ Shader "TA/OceanFFT_URP"
         [Header(Alpha)]
         _AlphaBase ("Alpha Base", Range(0, 1)) = 0.65
         _EdgeSoftness ("Edge Softness", Range(0.01, 5)) = 1.2
+
+        [Header(Near Shore Waves)]
+        _ShoreDepthRange ("Shore Depth Range", Range(0.1, 40)) = 6.0
+        _ShoreFalloff ("Shore Mask Falloff", Range(0.25, 8)) = 1.5
+        _ShoreWaveAmplitude ("Shore Wave Amplitude", Range(0, 2)) = 0.12
+        _ShoreWaveFrequency ("Shore Wave Frequency", Range(0.01, 1)) = 0.18
+        _ShoreWaveSpeed ("Shore Wave Speed", Range(0, 8)) = 2.2
+        _ShoreWaveDir ("Shore Wave Dir XZ", Vector) = (1, 0, 0.35, 0)
+        _ShallowFFTScale ("Shallow FFT Height Scale", Range(0, 1)) = 0.55
+        _ShoreNormalBlend ("Shore Normal Blend", Range(0, 1)) = 0.45
+        [Header(Shore Foam)]
+        _FoamDepth ("Foam Depth Threshold", Range(0.05, 8)) = 0.85
+        _FoamColor ("Foam Color", Color) = (0.92, 0.95, 1.0, 1)
+        _FoamStrength ("Foam Strength", Range(0, 2)) = 0.55
+        _FoamCrestSharpness ("Foam Crest Sharpness", Range(0.5, 8)) = 2.5
     }
 
     SubShader
@@ -73,6 +88,18 @@ Shader "TA/OceanFFT_URP"
                 half _FresnelBias;
                 half _AlphaBase;
                 half _EdgeSoftness;
+                half _ShoreDepthRange;
+                half _ShoreFalloff;
+                half _ShoreWaveAmplitude;
+                half _ShoreWaveFrequency;
+                half _ShoreWaveSpeed;
+                float4 _ShoreWaveDir;
+                half _ShallowFFTScale;
+                half _ShoreNormalBlend;
+                half _FoamDepth;
+                half4 _FoamColor;
+                half _FoamStrength;
+                half _FoamCrestSharpness;
             CBUFFER_END
 
             struct Attributes
@@ -89,6 +116,7 @@ Shader "TA/OceanFFT_URP"
                 float4 screenPos : TEXCOORD2;
                 float3 viewDirWS : TEXCOORD3;
                 half fogFactor : TEXCOORD4;
+                float2 shoreWaveXZ : TEXCOORD5;
             };
 
             float2 OceanUV(float3 worldPos)
@@ -106,14 +134,34 @@ Shader "TA/OceanFFT_URP"
                 return float3(nx, ny, nz);
             }
 
+            float2 ShoreWaveDir2()
+            {
+                float2 d = _ShoreWaveDir.xz;
+                float len2 = dot(d, d);
+                return len2 > 1e-6 ? d * rsqrt(len2) : float2(1, 0);
+            }
+
+            float3 ShoreWaveNormal(float2 xz, float shoreMask, float time)
+            {
+                float2 dir = ShoreWaveDir2();
+                float k = _ShoreWaveFrequency * 6.2831853;
+                float phase = dot(xz, dir) * k + time * _ShoreWaveSpeed;
+                float dWave = cos(phase) + cos(phase * 2.03 + 1.7) * 0.35 * 2.03 + cos(phase * 0.47 - 0.9) * 0.2 * 0.47;
+                float dh = dWave * k * _ShoreWaveAmplitude * shoreMask;
+                return normalize(float3(-dh * dir.x, 1.0, -dh * dir.y));
+            }
+
+            // 不在 VS 中采样 _CameraDepthTexture：vs_4_0 无法映射该表达式；浅水/近岸仅在 PS 中处理。
             Varyings vert(Attributes input)
             {
                 Varyings o;
                 float3 positionOS = input.positionOS.xyz;
-                float3 worldPos = TransformObjectToWorld(positionOS);
-                float2 ouv = OceanUV(worldPos);
-                float h = SAMPLE_TEXTURE2D_LOD(_HeightMap, sampler_HeightMap, ouv, 0).r;
-                worldPos.y += h * _HeightScale;
+                float3 worldFlat = TransformObjectToWorld(positionOS);
+
+                float2 ouv = OceanUV(worldFlat);
+                float hFFT = SAMPLE_TEXTURE2D_LOD(_HeightMap, sampler_HeightMap, ouv, 0).r * _HeightScale;
+                float3 worldPos = worldFlat;
+                worldPos.y += hFFT;
 
                 o.positionWS = worldPos;
                 o.positionCS = TransformWorldToHClip(worldPos);
@@ -121,13 +169,13 @@ Shader "TA/OceanFFT_URP"
                 o.screenPos = ComputeScreenPos(o.positionCS);
                 o.viewDirWS = GetWorldSpaceNormalizeViewDir(worldPos);
                 o.fogFactor = ComputeFogFactor(o.positionCS.z);
+                o.shoreWaveXZ = worldFlat.xz;
                 return o;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
                 float2 oceanUV = OceanUV(input.positionWS);
-                float3 normalWS = normalize(SampleOceanNormal(oceanUV));
 
                 float2 screenUV = input.screenPos.xy / input.screenPos.w;
                 float rawDepth = SampleSceneDepth(screenUV);
@@ -142,8 +190,27 @@ Shader "TA/OceanFFT_URP"
                 float waterThickness = max(sceneZ - surfaceZ, 0.0);
                 waterThickness *= (1.0 - skyMask);
 
+                float shoreMask = saturate(1.0 - waterThickness / max(_ShoreDepthRange, 1e-4));
+                shoreMask = pow(shoreMask, _ShoreFalloff);
+
+                float3 nFFT = SampleOceanNormal(oceanUV);
+                float fftFlatten = lerp(_ShallowFFTScale, 1.0, shoreMask);
+                nFFT = normalize(float3(nFFT.x * fftFlatten, nFFT.y, nFFT.z * fftFlatten));
+
+                float t = _TimeParameters.x;
+                float3 nShore = ShoreWaveNormal(input.shoreWaveXZ, shoreMask, t);
+                float3 normalWS = normalize(lerp(nFFT, nShore, saturate(shoreMask * _ShoreNormalBlend)));
+
                 float depthFactor = 1.0 - exp(-waterThickness / max(_DepthFadeDistance, 1e-4));
                 half3 baseCol = lerp(_ShallowColor.rgb, _DeepColor.rgb, saturate(depthFactor));
+
+                float2 dir = ShoreWaveDir2();
+                float k = _ShoreWaveFrequency * 6.2831853;
+                float phase = dot(input.shoreWaveXZ, dir) * k + t * _ShoreWaveSpeed;
+                float waveDeriv = abs(cos(phase)) + abs(cos(phase * 2.03 + 1.7)) * 0.35 * 2.03;
+                float foamByCrest = pow(saturate(waveDeriv), _FoamCrestSharpness);
+                float foamByDepth = saturate(1.0 - waterThickness / max(_FoamDepth, 1e-4));
+                half foam = saturate(foamByDepth * shoreMask * foamByCrest) * _FoamStrength;
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half NdotL = saturate(dot(normalWS, mainLight.direction));
@@ -162,6 +229,7 @@ Shader "TA/OceanFFT_URP"
                 half alpha = _AlphaBase * edgeBlend + fresnel * (1.0 - edgeBlend) * 0.5;
 
                 half3 color = lerp(diffuse + specular * _Smoothness, half3(0.7, 0.85, 1.0) * 0.35 + diffuse, fresnel * 0.35);
+                color = lerp(color, _FoamColor.rgb, foam);
 
                 color = MixFog(color, input.fogFactor);
 

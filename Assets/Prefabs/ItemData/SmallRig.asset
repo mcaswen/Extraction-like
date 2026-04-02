@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
+  m_Name: SmallRig
+  m_EditorClassIdentifier: 
+  ContainerColumns: 4
+  ContainerRows: 2
+  BlockedCells:
+  - {x: 0, y: 0}
+  - {x: 3, y: 0}
+  ItemID: 8
+  ItemName: "\u5C0F\u80F8\u6302"
+  ItemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  Type: 3
+  Rarity: 2
+  Width: 2
+  Height: 2
+  IsStackable: 0
+  MaxStack: 1
+  WorldPrefab: {fileID: 1456185909571655197, guid: da90c938d8ecc0b4689a72cd6c5b670e,
+    type: 3}
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1

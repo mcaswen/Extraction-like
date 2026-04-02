@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a6e8eb428306a04d9a16d4685fe055a, type: 3}
+  m_Name: SO_BoardGame_LootTableSet
+  m_EditorClassIdentifier: 
+  _lootSetId: planner_loot_set_v1
+  _itemDefinitions:
+  - _itemId: loot_green
+    _displayName: Green Loot
+    _itemCategory: 0
+    _itemRarity: 0
+    _minValue: 10
+    _maxValue: 30
+    _capacityCost: 0.1
+    _revealDurationSeconds: 0.45
+    _experienceValue: 6
+    _consumableType: 0
+    _consumeValue: 0
+  - _itemId: loot_blue
+    _displayName: Blue Loot
+    _itemCategory: 0
+    _itemRarity: 1
+    _minValue: 40
+    _maxValue: 80
+    _capacityCost: 0.5
+    _revealDurationSeconds: 0.75
+    _experienceValue: 12
+    _consumableType: 0
+    _consumeValue: 0
+  - _itemId: loot_purple
+    _displayName: Purple Loot
+    _itemCategory: 0
+    _itemRarity: 2
+    _minValue: 80
+    _maxValue: 120
+    _capacityCost: 0.5
+    _revealDurationSeconds: 1.1
+    _experienceValue: 18
+    _consumableType: 0
+    _consumeValue: 0
+  - _itemId: loot_gold
+    _displayName: Gold Loot
+    _itemCategory: 0
+    _itemRarity: 3
+    _minValue: 300
+    _maxValue: 500
+    _capacityCost: 1
+    _revealDurationSeconds: 1.55
+    _experienceValue: 30
+    _consumableType: 0
+    _consumeValue: 0
+  - _itemId: loot_red
+    _displayName: Red Loot
+    _itemCategory: 0
+    _itemRarity: 4
+    _minValue: 1000
+    _maxValue: 2000
+    _capacityCost: 2
+    _revealDurationSeconds: 2.1
+    _experienceValue: 50
+    _consumableType: 0
+    _consumeValue: 0
+  - _itemId: healing_potion
+    _displayName: Healing Potion
+    _itemCategory: 1
+    _itemRarity: 1
+    _minValue: 150
+    _maxValue: 250
+    _capacityCost: 0.5
+    _revealDurationSeconds: 0.75
+    _experienceValue: 16
+    _consumableType: 1
+    _consumeValue: 10
+  _resourcePools:
+  - _resourceTier: 1
+    _minRollCount: 1
+    _maxRollCount: 3
+    _entries:
+    - _itemId: loot_green
+      _weight: 45
+    - _itemId: loot_blue
+      _weight: 35
+    - _itemId: loot_purple
+      _weight: 20
+  - _resourceTier: 2
+    _minRollCount: 2
+    _maxRollCount: 4
+    _entries:
+    - _itemId: loot_green
+      _weight: 10
+    - _itemId: loot_blue
+      _weight: 40
+    - _itemId: loot_purple
+      _weight: 35
+    - _itemId: loot_gold
+      _weight: 15
+  - _resourceTier: 3
+    _minRollCount: 3
+    _maxRollCount: 5
+    _entries:
+    - _itemId: loot_blue
+      _weight: 30
+    - _itemId: loot_purple
+      _weight: 30
+    - _itemId: loot_gold
+      _weight: 25
+    - _itemId: loot_red
+      _weight: 15
+  _encounterPools:
+  - _isBoss: 0
+    _dangerTier: 1
+    _minRollCount: 1
+    _maxRollCount: 1
+    _healingPotionChance: 0.1
+    _entries:
+    - _itemId: loot_green
+      _weight: 65
+    - _itemId: loot_blue
+      _weight: 35
+  - _isBoss: 0
+    _dangerTier: 2
+    _minRollCount: 1
+    _maxRollCount: 1
+    _healingPotionChance: 0.1
+    _entries:
+    - _itemId: loot_blue
+      _weight: 60
+    - _itemId: loot_purple
+      _weight: 40
+  - _isBoss: 0
+    _dangerTier: 3
+    _minRollCount: 1
+    _maxRollCount: 2
+    _healingPotionChance: 0.1
+    _entries:
+    - _itemId: loot_purple
+      _weight: 55
+    - _itemId: loot_gold
+      _weight: 45
+  - _isBoss: 1
+    _dangerTier: 3
+    _minRollCount: 2
+    _maxRollCount: 3
+    _healingPotionChance: 0.3
+    _entries:
+    - _itemId: loot_gold
+      _weight: 60
+    - _itemId: loot_red
+      _weight: 40

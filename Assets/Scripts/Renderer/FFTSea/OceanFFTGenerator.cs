@@ -4,10 +4,16 @@ using TA.OceanFFT;
 /// <summary>
 /// Tessendorf 风格 FFT 海面：Phillips 频谱 + 2D IFFT，将高度场写入纹理供 URP Shader 采样。
 /// 将本脚本挂在海面片所在物体上，并指定材质与可选原点（默认 transform 位置）。
+/// 与 <c>TA/OceanFFT_URP</c> 的近岸浪配合：可同步近岸波传播方向至 <c>_ShoreWaveDir</c>，并可选覆盖浅水深度等参数。
+/// 深度纹理需由主相机 <see cref="URPDepthBufferSetup"/> 或 URP Asset 开启。
 /// </summary>
 [ExecuteAlways]
 public class OceanFFTGenerator : MonoBehaviour
 {
+    static readonly int IdShoreWaveDir = Shader.PropertyToID("_ShoreWaveDir");
+    static readonly int IdShoreDepthRange = Shader.PropertyToID("_ShoreDepthRange");
+    static readonly int IdShallowFFTScale = Shader.PropertyToID("_ShallowFFTScale");
+
     [Header("FFT 网格")]
     [Min(8)]
     public int gridSize = 64;
@@ -42,6 +48,18 @@ public class OceanFFTGenerator : MonoBehaviour
 
     [Tooltip("IFFT 后高度场整体放大，便于观察")]
     public float heightScale = 4f;
+
+    [Header("Near-Shore (TA/OceanFFT_URP)")]
+    [Tooltip("每帧将下列项写入 targetMaterial（与 Shader 近岸浪一致）")]
+    public bool syncNearShoreMaterial = true;
+    [Tooltip("近岸浪主传播方向与 Phillips 风方向一致")]
+    public bool shoreWaveDirAlignWithWind = true;
+    [Tooltip("当未对齐风时使用（世界 XZ 平面）")]
+    public Vector2 shoreWaveDirection = new Vector2(1f, 0.35f);
+    [Tooltip("≥0 时每帧覆盖材质 _ShoreDepthRange（米）；<0 使用材质面板值")]
+    public float shoreDepthRangeOverride = -1f;
+    [Tooltip("≥0 时每帧覆盖材质 _ShallowFFTScale；<0 使用材质面板值")]
+    public float shallowFftScaleOverride = -1f;
 
     static int NegIndex(int i, int n)
     {
@@ -158,7 +176,11 @@ public class OceanFFTGenerator : MonoBehaviour
             _normalScratch = new float[n * n * 2];
     }
 
-    void OnEnable() => EnsureBuffers();
+    void OnEnable()
+    {
+        EnsureBuffers();
+        PushMaterialProperties();
+    }
 
     void OnValidate()
     {
@@ -249,17 +271,42 @@ public class OceanFFTGenerator : MonoBehaviour
         _normalTex.SetPixelData(_normalScratch, 0);
         _normalTex.Apply(false, false);
 
-        if (targetMaterial != null)
-        {
-            if (targetMaterial.HasProperty(heightMapProperty))
-                targetMaterial.SetTexture(heightMapProperty, _heightTex);
-            if (targetMaterial.HasProperty(normalMapProperty))
-                targetMaterial.SetTexture(normalMapProperty, _normalTex);
-            if (targetMaterial.HasProperty("_OceanOrigin"))
-                targetMaterial.SetVector("_OceanOrigin", transform.position);
-            if (targetMaterial.HasProperty("_PatchSize"))
-                targetMaterial.SetFloat("_PatchSize", patchSize);
-        }
+        PushMaterialProperties();
+    }
+
+    /// <summary>
+    /// 写入高度/法线纹理、海洋原点、Patch，以及可选的近岸 Shader 参数。
+    /// 可在 <c>updateEveryFrame == false</c> 时于烘焙或调试中单独调用。
+    /// </summary>
+    public void PushMaterialProperties()
+    {
+        if (targetMaterial == null) return;
+
+        if (targetMaterial.HasProperty(heightMapProperty))
+            targetMaterial.SetTexture(heightMapProperty, _heightTex);
+        if (targetMaterial.HasProperty(normalMapProperty))
+            targetMaterial.SetTexture(normalMapProperty, _normalTex);
+        if (targetMaterial.HasProperty("_OceanOrigin"))
+            targetMaterial.SetVector("_OceanOrigin", transform.position);
+        if (targetMaterial.HasProperty("_PatchSize"))
+            targetMaterial.SetFloat("_PatchSize", patchSize);
+
+        if (!syncNearShoreMaterial) return;
+
+        Vector2 dir;
+        if (shoreWaveDirAlignWithWind)
+            dir = windDirection.sqrMagnitude > 1e-6f ? windDirection.normalized : Vector2.right;
+        else
+            dir = shoreWaveDirection.sqrMagnitude > 1e-6f ? shoreWaveDirection.normalized : Vector2.right;
+
+        if (targetMaterial.HasProperty(IdShoreWaveDir))
+            targetMaterial.SetVector(IdShoreWaveDir, new Vector4(dir.x, 0f, dir.y, 0f));
+
+        if (shoreDepthRangeOverride >= 0f && targetMaterial.HasProperty(IdShoreDepthRange))
+            targetMaterial.SetFloat(IdShoreDepthRange, shoreDepthRangeOverride);
+
+        if (shallowFftScaleOverride >= 0f && targetMaterial.HasProperty(IdShallowFFTScale))
+            targetMaterial.SetFloat(IdShallowFFTScale, shallowFftScaleOverride);
     }
 
     void OnDestroy()

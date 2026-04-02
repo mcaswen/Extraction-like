@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
+  m_Name: Bag_Small
+  m_EditorClassIdentifier: 
+  ContainerColumns: 5
+  ContainerRows: 4
+  BlockedCells: []
+  ItemID: 6
+  ItemName: "\u6218\u672F\u5C0F\u5305"
+  ItemIcon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  Type: 4
+  Rarity: 2
+  Width: 2
+  Height: 2
+  IsStackable: 0
+  MaxStack: 1
+  WorldPrefab: {fileID: 8374898293007583537, guid: 5948b2c2384b83942a2c6a547fa70cec,
+    type: 3}
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1
