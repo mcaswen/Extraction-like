@@ -84,7 +84,6 @@ namespace BoardGame.Runtime.Controllers
         public BoardGraphService GraphService => _graphService;
         public BoardGameSessionState SessionState => _sessionState;
         public string SelectedNodeId => _selectedNodeId;
-        public bool IsRedirectModeActive => false;
         public bool IsProgressionEnabled => _ruleSet.ProgressionRules.Enabled;
         public bool IsAwaitingLevelUpChoice => IsProgressionEnabled && _sessionState.IsAwaitingLevelUpChoice;
         public bool IsAwaitingLootInteraction => _sessionState.IsAwaitingLootInteraction;
@@ -134,22 +133,6 @@ namespace BoardGame.Runtime.Controllers
 
             _selectedNodeId = nodeId;
             SelectionChanged?.Invoke();
-        }
-
-        /// <summary>
-        /// 兼容旧接口
-        /// 当前版本不再使用显式重定向模式
-        /// </summary>
-        public void EnterRedirectMode()
-        {
-        }
-
-        /// <summary>
-        /// 兼容旧接口
-        /// 当前版本不再使用显式重定向模式
-        /// </summary>
-        public void ExitRedirectMode()
-        {
         }
 
         /// <summary>

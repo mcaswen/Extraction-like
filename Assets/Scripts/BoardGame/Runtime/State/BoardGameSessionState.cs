@@ -19,7 +19,7 @@ namespace BoardGame.Runtime.State
         // 成功撤离时最终带出的总价值
         [SerializeField] private int _finalExtractedValue;
         // 当前对局状态提示文案
-        [SerializeField] private string _statusMessage = "Click the AI to enter redirect mode";
+        [SerializeField] private string _statusMessage = "Hover and click a node to redirect the AI target";
         // 全部节点运行时状态列表
         [SerializeField] private List<BoardNodeRuntimeState> _nodeStates = new List<BoardNodeRuntimeState>();
         // 角色运行时状态

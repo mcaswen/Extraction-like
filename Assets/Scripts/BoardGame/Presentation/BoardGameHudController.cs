@@ -31,7 +31,7 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _pathText;
         // 最近一次系统状态消息显示文本
         [SerializeField] private TMP_Text _statusText;
-        // 当前是否处于玩家重定向模式的显示文本
+        // 当前操作提示文本
         [SerializeField] private TMP_Text _redirectStateText;
         // 当前动作公共进度条填充图
         [SerializeField] private Image _actionProgressFillImage;

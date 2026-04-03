@@ -60,7 +60,7 @@ namespace BoardGame.Presentation
                 return true;
             }
 
-            return TryHitAgent(hits);
+            return false;
         }
 
         private Vector3 GetMouseWorldPosition()
@@ -91,29 +91,6 @@ namespace BoardGame.Presentation
                 nodeView = hit.GetComponentInParent<BoardGameNodeView>();
 
                 if (nodeView != null)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool TryHitAgent(Collider2D[] hits)
-        {
-            if (hits == null)
-            {
-                return false;
-            }
-
-            foreach (Collider2D hit in hits)
-            {
-                if (hit == null)
-                {
-                    continue;
-                }
-
-                if (hit.GetComponentInParent<BoardGameAgentView>() != null)
                 {
                     return true;
                 }
