@@ -4,15 +4,22 @@ using UnityEngine;
 namespace BoardGame.Runtime
 {
     /// <summary>
-    /// BoardGame 对接背包网格时使用的布局配置。
+    /// BoardGame 对接背包网格时使用的布局配置�
     /// </summary>
     [Serializable]
     public sealed class BoardGameBagLayoutSettings
     {
+        [SerializeField] private bool _enableBagSystem = false;
         [SerializeField] private int _playerInventoryColumns = 6;
         [SerializeField] private int _playerInventoryRows = 4;
         [SerializeField] private int _lootContainerRows = 3;
         [SerializeField] private int _minimumLootContainerColumns = 3;
+
+        public bool EnableBagSystem
+        {
+            get => _enableBagSystem;
+            set => _enableBagSystem = value;
+        }
 
         public int PlayerInventoryColumns
         {

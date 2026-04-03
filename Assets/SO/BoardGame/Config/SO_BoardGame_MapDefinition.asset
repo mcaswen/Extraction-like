@@ -50,7 +50,7 @@ MonoBehaviour:
     _description: 
     _nodeType: 3
     _resourceTier: 0
-    _dangerTier: 0
+    _dangerTier: 3
     _position: {x: -20, y: 20}
   - _nodeId: 14
     _description: 
@@ -92,7 +92,7 @@ MonoBehaviour:
     _description: 
     _nodeType: 3
     _resourceTier: 0
-    _dangerTier: 0
+    _dangerTier: 3
     _position: {x: 30, y: -10}
   - _nodeId: 7
     _description: 

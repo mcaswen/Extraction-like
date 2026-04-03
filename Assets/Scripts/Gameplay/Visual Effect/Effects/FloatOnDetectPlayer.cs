@@ -1,19 +1,19 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class FloatOnDetectPlayer : MonoBehaviour
 {
-    [Header("¼ì²âÉèÖÃ")]
-    [Tooltip("¼ì²âPlayerµÄ·¶Î§£¨Ã×£©")]
+    [Header("æ£€æµ‹è®¾ç½®")]
+    [Tooltip("æ£€æµ‹Playerçš„èŒƒå›´ï¼ˆç±³ï¼‰")]
     public float detectRange = 20f;         
-    [Tooltip("ÊÇ·ñÕıÔÚÆ¯¸¡")]
+    [Tooltip("æ˜¯å¦æ­£åœ¨æ¼‚æµ®")]
     private bool isFloating = false;         
-    [Tooltip("ÊÇ·ñ¼ì²âµ½PlayerÔÚ·¶Î§ÄÚ")]
+    [Tooltip("æ˜¯å¦æ£€æµ‹åˆ°Playeråœ¨èŒƒå›´å†…")]
     private bool isPlayerInRange = false;   
 
-    [Header("Æ¯¸¡ÉèÖÃ")]
-    [Tooltip("Æ¯¸¡ËÙ¶È£¨Ã×/Ãë£©£¬ÖµÔ½Ğ¡Ô½Âı")]
+    [Header("æ¼‚æµ®è®¾ç½®")]
+    [Tooltip("æ¼‚æµ®é€Ÿåº¦ï¼ˆç±³/ç§’ï¼‰ï¼Œå€¼è¶Šå°è¶Šæ…¢")]
     public float floatSpeed = 0.5f;          
-    [Tooltip("×îÖÕÆ¯¸¡¸ß¶È£¨Ïà¶ÔÓÚ³õÊ¼Î»ÖÃ£©")]
+    [Tooltip("æœ€ç»ˆæ¼‚æµ®é«˜åº¦ï¼ˆç›¸å¯¹äºåˆå§‹ä½ç½®ï¼‰")]
     public float targetFloatHeight = 25f;    
     private Vector3 startPosition;           
     private Vector3 targetPosition;          
@@ -26,7 +26,7 @@ public class FloatOnDetectPlayer : MonoBehaviour
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody>();
-            Debug.LogWarning("ÎïÌåÃ»ÓĞRigidbody×é¼ş£¬ÒÑ×Ô¶¯Ìí¼Ó£¡");
+            Debug.LogWarning("ç‰©ä½“æ²¡æœ‰Rigidbodyç»„ä»¶ï¼Œå·²è‡ªåŠ¨æ·»åŠ ï¼");
         }
         rb.useGravity = true;
 
@@ -74,7 +74,7 @@ public class FloatOnDetectPlayer : MonoBehaviour
     {
         if (!isFloating)
         {
-            Debug.Log("¼ì²âµ½Player£¨20Ã×·¶Î§ÄÚ£©£¬¿ªÊ¼Æ¯¸¡£¡");
+            Debug.Log("æ£€æµ‹åˆ°Playerï¼ˆ20ç±³èŒƒå›´å†…ï¼‰ï¼Œå¼€å§‹æ¼‚æµ®ï¼");
            
             rb.useGravity = false;
         
@@ -94,7 +94,7 @@ public class FloatOnDetectPlayer : MonoBehaviour
         }
         else if (isFloating)
         {
-            Debug.Log("ÒÑÆ¯¸¡µ½25Ã×¸ß¶È£¬Í£Ö¹ÒÆ¶¯£¡");
+            Debug.Log("å·²æ¼‚æµ®åˆ°25ç±³é«˜åº¦ï¼Œåœæ­¢ç§»åŠ¨ï¼");
           
         }
     }
@@ -104,7 +104,7 @@ public class FloatOnDetectPlayer : MonoBehaviour
     {
         if (isFloating)
         {
-            Debug.Log("PlayerÀë¿ª20Ã×·¶Î§£¬»Ö¸´ÖØÁ¦²¢Í£Ö¹Æ¯¸¡£¡");
+            Debug.Log("Playerç¦»å¼€20ç±³èŒƒå›´ï¼Œæ¢å¤é‡åŠ›å¹¶åœæ­¢æ¼‚æµ®ï¼");
             rb.useGravity = true;
         
             rb.freezeRotation = false;

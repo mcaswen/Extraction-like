@@ -1,14 +1,14 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 
 
 public class SpeedUpPlane : MonoBehaviour
 {
-    [Header("¼ÓËÙÉèÖÃ")]
-    [Tooltip("ÒªÔö¼ÓµÄËÙ¶ÈÖµ£¨µ¥Î»£ºÃ×/Ãë£©")]
+    [Header("åŠ é€Ÿè®¾ç½®")]
+    [Tooltip("è¦å¢åŠ çš„é€Ÿåº¦å€¼ï¼ˆå•ä½ï¼šç±³/ç§’ï¼‰")]
     public float speedIncrease = 10f; 
 
-    [Tooltip("Àë¿ªPlaneºóÊÇ·ñ»Ö¸´Ô­ËÙ¶È")]
+    [Tooltip("ç¦»å¼€Planeåæ˜¯å¦æ¢å¤åŸé€Ÿåº¦")]
     public bool restoreSpeedOnExit = true;
 
   
@@ -59,7 +59,7 @@ public class SpeedUpPlane : MonoBehaviour
             PlayerMovement playerMove = other.GetComponent<PlayerMovement>();
             if (playerMove != null && playerOriginalSpeeds.ContainsKey(other.gameObject))
             {
-                // »Ö¸´Ô­Ê¼ËÙ¶È
+                // æ¢å¤åŸå§‹é€Ÿåº¦
                 playerMove.moveSpeed = playerOriginalSpeeds[other.gameObject];
                 playerOriginalSpeeds.Remove(other.gameObject);
             }

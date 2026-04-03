@@ -10,25 +10,42 @@ namespace BoardGame.Presentation
     /// </summary>
     internal sealed class BoardGameNodeInputController
     {
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameSelectionStateController _selectionStateController;
+        private BoardGameTargetRedirectController _targetRedirectController;
         private Camera _worldCamera;
 
-        public void Bind(BoardGamePrototypeController prototypeController, Camera worldCamera)
+        /// <summary>
+        /// 绑定节点输入所需的模块控制器与世界相机
+        /// </summary>
+        public void Bind(
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameSelectionStateController selectionStateController,
+            BoardGameTargetRedirectController targetRedirectController,
+            Camera worldCamera)
         {
-            _prototypeController = prototypeController;
+            _runtimeQueryController = runtimeQueryController;
+            _selectionStateController = selectionStateController;
+            _targetRedirectController = targetRedirectController;
             _worldCamera = worldCamera;
         }
 
+        /// <summary>
+        /// 刷新鼠标当前悬停的节点高亮
+        /// </summary>
+        /// <param name="isPointerOverUi"></param>
         public void UpdateHoveredNode(bool isPointerOverUi)
         {
-            if (_prototypeController == null || _worldCamera == null)
+            if (_runtimeQueryController == null ||
+                _selectionStateController == null ||
+                _worldCamera == null)
             {
                 return;
             }
 
             if (isPointerOverUi)
             {
-                _prototypeController.SelectNode(string.Empty);
+                _selectionStateController.SelectNode(string.Empty);
                 return;
             }
 
@@ -37,16 +54,20 @@ namespace BoardGame.Presentation
 
             if (TryGetHoveredNode(hits, out BoardGameNodeView nodeView))
             {
-                _prototypeController.SelectNode(nodeView.NodeId);
+                _selectionStateController.SelectNode(nodeView.NodeId);
                 return;
             }
 
-            _prototypeController.SelectNode(string.Empty);
+            _selectionStateController.SelectNode(string.Empty);
         }
 
+        /// <summary>
+        /// 处理一次鼠标按下命中，优先尝试节点改写，其次尝试命中 AI 本体
+        /// </summary>
+        /// <returns></returns>
         public bool TryHandlePointerDown()
         {
-            if (_prototypeController == null || _worldCamera == null)
+            if (_targetRedirectController == null || _worldCamera == null)
             {
                 return false;
             }
@@ -56,7 +77,7 @@ namespace BoardGame.Presentation
 
             if (TryGetHoveredNode(hits, out BoardGameNodeView nodeView))
             {
-                _prototypeController.TryRedirectToNode(nodeView.NodeId);
+                _targetRedirectController.TryRedirectToNode(nodeView.NodeId);
                 return true;
             }
 

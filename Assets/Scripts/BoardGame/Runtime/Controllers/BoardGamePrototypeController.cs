@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using BoardGame.Config;
 using BoardGame.Runtime;
 using BoardGame.Runtime.Services;
@@ -9,7 +8,7 @@ using BoardGame.Runtime.State;
 namespace BoardGame.Runtime.Controllers
 {
     /// <summary>
-    /// 原型总控，负责创建运行时状态、对外暴露只读查询，并协调输入与表现层
+    /// 原型总控，负责装配运行时状态和各个子 controller，并向表现层提供兼容 facade
     /// </summary>
     public sealed class BoardGamePrototypeController
     {
@@ -26,12 +25,19 @@ namespace BoardGame.Runtime.Controllers
         private readonly BoardAgentDecisionService _decisionService;
         private readonly BoardInterruptService _interruptService;
         private readonly BoardAgentActionStateMachine _actionStateMachine;
+        private readonly BoardGameSessionBootstrapController _sessionBootstrapController;
+        private readonly BoardGameSelectionStateController _selectionStateController;
+        private readonly BoardGameRuntimeQueryController _runtimeQueryController;
+        private readonly BoardGameTargetRedirectController _targetRedirectController;
+        private readonly BoardGameItemUseController _itemUseController;
+        private readonly BoardGameProgressionController _progressionController;
+        private readonly BoardGameLootInteractionController _lootInteractionController;
+        private readonly BoardGameSnapshotController _snapshotController;
+        private readonly BoardGameSessionFlowController _sessionFlowController;
         private readonly Dictionary<string, BoardNodeRuntimeState> _nodeStatesById =
             new Dictionary<string, BoardNodeRuntimeState>();
 
         private readonly BoardGameSessionState _sessionState;
-
-        private string _selectedNodeId = string.Empty;
 
         public BoardGamePrototypeController(
             SO_BoardGame_MapDefinition mapDefinition,
@@ -61,17 +67,58 @@ namespace BoardGame.Runtime.Controllers
                 _interruptService,
                 ruleSet,
                 _bagLayoutSettings);
+            _sessionBootstrapController = new BoardGameSessionBootstrapController(
+                _mapDefinition,
+                _ruleSet,
+                _graphService,
+                _combatResolutionService,
+                _lootResolutionService);
 
-            List<BoardNodeRuntimeState> nodeStates = BuildNodeStates();
-            BoardAgentState agentState = BuildAgentState();
-            _sessionState = new BoardGameSessionState(mapDefinition.MapId, agentState, nodeStates);
+            _sessionState = _sessionBootstrapController.CreateSession(_nodeStatesById);
+            _selectionStateController = new BoardGameSelectionStateController();
+            _selectionStateController.SelectionChanged += HandleSelectionChanged;
+            _runtimeQueryController = new BoardGameRuntimeQueryController(
+                _sessionState,
+                _nodeStatesById,
+                _selectionStateController,
+                _graphService,
+                _ruleSet,
+                _bagLayoutSettings);
+            _targetRedirectController = new BoardGameTargetRedirectController(
+                _sessionState,
+                _nodeStatesById,
+                _interruptService,
+                _actionStateMachine);
+            _itemUseController = new BoardGameItemUseController(_sessionState, _lootResolutionService);
+            _progressionController = new BoardGameProgressionController(_sessionState, _ruleSet, _progressionService);
+            _lootInteractionController = new BoardGameLootInteractionController(
+                _sessionState,
+                _nodeStatesById,
+                _lootResolutionService,
+                _ruleSet,
+                _bagLayoutSettings);
+            _snapshotController = new BoardGameSnapshotController(
+                _mapDefinition,
+                _ruleSet,
+                _lootTableSet,
+                _sessionState);
+            _sessionFlowController = new BoardGameSessionFlowController(
+                _sessionState,
+                _nodeStatesById,
+                _progressionController,
+                _lootInteractionController,
+                _actionStateMachine);
+
+            _targetRedirectController.Changed += HandleSessionChanged;
+            _itemUseController.Changed += HandleSessionChanged;
+            _progressionController.Changed += HandleSessionChanged;
+            _lootInteractionController.Changed += HandleSessionChanged;
+            _sessionFlowController.Changed += HandleSessionChanged;
 
             if (!IsProgressionEnabled)
             {
-                ClearPendingLevelUpState();
+                _progressionController.ClearPendingState();
             }
-
-            NotifySessionChanged();
         }
 
         public event Action SessionChanged;
@@ -82,8 +129,19 @@ namespace BoardGame.Runtime.Controllers
         public SO_BoardGame_LootTableSet LootTableSet => _lootTableSet;
         public BoardGameBagLayoutSettings BagLayoutSettings => _bagLayoutSettings;
         public BoardGraphService GraphService => _graphService;
+        public BoardGameSessionBootstrapController SessionBootstrapController => _sessionBootstrapController;
+        public BoardGameSelectionStateController SelectionStateController => _selectionStateController;
+        public BoardGameRuntimeQueryController RuntimeQueryController => _runtimeQueryController;
+        public BoardGameTargetRedirectController TargetRedirectController => _targetRedirectController;
+        public BoardGameItemUseController ItemUseController => _itemUseController;
+        public BoardGameProgressionController ProgressionController => _progressionController;
+        public BoardGameLootInteractionController LootInteractionController => _lootInteractionController;
+        public BoardGameSnapshotController SnapshotController => _snapshotController;
+        public BoardGameSessionFlowController SessionFlowController => _sessionFlowController;
         public BoardGameSessionState SessionState => _sessionState;
-        public string SelectedNodeId => _selectedNodeId;
+        public string SelectedNodeId => _selectionStateController.SelectedNodeId;
+        public bool IsBagSystemEnabled => _bagLayoutSettings.EnableBagSystem;
+        public bool IsRedirectModeActive => false;
         public bool IsProgressionEnabled => _ruleSet.ProgressionRules.Enabled;
         public bool IsAwaitingLevelUpChoice => IsProgressionEnabled && _sessionState.IsAwaitingLevelUpChoice;
         public bool IsAwaitingLootInteraction => _sessionState.IsAwaitingLootInteraction;
@@ -95,29 +153,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public void Tick(float deltaTime)
         {
-            if (!IsProgressionEnabled &&
-                (_sessionState.IsAwaitingLevelUpChoice ||
-                 _sessionState.PendingLevelUpCount > 0 ||
-                 _sessionState.PendingLevelUpChoices.Count > 0))
-            {
-                ClearPendingLevelUpState();
-            }
-
-            if (IsAwaitingLevelUpChoice)
-            {
-                NotifySessionChanged();
-                return;
-            }
-
-            if (IsAwaitingLootInteraction)
-            {
-                SyncLootActionProgress();
-                NotifySessionChanged();
-                return;
-            }
-
-            _actionStateMachine.Tick(_sessionState, _nodeStatesById, deltaTime);
-            NotifySessionChanged();
+            _sessionFlowController.Tick(deltaTime);
         }
 
         /// <summary>
@@ -126,13 +162,23 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public void SelectNode(string nodeId)
         {
-            if (_selectedNodeId == nodeId)
-            {
-                return;
-            }
+            _selectionStateController.SelectNode(nodeId);
+        }
 
-            _selectedNodeId = nodeId;
-            SelectionChanged?.Invoke();
+        /// <summary>
+        /// 保留旧版场景调用入口
+        /// 当前版本的重定向流程不再依赖显式进入该模式
+        /// </summary>
+        public void EnterRedirectMode()
+        {
+        }
+
+        /// <summary>
+        /// 保留旧版场景调用入口
+        /// 当前版本的重定向流程不再依赖显式退出该模式
+        /// </summary>
+        public void ExitRedirectMode()
+        {
         }
 
         /// <summary>
@@ -140,29 +186,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryRedirectToNode(string nodeId)
         {
-            if (string.IsNullOrEmpty(nodeId))
-            {
-                return false;
-            }
-
-            if (IsAwaitingLevelUpChoice)
-            {
-                _sessionState.StatusMessage = "Choose a level-up upgrade before redirecting";
-                NotifySessionChanged();
-                return false;
-            }
-
-            if (IsAwaitingLootInteraction)
-            {
-                _sessionState.StatusMessage = "Finish the current loot interaction before redirecting";
-                NotifySessionChanged();
-                return false;
-            }
-
-            bool success = _actionStateMachine.TryRedirect(_sessionState, _nodeStatesById, nodeId, out _);
-
-            NotifySessionChanged();
-            return success;
+            return _targetRedirectController.TryRedirectToNode(nodeId);
         }
 
         /// <summary>
@@ -170,17 +194,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryUseItem(string instanceId)
         {
-            if (IsAwaitingLevelUpChoice)
-            {
-                _sessionState.StatusMessage = "Choose a level-up upgrade before using items";
-                NotifySessionChanged();
-                return false;
-            }
-
-            bool success = _lootResolutionService.TryConsumeItem(_sessionState.AgentState, instanceId, out string message);
-            _sessionState.StatusMessage = message;
-            NotifySessionChanged();
-            return success;
+            return _itemUseController.TryUseItem(instanceId);
         }
 
         /// <summary>
@@ -188,22 +202,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryApplyLevelUpChoice(int choiceIndex)
         {
-            if (!IsProgressionEnabled)
-            {
-                _sessionState.StatusMessage = "Level-up progression is currently disabled";
-                NotifySessionChanged();
-                return false;
-            }
-
-            bool success = _progressionService.TryApplyLevelUpChoice(_sessionState, choiceIndex, out string message);
-
-            if (!string.IsNullOrEmpty(message))
-            {
-                _sessionState.StatusMessage = message;
-            }
-
-            NotifySessionChanged();
-            return success;
+            return _progressionController.TryApplyLevelUpChoice(choiceIndex);
         }
 
         /// <summary>
@@ -211,146 +210,72 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool IsNodeValidRedirectTarget(string nodeId)
         {
-            if (IsAwaitingLevelUpChoice || IsAwaitingLootInteraction)
-            {
-                return false;
-            }
-
-            BoardInterruptEvaluation evaluation = _interruptService.Evaluate(_sessionState, _nodeStatesById, nodeId);
-            return evaluation.CanInterrupt;
+            return _targetRedirectController.IsNodeValidRedirectTarget(nodeId);
         }
 
+        /// <summary>
+        /// 获取当前被鼠标选中的节点状态
+        /// </summary>
         public BoardNodeRuntimeState GetSelectedNodeState()
         {
-            return GetNodeState(_selectedNodeId);
+            return _runtimeQueryController.GetSelectedNodeState();
         }
 
+        /// <summary>
+        /// 按节点 ID 查询对应的运行时状态
+        /// </summary>
         public BoardNodeRuntimeState GetNodeState(string nodeId)
         {
-            return !string.IsNullOrEmpty(nodeId) && _nodeStatesById.TryGetValue(nodeId, out BoardNodeRuntimeState nodeState)
-                ? nodeState
-                : null;
+            return _runtimeQueryController.GetNodeState(nodeId);
         }
 
+        /// <summary>
+        /// 获取当前正在进行 loot 交互的节点状态
+        /// </summary>
         public BoardNodeRuntimeState GetActiveLootNodeState()
         {
-            return GetNodeState(_sessionState.ActiveLootNodeId);
+            return _lootInteractionController.GetActiveLootNodeState();
         }
 
+        /// <summary>
+        /// 判断当前是否允许打开活跃的 loot 节点
+        /// </summary>
         public bool CanOpenActiveLootNode()
         {
-            if (!_sessionState.IsAwaitingLootInteraction || _sessionState.IsLootInteractionOpen)
-            {
-                return false;
-            }
-
-            BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
-            return nodeState != null && nodeState.HasPendingLootContainer();
+            return _lootInteractionController.CanOpenActiveLootNode();
         }
 
+        /// <summary>
+        /// 尝试打开当前活跃节点的 loot 面板
+        /// </summary>
+        /// <param name="nodeState"></param>
+        /// <returns></returns>
         public bool TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState)
         {
-            nodeState = GetActiveLootNodeState();
-
-            if (nodeState == null || !CanOpenActiveLootNode())
-            {
-                return false;
-            }
-
-            _sessionState.IsLootInteractionOpen = true;
-            _sessionState.StatusMessage = nodeState.IsLootRevealComplete()
-                ? $"Loot bag opened at {nodeState.NodeId}"
-                : $"Searching {nodeState.NodeId}";
-            NotifySessionChanged();
-            return true;
+            return _lootInteractionController.TryOpenActiveLootNode(out nodeState);
         }
 
+        /// <summary>
+        /// 同步当前 loot 揭露进度到节点状态和动作表现
+        /// </summary>
+        /// <param name="revealedItemCount"></param>
         public void ApplyLootRevealProgress(int revealedItemCount)
         {
-            BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
-
-            if (nodeState == null)
-            {
-                return;
-            }
-
-            nodeState.LootRevealedItemCount = revealedItemCount;
-            nodeState.SyncSearchProgressFromLootReveal();
-
-            if (nodeState.NodeType == BoardNodeType.Resource)
-            {
-                nodeState.ResourceState = nodeState.IsLootRevealComplete()
-                    ? BoardResourceStateType.SearchCompleted
-                    : BoardResourceStateType.Searching;
-            }
-
-            SyncLootActionProgress();
-            NotifySessionChanged();
+            _lootInteractionController.ApplyLootRevealProgress(revealedItemCount);
         }
 
+        /// <summary>
+        /// 关闭当前 loot 节点，并把剩余掉落和玩家背包结果回写到运行时状态
+        /// </summary>
+        /// <param name="remainingLootItems"></param>
+        /// <param name="playerInventoryItems"></param>
+        /// <param name="revealedItemCount"></param>
         public void CloseActiveLootNode(
             IReadOnlyList<BoardLootContainerItemState> remainingLootItems,
             IReadOnlyList<BoardItemInstance> playerInventoryItems,
             int revealedItemCount)
         {
-            BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
-
-            if (nodeState == null)
-            {
-                return;
-            }
-
-            _sessionState.AgentState.InventoryState.Items.Clear();
-
-            if (playerInventoryItems != null)
-            {
-                _sessionState.AgentState.InventoryState.Items.AddRange(playerInventoryItems.Where(item => item != null));
-            }
-
-            nodeState.LootContainerItems.Clear();
-
-            if (remainingLootItems != null)
-            {
-                nodeState.LootContainerItems.AddRange(remainingLootItems.Where(item => item != null));
-            }
-
-            nodeState.LootRevealedItemCount = revealedItemCount;
-            nodeState.SyncSearchProgressFromLootReveal();
-            _sessionState.IsLootInteractionOpen = false;
-            bool shouldFinalizeNode = !nodeState.HasRemainingLootItems() && nodeState.IsLootRevealComplete();
-
-            if (nodeState.NodeType == BoardNodeType.Resource)
-            {
-                if (shouldFinalizeNode)
-                {
-                    nodeState.ResourceState = BoardResourceStateType.Looted;
-                }
-                else if (nodeState.IsLootRevealComplete())
-                {
-                    nodeState.ResourceState = BoardResourceStateType.SearchCompleted;
-                }
-                else
-                {
-                    nodeState.ResourceState = nodeState.SearchProgressSeconds > 0f
-                        ? BoardResourceStateType.PartiallySearched
-                        : BoardResourceStateType.Unsearched;
-                }
-            }
-
-            if (shouldFinalizeNode)
-            {
-                FinalizeActiveLootNode(nodeState);
-            }
-            else
-            {
-                ResumeAfterLootInteraction(
-                    nodeState,
-                    nodeState.IsLootRevealComplete()
-                        ? $"Closed loot at {nodeState.NodeId}, AI resumed. The node can be revisited"
-                        : $"Paused loot search at {nodeState.NodeId}, AI resumed. The node can be revisited");
-            }
-
-            NotifySessionChanged();
+            _lootInteractionController.CloseActiveLootNode(remainingLootItems, playerInventoryItems, revealedItemCount);
         }
 
         /// <summary>
@@ -358,40 +283,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public List<string> GetHighlightedEdgeIds()
         {
-            List<string> edgeIds = new List<string>();
-            BoardAgentState agentState = _sessionState.AgentState;
-
-            if (agentState.IsOnEdge && !string.IsNullOrEmpty(agentState.CurrentEdgeId))
-            {
-                edgeIds.Add(agentState.CurrentEdgeId);
-            }
-
-            string previousNodeId = agentState.CurrentNodeId;
-
-            if (string.IsNullOrEmpty(previousNodeId) && agentState.RemainingPathNodeIds.Count > 0)
-            {
-                previousNodeId = agentState.RemainingPathNodeIds[0];
-            }
-
-            for (int index = 0; index < agentState.RemainingPathNodeIds.Count; index++)
-            {
-                string nextNodeId = agentState.RemainingPathNodeIds[index];
-
-                if (string.IsNullOrEmpty(previousNodeId) || previousNodeId == nextNodeId)
-                {
-                    previousNodeId = nextNodeId;
-                    continue;
-                }
-
-                if (_graphService.TryGetEdgeBetween(previousNodeId, nextNodeId, out Config.BoardMapEdgeDefinition edgeDefinition))
-                {
-                    edgeIds.Add(edgeDefinition.EdgeId);
-                }
-
-                previousNodeId = nextNodeId;
-            }
-
-            return edgeIds;
+            return _runtimeQueryController.GetHighlightedEdgeIds();
         }
 
         /// <summary>
@@ -399,170 +291,25 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public BoardGameSerializableSnapshot CreateSnapshot()
         {
-            return new BoardGameSerializableSnapshot(
-                _mapDefinition.MapId,
-                _ruleSet.RuleSetId,
-                _lootTableSet.LootSetId,
-                _sessionState);
+            return _snapshotController.CreateSnapshot();
         }
 
         /// <summary>
-        /// 根据静态配置创建全部节点运行时状态
+        /// 转发节点选择变化事件，供地图和 HUD 刷新
         /// </summary>
-        private List<BoardNodeRuntimeState> BuildNodeStates()
+        private void HandleSelectionChanged()
         {
-            List<BoardNodeRuntimeState> nodeStates = new List<BoardNodeRuntimeState>();
-
-            foreach (BoardMapNodeDefinition nodeDefinition in _mapDefinition.Nodes)
-            {
-                // 静态配置和动态状态分离，运行时统一复制一份状态对象
-                BoardNodeRuntimeState nodeState = new BoardNodeRuntimeState(
-                    nodeDefinition.NodeId,
-                    nodeDefinition.Description,
-                    nodeDefinition.NodeType,
-                    nodeDefinition.ResourceTier,
-                    nodeDefinition.DangerTier);
-
-                if (nodeDefinition.NodeType == BoardNodeType.Resource)
-                {
-                    nodeState.SearchRequiredSeconds = GetSearchDuration(nodeDefinition.ResourceTier);
-                    nodeState.ResourceState = BoardResourceStateType.Unsearched;
-                }
-
-                if (nodeDefinition.NodeType == BoardNodeType.Extract)
-                {
-                    nodeState.ExtractState = BoardExtractStateType.Available;
-                    nodeState.ExtractRequiredSeconds = _ruleSet.ExtractRules.DurationSeconds;
-                }
-
-                _combatResolutionService.InitializeNodeCombatState(nodeState);
-                _nodeStatesById[nodeDefinition.NodeId] = nodeState;
-                nodeStates.Add(nodeState);
-            }
-
-            return nodeStates;
+            SelectionChanged?.Invoke();
         }
 
         /// <summary>
-        /// 初始化角色运行时状态
-        /// 包含起点、基础属性和开局自带道具
+        /// 转发子模块和流程控制器的会话变更事件，兼容旧版监听入口
         /// </summary>
-        private BoardAgentState BuildAgentState()
+        private void HandleSessionChanged()
         {
-            BoardAgentState agentState = new BoardAgentState(
-                _ruleSet.AgentStats.MaxHealth,
-                _ruleSet.AgentStats.Attack,
-                _ruleSet.AgentStats.Defense,
-                _ruleSet.AgentStats.MaxCarryCapacity);
-            agentState.Level = _ruleSet.ProgressionRules.StartingLevel;
-            agentState.CurrentExperience = 0;
-            agentState.RequiredExperienceToNextLevel = _ruleSet.ProgressionRules.StartingRequiredExperience;
-
-            string startNodeId = _graphService.GetStartNodeId();
-            agentState.CurrentNodeId = startNodeId;
-            agentState.WorldPosition = _graphService.GetNodePosition(startNodeId);
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
-
-            foreach (BoardItemInstance itemInstance in _lootResolutionService.CreateStartingItems(_ruleSet.AgentStats.StartingHealingPotionCount))
-            {
-                agentState.InventoryState.Items.Add(itemInstance);
-            }
-
-            return agentState;
-        }
-
-        /// <summary>
-        /// 按资源等级读取搜索总时长
-        /// </summary>
-        private float GetSearchDuration(BoardResourceTier resourceTier)
-        {
-            switch (resourceTier)
-            {
-                case BoardResourceTier.Low:
-                    return _ruleSet.SearchDurations.LowTierSeconds;
-                case BoardResourceTier.Medium:
-                    return _ruleSet.SearchDurations.MediumTierSeconds;
-                case BoardResourceTier.High:
-                    return _ruleSet.SearchDurations.HighTierSeconds;
-                default:
-                    return _ruleSet.SearchDurations.LowTierSeconds;
-            }
-        }
-
-        /// <summary>
-        /// 广播会话更新事件，供地图视图和 UI 刷新
-        /// </summary>
-        private void SyncLootActionProgress()
-        {
-            BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
-
-            if (nodeState == null)
-            {
-                return;
-            }
-
-            BoardAgentState agentState = _sessionState.AgentState;
-            agentState.CurrentActionType = BoardActionType.Searching;
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
-        }
-
-        private void FinalizeActiveLootNode(BoardNodeRuntimeState nodeState)
-        {
-            switch (nodeState.NodeType)
-            {
-                case BoardNodeType.Resource:
-                    nodeState.ResourceState = BoardResourceStateType.Looted;
-                    break;
-                case BoardNodeType.Enemy:
-                    nodeState.EnemyState = BoardEnemyStateType.Cleared;
-                    break;
-                case BoardNodeType.Boss:
-                    nodeState.BossState = BoardBossStateType.Defeated;
-                    break;
-            }
-
-            _sessionState.ActiveLootNodeId = string.Empty;
-            _sessionState.IsLootInteractionOpen = false;
-            nodeState.ResetLootContainer();
-
-            BoardAgentState agentState = _sessionState.AgentState;
-            agentState.CurrentActionType = BoardActionType.Idle;
-            agentState.CurrentActionProgress = 0f;
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentTargetNodeId = string.Empty;
-            agentState.IntentSource = BoardIntentSource.Autonomous;
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
-            _sessionState.StatusMessage = $"Finished searching {nodeState.NodeId}";
-        }
-
-        private void ResumeAfterLootInteraction(BoardNodeRuntimeState nodeState, string statusMessage)
-        {
-            _sessionState.ActiveLootNodeId = string.Empty;
-            _sessionState.IsLootInteractionOpen = false;
-
-            BoardAgentState agentState = _sessionState.AgentState;
-            agentState.CurrentActionType = BoardActionType.Idle;
-            agentState.CurrentActionProgress = 0f;
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentTargetNodeId = string.Empty;
-            agentState.IntentSource = BoardIntentSource.Autonomous;
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
-            _sessionState.StatusMessage = statusMessage;
-        }
-
-        private void NotifySessionChanged()
-        {
+            _runtimeQueryController.NotifyChanged();
             SessionChanged?.Invoke();
         }
 
-        private void ClearPendingLevelUpState()
-        {
-            _sessionState.IsAwaitingLevelUpChoice = false;
-            _sessionState.PendingLevelUpCount = 0;
-            _sessionState.PendingLevelUpChoices.Clear();
-        }
     }
 }

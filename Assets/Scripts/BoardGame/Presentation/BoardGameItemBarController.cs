@@ -13,18 +13,21 @@ namespace BoardGame.Presentation
     /// </summary>
     public sealed class BoardGameItemBarController : MonoBehaviour
     {
-        // 预先摆好的道具槽位列表，不在运行时动态创建 UI
         [SerializeField] private List<BoardGameItemSlotView> _itemSlots = new List<BoardGameItemSlotView>();
 
-        private BoardGamePrototypeController _prototypeController;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameItemUseController _itemUseController;
 
         /// <summary>
-        /// 绑定运行时总控
+        /// 绑定运行时只读查询和道具使用控制器
         /// </summary>
-        public void Bind(BoardGamePrototypeController prototypeController)
+        public void Bind(
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameItemUseController itemUseController)
         {
-            _prototypeController = prototypeController;
-            _prototypeController.SessionChanged += Refresh;
+            _runtimeQueryController = runtimeQueryController;
+            _itemUseController = itemUseController;
+            _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
 
@@ -33,12 +36,12 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Refresh()
         {
-            if (_prototypeController == null)
+            if (_runtimeQueryController == null || _itemUseController == null)
             {
                 return;
             }
 
-            IEnumerable<IGrouping<string, BoardItemInstance>> groupedItems = _prototypeController.SessionState.AgentState.InventoryState
+            IEnumerable<IGrouping<string, BoardItemInstance>> groupedItems = _runtimeQueryController.SessionState.AgentState.InventoryState
                 .GetConsumables()
                 .GroupBy(item => item.ItemId);
 
@@ -56,8 +59,8 @@ namespace BoardGame.Presentation
                 _itemSlots[slotIndex].Bind(
                     firstItem.DisplayName,
                     itemGroup.Count(),
-                    () => _prototypeController.TryUseItem(useItem.InstanceId),
-                    !_prototypeController.IsInteractionLocked);
+                    () => _itemUseController.TryUseItem(useItem.InstanceId),
+                    !_runtimeQueryController.IsInteractionLocked);
                 slotIndex++;
             }
 

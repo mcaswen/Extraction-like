@@ -10,11 +10,8 @@ namespace BoardGame.Views
     /// </summary>
     public sealed class BoardGameItemSlotView : MonoBehaviour
     {
-        // 槽位点击按钮
         [SerializeField] private Button _button;
-        // 道具名称文本
         [SerializeField] private TMP_Text _nameText;
-        // 道具数量文本
         [SerializeField] private TMP_Text _countText;
 
         /// <summary>
