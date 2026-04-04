@@ -18,7 +18,7 @@ public class PlayerShootingController : MonoBehaviour
     void Update()
     {
         // 沉浸式交互规则：背包打开时禁止开枪
-        if (GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen)
+        if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)
         {
             return; // 直接跳出，不执行射击指令
         }

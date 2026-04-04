@@ -16,12 +16,12 @@ public class EquipmentSlotUI : MonoBehaviour
 
     private void Start()
     {
-        InitializeRuntimeState(GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen);
+        InitializeRuntimeState(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen);
     }
 
     private void OnEnable()
     {
-        InitializeRuntimeState(GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen);
+        InitializeRuntimeState(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class EquipmentSlotUI : MonoBehaviour
         item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 
         InitializeLinkedGridFromEquippedItem();
-        SetLinkedGridVisible(GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen);
+        SetLinkedGridVisible(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen);
 
         return true;
     }
@@ -78,7 +78,7 @@ public class EquipmentSlotUI : MonoBehaviour
             return true;
         }
 
-        return GameUIController.Instance != null && GameUIController.Instance.TryReplaceEquippedContainerFromDrag(this, item);
+        return InventoryScreenController.Instance != null && InventoryScreenController.Instance.TryReplaceEquippedContainerFromDrag(this, item);
     }
 
     /// <summary>

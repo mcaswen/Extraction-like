@@ -372,6 +372,6 @@ public partial class DraggableItemUI
     // 统一通过主控制器判断某个网格是否为角色背包网格
     private static bool IsBackpackGrid(InventoryUIController targetGrid)
     {
-        return GameUIController.Instance != null && GameUIController.Instance.BackpackGrid == targetGrid;
+        return InventoryScreenController.Instance != null && InventoryScreenController.Instance.BackpackGrid == targetGrid;
     }
 }
