@@ -134,7 +134,9 @@ namespace BoardGame.Presentation
                 _redirectStateText.text = _runtimeQueryController.IsAwaitingLevelUpChoice
                     ? "Level Up: Press 1/2/3 or choose an upgrade"
                     : (_runtimeQueryController.IsAwaitingLootInteraction
-                        ? "Loot: Press F to open or continue searching"
+                        ? (_runtimeQueryController.IsBagSystemEnabled
+                            ? "Loot: Press F to open or continue searching"
+                            : "Loot: Auto searching / auto collecting")
                         : "Control: Hover and click a node to redirect");
             }
 

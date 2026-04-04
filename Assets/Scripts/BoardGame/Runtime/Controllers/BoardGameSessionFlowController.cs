@@ -46,7 +46,7 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            if (_lootInteractionController.TickAwaitingLootInteraction())
+            if (_lootInteractionController.TickAwaitingLootInteraction(deltaTime))
             {
                 NotifyChanged();
                 return;

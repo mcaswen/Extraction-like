@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BoardGame.Runtime;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -51,10 +52,46 @@ namespace BoardGame.Config
             MarkDirty();
         }
 
+        /// <summary>
+        /// 仅写入策划提供的 AI 敌人和 Boss 战斗数值
+        /// 不覆盖移动 搜索 撤离和升级等其他规则
+        /// </summary>
+        public void ApplyPlannerCombatPreset()
+        {
+            BoardAgentStatDefinition plannerAgentStats = BoardGamePlannerPresetConfig.CreateAgentStats();
+
+            if (_agentStats == null)
+            {
+                _agentStats = new BoardAgentStatDefinition();
+            }
+
+            _agentStats.MaxHealth = plannerAgentStats.MaxHealth;
+            _agentStats.Attack = plannerAgentStats.Attack;
+            _agentStats.Defense = plannerAgentStats.Defense;
+
+            BoardCombatRuleDefinition plannerCombatRules = BoardGamePlannerPresetConfig.CreateCombatRules();
+
+            if (_combatRules == null)
+            {
+                _combatRules = new BoardCombatRuleDefinition();
+            }
+
+            _combatRules.TickIntervalSeconds = plannerCombatRules.TickIntervalSeconds;
+            _combatRules.EnemyDefinitions = plannerCombatRules.EnemyDefinitions;
+            _combatRules.BossDefinition = plannerCombatRules.BossDefinition;
+            MarkDirty();
+        }
+
         [ContextMenu("Apply Planner Rule Preset")]
         private void ApplyPlannerPresetFromContextMenu()
         {
             ApplyPlannerPreset();
+        }
+
+        [ContextMenu("Apply Planner Combat Preset")]
+        private void ApplyPlannerCombatPresetFromContextMenu()
+        {
+            ApplyPlannerCombatPreset();
         }
 
         [ContextMenu("Fill Sample Rules")]
@@ -188,7 +225,7 @@ namespace BoardGame.Config
     {
         [SerializeField] private float _tickIntervalSeconds = 0.3f;
         [SerializeField] private List<BoardEnemyStatDefinition> _enemyDefinitions = new List<BoardEnemyStatDefinition>();
-        [SerializeField] private BoardBossStatDefinition _bossDefinition = new BoardBossStatDefinition(24, 7, 0, 1);
+        [SerializeField] private BoardBossStatDefinition _bossDefinition = new BoardBossStatDefinition(24, 7, 0);
 
         public float TickIntervalSeconds
         {
@@ -205,7 +242,7 @@ namespace BoardGame.Config
         public BoardBossStatDefinition BossDefinition
         {
             get => _bossDefinition;
-            set => _bossDefinition = value ?? new BoardBossStatDefinition(24, 7, 0, 1);
+            set => _bossDefinition = value ?? new BoardBossStatDefinition(24, 7, 0);
         }
     }
 
@@ -218,23 +255,21 @@ namespace BoardGame.Config
         [SerializeField] private BoardDangerTier _dangerTier = BoardDangerTier.Low;
         [SerializeField] private int _maxHealth = 10;
         [SerializeField] private int _attack = 3;
-        [SerializeField] private int _defenseMin;
-        [SerializeField] private int _defenseMax = 1;
+        [FormerlySerializedAs("_defenseMin")]
+        [SerializeField] private int _defense;
 
-        public BoardEnemyStatDefinition(BoardDangerTier dangerTier, int maxHealth, int attack, int defenseMin, int defenseMax)
+        public BoardEnemyStatDefinition(BoardDangerTier dangerTier, int maxHealth, int attack, int defense)
         {
             _dangerTier = dangerTier;
             _maxHealth = maxHealth;
             _attack = attack;
-            _defenseMin = defenseMin;
-            _defenseMax = defenseMax;
+            _defense = defense;
         }
 
         public BoardDangerTier DangerTier => _dangerTier;
         public int MaxHealth => _maxHealth;
         public int Attack => _attack;
-        public int DefenseMin => _defenseMin;
-        public int DefenseMax => _defenseMax;
+        public int Defense => _defense;
     }
 
     /// <summary>
@@ -245,21 +280,19 @@ namespace BoardGame.Config
     {
         [SerializeField] private int _maxHealth = 24;
         [SerializeField] private int _attack = 7;
-        [SerializeField] private int _defenseMin;
-        [SerializeField] private int _defenseMax = 1;
+        [FormerlySerializedAs("_defenseMin")]
+        [SerializeField] private int _defense;
 
-        public BoardBossStatDefinition(int maxHealth, int attack, int defenseMin, int defenseMax)
+        public BoardBossStatDefinition(int maxHealth, int attack, int defense)
         {
             _maxHealth = maxHealth;
             _attack = attack;
-            _defenseMin = defenseMin;
-            _defenseMax = defenseMax;
+            _defense = defense;
         }
 
         public int MaxHealth => _maxHealth;
         public int Attack => _attack;
-        public int DefenseMin => _defenseMin;
-        public int DefenseMax => _defenseMax;
+        public int Defense => _defense;
     }
 
     /// <summary>
