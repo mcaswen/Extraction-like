@@ -91,11 +91,11 @@ namespace BoardGame.Config
                 TickIntervalSeconds = 1f,
                 EnemyDefinitions = new List<BoardEnemyStatDefinition>
                 {
-                    new BoardEnemyStatDefinition(BoardDangerTier.Low, 5, 10, 5),
-                    new BoardEnemyStatDefinition(BoardDangerTier.Medium, 10, 15, 10),
-                    new BoardEnemyStatDefinition(BoardDangerTier.High, 14, 20, 16)
+                    new BoardEnemyStatDefinition(BoardDangerTier.Low, 20, 10, 5),
+                    new BoardEnemyStatDefinition(BoardDangerTier.Medium, 20, 15, 10),
+                    new BoardEnemyStatDefinition(BoardDangerTier.High, 25, 10, 15)
                 },
-                BossDefinition = new BoardBossStatDefinition(25, 25, 15)
+                BossDefinition = new BoardBossStatDefinition(25, 15, 15)
             };
         }
 

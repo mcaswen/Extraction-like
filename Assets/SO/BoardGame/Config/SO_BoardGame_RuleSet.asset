@@ -32,20 +32,20 @@ MonoBehaviour:
     _tickIntervalSeconds: 1
     _enemyDefinitions:
     - _dangerTier: 1
-      _maxHealth: 5
+      _maxHealth: 20
       _attack: 10
       _defense: 5
     - _dangerTier: 2
-      _maxHealth: 10
+      _maxHealth: 20
       _attack: 15
       _defense: 10
     - _dangerTier: 3
-      _maxHealth: 14
-      _attack: 20
-      _defense: 16
+      _maxHealth: 25
+      _attack: 10
+      _defense: 15
     _bossDefinition:
       _maxHealth: 25
-      _attack: 25
+      _attack: 15
       _defense: 15
   _extractRules:
     _durationSeconds: 4
