@@ -68,7 +68,10 @@ namespace BoardGame.Presentation
             EnsureRuntimeUi();
 
             BoardGameSessionState sessionState = _runtimeQueryController.SessionState;
-            bool isVisible = sessionState.IsAwaitingLevelUpChoice && sessionState.PendingLevelUpChoices.Count > 0;
+            BoardAgentState activeLevelUpAgentState = _runtimeQueryController.GetActiveLevelUpAgentState();
+            bool isVisible = activeLevelUpAgentState != null &&
+                             sessionState.IsAwaitingLevelUpChoice &&
+                             sessionState.PendingLevelUpChoices.Count > 0;
             SetVisible(isVisible);
 
             if (!isVisible)
@@ -79,12 +82,12 @@ namespace BoardGame.Presentation
 
             if (_titleText != null)
             {
-                _titleText.text = $"Level Up! Lv {sessionState.AgentState.Level}";
+                _titleText.text = $"Level Up! {activeLevelUpAgentState.DisplayName} Lv {activeLevelUpAgentState.Level}";
             }
 
             if (_hintText != null)
             {
-                _hintText.text = "Choose 1 of 3 upgrades";
+                _hintText.text = $"Game paused for {activeLevelUpAgentState.DisplayName}  Choose 1 of 3 upgrades";
             }
 
             // UI 固定只有三个槽位，所以这里按索引把当前待选项逐个映射进去
@@ -128,7 +131,6 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 切换升级面板显隐
         /// </summary>
-        /// <param name="isVisible"></param>
         private void SetVisible(bool isVisible)
         {
             GameObject target = _panelRoot != null ? _panelRoot : gameObject;
@@ -246,8 +248,6 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 把升级选择转换成 UI 展示需要的标题、描述、图标和主题色
         /// </summary>
-        /// <param name="choice"></param>
-        /// <returns></returns>
         private BoardLevelUpOptionPresentation BuildOptionPresentation(BoardLevelUpChoice choice)
         {
             switch (choice.BuffType)

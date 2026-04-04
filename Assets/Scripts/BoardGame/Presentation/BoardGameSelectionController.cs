@@ -19,6 +19,7 @@ namespace BoardGame.Presentation
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameProgressionController _progressionController;
+        private BoardGameAgentFocusController _agentFocusController;
         private Camera _worldCamera;
         private BoardGameNodeInputController _nodeInputController;
         private BoardGameCameraController _cameraController;
@@ -34,6 +35,7 @@ namespace BoardGame.Presentation
         public void Bind(
             BoardGameRuntimeQueryController runtimeQueryController,
             BoardGameSelectionStateController selectionStateController,
+            BoardGameAgentFocusController agentFocusController,
             BoardGameTargetRedirectController targetRedirectController,
             BoardGameProgressionController progressionController,
             Camera worldCamera)
@@ -41,8 +43,14 @@ namespace BoardGame.Presentation
             EnsureControllers();
             _runtimeQueryController = runtimeQueryController;
             _progressionController = progressionController;
+            _agentFocusController = agentFocusController;
             _worldCamera = worldCamera;
-            _nodeInputController.Bind(runtimeQueryController, selectionStateController, targetRedirectController, worldCamera);
+            _nodeInputController.Bind(
+                runtimeQueryController,
+                selectionStateController,
+                agentFocusController,
+                targetRedirectController,
+                worldCamera);
             _cameraController.Bind(worldCamera);
         }
 
@@ -69,6 +77,8 @@ namespace BoardGame.Presentation
                 HandlePendingLevelUpInput();
                 return;
             }
+
+            HandleFocusHotkeys();
 
             if (Input.GetMouseButtonDown(0))
             {
@@ -100,10 +110,30 @@ namespace BoardGame.Presentation
         }
 
         /// <summary>
+        /// 处理焦点 Agent 的快捷切换
+        /// </summary>
+        private void HandleFocusHotkeys()
+        {
+            if (_agentFocusController == null || !Input.GetKeyDown(KeyCode.Tab))
+            {
+                return;
+            }
+
+            bool isReverse = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+
+            if (isReverse)
+            {
+                _agentFocusController.FocusPreviousAgent();
+                return;
+            }
+
+            _agentFocusController.FocusNextAgent();
+        }
+
+        /// <summary>
         /// 处理鼠标按下
         /// 若没有命中可交互目标，则把这次按下视为一次可能的相机拖拽起点
         /// </summary>
-        /// <param name="isPointerOverUi"></param>
         private void HandlePointerDown(bool isPointerOverUi)
         {
             if (isPointerOverUi)

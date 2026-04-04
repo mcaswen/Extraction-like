@@ -15,6 +15,7 @@ namespace BoardGame.Runtime.Services
         public bool TryBegin(
             BoardNodeActionHandlerContext context,
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             BoardNodeRuntimeState nodeState)
         {
             if (!nodeState.HasUnfinishedSearch())
@@ -22,11 +23,10 @@ namespace BoardGame.Runtime.Services
                 return false;
             }
 
-            BoardAgentState agentState = sessionState.AgentState;
             if (!nodeState.HasPendingLootContainer())
             {
                 List<BoardItemInstance> generatedItems = context.LootResolutionService.GenerateResourceLoot(nodeState);
-                BoardExperienceGrantResult experienceResult = context.ProgressionService.GrantExperienceFromItems(sessionState, generatedItems);
+                BoardExperienceGrantResult experienceResult = context.ProgressionService.GrantExperienceFromItems(sessionState, agentState, generatedItems);
                 context.LootResolutionService.PrepareNodeLootContainer(nodeState, generatedItems, context.BagLayoutSettings);
 
                 if (!nodeState.HasPendingLootContainer())
@@ -35,23 +35,32 @@ namespace BoardGame.Runtime.Services
                     BoardNodeActionHandlerUtility.FinishCurrentTarget(
                         context,
                         sessionState,
+                        agentState,
                         $"Search complete{experienceResult.Summary}");
                     return true;
                 }
 
-                sessionState.StatusMessage = $"Loot ready at {nodeState.NodeId}, press F to start searching{experienceResult.Summary}";
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                    agentState,
+                    nodeState,
+                    $"Loot ready, press F to start searching{experienceResult.Summary}");
             }
             else
             {
-                sessionState.StatusMessage = nodeState.IsLootRevealComplete()
-                    ? $"Search complete at {nodeState.NodeId}, close the loot bag to continue"
-                    : $"Loot ready at {nodeState.NodeId}, press F to continue searching";
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                    agentState,
+                    nodeState,
+                    nodeState.IsLootRevealComplete()
+                        ? "Search complete, close the loot bag to continue"
+                        : "Loot ready, press F to continue searching");
             }
 
             nodeState.ResourceState = BoardResourceStateType.Searching;
             nodeState.SyncSearchProgressFromLootReveal();
+            sessionState.ActiveInteractionAgentId = agentState.AgentId;
             sessionState.ActiveLootNodeId = nodeState.NodeId;
             sessionState.IsLootInteractionOpen = false;
+            sessionState.FocusedAgentId = agentState.AgentId;
             agentState.CurrentActionType = BoardActionType.Searching;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
@@ -61,10 +70,10 @@ namespace BoardGame.Runtime.Services
         public void Tick(
             BoardNodeActionHandlerContext context,
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             BoardNodeRuntimeState nodeState,
             float deltaTime)
         {
-            BoardAgentState agentState = sessionState.AgentState;
             nodeState.ResourceState = BoardResourceStateType.Searching;
             nodeState.SyncSearchProgressFromLootReveal();
             agentState.CurrentActionDuration = 1f;
@@ -74,6 +83,7 @@ namespace BoardGame.Runtime.Services
         public void FinalizeForRedirect(
             BoardNodeActionHandlerContext context,
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             BoardNodeRuntimeState nodeState)
         {
             nodeState.ResourceState = nodeState.SearchProgressSeconds > 0f

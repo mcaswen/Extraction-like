@@ -183,15 +183,22 @@ namespace BoardGame.Runtime.Services
                     return (int)nodeState.ResourceTier * 100 + (nodeState.IsPartiallyProcessed() ? 10 : 0);
 
                 case BoardNodeType.Enemy:
-                    if (nodeState.EnemyState == BoardEnemyStateType.Cleared)
+                    if (nodeState.EnemyState == BoardEnemyStateType.Cleared && !nodeState.HasPendingLootInteraction())
                     {
                         return 0;
                     }
 
-                    return (int)nodeState.DangerTier * 100 + (nodeState.IsPartiallyProcessed() ? 10 : 0);
+                    return (int)nodeState.DangerTier * 100 +
+                           (nodeState.HasPendingLootInteraction() ? 50 : 0) +
+                           (nodeState.IsPartiallyProcessed() ? 10 : 0);
 
                 case BoardNodeType.Boss:
-                    return nodeState.BossState == BoardBossStateType.Defeated ? 0 : 400;
+                    if (nodeState.BossState == BoardBossStateType.Defeated && !nodeState.HasPendingLootInteraction())
+                    {
+                        return 0;
+                    }
+
+                    return 400 + (nodeState.HasPendingLootInteraction() ? 50 : 0);
 
                 case BoardNodeType.Extract:
                     return 1000;
@@ -214,9 +221,9 @@ namespace BoardGame.Runtime.Services
                 case BoardNodeType.Resource:
                     return nodeState.ResourceState == BoardResourceStateType.Looted;
                 case BoardNodeType.Enemy:
-                    return nodeState.EnemyState == BoardEnemyStateType.Cleared;
+                    return nodeState.EnemyState == BoardEnemyStateType.Cleared && !nodeState.HasPendingLootInteraction();
                 case BoardNodeType.Boss:
-                    return nodeState.BossState == BoardBossStateType.Defeated;
+                    return nodeState.BossState == BoardBossStateType.Defeated && !nodeState.HasPendingLootInteraction();
                 case BoardNodeType.Extract:
                     return false;
                 default:

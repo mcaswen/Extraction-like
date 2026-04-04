@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.Controllers;
 using BoardGame.Runtime.State;
 using BoardGame.Runtime.Services;
@@ -22,7 +23,8 @@ namespace BoardGame.Views
         private BoardGraphService _graphService;
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameSelectionStateController _selectionStateController;
-        private BoardGameAgentView _agentView;
+        private readonly Dictionary<string, BoardGameAgentView> _agentViewsById =
+            new Dictionary<string, BoardGameAgentView>();
 
         /// <summary>
         /// 初始化地图视图并订阅运行时事件
@@ -81,7 +83,17 @@ namespace BoardGame.Views
                 _edgeViewsById[edgeDefinition.EdgeId] = edgeView;
             }
 
-            _agentView = Instantiate(agentViewPrefab, mapRoot);
+            foreach (BoardAgentState agentState in _runtimeQueryController.GetAgentStates())
+            {
+                if (agentState == null)
+                {
+                    continue;
+                }
+
+                BoardGameAgentView agentView = Instantiate(agentViewPrefab, mapRoot);
+                agentView.Initialize(agentState.AgentId);
+                _agentViewsById[agentState.AgentId] = agentView;
+            }
         }
 
         /// <summary>
@@ -95,8 +107,10 @@ namespace BoardGame.Views
             }
 
             HashSet<string> highlightedEdgeIds = new HashSet<string>(_runtimeQueryController.GetHighlightedEdgeIds());
-            BoardAgentState agentState = _runtimeQueryController.SessionState.AgentState;
-            HashSet<string> runtimeInfoVisibleNodeIds = BuildRuntimeInfoVisibleNodeIds(agentState);
+            BoardAgentState focusedAgentState = _runtimeQueryController.GetFocusedAgentState();
+            HashSet<string> runtimeInfoVisibleNodeIds = new HashSet<string>(
+                _runtimeQueryController.GetFocusedRuntimeInfoVisibleNodeIds());
+            Dictionary<string, Vector3> agentDisplayPositions = BuildAgentDisplayPositions(_runtimeQueryController.GetAgentStates());
 
             foreach (KeyValuePair<string, BoardGameEdgeView> edgeViewPair in _edgeViewsById)
             {
@@ -106,53 +120,122 @@ namespace BoardGame.Views
             foreach (KeyValuePair<string, BoardGameNodeView> nodeViewPair in _nodeViewsById)
             {
                 BoardNodeRuntimeState nodeState = _runtimeQueryController.GetNodeState(nodeViewPair.Key);
+                BuildFocusedRuntimeOverride(
+                    nodeViewPair.Key,
+                    nodeState,
+                    focusedAgentState,
+                    out string runtimeInfoOverrideText,
+                    out float? progressOverride01);
                 nodeViewPair.Value.Refresh(
                     nodeState,
-                    nodeViewPair.Key == agentState.CurrentTargetNodeId,
+                    focusedAgentState != null && nodeViewPair.Key == focusedAgentState.CurrentTargetNodeId,
                     nodeViewPair.Key == _selectionStateController.SelectedNodeId,
                     false,
-                    runtimeInfoVisibleNodeIds.Contains(nodeViewPair.Key));
+                    runtimeInfoVisibleNodeIds.Contains(nodeViewPair.Key),
+                    runtimeInfoOverrideText,
+                    progressOverride01);
             }
 
-            _agentView?.Refresh(agentState, false);
-        }
-
-        /// <summary>
-        /// 计算当前允许展示实时数值信息的节点集合
-        /// 规则为 AI 所在点和其相邻点
-        /// 若 AI 位于边上，则取该边两端及其相邻点
-        /// </summary>
-        private HashSet<string> BuildRuntimeInfoVisibleNodeIds(BoardAgentState agentState)
-        {
-            HashSet<string> visibleNodeIds = new HashSet<string>();
-
-            if (agentState.IsOnEdge)
+            foreach (KeyValuePair<string, BoardGameAgentView> agentViewPair in _agentViewsById)
             {
-                AddNodeAndNeighbors(agentState.CurrentEdgeFromNodeId, visibleNodeIds);
-                AddNodeAndNeighbors(agentState.CurrentEdgeToNodeId, visibleNodeIds);
-                return visibleNodeIds;
-            }
+                BoardAgentState agentState = _runtimeQueryController.GetAgentState(agentViewPair.Key);
 
-            AddNodeAndNeighbors(agentState.CurrentNodeId, visibleNodeIds);
-            return visibleNodeIds;
+                if (agentState == null)
+                {
+                    continue;
+                }
+
+                Vector3 displayPosition = agentDisplayPositions.TryGetValue(agentState.AgentId, out Vector3 resolvedPosition)
+                    ? resolvedPosition
+                    : agentState.WorldPosition;
+                agentViewPair.Value.Refresh(
+                    agentState,
+                    displayPosition,
+                    focusedAgentState != null && agentState.AgentId == focusedAgentState.AgentId);
+            }
         }
 
         /// <summary>
-        /// 把某个节点及其相邻节点加入可见集合
+        /// 为重叠在同一位置的多个 Agent 生成轻微扇形偏移
+        /// 这样四个 AI 同时待在同一点时仍然能被看清和点击
         /// </summary>
-        private void AddNodeAndNeighbors(string nodeId, HashSet<string> visibleNodeIds)
+        private Dictionary<string, Vector3> BuildAgentDisplayPositions(IReadOnlyList<BoardAgentState> agentStates)
         {
-            if (string.IsNullOrEmpty(nodeId))
+            Dictionary<string, List<BoardAgentState>> agentsByPositionKey =
+                new Dictionary<string, List<BoardAgentState>>();
+
+            foreach (BoardAgentState agentState in agentStates)
+            {
+                if (agentState == null)
+                {
+                    continue;
+                }
+
+                string positionKey = $"{agentState.WorldPosition.x:0.###}_{agentState.WorldPosition.y:0.###}";
+
+                if (!agentsByPositionKey.TryGetValue(positionKey, out List<BoardAgentState> clusteredAgents))
+                {
+                    clusteredAgents = new List<BoardAgentState>();
+                    agentsByPositionKey[positionKey] = clusteredAgents;
+                }
+
+                clusteredAgents.Add(agentState);
+            }
+
+            Dictionary<string, Vector3> displayPositions = new Dictionary<string, Vector3>();
+
+            foreach (List<BoardAgentState> clusteredAgents in agentsByPositionKey.Values)
+            {
+                for (int index = 0; index < clusteredAgents.Count; index++)
+                {
+                    BoardAgentState agentState = clusteredAgents[index];
+                    displayPositions[agentState.AgentId] = (Vector3)agentState.WorldPosition + ResolveClusterOffset(index, clusteredAgents.Count);
+                }
+            }
+
+            return displayPositions;
+        }
+
+        /// <summary>
+        /// 为同位置 Agent 生成稳定的圆周偏移
+        /// </summary>
+        private static Vector3 ResolveClusterOffset(int index, int count)
+        {
+            if (count <= 1)
+            {
+                return Vector3.zero;
+            }
+
+            float radius = count == 2 ? 0.18f : 0.28f;
+            float angleRadians = (Mathf.PI * 2f * index / count) + Mathf.PI * 0.5f;
+            return new Vector3(Mathf.Cos(angleRadians) * radius, Mathf.Sin(angleRadians) * radius, 0f);
+        }
+
+        /// <summary>
+        /// 只为当前焦点 Agent 覆写它所在节点的实时文本和进度
+        /// 目前主要用于每个 Agent 独立的撤离进度展示
+        /// </summary>
+        private static void BuildFocusedRuntimeOverride(
+            string nodeId,
+            BoardNodeRuntimeState nodeState,
+            BoardAgentState focusedAgentState,
+            out string runtimeInfoOverrideText,
+            out float? progressOverride01)
+        {
+            runtimeInfoOverrideText = null;
+            progressOverride01 = null;
+
+            if (nodeState == null ||
+                focusedAgentState == null ||
+                focusedAgentState.CurrentNodeId != nodeId ||
+                focusedAgentState.CurrentActionType != BoardActionType.Extracting)
             {
                 return;
             }
 
-            visibleNodeIds.Add(nodeId);
-
-            foreach (BoardMapNodeDefinition neighbor in _graphService.GetNeighbors(nodeId))
-            {
-                visibleNodeIds.Add(neighbor.NodeId);
-            }
+            float durationSeconds = Mathf.Max(0.01f, focusedAgentState.CurrentActionDuration);
+            progressOverride01 = focusedAgentState.ExtractProgressSeconds / durationSeconds;
+            runtimeInfoOverrideText = $"Extract {Mathf.Clamp01(progressOverride01.Value):P0}";
         }
 
         /// <summary>

@@ -41,6 +41,7 @@ namespace BoardGame.Runtime.Services
 
         public BoardExperienceGrantResult GrantExperienceFromItems(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IEnumerable<BoardItemInstance> generatedItems)
         {
             if (!IsEnabled)
@@ -66,11 +67,12 @@ namespace BoardGame.Runtime.Services
                 }
             }
 
-            return GrantExperience(sessionState, totalExperience);
+            return GrantExperience(sessionState, agentState, totalExperience);
         }
 
         public BoardExperienceGrantResult GrantExperienceFromEncounter(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             BoardNodeRuntimeState nodeState,
             bool isBoss)
         {
@@ -90,7 +92,7 @@ namespace BoardGame.Runtime.Services
                 _encounterExperienceByDangerTier.TryGetValue(nodeState.DangerTier, out experienceValue);
             }
 
-            return GrantExperience(sessionState, experienceValue);
+            return GrantExperience(sessionState, agentState, experienceValue);
         }
 
         public bool TryApplyLevelUpChoice(BoardGameSessionState sessionState, int choiceIndex, out string message)
@@ -99,56 +101,80 @@ namespace BoardGame.Runtime.Services
 
             if (!IsEnabled)
             {
-                message = "Level-up progression is currently disabled";
+                message = BoardGameStatusMessageUtility.System("Level-up progression is currently disabled");
                 return false;
             }
 
             if (sessionState == null)
             {
-                message = "No active session was found";
+                message = BoardGameStatusMessageUtility.System("No active session was found");
                 return false;
             }
 
             if (!sessionState.IsAwaitingLevelUpChoice)
             {
-                message = "No level-up choice is pending";
+                message = BoardGameStatusMessageUtility.System("No level-up choice is pending");
                 return false;
             }
 
             if (choiceIndex < 0 || choiceIndex >= sessionState.PendingLevelUpChoices.Count)
             {
-                message = "The selected level-up choice is invalid";
+                message = BoardGameStatusMessageUtility.System("The selected level-up choice is invalid");
+                return false;
+            }
+
+            BoardAgentState activeAgentState = sessionState.GetActiveLevelUpAgentState();
+
+            if (activeAgentState == null)
+            {
+                message = BoardGameStatusMessageUtility.System("No active level-up agent was found");
                 return false;
             }
 
             BoardLevelUpChoice choice = sessionState.PendingLevelUpChoices[choiceIndex];
-            ApplyChoiceToAgent(sessionState.AgentState, choice);
+            ApplyChoiceToAgent(activeAgentState, choice);
             sessionState.PendingLevelUpChoices.Clear();
-            sessionState.PendingLevelUpCount = Mathf.Max(0, sessionState.PendingLevelUpCount - 1);
+            activeAgentState.PendingLevelUpCount = Mathf.Max(0, activeAgentState.PendingLevelUpCount - 1);
 
-            if (sessionState.PendingLevelUpCount > 0 && TryRollPendingChoices(sessionState))
+            if (activeAgentState.PendingLevelUpCount > 0 && TryRollPendingChoices(sessionState, activeAgentState))
             {
-                message = $"Applied {choice.DisplayLabel}. Choose another upgrade.";
+                message = BoardGameStatusMessageUtility.Agent(
+                    activeAgentState,
+                    $"Applied {choice.DisplayLabel}. Choose another upgrade");
                 sessionState.StatusMessage = message;
                 return true;
             }
 
-            sessionState.IsAwaitingLevelUpChoice = false;
-            message = $"Applied {choice.DisplayLabel}.";
+            sessionState.ActiveLevelUpAgentId = string.Empty;
+
+            if (TryRollPendingChoices(sessionState, null))
+            {
+                BoardAgentState nextAgentState = sessionState.GetActiveLevelUpAgentState();
+                string nextAgentLabel = nextAgentState != null ? nextAgentState.DisplayName : "another AI";
+                message = BoardGameStatusMessageUtility.Agent(
+                    activeAgentState,
+                    $"Applied {choice.DisplayLabel}. {nextAgentLabel} now has a pending upgrade");
+                sessionState.StatusMessage = message;
+                return true;
+            }
+
+            message = BoardGameStatusMessageUtility.Agent(activeAgentState, $"Applied {choice.DisplayLabel}");
             sessionState.StatusMessage = message;
             return true;
         }
 
-        private BoardExperienceGrantResult GrantExperience(BoardGameSessionState sessionState, int experienceValue)
+        private BoardExperienceGrantResult GrantExperience(
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            int experienceValue)
         {
             BoardExperienceGrantResult result = new BoardExperienceGrantResult(experienceValue);
 
-            if (sessionState == null || experienceValue <= 0)
+            if (sessionState == null || agentState == null || experienceValue <= 0)
             {
                 return result;
             }
 
-            BoardAgentState agentState = sessionState.AgentState;
             agentState.CurrentExperience += experienceValue;
 
             while (agentState.CurrentExperience >= agentState.RequiredExperienceToNextLevel &&
@@ -157,30 +183,42 @@ namespace BoardGame.Runtime.Services
                 agentState.CurrentExperience -= agentState.RequiredExperienceToNextLevel;
                 agentState.Level += 1;
                 agentState.RequiredExperienceToNextLevel += _ruleSet.ProgressionRules.RequiredExperienceGrowthPerLevel;
-                sessionState.PendingLevelUpCount += 1;
+                agentState.PendingLevelUpCount += 1;
                 result.LevelsGained += 1;
             }
 
-            if (sessionState.PendingLevelUpCount > 0 && !sessionState.IsAwaitingLevelUpChoice)
+            if (agentState.PendingLevelUpCount > 0 && !sessionState.IsAwaitingLevelUpChoice)
             {
-                result.TriggeredLevelUpChoice = TryRollPendingChoices(sessionState);
+                result.TriggeredLevelUpChoice = TryRollPendingChoices(sessionState, agentState);
             }
 
             return result;
         }
 
-        private bool TryRollPendingChoices(BoardGameSessionState sessionState)
+        private bool TryRollPendingChoices(BoardGameSessionState sessionState, BoardAgentState preferredAgentState)
         {
             sessionState.PendingLevelUpChoices.Clear();
             List<BoardLevelUpBuffDefinition> buffDefinitions = _ruleSet.ProgressionRules.BuffDefinitions;
+            BoardAgentState agentState = ResolvePendingLevelUpAgent(sessionState, preferredAgentState);
+
+            if (agentState == null)
+            {
+                sessionState.ActiveLevelUpAgentId = string.Empty;
+                return false;
+            }
 
             if (buffDefinitions == null || buffDefinitions.Count == 0)
             {
-                sessionState.IsAwaitingLevelUpChoice = false;
-                sessionState.PendingLevelUpCount = 0;
-                sessionState.StatusMessage = "Level up was reached, but no upgrade choices are configured";
+                agentState.PendingLevelUpCount = 0;
+                sessionState.ActiveLevelUpAgentId = string.Empty;
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(
+                    agentState,
+                    "Level up was reached, but no upgrade choices are configured");
                 return false;
             }
+
+            sessionState.ActiveLevelUpAgentId = agentState.AgentId;
+            sessionState.FocusedAgentId = agentState.AgentId;
 
             List<BoardLevelUpBuffDefinition> remainingDefinitions = new List<BoardLevelUpBuffDefinition>(buffDefinitions);
 
@@ -202,8 +240,34 @@ namespace BoardGame.Runtime.Services
                 sessionState.PendingLevelUpChoices.Add(new BoardLevelUpChoice(pickedDefinition.BuffType, rolledValue));
             }
 
-            sessionState.IsAwaitingLevelUpChoice = sessionState.PendingLevelUpChoices.Count > 0;
-            return sessionState.IsAwaitingLevelUpChoice;
+            return sessionState.PendingLevelUpChoices.Count > 0;
+        }
+
+        /// <summary>
+        /// 优先激活本次刚升级的 Agent
+        /// 若它没有待处理升级，则顺序寻找下一个待处理 Agent
+        /// </summary>
+        private static BoardAgentState ResolvePendingLevelUpAgent(
+            BoardGameSessionState sessionState,
+            BoardAgentState preferredAgentState)
+        {
+            if (preferredAgentState != null && preferredAgentState.PendingLevelUpCount > 0)
+            {
+                return preferredAgentState;
+            }
+
+            foreach (BoardAgentState agentState in sessionState.AgentStates)
+            {
+                if (agentState != null &&
+                    agentState.IsAlive &&
+                    !agentState.HasExtracted &&
+                    agentState.PendingLevelUpCount > 0)
+                {
+                    return agentState;
+                }
+            }
+
+            return null;
         }
 
         private static void ApplyChoiceToAgent(BoardAgentState agentState, BoardLevelUpChoice choice)

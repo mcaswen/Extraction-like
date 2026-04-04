@@ -43,44 +43,51 @@ namespace BoardGame.Runtime.Services
 
         /// <summary>
         /// 推进一次状态机
-        /// 每帧只更新当前动作，对局结束后不再推进
+        /// 每帧只更新单个 Agent 的当前动作，对局结束后不再推进
         /// </summary>
-        public void Tick(BoardGameSessionState sessionState, IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById, float deltaTime)
+        public void Tick(
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
+            float deltaTime)
         {
-            if (sessionState.Outcome != BoardSessionOutcome.None)
+            if (sessionState.Outcome != BoardSessionOutcome.None || agentState == null || agentState.HasExtracted)
             {
                 return;
             }
 
-            BoardAgentState agentState = sessionState.AgentState;
-            sessionState.ElapsedSeconds += deltaTime;
+            if (agentState.IsDownedPermanently)
+            {
+                return;
+            }
+
             agentState.AutonomousDecisionElapsedSeconds += deltaTime;
 
             if (!agentState.IsAlive)
             {
-                FailSession(sessionState, "AI HP reached zero, run failed");
+                MarkAgentDowned(sessionState, agentState);
                 return;
             }
 
             switch (agentState.CurrentActionType)
             {
                 case BoardActionType.Idle:
-                    _navigationService.TickIdle(sessionState, nodeStatesById);
+                    _navigationService.TickIdle(sessionState, agentState, nodeStatesById);
                     break;
                 case BoardActionType.Moving:
-                    _navigationService.TickMoving(sessionState, nodeStatesById, deltaTime);
+                    _navigationService.TickMoving(sessionState, agentState, nodeStatesById, deltaTime);
                     break;
                 case BoardActionType.Searching:
                 case BoardActionType.FightingEnemy:
                 case BoardActionType.FightingBoss:
                 case BoardActionType.Extracting:
-                    _nodeActionService.TickCurrentNodeAction(sessionState, nodeStatesById, deltaTime);
+                    _nodeActionService.TickCurrentNodeAction(sessionState, agentState, nodeStatesById, deltaTime);
                     break;
             }
 
             if (!agentState.IsAlive)
             {
-                FailSession(sessionState, "AI HP reached zero, run failed");
+                MarkAgentDowned(sessionState, agentState);
             }
         }
 
@@ -90,22 +97,61 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public bool TryRedirect(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             string targetNodeId,
             out string message)
         {
-            return _navigationService.TryRedirect(sessionState, nodeStatesById, targetNodeId, out message);
+            return _navigationService.TryRedirect(sessionState, agentState, nodeStatesById, targetNodeId, out message);
         }
 
         /// <summary>
-        /// 统一设置失败结果
+        /// 统一处理单个 Agent 的倒地收口
+        /// 所有 Agent 都倒地后才会判定整局失败
         /// </summary>
-        private static void FailSession(BoardGameSessionState sessionState, string message)
+        private static void MarkAgentDowned(BoardGameSessionState sessionState, BoardAgentState agentState)
         {
-            sessionState.Outcome = BoardSessionOutcome.Failure;
-            sessionState.AgentState.CurrentActionType = BoardActionType.Downed;
-            sessionState.AgentState.CurrentActionProgress = 0f;
-            sessionState.StatusMessage = message;
+            agentState.IsDownedPermanently = true;
+            agentState.CurrentActionType = BoardActionType.Downed;
+            agentState.CurrentActionProgress = 0f;
+            agentState.CurrentActionDuration = 1f;
+            agentState.CurrentActionAccumulatorSeconds = 0f;
+            agentState.ExtractProgressSeconds = 0f;
+            agentState.PendingLevelUpCount = 0;
+            agentState.CombatJoinStepIndex = -1;
+
+            if (sessionState.ActiveInteractionAgentId == agentState.AgentId)
+            {
+                sessionState.ActiveInteractionAgentId = string.Empty;
+                sessionState.ActiveLootNodeId = string.Empty;
+                sessionState.IsLootInteractionOpen = false;
+            }
+
+            if (sessionState.ActiveLevelUpAgentId == agentState.AgentId)
+            {
+                sessionState.ActiveLevelUpAgentId = string.Empty;
+                sessionState.PendingLevelUpChoices.Clear();
+            }
+
+            bool hasLivingAgent = false;
+
+            foreach (BoardAgentState otherAgentState in sessionState.AgentStates)
+            {
+                if (otherAgentState != null && otherAgentState.IsAlive)
+                {
+                    hasLivingAgent = true;
+                    break;
+                }
+            }
+
+            if (!hasLivingAgent)
+            {
+                sessionState.Outcome = BoardSessionOutcome.Failure;
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.System("All AI HP reached zero, run failed");
+                return;
+            }
+
+            sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(agentState, "Has been downed");
         }
     }
 }

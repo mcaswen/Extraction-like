@@ -14,9 +14,22 @@ namespace BoardGame.Runtime.Services
         BoardNodeType SupportedNodeType { get; }
         BoardActionType SupportedActionType { get; }
 
-        bool TryBegin(BoardNodeActionHandlerContext context, BoardGameSessionState sessionState, BoardNodeRuntimeState nodeState);
-        void Tick(BoardNodeActionHandlerContext context, BoardGameSessionState sessionState, BoardNodeRuntimeState nodeState, float deltaTime);
-        void FinalizeForRedirect(BoardNodeActionHandlerContext context, BoardGameSessionState sessionState, BoardNodeRuntimeState nodeState);
+        bool TryBegin(
+            BoardNodeActionHandlerContext context,
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            BoardNodeRuntimeState nodeState);
+        void Tick(
+            BoardNodeActionHandlerContext context,
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            BoardNodeRuntimeState nodeState,
+            float deltaTime);
+        void FinalizeForRedirect(
+            BoardNodeActionHandlerContext context,
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            BoardNodeRuntimeState nodeState);
     }
 
     /// <summary>
@@ -54,9 +67,22 @@ namespace BoardGame.Runtime.Services
         public static void FinishCurrentTarget(
             BoardNodeActionHandlerContext context,
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             string statusMessage)
         {
-            BoardAgentState agentState = sessionState.AgentState;
+            ResetCurrentTarget(context, agentState);
+
+            sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(agentState, statusMessage);
+        }
+
+        /// <summary>
+        /// 重置当前节点动作后的 Agent 状态
+        /// 远点改写下会保留剩余路径，其它情况回退到默认自主选点
+        /// </summary>
+        public static void ResetCurrentTarget(
+            BoardNodeActionHandlerContext context,
+            BoardAgentState agentState)
+        {
             bool shouldResumeRedirectPath =
                 agentState.IntentSource == BoardIntentSource.PlayerRedirect &&
                 agentState.RemainingPathNodeIds.Count > 0 &&
@@ -66,20 +92,18 @@ namespace BoardGame.Runtime.Services
             agentState.CurrentActionProgress = 0f;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionAccumulatorSeconds = 0f;
+            agentState.CombatJoinStepIndex = -1;
 
             // 玩家指定远点时，中途节点动作结束后要继续沿既定路径前进，而不是把最终目标直接清空
             if (shouldResumeRedirectPath)
             {
                 agentState.AutonomousDecisionElapsedSeconds = 0f;
-            }
-            else
-            {
-                agentState.CurrentTargetNodeId = string.Empty;
-                agentState.IntentSource = BoardIntentSource.Autonomous;
-                agentState.AutonomousDecisionElapsedSeconds = context.RuleSet.AutonomousRules.ReevaluateIntervalSeconds;
+                return;
             }
 
-            sessionState.StatusMessage = statusMessage;
+            agentState.CurrentTargetNodeId = string.Empty;
+            agentState.IntentSource = BoardIntentSource.Autonomous;
+            agentState.AutonomousDecisionElapsedSeconds = context.RuleSet.AutonomousRules.ReevaluateIntervalSeconds;
         }
     }
 }
