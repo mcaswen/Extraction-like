@@ -14,13 +14,8 @@ namespace BoardGame.Presentation
     /// </summary>
     public sealed class BoardGameLevelUpController : MonoBehaviour
     {
-        [SerializeField] private GameObject _panelRoot;
         [SerializeField] private TMP_Text _titleText;
-        [SerializeField] private TMP_Text _hintText;
         [SerializeField] private List<BoardGameLevelUpOptionView> _optionViews = new List<BoardGameLevelUpOptionView>();
-        [SerializeField] private Sprite _attackIconSprite;
-        [SerializeField] private Sprite _defenseIconSprite;
-        [SerializeField] private Sprite _healthIconSprite;
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameProgressionController _progressionController;
@@ -79,12 +74,7 @@ namespace BoardGame.Presentation
 
             if (_titleText != null)
             {
-                _titleText.text = $"Level Up! Lv {sessionState.AgentState.Level}";
-            }
-
-            if (_hintText != null)
-            {
-                _hintText.text = "Choose 1 of 3 upgrades";
+                _titleText.text = $"升级 - Lv {sessionState.AgentState.Level}";
             }
 
             // UI 固定只有三个槽位，所以这里按索引把当前待选项逐个映射进去
@@ -105,10 +95,7 @@ namespace BoardGame.Presentation
                 int capturedIndex = index;
                 BoardLevelUpOptionPresentation optionPresentation = BuildOptionPresentation(choice);
                 _optionViews[index].Bind(
-                    optionPresentation.Title,
                     optionPresentation.Description,
-                    optionPresentation.IconText,
-                    optionPresentation.IconSprite,
                     optionPresentation.AccentColor,
                     () => _progressionController.TryApplyLevelUpChoice(capturedIndex));
             }
@@ -131,8 +118,7 @@ namespace BoardGame.Presentation
         /// <param name="isVisible"></param>
         private void SetVisible(bool isVisible)
         {
-            GameObject target = _panelRoot != null ? _panelRoot : gameObject;
-            target.SetActive(isVisible);
+            gameObject.SetActive(isVisible);
         }
 
         /// <summary>
@@ -140,14 +126,9 @@ namespace BoardGame.Presentation
         /// </summary>
         private void EnsureRuntimeUi()
         {
-            if (_panelRoot != null && _titleText != null && _hintText != null && _optionViews.Count > 0)
+            if (_titleText != null && _optionViews.Count > 0)
             {
                 return;
-            }
-
-            if (_panelRoot == null)
-            {
-                _panelRoot = gameObject;
             }
 
             RectTransform overlayRect = GetComponent<RectTransform>();
@@ -163,36 +144,27 @@ namespace BoardGame.Presentation
             overlayRect.offsetMax = Vector2.zero;
             overlayRect.pivot = new Vector2(0.5f, 0.5f);
 
-            Image overlayImage = _panelRoot.GetComponent<Image>();
+            Image overlayImage = GetComponent<Image>();
 
             if (overlayImage == null)
             {
-                overlayImage = _panelRoot.AddComponent<Image>();
+                overlayImage = gameObject.AddComponent<Image>();
             }
 
             overlayImage.color = new Color(0.05f, 0.07f, 0.09f, 0.82f);
             overlayImage.raycastTarget = true;
 
-            GameObject windowObject = CreatePanel("Window", _panelRoot.transform, new Vector2(780f, 560f));
+            GameObject windowObject = CreatePanel("Window", transform, new Vector2(760f, 420f));
             Image windowImage = windowObject.GetComponent<Image>();
             windowImage.color = new Color(0.11f, 0.14f, 0.18f, 0.96f);
 
             _titleText = CreateText(
                 "TitleText",
                 windowObject.transform,
-                new Vector2(0f, 216f),
-                new Vector2(660f, 52f),
-                44f,
+                new Vector2(0f, 152f),
+                new Vector2(620f, 48f),
+                42f,
                 FontStyles.Bold,
-                TextAlignmentOptions.Center);
-
-            _hintText = CreateText(
-                "HintText",
-                windowObject.transform,
-                new Vector2(0f, 166f),
-                new Vector2(660f, 34f),
-                24f,
-                FontStyles.Normal,
                 TextAlignmentOptions.Center);
 
             // 选项列表交给 LayoutGroup 自动排版，避免后续增删卡片时还要手调位置
@@ -207,12 +179,12 @@ namespace BoardGame.Presentation
             optionsRect.anchorMin = new Vector2(0.5f, 0.5f);
             optionsRect.anchorMax = new Vector2(0.5f, 0.5f);
             optionsRect.pivot = new Vector2(0.5f, 0.5f);
-            optionsRect.anchoredPosition = new Vector2(0f, -34f);
-            optionsRect.sizeDelta = new Vector2(700f, 360f);
+            optionsRect.anchoredPosition = new Vector2(0f, -18f);
+            optionsRect.sizeDelta = new Vector2(680f, 280f);
 
             VerticalLayoutGroup layoutGroup = optionsContainer.GetComponent<VerticalLayoutGroup>();
-            layoutGroup.spacing = 18f;
-            layoutGroup.childAlignment = TextAnchor.UpperCenter;
+            layoutGroup.spacing = 14f;
+            layoutGroup.childAlignment = TextAnchor.MiddleCenter;
             layoutGroup.childControlHeight = false;
             layoutGroup.childControlWidth = true;
             layoutGroup.childForceExpandHeight = false;
@@ -234,11 +206,11 @@ namespace BoardGame.Presentation
                 optionObject.transform.SetParent(optionsContainer.transform, false);
 
                 LayoutElement layoutElement = optionObject.GetComponent<LayoutElement>();
-                layoutElement.preferredHeight = 126f;
-                layoutElement.minHeight = 126f;
+                layoutElement.preferredHeight = 100f;
+                layoutElement.minHeight = 100f;
 
                 RectTransform optionRect = optionObject.GetComponent<RectTransform>();
-                optionRect.sizeDelta = new Vector2(700f, 126f);
+                optionRect.sizeDelta = new Vector2(680f, 100f);
                 _optionViews.Add(optionObject.GetComponent<BoardGameLevelUpOptionView>());
             }
         }
@@ -254,31 +226,19 @@ namespace BoardGame.Presentation
             {
                 case BoardLevelUpBuffType.AttackFlat:
                     return new BoardLevelUpOptionPresentation(
-                        "Sharpened Strikes",
-                        $"Attack +{choice.Value}. Deal more damage each combat tick.",
-                        "ATK",
-                        _attackIconSprite,
+                        $"攻击 +{choice.Value}",
                         new Color(0.86f, 0.33f, 0.27f, 1f));
                 case BoardLevelUpBuffType.DefenseFlat:
                     return new BoardLevelUpOptionPresentation(
-                        "Reinforced Armor",
-                        $"Defense +{choice.Value}. Reduce the damage taken every hit.",
-                        "DEF",
-                        _defenseIconSprite,
+                        $"防御 +{choice.Value}",
                         new Color(0.24f, 0.55f, 0.9f, 1f));
                 case BoardLevelUpBuffType.MaxHealthFlat:
                     return new BoardLevelUpOptionPresentation(
-                        "Vital Reserve",
-                        $"Max HP +{choice.Value}. Heal the same amount immediately.",
-                        "HP",
-                        _healthIconSprite,
+                        $"生命值 +{choice.Value}",
                         new Color(0.26f, 0.77f, 0.5f, 1f));
                 default:
                     return new BoardLevelUpOptionPresentation(
                         choice.DisplayLabel,
-                        "Apply an upgrade to the agent.",
-                        "UP",
-                        null,
                         new Color(0.9f, 0.82f, 0.32f, 1f));
             }
         }
@@ -335,24 +295,13 @@ namespace BoardGame.Presentation
 
     internal readonly struct BoardLevelUpOptionPresentation
     {
-        public BoardLevelUpOptionPresentation(
-            string title,
-            string description,
-            string iconText,
-            Sprite iconSprite,
-            Color accentColor)
+        public BoardLevelUpOptionPresentation(string description, Color accentColor)
         {
-            Title = title;
             Description = description;
-            IconText = iconText;
-            IconSprite = iconSprite;
             AccentColor = accentColor;
         }
 
-        public string Title { get; }
         public string Description { get; }
-        public string IconText { get; }
-        public Sprite IconSprite { get; }
         public Color AccentColor { get; }
     }
 }

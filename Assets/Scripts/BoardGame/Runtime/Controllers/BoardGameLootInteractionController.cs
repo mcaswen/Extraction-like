@@ -53,7 +53,9 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool CanOpenActiveLootNode()
         {
-            if (!_sessionState.IsAwaitingLootInteraction || _sessionState.IsLootInteractionOpen)
+            if (_sessionState.IsAwaitingLevelUpChoice ||
+                !_sessionState.IsAwaitingLootInteraction ||
+                _sessionState.IsLootInteractionOpen)
             {
                 return false;
             }
@@ -68,6 +70,13 @@ namespace BoardGame.Runtime.Controllers
         public bool TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState)
         {
             nodeState = GetActiveLootNodeState();
+
+            if (_sessionState.IsAwaitingLevelUpChoice)
+            {
+                _sessionState.StatusMessage = "Choose a level-up upgrade before opening loot";
+                NotifyChanged();
+                return false;
+            }
 
             if (!_bagLayoutSettings.EnableBagSystem || nodeState == null || !CanOpenActiveLootNode())
             {
