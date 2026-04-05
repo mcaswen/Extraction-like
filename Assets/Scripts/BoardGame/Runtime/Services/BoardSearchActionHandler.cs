@@ -39,22 +39,35 @@ namespace BoardGame.Runtime.Services
                     return true;
                 }
 
-                sessionState.StatusMessage = $"Loot ready at {nodeState.NodeId}, press F to start searching{experienceResult.Summary}";
+                sessionState.StatusMessage = context.BagLayoutSettings.EnableBagSystem
+                    ? $"Loot ready at {nodeState.NodeId}, press F to start searching{experienceResult.Summary}"
+                    : $"Searching {nodeState.NodeId}{experienceResult.Summary}";
             }
             else
             {
-                sessionState.StatusMessage = nodeState.IsLootRevealComplete()
-                    ? $"Search complete at {nodeState.NodeId}, close the loot bag to continue"
-                    : $"Loot ready at {nodeState.NodeId}, press F to continue searching";
+                sessionState.StatusMessage = context.BagLayoutSettings.EnableBagSystem
+                    ? nodeState.IsLootRevealComplete()
+                        ? $"Search complete at {nodeState.NodeId}, close the loot bag to continue"
+                        : $"Loot ready at {nodeState.NodeId}, press F to continue searching"
+                    : nodeState.IsLootRevealComplete()
+                        ? $"Search complete at {nodeState.NodeId}, auto collecting loot"
+                        : $"Searching {nodeState.NodeId}";
             }
 
             nodeState.ResourceState = BoardResourceStateType.Searching;
-            nodeState.SyncSearchProgressFromLootReveal();
+
+            if (context.BagLayoutSettings.EnableBagSystem)
+            {
+                nodeState.SyncSearchProgressFromLootReveal();
+            }
+
             sessionState.ActiveLootNodeId = nodeState.NodeId;
             sessionState.IsLootInteractionOpen = false;
             agentState.CurrentActionType = BoardActionType.Searching;
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+            agentState.CurrentActionDuration = context.BagLayoutSettings.EnableBagSystem
+                ? 1f
+                : Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
+            agentState.CurrentActionProgress = GetSearchActionProgress(nodeState, context.BagLayoutSettings.EnableBagSystem);
             return true;
         }
 
@@ -66,9 +79,18 @@ namespace BoardGame.Runtime.Services
         {
             BoardAgentState agentState = sessionState.AgentState;
             nodeState.ResourceState = BoardResourceStateType.Searching;
-            nodeState.SyncSearchProgressFromLootReveal();
-            agentState.CurrentActionDuration = 1f;
-            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+
+            if (context.BagLayoutSettings.EnableBagSystem)
+            {
+                nodeState.SyncSearchProgressFromLootReveal();
+                agentState.CurrentActionDuration = 1f;
+            }
+            else
+            {
+                agentState.CurrentActionDuration = Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
+            }
+
+            agentState.CurrentActionProgress = GetSearchActionProgress(nodeState, context.BagLayoutSettings.EnableBagSystem);
         }
 
         public void FinalizeForRedirect(
@@ -79,6 +101,18 @@ namespace BoardGame.Runtime.Services
             nodeState.ResourceState = nodeState.SearchProgressSeconds > 0f
                 ? BoardResourceStateType.PartiallySearched
                 : BoardResourceStateType.Unsearched;
+        }
+
+        private static float GetSearchActionProgress(BoardNodeRuntimeState nodeState, bool useLootRevealProgress)
+        {
+            if (useLootRevealProgress)
+            {
+                return nodeState.GetLootRevealProgress01();
+            }
+
+            return nodeState.SearchRequiredSeconds <= Mathf.Epsilon
+                ? 1f
+                : nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
         }
     }
 }

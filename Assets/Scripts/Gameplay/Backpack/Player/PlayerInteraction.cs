@@ -32,6 +32,15 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
+        {
+            if (FloatingPromptUI != null)
+            {
+                FloatingPromptUI.gameObject.SetActive(false);
+            }
+            return;
+        }
+
         ScanForInteractables();
         UpdateFloatingUI();
         HandleInteractionInput();
@@ -82,7 +91,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        bool inventoryOpen = GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen;
+        bool inventoryOpen = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen;
         if (_closestInteractable == null || _closestTransform == null || inventoryOpen)
         {
             FloatingPromptUI.gameObject.SetActive(false);
@@ -144,7 +153,7 @@ public class PlayerInteraction : MonoBehaviour
             return string.Empty;
         }
 
-        GameUIController gameUiController = GameUIController.Instance;
+        InventoryScreenController gameUiController = InventoryScreenController.Instance;
         if (gameUiController == null)
         {
             return string.Empty;

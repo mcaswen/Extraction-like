@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 背包模块总控制器
 /// 负责背包开关、容器打开、快捷转移和拾取路由
 /// </summary>
-public class GameUIController : MonoBehaviour
+public class InventoryScreenController : MonoBehaviour
 {
-    public static GameUIController Instance { get; private set; }
+    public static InventoryScreenController Instance { get; private set; }
 
     public EquipmentSlotUI RigSlot;
     public EquipmentSlotUI BackpackSlot;
@@ -20,20 +22,30 @@ public class GameUIController : MonoBehaviour
     public InventoryUIController BackpackGrid;
     public InventoryUIController LootChestGrid;
 
-    public LootBoxEntity CurrentLootBox { get; private set; }
+    private InventoryScreenSessionContext _activeSessionContext;
+    private bool _customPlayerInventoryUiApplied;
+    private bool _rigSlotWasActive;
+    private bool _backpackSlotWasActive;
+    private bool _tacticalRigGridWasActive;
+    private bool _backpackGridWasActive;
+
+    public InventoryScreenSessionContext ActiveSessionContext => _activeSessionContext;
+    public bool HasActiveExternalContainer => _activeSessionContext != null;
+    public bool UsesCustomPlayerInventory => _activeSessionContext != null && _activeSessionContext.UseCustomPlayerInventory;
+    public InventoryUIController ActiveExternalGrid => HasActiveExternalContainer ? LootChestGrid : null;
+    public InventoryUIController ActivePlayerGrid => UsesCustomPlayerInventory ? PocketGrid : null;
 
     private void Awake()
     {
         Instance = this;
+        InitializeRuntimeScreen();
+    }
 
-        if (InventoryPanel != null)
+    private void OnDestroy()
+    {
+        if (Instance == this)
         {
-            InventoryPanel.SetActive(false);
-        }
-
-        if (LootChestGrid != null)
-        {
-            LootChestGrid.gameObject.SetActive(false);
+            Instance = null;
         }
     }
 
@@ -51,6 +63,25 @@ public class GameUIController : MonoBehaviour
     }
 
     /// <summary>
+    /// 供运行时补建界面在完成引用装配后调用，统一同步初始显隐状态
+    /// </summary>
+    public void InitializeRuntimeScreen()
+    {
+        if (InventoryPanel != null)
+        {
+            InventoryPanel.SetActive(false);
+        }
+
+        if (LootChestGrid != null)
+        {
+            LootChestGrid.gameObject.SetActive(false);
+        }
+
+        RestoreStandardPlayerInventoryUiState();
+        RefreshCharacterContainerState(false);
+    }
+
+    /// <summary>
     /// 打开一个场景容器
     /// </summary>
     /// <param name="lootBox">要打开的场景容器实体</param>
@@ -61,25 +92,38 @@ public class GameUIController : MonoBehaviour
             return;
         }
 
-        CurrentLootBox = lootBox;
-        CurrentLootBox.PrecalculateLootIfNeeded();
-        LootChestGrid.gameObject.SetActive(true);
-        LootChestGrid.RebuildGridUI(
-            lootBox.ContainerColumns,
-            lootBox.ContainerRows,
-            lootBox.GetBlockedCells());
-        LootChestGrid.LoadFromRuntimeState(
-            CloneSaveDataList(lootBox.GetSavedItems()),
-            CloneCellStateList(lootBox.GetSavedCellStates()));
-        LootChestGrid.transform.SetAsLastSibling();
+        InventoryScreenSessionContext sessionContext = lootBox.CreateInventorySessionContext();
+        OpenInventorySession(sessionContext);
+    }
 
-        if (!IsInventoryOpen)
+    /// <summary>
+    /// 打开一轮背包会话，可选择复用角色原生背包或临时接管为自定义玩家格子
+    /// </summary>
+    public void OpenInventorySession(InventoryScreenSessionContext sessionContext)
+    {
+        if (sessionContext == null || LootChestGrid == null)
         {
-            ToggleInventory();
+            return;
+        }
+
+        bool wasInventoryOpen = IsInventoryOpen;
+
+        if (_activeSessionContext != null)
+        {
+            CloseActiveSessionIfNeeded();
+        }
+
+        sessionContext.BeforeOpen?.Invoke();
+        _activeSessionContext = sessionContext;
+        PrepareSessionForDisplay(sessionContext);
+
+        if (!wasInventoryOpen)
+        {
+            OpenInventory();
         }
         else
         {
-            RefreshCharacterContainerState(true);
+            RefreshVisibleStateForCurrentContext();
         }
     }
 
@@ -88,16 +132,50 @@ public class GameUIController : MonoBehaviour
     /// </summary>
     public void ToggleInventory()
     {
-        IsInventoryOpen = !IsInventoryOpen;
-
         if (IsInventoryOpen)
         {
-            OpenInventoryInternal();
+            CloseInventory();
         }
         else
         {
-            CloseInventoryInternal();
+            OpenInventory();
         }
+    }
+
+    /// <summary>
+    /// 显式打开背包界面
+    /// </summary>
+    public void OpenInventory()
+    {
+        if (IsInventoryOpen)
+        {
+            return;
+        }
+
+        IsInventoryOpen = true;
+        OpenInventoryInternal();
+    }
+
+    /// <summary>
+    /// 显式关闭背包界面
+    /// </summary>
+    public void CloseInventory()
+    {
+        if (!IsInventoryOpen)
+        {
+            return;
+        }
+
+        IsInventoryOpen = false;
+        CloseInventoryInternal();
+    }
+
+    /// <summary>
+    /// 判断当前会话是否仍然是指定引用
+    /// </summary>
+    public bool IsSessionContextActive(InventoryScreenSessionContext sessionContext)
+    {
+        return sessionContext != null && ReferenceEquals(_activeSessionContext, sessionContext);
     }
 
     /// <summary>
@@ -125,10 +203,18 @@ public class GameUIController : MonoBehaviour
             return false;
         }
 
-        RefreshCharacterContainerState(IsInventoryOpen);
+        if (!UsesCustomPlayerInventory)
+        {
+            RefreshCharacterContainerState(IsInventoryOpen);
+        }
 
         if (sourceGrid == LootChestGrid)
         {
+            if (UsesCustomPlayerInventory)
+            {
+                return TryResolveAvailableSpace(PocketGrid, itemView, out targetGrid, out position, out needsRotation);
+            }
+
             if (TryResolveAvailableSpace(BackpackSlot, BackpackGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
             if (TryResolveAvailableSpace(RigSlot, TacticalRigGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
             if (TryResolveAvailableSpace(PocketGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
@@ -137,9 +223,14 @@ public class GameUIController : MonoBehaviour
 
         if (sourceGrid == PocketGrid || sourceGrid == TacticalRigGrid || sourceGrid == BackpackGrid)
         {
-            if (CurrentLootBox != null)
+            if (HasActiveExternalContainer)
             {
                 return TryResolveAvailableSpace(LootChestGrid, itemView, out targetGrid, out position, out needsRotation);
+            }
+
+            if (UsesCustomPlayerInventory)
+            {
+                return false;
             }
 
             if (sourceGrid != BackpackGrid && TryResolveAvailableSpace(BackpackSlot, BackpackGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
@@ -211,6 +302,7 @@ public class GameUIController : MonoBehaviour
                 backpackRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -225,6 +317,7 @@ public class GameUIController : MonoBehaviour
                 rigRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -239,6 +332,7 @@ public class GameUIController : MonoBehaviour
                 pocketRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -320,7 +414,7 @@ public class GameUIController : MonoBehaviour
             InventoryPanel.SetActive(true);
         }
 
-        RefreshCharacterContainerState(true);
+        RefreshVisibleStateForCurrentContext();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -335,8 +429,8 @@ public class GameUIController : MonoBehaviour
             DraggableItemUI.CurrentlyDraggedItem.ForceEndDrag();
         }
 
+        CloseActiveSessionIfNeeded();
         RefreshCharacterContainerState(false);
-        CloseLootBoxIfNeeded();
 
         if (InventoryPanel != null)
         {
@@ -347,20 +441,184 @@ public class GameUIController : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // 若当前正打开场景容器，则在关闭面板前把运行时内容写回实体
-    private void CloseLootBoxIfNeeded()
+    // 关闭当前会话，并把左右容器的运行时结果统一交给会话回调处理
+    private void CloseActiveSessionIfNeeded()
     {
-        if (CurrentLootBox == null || LootChestGrid == null)
+        InventoryScreenSessionContext sessionContext = _activeSessionContext;
+
+        if (LootChestGrid != null)
+        {
+            InventoryScreenSessionResult sessionResult = BuildSessionResult(sessionContext);
+
+            LootChestGrid.ClearUI();
+            LootChestGrid.gameObject.SetActive(false);
+
+            if (sessionContext != null && sessionContext.UseCustomPlayerInventory && PocketGrid != null)
+            {
+                PocketGrid.ClearUI();
+            }
+
+            _activeSessionContext = null;
+            RestoreStandardPlayerInventoryUiState();
+            sessionContext?.OnClose?.Invoke(sessionResult);
+        }
+        else
+        {
+            _activeSessionContext = null;
+            RestoreStandardPlayerInventoryUiState();
+        }
+    }
+
+    // 根据当前会话构建关闭时要导出的左右容器快照
+    private InventoryScreenSessionResult BuildSessionResult(InventoryScreenSessionContext sessionContext)
+    {
+        InventoryScreenSessionResult result = new InventoryScreenSessionResult();
+
+        if (sessionContext != null && sessionContext.UseCustomPlayerInventory && PocketGrid != null)
+        {
+            result.PlayerItems = CloneSaveDataList(PocketGrid.ExtractSaveData());
+            result.PlayerCellStates = CloneCellStateList(PocketGrid.ExtractCellStateData());
+        }
+
+        if (sessionContext != null && LootChestGrid != null)
+        {
+            result.ExternalItems = CloneSaveDataList(LootChestGrid.ExtractSaveData());
+            result.ExternalCellStates = CloneCellStateList(LootChestGrid.ExtractCellStateData());
+        }
+
+        return result;
+    }
+
+    // 把当前会话的数据投影到界面中的玩家格子和外部容器格子
+    private void PrepareSessionForDisplay(InventoryScreenSessionContext sessionContext)
+    {
+        if (sessionContext == null)
         {
             return;
         }
 
-        CurrentLootBox.SaveRuntimeState(
-            LootChestGrid.ExtractSaveData(),
-            LootChestGrid.ExtractCellStateData());
-        LootChestGrid.ClearUI();
-        LootChestGrid.gameObject.SetActive(false);
-        CurrentLootBox = null;
+        if (sessionContext.UseCustomPlayerInventory)
+        {
+            ApplyCustomPlayerInventoryUiState();
+
+            if (PocketGrid != null)
+            {
+                PocketGrid.RebuildGridUI(
+                    Mathf.Max(1, sessionContext.PlayerColumns),
+                    Mathf.Max(1, sessionContext.PlayerRows),
+                    new List<Vector2Int>(sessionContext.PlayerBlockedCells ?? new List<Vector2Int>()));
+                PocketGrid.LoadFromRuntimeState(
+                    CloneSaveDataList(sessionContext.PlayerItems),
+                    CloneCellStateList(sessionContext.PlayerCellStates));
+            }
+        }
+        else
+        {
+            RestoreStandardPlayerInventoryUiState();
+        }
+
+        if (LootChestGrid != null)
+        {
+            LootChestGrid.RebuildGridUI(
+                Mathf.Max(1, sessionContext.ExternalColumns),
+                Mathf.Max(1, sessionContext.ExternalRows),
+                new List<Vector2Int>(sessionContext.ExternalBlockedCells ?? new List<Vector2Int>()));
+            LootChestGrid.LoadFromRuntimeState(
+                CloneSaveDataList(sessionContext.ExternalItems),
+                CloneCellStateList(sessionContext.ExternalCellStates));
+            LootChestGrid.transform.SetAsLastSibling();
+        }
+    }
+
+    // 根据当前会话模式刷新界面显隐：普通模式展示角色装备联动格，自定义模式只保留玩家格子和外部容器
+    private void RefreshVisibleStateForCurrentContext()
+    {
+        if (UsesCustomPlayerInventory)
+        {
+            ApplyCustomPlayerInventoryUiState();
+
+            if (PocketGrid != null)
+            {
+                PocketGrid.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            RestoreStandardPlayerInventoryUiState();
+            RefreshCharacterContainerState(true);
+        }
+
+        if (LootChestGrid != null)
+        {
+            LootChestGrid.gameObject.SetActive(HasActiveExternalContainer);
+        }
+    }
+
+    // 自定义会话期间隐藏主玩法专属的装备槽和联动格，保留一个扁平玩家格子即可
+    private void ApplyCustomPlayerInventoryUiState()
+    {
+        if (_customPlayerInventoryUiApplied)
+        {
+            return;
+        }
+
+        _rigSlotWasActive = RigSlot != null && RigSlot.gameObject.activeSelf;
+        _backpackSlotWasActive = BackpackSlot != null && BackpackSlot.gameObject.activeSelf;
+        _tacticalRigGridWasActive = TacticalRigGrid != null && TacticalRigGrid.gameObject.activeSelf;
+        _backpackGridWasActive = BackpackGrid != null && BackpackGrid.gameObject.activeSelf;
+
+        if (RigSlot != null)
+        {
+            RigSlot.gameObject.SetActive(false);
+        }
+
+        if (BackpackSlot != null)
+        {
+            BackpackSlot.gameObject.SetActive(false);
+        }
+
+        if (TacticalRigGrid != null)
+        {
+            TacticalRigGrid.gameObject.SetActive(false);
+        }
+
+        if (BackpackGrid != null)
+        {
+            BackpackGrid.gameObject.SetActive(false);
+        }
+
+        _customPlayerInventoryUiApplied = true;
+    }
+
+    // 退出自定义会话后恢复主玩法原本的装备槽与联动格显隐
+    private void RestoreStandardPlayerInventoryUiState()
+    {
+        if (!_customPlayerInventoryUiApplied)
+        {
+            return;
+        }
+
+        if (RigSlot != null)
+        {
+            RigSlot.gameObject.SetActive(_rigSlotWasActive);
+        }
+
+        if (BackpackSlot != null)
+        {
+            BackpackSlot.gameObject.SetActive(_backpackSlotWasActive);
+        }
+
+        if (TacticalRigGrid != null)
+        {
+            TacticalRigGrid.gameObject.SetActive(_tacticalRigGridWasActive);
+        }
+
+        if (BackpackGrid != null)
+        {
+            BackpackGrid.gameObject.SetActive(_backpackGridWasActive);
+        }
+
+        _customPlayerInventoryUiApplied = false;
     }
 
     // 只有对应装备槽已装备时，才允许把物品转入它关联的内部网格

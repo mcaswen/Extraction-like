@@ -1,0 +1,198 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a10cec1700c939a47a902aeb67c02af3, type: 3}
+  m_Name: RaidMvpPopulationProfile
+  m_EditorClassIdentifier: 
+  PlayerPrefab: {fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d,
+    type: 3}
+  ClearPreviousGeneratedRoot: 1
+  GeneratedRootName: Generated_RaidMvp
+  UseFixedSeed: 1
+  FixedSeed: 20260405
+  GroundMask:
+    serializedVersion: 2
+    m_Bits: 1
+  GroundProbeHeight: 40
+  SpawnHeightOffset: 0.05
+  DefaultEnemySpacing: 3
+  DefaultChestSpacing: 2.4
+  AutoCreateExtractionPointForExtractionRegion: 1
+  ExtractionDurationSeconds: 4
+  ExtractionTriggerSize: {x: 4.5, y: 2.4, z: 4.5}
+  DensityRules:
+  - Density: 0
+    EnemyCountRange: {x: 0, y: 0}
+    ChestCountRange: {x: 0, y: 0}
+  - Density: 1
+    EnemyCountRange: {x: 1, y: 2}
+    ChestCountRange: {x: 1, y: 2}
+  - Density: 2
+    EnemyCountRange: {x: 2, y: 4}
+    ChestCountRange: {x: 2, y: 3}
+  - Density: 3
+    EnemyCountRange: {x: 4, y: 6}
+    ChestCountRange: {x: 3, y: 5}
+  - Density: 4
+    EnemyCountRange: {x: 1, y: 2}
+    ChestCountRange: {x: 1, y: 2}
+  RegionPools:
+  - Purpose: 1
+    EnemyPrefabs:
+    - Label: "\u73B0\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 6894189765784444060, guid: 9cb4030f7647c174f94c0b6d322155d5,
+        type: 3}
+      Weight: 3
+      MinSpacing: 3
+      RandomizeYaw: 0
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u53E4\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 2442436483139533611, guid: fb9ea2911091c9043a261f4feb461700,
+        type: 3}
+      Weight: 2
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    ChestPrefabs:
+    - Label: "\u666E\u901A\u8D44\u6E90\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+        type: 3}
+      Weight: 3
+      MinSpacing: 2.5
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u5C0F\u578B\u6742\u7269\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 869836fc599b95e4ea571cf59f81b7d4,
+        type: 3}
+      Weight: 2
+      MinSpacing: 2.5
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+  - Purpose: 2
+    EnemyPrefabs:
+    - Label: "\u73B0\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 6894189765784444060, guid: 9cb4030f7647c174f94c0b6d322155d5,
+        type: 3}
+      Weight: 3
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u53E4\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 2442436483139533611, guid: fb9ea2911091c9043a261f4feb461700,
+        type: 3}
+      Weight: 2
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u6F6E\u6C50\u7578\u53D8\u4F53"
+      Prefab: {fileID: 1259898022693126903, guid: bc3dbc01d8508334fb1851a55058382a,
+        type: 3}
+      Weight: 2
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    ChestPrefabs:
+    - Label: "\u666E\u901A\u8D44\u6E90\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+        type: 3}
+      Weight: 2
+      MinSpacing: 0
+      RandomizeYaw: 0
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u9AD8\u4EF7\u503C\u8D44\u6E90\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 4fdc67e023fb3fd418416d5c26e1ef5e,
+        type: 3}
+      Weight: 3
+      MinSpacing: 0
+      RandomizeYaw: 0
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+  - Purpose: 3
+    EnemyPrefabs:
+    - Label: "\u8FFD\u730E\u8005"
+      Prefab: {fileID: 4482442279097001780, guid: a75329ef5f0ca7a42a88b4f3db576821,
+        type: 3}
+      Weight: 1
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u951A\u70B9\u5B88\u536B"
+      Prefab: {fileID: 865869463984006118, guid: 9f887a3dd0771e6428206bc84b5273b6,
+        type: 3}
+      Weight: 1
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    ChestPrefabs:
+    - Label: "Boss \u5B9D\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 149833d93e6eeb54da08c33f964b2f0c,
+        type: 3}
+      Weight: 2
+      MinSpacing: 2.5
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u9AD8\u4EF7\u503C\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 4fdc67e023fb3fd418416d5c26e1ef5e,
+        type: 3}
+      Weight: 2
+      MinSpacing: 2.5
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+  - Purpose: 4
+    EnemyPrefabs:
+    - Label: "\u53E4\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 2442436483139533611, guid: fb9ea2911091c9043a261f4feb461700,
+        type: 3}
+      Weight: 1
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    - Label: "\u73B0\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 6894189765784444060, guid: 9cb4030f7647c174f94c0b6d322155d5,
+        type: 3}
+      Weight: 1
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    ChestPrefabs:
+    - Label: "\u5C0F\u578B\u8D44\u6E90\u7BB1"
+      Prefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+        type: 3}
+      Weight: 1
+      MinSpacing: 2
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+  - Purpose: 5
+    EnemyPrefabs:
+    - Label: "\u73B0\u4EE3\u6401\u6D45\u8005"
+      Prefab: {fileID: 6894189765784444060, guid: 9cb4030f7647c174f94c0b6d322155d5,
+        type: 3}
+      Weight: 2
+      MinSpacing: 3
+      RandomizeYaw: 1
+      PositionOffset: {x: 0, y: 0, z: 0}
+      RotationOffset: {x: 0, y: 0, z: 0}
+    ChestPrefabs: []

@@ -182,8 +182,18 @@ namespace BoardGame.Views
 
                     return $"Search {nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds:P0}";
                 case BoardNodeType.Enemy:
+                    if (ShouldShowLootProgress(nodeState))
+                    {
+                        return $"Search {nodeState.GetLootRevealProgressWithPartial01():P0}";
+                    }
+
                     return $"HP {nodeState.EnemyCurrentHealth}/{Mathf.Max(1, nodeState.EnemyMaxHealth)}";
                 case BoardNodeType.Boss:
+                    if (ShouldShowLootProgress(nodeState))
+                    {
+                        return $"Search {nodeState.GetLootRevealProgressWithPartial01():P0}";
+                    }
+
                     return $"HP {nodeState.BossCurrentHealth}/{Mathf.Max(1, nodeState.BossMaxHealth)}";
                 case BoardNodeType.Extract:
                     if (nodeState.ExtractState == BoardExtractStateType.Extracted)
@@ -214,10 +224,20 @@ namespace BoardGame.Views
                         ? 0f
                         : nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
                 case BoardNodeType.Enemy:
+                    if (ShouldShowLootProgress(nodeState))
+                    {
+                        return nodeState.GetLootRevealProgressWithPartial01();
+                    }
+
                     return nodeState.EnemyMaxHealth <= 0
                         ? 0f
                         : (float)nodeState.EnemyCurrentHealth / nodeState.EnemyMaxHealth;
                 case BoardNodeType.Boss:
+                    if (ShouldShowLootProgress(nodeState))
+                    {
+                        return nodeState.GetLootRevealProgressWithPartial01();
+                    }
+
                     return nodeState.BossMaxHealth <= 0
                         ? 0f
                         : (float)nodeState.BossCurrentHealth / nodeState.BossMaxHealth;
@@ -241,6 +261,11 @@ namespace BoardGame.Views
                     return SearchProgressColor;
                 case BoardNodeType.Enemy:
                 case BoardNodeType.Boss:
+                    if (ShouldShowLootProgress(nodeState))
+                    {
+                        return SearchProgressColor;
+                    }
+
                     return EnemyProgressColor;
                 case BoardNodeType.Extract:
                     return ExtractProgressColor;
@@ -253,6 +278,11 @@ namespace BoardGame.Views
         /// 自动创建节点高光外圈
         /// 当前蓝圈和金圈共用同一层外圈几何，不再区分里外圈
         /// </summary>
+        private static bool ShouldShowLootProgress(BoardNodeRuntimeState nodeState)
+        {
+            return nodeState.HasPendingLootContainer() && nodeState.HasRemainingLootItems();
+        }
+
         private void EnsureHalos()
         {
             if (_bodyRenderer == null)

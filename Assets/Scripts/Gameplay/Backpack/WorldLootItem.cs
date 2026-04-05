@@ -61,7 +61,7 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
     /// </summary>
     public void Interact()
     {
-        if (GameUIController.Instance == null || !GameUIController.Instance.TryStoreWorldItem(this))
+        if (InventoryScreenController.Instance == null || !InventoryScreenController.Instance.TryStoreWorldItem(this))
         {
             return;
         }
@@ -99,7 +99,7 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
             return;
         }
 
-        if (GameUIController.Instance == null || !GameUIController.Instance.TryEquipWorldContainer(this))
+        if (InventoryScreenController.Instance == null || !InventoryScreenController.Instance.TryEquipWorldContainer(this))
         {
             return;
         }

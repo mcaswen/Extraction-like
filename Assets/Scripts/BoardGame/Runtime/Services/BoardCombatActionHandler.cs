@@ -97,15 +97,22 @@ namespace BoardGame.Runtime.Services
                 }
 
                 context.LootResolutionService.PrepareNodeLootContainer(nodeState, generatedItems, context.BagLayoutSettings);
+                bool bagSystemEnabled = context.BagLayoutSettings.EnableBagSystem;
                 sessionState.ActiveLootNodeId = nodeState.NodeId;
                 sessionState.IsLootInteractionOpen = false;
                 agentState.CurrentActionType = BoardActionType.Searching;
                 agentState.CurrentActionDuration = 1f;
                 agentState.CurrentActionAccumulatorSeconds = 0f;
-                agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
-                sessionState.StatusMessage = _isBoss
-                    ? $"Boss defeated, press F to search the loot{experienceResult.Summary}{itemExperienceResult.Summary}"
-                    : $"Enemy cleared, press F to search the loot{experienceResult.Summary}{itemExperienceResult.Summary}";
+                agentState.CurrentActionProgress = bagSystemEnabled
+                    ? nodeState.GetLootRevealProgress01()
+                    : nodeState.GetLootRevealProgressWithPartial01();
+                sessionState.StatusMessage = bagSystemEnabled
+                    ? (_isBoss
+                        ? $"Boss defeated, press F to search the loot{experienceResult.Summary}{itemExperienceResult.Summary}"
+                        : $"Enemy cleared, press F to search the loot{experienceResult.Summary}{itemExperienceResult.Summary}")
+                    : (_isBoss
+                        ? $"Boss defeated, searching loot at {nodeState.NodeId}{experienceResult.Summary}{itemExperienceResult.Summary}"
+                        : $"Enemy cleared, searching loot at {nodeState.NodeId}{experienceResult.Summary}{itemExperienceResult.Summary}");
                 return;
             }
         }

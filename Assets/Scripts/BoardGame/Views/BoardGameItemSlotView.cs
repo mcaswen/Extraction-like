@@ -14,6 +14,19 @@ namespace BoardGame.Views
         [SerializeField] private TMP_Text _nameText;
         [SerializeField] private TMP_Text _countText;
 
+        private void Awake()
+        {
+            if (_nameText != null)
+            {
+                _nameText.raycastTarget = false;
+            }
+
+            if (_countText != null)
+            {
+                _countText.raycastTarget = false;
+            }
+        }
+
         /// <summary>
         /// 绑定槽位显示和点击事件
         /// </summary>

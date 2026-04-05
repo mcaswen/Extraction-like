@@ -97,12 +97,39 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// </summary>
     public void Interact()
     {
-        if (GameUIController.Instance == null || GameUIController.Instance.IsInventoryOpen)
+        if (InventoryScreenController.Instance == null || InventoryScreenController.Instance.IsInventoryOpen)
         {
             return;
         }
 
-        GameUIController.Instance.OpenLootBox(this);
+        InventoryScreenController.Instance.OpenLootBox(this);
+    }
+
+    /// <summary>
+    /// 构建一轮可交给共享背包界面的运行时会话
+    /// </summary>
+    public InventoryScreenSessionContext CreateInventorySessionContext()
+    {
+        return new InventoryScreenSessionContext
+        {
+            DisplayName = BoxName,
+            ExternalContainerName = BoxName,
+            ExternalColumns = ContainerColumns,
+            ExternalRows = ContainerRows,
+            ExternalBlockedCells = GetBlockedCells(),
+            ExternalItems = GetSavedItems(),
+            ExternalCellStates = GetSavedCellStates(),
+            BeforeOpen = PrecalculateLootIfNeeded,
+            OnClose = result =>
+            {
+                if (result == null)
+                {
+                    return;
+                }
+
+                SaveRuntimeState(result.ExternalItems, result.ExternalCellStates);
+            }
+        };
     }
 
     /// <summary>

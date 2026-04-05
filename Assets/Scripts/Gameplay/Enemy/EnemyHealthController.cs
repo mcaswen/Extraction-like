@@ -39,12 +39,25 @@ public class EnemyHealthController : MonoBehaviour
 
         _currentHealth -= damageAmount;
         _currentHealth = Mathf.Clamp(_currentHealth, 0f, MaxHealth);
-
         UpdateHealthBar();
+
         if (_currentHealth <= 0f)
         {
             Die();
         }
+    }
+
+    /// <summary>
+    /// 获取当前血量比例。
+    /// </summary>
+    public float GetCurrentHealthRatio()
+    {
+        if (MaxHealth <= 0f)
+        {
+            return 0f;
+        }
+
+        return _currentHealth / MaxHealth;
     }
 
     private void UpdateHealthBar()
@@ -55,9 +68,6 @@ public class EnemyHealthController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 处理敌人死亡。
-    /// </summary>
     private void Die()
     {
         if (_hasDied)
@@ -66,14 +76,11 @@ public class EnemyHealthController : MonoBehaviour
         }
 
         _hasDied = true;
-        Debug.Log("敌人死亡。");
+        RaidFlowController.Instance?.NotifyEnemyKilled(gameObject.name);
         SpawnDeathLootContainer();
         Destroy(gameObject);
     }
 
-    /// <summary>
-    /// 在敌人死亡位置生成一个真实可交互的尸体盒子/宝箱。
-    /// </summary>
     private void SpawnDeathLootContainer()
     {
         if (!SpawnLootContainerOnDeath || DeathLootContainerPrefab == null)
@@ -98,10 +105,6 @@ public class EnemyHealthController : MonoBehaviour
         if (lootBox != null)
         {
             lootBox.PrecalculateLootIfNeeded();
-        }
-        else
-        {
-            Debug.LogWarning($"[{name}] 死亡掉落预制体 {DeathLootContainerPrefab.name} 上没有找到 LootBoxEntity。");
         }
     }
 }

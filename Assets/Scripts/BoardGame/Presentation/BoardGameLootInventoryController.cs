@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using BoardGame.Runtime;
 using BoardGame.Runtime.Controllers;
 using BoardGame.Runtime.State;
@@ -110,10 +109,9 @@ namespace BoardGame.Presentation
             // overlay 和 EventSystem 都可能来自运行时补建，所以每次打开前都确保依赖齐全
             EnsureOverlay();
             EnsureEventSystem();
-
             _overlayRoot.SetActive(true);
             _overlayRoot.transform.SetAsLastSibling();
-            _isOpen = true;
+
             _itemInstancesByRuntimeId.Clear();
             _lootSequenceByRuntimeId.Clear();
             _revealedItemCount = nodeState.LootRevealedItemCount;
@@ -123,6 +121,7 @@ namespace BoardGame.Presentation
             BuildPlayerInventoryGrid();
             BuildLootInventoryGrid(nodeState);
             RefreshTexts(nodeState);
+            _isOpen = true;
         }
 
         /// <summary>
@@ -130,22 +129,21 @@ namespace BoardGame.Presentation
         /// </summary>
         private void CloseLootNode()
         {
-            if (!_isOpen || _lootInteractionController == null)
+            if (!_isOpen)
             {
                 return;
             }
 
-            if (DraggableItemUI.CurrentlyDraggedItem != null)
-            {
-                DraggableItemUI.CurrentlyDraggedItem.BounceBack();
-                DraggableItemUI.CurrentlyDraggedItem.ForceEndDrag();
-            }
-
-            // 关闭时从两个网格重新抽取结果，再统一交回 loot 模块做状态回写
             List<BoardItemInstance> playerItems = ExtractPlayerInventoryItems();
             List<BoardLootContainerItemState> remainingLootItems = ExtractRemainingLootItems();
-            _lootInteractionController.CloseActiveLootNode(remainingLootItems, playerItems, _revealedItemCount);
-            _overlayRoot.SetActive(false);
+
+            // 关闭时从两个网格重新抽取结果，再统一交回 loot 模块做状态回写
+            _lootInteractionController?.CloseActiveLootNode(remainingLootItems, playerItems, _revealedItemCount);
+            if (_overlayRoot != null)
+            {
+                _overlayRoot.SetActive(false);
+            }
+
             _isOpen = false;
         }
 
@@ -208,6 +206,11 @@ namespace BoardGame.Presentation
                     "Temporarily expanding the runtime grid to avoid dropping items.");
             }
 
+            if (_playerGrid == null)
+            {
+                return;
+            }
+
             AssignSequentialPositions(playerItems, columns);
             _playerGrid.RebuildGridUI(columns, rows, new List<Vector2Int>());
             _playerGrid.LoadFromRuntimeState(playerItems, new List<ContainerCellStateSaveData>());
@@ -241,6 +244,11 @@ namespace BoardGame.Presentation
                     itemState.RevealProgressSeconds));
             }
 
+            if (_lootGrid == null)
+            {
+                return;
+            }
+
             _lootGrid.RebuildGridUI(nodeState.LootContainerColumns, nodeState.LootContainerRows, new List<Vector2Int>());
             _lootGrid.LoadFromRuntimeState(lootItems, new List<ContainerCellStateSaveData>());
 
@@ -254,12 +262,17 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 从玩家网格和被拖进玩家侧的物品中抽回最终库存列表
         /// </summary>
-        private List<BoardItemInstance> ExtractPlayerInventoryItems()
+        private List<BoardItemInstance> ExtractPlayerInventoryItems(IEnumerable<ContainerItemSaveData> saveDataList = null)
         {
             List<BoardItemInstance> extractedItems = new List<BoardItemInstance>();
-            HashSet<string> collectedRuntimeIds = new HashSet<string>();
+            // Only items still placed in the player grid remain in the player's inventory.
 
-            foreach (ContainerItemSaveData saveData in _playerGrid.ExtractSaveData())
+            IEnumerable<ContainerItemSaveData> source = saveDataList ??
+                (_playerGrid != null
+                    ? _playerGrid.ExtractSaveData()
+                    : new List<ContainerItemSaveData>());
+
+            foreach (ContainerItemSaveData saveData in source)
             {
                 if (saveData == null || string.IsNullOrEmpty(saveData.RuntimeItemId))
                 {
@@ -269,26 +282,6 @@ namespace BoardGame.Presentation
                 if (_itemInstancesByRuntimeId.TryGetValue(saveData.RuntimeItemId, out BoardItemInstance itemInstance) && itemInstance != null)
                 {
                     extractedItems.Add(itemInstance);
-                    collectedRuntimeIds.Add(saveData.RuntimeItemId);
-                }
-            }
-
-            foreach (ContainerItemSaveData saveData in _lootGrid.ExtractSaveData())
-            {
-                if (saveData == null || string.IsNullOrEmpty(saveData.RuntimeItemId))
-                {
-                    continue;
-                }
-
-                if (_lootSequenceByRuntimeId.ContainsKey(saveData.RuntimeItemId) || collectedRuntimeIds.Contains(saveData.RuntimeItemId))
-                {
-                    continue;
-                }
-
-                if (_itemInstancesByRuntimeId.TryGetValue(saveData.RuntimeItemId, out BoardItemInstance itemInstance) && itemInstance != null)
-                {
-                    extractedItems.Add(itemInstance);
-                    collectedRuntimeIds.Add(saveData.RuntimeItemId);
                 }
             }
 
@@ -298,11 +291,17 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 从 loot 网格中抽回仍然属于节点的剩余物品，并恢复揭露顺序与进度
         /// </summary>
-        private List<BoardLootContainerItemState> ExtractRemainingLootItems()
+        private List<BoardLootContainerItemState> ExtractRemainingLootItems(IEnumerable<ContainerItemSaveData> saveDataList = null)
         {
             List<BoardLootContainerItemState> remainingItems = new List<BoardLootContainerItemState>();
+            int nextRevealSequence = GetNextRevealSequenceIndex();
 
-            foreach (ContainerItemSaveData saveData in _lootGrid.ExtractSaveData())
+            IEnumerable<ContainerItemSaveData> source = saveDataList ??
+                (_lootGrid != null
+                    ? _lootGrid.ExtractSaveData()
+                    : new List<ContainerItemSaveData>());
+
+            foreach (ContainerItemSaveData saveData in source)
             {
                 if (saveData == null || string.IsNullOrEmpty(saveData.RuntimeItemId))
                 {
@@ -310,11 +309,6 @@ namespace BoardGame.Presentation
                 }
 
                 // 只有原本就属于 loot 节点的物品，关闭时才写回节点剩余掉落
-                if (!_lootSequenceByRuntimeId.ContainsKey(saveData.RuntimeItemId))
-                {
-                    continue;
-                }
-
                 if (!_itemInstancesByRuntimeId.TryGetValue(saveData.RuntimeItemId, out BoardItemInstance itemInstance) || itemInstance == null)
                 {
                     continue;
@@ -322,10 +316,10 @@ namespace BoardGame.Presentation
 
                 int revealSequence = _lootSequenceByRuntimeId.TryGetValue(saveData.RuntimeItemId, out int sequenceIndex)
                     ? sequenceIndex
-                    : remainingItems.Count;
+                    : nextRevealSequence++;
                 float revealDuration = saveData.SearchDurationSeconds > 0f
                     ? saveData.SearchDurationSeconds
-                    : 0.45f;
+                    : 0.01f;
 
                 BoardLootContainerItemState itemState = new BoardLootContainerItemState(
                     itemInstance,
@@ -341,6 +335,21 @@ namespace BoardGame.Presentation
 
             remainingItems.Sort((left, right) => left.RevealSequenceIndex.CompareTo(right.RevealSequenceIndex));
             return remainingItems;
+        }
+
+        private int GetNextRevealSequenceIndex()
+        {
+            int nextSequence = 0;
+
+            foreach (int sequenceIndex in _lootSequenceByRuntimeId.Values)
+            {
+                if (sequenceIndex >= nextSequence)
+                {
+                    nextSequence = sequenceIndex + 1;
+                }
+            }
+
+            return nextSequence;
         }
 
         /// <summary>

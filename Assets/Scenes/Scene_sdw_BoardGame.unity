@@ -3221,6 +3221,12 @@ MonoBehaviour:
   _mapDefinition: {fileID: 11400000, guid: 41dd56a31050c8a47b40abf0de844203, type: 2}
   _ruleSet: {fileID: 11400000, guid: bfcbb4b09f59f8f409805808e0d4903f, type: 2}
   _lootTableSet: {fileID: 11400000, guid: 8124c909886fe114fbd01bf252248753, type: 2}
+  _bagLayoutSettings:
+    _enableBagSystem: 1
+    _playerInventoryColumns: 6
+    _playerInventoryRows: 4
+    _lootContainerRows: 3
+    _minimumLootContainerColumns: 3
   _mapRoot: {fileID: 248796599}
   _mapViewController: {fileID: 248796598}
   _nodeViewPrefab: {fileID: 4848305417641138124, guid: 82149f3bdcec5724ca642e48655817c3,
@@ -3232,6 +3238,7 @@ MonoBehaviour:
   _hudController: {fileID: 1071971259}
   _itemBarController: {fileID: 1933702292}
   _levelUpController: {fileID: 0}
+  _lootInventoryController: {fileID: 0}
   _selectionController: {fileID: 1990289277}
   _worldCamera: {fileID: 827533573}
 --- !u!4 &2126546671
