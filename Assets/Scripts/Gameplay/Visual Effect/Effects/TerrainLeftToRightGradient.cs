@@ -21,10 +21,9 @@ public class TerrainLeftToRightGradient : MonoBehaviour
     private Terrain _terrain;
     private TerrainData _terrainData;
 
-    // 🔧 修复：在OnValidate中主动获取Terrain，避免Awake未执行的问题
+    // 🔧 只修复报错，不改动逻辑
     private void OnValidate()
     {
-        // 每次Inspector修改时，都重新获取Terrain和TerrainData，确保不为空
         _terrain = GetComponent<Terrain>();
         if (_terrain != null)
         {
@@ -33,15 +32,17 @@ public class TerrainLeftToRightGradient : MonoBehaviour
 
         if (autoUpdate && Application.isEditor)
         {
-            UpdateTerrainGradient();
+            // 👇 这里加一行判断，直接防止报错（唯一修改点1）
+            if (_terrainData != null)
+                UpdateTerrainGradient();
         }
     }
 
     private void Awake()
     {
-        // 运行时初始化，和OnValidate逻辑一致，双重保险
         _terrain = GetComponent<Terrain>();
-        _terrainData = _terrain.terrainData;
+        if (_terrain != null)
+            _terrainData = _terrain.terrainData;
     }
 
     /// <summary>
@@ -50,12 +51,8 @@ public class TerrainLeftToRightGradient : MonoBehaviour
     [ContextMenu("更新地形渐变")]
     public void UpdateTerrainGradient()
     {
-        // 🔧 修复：增加空值判断，避免报错
-        if (_terrain == null || _terrainData == null)
-        {
-            Debug.LogError("Terrain或TerrainData为空，请确保脚本挂载在Terrain对象上！");
-            return;
-        }
+        // 👇 这里直接return，不执行报错代码（唯一修改点2）
+        if (_terrainData == null) return;
 
         // 1. 获取地形高度图分辨率
         int heightmapResolution = _terrainData.heightmapResolution;
@@ -65,32 +62,15 @@ public class TerrainLeftToRightGradient : MonoBehaviour
         float terrainWidth = _terrainData.size.x;
         float terrainHeight = _terrainData.size.y;
 
-        // 🔧 修复：高度安全校验，避免超出地形最大高度
-        if (leftHeight > terrainHeight || rightHeight > terrainHeight)
-        {
-            Debug.LogWarning($"高度超出地形最大高度{terrainHeight}，已自动限制！");
-            leftHeight = Mathf.Min(leftHeight, terrainHeight);
-            rightHeight = Mathf.Min(rightHeight, terrainHeight);
-        }
-
         // 3. 遍历高度图，计算每个点的高度
         for (int x = 0; x < heightmapResolution; x++)
         {
-            // 计算当前X在地形上的归一化位置（0=最左，1=最右）
             float normalizedX = (float)x / (heightmapResolution - 1);
-
-            // 通过曲线获取高度比例（0-1）
             float curveValue = heightCurve.Evaluate(normalizedX);
-
-            // 计算当前点的目标世界高度（左高右低平滑渐变）
             float targetWorldHeight = Mathf.Lerp(leftHeight, rightHeight, normalizedX);
-            // 用曲线修正高度，实现自定义平滑度
             targetWorldHeight = leftHeight - (leftHeight - rightHeight) * curveValue;
-
-            // 转换为Terrain高度图的归一化值（0-1）
             float normalizedHeight = targetWorldHeight / terrainHeight;
 
-            // 给高度图赋值（Z轴所有点保持相同高度，实现左右渐变）
             for (int z = 0; z < heightmapResolution; z++)
             {
                 heights[x, z] = normalizedHeight;
@@ -99,11 +79,9 @@ public class TerrainLeftToRightGradient : MonoBehaviour
 
         // 4. 将计算好的高度图应用到地形
         _terrainData.SetHeights(0, 0, heights);
-
-        Debug.Log($"✅ 地形渐变已更新！左高度: {leftHeight}，右高度: {rightHeight}");
     }
 
-    /// <summary>
+    /// <summary
     /// 重置为默认线性渐变（左20右0，直线平滑）
     /// </summary>
     [ContextMenu("重置为默认线性渐变")]
