@@ -22,11 +22,14 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _targetText;
         [SerializeField] private TMP_Text _pathText;
         [SerializeField] private TMP_Text _statusText;
+        [SerializeField] private TMP_Text _focusContextText;
+        [SerializeField] private TMP_Text _nearbyContextText;
         [SerializeField] private TMP_Text _redirectStateText;
         [SerializeField] private Image _actionProgressFillImage;
         [SerializeField] private Image _experienceProgressFillImage;
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameHudContextFormatter _contextFormatter;
 
         /// <summary>
         /// 绑定运行时只读查询控制器
@@ -34,6 +37,7 @@ namespace BoardGame.Presentation
         public void Bind(BoardGameRuntimeQueryController runtimeQueryController)
         {
             _runtimeQueryController = runtimeQueryController;
+            _contextFormatter = new BoardGameHudContextFormatter(runtimeQueryController);
 
             if (_runtimeQueryController.IsProgressionEnabled)
             {
@@ -44,6 +48,7 @@ namespace BoardGame.Presentation
                 SetProgressionWidgetsVisible(false);
             }
 
+            EnsureContextWidgets();
             _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
@@ -59,7 +64,15 @@ namespace BoardGame.Presentation
             }
 
             BoardGameSessionState sessionState = _runtimeQueryController.SessionState;
-            BoardAgentState agentState = sessionState.AgentState;
+            BoardAgentState agentState = _runtimeQueryController.GetFocusedAgentState();
+            int aliveAgentCount = _runtimeQueryController.GetAliveAgentCount();
+            int totalAgentCount = _runtimeQueryController.GetTotalAgentCount();
+
+            if (agentState == null)
+            {
+                return;
+            }
+
             BoardNodeRuntimeState targetNode = _runtimeQueryController.GetNodeState(agentState.CurrentTargetNodeId);
             bool progressionEnabled = _runtimeQueryController.IsProgressionEnabled;
 
@@ -70,7 +83,9 @@ namespace BoardGame.Presentation
 
             if (_levelText != null)
             {
-                _levelText.text = progressionEnabled ? $"Lv: {agentState.Level}" : string.Empty;
+                _levelText.text = progressionEnabled
+                    ? $"Focus: {agentState.DisplayName}  Lv: {agentState.Level}  Alive: {aliveAgentCount}/{totalAgentCount}"
+                    : $"Focus: {agentState.DisplayName}  Alive: {aliveAgentCount}/{totalAgentCount}";
             }
 
             if (_experienceText != null)
@@ -125,19 +140,22 @@ namespace BoardGame.Presentation
 
             if (_statusText != null)
             {
-                _statusText.text = sessionState.StatusMessage;
+                _statusText.text = _contextFormatter.BuildStatusText(sessionState);
+            }
+
+            if (_focusContextText != null)
+            {
+                _focusContextText.text = _contextFormatter.BuildFocusContextText(agentState);
+            }
+
+            if (_nearbyContextText != null)
+            {
+                _nearbyContextText.text = _contextFormatter.BuildNearbyContextText(agentState);
             }
 
             if (_redirectStateText != null)
             {
-                // 右下角提示优先反映当前是否被升级或 loot 交互锁住，避免玩家误判控制状态
-                _redirectStateText.text = _runtimeQueryController.IsAwaitingLevelUpChoice
-                    ? "Level Up: Press 1/2/3 or choose an upgrade"
-                    : (_runtimeQueryController.IsAwaitingLootInteraction
-                        ? (_runtimeQueryController.IsBagSystemEnabled
-                            ? "Loot: Press F to open or continue searching"
-                            : "Loot: Auto searching / auto collecting")
-                        : "Control: Hover and click a node to redirect");
+                _redirectStateText.text = _contextFormatter.BuildRedirectHint();
             }
 
             SetProgressionWidgetsVisible(progressionEnabled);
@@ -152,6 +170,44 @@ namespace BoardGame.Presentation
                 _experienceProgressFillImage.fillAmount = progressionEnabled && agentState.RequiredExperienceToNextLevel > 0
                     ? Mathf.Clamp01((float)agentState.CurrentExperience / agentState.RequiredExperienceToNextLevel)
                     : 0f;
+            }
+        }
+
+        /// <summary>
+        /// 在运行时补齐焦点 Agent 的局部信息文本
+        /// </summary>
+        private void EnsureContextWidgets()
+        {
+            if (_focusContextText != null && _nearbyContextText != null)
+            {
+                return;
+            }
+
+            TMP_Text templateText = _healthText != null ? _healthText : GetComponentInChildren<TMP_Text>();
+
+            if (templateText == null)
+            {
+                return;
+            }
+
+            if (_focusContextText == null)
+            {
+                _focusContextText = CreateRuntimeText(
+                    "T_FocusContext",
+                    new Vector2(-684.97906f, -32f),
+                    new Vector2(720f, 34f),
+                    templateText,
+                    26f);
+            }
+
+            if (_nearbyContextText == null)
+            {
+                _nearbyContextText = CreateRuntimeText(
+                    "T_NearbyContext",
+                    new Vector2(-684.97906f, -68f),
+                    new Vector2(900f, 72f),
+                    templateText,
+                    24f);
             }
         }
 

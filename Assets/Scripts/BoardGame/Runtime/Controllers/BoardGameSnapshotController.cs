@@ -12,17 +12,20 @@ namespace BoardGame.Runtime.Controllers
         private readonly SO_BoardGame_MapDefinition _mapDefinition;
         private readonly SO_BoardGame_RuleSet _ruleSet;
         private readonly SO_BoardGame_LootTableSet _lootTableSet;
+        private readonly SO_BoardGame_AgentRoster _agentRoster;
         private readonly BoardGameSessionState _sessionState;
 
         public BoardGameSnapshotController(
             SO_BoardGame_MapDefinition mapDefinition,
             SO_BoardGame_RuleSet ruleSet,
             SO_BoardGame_LootTableSet lootTableSet,
+            SO_BoardGame_AgentRoster agentRoster,
             BoardGameSessionState sessionState)
         {
             _mapDefinition = mapDefinition;
             _ruleSet = ruleSet;
             _lootTableSet = lootTableSet;
+            _agentRoster = agentRoster;
             _sessionState = sessionState;
         }
 
@@ -35,6 +38,7 @@ namespace BoardGame.Runtime.Controllers
                 _mapDefinition.MapId,
                 _ruleSet.RuleSetId,
                 _lootTableSet.LootSetId,
+                _agentRoster != null ? _agentRoster.RosterId : string.Empty,
                 _sessionState);
         }
     }

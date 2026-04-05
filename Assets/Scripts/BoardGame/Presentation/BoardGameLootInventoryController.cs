@@ -98,7 +98,6 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 打开当前节点的 loot 面板，并把节点与玩家库存投影成 Bag 运行时网格
         /// </summary>
-        /// <param name="nodeState"></param>
         private void OpenLootNode(BoardNodeRuntimeState nodeState)
         {
             if (nodeState == null)
@@ -151,7 +150,6 @@ namespace BoardGame.Presentation
         /// 推进当前待揭露物品的搜索进度
         /// 每次只允许一件物品前进，保持 BoardGame 的顺序揭露节奏
         /// </summary>
-        /// <param name="deltaTime"></param>
         private void TickReveal(float deltaTime)
         {
             DraggableItemUI currentRevealItem = GetCurrentRevealItem();
@@ -180,7 +178,20 @@ namespace BoardGame.Presentation
         private void BuildPlayerInventoryGrid()
         {
             List<ContainerItemSaveData> playerItems = new List<ContainerItemSaveData>();
-            IReadOnlyList<BoardItemInstance> inventoryItems = _runtimeQueryController.SessionState.AgentState.InventoryState.Items;
+            BoardAgentState agentState = _runtimeQueryController.GetActiveInteractionAgentState() ??
+                                         _runtimeQueryController.GetFocusedAgentState();
+
+            if (agentState == null)
+            {
+                _playerGrid.RebuildGridUI(
+                    _runtimeQueryController.BagLayoutSettings.PlayerInventoryColumns,
+                    _runtimeQueryController.BagLayoutSettings.PlayerInventoryRows,
+                    new List<Vector2Int>());
+                _playerGrid.LoadFromRuntimeState(new List<ContainerItemSaveData>(), new List<ContainerCellStateSaveData>());
+                return;
+            }
+
+            IReadOnlyList<BoardItemInstance> inventoryItems = agentState.InventoryState.Items;
 
             foreach (BoardItemInstance itemInstance in inventoryItems)
             {
@@ -219,7 +230,6 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 根据节点 loot 容器状态构造右侧战利品网格，并关闭 Bag 默认的自动搜索推进
         /// </summary>
-        /// <param name="nodeState"></param>
         private void BuildLootInventoryGrid(BoardNodeRuntimeState nodeState)
         {
             List<ContainerItemSaveData> lootItems = new List<ContainerItemSaveData>();
@@ -420,8 +430,6 @@ namespace BoardGame.Presentation
         /// 为 BoardGame 物品懒创建一个最小可用的 Bag 物品配置
         /// 这里只保留拖拽、显示和搜索所需的数据，不承载 BoardGame 的真实领域状态
         /// </summary>
-        /// <param name="itemInstance"></param>
-        /// <returns></returns>
         private InventoryItemData GetOrCreateRuntimeItemData(BoardItemInstance itemInstance)
         {
             string itemId = string.IsNullOrEmpty(itemInstance.ItemId)
@@ -456,9 +464,6 @@ namespace BoardGame.Presentation
         /// 按稀有度和类型生成一个纯色占位图标
         /// BoardGame 当前不依赖正式背包图标资源，所以在运行时即时生成即可
         /// </summary>
-        /// <param name="rarity"></param>
-        /// <param name="itemType"></param>
-        /// <returns></returns>
         private Sprite GetOrCreateRaritySprite(ItemRarity rarity, ItemType itemType)
         {
             int key = ((int)rarity << 8) | (int)itemType;
@@ -505,18 +510,22 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 刷新 loot 面板头部文案与揭露进度文本
         /// </summary>
-        /// <param name="nodeState"></param>
         private void RefreshTexts(BoardNodeRuntimeState nodeState)
         {
+            BoardAgentState activeInteractionAgentState = _runtimeQueryController != null
+                ? _runtimeQueryController.GetActiveInteractionAgentState() ?? _runtimeQueryController.GetFocusedAgentState()
+                : null;
+            string agentLabel = activeInteractionAgentState != null ? activeInteractionAgentState.DisplayName : "Focused AI";
+
             if (_headerText != null)
             {
                 string nodeName = nodeState != null ? nodeState.NodeId : "Loot";
-                _headerText.text = $"Loot Search - {nodeName}";
+                _headerText.text = $"Loot Search - {nodeName} - {agentLabel}";
             }
 
             if (_hintText != null)
             {
-                _hintText.text = $"Revealed {_revealedItemCount}/{Mathf.Max(0, _totalItemCount)}  Press F or Esc to close";
+                _hintText.text = $"Game paused  {agentLabel}  Revealed {_revealedItemCount}/{Mathf.Max(0, _totalItemCount)}  Press F or Esc to close";
             }
         }
 

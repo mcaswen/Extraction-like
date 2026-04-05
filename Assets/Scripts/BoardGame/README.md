@@ -6,9 +6,9 @@
 
 当前原型主要验证这些内容
 
-- 单个 AI 持续自走
+- 四个 AI 共享同一张地图并持续自走
 - 玩家不直接控制移动和战斗
-- 玩家通过实时改目标来打断 AI
+- 玩家通过切换焦点和实时改目标来打断 AI
 - 搜索 战斗 撤离都是持续过程
 - 地图由 ScriptableObject 驱动
 
@@ -16,10 +16,18 @@
 
 ## 当前玩法模型
 
+- 默认有四个 AI 共享同一局运行时状态
+- 玩家一次只操作当前焦点 AI
+- `Tab` 切下一个焦点，`Shift + Tab` 切上一个焦点
 - AI 默认只会在相邻节点里自主选目标
 - 当前默认 AI 刻意做得比较笨和保守
-- 玩家可以直接点击节点改写 AI 目标
+- 玩家可以直接点击节点改写当前焦点 AI 的目标
 - Boss 战不能被打断
+- 多个 AI 可以同时处于同一个节点
+- 同节点战斗共享一条敌人血条，敌人会同时攻击节点内所有存活 AI
+- 节点 loot 共享一份，只有当前焦点 AI 可以打开背包继续搜索
+- 打开 loot 背包或升级面板时，游戏会暂停
+- 所有存活 AI 都撤离后，这一局才算成功
 - 资源搜索进度 敌人剩余血量 撤离进度都会保留在运行时状态里
 
 ## 目录结构
@@ -56,11 +64,12 @@
 
 ## 主要资产
 
-当前原型依赖三个 ScriptableObject
+当前原型依赖这些 ScriptableObject
 
 - `SO_BoardGame_MapDefinition`
 - `SO_BoardGame_RuleSet`
 - `SO_BoardGame_LootTableSet`
+- `SO_BoardGame_AgentRoster`
 
 场景里的运行时入口是
 
@@ -98,14 +107,18 @@
 
 - 在场景里摆节点标记物体
 - 给每个物体填写 `NodeId`
-- 标记起点
-- 打开 `Tools/BoardGame/Scene Node Import`
+- 若需要地图默认起点，可标记 `IsStartNode`
+- 若要回写四个 AI 的出生点，再额外挂 `BoardGameSceneAgentSpawnMarker`
+- 给出生位标记填写 `AgentId`
+- 打开 `Tools/BoardGame/Scene Node Import Tool`
 - 把位置写回地图资产
+- 若已指定 roster 资产，会同时把 `AgentId -> StartNodeId` 写回 roster
 
 这个工具目前只负责
 
 - 节点位置导入
 - 起点导入
+- Agent 出生位导入到 roster
 
 它暂时还不负责
 
@@ -116,9 +129,10 @@
 
 这一版已经包含
 
-- 固定图上的自主移动
-- 玩家实时改目标
+- 四 AI 共享地图的自主移动
+- 焦点切换和定向改目标
 - 持续搜索 战斗 撤离
+- 同节点共享战斗与共享 loot
 - 掉落 背包 消耗品使用
 - 地图 HUD 和道具栏展示
 - 单局运行时节点状态保留
@@ -133,5 +147,5 @@
 ## 备注
 
 - 核心逻辑本身不依赖具体场景，但仍然依赖安装器里的显式引用绑定
-- UI 不是运行时生成的
+- 部分 UI 会在运行时自动补建，例如升级面板和 loot overlay
 - 如果世界文本使用 World Space UI，要注意不要挡住鼠标点击

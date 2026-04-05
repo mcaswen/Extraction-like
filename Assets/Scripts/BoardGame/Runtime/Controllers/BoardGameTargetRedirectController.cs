@@ -35,26 +35,41 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryRedirectToNode(string nodeId)
         {
+            return TryRedirectToNode(_sessionState.GetFocusedAgentState()?.AgentId, nodeId);
+        }
+
+        /// <summary>
+        /// 尝试把指定 Agent 当前目标改写到指定节点
+        /// </summary>
+        public bool TryRedirectToNode(string agentId, string nodeId)
+        {
             if (string.IsNullOrEmpty(nodeId))
+            {
+                return false;
+            }
+
+            BoardAgentState agentState = _sessionState.GetAgentState(agentId);
+
+            if (agentState == null)
             {
                 return false;
             }
 
             if (_sessionState.IsAwaitingLevelUpChoice)
             {
-                _sessionState.StatusMessage = "Choose a level-up upgrade before redirecting";
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Choose a level-up upgrade before redirecting");
                 NotifyChanged();
                 return false;
             }
 
             if (_sessionState.IsAwaitingLootInteraction)
             {
-                _sessionState.StatusMessage = "Finish the current loot interaction before redirecting";
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Finish the current loot interaction before redirecting");
                 NotifyChanged();
                 return false;
             }
 
-            bool success = _actionStateMachine.TryRedirect(_sessionState, _nodeStatesById, nodeId, out _);
+            bool success = _actionStateMachine.TryRedirect(_sessionState, agentState, _nodeStatesById, nodeId, out _);
             NotifyChanged();
             return success;
         }
@@ -64,12 +79,27 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool IsNodeValidRedirectTarget(string nodeId)
         {
+            return IsNodeValidRedirectTarget(_sessionState.GetFocusedAgentState()?.AgentId, nodeId);
+        }
+
+        /// <summary>
+        /// 查询某个节点当前是否允许作为指定 Agent 的改写目标
+        /// </summary>
+        public bool IsNodeValidRedirectTarget(string agentId, string nodeId)
+        {
             if (_sessionState.IsAwaitingLevelUpChoice || _sessionState.IsAwaitingLootInteraction)
             {
                 return false;
             }
 
-            BoardInterruptEvaluation evaluation = _interruptService.Evaluate(_sessionState, _nodeStatesById, nodeId);
+            BoardAgentState agentState = _sessionState.GetAgentState(agentId);
+
+            if (agentState == null)
+            {
+                return false;
+            }
+
+            BoardInterruptEvaluation evaluation = _interruptService.Evaluate(_sessionState, agentState, _nodeStatesById, nodeId);
             return evaluation.CanInterrupt;
         }
 

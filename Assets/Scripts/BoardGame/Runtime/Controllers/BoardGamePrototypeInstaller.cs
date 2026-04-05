@@ -16,6 +16,7 @@ namespace BoardGame.Runtime.Controllers
         [SerializeField] private SO_BoardGame_MapDefinition _mapDefinition;
         [SerializeField] private SO_BoardGame_RuleSet _ruleSet;
         [SerializeField] private SO_BoardGame_LootTableSet _lootTableSet;
+        [SerializeField] private SO_BoardGame_AgentRoster _agentRoster;
         [SerializeField] private BoardGameBagLayoutSettings _bagLayoutSettings = new BoardGameBagLayoutSettings();
 
         [Header("Map View")]
@@ -48,7 +49,12 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            _prototypeController = new BoardGamePrototypeController(_mapDefinition, _ruleSet, _lootTableSet, _bagLayoutSettings);
+            _prototypeController = new BoardGamePrototypeController(
+                _mapDefinition,
+                _ruleSet,
+                _lootTableSet,
+                _agentRoster,
+                _bagLayoutSettings);
 
             if (_mapViewController != null)
             {
@@ -70,6 +76,7 @@ namespace BoardGame.Runtime.Controllers
             _selectionController?.Bind(
                 _prototypeController.RuntimeQueryController,
                 _prototypeController.SelectionStateController,
+                _prototypeController.AgentFocusController,
                 _prototypeController.TargetRedirectController,
                 _prototypeController.ProgressionController,
                 _worldCamera != null ? _worldCamera : Camera.main);

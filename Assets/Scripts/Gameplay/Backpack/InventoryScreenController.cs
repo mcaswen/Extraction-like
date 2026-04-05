@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 背包模块总控制器
@@ -301,6 +302,7 @@ public class InventoryScreenController : MonoBehaviour
                 backpackRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -315,6 +317,7 @@ public class InventoryScreenController : MonoBehaviour
                 rigRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -329,6 +332,7 @@ public class InventoryScreenController : MonoBehaviour
                 pocketRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 

@@ -12,6 +12,7 @@ namespace BoardGame.Presentation
     {
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameSelectionStateController _selectionStateController;
+        private BoardGameAgentFocusController _agentFocusController;
         private BoardGameTargetRedirectController _targetRedirectController;
         private Camera _worldCamera;
 
@@ -21,11 +22,13 @@ namespace BoardGame.Presentation
         public void Bind(
             BoardGameRuntimeQueryController runtimeQueryController,
             BoardGameSelectionStateController selectionStateController,
+            BoardGameAgentFocusController agentFocusController,
             BoardGameTargetRedirectController targetRedirectController,
             Camera worldCamera)
         {
             _runtimeQueryController = runtimeQueryController;
             _selectionStateController = selectionStateController;
+            _agentFocusController = agentFocusController;
             _targetRedirectController = targetRedirectController;
             _worldCamera = worldCamera;
         }
@@ -33,7 +36,6 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 刷新鼠标当前悬停的节点高亮
         /// </summary>
-        /// <param name="isPointerOverUi"></param>
         public void UpdateHoveredNode(bool isPointerOverUi)
         {
             if (_runtimeQueryController == null ||
@@ -64,7 +66,6 @@ namespace BoardGame.Presentation
         /// <summary>
         /// 处理一次鼠标按下命中，优先尝试节点改写，其次尝试命中 AI 本体
         /// </summary>
-        /// <returns></returns>
         public bool TryHandlePointerDown()
         {
             if (_targetRedirectController == null || _worldCamera == null)
@@ -74,6 +75,11 @@ namespace BoardGame.Presentation
 
             Vector3 worldPosition = GetMouseWorldPosition();
             Collider2D[] hits = Physics2D.OverlapPointAll(worldPosition);
+
+            if (TryGetHoveredAgent(hits, out BoardGameAgentView agentView))
+            {
+                return _agentFocusController != null && _agentFocusController.TrySetFocusedAgent(agentView.AgentId);
+            }
 
             if (TryGetHoveredNode(hits, out BoardGameNodeView nodeView))
             {
@@ -112,6 +118,32 @@ namespace BoardGame.Presentation
                 nodeView = hit.GetComponentInParent<BoardGameNodeView>();
 
                 if (nodeView != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        private static bool TryGetHoveredAgent(Collider2D[] hits, out BoardGameAgentView agentView)
+        {
+            agentView = null;
+
+            if (hits == null)
+            {
+                return false;
+            }
+
+            foreach (Collider2D hit in hits)
+            {
+                if (hit == null)
+                {
+                    continue;
+                }
+
+                agentView = hit.GetComponentInParent<BoardGameAgentView>();
+
+                if (agentView != null)
                 {
                     return true;
                 }

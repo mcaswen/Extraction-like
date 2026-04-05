@@ -50,7 +50,7 @@ namespace BoardGame.Runtime.Controllers
         {
             if (!_ruleSet.ProgressionRules.Enabled)
             {
-                _sessionState.StatusMessage = "Level-up progression is currently disabled";
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Level-up progression is currently disabled");
                 NotifyChanged();
                 return false;
             }
@@ -71,9 +71,17 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public void ClearPendingState()
         {
-            _sessionState.IsAwaitingLevelUpChoice = false;
-            _sessionState.PendingLevelUpCount = 0;
+            _sessionState.ActiveLevelUpAgentId = string.Empty;
             _sessionState.PendingLevelUpChoices.Clear();
+
+            foreach (BoardAgentState agentState in _sessionState.AgentStates)
+            {
+                if (agentState != null)
+                {
+                    agentState.PendingLevelUpCount = 0;
+                }
+            }
+
             NotifyChanged();
         }
 

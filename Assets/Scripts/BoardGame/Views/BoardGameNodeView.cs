@@ -91,7 +91,9 @@ namespace BoardGame.Views
             bool isCurrentTarget,
             bool isSelected,
             bool canRedirect,
-            bool showRuntimeInfo)
+            bool showRuntimeInfo,
+            string runtimeInfoOverrideText = null,
+            float? progressOverride01 = null)
         {
             if (nodeState == null)
             {
@@ -121,13 +123,15 @@ namespace BoardGame.Views
 
             if (_detailText != null)
             {
-                _detailText.text = showRuntimeInfo ? BuildRuntimeInfoText(nodeState) : string.Empty;
+                _detailText.text = showRuntimeInfo
+                    ? (string.IsNullOrEmpty(runtimeInfoOverrideText) ? BuildRuntimeInfoText(nodeState) : runtimeInfoOverrideText)
+                    : string.Empty;
                 _detailText.gameObject.SetActive(!string.IsNullOrEmpty(_detailText.text));
             }
 
             if (_progressFillTransform != null)
             {
-                float progress = GetNodeProgress(nodeState);
+                float progress = progressOverride01 ?? GetNodeProgress(nodeState);
                 _progressFillTransform.gameObject.SetActive(showRuntimeInfo && progress > 0f);
                 _progressFillTransform.localScale = new Vector3(
                     _progressFillBaseScale.x * Mathf.Clamp01(progress),
@@ -175,9 +179,17 @@ namespace BoardGame.Views
                         return "Looted";
                     }
 
-                    if (nodeState.SearchRequiredSeconds <= Mathf.Epsilon)
+                    if (nodeState.HasPendingLootInteraction())
                     {
-                        return "Search 0%";
+                        return nodeState.IsLootRevealComplete()
+                            ? "Loot Ready"
+                            : $"Search {nodeState.GetLootRevealProgress01():P0}";
+                    }
+
+                    if (nodeState.SearchProgressSeconds <= Mathf.Epsilon ||
+                        nodeState.SearchRequiredSeconds <= Mathf.Epsilon)
+                    {
+                        return string.Empty;
                     }
 
                     return $"Search {nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds:P0}";
@@ -201,9 +213,10 @@ namespace BoardGame.Views
                         return "Extracted";
                     }
 
-                    if (nodeState.ExtractRequiredSeconds <= Mathf.Epsilon)
+                    if (nodeState.ExtractProgressSeconds <= Mathf.Epsilon ||
+                        nodeState.ExtractRequiredSeconds <= Mathf.Epsilon)
                     {
-                        return "Extract 0%";
+                        return string.Empty;
                     }
 
                     return $"Extract {nodeState.ExtractProgressSeconds / nodeState.ExtractRequiredSeconds:P0}";

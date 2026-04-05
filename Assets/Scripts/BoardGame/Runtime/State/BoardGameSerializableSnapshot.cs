@@ -12,23 +12,27 @@ namespace BoardGame.Runtime.State
         [SerializeField] private string _mapId;
         [SerializeField] private string _ruleSetId;
         [SerializeField] private string _lootSetId;
+        [SerializeField] private string _agentRosterId;
         [SerializeField] private BoardGameSessionState _sessionState;
 
         public BoardGameSerializableSnapshot(
             string mapId,
             string ruleSetId,
             string lootSetId,
+            string agentRosterId,
             BoardGameSessionState sessionState)
         {
             _mapId = mapId;
             _ruleSetId = ruleSetId;
             _lootSetId = lootSetId;
+            _agentRosterId = agentRosterId;
             _sessionState = sessionState;
         }
 
         public string MapId => _mapId;
         public string RuleSetId => _ruleSetId;
         public string LootSetId => _lootSetId;
+        public string AgentRosterId => _agentRosterId;
         public BoardGameSessionState SessionState => _sessionState;
     }
 }

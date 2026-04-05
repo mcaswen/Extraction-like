@@ -1,43 +1,165 @@
 using UnityEngine;
-using System.Collections; // 必须引入这个命名空间才能使用协程 (Coroutine)
+
+/// <summary>
+/// 玩家射击控制器。
+/// </summary>
 public class PlayerShootingController : MonoBehaviour
 {
+    public Transform FirePoint;
 
-    // 新增：枪口的位置（子弹从哪里发射）
-    public Transform FirePoint;//射出点
-    [Header("子弹设置")]
-    public GameObject BulletPrefab;// 拖入你刚才做的子弹预制体
+    [Header("Bullet")]
+    public GameObject BulletPrefab;
+    public float WeaponDamage = 25f;
+    public float WeaponRange = 100f;
 
-    public float WeaponDamage = 25f;//伤害
-    public float WeaponRange = 100f;//射程
+    [Header("Visual")]
+    public LineRenderer BulletTrail;
+    public float TrailDuration = 0.05f;
 
-    [Header("可视化设置")]
-    public LineRenderer BulletTrail; // 弹道线段组件
-    public float TrailDuration = 0.05f; // 弹道显示在屏幕上的时间（秒）
+    [Header("Status Effect")]
+    public float SilenceTintStrength = 0.55f;
+    public Color SilenceTintColor = new Color(0.32f, 0.82f, 1f, 1f);
 
-    void Update()
+    private float _silenceDurationRemaining;
+    private Renderer[] _cachedRenderers;
+    private Color[] _originalColors;
+
+    private void Start()
     {
-        // 沉浸式交互规则：背包打开时禁止开枪
-        if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)
+        CacheRendererColors();
+    }
+
+    private void Update()
+    {
+        if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
         {
-            return; // 直接跳出，不执行射击指令
+            return;
         }
 
-        if (Input.GetMouseButtonDown(0))//判断鼠标左键按下
+        TickSilence();
+
+        if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)
+        {
+            return;
+        }
+
+        if (_silenceDurationRemaining > 0f)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0))
         {
             Shoot();
         }
     }
 
     private void Shoot()
-    {//确认设计点  和子弹
+    {
         if (FirePoint == null || BulletPrefab == null)
         {
-            Debug.LogWarning("请在面板中指定 FirePoint 和 BulletPrefab！");
+            Debug.LogWarning("请在 Inspector 中指定 FirePoint 和 BulletPrefab。");
             return;
         }
 
-        // 核心：在枪口的位置，以枪口当前的面朝方向，生成一颗实体子弹！  实例化生成
-        Instantiate(BulletPrefab, FirePoint.position, FirePoint.rotation);
+        GameObject bulletObject = Instantiate(BulletPrefab, FirePoint.position, FirePoint.rotation);
+        BulletController bullet = bulletObject.GetComponent<BulletController>();
+        if (bullet != null)
+        {
+            bullet.Damage = WeaponDamage;
+        }
+    }
+
+    /// <summary>
+    /// 施加禁魔/沉默效果，期间无法射击。
+    /// </summary>
+    public void ApplySilence(float duration)
+    {
+        if (duration <= 0f)
+        {
+            return;
+        }
+
+        _silenceDurationRemaining = Mathf.Max(_silenceDurationRemaining, duration);
+        UpdateSilenceVisual();
+    }
+
+    public bool IsSilenced()
+    {
+        return _silenceDurationRemaining > 0f;
+    }
+
+    private void TickSilence()
+    {
+        if (_silenceDurationRemaining <= 0f)
+        {
+            RestoreRendererColors();
+            return;
+        }
+
+        _silenceDurationRemaining -= Time.deltaTime;
+        if (_silenceDurationRemaining <= 0f)
+        {
+            _silenceDurationRemaining = 0f;
+            RestoreRendererColors();
+            return;
+        }
+
+        UpdateSilenceVisual();
+    }
+
+    private void CacheRendererColors()
+    {
+        _cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        _originalColors = new Color[_cachedRenderers.Length];
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            _originalColors[i] = rendererComponent != null && rendererComponent.material.HasProperty("_Color")
+                ? rendererComponent.material.color
+                : Color.white;
+        }
+    }
+
+    private void UpdateSilenceVisual()
+    {
+        if (_cachedRenderers == null || _originalColors == null)
+        {
+            return;
+        }
+
+        float pulse = 0.5f + Mathf.Sin(Time.time * 8f) * 0.5f;
+        float tintStrength = SilenceTintStrength * (0.55f + pulse * 0.45f);
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            if (rendererComponent == null || !rendererComponent.material.HasProperty("_Color"))
+            {
+                continue;
+            }
+
+            rendererComponent.material.color = Color.Lerp(_originalColors[i], SilenceTintColor, tintStrength);
+        }
+    }
+
+    private void RestoreRendererColors()
+    {
+        if (_cachedRenderers == null || _originalColors == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            if (rendererComponent == null || !rendererComponent.material.HasProperty("_Color"))
+            {
+                continue;
+            }
+
+            rendererComponent.material.color = _originalColors[i];
+        }
     }
 }

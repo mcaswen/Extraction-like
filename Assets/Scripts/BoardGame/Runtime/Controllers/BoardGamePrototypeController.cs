@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using BoardGame.Config;
-using BoardGame.Runtime;
 using BoardGame.Runtime.Services;
 using BoardGame.Runtime.State;
 
@@ -15,6 +14,7 @@ namespace BoardGame.Runtime.Controllers
         private readonly SO_BoardGame_MapDefinition _mapDefinition;
         private readonly SO_BoardGame_RuleSet _ruleSet;
         private readonly SO_BoardGame_LootTableSet _lootTableSet;
+        private readonly SO_BoardGame_AgentRoster _agentRoster;
         private readonly BoardGameBagLayoutSettings _bagLayoutSettings;
 
         private readonly BoardGraphService _graphService;
@@ -27,6 +27,7 @@ namespace BoardGame.Runtime.Controllers
         private readonly BoardAgentActionStateMachine _actionStateMachine;
         private readonly BoardGameSessionBootstrapController _sessionBootstrapController;
         private readonly BoardGameSelectionStateController _selectionStateController;
+        private readonly BoardGameAgentFocusController _agentFocusController;
         private readonly BoardGameRuntimeQueryController _runtimeQueryController;
         private readonly BoardGameTargetRedirectController _targetRedirectController;
         private readonly BoardGameItemUseController _itemUseController;
@@ -43,11 +44,13 @@ namespace BoardGame.Runtime.Controllers
             SO_BoardGame_MapDefinition mapDefinition,
             SO_BoardGame_RuleSet ruleSet,
             SO_BoardGame_LootTableSet lootTableSet,
+            SO_BoardGame_AgentRoster agentRoster,
             BoardGameBagLayoutSettings bagLayoutSettings)
         {
             _mapDefinition = mapDefinition;
             _ruleSet = ruleSet;
             _lootTableSet = lootTableSet;
+            _agentRoster = agentRoster;
             _bagLayoutSettings = bagLayoutSettings ?? new BoardGameBagLayoutSettings();
 
             _graphService = new BoardGraphService(mapDefinition);
@@ -70,17 +73,20 @@ namespace BoardGame.Runtime.Controllers
             _sessionBootstrapController = new BoardGameSessionBootstrapController(
                 _mapDefinition,
                 _ruleSet,
+                _agentRoster,
                 _graphService,
                 _combatResolutionService,
                 _lootResolutionService);
 
             _sessionState = _sessionBootstrapController.CreateSession(_nodeStatesById);
             _selectionStateController = new BoardGameSelectionStateController();
+            _agentFocusController = new BoardGameAgentFocusController(_sessionState);
             _selectionStateController.SelectionChanged += HandleSelectionChanged;
             _runtimeQueryController = new BoardGameRuntimeQueryController(
                 _sessionState,
                 _nodeStatesById,
                 _selectionStateController,
+                _agentFocusController,
                 _graphService,
                 _ruleSet,
                 _bagLayoutSettings);
@@ -101,6 +107,7 @@ namespace BoardGame.Runtime.Controllers
                 _mapDefinition,
                 _ruleSet,
                 _lootTableSet,
+                _agentRoster,
                 _sessionState);
             _sessionFlowController = new BoardGameSessionFlowController(
                 _sessionState,
@@ -109,6 +116,7 @@ namespace BoardGame.Runtime.Controllers
                 _lootInteractionController,
                 _actionStateMachine);
 
+            _agentFocusController.Changed += HandleSessionChanged;
             _targetRedirectController.Changed += HandleSessionChanged;
             _itemUseController.Changed += HandleSessionChanged;
             _progressionController.Changed += HandleSessionChanged;
@@ -127,10 +135,12 @@ namespace BoardGame.Runtime.Controllers
         public SO_BoardGame_MapDefinition MapDefinition => _mapDefinition;
         public SO_BoardGame_RuleSet RuleSet => _ruleSet;
         public SO_BoardGame_LootTableSet LootTableSet => _lootTableSet;
+        public SO_BoardGame_AgentRoster AgentRoster => _agentRoster;
         public BoardGameBagLayoutSettings BagLayoutSettings => _bagLayoutSettings;
         public BoardGraphService GraphService => _graphService;
         public BoardGameSessionBootstrapController SessionBootstrapController => _sessionBootstrapController;
         public BoardGameSelectionStateController SelectionStateController => _selectionStateController;
+        public BoardGameAgentFocusController AgentFocusController => _agentFocusController;
         public BoardGameRuntimeQueryController RuntimeQueryController => _runtimeQueryController;
         public BoardGameTargetRedirectController TargetRedirectController => _targetRedirectController;
         public BoardGameItemUseController ItemUseController => _itemUseController;
@@ -187,6 +197,38 @@ namespace BoardGame.Runtime.Controllers
         public bool TryRedirectToNode(string nodeId)
         {
             return _targetRedirectController.TryRedirectToNode(nodeId);
+        }
+
+        /// <summary>
+        /// 尝试把指定 Agent 的目标改写到指定节点
+        /// </summary>
+        public bool TryRedirectAgentToNode(string agentId, string nodeId)
+        {
+            return _targetRedirectController.TryRedirectToNode(agentId, nodeId);
+        }
+
+        /// <summary>
+        /// 尝试切换当前焦点 Agent
+        /// </summary>
+        public bool TrySetFocusedAgent(string agentId)
+        {
+            return _agentFocusController.TrySetFocusedAgent(agentId);
+        }
+
+        /// <summary>
+        /// 切换到下一个焦点 Agent
+        /// </summary>
+        public bool FocusNextAgent()
+        {
+            return _agentFocusController.FocusNextAgent();
+        }
+
+        /// <summary>
+        /// 切换到上一个焦点 Agent
+        /// </summary>
+        public bool FocusPreviousAgent()
+        {
+            return _agentFocusController.FocusPreviousAgent();
         }
 
         /// <summary>
@@ -248,8 +290,6 @@ namespace BoardGame.Runtime.Controllers
         /// <summary>
         /// 尝试打开当前活跃节点的 loot 面板
         /// </summary>
-        /// <param name="nodeState"></param>
-        /// <returns></returns>
         public bool TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState)
         {
             return _lootInteractionController.TryOpenActiveLootNode(out nodeState);
@@ -258,7 +298,6 @@ namespace BoardGame.Runtime.Controllers
         /// <summary>
         /// 同步当前 loot 揭露进度到节点状态和动作表现
         /// </summary>
-        /// <param name="revealedItemCount"></param>
         public void ApplyLootRevealProgress(int revealedItemCount)
         {
             _lootInteractionController.ApplyLootRevealProgress(revealedItemCount);
@@ -267,9 +306,6 @@ namespace BoardGame.Runtime.Controllers
         /// <summary>
         /// 关闭当前 loot 节点，并把剩余掉落和玩家背包结果回写到运行时状态
         /// </summary>
-        /// <param name="remainingLootItems"></param>
-        /// <param name="playerInventoryItems"></param>
-        /// <param name="revealedItemCount"></param>
         public void CloseActiveLootNode(
             IReadOnlyList<BoardLootContainerItemState> remainingLootItems,
             IReadOnlyList<BoardItemInstance> playerInventoryItems,
@@ -310,6 +346,5 @@ namespace BoardGame.Runtime.Controllers
             _runtimeQueryController.NotifyChanged();
             SessionChanged?.Invoke();
         }
-
     }
 }

@@ -41,32 +41,35 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public bool TryRedirect(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             string targetNodeId,
             out string message)
         {
-            BoardInterruptEvaluation evaluation = _interruptService.Evaluate(sessionState, nodeStatesById, targetNodeId);
+            BoardInterruptEvaluation evaluation = _interruptService.Evaluate(sessionState, agentState, nodeStatesById, targetNodeId);
 
             if (!evaluation.CanInterrupt)
             {
-                message = evaluation.Message;
+                message = BoardGameStatusMessageUtility.Agent(agentState, evaluation.Message);
                 sessionState.StatusMessage = message;
                 return false;
             }
 
-            _nodeActionService.FinalizeCurrentActionForRedirect(sessionState, nodeStatesById);
+            _nodeActionService.FinalizeCurrentActionForRedirect(sessionState, agentState, nodeStatesById);
 
-            BoardResolvedPathPlan pathPlan = _pathfindingService.ResolveFromAgent(sessionState.AgentState, targetNodeId);
+            BoardResolvedPathPlan pathPlan = _pathfindingService.ResolveFromAgent(agentState, targetNodeId);
 
             if (!pathPlan.IsValid)
             {
-                message = "The target node is unreachable";
+                message = BoardGameStatusMessageUtility.Agent(agentState, "The target node is unreachable");
                 sessionState.StatusMessage = message;
                 return false;
             }
 
-            ApplyPathPlan(sessionState, nodeStatesById, pathPlan, BoardIntentSource.PlayerRedirect);
-            message = $"Player redirected the target to {nodeStatesById[targetNodeId].NodeId}";
+            ApplyPathPlan(sessionState, agentState, nodeStatesById, pathPlan, BoardIntentSource.PlayerRedirect);
+            message = BoardGameStatusMessageUtility.Agent(
+                agentState,
+                $"Redirected target to {nodeStatesById[targetNodeId].NodeId}");
             sessionState.StatusMessage = message;
             return true;
         }
@@ -77,25 +80,24 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public void TickIdle(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             // 已经有剩余路径时，Idle 只负责继续推进移动，不重复做新的选点
             if (agentState.RemainingPathNodeIds.Count > 0)
             {
-                BeginNextMovementSegment(sessionState);
+                BeginNextMovementSegment(sessionState, agentState);
                 return;
             }
 
             // 到达目标点后，优先尝试消费这个目标点上的动作
-            if (_nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, nodeStatesById))
+            if (_nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, agentState, nodeStatesById))
             {
                 return;
             }
 
             // 当前节点本身是可撤离点时，先判断是否满足默认 AI 的撤离条件
-            if (TryBeginAutonomousExtract(sessionState, nodeStatesById))
+            if (TryBeginAutonomousExtract(sessionState, agentState, nodeStatesById))
             {
                 return;
             }
@@ -106,7 +108,9 @@ namespace BoardGame.Runtime.Services
             {
                 agentState.CurrentTargetNodeId = string.Empty;
                 agentState.IntentSource = BoardIntentSource.Autonomous;
-                sessionState.StatusMessage = "Player target reached, AI resumed default behavior";
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(
+                    agentState,
+                    "Reached player target and resumed default behavior");
             }
 
             // 默认 AI 不是每帧重新选点，而是按固定 reevaluate 间隔重算一次目标
@@ -119,7 +123,7 @@ namespace BoardGame.Runtime.Services
 
             if (!decision.HasDecision)
             {
-                sessionState.StatusMessage = decision.Reason;
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(agentState, decision.Reason);
                 return;
             }
 
@@ -127,13 +131,15 @@ namespace BoardGame.Runtime.Services
 
             if (!pathPlan.IsValid)
             {
-                sessionState.StatusMessage = "The default target is unreachable";
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(
+                    agentState,
+                    "The default target is unreachable");
                 return;
             }
 
             // 只有当决策和寻路都成功时，才真正把目标和路径写回角色状态
-            ApplyPathPlan(sessionState, nodeStatesById, pathPlan, BoardIntentSource.Autonomous);
-            sessionState.StatusMessage = decision.Reason;
+            ApplyPathPlan(sessionState, agentState, nodeStatesById, pathPlan, BoardIntentSource.Autonomous);
+            sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(agentState, decision.Reason);
         }
 
         /// <summary>
@@ -142,11 +148,10 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public void TickMoving(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             float deltaTime)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (!_graphService.TryGetEdge(agentState.CurrentEdgeId, out BoardMapEdgeDefinition edgeDefinition))
             {
                 agentState.CurrentActionType = BoardActionType.Idle;
@@ -197,7 +202,7 @@ namespace BoardGame.Runtime.Services
             }
 
             // 玩家把目标改到更远节点时，沿途碰到可处理节点也要先停下来执行，而不是直接一路穿过去
-            if (_nodeActionService.TryBeginActionOnVisitedRedirectNode(sessionState, nodeStatesById))
+            if (_nodeActionService.TryBeginActionOnVisitedRedirectNode(sessionState, agentState, nodeStatesById))
             {
                 return;
             }
@@ -205,14 +210,14 @@ namespace BoardGame.Runtime.Services
             if (agentState.RemainingPathNodeIds.Count > 0)
             {
                 // 还有后续节点时，立刻衔接下一段移动，避免先回 Idle 再重新起步
-                BeginNextMovementSegment(sessionState);
+                BeginNextMovementSegment(sessionState, agentState);
                 return;
             }
 
             // 路径走完后，优先尝试开始当前节点动作，若没有可做动作再退回 Idle 选点
-            if (!_nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, nodeStatesById))
+            if (!_nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, agentState, nodeStatesById))
             {
-                TickIdle(sessionState, nodeStatesById);
+                TickIdle(sessionState, agentState, nodeStatesById);
             }
         }
 
@@ -222,11 +227,11 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         private void ApplyPathPlan(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             BoardResolvedPathPlan pathPlan,
             BoardIntentSource intentSource)
         {
-            BoardAgentState agentState = sessionState.AgentState;
             agentState.IntentSource = intentSource;
             agentState.CurrentTargetNodeId = pathPlan.TargetNodeId;
             agentState.RemainingPathNodeIds.Clear();
@@ -253,23 +258,21 @@ namespace BoardGame.Runtime.Services
 
             if (agentState.RemainingPathNodeIds.Count > 0)
             {
-                BeginNextMovementSegment(sessionState);
+                BeginNextMovementSegment(sessionState, agentState);
                 return;
             }
 
-            if (!_nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, nodeStatesById))
+            if (!_nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, agentState, nodeStatesById))
             {
-                TickIdle(sessionState, nodeStatesById);
+                TickIdle(sessionState, agentState, nodeStatesById);
             }
         }
 
         /// <summary>
         /// 从当前节点出发，切入下一条边的移动
         /// </summary>
-        private bool BeginNextMovementSegment(BoardGameSessionState sessionState)
+        private bool BeginNextMovementSegment(BoardGameSessionState sessionState, BoardAgentState agentState)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (string.IsNullOrEmpty(agentState.CurrentNodeId) || agentState.RemainingPathNodeIds.Count == 0)
             {
                 return false;
@@ -279,7 +282,9 @@ namespace BoardGame.Runtime.Services
 
             if (!_graphService.TryGetEdgeBetween(agentState.CurrentNodeId, nextNodeId, out BoardMapEdgeDefinition edgeDefinition))
             {
-                sessionState.StatusMessage = "A required edge in the path does not exist";
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(
+                    agentState,
+                    "A required edge in the path does not exist");
                 return false;
             }
 
@@ -315,10 +320,9 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         private bool TryBeginAutonomousExtract(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (string.IsNullOrEmpty(agentState.CurrentNodeId) ||
                 !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState) ||
                 nodeState.NodeType != BoardNodeType.Extract ||
@@ -330,7 +334,7 @@ namespace BoardGame.Runtime.Services
 
             agentState.CurrentTargetNodeId = agentState.CurrentNodeId;
             agentState.IntentSource = BoardIntentSource.Autonomous;
-            return _nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, nodeStatesById);
+            return _nodeActionService.TryBeginActionOnCurrentTargetNode(sessionState, agentState, nodeStatesById);
         }
 
         /// <summary>
@@ -375,9 +379,9 @@ namespace BoardGame.Runtime.Services
                 case BoardNodeType.Resource:
                     return nodeState.ResourceState == BoardResourceStateType.Looted;
                 case BoardNodeType.Enemy:
-                    return nodeState.EnemyState == BoardEnemyStateType.Cleared;
+                    return nodeState.EnemyState == BoardEnemyStateType.Cleared && !nodeState.HasPendingLootInteraction();
                 case BoardNodeType.Boss:
-                    return nodeState.BossState == BoardBossStateType.Defeated;
+                    return nodeState.BossState == BoardBossStateType.Defeated && !nodeState.HasPendingLootInteraction();
                 case BoardNodeType.Extract:
                     return false;
                 default:

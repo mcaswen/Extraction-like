@@ -13,6 +13,10 @@ namespace BoardGame.Views
     {
         [SerializeField] private Button _button;
         [SerializeField] private Image _backgroundImage;
+        [SerializeField] private Image _iconPlateImage;
+        [SerializeField] private Image _iconImage;
+        [SerializeField] private TMP_Text _iconText;
+        [SerializeField] private TMP_Text _titleText;
         [SerializeField] private TMP_Text _descriptionText;
 
         /// <summary>
@@ -22,12 +26,20 @@ namespace BoardGame.Views
         /// <param name="accentColor"></param>
         /// <param name="onClick"></param>
         public void Bind(
+            string title,
             string description,
+            string iconText,
+            Sprite iconSprite,
             Color accentColor,
             UnityAction onClick)
         {
             EnsureRuntimeUi();
             gameObject.SetActive(true);
+
+            if (_titleText != null)
+            {
+                _titleText.text = title;
+            }
 
             if (_descriptionText != null)
             {
@@ -37,6 +49,23 @@ namespace BoardGame.Views
             if (_backgroundImage != null)
             {
                 _backgroundImage.color = new Color(accentColor.r, accentColor.g, accentColor.b, 0.16f);
+            }
+
+            if (_iconPlateImage != null)
+            {
+                _iconPlateImage.color = accentColor;
+            }
+
+            if (_iconImage != null)
+            {
+                _iconImage.sprite = iconSprite;
+                _iconImage.enabled = iconSprite != null;
+            }
+
+            if (_iconText != null)
+            {
+                _iconText.text = iconSprite == null ? iconText : string.Empty;
+                _iconText.color = Color.white;
             }
 
             if (_button != null)
@@ -70,6 +99,16 @@ namespace BoardGame.Views
 
         private void EnsureRuntimeUi()
         {
+            if (_button != null &&
+                _backgroundImage != null &&
+                _iconPlateImage != null &&
+                _iconText != null &&
+                _titleText != null &&
+                _descriptionText != null)
+            {
+                return;
+            }
+
             if (_button == null)
             {
                 _button = GetComponent<Button>();
@@ -94,14 +133,52 @@ namespace BoardGame.Views
             _button.targetGraphic = _backgroundImage;
 
             RectTransform rootRect = GetComponent<RectTransform>();
-            rootRect.sizeDelta = new Vector2(0f, 100f);
+            rootRect.sizeDelta = new Vector2(0f, 126f);
+
+            if (_iconPlateImage == null)
+            {
+                _iconPlateImage = CreateImage("IconPlate", new Vector2(22f, 0f), new Vector2(98f, 98f), new Vector2(0f, 0.5f));
+            }
+
+            if (_iconImage == null)
+            {
+                _iconImage = CreateImage("Icon", new Vector2(22f, 0f), new Vector2(52f, 52f), new Vector2(0f, 0.5f));
+            }
+
+            if (_iconText == null)
+            {
+                _iconText = CreateText("IconText", new Vector2(22f, 0f), new Vector2(98f, 60f), 30f, FontStyles.Bold);
+                _iconText.alignment = TextAlignmentOptions.Center;
+            }
+
+            if (_titleText == null)
+            {
+                _titleText = CreateText("TitleText", new Vector2(138f, 28f), new Vector2(-154f, 34f), 30f, FontStyles.Bold);
+            }
 
             if (_descriptionText == null)
             {
-                _descriptionText = CreateText("DescriptionText", new Vector2(28f, 0f), new Vector2(-28f, 56f), 28f, FontStyles.Bold);
+                _descriptionText = CreateText("DescriptionText", new Vector2(138f, -18f), new Vector2(-154f, 56f), 23f, FontStyles.Normal);
                 _descriptionText.enableWordWrapping = true;
-                _descriptionText.alignment = TextAlignmentOptions.MidlineLeft;
+                _descriptionText.alignment = TextAlignmentOptions.TopLeft;
             }
+        }
+
+        private Image CreateImage(string objectName, Vector2 anchoredPosition, Vector2 sizeDelta, Vector2 anchorMinMax)
+        {
+            GameObject imageObject = new GameObject(objectName, typeof(RectTransform), typeof(Image));
+            imageObject.transform.SetParent(transform, false);
+
+            RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
+            rectTransform.anchorMin = anchorMinMax;
+            rectTransform.anchorMax = anchorMinMax;
+            rectTransform.pivot = new Vector2(0f, 0.5f);
+            rectTransform.anchoredPosition = anchoredPosition;
+            rectTransform.sizeDelta = sizeDelta;
+
+            Image image = imageObject.GetComponent<Image>();
+            image.raycastTarget = false;
+            return image;
         }
 
         private TMP_Text CreateText(
