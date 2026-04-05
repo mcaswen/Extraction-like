@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 using UnityEngine;
 
 namespace BoardGame.Runtime.Services
 {
     /// <summary>
-    /// 掉落生成、背包替换和道具使用服务
+    /// 掉落生成、自动收取和道具使用服务
     /// </summary>
     public sealed class BoardLootResolutionService
     {
@@ -126,8 +127,71 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
-        /// 将一批掉落自动尝试放入背包
-        /// 若空间不足，则会按单位容量价值替换背包中的低收益物品
+        /// 将一批掉落转成节点可持久化的战利品容器内容，按生成顺序从左到右摆放
+        /// </summary>
+        public void PrepareNodeLootContainer(
+            BoardNodeRuntimeState nodeState,
+            IReadOnlyList<BoardItemInstance> generatedItems,
+            BoardGameBagLayoutSettings layoutSettings)
+        {
+            float preservedSearchRequiredSeconds = nodeState.SearchRequiredSeconds;
+            float preservedSearchProgressSeconds = nodeState.SearchProgressSeconds;
+            nodeState.ResetLootContainer();
+
+            if (generatedItems == null || generatedItems.Count == 0)
+            {
+                return;
+            }
+
+            int rows = layoutSettings != null ? layoutSettings.LootContainerRows : 3;
+            int columns = layoutSettings != null
+                ? layoutSettings.ResolveLootContainerColumns(generatedItems.Count)
+                : Mathf.Max(3, Mathf.CeilToInt(generatedItems.Count / 3f));
+
+            nodeState.LootContainerColumns = columns;
+            nodeState.LootContainerRows = rows;
+            nodeState.LootTotalItemCount = generatedItems.Count;
+            nodeState.LootRevealedItemCount = 0;
+
+            for (int index = 0; index < generatedItems.Count; index++)
+            {
+                BoardItemInstance itemInstance = generatedItems[index];
+
+                if (itemInstance == null)
+                {
+                    continue;
+                }
+
+                int x = index % columns;
+                int y = index / columns;
+                float revealDuration = ResolveRevealDurationSeconds(itemInstance);
+
+                // reveal 顺序直接跟随生成顺序，方便搜索流程和关闭回写时稳定复原
+                nodeState.LootContainerItems.Add(new BoardLootContainerItemState(
+                    itemInstance,
+                    x,
+                    y,
+                    index,
+                    revealDuration));
+            }
+
+            if (layoutSettings != null && layoutSettings.EnableBagSystem)
+            {
+                nodeState.SyncSearchProgressFromLootReveal();
+            }
+            else
+            {
+                nodeState.SearchRequiredSeconds = Mathf.Max(0.1f, preservedSearchRequiredSeconds);
+                nodeState.SearchProgressSeconds = Mathf.Clamp(
+                    preservedSearchProgressSeconds,
+                    0f,
+                    nodeState.SearchRequiredSeconds);
+            }
+        }
+
+        /// <summary>
+        /// 关闭背包系统时，按旧的数字容量规则自动收取掉落
+        /// 空间不足时会按单位容量价值替换低收益物品
         /// </summary>
         public BoardAutoCollectResult AutoCollect(BoardInventoryState inventoryState, IEnumerable<BoardItemInstance> sourceItems)
         {
@@ -135,8 +199,16 @@ namespace BoardGame.Runtime.Services
             List<BoardItemInstance> droppedItems = new List<BoardItemInstance>();
             List<BoardItemInstance> replacedItems = new List<BoardItemInstance>();
 
-            foreach (BoardItemInstance sourceItem in sourceItems.OrderByDescending(item => item.UnitValue))
+            if (inventoryState == null || sourceItems == null)
             {
+                return new BoardAutoCollectResult(addedItems, droppedItems, replacedItems, string.Empty);
+            }
+
+            foreach (BoardItemInstance sourceItem in sourceItems
+                         .Where(item => item != null)
+                         .OrderByDescending(item => item.UnitValue))
+            {
+                // 自动收取按单位容量价值从高到低处理，尽量保证有限容量先装进更值钱的物品
                 BoardItemInstance itemToAdd = sourceItem.Clone();
 
                 if (TryAddItemWithReplacement(inventoryState, itemToAdd, out List<BoardItemInstance> removedItems))
@@ -150,7 +222,7 @@ namespace BoardGame.Runtime.Services
                 }
             }
 
-            string summary = $" Auto-collected {addedItems.Count} item(s), dropped {droppedItems.Count} item(s)";
+            string summary = $"Auto collected {addedItems.Count} item(s), dropped {droppedItems.Count} item(s)";
             return new BoardAutoCollectResult(addedItems, droppedItems, replacedItems, summary);
         }
 
@@ -183,54 +255,6 @@ namespace BoardGame.Runtime.Services
             }
 
             message = "This consumable is not implemented yet";
-            return false;
-        }
-
-        /// <summary>
-        /// 尝试将单个物品加入背包
-        /// 若空间不足，则移除单位容量价值更低的旧物品来腾位置
-        /// </summary>
-        private bool TryAddItemWithReplacement(
-            BoardInventoryState inventoryState,
-            BoardItemInstance itemToAdd,
-            out List<BoardItemInstance> replacedItems)
-        {
-            replacedItems = new List<BoardItemInstance>();
-
-            if (inventoryState.UsedCapacity + itemToAdd.CapacityCost <= inventoryState.MaxCapacity + 0.001f)
-            {
-                inventoryState.Items.Add(itemToAdd);
-                return true;
-            }
-
-            List<BoardItemInstance> sortedItems = inventoryState.Items
-                .OrderBy(item => item.UnitValue)
-                .ThenBy(item => item.Value)
-                .ToList();
-
-            foreach (BoardItemInstance existingItem in sortedItems)
-            {
-                if (existingItem.UnitValue >= itemToAdd.UnitValue)
-                {
-                    break;
-                }
-
-                replacedItems.Add(existingItem);
-                inventoryState.Items.Remove(existingItem);
-
-                if (inventoryState.UsedCapacity + itemToAdd.CapacityCost <= inventoryState.MaxCapacity + 0.001f)
-                {
-                    inventoryState.Items.Add(itemToAdd);
-                    return true;
-                }
-            }
-
-            foreach (BoardItemInstance replacedItem in replacedItems)
-            {
-                inventoryState.Items.Add(replacedItem);
-            }
-
-            replacedItems.Clear();
             return false;
         }
 
@@ -295,23 +319,103 @@ namespace BoardGame.Runtime.Services
                 itemDefinition.ConsumableType,
                 itemDefinition.ConsumeValue);
         }
+
+        /// <summary>
+        /// 解析单个物品的揭露时长，优先读取物品配置，缺失时退回稀有度默认值
+        /// </summary>
+        private float ResolveRevealDurationSeconds(BoardItemInstance itemInstance)
+        {
+            if (itemInstance != null &&
+                !string.IsNullOrEmpty(itemInstance.ItemId) &&
+                _itemDefinitionsById.TryGetValue(itemInstance.ItemId, out BoardItemDefinition itemDefinition) &&
+                itemDefinition != null)
+            {
+                return itemDefinition.RevealDurationSeconds;
+            }
+
+            return BoardItemDefinition.GetDefaultRevealDurationSeconds(
+                itemInstance != null ? itemInstance.ItemRarity : BoardItemRarity.Common);
+        }
+
+        /// <summary>
+        /// 尝试将单个物品加入背包
+        /// 若空间不足，则移除单位容量价值更低的旧物品来腾位置
+        /// </summary>
+        private static bool TryAddItemWithReplacement(
+            BoardInventoryState inventoryState,
+            BoardItemInstance itemToAdd,
+            out List<BoardItemInstance> replacedItems)
+        {
+            replacedItems = new List<BoardItemInstance>();
+
+            if (inventoryState == null || itemToAdd == null)
+            {
+                return false;
+            }
+
+            if (inventoryState.UsedCapacity + itemToAdd.CapacityCost <= inventoryState.MaxCapacity + 0.001f)
+            {
+                inventoryState.Items.Add(itemToAdd);
+                return true;
+            }
+
+            List<BoardItemInstance> sortedItems = inventoryState.Items
+                .Where(item => item != null)
+                .OrderBy(item => item.UnitValue)
+                .ThenBy(item => item.Value)
+                .ToList();
+
+            foreach (BoardItemInstance existingItem in sortedItems)
+            {
+                // 一旦轮到的旧物品已经不比新物品差，就说明继续替换也不会让收益更高
+                if (existingItem.UnitValue >= itemToAdd.UnitValue)
+                {
+                    break;
+                }
+
+                replacedItems.Add(existingItem);
+                inventoryState.Items.Remove(existingItem);
+
+                if (inventoryState.UsedCapacity + itemToAdd.CapacityCost <= inventoryState.MaxCapacity + 0.001f)
+                {
+                    inventoryState.Items.Add(itemToAdd);
+                    return true;
+                }
+            }
+
+            foreach (BoardItemInstance replacedItem in replacedItems)
+            {
+                inventoryState.Items.Add(replacedItem);
+            }
+
+            replacedItems.Clear();
+            return false;
+        }
     }
 
     /// <summary>
-    /// 自动收取结果
+    /// 自动收取结果快照
+    /// 记录本次加入、丢弃和替换的物品集合以及摘要文本
     /// </summary>
     public sealed class BoardAutoCollectResult
     {
+        /// <summary>
+        /// 创建一份自动收取结果
+        /// </summary>
+        /// <param name="addedItems"></param>
+        /// <param name="droppedItems"></param>
+        /// <param name="replacedItems"></param>
+        /// <param name="summary"></param>
         public BoardAutoCollectResult(
             List<BoardItemInstance> addedItems,
             List<BoardItemInstance> droppedItems,
             List<BoardItemInstance> replacedItems,
             string summary)
         {
-            AddedItems = addedItems;
-            DroppedItems = droppedItems;
-            ReplacedItems = replacedItems;
-            Summary = summary;
+            AddedItems = addedItems ?? new List<BoardItemInstance>();
+            DroppedItems = droppedItems ?? new List<BoardItemInstance>();
+            ReplacedItems = replacedItems ?? new List<BoardItemInstance>();
+            Summary = summary ?? string.Empty;
         }
 
         public List<BoardItemInstance> AddedItems { get; }

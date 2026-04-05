@@ -1,5 +1,6 @@
 using BoardGame.Config;
 using BoardGame.Presentation;
+using BoardGame.Runtime;
 using BoardGame.Views;
 using UnityEngine;
 
@@ -12,39 +13,33 @@ namespace BoardGame.Runtime.Controllers
     public sealed class BoardGamePrototypeInstaller : MonoBehaviour
     {
         [Header("Config")]
-        // 固定地图配置，提供节点、边和 2D 坐标
         [SerializeField] private SO_BoardGame_MapDefinition _mapDefinition;
-        // 规则配置，提供 AI 阈值、移动时长、战斗公式和撤离规则
         [SerializeField] private SO_BoardGame_RuleSet _ruleSet;
-        // 掉落配置，提供资源点与敌人的战利品表
         [SerializeField] private SO_BoardGame_LootTableSet _lootTableSet;
+        [SerializeField] private BoardGameBagLayoutSettings _bagLayoutSettings = new BoardGameBagLayoutSettings();
 
         [Header("Map View")]
-        // 地图运行时表现对象的父节点，留空时会退回当前物体
         [SerializeField] private Transform _mapRoot;
-        // 地图视图总控，负责实例化节点、边和 AI 表现
         [SerializeField] private BoardGameMapViewController _mapViewController;
-        // 节点预制体，必须带 2D Collider 以支持点击
         [SerializeField] private BoardGameNodeView _nodeViewPrefab;
-        // 边预制体，建议挂 LineRenderer
         [SerializeField] private BoardGameEdgeView _edgeViewPrefab;
-        // AI 表现预制体，必须带 2D Collider 以支持选中
         [SerializeField] private BoardGameAgentView _agentViewPrefab;
 
         [Header("UI")]
-        // 顶部 HUD 控制器，显示 AI 总览与进度
         [SerializeField] private BoardGameHudController _hudController;
-        // 道具栏控制器，展示并触发消耗品使用
         [SerializeField] private BoardGameItemBarController _itemBarController;
-        // 输入控制器，负责鼠标选中与重定向操作
+        [SerializeField] private BoardGameLevelUpController _levelUpController;
+        [SerializeField] private BoardGameLootInventoryController _lootInventoryController;
         [SerializeField] private BoardGameSelectionController _selectionController;
-        // 世界相机，负责把鼠标位置投到 2D 地图上
         [SerializeField] private Camera _worldCamera;
 
         private BoardGamePrototypeController _prototypeController;
 
         public BoardGamePrototypeController PrototypeController => _prototypeController;
 
+        /// <summary>
+        /// 组装 BoardGame 运行时总控，并把地图、HUD、道具栏和输入控制器全部绑定起来
+        /// </summary>
         private void Start()
         {
             if (!ValidateRequiredConfiguration())
@@ -53,18 +48,45 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            _prototypeController = new BoardGamePrototypeController(_mapDefinition, _ruleSet, _lootTableSet);
+            _prototypeController = new BoardGamePrototypeController(_mapDefinition, _ruleSet, _lootTableSet, _bagLayoutSettings);
 
             if (_mapViewController != null)
             {
-                _mapViewController.Initialize(_prototypeController, _mapRoot, _nodeViewPrefab, _edgeViewPrefab, _agentViewPrefab);
+                // 地图视图先初始化，后续 HUD 和输入控制器才能立刻读取到完整节点状态
+                _mapViewController.Initialize(
+                    _mapDefinition,
+                    _prototypeController.GraphService,
+                    _prototypeController.RuntimeQueryController,
+                    _prototypeController.SelectionStateController,
+                    _mapRoot,
+                    _nodeViewPrefab,
+                    _edgeViewPrefab,
+                    _agentViewPrefab);
             }
 
-            _hudController?.Bind(_prototypeController);
-            _itemBarController?.Bind(_prototypeController);
-            _selectionController?.Bind(_prototypeController, _worldCamera != null ? _worldCamera : Camera.main);
+            _hudController?.Bind(_prototypeController.RuntimeQueryController);
+            _itemBarController?.Bind(_prototypeController.RuntimeQueryController, _prototypeController.ItemUseController);
+            ResolveLevelUpController()?.Bind(_prototypeController.RuntimeQueryController, _prototypeController.ProgressionController);
+            _selectionController?.Bind(
+                _prototypeController.RuntimeQueryController,
+                _prototypeController.SelectionStateController,
+                _prototypeController.TargetRedirectController,
+                _prototypeController.ProgressionController,
+                _worldCamera != null ? _worldCamera : Camera.main);
+
+            if (_prototypeController.IsBagSystemEnabled)
+            {
+                // 只有开背包系统时才装配 Bag bridge，避免旧容量模式额外创建运行时 UI
+                ResolveLootInventoryController()?.Bind(
+                    _prototypeController.RuntimeQueryController,
+                    _prototypeController.LootInteractionController,
+                    ResolveParentCanvas());
+            }
         }
 
+        /// <summary>
+        /// 推进 BoardGame 原型每帧逻辑
+        /// </summary>
         private void Update()
         {
             _prototypeController?.Tick(Time.deltaTime);
@@ -82,6 +104,109 @@ namespace BoardGame.Runtime.Controllers
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 解析升级面板控制器
+        /// 若场景中未提供，则尝试基于已有 Canvas 运行时创建一份
+        /// </summary>
+        private BoardGameLevelUpController ResolveLevelUpController()
+        {
+            if (_levelUpController != null)
+            {
+                return _levelUpController;
+            }
+
+            _levelUpController = FindObjectOfType<BoardGameLevelUpController>();
+
+            if (_levelUpController != null)
+            {
+                return _levelUpController;
+            }
+
+            Canvas parentCanvas = null;
+
+            if (_hudController != null)
+            {
+                parentCanvas = _hudController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _itemBarController != null)
+            {
+                parentCanvas = _itemBarController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _selectionController != null)
+            {
+                parentCanvas = _selectionController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null)
+            {
+                return null;
+            }
+
+            // 升级面板是纯运行时 overlay，所以这里直接补建并拉满父 Canvas
+            GameObject levelUpObject = new GameObject("LevelUpOverlay", typeof(RectTransform), typeof(BoardGameLevelUpController));
+            RectTransform rectTransform = levelUpObject.GetComponent<RectTransform>();
+            rectTransform.SetParent(parentCanvas.transform, false);
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+            rectTransform.SetAsLastSibling();
+
+            _levelUpController = levelUpObject.GetComponent<BoardGameLevelUpController>();
+            return _levelUpController;
+        }
+
+        /// <summary>
+        /// 解析 loot 背包桥接控制器
+        /// 若场景中未挂载，则在安装器节点下运行时补建一份
+        /// </summary>
+        private BoardGameLootInventoryController ResolveLootInventoryController()
+        {
+            if (_lootInventoryController != null)
+            {
+                return _lootInventoryController;
+            }
+
+            _lootInventoryController = FindObjectOfType<BoardGameLootInventoryController>();
+
+            if (_lootInventoryController != null)
+            {
+                return _lootInventoryController;
+            }
+
+            GameObject inventoryBridgeObject = new GameObject("BoardGameLootInventoryController", typeof(BoardGameLootInventoryController));
+            inventoryBridgeObject.transform.SetParent(transform, false);
+            _lootInventoryController = inventoryBridgeObject.GetComponent<BoardGameLootInventoryController>();
+            return _lootInventoryController;
+        }
+
+        /// <summary>
+        /// 从已绑定的 HUD、道具栏或选择控制器中寻找可复用的父级 Canvas
+        /// </summary>
+        private Canvas ResolveParentCanvas()
+        {
+            Canvas parentCanvas = null;
+
+            if (_hudController != null)
+            {
+                parentCanvas = _hudController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _itemBarController != null)
+            {
+                parentCanvas = _itemBarController.GetComponentInParent<Canvas>();
+            }
+
+            if (parentCanvas == null && _selectionController != null)
+            {
+                parentCanvas = _selectionController.GetComponentInParent<Canvas>();
+            }
+
+            return parentCanvas;
         }
     }
 }

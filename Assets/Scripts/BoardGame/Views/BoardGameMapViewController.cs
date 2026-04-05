@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BoardGame.Config;
 using BoardGame.Runtime.Controllers;
 using BoardGame.Runtime.State;
+using BoardGame.Runtime.Services;
 using UnityEngine;
 
 namespace BoardGame.Views
@@ -17,24 +18,33 @@ namespace BoardGame.Views
         private readonly Dictionary<string, BoardGameEdgeView> _edgeViewsById =
             new Dictionary<string, BoardGameEdgeView>();
 
-        private BoardGamePrototypeController _prototypeController;
+        private SO_BoardGame_MapDefinition _mapDefinition;
+        private BoardGraphService _graphService;
+        private BoardGameRuntimeQueryController _runtimeQueryController;
+        private BoardGameSelectionStateController _selectionStateController;
         private BoardGameAgentView _agentView;
 
         /// <summary>
         /// 初始化地图视图并订阅运行时事件
         /// </summary>
         public void Initialize(
-            BoardGamePrototypeController prototypeController,
+            SO_BoardGame_MapDefinition mapDefinition,
+            BoardGraphService graphService,
+            BoardGameRuntimeQueryController runtimeQueryController,
+            BoardGameSelectionStateController selectionStateController,
             Transform mapRoot,
             BoardGameNodeView nodeViewPrefab,
             BoardGameEdgeView edgeViewPrefab,
             BoardGameAgentView agentViewPrefab)
         {
-            _prototypeController = prototypeController;
+            _mapDefinition = mapDefinition;
+            _graphService = graphService;
+            _runtimeQueryController = runtimeQueryController;
+            _selectionStateController = selectionStateController;
 
             BuildMapViews(mapRoot != null ? mapRoot : transform, nodeViewPrefab, edgeViewPrefab, agentViewPrefab);
-            _prototypeController.SessionChanged += RefreshViews;
-            _prototypeController.SelectionChanged += RefreshViews;
+            _runtimeQueryController.Changed += RefreshViews;
+            _selectionStateController.SelectionChanged += RefreshViews;
             RefreshViews();
         }
 
@@ -47,7 +57,7 @@ namespace BoardGame.Views
             BoardGameEdgeView edgeViewPrefab,
             BoardGameAgentView agentViewPrefab)
         {
-            foreach (BoardMapNodeDefinition nodeDefinition in _prototypeController.MapDefinition.Nodes)
+            foreach (BoardMapNodeDefinition nodeDefinition in _mapDefinition.Nodes)
             {
                 BoardGameNodeView nodeView = Instantiate(nodeViewPrefab, mapRoot);
                 nodeView.transform.position = nodeDefinition.Position;
@@ -55,11 +65,11 @@ namespace BoardGame.Views
                 _nodeViewsById[nodeDefinition.NodeId] = nodeView;
             }
 
-            foreach (BoardMapEdgeDefinition edgeDefinition in _prototypeController.MapDefinition.Edges)
+            foreach (BoardMapEdgeDefinition edgeDefinition in _mapDefinition.Edges)
             {
                 BoardGameEdgeView edgeView = Instantiate(edgeViewPrefab, mapRoot);
-                Vector3 fromPosition = _prototypeController.GraphService.GetNodePosition(edgeDefinition.FromNodeId);
-                Vector3 toPosition = _prototypeController.GraphService.GetNodePosition(edgeDefinition.ToNodeId);
+                Vector3 fromPosition = _graphService.GetNodePosition(edgeDefinition.FromNodeId);
+                Vector3 toPosition = _graphService.GetNodePosition(edgeDefinition.ToNodeId);
                 float fromRadius = GetNodeVisualRadius(edgeDefinition.FromNodeId);
                 float toRadius = GetNodeVisualRadius(edgeDefinition.ToNodeId);
                 edgeView.Initialize(
@@ -79,13 +89,13 @@ namespace BoardGame.Views
         /// </summary>
         private void RefreshViews()
         {
-            if (_prototypeController == null)
+            if (_runtimeQueryController == null || _selectionStateController == null)
             {
                 return;
             }
 
-            HashSet<string> highlightedEdgeIds = new HashSet<string>(_prototypeController.GetHighlightedEdgeIds());
-            BoardAgentState agentState = _prototypeController.SessionState.AgentState;
+            HashSet<string> highlightedEdgeIds = new HashSet<string>(_runtimeQueryController.GetHighlightedEdgeIds());
+            BoardAgentState agentState = _runtimeQueryController.SessionState.AgentState;
             HashSet<string> runtimeInfoVisibleNodeIds = BuildRuntimeInfoVisibleNodeIds(agentState);
 
             foreach (KeyValuePair<string, BoardGameEdgeView> edgeViewPair in _edgeViewsById)
@@ -95,11 +105,11 @@ namespace BoardGame.Views
 
             foreach (KeyValuePair<string, BoardGameNodeView> nodeViewPair in _nodeViewsById)
             {
-                BoardNodeRuntimeState nodeState = _prototypeController.GetNodeState(nodeViewPair.Key);
+                BoardNodeRuntimeState nodeState = _runtimeQueryController.GetNodeState(nodeViewPair.Key);
                 nodeViewPair.Value.Refresh(
                     nodeState,
                     nodeViewPair.Key == agentState.CurrentTargetNodeId,
-                    nodeViewPair.Key == _prototypeController.SelectedNodeId,
+                    nodeViewPair.Key == _selectionStateController.SelectedNodeId,
                     false,
                     runtimeInfoVisibleNodeIds.Contains(nodeViewPair.Key));
             }
@@ -139,7 +149,7 @@ namespace BoardGame.Views
 
             visibleNodeIds.Add(nodeId);
 
-            foreach (BoardMapNodeDefinition neighbor in _prototypeController.GraphService.GetNeighbors(nodeId))
+            foreach (BoardMapNodeDefinition neighbor in _graphService.GetNeighbors(nodeId))
             {
                 visibleNodeIds.Add(neighbor.NodeId);
             }

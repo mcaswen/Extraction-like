@@ -15,7 +15,7 @@ MonoBehaviour:
   _ruleSetId: planner_rule_set_v1
   _agentStats:
     _maxHealth: 100
-    _attack: 7
+    _attack: 20
     _defense: 0
     _maxCarryCapacity: 9
     _startingHealingPotionCount: 1
@@ -32,26 +32,49 @@ MonoBehaviour:
     _tickIntervalSeconds: 1
     _enemyDefinitions:
     - _dangerTier: 1
-      _maxHealth: 13
-      _attack: 4
-      _defenseMin: 1
-      _defenseMax: 2
-    - _dangerTier: 2
-      _maxHealth: 12
-      _attack: 6
-      _defenseMin: 0
-      _defenseMax: 1
-    - _dangerTier: 3
       _maxHealth: 20
-      _attack: 5
-      _defenseMin: 0
-      _defenseMax: 0
+      _attack: 10
+      _defense: 5
+    - _dangerTier: 2
+      _maxHealth: 20
+      _attack: 15
+      _defense: 10
+    - _dangerTier: 3
+      _maxHealth: 25
+      _attack: 10
+      _defense: 15
     _bossDefinition:
-      _maxHealth: 24
-      _attack: 7
-      _defenseMin: 0
-      _defenseMax: 1
+      _maxHealth: 25
+      _attack: 15
+      _defense: 15
   _extractRules:
     _durationSeconds: 4
     _canInterrupt: 1
     _preserveProgressOnInterrupt: 1
+  _progressionRules:
+    _enabled: 0
+    _startingLevel: 1
+    _startingRequiredExperience: 50
+    _requiredExperienceGrowthPerLevel: 25
+    _choicesPerLevel: 3
+    _bossExperienceValue: 120
+    _encounterExperienceDefinitions:
+    - _isBoss: 0
+      _dangerTier: 1
+      _experienceValue: 20
+    - _isBoss: 0
+      _dangerTier: 2
+      _experienceValue: 35
+    - _isBoss: 0
+      _dangerTier: 3
+      _experienceValue: 55
+    _buffDefinitions:
+    - _buffType: 0
+      _minValue: 1
+      _maxValue: 3
+    - _buffType: 1
+      _minValue: 1
+      _maxValue: 2
+    - _buffType: 2
+      _minValue: 8
+      _maxValue: 18

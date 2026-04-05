@@ -15,6 +15,9 @@ namespace BoardGame.Config
         // 掉落表唯一 ID
         public const string LootSetId = "planner_loot_set_v1";
 
+        // 当前策划固定地图预设的起点节点 ID
+        public const string PlannerMapStartNodeId = "1";
+
         // 各品质策划期望价值
         // 绿色 20 蓝色 60 紫色 100 金色 400 红色 1500
         // 这些值已经隐含在对应的价值区间里
@@ -32,7 +35,7 @@ namespace BoardGame.Config
             return new BoardAgentStatDefinition
             {
                 MaxHealth = 100,
-                Attack = 7,
+                Attack = 20,
                 Defense = 0,
                 MaxCarryCapacity = 9f,
                 StartingHealingPotionCount = 1
@@ -88,11 +91,11 @@ namespace BoardGame.Config
                 TickIntervalSeconds = 1f,
                 EnemyDefinitions = new List<BoardEnemyStatDefinition>
                 {
-                    new BoardEnemyStatDefinition(BoardDangerTier.Low, 13, 4, 1, 2),
-                    new BoardEnemyStatDefinition(BoardDangerTier.Medium, 12, 6, 0, 1),
-                    new BoardEnemyStatDefinition(BoardDangerTier.High, 20, 5, 0, 0)
+                    new BoardEnemyStatDefinition(BoardDangerTier.Low, 20, 10, 5),
+                    new BoardEnemyStatDefinition(BoardDangerTier.Medium, 20, 15, 10),
+                    new BoardEnemyStatDefinition(BoardDangerTier.High, 25, 10, 15)
                 },
-                BossDefinition = new BoardBossStatDefinition(24, 7, 0, 1)
+                BossDefinition = new BoardBossStatDefinition(25, 15, 15)
             };
         }
 
@@ -111,19 +114,47 @@ namespace BoardGame.Config
         }
 
         /// <summary>
+        /// 生成经验与升级规则
+        /// </summary>
+        public static BoardProgressionRuleDefinition CreateProgressionRules()
+        {
+            return new BoardProgressionRuleDefinition
+            {
+                Enabled = true,
+                StartingLevel = 1,
+                StartingRequiredExperience = 50,
+                RequiredExperienceGrowthPerLevel = 25,
+                ChoicesPerLevel = 3,
+                BossExperienceValue = 120,
+                EncounterExperienceDefinitions = new List<BoardEncounterExperienceDefinition>
+                {
+                    new BoardEncounterExperienceDefinition(false, BoardDangerTier.Low, 20),
+                    new BoardEncounterExperienceDefinition(false, BoardDangerTier.Medium, 35),
+                    new BoardEncounterExperienceDefinition(false, BoardDangerTier.High, 55)
+                },
+                BuffDefinitions = new List<BoardLevelUpBuffDefinition>
+                {
+                    new BoardLevelUpBuffDefinition(BoardLevelUpBuffType.AttackFlat, 1, 3),
+                    new BoardLevelUpBuffDefinition(BoardLevelUpBuffType.DefenseFlat, 1, 2),
+                    new BoardLevelUpBuffDefinition(BoardLevelUpBuffType.MaxHealthFlat, 8, 18)
+                }
+            };
+        }
+
+        /// <summary>
         /// 生成全部物品模板
         /// </summary>
         public static List<BoardItemDefinition> CreateItemDefinitions()
         {
             return new List<BoardItemDefinition>
             {
-                new BoardItemDefinition("loot_green", "Green Loot", BoardItemCategory.Loot, BoardItemRarity.Common, 10, 30, 0.1f),
-                new BoardItemDefinition("loot_blue", "Blue Loot", BoardItemCategory.Loot, BoardItemRarity.Uncommon, 40, 80, 0.5f),
-                new BoardItemDefinition("loot_purple", "Purple Loot", BoardItemCategory.Loot, BoardItemRarity.Rare, 80, 120, 0.5f),
-                new BoardItemDefinition("loot_gold", "Gold Loot", BoardItemCategory.Loot, BoardItemRarity.Epic, 300, 500, 1f),
-                new BoardItemDefinition("loot_red", "Red Loot", BoardItemCategory.Loot, BoardItemRarity.Legendary, 1000, 2000, 2f),
+                new BoardItemDefinition("loot_green", "Green Loot", BoardItemCategory.Loot, BoardItemRarity.Common, 10, 30, 0.1f, 0.45f, 6),
+                new BoardItemDefinition("loot_blue", "Blue Loot", BoardItemCategory.Loot, BoardItemRarity.Uncommon, 40, 80, 0.5f, 0.75f, 12),
+                new BoardItemDefinition("loot_purple", "Purple Loot", BoardItemCategory.Loot, BoardItemRarity.Rare, 80, 120, 0.5f, 1.1f, 18),
+                new BoardItemDefinition("loot_gold", "Gold Loot", BoardItemCategory.Loot, BoardItemRarity.Epic, 300, 500, 1f, 1.55f, 30),
+                new BoardItemDefinition("loot_red", "Red Loot", BoardItemCategory.Loot, BoardItemRarity.Legendary, 1000, 2000, 2f, 2.1f, 50),
                 // 血瓶的结算价值按策划口径放在中级物资之上 高级物资之下
-                new BoardItemDefinition("healing_potion", "Healing Potion", BoardItemCategory.Consumable, BoardItemRarity.Uncommon, 150, 250, 0.5f, BoardConsumableType.HealingPotion, 10)
+                new BoardItemDefinition("healing_potion", "Healing Potion", BoardItemCategory.Consumable, BoardItemRarity.Uncommon, 150, 250, 0.5f, 0.75f, 16, BoardConsumableType.HealingPotion, 10)
             };
         }
 
@@ -188,5 +219,85 @@ namespace BoardGame.Config
                 })
             };
         }
+
+        /// <summary>
+        /// 生成策划固定地图的节点元数据
+        /// 位置由场景摆点导入 这里只定义类型与等级
+        /// </summary>
+        public static List<BoardPlannerMapNodePresetDefinition> CreatePlannerMapNodePresets()
+        {
+            return new List<BoardPlannerMapNodePresetDefinition>
+            {
+                new BoardPlannerMapNodePresetDefinition("1", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("2", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("3", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("4", BoardNodeType.Resource, BoardResourceTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("5", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("6", BoardNodeType.Boss, BoardResourceTier.None, BoardDangerTier.High),
+                new BoardPlannerMapNodePresetDefinition("7", BoardNodeType.Resource, BoardResourceTier.High),
+                new BoardPlannerMapNodePresetDefinition("8", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("9", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("10", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("11", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("12", BoardNodeType.Resource, BoardResourceTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("13", BoardNodeType.Boss, BoardResourceTier.None, BoardDangerTier.High),
+                new BoardPlannerMapNodePresetDefinition("14", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("15", BoardNodeType.Resource, BoardResourceTier.High),
+                new BoardPlannerMapNodePresetDefinition("0", BoardNodeType.Extract)
+            };
+        }
+
+        /// <summary>
+        /// 生成策划固定地图的连边定义
+        /// </summary>
+        public static List<BoardMapEdgeDefinition> CreatePlannerMapEdgePresets()
+        {
+            return new List<BoardMapEdgeDefinition>
+            {
+                new BoardMapEdgeDefinition("01", "1", "2", 2f),
+                new BoardMapEdgeDefinition("02", "2", "3", 2f),
+                new BoardMapEdgeDefinition("03", "3", "5", 2f),
+                new BoardMapEdgeDefinition("04", "5", "4", 2f),
+                new BoardMapEdgeDefinition("05", "5", "6", 2f),
+                new BoardMapEdgeDefinition("06", "6", "7", 2f),
+                new BoardMapEdgeDefinition("07", "1", "8", 2f),
+                new BoardMapEdgeDefinition("08", "3", "9", 2f),
+                new BoardMapEdgeDefinition("09", "8", "10", 2f),
+                new BoardMapEdgeDefinition("10", "8", "11", 2f),
+                new BoardMapEdgeDefinition("11", "11", "0", 3f),
+                new BoardMapEdgeDefinition("12", "9", "0", 3f),
+                new BoardMapEdgeDefinition("13", "9", "12", 3f),
+                new BoardMapEdgeDefinition("14", "11", "14", 2f),
+                new BoardMapEdgeDefinition("15", "10", "13", 2f),
+                new BoardMapEdgeDefinition("16", "13", "15", 2f)
+            };
+        }
+    }
+
+    /// <summary>
+    /// 策划固定地图节点预设
+    /// 按节点 ID 提供类型与等级
+    /// </summary>
+    public readonly struct BoardPlannerMapNodePresetDefinition
+    {
+        public BoardPlannerMapNodePresetDefinition(
+            string nodeId,
+            BoardNodeType nodeType,
+            BoardResourceTier resourceTier = BoardResourceTier.None,
+            BoardDangerTier dangerTier = BoardDangerTier.None,
+            string description = "")
+        {
+            NodeId = nodeId;
+            NodeType = nodeType;
+            ResourceTier = resourceTier;
+            DangerTier = dangerTier;
+            Description = description;
+        }
+
+        public string NodeId { get; }
+        public BoardNodeType NodeType { get; }
+        public BoardResourceTier ResourceTier { get; }
+        public BoardDangerTier DangerTier { get; }
+        public string Description { get; }
     }
 }

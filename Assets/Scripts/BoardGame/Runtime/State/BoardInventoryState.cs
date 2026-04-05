@@ -11,10 +11,12 @@ namespace BoardGame.Runtime.State
     [Serializable]
     public sealed class BoardInventoryState
     {
-        // 背包总容量上限
         [SerializeField] private float _maxCapacity = 9f;
-        // 当前已持有的全部物品实例
         [SerializeField] private List<BoardItemInstance> _items = new List<BoardItemInstance>();
+
+        public BoardInventoryState()
+        {
+        }
 
         public BoardInventoryState(float maxCapacity)
         {
@@ -28,7 +30,7 @@ namespace BoardGame.Runtime.State
         }
 
         public List<BoardItemInstance> Items => _items;
-        public float UsedCapacity => _items.Sum(item => item.CapacityCost);
+        public float UsedCapacity => _items.Sum(item => item != null ? item.CapacityCost : 0f);
         public int TotalValue => _items.Sum(item => item.Value);
 
         /// <summary>

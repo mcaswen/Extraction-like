@@ -10,17 +10,27 @@ namespace BoardGame.Views
     /// </summary>
     public sealed class BoardGameItemSlotView : MonoBehaviour
     {
-        // 槽位点击按钮
         [SerializeField] private Button _button;
-        // 道具名称文本
         [SerializeField] private TMP_Text _nameText;
-        // 道具数量文本
         [SerializeField] private TMP_Text _countText;
+
+        private void Awake()
+        {
+            if (_nameText != null)
+            {
+                _nameText.raycastTarget = false;
+            }
+
+            if (_countText != null)
+            {
+                _countText.raycastTarget = false;
+            }
+        }
 
         /// <summary>
         /// 绑定槽位显示和点击事件
         /// </summary>
-        public void Bind(string itemName, int count, UnityAction onClick)
+        public void Bind(string itemName, int count, UnityAction onClick, bool isInteractable = true)
         {
             gameObject.SetActive(true);
 
@@ -38,7 +48,7 @@ namespace BoardGame.Views
             {
                 _button.onClick.RemoveAllListeners();
                 _button.onClick.AddListener(onClick);
-                _button.interactable = true;
+                _button.interactable = isInteractable;
             }
         }
 

@@ -10,55 +10,37 @@ namespace BoardGame.Runtime.State
     [Serializable]
     public sealed class BoardNodeRuntimeState
     {
-        // 节点唯一 ID
         [SerializeField] private string _nodeId;
-        // 节点补充说明
         [SerializeField] private string _description;
-        // 节点主类型
         [SerializeField] private BoardNodeType _nodeType;
-        // 资源等级，仅资源点使用
         [SerializeField] private BoardResourceTier _resourceTier;
-        // 危险等级，仅敌人点和 Boss 点使用
         [SerializeField] private BoardDangerTier _dangerTier;
 
-        // 资源点当前状态
         [SerializeField] private BoardResourceStateType _resourceState = BoardResourceStateType.Unsearched;
-        // 资源点已累计搜索时长
         [SerializeField] private float _searchProgressSeconds;
-        // 资源点搜索总时长
         [SerializeField] private float _searchRequiredSeconds;
-        // 是否已经生成过资源奖励实例
         [SerializeField] private bool _hasGeneratedResourceLoot;
-        // 资源点已生成的掉落实例缓存
         [SerializeField] private List<BoardItemInstance> _generatedResourceItems = new List<BoardItemInstance>();
+        [SerializeField] private List<BoardLootContainerItemState> _lootContainerItems = new List<BoardLootContainerItemState>();
+        [SerializeField] private int _lootContainerColumns = 3;
+        [SerializeField] private int _lootContainerRows = 3;
+        [SerializeField] private int _lootTotalItemCount;
+        [SerializeField] private int _lootRevealedItemCount;
 
-        // 普通敌人点当前状态
         [SerializeField] private BoardEnemyStateType _enemyState = BoardEnemyStateType.Unengaged;
-        // 普通敌人当前生命值
         [SerializeField] private int _enemyCurrentHealth;
-        // 普通敌人最大生命值
         [SerializeField] private int _enemyMaxHealth;
-        // 普通敌人攻击力
         [SerializeField] private int _enemyAttack;
-        // 普通敌人防御力
         [SerializeField] private int _enemyDefense;
 
-        // Boss 点当前状态
         [SerializeField] private BoardBossStateType _bossState = BoardBossStateType.Untriggered;
-        // Boss 当前生命值
         [SerializeField] private int _bossCurrentHealth;
-        // Boss 最大生命值
         [SerializeField] private int _bossMaxHealth;
-        // Boss 攻击力
         [SerializeField] private int _bossAttack;
-        // Boss 防御力
         [SerializeField] private int _bossDefense;
 
-        // 撤离点当前状态
         [SerializeField] private BoardExtractStateType _extractState = BoardExtractStateType.Available;
-        // 撤离已累计进度
         [SerializeField] private float _extractProgressSeconds;
-        // 撤离总时长
         [SerializeField] private float _extractRequiredSeconds;
 
         public BoardNodeRuntimeState(
@@ -106,6 +88,31 @@ namespace BoardGame.Runtime.State
         }
 
         public List<BoardItemInstance> GeneratedResourceItems => _generatedResourceItems;
+        public List<BoardLootContainerItemState> LootContainerItems => _lootContainerItems;
+
+        public int LootContainerColumns
+        {
+            get => Mathf.Max(1, _lootContainerColumns);
+            set => _lootContainerColumns = Mathf.Max(1, value);
+        }
+
+        public int LootContainerRows
+        {
+            get => Mathf.Max(1, _lootContainerRows);
+            set => _lootContainerRows = Mathf.Max(1, value);
+        }
+
+        public int LootTotalItemCount
+        {
+            get => Mathf.Max(0, _lootTotalItemCount);
+            set => _lootTotalItemCount = Mathf.Max(0, value);
+        }
+
+        public int LootRevealedItemCount
+        {
+            get => Mathf.Clamp(_lootRevealedItemCount, 0, LootTotalItemCount);
+            set => _lootRevealedItemCount = Mathf.Clamp(value, 0, LootTotalItemCount);
+        }
 
         public BoardEnemyStateType EnemyState
         {
@@ -191,6 +198,114 @@ namespace BoardGame.Runtime.State
         public bool HasUnfinishedSearch()
         {
             return _nodeType == BoardNodeType.Resource && _resourceState != BoardResourceStateType.Looted;
+        }
+
+        public bool HasPendingLootContainer()
+        {
+            return _lootTotalItemCount > 0;
+        }
+
+        /// <summary>
+        /// 查询容器里是否还有可被玩家带走的剩余战利品
+        /// </summary>
+        public bool HasRemainingLootItems()
+        {
+            return _lootContainerItems.Count > 0;
+        }
+
+        /// <summary>
+        /// 查询当前容器里是否还存在未揭露物品
+        /// </summary>
+        public bool HasHiddenLootItems()
+        {
+            foreach (BoardLootContainerItemState itemState in _lootContainerItems)
+            {
+                if (itemState != null && !itemState.IsRevealed)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool IsLootRevealComplete()
+        {
+            return _lootTotalItemCount <= 0 || LootRevealedItemCount >= _lootTotalItemCount;
+        }
+
+        public float GetLootRevealProgress01()
+        {
+            return _lootTotalItemCount <= 0
+                ? 1f
+                : Mathf.Clamp01((float)LootRevealedItemCount / _lootTotalItemCount);
+        }
+
+        /// <summary>
+        /// 获取当前 loot 搜查的连续进度。
+        /// 除了已完整揭示的物品外，还会把当前正在揭示的那一件物品的部分进度计入。
+        /// </summary>
+        /// <summary>
+        /// 获取当前 loot 搜查的连续进度。
+        /// 除了已完整揭示的物品外，还会把当前正在揭示的那一件物品的部分进度计入。
+        /// </summary>
+        public float GetLootRevealProgressWithPartial01()
+        {
+            if (_lootTotalItemCount <= 0)
+            {
+                return 1f;
+            }
+
+            float progress = LootRevealedItemCount;
+            BoardLootContainerItemState currentHiddenItem = null;
+            int bestRevealSequence = int.MaxValue;
+
+            foreach (BoardLootContainerItemState itemState in _lootContainerItems)
+            {
+                if (itemState == null || itemState.IsRevealed || itemState.RevealSequenceIndex >= bestRevealSequence)
+                {
+                    continue;
+                }
+
+                bestRevealSequence = itemState.RevealSequenceIndex;
+                currentHiddenItem = itemState;
+            }
+
+            if (currentHiddenItem != null)
+            {
+                progress += currentHiddenItem.RevealProgress01;
+            }
+
+            return Mathf.Clamp01(progress / _lootTotalItemCount);
+        }
+
+        /// <summary>
+        /// 清空节点上的 loot 容器，并把搜索进度同步回空状态
+        /// </summary>
+        public void ResetLootContainer()
+        {
+            _lootContainerItems.Clear();
+            _lootContainerColumns = 3;
+            _lootContainerRows = 3;
+            _lootTotalItemCount = 0;
+            _lootRevealedItemCount = 0;
+            SyncSearchProgressFromLootReveal();
+        }
+
+        /// <summary>
+        /// 用 reveal 进度反推资源点的搜索进度
+        /// 让节点表现和 loot 面板始终引用同一套完成度
+        /// </summary>
+        public void SyncSearchProgressFromLootReveal()
+        {
+            if (_nodeType != BoardNodeType.Resource)
+            {
+                return;
+            }
+
+            // 资源点仍沿用搜索进度条表现，所以这里把每件 loot 抽象成一段统一的 reveal 进度
+            _searchRequiredSeconds = Mathf.Max(1f, _lootTotalItemCount);
+            _searchProgressSeconds = Mathf.Clamp(_lootRevealedItemCount, 0f, _searchRequiredSeconds);
         }
 
         /// <summary>

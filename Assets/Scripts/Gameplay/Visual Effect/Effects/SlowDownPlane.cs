@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class SlowDownPlane : MonoBehaviour
 {
-    [Header("¼õËÙÉèÖÃ")]
-    [Tooltip("Òª½µµÍµÄËÙ¶ÈÖµ£¨µ¥Î»£ºÃ×/Ãë£©")]
+    [Header("å‡é€Ÿè®¾ç½®")]
+    [Tooltip("è¦é™ä½çš„é€Ÿåº¦å€¼ï¼ˆå•ä½ï¼šç±³/ç§’ï¼‰")]
     public float speedReduction = 10f;
 
-    [Tooltip("Àë¿ªPlaneºóÊÇ·ñ»Ö¸´Ô­ËÙ¶È")]
+    [Tooltip("ç¦»å¼€Planeåæ˜¯å¦æ¢å¤åŸé€Ÿåº¦")]
     public bool restoreSpeedOnExit = true;
 
 
@@ -19,7 +19,7 @@ public class SlowDownPlane : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col == null)
         {
-            Debug.LogWarning("PlaneÈ±ÉÙÅö×²Ìå£¬ÒÑ×Ô¶¯Ìí¼ÓMeshCollider£¡");
+            Debug.LogWarning("Planeç¼ºå°‘ç¢°æ’ä½“ï¼Œå·²è‡ªåŠ¨æ·»åŠ MeshColliderï¼");
             col = gameObject.AddComponent<MeshCollider>();
         }
         
@@ -29,25 +29,25 @@ public class SlowDownPlane : MonoBehaviour
    
     private void OnTriggerEnter(Collider other)
     {
-        // ¼ì²âÊÇ·ñÊÇPlayer±êÇ©µÄÎïÌå
+        // æ£€æµ‹æ˜¯å¦æ˜¯Playeræ ‡ç­¾çš„ç‰©ä½“
         if (other.CompareTag("Player"))
         {
-            // »ñÈ¡PlayerµÄÒÆ¶¯½Å±¾
+            // è·å–Playerçš„ç§»åŠ¨è„šæœ¬
             PlayerMovement playerMove = other.GetComponent<PlayerMovement>();
             if (playerMove != null)
             {
-                // ´æ´¢Ô­Ê¼ËÙ¶È£¨±ÜÃâÖØ¸´´æ´¢£©
+                // å­˜å‚¨åŸå§‹é€Ÿåº¦ï¼ˆé¿å…é‡å¤å­˜å‚¨ï¼‰
                 if (!playerOriginalSpeeds.ContainsKey(other.gameObject))
                 {
                     playerOriginalSpeeds[other.gameObject] = playerMove.moveSpeed;
                 }
-                // ½µµÍËÙ¶È£¨È·±£ËÙ¶È²»»áÎª¸ºÊı£©
+                // é™ä½é€Ÿåº¦ï¼ˆç¡®ä¿é€Ÿåº¦ä¸ä¼šä¸ºè´Ÿæ•°ï¼‰
                 playerMove.moveSpeed = Mathf.Max(0, playerMove.moveSpeed - speedReduction);
-                Debug.Log($"Player½øÈë¼õËÙÇøÓò£¬ËÙ¶È´Ó{playerOriginalSpeeds[other.gameObject]}½µÖÁ{playerMove.moveSpeed}");
+                Debug.Log($"Playerè¿›å…¥å‡é€ŸåŒºåŸŸï¼Œé€Ÿåº¦ä»{playerOriginalSpeeds[other.gameObject]}é™è‡³{playerMove.moveSpeed}");
             }
             else
             {
-                Debug.LogWarning("PlayerÎïÌåÉÏÎ´¹ÒÔØPlayerMovement½Å±¾£¡");
+                Debug.LogWarning("Playerç‰©ä½“ä¸ŠæœªæŒ‚è½½PlayerMovementè„šæœ¬ï¼");
             }
         }
     }
@@ -60,10 +60,10 @@ public class SlowDownPlane : MonoBehaviour
             PlayerMovement playerMove = other.GetComponent<PlayerMovement>();
             if (playerMove != null && playerOriginalSpeeds.ContainsKey(other.gameObject))
             {
-                // »Ö¸´Ô­Ê¼ËÙ¶È
+                // æ¢å¤åŸå§‹é€Ÿåº¦
                 playerMove.moveSpeed = playerOriginalSpeeds[other.gameObject];
                 playerOriginalSpeeds.Remove(other.gameObject);
-                Debug.Log($"PlayerÀë¿ª¼õËÙÇøÓò£¬ËÙ¶È»Ö¸´Îª{playerMove.moveSpeed}");
+                Debug.Log($"Playerç¦»å¼€å‡é€ŸåŒºåŸŸï¼Œé€Ÿåº¦æ¢å¤ä¸º{playerMove.moveSpeed}");
             }
         }
     }

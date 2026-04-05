@@ -9,11 +9,8 @@ namespace BoardGame.Views
     [RequireComponent(typeof(LineRenderer))]
     public sealed class BoardGameEdgeView : MonoBehaviour
     {
-        // 用于绘制边线的渲染器
         [SerializeField] private LineRenderer _lineRenderer;
-        // 普通状态下的边颜色
         [SerializeField] private Color _normalColor = new Color(1f, 1f, 1f, 0.28f);
-        // 当前路径高亮时的边颜色
         [SerializeField] private Color _highlightColor = new Color(1f, 0.86f, 0.21f, 0.95f);
 
         private string _edgeId;

@@ -10,6 +10,11 @@ public class PlayerShootingController : MonoBehaviour
     [Header("Bullet")]
     public GameObject BulletPrefab;
     public float WeaponDamage = 25f;
+    public float WeaponRange = 100f;
+
+    [Header("Visual")]
+    public LineRenderer BulletTrail;
+    public float TrailDuration = 0.05f;
 
     [Header("Status Effect")]
     public float SilenceTintStrength = 0.55f;
@@ -19,6 +24,11 @@ public class PlayerShootingController : MonoBehaviour
     private Renderer[] _cachedRenderers;
     private Color[] _originalColors;
 
+    private void Start()
+    {
+        CacheRendererColors();
+    }
+
     private void Update()
     {
         if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
@@ -27,6 +37,11 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         TickSilence();
+
+        if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)
+        {
+            return;
+        }
 
         if (GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen)
         {
@@ -42,11 +57,6 @@ public class PlayerShootingController : MonoBehaviour
         {
             Shoot();
         }
-    }
-
-    private void Start()
-    {
-        CacheRendererColors();
     }
 
     private void Shoot()

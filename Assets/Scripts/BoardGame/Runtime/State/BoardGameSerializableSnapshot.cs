@@ -9,13 +9,9 @@ namespace BoardGame.Runtime.State
     [Serializable]
     public sealed class BoardGameSerializableSnapshot
     {
-        // 快照对应的地图 ID
         [SerializeField] private string _mapId;
-        // 快照对应的规则集 ID
         [SerializeField] private string _ruleSetId;
-        // 快照对应的掉落表 ID
         [SerializeField] private string _lootSetId;
-        // 整局运行时状态内容
         [SerializeField] private BoardGameSessionState _sessionState;
 
         public BoardGameSerializableSnapshot(
