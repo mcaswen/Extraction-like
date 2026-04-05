@@ -66,7 +66,10 @@ public class AncientStranderBehaviorController : MonoBehaviour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
-        _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, MeleeAttackRange * 0.85f);
+        if (EnsureAgentReady())
+        {
+            _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, MeleeAttackRange * 0.85f);
+        }
 
         if (PlayerTransform == null)
         {
@@ -129,7 +132,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
             return;
         }
 
-        if (_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && !_navMeshAgent.pathPending)
+        if (HasReachedCurrentDestination())
         {
             _waitTimer += Time.deltaTime;
             if (_waitTimer >= PatrolWaitTime)
@@ -145,7 +148,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         if (distanceToPlayer > LoseRange)
         {
             CurrentState = EnemyState.Patrol;
-            _navMeshAgent.isStopped = false;
+            SetAgentStopped(false);
             GetNewPatrolPoint();
             return;
         }
@@ -154,7 +157,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             CurrentState = EnemyState.MeleeAttack;
             _meleeAttackTimer = MeleeAttackInterval;
-            _navMeshAgent.isStopped = true;
+            SetAgentStopped(true);
             return;
         }
 
@@ -162,12 +165,12 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             CurrentState = EnemyState.RangedBiteAttack;
             _rangedAttackTimer = RangedAttackInterval;
-            _navMeshAgent.isStopped = true;
+            SetAgentStopped(true);
             return;
         }
 
-        _navMeshAgent.isStopped = false;
-        _navMeshAgent.SetDestination(PlayerTransform.position);
+        SetAgentStopped(false);
+        TrySetDestination(PlayerTransform.position);
     }
 
     private void MeleeAttackBehavior(float distanceToPlayer)
@@ -175,7 +178,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         if (distanceToPlayer > LoseRange)
         {
             CurrentState = EnemyState.Patrol;
-            _navMeshAgent.isStopped = false;
+            SetAgentStopped(false);
             GetNewPatrolPoint();
             return;
         }
@@ -183,7 +186,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         if (distanceToPlayer > MeleeAttackRange + 1f)
         {
             CurrentState = EnemyState.Chase;
-            _navMeshAgent.isStopped = false;
+            SetAgentStopped(false);
             return;
         }
 
@@ -202,7 +205,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             StopBiteStrike();
             CurrentState = EnemyState.Patrol;
-            _navMeshAgent.isStopped = false;
+            SetAgentStopped(false);
             GetNewPatrolPoint();
             return;
         }
@@ -219,7 +222,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             StopBiteStrike();
             CurrentState = EnemyState.Chase;
-            _navMeshAgent.isStopped = false;
+            SetAgentStopped(false);
             return;
         }
 
@@ -432,8 +435,58 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, PatrolRadius, NavMesh.AllAreas))
         {
-            _navMeshAgent.SetDestination(hit.position);
+            TrySetDestination(hit.position);
         }
+    }
+
+    private bool EnsureAgentReady()
+    {
+        if (_navMeshAgent == null)
+        {
+            _navMeshAgent = GetComponent<NavMeshAgent>();
+        }
+
+        if (_navMeshAgent == null || !_navMeshAgent.enabled)
+        {
+            return false;
+        }
+
+        if (_navMeshAgent.isOnNavMesh)
+        {
+            return true;
+        }
+
+        float searchRadius = Mathf.Max(2f, PatrolRadius);
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, searchRadius, NavMesh.AllAreas))
+        {
+            _navMeshAgent.Warp(hit.position);
+        }
+        else
+        {
+            RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
+        }
+
+        return _navMeshAgent.isOnNavMesh;
+    }
+
+    private bool HasReachedCurrentDestination()
+    {
+        return EnsureAgentReady() &&
+               !_navMeshAgent.pathPending &&
+               _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance;
+    }
+
+    private void SetAgentStopped(bool isStopped)
+    {
+        if (EnsureAgentReady())
+        {
+            _navMeshAgent.isStopped = isStopped;
+        }
+    }
+
+    private bool TrySetDestination(Vector3 destination)
+    {
+        return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
     }
 
     private void OnDrawGizmosSelected()

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3684364519549066937}
   - component: {fileID: 5481182176124435508}
   m_Layer: 0
-  m_Name: LootBox_3D
+  m_Name: LootBox_3
   m_TagString: LootBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,11 +118,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c42ad7580cc186142a065e7575740fed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoxName: "\u519B\u7528\u7269\u8D44\u7BB1"
+  BoxName: "Boss \u533A\u9AD8\u7EA7\u7BB1"
   FirstTimeLootItem: {fileID: 0}
   FirstTimeLootAmount: 0
-  ContainerColumns: 6
-  ContainerRows: 6
+  ContainerColumns: 9
+  ContainerRows: 9
   BlockedCells: []
   PrecalculateLootOnSpawn: 1
   MinLootRollCount: 3
@@ -137,11 +137,10 @@ MonoBehaviour:
     Weight: 20
     MinAmount: 1
     MaxAmount: 1
-    SpawnChance: 0.6
+    SpawnChance: 1
   - ItemData: {fileID: 11400000, guid: 4772d9f94e2303348ab275c6bdb8da14, type: 2}
     Weight: 10
     MinAmount: 1
     MaxAmount: 1
-    SpawnChance: 0.4
-  _savedItems: []
+    SpawnChance: 1
   _savedCellStates: []

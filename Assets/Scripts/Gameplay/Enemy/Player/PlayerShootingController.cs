@@ -43,11 +43,6 @@ public class PlayerShootingController : MonoBehaviour
             return;
         }
 
-        if (GameUIController.Instance != null && GameUIController.Instance.IsInventoryOpen)
-        {
-            return;
-        }
-
         if (_silenceDurationRemaining > 0f)
         {
             return;
