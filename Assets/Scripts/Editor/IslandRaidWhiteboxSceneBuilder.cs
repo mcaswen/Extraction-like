@@ -79,6 +79,7 @@ public static class IslandRaidWhiteboxSceneBuilder
         Transform root = CreateRoot("IslandWallLayoutRoot");
 
         CreateRaidFlowController(root);
+        CreateRuntimeNavMeshBuilder(root);
         CreateWaterBase(root, cells);
         CreateFloorTiles(root, cells);
         CreatePerimeterWalls(root, cells);
@@ -276,6 +277,13 @@ public static class IslandRaidWhiteboxSceneBuilder
         fadeControllerObject.transform.SetParent(root, false);
         PerspectiveWallFadeController fadeController = fadeControllerObject.AddComponent<PerspectiveWallFadeController>();
         fadeController.OccluderMask = ~0;
+    }
+
+    private static void CreateRuntimeNavMeshBuilder(Transform root)
+    {
+        GameObject navMeshBuilderObject = new GameObject("RuntimeNavMeshSurfaceBuilder");
+        navMeshBuilderObject.transform.SetParent(root, false);
+        navMeshBuilderObject.AddComponent<RuntimeNavMeshSurfaceBuilder>();
     }
 
     private static Transform CreateRoot(string name, Transform parent = null)
