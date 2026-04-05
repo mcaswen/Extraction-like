@@ -13,6 +13,11 @@ namespace BoardGame.Views
     /// </summary>
     public sealed class BoardGameMapViewController : MonoBehaviour
     {
+        [SerializeField] private float _nodeClusterOffsetScale = 0.88f;
+        [SerializeField] private float _edgeClusterLaneSpacingScale = 0.72f;
+        [SerializeField] private float _fallbackClusterOffsetScale = 1.12f;
+        [SerializeField] private float _defaultWorldClusterRadius = 0.22f;
+
         private readonly Dictionary<string, BoardGameNodeView> _nodeViewsById =
             new Dictionary<string, BoardGameNodeView>();
 
@@ -25,6 +30,21 @@ namespace BoardGame.Views
         private BoardGameSelectionStateController _selectionStateController;
         private readonly Dictionary<string, BoardGameAgentView> _agentViewsById =
             new Dictionary<string, BoardGameAgentView>();
+
+        private enum AgentClusterLayoutType
+        {
+            Node,
+            Edge,
+            World
+        }
+
+        private struct AgentClusterAnchor
+        {
+            public Vector3 Center;
+            public float BaseRadius;
+            public Vector3 Direction;
+            public AgentClusterLayoutType LayoutType;
+        }
 
         /// <summary>
         /// 初始化地图视图并订阅运行时事件
@@ -156,13 +176,15 @@ namespace BoardGame.Views
         }
 
         /// <summary>
-        /// 为重叠在同一位置的多个 Agent 生成轻微扇形偏移
-        /// 这样四个 AI 同时待在同一点时仍然能被看清和点击
+        /// 为重叠 Agent 生成稳定偏移
+        /// 同节点时围绕节点中心排布，同边移动时沿边法线排成多条 lane
         /// </summary>
         private Dictionary<string, Vector3> BuildAgentDisplayPositions(IReadOnlyList<BoardAgentState> agentStates)
         {
-            Dictionary<string, List<BoardAgentState>> agentsByPositionKey =
+            Dictionary<string, List<BoardAgentState>> agentsByClusterKey =
                 new Dictionary<string, List<BoardAgentState>>();
+            Dictionary<string, AgentClusterAnchor> clusterAnchorsByKey =
+                new Dictionary<string, AgentClusterAnchor>();
 
             foreach (BoardAgentState agentState in agentStates)
             {
@@ -171,12 +193,13 @@ namespace BoardGame.Views
                     continue;
                 }
 
-                string positionKey = $"{agentState.WorldPosition.x:0.###}_{agentState.WorldPosition.y:0.###}";
+                string clusterKey = BuildClusterKey(agentState);
 
-                if (!agentsByPositionKey.TryGetValue(positionKey, out List<BoardAgentState> clusteredAgents))
+                if (!agentsByClusterKey.TryGetValue(clusterKey, out List<BoardAgentState> clusteredAgents))
                 {
                     clusteredAgents = new List<BoardAgentState>();
-                    agentsByPositionKey[positionKey] = clusteredAgents;
+                    agentsByClusterKey[clusterKey] = clusteredAgents;
+                    clusterAnchorsByKey[clusterKey] = ResolveClusterAnchor(agentState);
                 }
 
                 clusteredAgents.Add(agentState);
@@ -184,30 +207,173 @@ namespace BoardGame.Views
 
             Dictionary<string, Vector3> displayPositions = new Dictionary<string, Vector3>();
 
-            foreach (List<BoardAgentState> clusteredAgents in agentsByPositionKey.Values)
+            foreach (KeyValuePair<string, List<BoardAgentState>> clusterPair in agentsByClusterKey)
             {
+                List<BoardAgentState> clusteredAgents = clusterPair.Value;
+                clusteredAgents.Sort(CompareAgentClusterOrder);
+                AgentClusterAnchor clusterAnchor = clusterAnchorsByKey[clusterPair.Key];
+
                 for (int index = 0; index < clusteredAgents.Count; index++)
                 {
                     BoardAgentState agentState = clusteredAgents[index];
-                    displayPositions[agentState.AgentId] = (Vector3)agentState.WorldPosition + ResolveClusterOffset(index, clusteredAgents.Count);
+                    displayPositions[agentState.AgentId] =
+                        clusterAnchor.Center + ResolveClusterOffset(clusterAnchor, index, clusteredAgents.Count);
                 }
             }
 
             return displayPositions;
         }
 
-        /// <summary>
-        /// 为同位置 Agent 生成稳定的圆周偏移
-        /// </summary>
-        private static Vector3 ResolveClusterOffset(int index, int count)
+        // 优先按边和节点聚类，让边上移动和节点驻留有各自独立的重叠排布规则
+        private static string BuildClusterKey(BoardAgentState agentState)
+        {
+            if (agentState.IsOnEdge && !string.IsNullOrWhiteSpace(agentState.CurrentEdgeId))
+            {
+                return $"edge_{agentState.CurrentEdgeId}_{agentState.CurrentEdgeProgress01:0.###}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(agentState.CurrentNodeId))
+            {
+                return $"node_{agentState.CurrentNodeId}";
+            }
+
+            return $"world_{agentState.WorldPosition.x:0.###}_{agentState.WorldPosition.y:0.###}";
+        }
+
+        // 为每一组重叠 Agent 解析统一的排布锚点
+        // 节点用中心点，边上移动用边方向，其他情况回退到当前世界位置
+        private AgentClusterAnchor ResolveClusterAnchor(BoardAgentState agentState)
+        {
+            if (agentState.IsOnEdge &&
+                !string.IsNullOrWhiteSpace(agentState.CurrentEdgeId) &&
+                _graphService.TryGetEdge(agentState.CurrentEdgeId, out BoardMapEdgeDefinition edgeDefinition))
+            {
+                Vector3 fromPosition = _graphService.GetNodePosition(edgeDefinition.FromNodeId);
+                Vector3 toPosition = _graphService.GetNodePosition(edgeDefinition.ToNodeId);
+                Vector3 direction = (toPosition - fromPosition).normalized;
+
+                if (direction.sqrMagnitude <= Mathf.Epsilon)
+                {
+                    direction = Vector3.right;
+                }
+
+                float averageNodeRadius =
+                    (GetNodeVisualRadius(edgeDefinition.FromNodeId) + GetNodeVisualRadius(edgeDefinition.ToNodeId)) * 0.5f;
+
+                return new AgentClusterAnchor
+                {
+                    Center = _graphService.GetPositionOnEdge(edgeDefinition, agentState.CurrentEdgeProgress01),
+                    BaseRadius = Mathf.Max(_defaultWorldClusterRadius, averageNodeRadius),
+                    Direction = direction,
+                    LayoutType = AgentClusterLayoutType.Edge
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(agentState.CurrentNodeId) &&
+                _graphService.TryGetNode(agentState.CurrentNodeId, out BoardMapNodeDefinition nodeDefinition))
+            {
+                return new AgentClusterAnchor
+                {
+                    Center = nodeDefinition.Position,
+                    BaseRadius = GetNodeVisualRadius(nodeDefinition.NodeId),
+                    Direction = Vector3.up,
+                    LayoutType = AgentClusterLayoutType.Node
+                };
+            }
+
+            return new AgentClusterAnchor
+            {
+                Center = agentState.WorldPosition,
+                BaseRadius = _defaultWorldClusterRadius,
+                Direction = Vector3.up,
+                LayoutType = AgentClusterLayoutType.World
+            };
+        }
+
+        // 保证同一组 Agent 的显示槽位稳定
+        // 避免每帧刷新时因为遍历顺序不同而交换位置
+        private static int CompareAgentClusterOrder(BoardAgentState left, BoardAgentState right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return 0;
+            }
+
+            if (left == null)
+            {
+                return 1;
+            }
+
+            if (right == null)
+            {
+                return -1;
+            }
+
+            return string.CompareOrdinal(left.AgentId, right.AgentId);
+        }
+
+        // 节点和边使用不同的排布方式
+        // 节点围绕中心散开，边上则沿法线分 lane
+        private Vector3 ResolveClusterOffset(AgentClusterAnchor clusterAnchor, int index, int count)
         {
             if (count <= 1)
             {
                 return Vector3.zero;
             }
 
-            float radius = count == 2 ? 0.18f : 0.28f;
-            float angleRadians = (Mathf.PI * 2f * index / count) + Mathf.PI * 0.5f;
+            switch (clusterAnchor.LayoutType)
+            {
+                case AgentClusterLayoutType.Edge:
+                    return ResolveEdgeLaneOffset(clusterAnchor, index, count);
+
+                case AgentClusterLayoutType.Node:
+                    return ResolveNodeClusterOffset(clusterAnchor.BaseRadius * _nodeClusterOffsetScale, index, count);
+
+                default:
+                    return ResolveNodeClusterOffset(_defaultWorldClusterRadius * _fallbackClusterOffsetScale, index, count);
+            }
+        }
+
+        // 边上移动时按边法线展开
+        // 这样多个 AI 同线移动时会像并排的 lane，而不是绕成一圈
+        private Vector3 ResolveEdgeLaneOffset(AgentClusterAnchor clusterAnchor, int index, int count)
+        {
+            Vector3 normal = new Vector3(-clusterAnchor.Direction.y, clusterAnchor.Direction.x, 0f).normalized;
+
+            if (normal.sqrMagnitude <= Mathf.Epsilon)
+            {
+                normal = Vector3.up;
+            }
+
+            float laneIndex = index - ((count - 1) * 0.5f);
+            float laneSpacing = clusterAnchor.BaseRadius * _edgeClusterLaneSpacingScale;
+            return normal * (laneIndex * laneSpacing);
+        }
+
+        // 节点驻留时围绕节点中心排布
+        // 优先照顾 4 个 AI 的可读性，超过 4 个再退回圆周分布
+        private static Vector3 ResolveNodeClusterOffset(float radius, int index, int count)
+        {
+            switch (count)
+            {
+                case 2:
+                    return ResolvePolarOffset(index == 0 ? 180f : 0f, radius);
+
+                case 3:
+                    return ResolvePolarOffset(90f + (120f * index), radius);
+
+                case 4:
+                    return ResolvePolarOffset(135f - (90f * index), radius);
+
+                default:
+                    return ResolvePolarOffset(90f + ((360f * index) / count), radius);
+            }
+        }
+
+        // 统一处理极坐标偏移换算
+        private static Vector3 ResolvePolarOffset(float angleDegrees, float radius)
+        {
+            float angleRadians = angleDegrees * Mathf.Deg2Rad;
             return new Vector3(Mathf.Cos(angleRadians) * radius, Mathf.Sin(angleRadians) * radius, 0f);
         }
 

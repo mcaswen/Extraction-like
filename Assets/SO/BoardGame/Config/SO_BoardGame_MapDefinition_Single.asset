@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95bfba5704446a143a05e19b278fec09, type: 3}
-  m_Name: SO_BoardGame_MapDefinition
+  m_Name: SO_BoardGame_MapDefinition_Single
   m_EditorClassIdentifier: 
   _mapId: sample_board_map
   _displayName: Test Map

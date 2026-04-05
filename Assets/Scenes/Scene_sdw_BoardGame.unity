@@ -177,6 +177,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49fb61bc182888042a0ad59ce896a18c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _nodeClusterOffsetScale: 0.88
+  _edgeClusterLaneSpacingScale: 0.72
+  _fallbackClusterOffsetScale: 1.12
+  _defaultWorldClusterRadius: 0.22
 --- !u!4 &248796599
 Transform:
   m_ObjectHideFlags: 0
@@ -1915,6 +1919,8 @@ MonoBehaviour:
   _targetText: {fileID: 1236025936}
   _pathText: {fileID: 868190657}
   _statusText: {fileID: 1336285608}
+  _focusContextText: {fileID: 0}
+  _nearbyContextText: {fileID: 0}
   _redirectStateText: {fileID: 533505204}
   _actionProgressFillImage: {fileID: 0}
   _experienceProgressFillImage: {fileID: 0}
@@ -3221,8 +3227,9 @@ MonoBehaviour:
   _mapDefinition: {fileID: 11400000, guid: 41dd56a31050c8a47b40abf0de844203, type: 2}
   _ruleSet: {fileID: 11400000, guid: bfcbb4b09f59f8f409805808e0d4903f, type: 2}
   _lootTableSet: {fileID: 11400000, guid: 8124c909886fe114fbd01bf252248753, type: 2}
+  _agentRoster: {fileID: 11400000, guid: 42d1cf7ce44ae4e90bd3224973005376, type: 2}
   _bagLayoutSettings:
-    _enableBagSystem: 1
+    _enableBagSystem: 0
     _playerInventoryColumns: 6
     _playerInventoryRows: 4
     _lootContainerRows: 3
