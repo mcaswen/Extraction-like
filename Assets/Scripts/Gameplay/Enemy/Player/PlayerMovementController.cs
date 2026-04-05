@@ -1,68 +1,192 @@
 using UnityEngine;
 
-// 强制要求玩家身上必须有 Rigidbody（刚体）组件，防止遗漏
 [RequireComponent(typeof(Rigidbody))]
-//角色移动脚本
+/// <summary>
+/// 玩家移动控制器。
+/// </summary>
 public class PlayerMovementController : MonoBehaviour
 {
-    public float MoveSpeed = 6f;//移动速度
+    public float MoveSpeed = 6f;
+    public float ExternalPullDamping = 14f;
+    public float ExternalImpulseDamping = 10f;
+    public Color ImmobilizeTintColor = new Color(0.42f, 0.72f, 1f, 1f);
+    public float ImmobilizeTintStrength = 0.5f;
 
-    private Rigidbody _playerRigidbody;//私有变量  角色rigidbody
-    private Camera _mainCamera;//摄像机
-    /// <summary>
-    /// 脚本开始
-    /// </summary>
-    void Start()
+    private Rigidbody _playerRigidbody;
+    private Camera _mainCamera;
+    private Vector3 _externalPullVelocity;
+    private Vector3 _externalImpulseVelocity;
+    private float _immobilizeDurationRemaining;
+    private Renderer[] _cachedRenderers;
+    private Color[] _originalColors;
+
+    private void Start()
     {
-        _playerRigidbody = GetComponent<Rigidbody>();//实例rigidbody
-        _mainCamera = Camera.main;//输入主函数
+        _playerRigidbody = GetComponent<Rigidbody>();
+        _mainCamera = Camera.main;
+        CacheRendererColors();
     }
 
-    // 涉及到物理移动，必须放在 FixedUpdate 中执行
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        Move();//移动函数
-        Aim();//目标函数
+        if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
+        {
+            return;
+        }
+
+        TickImmobilizeVisual();
+        Move();
+        Aim();
     }
-    /// <summary>
-    /// 移动函数
-    /// </summary>
+
     private void Move()
     {
-        // 获取 WASD 输入 (-1 到 1 之间的值)
-        float horizontal = Input.GetAxisRaw("Horizontal"); // A 和 D
-        float vertical = Input.GetAxisRaw("Vertical");     // W 和 S
-
-        // 将输入转化为三维方向（Y轴为0，因为我们只在地面上平移）
-        Vector3 movement = new Vector3(horizontal, 0f, vertical).normalized;//移动速度和向量归一化
-
-        // 使用刚体移动玩家，不卡墙、不穿模
-        _playerRigidbody.MovePosition(_playerRigidbody.position + movement * MoveSpeed * Time.fixedDeltaTime);//角色移动
-        //Time.fixedDeltaTime 就是设置的一帧的时间
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+        if (_immobilizeDurationRemaining > 0f)
+        {
+            horizontal = 0f;
+            vertical = 0f;
+        }
+        Vector3 movement = new Vector3(horizontal, 0f, vertical).normalized * MoveSpeed;
+        Vector3 finalVelocity = movement + _externalPullVelocity + _externalImpulseVelocity;
+        _playerRigidbody.MovePosition(_playerRigidbody.position + finalVelocity * Time.fixedDeltaTime);
+        _externalPullVelocity = Vector3.Lerp(_externalPullVelocity, Vector3.zero, ExternalPullDamping * Time.fixedDeltaTime);
+        _externalImpulseVelocity = Vector3.Lerp(_externalImpulseVelocity, Vector3.zero, ExternalImpulseDamping * Time.fixedDeltaTime);
+        _immobilizeDurationRemaining = Mathf.Max(0f, _immobilizeDurationRemaining - Time.fixedDeltaTime);
     }
-    /// <summary>
-    /// 目标函数  看向函数
-    /// </summary>
+
     private void Aim()
     {
-        // 从主摄像机，朝着鼠标在屏幕上的位置，发射一条虚拟射线
-        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);//按照屏幕位置
-
-        // 凭空捏造一个数学上的“无限大平地”（高度 Y=0）
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-        float rayDistance;
-
-        // 如果射线打到了这个“平地”上
-        if (groundPlane.Raycast(ray, out rayDistance))
+        if (_mainCamera == null)
         {
-            // 获取鼠标在 3D 世界中究竟指着哪块地砖
-            Vector3 point = ray.GetPoint(rayDistance);
+            return;
+        }
 
-            // 像之前敌人看玩家一样，锁定玩家的 Y 轴高度，防止玩家趴下看地
-            Vector3 lookPos = new Vector3(point.x, transform.position.y, point.z);
+        Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        if (!groundPlane.Raycast(ray, out float rayDistance))
+        {
+            return;
+        }
 
-            // 让玩家永远面朝鼠标所在的位置！
-            transform.LookAt(lookPos);
+        Vector3 point = ray.GetPoint(rayDistance);
+        Vector3 lookPosition = new Vector3(point.x, transform.position.y, point.z);
+        transform.LookAt(lookPosition);
+    }
+
+    /// <summary>
+    /// 施加一股朝目标点的轻微拉拽力。
+    /// </summary>
+    public void ApplyExternalPull(Vector3 targetPosition, float pullStrength)
+    {
+        Vector3 direction = targetPosition - transform.position;
+        direction.y = 0f;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        _externalPullVelocity += direction.normalized * pullStrength;
+    }
+
+    /// <summary>
+    /// 施加一个瞬时击退/推力。
+    /// </summary>
+    public void ApplyExternalImpulse(Vector3 direction, float strength)
+    {
+        Vector3 planarDirection = direction;
+        planarDirection.y = 0f;
+        if (planarDirection.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        _externalImpulseVelocity += planarDirection.normalized * strength;
+    }
+
+    /// <summary>
+    /// 施加短时间定身。
+    /// </summary>
+    public void ApplyImmobilize(float duration)
+    {
+        if (duration <= 0f)
+        {
+            return;
+        }
+
+        _immobilizeDurationRemaining = Mathf.Max(_immobilizeDurationRemaining, duration);
+        UpdateImmobilizeVisual();
+    }
+
+    public bool IsImmobilized()
+    {
+        return _immobilizeDurationRemaining > 0f;
+    }
+
+    private void CacheRendererColors()
+    {
+        _cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        _originalColors = new Color[_cachedRenderers.Length];
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            _originalColors[i] = rendererComponent != null && rendererComponent.material.HasProperty("_Color")
+                ? rendererComponent.material.color
+                : Color.white;
+        }
+    }
+
+    private void TickImmobilizeVisual()
+    {
+        if (_immobilizeDurationRemaining <= 0f)
+        {
+            RestoreRendererColors();
+            return;
+        }
+
+        UpdateImmobilizeVisual();
+    }
+
+    private void UpdateImmobilizeVisual()
+    {
+        if (_cachedRenderers == null || _originalColors == null)
+        {
+            return;
+        }
+
+        float pulse = 0.5f + Mathf.Sin(Time.time * 8f) * 0.5f;
+        float tintStrength = ImmobilizeTintStrength * (0.55f + pulse * 0.45f);
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            if (rendererComponent == null || !rendererComponent.material.HasProperty("_Color"))
+            {
+                continue;
+            }
+
+            rendererComponent.material.color = Color.Lerp(_originalColors[i], ImmobilizeTintColor, tintStrength);
+        }
+    }
+
+    private void RestoreRendererColors()
+    {
+        if (_cachedRenderers == null || _originalColors == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            if (rendererComponent == null || !rendererComponent.material.HasProperty("_Color"))
+            {
+                continue;
+            }
+
+            rendererComponent.material.color = _originalColors[i];
         }
     }
 }

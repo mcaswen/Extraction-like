@@ -466,12 +466,12 @@ public partial class DraggableItemUI
     // 通过主控制器寻找快捷转移目标，并直接执行网格内搬运
     private void ExecuteQuickTransfer()
     {
-        if (CurrentGrid == null || ItemData == null || GameUIController.Instance == null)
+        if (CurrentGrid == null || ItemData == null || InventoryScreenController.Instance == null)
         {
             return;
         }
 
-        if (!GameUIController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
+        if (!InventoryScreenController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
         {
             return;
         }
@@ -503,9 +503,9 @@ public partial class DraggableItemUI
     // 优先通过显式矩形检测命中装备槽，失败后再回退到普通 UI 射线
     private EquipmentSlotUI GetHoveredEquipmentSlot(PointerEventData eventData)
     {
-        if (GameUIController.Instance != null)
+        if (InventoryScreenController.Instance != null)
         {
-            EquipmentSlotUI slotFromScreenPoint = GameUIController.Instance.GetEquipmentSlotAtScreenPosition(
+            EquipmentSlotUI slotFromScreenPoint = InventoryScreenController.Instance.GetEquipmentSlotAtScreenPosition(
                 eventData.position,
                 eventData.pressEventCamera);
             if (slotFromScreenPoint != null)

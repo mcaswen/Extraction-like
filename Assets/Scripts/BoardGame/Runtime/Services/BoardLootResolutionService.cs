@@ -134,6 +134,8 @@ namespace BoardGame.Runtime.Services
             IReadOnlyList<BoardItemInstance> generatedItems,
             BoardGameBagLayoutSettings layoutSettings)
         {
+            float preservedSearchRequiredSeconds = nodeState.SearchRequiredSeconds;
+            float preservedSearchProgressSeconds = nodeState.SearchProgressSeconds;
             nodeState.ResetLootContainer();
 
             if (generatedItems == null || generatedItems.Count == 0)
@@ -173,7 +175,18 @@ namespace BoardGame.Runtime.Services
                     revealDuration));
             }
 
-            nodeState.SyncSearchProgressFromLootReveal();
+            if (layoutSettings != null && layoutSettings.EnableBagSystem)
+            {
+                nodeState.SyncSearchProgressFromLootReveal();
+            }
+            else
+            {
+                nodeState.SearchRequiredSeconds = Mathf.Max(0.1f, preservedSearchRequiredSeconds);
+                nodeState.SearchProgressSeconds = Mathf.Clamp(
+                    preservedSearchProgressSeconds,
+                    0f,
+                    nodeState.SearchRequiredSeconds);
+            }
         }
 
         /// <summary>

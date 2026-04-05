@@ -58,7 +58,9 @@ namespace BoardGame.Presentation
 
             if (_runtimeQueryController.IsAwaitingLootInteraction && activeInteractionAgentState != null)
             {
-                return $"Loot: {activeInteractionAgentState.DisplayName} press F to open or continue searching";
+                return _runtimeQueryController.IsBagSystemEnabled
+                    ? $"Loot: {activeInteractionAgentState.DisplayName} press F to open or continue searching"
+                    : $"Loot: {activeInteractionAgentState.DisplayName} is auto searching and collecting";
             }
 
             return "Control: Tab switches focus, click a node to redirect";

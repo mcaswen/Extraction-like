@@ -40,7 +40,7 @@ namespace BoardGame.Runtime.Services
                 nodeState.EnemyMaxHealth = definition.MaxHealth;
                 nodeState.EnemyCurrentHealth = definition.MaxHealth;
                 nodeState.EnemyAttack = definition.Attack;
-                nodeState.EnemyDefense = Random.Range(definition.DefenseMin, definition.DefenseMax + 1);
+                nodeState.EnemyDefense = definition.Defense;
                 nodeState.EnemyState = BoardEnemyStateType.Unengaged;
                 return;
             }
@@ -51,7 +51,7 @@ namespace BoardGame.Runtime.Services
                 nodeState.BossMaxHealth = definition.MaxHealth;
                 nodeState.BossCurrentHealth = definition.MaxHealth;
                 nodeState.BossAttack = definition.Attack;
-                nodeState.BossDefense = Random.Range(definition.DefenseMin, definition.DefenseMax + 1);
+                nodeState.BossDefense = definition.Defense;
                 nodeState.BossState = BoardBossStateType.Untriggered;
             }
         }

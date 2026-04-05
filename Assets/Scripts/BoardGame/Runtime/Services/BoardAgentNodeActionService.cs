@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BoardGame.Runtime;
 using BoardGame.Runtime.State;
+using UnityEngine;
 
 namespace BoardGame.Runtime.Services
 {
@@ -150,7 +151,7 @@ namespace BoardGame.Runtime.Services
         /// 若节点上还有未收口的 loot，就先把状态机切回统一的 Searching 交互流程
         /// 这样节点动作和 loot 面板始终共享同一套完成度
         /// </summary>
-        private static bool TryBeginPendingLootInteraction(
+        private bool TryBeginPendingLootInteraction(
             BoardGameSessionState sessionState,
             BoardAgentState agentState,
             BoardNodeRuntimeState nodeState)
@@ -161,13 +162,18 @@ namespace BoardGame.Runtime.Services
             }
 
             sessionState.ActiveInteractionAgentId = agentState.AgentId;
+            bool bagSystemEnabled = _nodeActionHandlerContext.BagLayoutSettings.EnableBagSystem;
             sessionState.ActiveLootNodeId = nodeState.NodeId;
             sessionState.IsLootInteractionOpen = false;
             sessionState.FocusedAgentId = agentState.AgentId;
             agentState.CurrentActionType = BoardActionType.Searching;
-            agentState.CurrentActionDuration = 1f;
+            agentState.CurrentActionDuration = bagSystemEnabled
+                ? 1f
+                : GetBaglessLootActionDuration(nodeState);
             agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+            agentState.CurrentActionProgress = bagSystemEnabled
+                ? nodeState.GetLootRevealProgress01()
+                : GetBaglessLootActionProgress(nodeState);
 
             if (nodeState.NodeType == BoardNodeType.Resource)
             {
@@ -179,10 +185,46 @@ namespace BoardGame.Runtime.Services
             sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
                 agentState,
                 nodeState,
-                nodeState.IsLootRevealComplete()
-                    ? "Loot remains, press F to reopen"
-                    : "Loot remains, press F to continue searching");
+                bagSystemEnabled
+                    ? (nodeState.IsLootRevealComplete()
+                        ? "Loot remains, press F to reopen"
+                        : "Loot remains, press F to continue searching")
+                    : GetBaglessLootStatus(nodeState));
             return true;
+        }
+
+        private static float GetBaglessLootActionDuration(BoardNodeRuntimeState nodeState)
+        {
+            if (nodeState.NodeType == BoardNodeType.Resource && !nodeState.IsLootRevealComplete())
+            {
+                return Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
+            }
+
+            return 1f;
+        }
+
+        private static float GetBaglessLootActionProgress(BoardNodeRuntimeState nodeState)
+        {
+            if (nodeState.NodeType == BoardNodeType.Resource && !nodeState.IsLootRevealComplete())
+            {
+                return nodeState.SearchRequiredSeconds <= Mathf.Epsilon
+                    ? 1f
+                    : nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
+            }
+
+            return nodeState.GetLootRevealProgressWithPartial01();
+        }
+
+        private static string GetBaglessLootStatus(BoardNodeRuntimeState nodeState)
+        {
+            if (nodeState.IsLootRevealComplete())
+            {
+                return $"Auto collecting remaining loot at {nodeState.NodeId}";
+            }
+
+            return nodeState.NodeType == BoardNodeType.Resource
+                ? $"Resuming search at {nodeState.NodeId}"
+                : $"Searching loot at {nodeState.NodeId}";
         }
 
         /// <summary>

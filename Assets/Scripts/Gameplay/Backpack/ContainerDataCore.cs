@@ -4,7 +4,6 @@ using System.Collections.Generic;
 /// <summary>
 /// 容器内单个物品的存档快照
 /// </summary>
-[Serializable]
 public class ContainerItemSaveData
 {
     public string RuntimeItemId;

@@ -264,6 +264,44 @@ namespace BoardGame.Runtime.State
         }
 
         /// <summary>
+        /// 获取当前 loot 搜查的连续进度。
+        /// 除了已完整揭示的物品外，还会把当前正在揭示的那一件物品的部分进度计入。
+        /// </summary>
+        /// <summary>
+        /// 获取当前 loot 搜查的连续进度。
+        /// 除了已完整揭示的物品外，还会把当前正在揭示的那一件物品的部分进度计入。
+        /// </summary>
+        public float GetLootRevealProgressWithPartial01()
+        {
+            if (_lootTotalItemCount <= 0)
+            {
+                return 1f;
+            }
+
+            float progress = LootRevealedItemCount;
+            BoardLootContainerItemState currentHiddenItem = null;
+            int bestRevealSequence = int.MaxValue;
+
+            foreach (BoardLootContainerItemState itemState in _lootContainerItems)
+            {
+                if (itemState == null || itemState.IsRevealed || itemState.RevealSequenceIndex >= bestRevealSequence)
+                {
+                    continue;
+                }
+
+                bestRevealSequence = itemState.RevealSequenceIndex;
+                currentHiddenItem = itemState;
+            }
+
+            if (currentHiddenItem != null)
+            {
+                progress += currentHiddenItem.RevealProgress01;
+            }
+
+            return Mathf.Clamp01(progress / _lootTotalItemCount);
+        }
+
+        /// <summary>
         /// 清空节点上的 loot 容器，并把搜索进度同步回空状态
         /// </summary>
         public void ResetLootContainer()

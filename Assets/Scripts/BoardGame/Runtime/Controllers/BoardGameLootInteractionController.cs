@@ -202,7 +202,7 @@ namespace BoardGame.Runtime.Controllers
         /// 推进当前等待中的 loot 交互
         /// 返回 true 时表示本帧已被 loot 逻辑消费
         /// </summary>
-        public bool TickAwaitingLootInteraction()
+        public bool TickAwaitingLootInteraction(float deltaTime)
         {
             if (!_sessionState.IsAwaitingLootInteraction)
             {
@@ -211,7 +211,7 @@ namespace BoardGame.Runtime.Controllers
 
             if (!_bagLayoutSettings.EnableBagSystem)
             {
-                ResolveActiveLootWithoutBagSystem();
+                ResolveActiveLootWithoutBagSystem(deltaTime);
             }
             else
             {
@@ -233,7 +233,7 @@ namespace BoardGame.Runtime.Controllers
         /// <summary>
         /// 背包系统关闭时，直接按旧的数字容量规则结算当前节点掉落
         /// </summary>
-        private void ResolveActiveLootWithoutBagSystem()
+        private void ResolveActiveLootWithoutBagSystem(float deltaTime)
         {
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
             BoardAgentState agentState = GetActiveInteractionAgentState();
@@ -241,6 +241,35 @@ namespace BoardGame.Runtime.Controllers
             if (nodeState == null || agentState == null)
             {
                 return;
+            }
+
+            if (nodeState.NodeType == BoardNodeType.Resource && !nodeState.IsLootRevealComplete())
+            {
+                float requiredSeconds = Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
+                nodeState.SearchProgressSeconds = Mathf.Min(requiredSeconds, nodeState.SearchProgressSeconds + Mathf.Max(0f, deltaTime));
+                nodeState.ResourceState = BoardResourceStateType.Searching;
+                _sessionState.StatusMessage = $"Searching {nodeState.NodeId}";
+                SyncLootActionProgress();
+
+                if (nodeState.SearchProgressSeconds + Mathf.Epsilon < requiredSeconds)
+                {
+                    return;
+                }
+
+                nodeState.SearchProgressSeconds = requiredSeconds;
+                nodeState.LootRevealedItemCount = nodeState.LootTotalItemCount;
+                nodeState.ResourceState = BoardResourceStateType.SearchCompleted;
+            }
+            else if (!nodeState.IsLootRevealComplete())
+            {
+                AdvanceBaglessLootReveal(nodeState, deltaTime);
+                _sessionState.StatusMessage = $"Searching loot at {nodeState.NodeId}";
+                SyncLootActionProgress();
+
+                if (!nodeState.IsLootRevealComplete())
+                {
+                    return;
+                }
             }
 
             List<BoardItemInstance> sourceItems = nodeState.LootContainerItems
@@ -253,7 +282,7 @@ namespace BoardGame.Runtime.Controllers
                 agentState.InventoryState,
                 sourceItems);
 
-            int revealedItemCount = Mathf.Max(nodeState.LootTotalItemCount, nodeState.LootContainerItems.Count);
+            int revealedItemCount = nodeState.LootTotalItemCount;
             CloseActiveLootNode(
                 new List<BoardLootContainerItemState>(),
                 agentState.InventoryState.Items.ToList(),
@@ -265,6 +294,45 @@ namespace BoardGame.Runtime.Controllers
                 agentState,
                 nodeState,
                 autoCollectMessage);
+        }
+
+        private static void AdvanceBaglessLootReveal(BoardNodeRuntimeState nodeState, float deltaTime)
+        {
+            BoardLootContainerItemState nextHiddenItem = GetNextHiddenLootItem(nodeState);
+
+            if (nextHiddenItem == null)
+            {
+                nodeState.LootRevealedItemCount = nodeState.LootTotalItemCount;
+                return;
+            }
+
+            if (!nextHiddenItem.AdvanceReveal(deltaTime))
+            {
+                return;
+            }
+
+            nodeState.LootRevealedItemCount = Mathf.Min(
+                nodeState.LootRevealedItemCount + 1,
+                nodeState.LootTotalItemCount);
+        }
+
+        private static BoardLootContainerItemState GetNextHiddenLootItem(BoardNodeRuntimeState nodeState)
+        {
+            BoardLootContainerItemState nextHiddenItem = null;
+            int bestRevealSequence = int.MaxValue;
+
+            foreach (BoardLootContainerItemState itemState in nodeState.LootContainerItems)
+            {
+                if (itemState == null || itemState.IsRevealed || itemState.RevealSequenceIndex >= bestRevealSequence)
+                {
+                    continue;
+                }
+
+                bestRevealSequence = itemState.RevealSequenceIndex;
+                nextHiddenItem = itemState;
+            }
+
+            return nextHiddenItem;
         }
 
         /// <summary>
@@ -281,6 +349,28 @@ namespace BoardGame.Runtime.Controllers
             }
 
             agentState.CurrentActionType = BoardActionType.Searching;
+
+            if (!_bagLayoutSettings.EnableBagSystem &&
+                nodeState.NodeType == BoardNodeType.Resource &&
+                !nodeState.IsLootRevealComplete())
+            {
+                agentState.CurrentActionDuration = Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
+                agentState.CurrentActionProgress = nodeState.SearchRequiredSeconds <= Mathf.Epsilon
+                    ? 1f
+                    : nodeState.SearchProgressSeconds / nodeState.SearchRequiredSeconds;
+                return;
+            }
+
+            if (!_bagLayoutSettings.EnableBagSystem &&
+                nodeState.HasPendingLootContainer() &&
+                nodeState.HasRemainingLootItems() &&
+                !nodeState.IsLootRevealComplete())
+            {
+                agentState.CurrentActionDuration = 1f;
+                agentState.CurrentActionProgress = nodeState.GetLootRevealProgressWithPartial01();
+                return;
+            }
+
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
         }

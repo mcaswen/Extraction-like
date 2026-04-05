@@ -146,6 +146,7 @@ namespace BoardGame.Runtime.Services
                 }
 
                 context.LootResolutionService.PrepareNodeLootContainer(nodeState, generatedItems, context.BagLayoutSettings);
+                bool bagSystemEnabled = context.BagLayoutSettings.EnableBagSystem;
                 ResetNonLootOwnerParticipantsAfterEncounterClear(context, survivingParticipantAgents, lootInteractionOwner);
                 sessionState.ActiveInteractionAgentId = lootInteractionOwner != null ? lootInteractionOwner.AgentId : string.Empty;
                 sessionState.ActiveLootNodeId = nodeState.NodeId;
@@ -157,16 +158,22 @@ namespace BoardGame.Runtime.Services
                     lootInteractionOwner.CurrentActionType = BoardActionType.Searching;
                     lootInteractionOwner.CurrentActionDuration = 1f;
                     lootInteractionOwner.CurrentActionAccumulatorSeconds = 0f;
-                    lootInteractionOwner.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+                    lootInteractionOwner.CurrentActionProgress = bagSystemEnabled
+                        ? nodeState.GetLootRevealProgress01()
+                        : nodeState.GetLootRevealProgressWithPartial01();
                     lootInteractionOwner.CombatJoinStepIndex = -1;
                 }
 
                 sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
                     lootInteractionOwner,
                     nodeState,
-                    _isBoss
-                        ? $"Boss defeated, press F to search the loot{encounterExperienceSummary}{itemExperienceResult.Summary}"
-                        : $"Enemy cleared, press F to search the loot{encounterExperienceSummary}{itemExperienceResult.Summary}");
+                    bagSystemEnabled
+                        ? (_isBoss
+                            ? $"Boss defeated, press F to search the loot{encounterExperienceSummary}{itemExperienceResult.Summary}"
+                            : $"Enemy cleared, press F to search the loot{encounterExperienceSummary}{itemExperienceResult.Summary}")
+                        : (_isBoss
+                            ? $"Boss defeated, searching loot{encounterExperienceSummary}{itemExperienceResult.Summary}"
+                            : $"Enemy cleared, searching loot{encounterExperienceSummary}{itemExperienceResult.Summary}"));
                 return;
             }
         }

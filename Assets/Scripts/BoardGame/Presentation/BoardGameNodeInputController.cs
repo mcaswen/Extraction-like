@@ -125,7 +125,6 @@ namespace BoardGame.Presentation
 
             return false;
         }
-
         private static bool TryGetHoveredAgent(Collider2D[] hits, out BoardGameAgentView agentView)
         {
             agentView = null;

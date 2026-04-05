@@ -1,21 +1,21 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class BigandSmall: MonoBehaviour
 {
-    [Header("Ëõ·ÅÉèÖÃ")]
-    [Tooltip("ÇòÌå³õÊ¼´óĞ¡£¨Ä¬ÈÏ1±¶£©")]
+    [Header("ç¼©æ”¾è®¾ç½®")]
+    [Tooltip("çƒä½“åˆå§‹å¤§å°ï¼ˆé»˜è®¤1å€ï¼‰")]
     public float initialScale = 1f;
 
-    [Tooltip("ÇòÌå×î´óËõ·Å±¶Êı")]
+    [Tooltip("çƒä½“æœ€å¤§ç¼©æ”¾å€æ•°")]
     public float maxScale = 2f;
 
-    [Tooltip("ÇòÌå×îĞ¡Ëõ·Å±¶Êı£¨½¨Òé¡İ³õÊ¼´óĞ¡£©")]
+    [Tooltip("çƒä½“æœ€å°ç¼©æ”¾å€æ•°ï¼ˆå»ºè®®â‰¥åˆå§‹å¤§å°ï¼‰")]
     public float minScale = 1f;
 
-    [Tooltip("Ëõ·ÅËÙ¶È£¨ÖµÔ½´óËõ·ÅÔ½¿ì£©")]
+    [Tooltip("ç¼©æ”¾é€Ÿåº¦ï¼ˆå€¼è¶Šå¤§ç¼©æ”¾è¶Šå¿«ï¼‰")]
     public float scaleSpeed = 0.5f;
 
-    // Ë½ÓĞ±äÁ¿£º¿ØÖÆËõ·Å×´Ì¬ºÍ¼ÆÊ±
+    // ç§æœ‰å˜é‡ï¼šæ§åˆ¶ç¼©æ”¾çŠ¶æ€å’Œè®¡æ—¶
     private float currentTime;       
     private bool isScalingUp = true; 
 

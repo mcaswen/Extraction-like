@@ -1,17 +1,17 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 public class TreeGrowth_OnlyModel : MonoBehaviour
 {
-    [Header("ºËĞÄÅäÖÃ")]
+    [Header("æ ¸å¿ƒé…ç½®")]
     public Transform player;
     public float triggerDistance = 50f;
     public float totalGrowDuration = 6f;
 
-    [Header("Éú³¤½×¶ÎÄ£ĞÍ")]
-    public GameObject seedling;   // Ğ¡Ê÷Ãç
-    public GameObject smallTree; // ÖĞÊ÷
-    public GameObject bigTree;   // ´óÊ÷
+    [Header("ç”Ÿé•¿é˜¶æ®µæ¨¡å‹")]
+    public GameObject seedling;   // å°æ ‘è‹—
+    public GameObject smallTree; // ä¸­æ ‘
+    public GameObject bigTree;   // å¤§æ ‘
 
     private bool hasStartedGrow = false;
     private bool isFullyGrown = false;
@@ -27,7 +27,7 @@ public class TreeGrowth_OnlyModel : MonoBehaviour
         CheckPlayerDistanceAndGrow();
     }
 
-    // ¹Ø¼ü£º±à¼­Ä£Ê½ÏÂ×Ô¶¯ÖØÖÃÄ£ĞÍ×´Ì¬
+    // å…³é”®ï¼šç¼–è¾‘æ¨¡å¼ä¸‹è‡ªåŠ¨é‡ç½®æ¨¡å‹çŠ¶æ€
     void OnEnable()
     {
         if (!Application.isPlaying) InitializeTreeModels();
