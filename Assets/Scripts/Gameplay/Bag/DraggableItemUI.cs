@@ -162,6 +162,7 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        InventoryUIController sourceGrid = CurrentGrid;
         EquipmentSlotUI targetSlot = GetHoveredEquipmentSlot(eventData);
         InventoryUIController targetGrid = targetSlot == null ? GetHoveredGrid(eventData) : null;
 
@@ -190,11 +191,13 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         if (TryPlaceInEmptySpace(targetGrid, targetController, targetIndex, width, height))
         {
+            NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
             return;
         }
 
         if (TryMergeWithBlockingItem(targetController, targetIndex, width, height))
         {
+            NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
             return;
         }
 
@@ -723,6 +726,7 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
         }
 
+        InventoryUIController sourceGrid = CurrentGrid;
         if (!GameUIController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
         {
             return;
@@ -732,6 +736,7 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         transform.SetParent(targetGrid.ItemContainer, false);
         CurrentGrid = targetGrid;
         PlaceSuccessfully(position, needsRotation);
+        NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
     }
 
     private InventoryUIController GetHoveredGrid(PointerEventData eventData)
@@ -841,6 +846,26 @@ public class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private static bool IsBackpackGrid(InventoryUIController targetGrid)
     {
         return GameUIController.Instance != null && GameUIController.Instance.BackpackGrid == targetGrid;
+    }
+
+    private void NotifyLootTransferredFromLootChest(InventoryUIController sourceGrid, InventoryUIController targetGrid)
+    {
+        if (GameUIController.Instance == null || sourceGrid == null || targetGrid == null)
+        {
+            return;
+        }
+
+        if (sourceGrid != GameUIController.Instance.LootChestGrid)
+        {
+            return;
+        }
+
+        if (targetGrid == GameUIController.Instance.LootChestGrid)
+        {
+            return;
+        }
+
+        RaidFlowController.Instance?.NotifyLootCollected(ItemData != null ? ItemData.ItemName : "Unknown Loot");
     }
 
     private void TickSearchProgress()

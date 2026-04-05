@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 背包模块总控制器。
@@ -199,6 +200,7 @@ public class GameUIController : MonoBehaviour
                 backpackRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -213,6 +215,7 @@ public class GameUIController : MonoBehaviour
                 rigRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 
@@ -227,6 +230,7 @@ public class GameUIController : MonoBehaviour
                 pocketRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
             return true;
         }
 

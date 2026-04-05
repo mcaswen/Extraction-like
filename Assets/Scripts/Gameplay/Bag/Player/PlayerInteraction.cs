@@ -32,6 +32,15 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
+        {
+            if (FloatingPromptUI != null)
+            {
+                FloatingPromptUI.gameObject.SetActive(false);
+            }
+            return;
+        }
+
         ScanForInteractables();
         UpdateFloatingUI();
         HandleInteractionInput();
