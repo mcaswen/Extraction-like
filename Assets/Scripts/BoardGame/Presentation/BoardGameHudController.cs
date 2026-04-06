@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace BoardGame.Presentation
 {
     /// <summary>
-    /// 顶层 HUD 刷新控制器
+    /// HUD controller.
     /// </summary>
     public sealed class BoardGameHudController : MonoBehaviour
     {
@@ -22,18 +22,15 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _targetText;
         [SerializeField] private TMP_Text _pathText;
         [SerializeField] private TMP_Text _statusText;
-        [SerializeField] private TMP_Text _focusContextText;
-        [SerializeField] private TMP_Text _nearbyContextText;
         [SerializeField] private TMP_Text _redirectStateText;
+        [SerializeField] private Image _healthProgressFillImage;
+        [SerializeField] private Image _capacityProgressFillImage;
         [SerializeField] private Image _actionProgressFillImage;
         [SerializeField] private Image _experienceProgressFillImage;
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameHudContextFormatter _contextFormatter;
 
-        /// <summary>
-        /// 绑定运行时只读查询控制器
-        /// </summary>
         public void Bind(BoardGameRuntimeQueryController runtimeQueryController)
         {
             _runtimeQueryController = runtimeQueryController;
@@ -48,14 +45,11 @@ namespace BoardGame.Presentation
                 SetProgressionWidgetsVisible(false);
             }
 
-            EnsureContextWidgets();
+            EnsureAttributeWidgets();
             _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
 
-        /// <summary>
-        /// 刷新 HUD 文本和进度条
-        /// </summary>
         private void Refresh()
         {
             if (_runtimeQueryController == null)
@@ -76,7 +70,13 @@ namespace BoardGame.Presentation
             BoardNodeRuntimeState targetNode = _runtimeQueryController.GetNodeState(agentState.CurrentTargetNodeId);
             bool progressionEnabled = _runtimeQueryController.IsProgressionEnabled;
 
-            if (_healthText != null)
+            if (_healthProgressFillImage != null)
+            {
+                _healthProgressFillImage.fillAmount = agentState.MaxHealth > 0
+                    ? Mathf.Clamp01((float)agentState.CurrentHealth / agentState.MaxHealth)
+                    : 0f;
+            }
+            else if (_healthText != null)
             {
                 _healthText.text = $"HP: {agentState.CurrentHealth}/{agentState.MaxHealth}";
             }
@@ -100,11 +100,16 @@ namespace BoardGame.Presentation
                 _valueText.text = $"Value: {agentState.InventoryState.TotalValue}";
             }
 
-            if (_capacityText != null)
+            float capacityFillAmount = GetCapacityFillAmount(agentState);
+
+            if (_capacityProgressFillImage != null)
+            {
+                _capacityProgressFillImage.fillAmount = capacityFillAmount;
+            }
+            else if (_capacityText != null)
             {
                 if (_runtimeQueryController.IsBagSystemEnabled)
                 {
-                    // 开背包系统时，Capacity 展示的是格子占用，而不是旧版数字容量
                     int totalSlots = _runtimeQueryController.BagLayoutSettings.PlayerInventoryColumns *
                                      _runtimeQueryController.BagLayoutSettings.PlayerInventoryRows;
                     int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
@@ -143,16 +148,6 @@ namespace BoardGame.Presentation
                 _statusText.text = _contextFormatter.BuildStatusText(sessionState);
             }
 
-            if (_focusContextText != null)
-            {
-                _focusContextText.text = _contextFormatter.BuildFocusContextText(agentState);
-            }
-
-            if (_nearbyContextText != null)
-            {
-                _nearbyContextText.text = _contextFormatter.BuildNearbyContextText(agentState);
-            }
-
             if (_redirectStateText != null)
             {
                 _redirectStateText.text = _contextFormatter.BuildRedirectHint();
@@ -173,47 +168,41 @@ namespace BoardGame.Presentation
             }
         }
 
-        /// <summary>
-        /// 在运行时补齐焦点 Agent 的局部信息文本
-        /// </summary>
-        private void EnsureContextWidgets()
+        private void EnsureAttributeWidgets()
         {
-            if (_focusContextText != null && _nearbyContextText != null)
-            {
-                return;
-            }
+            TMP_Text templateText = _healthText != null ? _healthText : GetComponentInChildren<TMP_Text>(true);
 
-            TMP_Text templateText = _healthText != null ? _healthText : GetComponentInChildren<TMP_Text>();
-
-            if (templateText == null)
+            if (_healthProgressFillImage == null)
             {
-                return;
-            }
-
-            if (_focusContextText == null)
-            {
-                _focusContextText = CreateRuntimeText(
-                    "T_FocusContext",
-                    new Vector2(-684.97906f, -32f),
-                    new Vector2(720f, 34f),
+                _healthProgressFillImage = CreateRuntimeAttributeBar(
+                    "HP_ProgressBar",
+                    _healthText,
                     templateText,
-                    26f);
+                    "HP",
+                    new Color(0.89f, 0.25f, 0.29f, 0.95f));
             }
 
-            if (_nearbyContextText == null)
+            if (_capacityProgressFillImage == null)
             {
-                _nearbyContextText = CreateRuntimeText(
-                    "T_NearbyContext",
-                    new Vector2(-684.97906f, -68f),
-                    new Vector2(900f, 72f),
+                _capacityProgressFillImage = CreateRuntimeAttributeBar(
+                    "Capacity_ProgressBar",
+                    _capacityText,
                     templateText,
-                    24f);
+                    "CAP",
+                    new Color(0.93f, 0.68f, 0.18f, 0.95f));
+            }
+
+            if (_healthProgressFillImage != null)
+            {
+                SetWidgetVisible(_healthText, false);
+            }
+
+            if (_capacityProgressFillImage != null)
+            {
+                SetWidgetVisible(_capacityText, false);
             }
         }
 
-        /// <summary>
-        /// 在运行时补齐升级相关的 HUD 文本与进度条
-        /// </summary>
         private void EnsureProgressionWidgets()
         {
             if (_runtimeQueryController != null && !_runtimeQueryController.IsProgressionEnabled)
@@ -255,17 +244,14 @@ namespace BoardGame.Presentation
 
             if (_experienceProgressFillImage == null)
             {
-                // 运行时补建时沿用 HUD 现有层级，避免再维护一份单独的升级 UI 预制
                 _experienceProgressFillImage = CreateRuntimeProgressBar(
                     "XP_ProgressBar",
                     new Vector2(-684.97906f, 66f),
-                    new Vector2(484.042f, 16f));
+                    new Vector2(484.042f, 16f),
+                    new Color(0.29f, 0.84f, 0.62f, 0.95f));
             }
         }
 
-        /// <summary>
-        /// 基于现有文本样式克隆一个运行时文本控件
-        /// </summary>
         private TMP_Text CreateRuntimeText(
             string objectName,
             Vector2 anchoredPosition,
@@ -294,10 +280,61 @@ namespace BoardGame.Presentation
             return text;
         }
 
-        /// <summary>
-        /// 创建一个简单的运行时横向填充进度条
-        /// </summary>
-        private Image CreateRuntimeProgressBar(string objectName, Vector2 anchoredPosition, Vector2 sizeDelta)
+        private float GetCapacityFillAmount(BoardAgentState agentState)
+        {
+            if (agentState == null || agentState.InventoryState == null)
+            {
+                return 0f;
+            }
+
+            if (_runtimeQueryController != null && _runtimeQueryController.IsBagSystemEnabled)
+            {
+                int totalSlots = _runtimeQueryController.BagLayoutSettings.PlayerInventoryColumns *
+                                 _runtimeQueryController.BagLayoutSettings.PlayerInventoryRows;
+                int occupiedSlots = agentState.InventoryState.Items.Count(item => item != null);
+                return totalSlots > 0 ? Mathf.Clamp01((float)occupiedSlots / totalSlots) : 0f;
+            }
+
+            float maxCapacity = agentState.InventoryState.MaxCapacity;
+            return maxCapacity > Mathf.Epsilon
+                ? Mathf.Clamp01(agentState.InventoryState.UsedCapacity / maxCapacity)
+                : 0f;
+        }
+
+        private Image CreateRuntimeAttributeBar(
+            string objectName,
+            TMP_Text anchorText,
+            TMP_Text templateText,
+            string label,
+            Color fillColor)
+        {
+            if (anchorText == null)
+            {
+                return null;
+            }
+
+            RectTransform anchorRect = anchorText.rectTransform;
+            float width = anchorRect != null
+                ? Mathf.Max(220f, Mathf.Max(anchorRect.rect.width, anchorRect.sizeDelta.x))
+                : 220f;
+            Vector2 anchoredPosition = anchorRect != null ? anchorRect.anchoredPosition : Vector2.zero;
+            TMP_Text labelTemplate = templateText != null ? templateText : anchorText;
+            return CreateRuntimeProgressBar(
+                objectName,
+                anchoredPosition,
+                new Vector2(width, 18f),
+                fillColor,
+                labelTemplate,
+                label);
+        }
+
+        private Image CreateRuntimeProgressBar(
+            string objectName,
+            Vector2 anchoredPosition,
+            Vector2 sizeDelta,
+            Color fillColor,
+            TMP_Text labelTemplate = null,
+            string label = null)
         {
             GameObject backgroundObject = new GameObject(objectName, typeof(RectTransform), typeof(Image));
             backgroundObject.transform.SetParent(transform, false);
@@ -313,8 +350,30 @@ namespace BoardGame.Presentation
             backgroundImage.color = new Color(1f, 1f, 1f, 0.16f);
             backgroundImage.raycastTarget = false;
 
+            if (labelTemplate != null && !string.IsNullOrEmpty(label))
+            {
+                TMP_Text labelText = CreateRuntimeText(
+                    "Label",
+                    Vector2.zero,
+                    sizeDelta,
+                    labelTemplate,
+                    Mathf.Max(16f, labelTemplate.fontSize * 0.58f));
+                labelText.transform.SetParent(backgroundObject.transform, false);
+
+                RectTransform labelRect = labelText.rectTransform;
+                labelRect.anchorMin = new Vector2(0f, 0.5f);
+                labelRect.anchorMax = new Vector2(1f, 0.5f);
+                labelRect.pivot = new Vector2(0f, 0.5f);
+                labelRect.offsetMin = new Vector2(12f, -sizeDelta.y * 0.5f);
+                labelRect.offsetMax = new Vector2(-12f, sizeDelta.y * 0.5f);
+
+                labelText.alignment = TextAlignmentOptions.Center;
+                labelText.text = label;
+            }
+
             GameObject fillObject = new GameObject("Fill", typeof(RectTransform), typeof(Image));
             fillObject.transform.SetParent(backgroundObject.transform, false);
+            fillObject.transform.SetAsFirstSibling();
 
             RectTransform fillRect = fillObject.GetComponent<RectTransform>();
             fillRect.anchorMin = new Vector2(0f, 0f);
@@ -323,7 +382,7 @@ namespace BoardGame.Presentation
             fillRect.offsetMax = Vector2.zero;
 
             Image fillImage = fillObject.GetComponent<Image>();
-            fillImage.color = new Color(0.29f, 0.84f, 0.62f, 0.95f);
+            fillImage.color = fillColor;
             fillImage.type = Image.Type.Filled;
             fillImage.fillMethod = Image.FillMethod.Horizontal;
             fillImage.fillOrigin = 0;
@@ -332,9 +391,6 @@ namespace BoardGame.Presentation
             return fillImage;
         }
 
-        /// <summary>
-        /// 批量切换升级相关 HUD 控件的显隐
-        /// </summary>
         private void SetProgressionWidgetsVisible(bool isVisible)
         {
             SetWidgetVisible(_levelText, isVisible);
@@ -342,9 +398,6 @@ namespace BoardGame.Presentation
             SetProgressBarVisible(_experienceProgressFillImage, isVisible);
         }
 
-        /// <summary>
-        /// 切换单个控件的显隐状态
-        /// </summary>
         private static void SetWidgetVisible(Component component, bool isVisible)
         {
             if (component == null)
@@ -358,10 +411,6 @@ namespace BoardGame.Presentation
             }
         }
 
-        /// <summary>
-        /// 切换经验条显示状态
-        /// 若填充图有独立背景，则连同背景一起切换
-        /// </summary>
         private static void SetProgressBarVisible(Image fillImage, bool isVisible)
         {
             if (fillImage == null)

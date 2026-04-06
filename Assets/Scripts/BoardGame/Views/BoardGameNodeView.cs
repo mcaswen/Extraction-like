@@ -1,3 +1,4 @@
+using BoardGame.Config;
 using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 using TMPro;
@@ -19,15 +20,16 @@ namespace BoardGame.Views
         private static readonly Color SelectionHaloColor = new Color(0.22f, 0.62f, 1f, 1f);
         private static readonly Color RedirectHaloColor = new Color(0.35f, 0.78f, 1f, 1f);
         private static readonly Color TargetHaloColor = new Color(0.97f, 0.78f, 0.18f, 1f);
+        private static readonly Vector3 DefaultIconScale = Vector3.one;
 
-        [SerializeField] private SpriteRenderer _bodyRenderer;
+        [SerializeField] private SpriteRenderer _iconRenderer;
+        [SerializeField] private Sprite _fallbackSprite;
         [SerializeField] private Transform _progressFillTransform;
         [SerializeField] private SpriteRenderer _progressFillRenderer;
-        [SerializeField] private TMP_Text _titleText;
-        [SerializeField] private TMP_Text _statusText;
         [SerializeField] private TMP_Text _detailText;
 
         private string _nodeId;
+        private SO_BoardGame_MapDefinition _mapDefinition;
         private Vector3 _progressFillBaseScale = Vector3.one;
         private Color _progressFillBaseColor = Color.white;
         private BoardGameSelectionHalo _selectionHalo;
@@ -41,13 +43,20 @@ namespace BoardGame.Views
         /// </summary>
         public float GetVisualWorldRadius()
         {
-            if (_bodyRenderer == null)
+            CircleCollider2D hitCollider = GetComponent<CircleCollider2D>();
+
+            if (hitCollider != null)
             {
-                return 0.25f;
+                return hitCollider.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
             }
 
-            Bounds worldBounds = _bodyRenderer.bounds;
-            return Mathf.Max(worldBounds.extents.x, worldBounds.extents.y);
+            if (_iconRenderer != null && _iconRenderer.enabled && _iconRenderer.sprite != null)
+            {
+                Bounds worldBounds = _iconRenderer.bounds;
+                return Mathf.Max(worldBounds.extents.x, worldBounds.extents.y);
+            }
+
+            return 0.25f;
         }
 
         private void Awake()
@@ -67,20 +76,17 @@ namespace BoardGame.Views
                 _progressFillBaseColor = _progressFillRenderer.color;
             }
 
+            EnsureIconRenderer();
             EnsureHalos();
         }
 
         /// <summary>
         /// 初始化节点视图
         /// </summary>
-        public void Initialize(string nodeId)
+        public void Initialize(string nodeId, SO_BoardGame_MapDefinition mapDefinition)
         {
             _nodeId = nodeId;
-
-            if (_titleText != null)
-            {
-                _titleText.text = nodeId;
-            }
+            _mapDefinition = mapDefinition;
         }
 
         /// <summary>
@@ -100,26 +106,14 @@ namespace BoardGame.Views
                 return;
             }
 
-            if (_bodyRenderer != null)
-            {
-                _bodyRenderer.color = BoardGameTypes.GetNodeColor(nodeState.NodeType, nodeState.ResourceTier, nodeState.DangerTier);
-            }
-
+            Sprite iconSprite = ResolveDisplaySprite(nodeState);
+            RefreshIconRenderer(iconSprite, ResolveDisplayColor(nodeState, iconSprite));
+            _selectionHalo?.Initialize(_iconRenderer, HaloPadding, HaloWidth);
+            _targetHalo?.Initialize(_iconRenderer, HaloPadding, HaloWidth);
             _selectionHalo?.Refresh(
                 isSelected || canRedirect,
                 canRedirect ? RedirectHaloColor : SelectionHaloColor);
             _targetHalo?.Refresh(isCurrentTarget, TargetHaloColor);
-
-            if (_titleText != null)
-            {
-                _titleText.text = BoardGameTypes.GetNodeTypeLabel(nodeState.NodeType);
-            }
-
-            if (_statusText != null)
-            {
-                _statusText.text = BuildTierText(nodeState);
-                _statusText.gameObject.SetActive(!string.IsNullOrEmpty(_statusText.text));
-            }
 
             if (_detailText != null)
             {
@@ -148,23 +142,6 @@ namespace BoardGame.Views
         /// <summary>
         /// 生成节点的等级说明文本
         /// </summary>
-        private static string BuildTierText(BoardNodeRuntimeState nodeState)
-        {
-            switch (nodeState.NodeType)
-            {
-                case BoardNodeType.Resource:
-                    return $"Resource {BoardGameTypes.GetResourceTierLabel(nodeState.ResourceTier)}";
-                case BoardNodeType.Enemy:
-                    return $"Risk {BoardGameTypes.GetDangerLabel(nodeState.DangerTier)}";
-                case BoardNodeType.Boss:
-                    return $"Risk {BoardGameTypes.GetDangerLabel(nodeState.DangerTier)}";
-                case BoardNodeType.Extract:
-                    return string.Empty;
-                default:
-                    return string.Empty;
-            }
-        }
-
         /// <summary>
         /// 生成节点的实时数值信息
         /// 仅用于 AI 当前所在局部节点
@@ -296,17 +273,48 @@ namespace BoardGame.Views
             return nodeState.HasPendingLootContainer() && nodeState.HasRemainingLootItems();
         }
 
+        private Sprite ResolveDisplaySprite(BoardNodeRuntimeState nodeState)
+        {
+            if (nodeState == null || _mapDefinition == null || _mapDefinition.NodeIconSet == null)
+            {
+                return _fallbackSprite;
+            }
+
+            Sprite iconSprite = _mapDefinition.NodeIconSet.GetIcon(
+                nodeState.NodeType,
+                nodeState.ResourceTier,
+                nodeState.DangerTier);
+            return iconSprite != null ? iconSprite : _fallbackSprite;
+        }
+
+        private Color ResolveDisplayColor(BoardNodeRuntimeState nodeState, Sprite iconSprite)
+        {
+            if (nodeState == null)
+            {
+                return Color.white;
+            }
+
+            if (iconSprite != null &&
+                iconSprite != _fallbackSprite &&
+                nodeState.NodeType != BoardNodeType.Start)
+            {
+                return Color.white;
+            }
+
+            return BoardGameTypes.GetNodeColor(nodeState.NodeType, nodeState.ResourceTier, nodeState.DangerTier);
+        }
+
         private void EnsureHalos()
         {
-            if (_bodyRenderer == null)
+            if (_iconRenderer == null)
             {
                 return;
             }
 
             _selectionHalo = EnsureHalo("SelectionHalo");
-            _selectionHalo.Initialize(_bodyRenderer, HaloPadding, HaloWidth);
+            _selectionHalo.Initialize(_iconRenderer, HaloPadding, HaloWidth);
             _targetHalo = EnsureHalo("TargetHalo");
-            _targetHalo.Initialize(_bodyRenderer, HaloPadding, HaloWidth);
+            _targetHalo.Initialize(_iconRenderer, HaloPadding, HaloWidth);
         }
 
         private BoardGameSelectionHalo EnsureHalo(string haloName)
@@ -328,6 +336,81 @@ namespace BoardGame.Views
             }
 
             return halo;
+        }
+
+        private void EnsureIconRenderer()
+        {
+            if (_iconRenderer != null)
+            {
+                return;
+            }
+
+            Transform iconTransform = transform.Find("IconRenderer");
+            GameObject iconObject;
+
+            if (iconTransform == null)
+            {
+                iconObject = new GameObject("IconRenderer");
+                iconObject.transform.SetParent(transform, false);
+            }
+            else
+            {
+                iconObject = iconTransform.gameObject;
+            }
+
+            _iconRenderer = iconObject.GetComponent<SpriteRenderer>();
+
+            if (_iconRenderer == null)
+            {
+                _iconRenderer = iconObject.AddComponent<SpriteRenderer>();
+            }
+
+            iconObject.transform.localPosition = Vector3.zero;
+            iconObject.transform.localRotation = Quaternion.identity;
+            iconObject.transform.localScale = DefaultIconScale;
+            _iconRenderer.sortingOrder = 2;
+            _iconRenderer.color = Color.white;
+            _iconRenderer.enabled = false;
+        }
+
+        private void RefreshIconRenderer(Sprite iconSprite, Color tintColor)
+        {
+            if (_iconRenderer == null)
+            {
+                return;
+            }
+
+            _iconRenderer.sprite = iconSprite;
+            _iconRenderer.enabled = iconSprite != null;
+            _iconRenderer.color = tintColor;
+            _iconRenderer.transform.localScale = iconSprite != null
+                ? ResolveIconScale(iconSprite)
+                : DefaultIconScale;
+        }
+
+        private Vector3 ResolveIconScale(Sprite iconSprite)
+        {
+            if (iconSprite == null)
+            {
+                return DefaultIconScale;
+            }
+
+            float iconMaxDimension = Mathf.Max(iconSprite.bounds.size.x, iconSprite.bounds.size.y);
+
+            if (iconMaxDimension <= Mathf.Epsilon)
+            {
+                return DefaultIconScale;
+            }
+
+            float targetMaxDimension = ResolveIconTargetMaxDimension();
+            float uniformScale = targetMaxDimension / iconMaxDimension;
+            return new Vector3(uniformScale, uniformScale, 1f);
+        }
+
+        private float ResolveIconTargetMaxDimension()
+        {
+            CircleCollider2D hitCollider = GetComponent<CircleCollider2D>();
+            return hitCollider != null ? hitCollider.radius * 2f : 1f;
         }
     }
 }

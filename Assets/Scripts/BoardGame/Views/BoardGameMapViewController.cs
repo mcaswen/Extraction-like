@@ -83,7 +83,7 @@ namespace BoardGame.Views
             {
                 BoardGameNodeView nodeView = Instantiate(nodeViewPrefab, mapRoot);
                 nodeView.transform.position = nodeDefinition.Position;
-                nodeView.Initialize(nodeDefinition.NodeId);
+                nodeView.Initialize(nodeDefinition.NodeId, _mapDefinition);
                 _nodeViewsById[nodeDefinition.NodeId] = nodeView;
             }
 

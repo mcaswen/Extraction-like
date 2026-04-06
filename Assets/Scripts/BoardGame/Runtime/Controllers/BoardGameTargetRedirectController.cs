@@ -62,9 +62,9 @@ namespace BoardGame.Runtime.Controllers
                 return false;
             }
 
-            if (_sessionState.IsAwaitingLootInteraction)
+            if (_sessionState.IsLootInteractionOpen)
             {
-                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Finish the current loot interaction before redirecting");
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Close the current loot panel before redirecting");
                 NotifyChanged();
                 return false;
             }
@@ -87,7 +87,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool IsNodeValidRedirectTarget(string agentId, string nodeId)
         {
-            if (_sessionState.IsAwaitingLevelUpChoice || _sessionState.IsAwaitingLootInteraction)
+            if (_sessionState.IsAwaitingLevelUpChoice || _sessionState.IsLootInteractionOpen)
             {
                 return false;
             }

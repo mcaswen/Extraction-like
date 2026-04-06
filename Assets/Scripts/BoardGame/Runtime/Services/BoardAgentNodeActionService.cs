@@ -109,6 +109,7 @@ namespace BoardGame.Runtime.Services
             }
 
             agentState.CurrentActionAccumulatorSeconds = 0f;
+            ClearPendingLootInteractionForRedirect(sessionState, agentState);
         }
 
         /// <summary>
@@ -157,6 +158,11 @@ namespace BoardGame.Runtime.Services
             BoardNodeRuntimeState nodeState)
         {
             if (nodeState == null || !nodeState.HasPendingLootContainer() || !nodeState.HasRemainingLootItems())
+            {
+                return false;
+            }
+
+            if (_nodeActionHandlerContext.BagLayoutSettings.EnableBagSystem)
             {
                 return false;
             }
@@ -238,6 +244,23 @@ namespace BoardGame.Runtime.Services
             nodeState = null;
             return !string.IsNullOrEmpty(agentState.CurrentNodeId) &&
                    nodeStatesById.TryGetValue(agentState.CurrentNodeId, out nodeState);
+        }
+
+        private static void ClearPendingLootInteractionForRedirect(
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState)
+        {
+            if (sessionState == null ||
+                agentState == null ||
+                sessionState.IsLootInteractionOpen ||
+                sessionState.ActiveInteractionAgentId != agentState.AgentId)
+            {
+                return;
+            }
+
+            sessionState.ActiveInteractionAgentId = string.Empty;
+            sessionState.ActiveLootNodeId = string.Empty;
+            sessionState.IsLootInteractionOpen = false;
         }
 
         /// <summary>
