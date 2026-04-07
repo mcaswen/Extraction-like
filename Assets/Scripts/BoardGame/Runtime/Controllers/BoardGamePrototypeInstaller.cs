@@ -28,6 +28,7 @@ namespace BoardGame.Runtime.Controllers
 
         [Header("UI")]
         [SerializeField] private BoardGameHudController _hudController;
+        [SerializeField] private BoardGameCombatHudController _combatHudController;
         [SerializeField] private BoardGameItemBarController _itemBarController;
         [SerializeField] private BoardGameLevelUpController _levelUpController;
         [SerializeField] private BoardGameLootInventoryController _lootInventoryController;
@@ -67,6 +68,7 @@ namespace BoardGame.Runtime.Controllers
             }
 
             _hudController?.Bind(_prototypeController.RuntimeQueryController);
+            ResolveCombatHudController()?.Bind(_prototypeController.RuntimeQueryController, ResolveParentCanvas());
             _itemBarController?.Bind(_prototypeController.RuntimeQueryController, _prototypeController.ItemUseController);
             ResolveLevelUpController()?.Bind(
                 _prototypeController.RuntimeQueryController,
@@ -88,6 +90,47 @@ namespace BoardGame.Runtime.Controllers
             }
         }
 
+        private BoardGameCombatHudController ResolveCombatHudController()
+        {
+            if (_combatHudController != null)
+            {
+                return _combatHudController;
+            }
+
+            _combatHudController = FindObjectOfType<BoardGameCombatHudController>();
+
+            if (_combatHudController != null)
+            {
+                return _combatHudController;
+            }
+
+            Canvas parentCanvas = ResolveParentCanvas();
+
+            if (parentCanvas == null)
+            {
+                GameObject overlayObject = new GameObject(
+                    "BoardGameCombatOverlay",
+                    typeof(RectTransform),
+                    typeof(BoardGameCombatHudController));
+                _combatHudController = overlayObject.GetComponent<BoardGameCombatHudController>();
+                return _combatHudController;
+            }
+
+            GameObject combatObject = new GameObject(
+                "BoardGameCombatOverlay",
+                typeof(RectTransform),
+                typeof(BoardGameCombatHudController));
+            RectTransform rectTransform = combatObject.GetComponent<RectTransform>();
+            rectTransform.SetParent(parentCanvas.transform, false);
+            rectTransform.anchorMin = Vector2.zero;
+            rectTransform.anchorMax = Vector2.one;
+            rectTransform.offsetMin = Vector2.zero;
+            rectTransform.offsetMax = Vector2.zero;
+            rectTransform.SetAsLastSibling();
+
+            _combatHudController = combatObject.GetComponent<BoardGameCombatHudController>();
+            return _combatHudController;
+        }
         private void Update()
         {
             _prototypeController?.Tick(Time.deltaTime);
