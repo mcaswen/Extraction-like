@@ -6,17 +6,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-[InitializeOnLoad]
 public static class SceneLylSupportMigrator
 {
     private const string SourceScenePath = "Assets/Scenes/Scene_lyl.unity";
-    private static bool _autoImportScheduled;
-
-    static SceneLylSupportMigrator()
-    {
-        EditorSceneManager.sceneOpened += OnSceneOpened;
-        EditorApplication.delayCall += TryAutoImportCurrentScene;
-    }
 
     [MenuItem("Tools/Whitebox/Import Core Gameplay Support From Scene_lyl")]
     private static void ImportCoreGameplaySupportFromSceneLyl()
@@ -69,71 +61,6 @@ public static class SceneLylSupportMigrator
         {
             EditorSceneManager.CloseScene(sourceScene, true);
         }
-    }
-
-    private static void OnSceneOpened(Scene scene, OpenSceneMode mode)
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-        {
-            return;
-        }
-
-        if (mode == OpenSceneMode.Additive && string.Equals(scene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        ScheduleAutoImport(scene);
-    }
-
-    private static void TryAutoImportCurrentScene()
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-        {
-            return;
-        }
-
-        ScheduleAutoImport(SceneManager.GetActiveScene());
-    }
-
-    private static void ScheduleAutoImport(Scene scene)
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-        {
-            return;
-        }
-
-        if (!scene.IsValid() || string.Equals(scene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        if (_autoImportScheduled)
-        {
-            return;
-        }
-
-        _autoImportScheduled = true;
-        EditorApplication.delayCall += () =>
-        {
-            _autoImportScheduled = false;
-            if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-            {
-                return;
-            }
-
-            if (!scene.IsValid())
-            {
-                return;
-            }
-
-            if (HasCoreGameplaySupport(scene))
-            {
-                return;
-            }
-
-            EnsureCoreGameplaySupport(scene);
-        };
     }
 
     private static void ImportInventorySupport(Scene sourceScene, Scene targetScene)
