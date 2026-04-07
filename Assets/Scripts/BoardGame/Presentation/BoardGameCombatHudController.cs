@@ -19,6 +19,7 @@ namespace BoardGame.Presentation
         private const float ImmediateFillSpeed = 10f;
         private const float FloatingTextLifetimeSeconds = 1.1f;
         private const float FloatingTextRiseSpeed = 54f;
+        private static readonly Color CombatTextColor = new Color(0f, 0f, 0f, 0.98f);
 
         private static readonly string[] SquadAttackTemplates =
         {
@@ -113,6 +114,7 @@ namespace BoardGame.Presentation
         private float _enemyDisplayedFill = 1f;
         private float _targetOverlayAlpha;
         private int _messageTemplateCursor;
+        private bool _isFeatureEnabled = true;
         private bool _isRuntimeUiInitialized;
 
         /// <summary>
@@ -120,6 +122,11 @@ namespace BoardGame.Presentation
         /// </summary>
         public void Bind(BoardGameRuntimeQueryController runtimeQueryController, Canvas parentCanvas)
         {
+            if (!_isFeatureEnabled)
+            {
+                return;
+            }
+
             if (_runtimeQueryController != null)
             {
                 _runtimeQueryController.Changed -= Refresh;
@@ -137,6 +144,30 @@ namespace BoardGame.Presentation
             Refresh();
         }
 
+        public void SetFeatureEnabled(bool isEnabled)
+        {
+            _isFeatureEnabled = isEnabled;
+
+            if (_isFeatureEnabled)
+            {
+                return;
+            }
+
+            _currentSnapshot = null;
+            _activeEncounterKey = string.Empty;
+            _targetOverlayAlpha = 0f;
+
+            if (_overlayCanvasGroup != null)
+            {
+                _overlayCanvasGroup.alpha = 0f;
+            }
+
+            if (_overlayRoot != null)
+            {
+                _overlayRoot.SetActive(false);
+            }
+        }
+
         private void OnDestroy()
         {
             if (_runtimeQueryController != null)
@@ -150,7 +181,7 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Update()
         {
-            if (_overlayRoot == null)
+            if (!_isFeatureEnabled || _overlayRoot == null)
             {
                 return;
             }
@@ -166,7 +197,7 @@ namespace BoardGame.Presentation
         /// </summary>
         private void Refresh()
         {
-            if (_runtimeQueryController == null)
+            if (!_isFeatureEnabled || _runtimeQueryController == null)
             {
                 return;
             }
@@ -394,11 +425,13 @@ namespace BoardGame.Presentation
                 _headerText.text = snapshot.IsBoss
                     ? $"Boss Engagement  Node {snapshot.NodeId}"
                     : $"Squad Engagement  Node {snapshot.NodeId}";
+                ApplyTextColor(_headerText);
             }
 
             if (_subHeaderText != null)
             {
                 _subHeaderText.text = $"Focus-triggered view  {snapshot.SquadAliveCount}/{snapshot.SquadTotalCount} active  Combat log updates in real time";
+                ApplyTextColor(_subHeaderText);
             }
 
             ApplySideWidgets(
@@ -406,16 +439,16 @@ namespace BoardGame.Presentation
                 "Friendly Squad",
                 snapshot.SquadTitleText,
                 snapshot.SquadHealthText,
-                $"ATK  {snapshot.SquadAttack}",
-                $"DEF(avg)  {snapshot.SquadDefenseAverage}");
+                $"{snapshot.SquadAttack}",
+                $"{snapshot.SquadDefenseAverage}");
 
             ApplySideWidgets(
                 _enemyWidgets,
                 snapshot.EnemyTitleText,
                 snapshot.EnemySubtitleText,
                 snapshot.EnemyHealthText,
-                $"ATK  {snapshot.EnemyAttack}",
-                $"DEF  {snapshot.EnemyDefense}");
+                $"{snapshot.EnemyAttack}",
+                $"{snapshot.EnemyDefense}");
 
             RefreshLogTexts();
         }
@@ -548,7 +581,7 @@ namespace BoardGame.Presentation
                     18f,
                     FontStyles.Normal,
                     TextAlignmentOptions.Center);
-                _subHeaderText.color = new Color(0.74f, 0.81f, 0.89f, 0.92f);
+                _subHeaderText.color = CombatTextColor;
 
                 _friendlyWidgets = CreateSidePanel(
                     "FriendlyPanel",
@@ -575,7 +608,7 @@ namespace BoardGame.Presentation
                     FontStyles.Bold,
                     TextAlignmentOptions.Center);
                 versusText.text = "VS";
-                versusText.color = new Color(0.96f, 0.92f, 0.68f, 0.98f);
+                versusText.color = CombatTextColor;
 
                 GameObject logPanelObject = CreatePanel(
                     "CombatLogPanel",
@@ -594,7 +627,7 @@ namespace BoardGame.Presentation
                 logTitleText.fontSize = 18f;
                 logTitleText.fontStyle = FontStyles.Bold;
                 logTitleText.alignment = TextAlignmentOptions.Left;
-                logTitleText.color = new Color(0.93f, 0.95f, 0.98f, 0.94f);
+                logTitleText.color = CombatTextColor;
                 logTitleText.text = "Combat Feed";
                 RectTransform logTitleRect = logTitleObject.GetComponent<RectTransform>();
                 logTitleRect.anchorMin = new Vector2(0f, 1f);
@@ -704,14 +737,17 @@ namespace BoardGame.Presentation
             }
 
             _logLineTexts.Clear();
+            EnsureManualLogContainerLayout();
 
             if (_combatLogTemplateText.transform.parent != _combatLogContainer)
             {
                 _combatLogTemplateText.transform.SetParent(_combatLogContainer, false);
             }
 
+            float preferredHeight = ResolveManualLogLineHeight(_combatLogTemplateText);
             _combatLogTemplateText.gameObject.SetActive(true);
             _combatLogTemplateText.name = "LogLine1";
+            ConfigureManualLogLine(_combatLogTemplateText, preferredHeight);
             _logLineTexts.Add(_combatLogTemplateText);
 
             for (int index = 1; index < MaxLogLineCount; index++)
@@ -719,8 +755,82 @@ namespace BoardGame.Presentation
                 TextMeshProUGUI clone = Instantiate(_combatLogTemplateText, _combatLogContainer);
                 clone.name = $"LogLine{index + 1}";
                 clone.text = string.Empty;
+                ConfigureManualLogLine(clone, preferredHeight);
+                clone.gameObject.SetActive(false);
                 _logLineTexts.Add(clone);
             }
+        }
+
+        private void EnsureManualLogContainerLayout()
+        {
+            if (_combatLogContainer == null)
+            {
+                return;
+            }
+
+            VerticalLayoutGroup layoutGroup = _combatLogContainer.GetComponent<VerticalLayoutGroup>();
+
+            if (layoutGroup == null)
+            {
+                layoutGroup = _combatLogContainer.gameObject.AddComponent<VerticalLayoutGroup>();
+            }
+
+            layoutGroup.spacing = 4f;
+            layoutGroup.padding = new RectOffset(0, 0, 0, 0);
+            layoutGroup.childAlignment = TextAnchor.UpperLeft;
+            layoutGroup.childControlWidth = true;
+            layoutGroup.childControlHeight = false;
+            layoutGroup.childForceExpandWidth = true;
+            layoutGroup.childForceExpandHeight = false;
+
+            if (_combatLogContainer.GetComponent<RectMask2D>() == null)
+            {
+                _combatLogContainer.gameObject.AddComponent<RectMask2D>();
+            }
+        }
+
+        private static float ResolveManualLogLineHeight(TMP_Text templateText)
+        {
+            if (templateText == null)
+            {
+                return 24f;
+            }
+
+            float rectHeight = templateText.rectTransform.rect.height;
+
+            if (rectHeight > 0.01f)
+            {
+                return rectHeight;
+            }
+
+            return Mathf.Max(18f, templateText.fontSize * 1.25f);
+        }
+
+        private static void ConfigureManualLogLine(TMP_Text lineText, float preferredHeight)
+        {
+            if (lineText == null)
+            {
+                return;
+            }
+
+            RectTransform rectTransform = lineText.rectTransform;
+            rectTransform.anchorMin = new Vector2(0f, 1f);
+            rectTransform.anchorMax = new Vector2(1f, 1f);
+            rectTransform.pivot = new Vector2(0.5f, 1f);
+            rectTransform.anchoredPosition = Vector2.zero;
+            rectTransform.sizeDelta = new Vector2(0f, preferredHeight);
+
+            LayoutElement layoutElement = lineText.GetComponent<LayoutElement>();
+
+            if (layoutElement == null)
+            {
+                layoutElement = lineText.gameObject.AddComponent<LayoutElement>();
+            }
+
+            layoutElement.minHeight = preferredHeight;
+            layoutElement.preferredHeight = preferredHeight;
+            layoutElement.flexibleHeight = 0f;
+            layoutElement.flexibleWidth = 1f;
         }
 
         /// <summary>
@@ -762,7 +872,7 @@ namespace BoardGame.Presentation
                 17f,
                 FontStyles.Normal,
                 TextAlignmentOptions.Left);
-            subtitleText.color = new Color(0.78f, 0.84f, 0.92f, 0.92f);
+            subtitleText.color = CombatTextColor;
 
             GameObject iconPlateObject = CreatePanel(
                 "IconPlate",
@@ -782,7 +892,7 @@ namespace BoardGame.Presentation
                 24f,
                 FontStyles.Bold,
                 TextAlignmentOptions.Center);
-            iconFallbackText.color = new Color(0.04f, 0.06f, 0.08f, 0.9f);
+            iconFallbackText.color = CombatTextColor;
             iconFallbackText.text = iconFallbackLabel;
 
             TMP_Text healthText = CreateText(
@@ -877,7 +987,7 @@ namespace BoardGame.Presentation
                 18f,
                 FontStyles.Bold,
                 TextAlignmentOptions.Left);
-            text.color = new Color(accentColor.r, accentColor.g, accentColor.b, 0.98f);
+            text.color = CombatTextColor;
             return text;
         }
 
@@ -925,7 +1035,7 @@ namespace BoardGame.Presentation
             text.fontSize = fontSize;
             text.fontStyle = fontStyle;
             text.alignment = alignment;
-            text.color = Color.white;
+            text.color = CombatTextColor;
             text.raycastTarget = false;
             text.enableWordWrapping = false;
             text.overflowMode = TextOverflowModes.Ellipsis;
@@ -948,26 +1058,31 @@ namespace BoardGame.Presentation
             if (widgets.TitleText != null)
             {
                 widgets.TitleText.text = title;
+                ApplyTextColor(widgets.TitleText);
             }
 
             if (widgets.SubtitleText != null)
             {
                 widgets.SubtitleText.text = subtitle;
+                ApplyTextColor(widgets.SubtitleText);
             }
 
             if (widgets.HealthText != null)
             {
                 widgets.HealthText.text = healthText;
+                ApplyTextColor(widgets.HealthText);
             }
 
             if (widgets.AttackText != null)
             {
                 widgets.AttackText.text = attackText;
+                ApplyTextColor(widgets.AttackText);
             }
 
             if (widgets.DefenseText != null)
             {
                 widgets.DefenseText.text = defenseText;
+                ApplyTextColor(widgets.DefenseText);
             }
         }
 
@@ -1048,7 +1163,7 @@ namespace BoardGame.Presentation
 
             TMP_Text floatingText = CreateFloatingText(anchor);
             RectTransform floatingRect = floatingText.rectTransform;
-            Color textColor = new Color(0f, 0f, 0f, 0.98f);
+            Color textColor = CombatTextColor;
             floatingRect.anchoredPosition = new Vector2(Random.Range(-44f, 44f), Random.Range(-18f, 18f));
             floatingText.text = valueText;
             floatingText.color = textColor;
@@ -1142,16 +1257,31 @@ namespace BoardGame.Presentation
                 if (index >= _logLines.Count)
                 {
                     lineText.text = string.Empty;
+                    if (lineText.gameObject.activeSelf)
+                    {
+                        lineText.gameObject.SetActive(false);
+                    }
                     continue;
                 }
 
+                if (!lineText.gameObject.activeSelf)
+                {
+                    lineText.gameObject.SetActive(true);
+                }
+
                 lineText.text = _logLines[index];
-                float emphasis = Mathf.InverseLerp(0f, Mathf.Max(1f, _logLines.Count - 1f), index);
-                lineText.color = Color.Lerp(
-                    new Color(0.62f, 0.7f, 0.8f, 0.58f),
-                    new Color(0.95f, 0.97f, 0.99f, 0.98f),
-                    emphasis);
+                lineText.color = CombatTextColor;
             }
+        }
+
+        private static void ApplyTextColor(TMP_Text text)
+        {
+            if (text == null)
+            {
+                return;
+            }
+
+            text.color = CombatTextColor;
         }
 
         private string BuildSquadAttackLog(CombatSnapshot snapshot, int damageValue)

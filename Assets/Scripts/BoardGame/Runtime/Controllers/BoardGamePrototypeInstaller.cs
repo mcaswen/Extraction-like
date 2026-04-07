@@ -29,6 +29,7 @@ namespace BoardGame.Runtime.Controllers
         [Header("UI")]
         [SerializeField] private BoardGameHudController _hudController;
         [SerializeField] private BoardGameCombatHudController _combatHudController;
+        [SerializeField] private bool _enableCombatHud = true;
         [SerializeField] private BoardGameItemBarController _itemBarController;
         [SerializeField] private BoardGameLevelUpController _levelUpController;
         [SerializeField] private BoardGameLootInventoryController _lootInventoryController;
@@ -68,7 +69,20 @@ namespace BoardGame.Runtime.Controllers
             }
 
             _hudController?.Bind(_prototypeController.RuntimeQueryController);
-            ResolveCombatHudController()?.Bind(_prototypeController.RuntimeQueryController, ResolveParentCanvas());
+            if (_enableCombatHud)
+            {
+                BoardGameCombatHudController combatHudController = ResolveCombatHudController();
+                combatHudController?.SetFeatureEnabled(true);
+                combatHudController?.Bind(_prototypeController.RuntimeQueryController, ResolveParentCanvas());
+            }
+            else
+            {
+                BoardGameCombatHudController combatHudController = _combatHudController != null
+                    ? _combatHudController
+                    : FindObjectOfType<BoardGameCombatHudController>();
+                combatHudController?.SetFeatureEnabled(false);
+            }
+
             _itemBarController?.Bind(_prototypeController.RuntimeQueryController, _prototypeController.ItemUseController);
             ResolveLevelUpController()?.Bind(
                 _prototypeController.RuntimeQueryController,

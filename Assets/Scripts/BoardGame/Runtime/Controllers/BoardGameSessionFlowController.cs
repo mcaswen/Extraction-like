@@ -53,7 +53,9 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            if (_lootInteractionController.TickAwaitingLootInteraction(deltaTime))
+            _lootInteractionController.TickAwaitingLootInteraction(deltaTime);
+
+            if (_sessionState.IsLootInteractionOpen)
             {
                 NotifyChanged();
                 return;
@@ -68,7 +70,7 @@ namespace BoardGame.Runtime.Controllers
 
                 if (_sessionState.Outcome != BoardSessionOutcome.None ||
                     _sessionState.IsAwaitingLevelUpChoice ||
-                    _sessionState.IsAwaitingLootInteraction)
+                    _sessionState.IsLootInteractionOpen)
                 {
                     break;
                 }

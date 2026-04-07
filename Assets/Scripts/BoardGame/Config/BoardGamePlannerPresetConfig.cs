@@ -16,7 +16,7 @@ namespace BoardGame.Config
         public const string LootSetId = "planner_loot_set_v1";
 
         // 当前策划固定地图预设的起点节点 ID
-        public const string PlannerMapStartNodeId = "1";
+        public const string PlannerMapStartNodeId = "a";
 
         // 各品质策划期望价值
         // 绿色 20 蓝色 60 紫色 100 金色 400 红色 1500
@@ -228,22 +228,38 @@ namespace BoardGame.Config
         {
             return new List<BoardPlannerMapNodePresetDefinition>
             {
-                new BoardPlannerMapNodePresetDefinition("1", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("a", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("b", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("c", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("d", BoardNodeType.Start),
+                new BoardPlannerMapNodePresetDefinition("e", BoardNodeType.Extract),
+                new BoardPlannerMapNodePresetDefinition("1", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
                 new BoardPlannerMapNodePresetDefinition("2", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
-                new BoardPlannerMapNodePresetDefinition("3", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("3", BoardNodeType.Resource, BoardResourceTier.Low),
                 new BoardPlannerMapNodePresetDefinition("4", BoardNodeType.Resource, BoardResourceTier.Medium),
-                new BoardPlannerMapNodePresetDefinition("5", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("5", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
                 new BoardPlannerMapNodePresetDefinition("6", BoardNodeType.Boss, BoardResourceTier.None, BoardDangerTier.High),
                 new BoardPlannerMapNodePresetDefinition("7", BoardNodeType.Resource, BoardResourceTier.High),
                 new BoardPlannerMapNodePresetDefinition("8", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
-                new BoardPlannerMapNodePresetDefinition("9", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("9", BoardNodeType.Resource, BoardResourceTier.Medium),
                 new BoardPlannerMapNodePresetDefinition("10", BoardNodeType.Resource, BoardResourceTier.Low),
-                new BoardPlannerMapNodePresetDefinition("11", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
-                new BoardPlannerMapNodePresetDefinition("12", BoardNodeType.Resource, BoardResourceTier.Medium),
-                new BoardPlannerMapNodePresetDefinition("13", BoardNodeType.Boss, BoardResourceTier.None, BoardDangerTier.High),
-                new BoardPlannerMapNodePresetDefinition("14", BoardNodeType.Resource, BoardResourceTier.Low),
-                new BoardPlannerMapNodePresetDefinition("15", BoardNodeType.Resource, BoardResourceTier.High),
-                new BoardPlannerMapNodePresetDefinition("0", BoardNodeType.Extract)
+                new BoardPlannerMapNodePresetDefinition("11", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("12", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("13", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("14", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("15", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("16", BoardNodeType.Resource, BoardResourceTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("17", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("18", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("19", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("20", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Low),
+                new BoardPlannerMapNodePresetDefinition("21", BoardNodeType.Resource, BoardResourceTier.Low),
+                new BoardPlannerMapNodePresetDefinition("22", BoardNodeType.Boss, BoardResourceTier.None, BoardDangerTier.High),
+                new BoardPlannerMapNodePresetDefinition("23", BoardNodeType.Enemy, BoardResourceTier.None, BoardDangerTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("24", BoardNodeType.Resource, BoardResourceTier.High),
+                new BoardPlannerMapNodePresetDefinition("25", BoardNodeType.Resource, BoardResourceTier.Medium),
+                new BoardPlannerMapNodePresetDefinition("26", BoardNodeType.Boss, BoardResourceTier.None, BoardDangerTier.High),
+                new BoardPlannerMapNodePresetDefinition("27", BoardNodeType.Resource, BoardResourceTier.High)
             };
         }
 
@@ -254,22 +270,53 @@ namespace BoardGame.Config
         {
             return new List<BoardMapEdgeDefinition>
             {
-                new BoardMapEdgeDefinition("01", "1", "2", 2f),
-                new BoardMapEdgeDefinition("02", "2", "3", 2f),
-                new BoardMapEdgeDefinition("03", "3", "5", 2f),
-                new BoardMapEdgeDefinition("04", "5", "4", 2f),
-                new BoardMapEdgeDefinition("05", "5", "6", 2f),
-                new BoardMapEdgeDefinition("06", "6", "7", 2f),
-                new BoardMapEdgeDefinition("07", "1", "8", 2f),
-                new BoardMapEdgeDefinition("08", "3", "9", 2f),
-                new BoardMapEdgeDefinition("09", "8", "10", 2f),
-                new BoardMapEdgeDefinition("10", "8", "11", 2f),
-                new BoardMapEdgeDefinition("11", "11", "0", 3f),
-                new BoardMapEdgeDefinition("12", "9", "0", 3f),
-                new BoardMapEdgeDefinition("13", "9", "12", 3f),
-                new BoardMapEdgeDefinition("14", "11", "14", 2f),
-                new BoardMapEdgeDefinition("15", "10", "13", 2f),
-                new BoardMapEdgeDefinition("16", "13", "15", 2f)
+                new BoardMapEdgeDefinition("1", "a", "1", 2f),
+                new BoardMapEdgeDefinition("2", "1", "2", 2f),
+                new BoardMapEdgeDefinition("3", "2", "3", 2f),
+                new BoardMapEdgeDefinition("4", "2", "4", 2f),
+                new BoardMapEdgeDefinition("5", "4", "5", 2f),
+                new BoardMapEdgeDefinition("6", "5", "6", 2f),
+                new BoardMapEdgeDefinition("7", "6", "7", 2f),
+                new BoardMapEdgeDefinition("8", "a", "8", 2f),
+                new BoardMapEdgeDefinition("9", "3", "9", 3f),
+                new BoardMapEdgeDefinition("10", "8", "10", 2f),
+                new BoardMapEdgeDefinition("11", "2", "12", 5f),
+                new BoardMapEdgeDefinition("12", "9", "13", 3f),
+                new BoardMapEdgeDefinition("13", "10", "11", 2f),
+                new BoardMapEdgeDefinition("14", "11", "b", 2f),
+                new BoardMapEdgeDefinition("15", "12", "13", 2f),
+                new BoardMapEdgeDefinition("16", "13", "e", 5f),
+                new BoardMapEdgeDefinition("17", "10", "14", 3f),
+                new BoardMapEdgeDefinition("18", "14", "19", 3f),
+                new BoardMapEdgeDefinition("19", "11", "15", 3f),
+                new BoardMapEdgeDefinition("20", "15", "16", 3f),
+                new BoardMapEdgeDefinition("21", "13", "18", 2f),
+                new BoardMapEdgeDefinition("22", "19", "22", 2f),
+                new BoardMapEdgeDefinition("23", "22", "24", 2f),
+                new BoardMapEdgeDefinition("24", "20", "21", 3f),
+                new BoardMapEdgeDefinition("25", "21", "23", 3f),
+                new BoardMapEdgeDefinition("26", "23", "16", 3f),
+                new BoardMapEdgeDefinition("27", "20", "c", 2f),
+                new BoardMapEdgeDefinition("28", "c", "23", 2f),
+                new BoardMapEdgeDefinition("29", "23", "25", 2f),
+                new BoardMapEdgeDefinition("30", "25", "26", 2f),
+                new BoardMapEdgeDefinition("31", "26", "27", 2f),
+                new BoardMapEdgeDefinition("32", "17", "18", 2f),
+                new BoardMapEdgeDefinition("33", "17", "d", 2f)
+            };
+        }
+
+        /// <summary>
+        /// 鐢熸垚绛栧垝棰勮鐨?Agent 鍑虹敓鐐圭粦瀹?
+        /// </summary>
+        public static List<BoardGameAgentSpawnImportEntry> CreatePlannerAgentSpawnPresets()
+        {
+            return new List<BoardGameAgentSpawnImportEntry>
+            {
+                new BoardGameAgentSpawnImportEntry("agent_01", "a"),
+                new BoardGameAgentSpawnImportEntry("agent_02", "b"),
+                new BoardGameAgentSpawnImportEntry("agent_03", "c"),
+                new BoardGameAgentSpawnImportEntry("agent_04", "d")
             };
         }
     }

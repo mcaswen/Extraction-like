@@ -52,7 +52,7 @@ MonoBehaviour:
     _canInterrupt: 1
     _preserveProgressOnInterrupt: 1
   _progressionRules:
-    _enabled: 1
+    _enabled: 0
     _startingLevel: 1
     _startingRequiredExperience: 50
     _requiredExperienceGrowthPerLevel: 25

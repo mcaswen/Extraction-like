@@ -88,6 +88,13 @@ namespace BoardGame.Config
                 }
             }
         }
+
+        public void ApplyPlannerSpawnPresetToAsset(bool clearMissingAssignments)
+        {
+            ImportSceneSpawnLayout(
+                BoardGamePlannerPresetConfig.CreatePlannerAgentSpawnPresets(),
+                clearMissingAssignments);
+        }
     }
 
     /// <summary>

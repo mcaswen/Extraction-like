@@ -92,6 +92,11 @@ namespace BoardGame.Editor
 
                 using (new EditorGUI.DisabledScope(_mapDefinition == null))
                 {
+                    if (GUILayout.Button("Write Planner Table To Assets"))
+                    {
+                        ApplyPlannerPresetToAssets();
+                    }
+
                     if (GUILayout.Button("Write Positions To Map Asset"))
                     {
                         ImportMarkersToMap(false);
@@ -184,7 +189,8 @@ namespace BoardGame.Editor
             if (!TryBuildImportEntries(
                     out List<BoardMapSceneNodeImportEntry> importEntries,
                     out string importedStartNodeId,
-                    out string errorMessage))
+                    out string errorMessage,
+                    applyPlannerPresetByNodeId))
             {
                 EditorUtility.DisplayDialog("Import Failed", errorMessage, "OK");
                 return;
@@ -234,6 +240,38 @@ namespace BoardGame.Editor
             EditorUtility.DisplayDialog(
                 "Import Complete",
                 $"Nodes written  {importEntries.Count}\n{startNodeText}\n{spawnImportText}",
+                "OK");
+        }
+
+        private void ApplyPlannerPresetToAssets()
+        {
+            if (_mapDefinition == null)
+            {
+                EditorUtility.DisplayDialog("Import Failed", "Please assign a map asset first", "OK");
+                return;
+            }
+
+            Undo.RecordObject(_mapDefinition, "Apply Planner Preset To Map Asset");
+            _mapDefinition.ApplyPlannerPresetToAsset();
+            EditorUtility.SetDirty(_mapDefinition);
+
+            if (_agentRoster != null)
+            {
+                Undo.RecordObject(_agentRoster, "Apply Planner Spawn Preset To Agent Roster");
+                _agentRoster.ApplyPlannerSpawnPresetToAsset(_clearMissingAgentSpawnAssignments);
+                EditorUtility.SetDirty(_agentRoster);
+            }
+
+            AssetDatabase.SaveAssets();
+            Selection.activeObject = _mapDefinition;
+
+            string rosterText = _agentRoster != null
+                ? "Agent roster start nodes updated from planner table"
+                : "Agent roster unchanged";
+
+            EditorUtility.DisplayDialog(
+                "Import Complete",
+                $"Planner table written to map asset\nStart node  {BoardGamePlannerPresetConfig.PlannerMapStartNodeId}\n{rosterText}",
                 "OK");
         }
 
@@ -296,7 +334,8 @@ namespace BoardGame.Editor
         private bool TryBuildImportEntries(
             out List<BoardMapSceneNodeImportEntry> importEntries,
             out string importedStartNodeId,
-            out string errorMessage)
+            out string errorMessage,
+            bool allowMultipleStartNodes)
         {
             importEntries = new List<BoardMapSceneNodeImportEntry>(_cachedMarkers.Count);
             importedStartNodeId = string.Empty;
@@ -329,13 +368,12 @@ namespace BoardGame.Editor
                 if (marker.IsStartNode)
                 {
                     startNodeCount += 1;
-                    importedStartNodeId = nodeId;
-                }
 
-                if (startNodeCount > 1)
-                {
-                    errorMessage = "Only one start node is allowed in the scene";
-                    return false;
+                    if (string.IsNullOrEmpty(importedStartNodeId) ||
+                        string.Equals(nodeId, BoardGamePlannerPresetConfig.PlannerMapStartNodeId, StringComparison.Ordinal))
+                    {
+                        importedStartNodeId = nodeId;
+                    }
                 }
 
                 Vector2 position = marker.GetWorldPosition2D();

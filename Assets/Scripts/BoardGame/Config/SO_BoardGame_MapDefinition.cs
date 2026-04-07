@@ -68,6 +68,51 @@ namespace BoardGame.Config
             MarkDirty();
         }
 
+        public void ApplyPlannerPresetToAsset()
+        {
+            Dictionary<string, BoardMapNodeDefinition> existingNodesById =
+                new Dictionary<string, BoardMapNodeDefinition>(StringComparer.Ordinal);
+
+            foreach (BoardMapNodeDefinition node in _nodes)
+            {
+                if (node != null && !string.IsNullOrEmpty(node.NodeId) && !existingNodesById.ContainsKey(node.NodeId))
+                {
+                    existingNodesById.Add(node.NodeId, node);
+                }
+            }
+
+            List<BoardMapNodeDefinition> plannerNodes = new List<BoardMapNodeDefinition>();
+
+            foreach (BoardPlannerMapNodePresetDefinition presetNode in BoardGamePlannerPresetConfig.CreatePlannerMapNodePresets())
+            {
+                Vector2 position = Vector2.zero;
+                string description = presetNode.Description;
+
+                if (existingNodesById.TryGetValue(presetNode.NodeId, out BoardMapNodeDefinition existingNode))
+                {
+                    position = existingNode.Position;
+
+                    if (string.IsNullOrEmpty(description))
+                    {
+                        description = existingNode.Description;
+                    }
+                }
+
+                plannerNodes.Add(new BoardMapNodeDefinition(
+                    presetNode.NodeId,
+                    presetNode.NodeType,
+                    position,
+                    presetNode.ResourceTier,
+                    presetNode.DangerTier,
+                    description));
+            }
+
+            _nodes = plannerNodes;
+            _edges = BoardGamePlannerPresetConfig.CreatePlannerMapEdgePresets();
+            _startNodeId = BoardGamePlannerPresetConfig.PlannerMapStartNodeId;
+            MarkDirty();
+        }
+
 #if UNITY_EDITOR
         /// <summary>
         /// 用场景节点数据回写地图 SO
@@ -256,6 +301,9 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardGameNodeIconSet
     {
+        [Header("Start Icon")]
+        [SerializeField] private Sprite _startIcon;
+
         [Header("Resource Icons")]
         [SerializeField] private Sprite _resourceLowIcon;
         [SerializeField] private Sprite _resourceMediumIcon;
@@ -276,6 +324,9 @@ namespace BoardGame.Config
         {
             switch (nodeType)
             {
+                case BoardNodeType.Start:
+                    return _startIcon;
+
                 case BoardNodeType.Resource:
                     switch (resourceTier)
                     {
