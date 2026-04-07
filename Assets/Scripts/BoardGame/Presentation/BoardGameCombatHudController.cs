@@ -17,7 +17,6 @@ namespace BoardGame.Presentation
         private const int MaxLogLineCount = 10;
         private const float OverlayFadeSpeed = 9f;
         private const float ImmediateFillSpeed = 10f;
-        private const float DelayedFillSpeed = 2.4f;
         private const float FloatingTextLifetimeSeconds = 1.1f;
         private const float FloatingTextRiseSpeed = 54f;
 
@@ -76,34 +75,24 @@ namespace BoardGame.Presentation
         [Header("Friendly")]
         [SerializeField] private TMP_Text _friendlyAttackText;
         [SerializeField] private TMP_Text _friendlyDefenseText;
-        [SerializeField] private Image _friendlyIconImage;
         [SerializeField] private Image _friendlyHealthFillImage;
-        [SerializeField] private Image _friendlyHealthDelayedFillImage;
         [SerializeField] private RectTransform _friendlyFloatingAnchor;
         private TMP_Text _friendlyTitleText;
         private TMP_Text _friendlySubtitleText;
         private TMP_Text _friendlyHealthText;
-        private TMP_Text _friendlyIconFallbackText;
 
         [Header("Enemy")]
         [SerializeField] private TMP_Text _enemyAttackText;
         [SerializeField] private TMP_Text _enemyDefenseText;
-        [SerializeField] private Image _enemyIconImage;
         [SerializeField] private Image _enemyHealthFillImage;
-        [SerializeField] private Image _enemyHealthDelayedFillImage;
         [SerializeField] private RectTransform _enemyFloatingAnchor;
         private TMP_Text _enemyTitleText;
         private TMP_Text _enemySubtitleText;
         private TMP_Text _enemyHealthText;
-        private TMP_Text _enemyIconFallbackText;
 
         [Header("Combat Log")]
         [SerializeField] private RectTransform _combatLogContainer;
         [SerializeField] private TextMeshProUGUI _combatLogTemplateText;
-
-        [Header("Sprites")]
-        [SerializeField] private Sprite _friendlyIconSprite;
-        [SerializeField] private Sprite _enemyIconSprite;
 
         private readonly List<TMP_Text> _logLineTexts = new List<TMP_Text>();
         private readonly List<string> _logLines = new List<string>();
@@ -118,9 +107,7 @@ namespace BoardGame.Presentation
         private string _activeEncounterKey = string.Empty;
 
         private float _friendlyDisplayedFill = 1f;
-        private float _friendlyDelayedFill = 1f;
         private float _enemyDisplayedFill = 1f;
-        private float _enemyDelayedFill = 1f;
         private float _targetOverlayAlpha;
         private int _messageTemplateCursor;
 
@@ -419,9 +406,7 @@ namespace BoardGame.Presentation
                 snapshot.SquadTitleText,
                 snapshot.SquadHealthText,
                 $"ATK  {snapshot.SquadAttack}",
-                $"DEF(avg)  {snapshot.SquadDefenseAverage}",
-                _friendlyIconSprite,
-                "AI");
+                $"DEF(avg)  {snapshot.SquadDefenseAverage}");
 
             ApplySideWidgets(
                 _enemyWidgets,
@@ -429,9 +414,7 @@ namespace BoardGame.Presentation
                 snapshot.EnemySubtitleText,
                 snapshot.EnemyHealthText,
                 $"ATK  {snapshot.EnemyAttack}",
-                $"DEF  {snapshot.EnemyDefense}",
-                _enemyIconSprite,
-                snapshot.IsBoss ? "BOSS" : "EN");
+                $"DEF  {snapshot.EnemyDefense}");
 
             RefreshLogTexts();
         }
@@ -568,14 +551,16 @@ namespace BoardGame.Presentation
                     windowObject.transform,
                     new Vector2(-318f, 76f),
                     new Color(0.22f, 0.77f, 0.52f, 1f),
-                    "Friendly Squad");
+                    "Friendly Squad",
+                    "AI");
 
                 _enemyWidgets = CreateSidePanel(
                     "EnemyPanel",
                     windowObject.transform,
                     new Vector2(318f, 76f),
                     new Color(0.94f, 0.33f, 0.27f, 1f),
-                    "Enemy Contact");
+                    "Enemy Contact",
+                    "EN");
 
                 TMP_Text versusText = CreateText(
                     "Versus",
@@ -668,15 +653,11 @@ namespace BoardGame.Presentation
         {
             return _friendlyAttackText != null ||
                    _friendlyDefenseText != null ||
-                   _friendlyIconImage != null ||
                    _friendlyHealthFillImage != null ||
-                   _friendlyHealthDelayedFillImage != null ||
                    _friendlyFloatingAnchor != null ||
                    _enemyAttackText != null ||
                    _enemyDefenseText != null ||
-                   _enemyIconImage != null ||
                    _enemyHealthFillImage != null ||
-                   _enemyHealthDelayedFillImage != null ||
                    _enemyFloatingAnchor != null ||
                    _combatLogContainer != null ||
                    _combatLogTemplateText != null;
@@ -690,10 +671,7 @@ namespace BoardGame.Presentation
                 _friendlyHealthText,
                 _friendlyAttackText,
                 _friendlyDefenseText,
-                _friendlyIconImage,
-                _friendlyIconFallbackText,
                 _friendlyHealthFillImage,
-                _friendlyHealthDelayedFillImage,
                 _friendlyFloatingAnchor);
 
             _enemyWidgets = new CombatSideWidgets(
@@ -702,10 +680,7 @@ namespace BoardGame.Presentation
                 _enemyHealthText,
                 _enemyAttackText,
                 _enemyDefenseText,
-                _enemyIconImage,
-                _enemyIconFallbackText,
                 _enemyHealthFillImage,
-                _enemyHealthDelayedFillImage,
                 _enemyFloatingAnchor);
 
             EnsureManualLogTexts();
@@ -751,7 +726,8 @@ namespace BoardGame.Presentation
             Transform parent,
             Vector2 anchoredPosition,
             Color accentColor,
-            string title)
+            string title,
+            string iconFallbackLabel)
         {
             GameObject panelObject = CreatePanel(
                 objectName,
@@ -793,18 +769,6 @@ namespace BoardGame.Presentation
             Image iconPlateImage = iconPlateObject.GetComponent<Image>();
             iconPlateImage.color = accentColor;
 
-            GameObject iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-            iconObject.transform.SetParent(iconPlateObject.transform, false);
-            Image iconImage = iconObject.GetComponent<Image>();
-            RectTransform iconRect = iconObject.GetComponent<RectTransform>();
-            iconRect.anchorMin = new Vector2(0.5f, 0.5f);
-            iconRect.anchorMax = new Vector2(0.5f, 0.5f);
-            iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.anchoredPosition = Vector2.zero;
-            iconRect.sizeDelta = new Vector2(82f, 82f);
-            iconImage.preserveAspect = true;
-            iconImage.raycastTarget = false;
-
             TMP_Text iconFallbackText = CreateText(
                 "IconFallback",
                 iconPlateObject.transform,
@@ -814,6 +778,7 @@ namespace BoardGame.Presentation
                 FontStyles.Bold,
                 TextAlignmentOptions.Center);
             iconFallbackText.color = new Color(0.04f, 0.06f, 0.08f, 0.9f);
+            iconFallbackText.text = iconFallbackLabel;
 
             TMP_Text healthText = CreateText(
                 "Health",
@@ -824,7 +789,7 @@ namespace BoardGame.Presentation
                 FontStyles.Bold,
                 TextAlignmentOptions.Left);
 
-            HealthBarWidgets healthBar = CreateHealthBar(
+            Image healthFillImage = CreateHealthBar(
                 "HealthBar",
                 panelObject.transform,
                 new Vector2(0f, -28f),
@@ -858,14 +823,11 @@ namespace BoardGame.Presentation
                 healthText,
                 attackText,
                 defenseText,
-                iconImage,
-                iconFallbackText,
-                healthBar.FillImage,
-                healthBar.DelayedFillImage,
+                healthFillImage,
                 floatingAnchorRect);
         }
 
-        private static HealthBarWidgets CreateHealthBar(
+        private static Image CreateHealthBar(
             string objectName,
             Transform parent,
             Vector2 anchoredPosition,
@@ -882,21 +844,6 @@ namespace BoardGame.Presentation
             Image backgroundImage = backgroundObject.GetComponent<Image>();
             backgroundImage.color = new Color(1f, 1f, 1f, 0.11f);
 
-            GameObject delayedFillObject = new GameObject("DelayedFill", typeof(RectTransform), typeof(Image));
-            delayedFillObject.transform.SetParent(backgroundObject.transform, false);
-            RectTransform delayedFillRect = delayedFillObject.GetComponent<RectTransform>();
-            delayedFillRect.anchorMin = new Vector2(0f, 0f);
-            delayedFillRect.anchorMax = new Vector2(1f, 1f);
-            delayedFillRect.offsetMin = Vector2.zero;
-            delayedFillRect.offsetMax = Vector2.zero;
-            Image delayedFillImage = delayedFillObject.GetComponent<Image>();
-            delayedFillImage.color = new Color(accentColor.r, accentColor.g, accentColor.b, 0.42f);
-            delayedFillImage.type = Image.Type.Filled;
-            delayedFillImage.fillMethod = Image.FillMethod.Horizontal;
-            delayedFillImage.fillOrigin = 0;
-            delayedFillImage.fillAmount = 1f;
-            delayedFillImage.raycastTarget = false;
-
             GameObject fillObject = new GameObject("Fill", typeof(RectTransform), typeof(Image));
             fillObject.transform.SetParent(backgroundObject.transform, false);
             RectTransform fillRect = fillObject.GetComponent<RectTransform>();
@@ -912,7 +859,7 @@ namespace BoardGame.Presentation
             fillImage.fillAmount = 1f;
             fillImage.raycastTarget = false;
 
-            return new HealthBarWidgets(fillImage, delayedFillImage);
+            return fillImage;
         }
 
         private static TMP_Text CreateStatText(string objectName, Transform parent, Vector2 anchoredPosition, Color accentColor)
@@ -986,9 +933,7 @@ namespace BoardGame.Presentation
             string subtitle,
             string healthText,
             string attackText,
-            string defenseText,
-            Sprite iconSprite,
-            string fallbackLabel)
+            string defenseText)
         {
             if (widgets == null)
             {
@@ -1018,24 +963,6 @@ namespace BoardGame.Presentation
             if (widgets.DefenseText != null)
             {
                 widgets.DefenseText.text = defenseText;
-            }
-
-            if (widgets.IconImage != null)
-            {
-                if (iconSprite != null)
-                {
-                    widgets.IconImage.sprite = iconSprite;
-                }
-
-                widgets.IconImage.enabled = widgets.IconImage.sprite != null;
-            }
-
-            if (widgets.IconFallbackText != null)
-            {
-                widgets.IconFallbackText.text = fallbackLabel;
-                widgets.IconFallbackText.gameObject.SetActive(
-                    widgets.IconImage == null ||
-                    widgets.IconImage.sprite == null);
             }
         }
 
@@ -1075,40 +1002,14 @@ namespace BoardGame.Presentation
             _friendlyDisplayedFill = Mathf.MoveTowards(_friendlyDisplayedFill, friendlyTarget, deltaTime * ImmediateFillSpeed);
             _enemyDisplayedFill = Mathf.MoveTowards(_enemyDisplayedFill, enemyTarget, deltaTime * ImmediateFillSpeed);
 
-            float friendlyLagSpeed = _friendlyDelayedFill < _friendlyDisplayedFill
-                ? ImmediateFillSpeed
-                : DelayedFillSpeed;
-            float enemyLagSpeed = _enemyDelayedFill < _enemyDisplayedFill
-                ? ImmediateFillSpeed
-                : DelayedFillSpeed;
-
-            _friendlyDelayedFill = Mathf.MoveTowards(_friendlyDelayedFill, _friendlyDisplayedFill, deltaTime * friendlyLagSpeed);
-            _enemyDelayedFill = Mathf.MoveTowards(_enemyDelayedFill, _enemyDisplayedFill, deltaTime * enemyLagSpeed);
-
-            if (_friendlyWidgets != null)
+            if (_friendlyWidgets != null && _friendlyWidgets.HealthFillImage != null)
             {
-                if (_friendlyWidgets.HealthFillImage != null)
-                {
-                    _friendlyWidgets.HealthFillImage.fillAmount = _friendlyDisplayedFill;
-                }
-
-                if (_friendlyWidgets.HealthDelayedFillImage != null)
-                {
-                    _friendlyWidgets.HealthDelayedFillImage.fillAmount = _friendlyDelayedFill;
-                }
+                _friendlyWidgets.HealthFillImage.fillAmount = _friendlyDisplayedFill;
             }
 
-            if (_enemyWidgets != null)
+            if (_enemyWidgets != null && _enemyWidgets.HealthFillImage != null)
             {
-                if (_enemyWidgets.HealthFillImage != null)
-                {
-                    _enemyWidgets.HealthFillImage.fillAmount = _enemyDisplayedFill;
-                }
-
-                if (_enemyWidgets.HealthDelayedFillImage != null)
-                {
-                    _enemyWidgets.HealthDelayedFillImage.fillAmount = _enemyDelayedFill;
-                }
+                _enemyWidgets.HealthFillImage.fillAmount = _enemyDisplayedFill;
             }
         }
 
@@ -1120,34 +1021,16 @@ namespace BoardGame.Presentation
             }
 
             _friendlyDisplayedFill = snapshot.SquadCurrentHealth01;
-            _friendlyDelayedFill = snapshot.SquadCurrentHealth01;
             _enemyDisplayedFill = snapshot.EnemyCurrentHealth01;
-            _enemyDelayedFill = snapshot.EnemyCurrentHealth01;
 
-            if (_friendlyWidgets != null)
+            if (_friendlyWidgets != null && _friendlyWidgets.HealthFillImage != null)
             {
-                if (_friendlyWidgets.HealthFillImage != null)
-                {
-                    _friendlyWidgets.HealthFillImage.fillAmount = _friendlyDisplayedFill;
-                }
-
-                if (_friendlyWidgets.HealthDelayedFillImage != null)
-                {
-                    _friendlyWidgets.HealthDelayedFillImage.fillAmount = _friendlyDelayedFill;
-                }
+                _friendlyWidgets.HealthFillImage.fillAmount = _friendlyDisplayedFill;
             }
 
-            if (_enemyWidgets != null)
+            if (_enemyWidgets != null && _enemyWidgets.HealthFillImage != null)
             {
-                if (_enemyWidgets.HealthFillImage != null)
-                {
-                    _enemyWidgets.HealthFillImage.fillAmount = _enemyDisplayedFill;
-                }
-
-                if (_enemyWidgets.HealthDelayedFillImage != null)
-                {
-                    _enemyWidgets.HealthDelayedFillImage.fillAmount = _enemyDelayedFill;
-                }
+                _enemyWidgets.HealthFillImage.fillAmount = _enemyDisplayedFill;
             }
         }
 
@@ -1362,10 +1245,7 @@ namespace BoardGame.Presentation
                 TMP_Text healthText,
                 TMP_Text attackText,
                 TMP_Text defenseText,
-                Image iconImage,
-                TMP_Text iconFallbackText,
                 Image healthFillImage,
-                Image healthDelayedFillImage,
                 RectTransform floatingAnchor)
             {
                 TitleText = titleText;
@@ -1373,10 +1253,7 @@ namespace BoardGame.Presentation
                 HealthText = healthText;
                 AttackText = attackText;
                 DefenseText = defenseText;
-                IconImage = iconImage;
-                IconFallbackText = iconFallbackText;
                 HealthFillImage = healthFillImage;
-                HealthDelayedFillImage = healthDelayedFillImage;
                 FloatingAnchor = floatingAnchor;
             }
 
@@ -1385,23 +1262,8 @@ namespace BoardGame.Presentation
             public TMP_Text HealthText { get; }
             public TMP_Text AttackText { get; }
             public TMP_Text DefenseText { get; }
-            public Image IconImage { get; }
-            public TMP_Text IconFallbackText { get; }
             public Image HealthFillImage { get; }
-            public Image HealthDelayedFillImage { get; }
             public RectTransform FloatingAnchor { get; }
-        }
-
-        private sealed class HealthBarWidgets
-        {
-            public HealthBarWidgets(Image fillImage, Image delayedFillImage)
-            {
-                FillImage = fillImage;
-                DelayedFillImage = delayedFillImage;
-            }
-
-            public Image FillImage { get; }
-            public Image DelayedFillImage { get; }
         }
 
         private sealed class FloatingCombatTextEntry
