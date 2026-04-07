@@ -58,11 +58,13 @@ public static class RaidMvpScenePopulationBuilder
             return;
         }
 
+        SceneLylSupportMigrator.EnsureCoreGameplaySupport(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
         EnsureRaidFlowControllerExists();
         EnsureRuntimeNavMeshBuilderExists();
 
         GameObject root = PrepareGeneratedRoot(profile);
         Transform playersRoot = CreateChildRoot(root.transform, "Player");
+        Transform startingItemsRoot = CreateChildRoot(root.transform, "StartingItems");
         Transform enemiesRoot = CreateChildRoot(root.transform, "Enemies");
         Transform chestsRoot = CreateChildRoot(root.transform, "Chests");
         Transform extractionRoot = CreateChildRoot(root.transform, "Extraction");
@@ -85,7 +87,11 @@ public static class RaidMvpScenePopulationBuilder
             Bounds bounds = marker.GetWorldBounds();
             if (!playerSpawned && marker.Purpose == RaidRegionPurpose.Spawn)
             {
-                playerSpawned = TrySpawnPlayer(profile, marker, playersRoot, random);
+                if (TrySpawnPlayer(profile, marker, playersRoot, random, out Vector3 spawnPosition))
+                {
+                    playerSpawned = true;
+                    TrySpawnStartingGearDrops(profile, marker, spawnPosition, startingItemsRoot);
+                }
             }
 
             if (marker.Purpose == RaidRegionPurpose.Extraction)
@@ -107,10 +113,10 @@ public static class RaidMvpScenePopulationBuilder
             if (pool != null)
             {
                 Transform regionEnemyRoot = CreateChildRoot(enemiesRoot, $"{marker.RegionId}_Enemies");
-                SpawnEntriesInBounds(profile, pool.EnemyPrefabs, enemyRange, bounds, marker.EnemyEdgePadding, profile.DefaultEnemySpacing, regionEnemyRoot, random);
+                SpawnEntriesInBounds(profile, pool, pool.EnemyPrefabs, enemyRange, bounds, marker.EnemyEdgePadding, profile.DefaultEnemySpacing, regionEnemyRoot, random);
 
                 Transform regionChestRoot = CreateChildRoot(chestsRoot, $"{marker.RegionId}_Chests");
-                SpawnEntriesInBounds(profile, pool.ChestPrefabs, chestRange, bounds, marker.ChestEdgePadding, profile.DefaultChestSpacing, regionChestRoot, random);
+                SpawnEntriesInBounds(profile, pool, pool.ChestPrefabs, chestRange, bounds, marker.ChestEdgePadding, profile.DefaultChestSpacing, regionChestRoot, random);
             }
         }
 
@@ -123,9 +129,10 @@ public static class RaidMvpScenePopulationBuilder
                     continue;
                 }
 
-                if (TrySpawnPlayer(profile, markers[i], playersRoot, random))
+                if (TrySpawnPlayer(profile, markers[i], playersRoot, random, out Vector3 spawnPosition))
                 {
                     playerSpawned = true;
+                    TrySpawnStartingGearDrops(profile, markers[i], spawnPosition, startingItemsRoot);
                     break;
                 }
             }
@@ -235,21 +242,22 @@ public static class RaidMvpScenePopulationBuilder
         return child.transform;
     }
 
-    private static bool TrySpawnPlayer(RaidMvpPopulationProfile profile, RaidRegionMarker marker, Transform playersRoot, System.Random random)
+    private static bool TrySpawnPlayer(RaidMvpPopulationProfile profile, RaidRegionMarker marker, Transform playersRoot, System.Random random, out Vector3 spawnPosition)
     {
+        spawnPosition = Vector3.zero;
         if (profile.PlayerPrefab == null || marker == null)
         {
             return false;
         }
 
-        if (!TryFindPlacementPosition(profile, marker.GetWorldBounds(), 1.25f, profile.SpawnHeightOffset, random, new List<Vector3>(), out Vector3 position))
+        if (!TryFindPlacementPosition(profile, marker.GetWorldBounds(), 1.25f, profile.SpawnHeightOffset, random, new List<Vector3>(), out spawnPosition))
         {
-            position = marker.GetWorldBounds().center + Vector3.up * profile.SpawnHeightOffset;
+            spawnPosition = marker.GetWorldBounds().center + Vector3.up * profile.SpawnHeightOffset;
         }
 
         GameObject playerObject = InstantiatePrefab(profile.PlayerPrefab, playersRoot);
         playerObject.name = $"Player_{marker.RegionId}";
-        playerObject.transform.position = position;
+        playerObject.transform.position = spawnPosition;
         playerObject.transform.rotation = Quaternion.identity;
 
         if (playerObject.tag != "Player")
@@ -258,6 +266,41 @@ public static class RaidMvpScenePopulationBuilder
         }
 
         return true;
+    }
+
+    private static void TrySpawnStartingGearDrops(RaidMvpPopulationProfile profile, RaidRegionMarker marker, Vector3 spawnPosition, Transform parent)
+    {
+        if (profile == null || !profile.SpawnStartingGearDrops || marker == null || parent == null)
+        {
+            return;
+        }
+
+        GameObject bagPrefab = profile.StartingBagWorldPrefab != null
+            ? profile.StartingBagWorldPrefab
+            : AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/ItemPrefabIn3D/World_BigBag.prefab");
+        GameObject rigPrefab = profile.StartingRigWorldPrefab != null
+            ? profile.StartingRigWorldPrefab
+            : AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/ItemPrefabIn3D/World_BigRig.prefab");
+
+        float spacing = Mathf.Max(0.8f, profile.StartingDropSpacing);
+        Vector3 rightOffset = new Vector3(spacing, profile.SpawnHeightOffset, 0f);
+        Vector3 leftOffset = new Vector3(-spacing, profile.SpawnHeightOffset, 0f);
+
+        if (bagPrefab != null)
+        {
+            GameObject bagObject = InstantiatePrefab(bagPrefab, parent);
+            bagObject.name = "StartingBigBag";
+            bagObject.transform.position = spawnPosition + rightOffset;
+            bagObject.transform.rotation = Quaternion.identity;
+        }
+
+        if (rigPrefab != null)
+        {
+            GameObject rigObject = InstantiatePrefab(rigPrefab, parent);
+            rigObject.name = "StartingBigRig";
+            rigObject.transform.position = spawnPosition + leftOffset;
+            rigObject.transform.rotation = Quaternion.identity;
+        }
     }
 
     private static void EnsureExtractionPoint(RaidMvpPopulationProfile profile, RaidRegionMarker marker, Transform extractionRoot)
@@ -316,6 +359,7 @@ public static class RaidMvpScenePopulationBuilder
 
     private static void SpawnEntriesInBounds(
         RaidMvpPopulationProfile profile,
+        RaidRegionPrefabPool pool,
         List<RaidSpawnPrefabEntry> entries,
         Vector2Int countRange,
         Bounds bounds,
@@ -365,6 +409,7 @@ public static class RaidMvpScenePopulationBuilder
             }
 
             spawnedObject.transform.rotation = rotation;
+            TryConfigureSpawnedEnemyDeathLoot(profile, pool, spawnedObject);
             occupiedPositions.Add(spawnedObject.transform.position);
             occupiedRadii.Add(spacing);
         }
@@ -499,6 +544,38 @@ public static class RaidMvpScenePopulationBuilder
 
         Undo.RegisterCreatedObjectUndo(instance, $"Spawn {prefab.name}");
         return instance;
+    }
+
+    private static void TryConfigureSpawnedEnemyDeathLoot(RaidMvpPopulationProfile profile, RaidRegionPrefabPool pool, GameObject spawnedObject)
+    {
+        if (profile == null || spawnedObject == null || !profile.OverrideMissingEnemyDeathLootPrefab)
+        {
+            return;
+        }
+
+        EnemyHealthController enemyHealthController = spawnedObject.GetComponentInChildren<EnemyHealthController>();
+        if (enemyHealthController == null || enemyHealthController.DeathLootContainerPrefab != null)
+        {
+            return;
+        }
+
+        GameObject resolvedLootPrefab = profile.DefaultEnemyDeathLootPrefab;
+        if (resolvedLootPrefab == null && pool != null && pool.ChestPrefabs != null)
+        {
+            for (int i = 0; i < pool.ChestPrefabs.Count; i++)
+            {
+                if (pool.ChestPrefabs[i] != null && pool.ChestPrefabs[i].Prefab != null)
+                {
+                    resolvedLootPrefab = pool.ChestPrefabs[i].Prefab;
+                    break;
+                }
+            }
+        }
+
+        if (resolvedLootPrefab != null)
+        {
+            enemyHealthController.DeathLootContainerPrefab = resolvedLootPrefab;
+        }
     }
 
     private static bool TryGetSelectionBounds(out Bounds bounds)

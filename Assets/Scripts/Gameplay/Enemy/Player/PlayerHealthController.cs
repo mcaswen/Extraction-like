@@ -23,6 +23,7 @@ public class PlayerHealthController : MonoBehaviour
 
     private void Start()
     {
+        WhiteboxCharacterVisualUtility.ApplyCharacterWhite(gameObject);
         CurrentHealth = MaxHealth;
         CacheRendererColors();
     }

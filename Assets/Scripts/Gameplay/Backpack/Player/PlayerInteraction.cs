@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 /// <summary>
 /// 玩家交互扫描器
@@ -7,6 +10,8 @@ using UnityEngine.UI;
 /// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
+    private const bool EnableInteractionDebug = true;
+
     [Header("Interaction")]
     public float InteractionRadius = 3f;
     public LayerMask InteractableLayer;
@@ -131,14 +136,24 @@ public class PlayerInteraction : MonoBehaviour
     // 统一处理主交互键和副交互键输入
     private void HandleInteractionInput()
     {
-        if (Input.GetKeyDown(KeyCode.F) && _closestInteractable != null)
+        if (IsPrimaryInteractPressed() && _closestInteractable != null)
         {
+            LogDebug($"F received. Interactable={_closestInteractable.GetType().Name} Target={(_closestTransform != null ? _closestTransform.name : "null")}");
             _closestInteractable.Interact();
         }
-
-        if (Input.GetKeyDown(KeyCode.E) && _closestSecondaryInteractable != null)
+        else if (IsPrimaryInteractPressed())
         {
+            LogDebug("F received, but no interactable was found.");
+        }
+
+        if (IsSecondaryInteractPressed() && _closestSecondaryInteractable != null)
+        {
+            LogDebug($"E received. Secondary={_closestSecondaryInteractable.GetType().Name} Target={(_closestTransform != null ? _closestTransform.name : "null")}");
             _closestSecondaryInteractable.SecondaryInteract();
+        }
+        else if (IsSecondaryInteractPressed())
+        {
+            LogDebug("E received, but no secondary interactable was found.");
         }
     }
 
@@ -183,5 +198,51 @@ public class PlayerInteraction : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, InteractionRadius);
+    }
+
+    private static bool IsPrimaryInteractPressed()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            return true;
+        }
+
+#if ENABLE_INPUT_SYSTEM
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null && keyboard.fKey.wasPressedThisFrame)
+        {
+            return true;
+        }
+#endif
+
+        return false;
+    }
+
+    private static bool IsSecondaryInteractPressed()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            return true;
+        }
+
+#if ENABLE_INPUT_SYSTEM
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
+        {
+            return true;
+        }
+#endif
+
+        return false;
+    }
+
+    private static void LogDebug(string message)
+    {
+        if (!EnableInteractionDebug)
+        {
+            return;
+        }
+
+        Debug.Log($"[InteractionDebug] {message}");
     }
 }

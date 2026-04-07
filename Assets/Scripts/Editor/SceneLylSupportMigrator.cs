@@ -4,10 +4,19 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
+[InitializeOnLoad]
 public static class SceneLylSupportMigrator
 {
     private const string SourceScenePath = "Assets/Scenes/Scene_lyl.unity";
+    private static bool _autoImportScheduled;
+
+    static SceneLylSupportMigrator()
+    {
+        EditorSceneManager.sceneOpened += OnSceneOpened;
+        EditorApplication.delayCall += TryAutoImportCurrentScene;
+    }
 
     [MenuItem("Tools/Whitebox/Import Core Gameplay Support From Scene_lyl")]
     private static void ImportCoreGameplaySupportFromSceneLyl()
@@ -22,6 +31,27 @@ public static class SceneLylSupportMigrator
             return;
         }
 
+        if (EnsureCoreGameplaySupport(targetScene))
+        {
+            EditorUtility.DisplayDialog(
+                "Import Core Gameplay Support",
+                "Camera follow, inventory support and prompt UI have been imported from Scene_lyl, and runtime player auto-binding has been enabled.",
+                "OK");
+        }
+    }
+
+    public static bool EnsureCoreGameplaySupport(Scene targetScene)
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
+        {
+            return false;
+        }
+
+        if (!targetScene.IsValid() || string.Equals(targetScene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
         Scene sourceScene = EditorSceneManager.OpenScene(SourceScenePath, OpenSceneMode.Additive);
         try
         {
@@ -33,15 +63,77 @@ public static class SceneLylSupportMigrator
             EnsureRuntimeBinderConfigured(targetScene);
 
             EditorSceneManager.MarkSceneDirty(targetScene);
-            EditorUtility.DisplayDialog(
-                "Import Core Gameplay Support",
-                "Camera follow, inventory support and prompt UI have been imported from Scene_lyl, and runtime player auto-binding has been enabled.",
-                "OK");
+            return true;
         }
         finally
         {
             EditorSceneManager.CloseScene(sourceScene, true);
         }
+    }
+
+    private static void OnSceneOpened(Scene scene, OpenSceneMode mode)
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
+        {
+            return;
+        }
+
+        if (mode == OpenSceneMode.Additive && string.Equals(scene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        ScheduleAutoImport(scene);
+    }
+
+    private static void TryAutoImportCurrentScene()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
+        {
+            return;
+        }
+
+        ScheduleAutoImport(SceneManager.GetActiveScene());
+    }
+
+    private static void ScheduleAutoImport(Scene scene)
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
+        {
+            return;
+        }
+
+        if (!scene.IsValid() || string.Equals(scene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (_autoImportScheduled)
+        {
+            return;
+        }
+
+        _autoImportScheduled = true;
+        EditorApplication.delayCall += () =>
+        {
+            _autoImportScheduled = false;
+            if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
+            {
+                return;
+            }
+
+            if (!scene.IsValid())
+            {
+                return;
+            }
+
+            if (HasCoreGameplaySupport(scene))
+            {
+                return;
+            }
+
+            EnsureCoreGameplaySupport(scene);
+        };
     }
 
     private static void ImportInventorySupport(Scene sourceScene, Scene targetScene)
@@ -53,17 +145,47 @@ public static class SceneLylSupportMigrator
         }
 
         InventoryScreenController targetInventory = FindComponentInScene<InventoryScreenController>(targetScene);
-        if (targetInventory != null)
+        if (HasValidInventoryReferences(targetInventory))
         {
             return;
         }
 
-        MoveRootToScene(sourceInventory.transform.root.gameObject, targetScene);
-
-        GameObject sourceGlobalDragLayer = FindRootByName(sourceScene, "GlobalDragLayer");
-        if (sourceGlobalDragLayer != null && FindRootByName(targetScene, "GlobalDragLayer") == null)
+        if (targetInventory != null)
         {
-            MoveRootToScene(sourceGlobalDragLayer, targetScene);
+            GameObject existingRoot = targetInventory.transform.root.gameObject;
+            if (existingRoot != null)
+            {
+                Undo.DestroyObjectImmediate(existingRoot);
+            }
+            targetInventory = null;
+        }
+
+        HashSet<GameObject> movedRoots = new HashSet<GameObject>();
+        MoveReferencedRoot(sourceInventory.gameObject, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.InventoryPanel != null ? sourceInventory.InventoryPanel.gameObject : null, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.PocketGrid != null ? sourceInventory.PocketGrid.gameObject : null, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.TacticalRigGrid != null ? sourceInventory.TacticalRigGrid.gameObject : null, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.BackpackGrid != null ? sourceInventory.BackpackGrid.gameObject : null, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.LootChestGrid != null ? sourceInventory.LootChestGrid.gameObject : null, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.RigSlot != null ? sourceInventory.RigSlot.gameObject : null, targetScene, movedRoots);
+        MoveReferencedRoot(sourceInventory.BackpackSlot != null ? sourceInventory.BackpackSlot.gameObject : null, targetScene, movedRoots);
+
+        InventoryItemFactory sourceFactory = sourceInventory.GetComponent<InventoryItemFactory>();
+        if (sourceFactory != null && sourceFactory.GlobalDragLayer != null)
+        {
+            MoveReferencedRoot(sourceFactory.GlobalDragLayer.gameObject, targetScene, movedRoots);
+        }
+
+        targetInventory = FindComponentInScene<InventoryScreenController>(targetScene);
+        if (targetInventory == null && sourceInventory.gameObject.scene == targetScene)
+        {
+            targetInventory = sourceInventory;
+        }
+
+        if (targetInventory != null)
+        {
+            RebindInventoryReferences(targetInventory, targetScene);
+            targetInventory.InitializeRuntimeScreen();
         }
     }
 
@@ -73,6 +195,12 @@ public static class SceneLylSupportMigrator
         if (sourceFloatingPrompt != null && FindRootByName(targetScene, "FloatingPrompt") == null)
         {
             MoveRootToScene(sourceFloatingPrompt, targetScene);
+        }
+
+        GameObject targetFloatingPrompt = FindRootByName(targetScene, "FloatingPrompt");
+        if (targetFloatingPrompt != null)
+        {
+            targetFloatingPrompt.SetActive(false);
         }
     }
 
@@ -187,6 +315,7 @@ public static class SceneLylSupportMigrator
         {
             binder.FloatingPromptUI = floatingPrompt.GetComponent<RectTransform>();
             binder.FloatingPromptText = floatingPrompt.GetComponentInChildren<Text>(true);
+            floatingPrompt.SetActive(false);
         }
 
         Camera targetCamera = FindCameraWithFollow(targetScene);
@@ -205,6 +334,28 @@ public static class SceneLylSupportMigrator
 
         Undo.SetTransformParent(rootObject.transform, null, "Move Root To Target Scene");
         EditorSceneManager.MoveGameObjectToScene(rootObject, targetScene);
+    }
+
+    private static void MoveReferencedRoot(GameObject referencedObject, Scene targetScene, HashSet<GameObject> movedRoots)
+    {
+        if (referencedObject == null)
+        {
+            return;
+        }
+
+        GameObject rootObject = referencedObject.transform.root.gameObject;
+        if (rootObject == null || rootObject.scene == targetScene)
+        {
+            return;
+        }
+
+        if (movedRoots.Contains(rootObject))
+        {
+            return;
+        }
+
+        movedRoots.Add(rootObject);
+        MoveRootToScene(rootObject, targetScene);
     }
 
     private static T FindComponentInScene<T>(Scene scene) where T : Component
@@ -293,5 +444,112 @@ public static class SceneLylSupportMigrator
         }
 
         return FindCameraInScene(scene);
+    }
+
+    private static bool HasCoreGameplaySupport(Scene scene)
+    {
+        return HasValidInventoryReferences(FindComponentInScene<InventoryScreenController>(scene)) &&
+               FindRootByName(scene, "FloatingPrompt") != null &&
+               FindComponentInScene<EventSystem>(scene) != null &&
+               FindCameraWithFollow(scene) != null &&
+               FindComponentInScene<SceneRuntimePlayerBinder>(scene) != null;
+    }
+
+    private static bool HasValidInventoryReferences(InventoryScreenController controller)
+    {
+        return controller != null &&
+               controller.InventoryPanel != null &&
+               controller.PocketGrid != null &&
+               controller.TacticalRigGrid != null &&
+               controller.BackpackGrid != null &&
+               controller.LootChestGrid != null &&
+               controller.RigSlot != null &&
+               controller.BackpackSlot != null;
+    }
+
+    private static void RebindInventoryReferences(InventoryScreenController controller, Scene targetScene)
+    {
+        if (controller == null)
+        {
+            return;
+        }
+
+        InventoryUIController[] grids = Resources.FindObjectsOfTypeAll<InventoryUIController>();
+        EquipmentSlotUI[] slots = Resources.FindObjectsOfTypeAll<EquipmentSlotUI>();
+
+        controller.InventoryPanel = FindSceneObjectByName(targetScene, "LeftPanel");
+        controller.PocketGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "PocketGrid");
+        controller.TacticalRigGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "RigInternalGrid");
+        if (controller.TacticalRigGrid == null)
+        {
+            controller.TacticalRigGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "TacticalRigGrid");
+        }
+
+        controller.BackpackGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "BackpackGrid");
+        controller.LootChestGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "LootChestPanel");
+        if (controller.LootChestGrid == null)
+        {
+            controller.LootChestGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "LootChestGrid");
+        }
+        controller.RigSlot = FindSceneComponentByName<EquipmentSlotUI>(targetScene, slots, "RigSlot");
+        controller.BackpackSlot = FindSceneComponentByName<EquipmentSlotUI>(targetScene, slots, "BackpackSlot");
+
+        InventoryItemFactory inventoryItemFactory = controller.GetComponent<InventoryItemFactory>();
+        if (inventoryItemFactory != null)
+        {
+            GameObject globalDragLayer = FindSceneObjectByName(targetScene, "GlobalDragLayer");
+            if (globalDragLayer != null)
+            {
+                inventoryItemFactory.GlobalDragLayer = globalDragLayer.GetComponent<RectTransform>();
+            }
+        }
+    }
+
+    private static T FindSceneComponentByName<T>(Scene scene, T[] candidates, string objectName) where T : Component
+    {
+        if (candidates == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            T candidate = candidates[i];
+            if (candidate != null && candidate.gameObject.scene == scene && candidate.gameObject.name == objectName)
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private static GameObject FindSceneObjectByName(Scene scene, string objectName)
+    {
+        GameObject[] roots = scene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            GameObject root = roots[i];
+            if (root == null)
+            {
+                continue;
+            }
+
+            if (root.name == objectName)
+            {
+                return root;
+            }
+
+            Transform[] children = root.GetComponentsInChildren<Transform>(true);
+            for (int j = 0; j < children.Length; j++)
+            {
+                if (children[j] != null && children[j].gameObject.name == objectName)
+                {
+                    return children[j].gameObject;
+                }
+            }
+        }
+
+        return null;
     }
 }

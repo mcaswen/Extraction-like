@@ -2,6 +2,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 /// <summary>
 /// 背包模块总控制器
@@ -10,6 +13,7 @@ using UnityEngine.SceneManagement;
 public class InventoryScreenController : MonoBehaviour
 {
     public static InventoryScreenController Instance { get; private set; }
+    private const bool EnableBackpackDebug = true;
 
     public EquipmentSlotUI RigSlot;
     public EquipmentSlotUI BackpackSlot;
@@ -38,7 +42,11 @@ public class InventoryScreenController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        EnsureSceneReferences();
         InitializeRuntimeScreen();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        LogDebug("Awake completed.");
     }
 
     private void OnDestroy()
@@ -51,13 +59,35 @@ public class InventoryScreenController : MonoBehaviour
 
     private void Start()
     {
+        EnsureSceneReferences();
+        InitializeRuntimeScreen();
         RefreshCharacterContainerState(false);
+        LogDebug("Start completed.");
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        EnsureSceneReferences();
+
+        if (IsInventoryOpen)
         {
+            SetMainInventoryUiVisible(true);
+            SetLootUiVisible(HasActiveExternalContainer);
+            RefreshVisibleStateForCurrentContext();
+        }
+        else
+        {
+            SetMainInventoryUiVisible(false);
+        }
+
+        if (!IsInventoryOpen && _activeSessionContext == null)
+        {
+            SetLootUiVisible(false);
+        }
+
+        if (IsInventoryTogglePressed())
+        {
+            LogDebug($"Tab received. IsInventoryOpen(before)={IsInventoryOpen}");
             ToggleInventory();
         }
     }
@@ -67,18 +97,18 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void InitializeRuntimeScreen()
     {
-        if (InventoryPanel != null)
-        {
-            InventoryPanel.SetActive(false);
-        }
+        EnsureSceneReferences();
+        SanitizeDuplicateUiObjects();
+        IsInventoryOpen = false;
+        _activeSessionContext = null;
+        _customPlayerInventoryUiApplied = false;
 
-        if (LootChestGrid != null)
-        {
-            LootChestGrid.gameObject.SetActive(false);
-        }
+        SetMainInventoryUiVisible(false);
+        SetLootUiVisible(false);
 
         RestoreStandardPlayerInventoryUiState();
         RefreshCharacterContainerState(false);
+        LogDebug("InitializeRuntimeScreen applied hidden state.");
     }
 
     /// <summary>
@@ -87,11 +117,15 @@ public class InventoryScreenController : MonoBehaviour
     /// <param name="lootBox">要打开的场景容器实体</param>
     public void OpenLootBox(LootBoxEntity lootBox)
     {
+        EnsureSceneReferences();
+
         if (lootBox == null || LootChestGrid == null)
         {
+            LogDebug($"OpenLootBox aborted. lootBox={(lootBox != null ? lootBox.name : "null")} LootChestGrid={(LootChestGrid != null ? LootChestGrid.name : "null")}");
             return;
         }
 
+        LogDebug($"OpenLootBox accepted. lootBox={lootBox.name}");
         InventoryScreenSessionContext sessionContext = lootBox.CreateInventorySessionContext();
         OpenInventorySession(sessionContext);
     }
@@ -101,8 +135,11 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void OpenInventorySession(InventoryScreenSessionContext sessionContext)
     {
+        EnsureSceneReferences();
+
         if (sessionContext == null || LootChestGrid == null)
         {
+            LogDebug($"OpenInventorySession aborted. sessionContext={(sessionContext != null)} LootChestGrid={(LootChestGrid != null ? LootChestGrid.name : "null")}");
             return;
         }
 
@@ -125,6 +162,8 @@ public class InventoryScreenController : MonoBehaviour
         {
             RefreshVisibleStateForCurrentContext();
         }
+
+        LogDebug($"OpenInventorySession finished. IsInventoryOpen={IsInventoryOpen} HasActiveExternalContainer={HasActiveExternalContainer}");
     }
 
     /// <summary>
@@ -132,6 +171,9 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void ToggleInventory()
     {
+        EnsureSceneReferences();
+        LogDebug($"ToggleInventory called. IsInventoryOpen(before)={IsInventoryOpen}");
+
         if (IsInventoryOpen)
         {
             CloseInventory();
@@ -140,6 +182,8 @@ public class InventoryScreenController : MonoBehaviour
         {
             OpenInventory();
         }
+
+        LogDebug($"ToggleInventory finished. IsInventoryOpen(after)={IsInventoryOpen}");
     }
 
     /// <summary>
@@ -147,13 +191,17 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void OpenInventory()
     {
+        EnsureSceneReferences();
+
         if (IsInventoryOpen)
         {
+            LogDebug("OpenInventory skipped because already open.");
             return;
         }
 
         IsInventoryOpen = true;
         OpenInventoryInternal();
+        LogDebug("OpenInventory executed.");
     }
 
     /// <summary>
@@ -161,13 +209,17 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void CloseInventory()
     {
+        EnsureSceneReferences();
+
         if (!IsInventoryOpen)
         {
+            LogDebug("CloseInventory skipped because already closed.");
             return;
         }
 
         IsInventoryOpen = false;
         CloseInventoryInternal();
+        LogDebug("CloseInventory executed.");
     }
 
     /// <summary>
@@ -409,15 +461,12 @@ public class InventoryScreenController : MonoBehaviour
     // 打开背包面板时，同步角色容器状态并释放鼠标
     private void OpenInventoryInternal()
     {
-        if (InventoryPanel != null)
-        {
-            InventoryPanel.SetActive(true);
-        }
-
+        SetMainInventoryUiVisible(true);
         RefreshVisibleStateForCurrentContext();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        LogDebug("OpenInventoryInternal applied visible state.");
     }
 
     // 关闭背包面板时，回收拖拽态并保存当前容器运行时数据
@@ -432,13 +481,12 @@ public class InventoryScreenController : MonoBehaviour
         CloseActiveSessionIfNeeded();
         RefreshCharacterContainerState(false);
 
-        if (InventoryPanel != null)
-        {
-            InventoryPanel.SetActive(false);
-        }
+        SetMainInventoryUiVisible(false);
+        SetLootUiVisible(false);
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        LogDebug("CloseInventoryInternal applied hidden state.");
     }
 
     // 关闭当前会话，并把左右容器的运行时结果统一交给会话回调处理
@@ -533,6 +581,8 @@ public class InventoryScreenController : MonoBehaviour
     // 根据当前会话模式刷新界面显隐：普通模式展示角色装备联动格，自定义模式只保留玩家格子和外部容器
     private void RefreshVisibleStateForCurrentContext()
     {
+        SetMainInventoryUiVisible(IsInventoryOpen);
+
         if (UsesCustomPlayerInventory)
         {
             ApplyCustomPlayerInventoryUiState();
@@ -548,10 +598,7 @@ public class InventoryScreenController : MonoBehaviour
             RefreshCharacterContainerState(true);
         }
 
-        if (LootChestGrid != null)
-        {
-            LootChestGrid.gameObject.SetActive(HasActiveExternalContainer);
-        }
+        SetLootUiVisible(HasActiveExternalContainer && IsInventoryOpen);
     }
 
     // 自定义会话期间隐藏主玩法专属的装备槽和联动格，保留一个扁平玩家格子即可
@@ -1055,6 +1102,216 @@ public class InventoryScreenController : MonoBehaviour
     {
         BackpackSlot?.InitializeRuntimeState(showLinkedGrids);
         RigSlot?.InitializeRuntimeState(showLinkedGrids);
+    }
+
+    private void EnsureSceneReferences()
+    {
+        InventoryPanel = ResolveSceneObject(InventoryPanel, "LeftPanel");
+        PocketGrid = ResolveSceneComponent(PocketGrid, "PocketGrid");
+        TacticalRigGrid = ResolveSceneComponent(TacticalRigGrid, "RigInternalGrid", "TacticalRigGrid");
+        BackpackGrid = ResolveSceneComponent(BackpackGrid, "BackpackGrid");
+        LootChestGrid = ResolveSceneComponent(LootChestGrid, "LootChestPanel", "LootChestGrid");
+        RigSlot = ResolveSceneComponent(RigSlot, "RigSlot");
+        BackpackSlot = ResolveSceneComponent(BackpackSlot, "BackpackSlot");
+
+        InventoryItemFactory inventoryItemFactory = InventoryItemFactory.Instance != null
+            ? InventoryItemFactory.Instance
+            : FindObjectOfType<InventoryItemFactory>(true);
+        if (inventoryItemFactory != null)
+        {
+            GameObject dragLayerObject = FindSceneObjectByName("GlobalDragLayer");
+            if (dragLayerObject != null)
+            {
+                inventoryItemFactory.GlobalDragLayer = dragLayerObject.transform;
+            }
+        }
+
+        LogDebug(
+            $"Refs => InventoryPanel={GetObjectName(InventoryPanel)} " +
+            $"PocketGrid={GetObjectName(PocketGrid)} " +
+            $"TacticalRigGrid={GetObjectName(TacticalRigGrid)} " +
+            $"BackpackGrid={GetObjectName(BackpackGrid)} " +
+            $"LootChestGrid={GetObjectName(LootChestGrid)} " +
+            $"RigSlot={GetObjectName(RigSlot)} " +
+            $"BackpackSlot={GetObjectName(BackpackSlot)}");
+    }
+
+    private void SanitizeDuplicateUiObjects()
+    {
+        SetNamedObjectsActive("LeftPanel", InventoryPanel, IsInventoryOpen);
+        SetNamedObjectsActive("TacticalRigPanel", FindSceneObjectByName("TacticalRigPanel"), IsInventoryOpen);
+        SetNamedObjectsActive("LootChestPanel", LootChestGrid != null ? LootChestGrid.gameObject : null, HasActiveExternalContainer && IsInventoryOpen);
+        SetNamedObjectsActive("LootChestGrid", LootChestGrid != null ? LootChestGrid.gameObject : null, HasActiveExternalContainer && IsInventoryOpen);
+    }
+
+    private void SetMainInventoryUiVisible(bool isVisible)
+    {
+        if (InventoryPanel != null)
+        {
+            InventoryPanel.SetActive(isVisible);
+        }
+
+        GameObject tacticalRigPanel = FindSceneObjectByName("TacticalRigPanel");
+        if (tacticalRigPanel != null)
+        {
+            tacticalRigPanel.SetActive(isVisible);
+        }
+    }
+
+    private void SetLootUiVisible(bool isVisible)
+    {
+        if (LootChestGrid != null)
+        {
+            LootChestGrid.gameObject.SetActive(isVisible);
+        }
+    }
+
+    private static bool IsInventoryTogglePressed()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            return true;
+        }
+
+#if ENABLE_INPUT_SYSTEM
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null && keyboard.tabKey.wasPressedThisFrame)
+        {
+            return true;
+        }
+#endif
+
+        return false;
+    }
+
+    private static string GetObjectName(UnityEngine.Object target)
+    {
+        return target != null ? target.name : "null";
+    }
+
+    private static void LogDebug(string message)
+    {
+        if (!EnableBackpackDebug)
+        {
+            return;
+        }
+
+        Debug.Log($"[BackpackDebug] {message}");
+    }
+
+    private static GameObject FindSceneObjectByName(string objectName)
+    {
+        if (string.IsNullOrEmpty(objectName))
+        {
+            return null;
+        }
+
+        Scene activeScene = SceneManager.GetActiveScene();
+        Transform generatedRoot = null;
+        GameObject generatedRootObject = GameObject.Find("Generated_RaidMvp");
+        if (generatedRootObject != null && generatedRootObject.scene == activeScene)
+        {
+            generatedRoot = generatedRootObject.transform;
+        }
+
+        GameObject fallbackMatch = null;
+        GameObject[] roots = activeScene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            GameObject root = roots[i];
+            if (root == null)
+            {
+                continue;
+            }
+
+            if (root.name == objectName)
+            {
+                bool isUnderGeneratedRoot = generatedRoot != null && root.transform.IsChildOf(generatedRoot);
+                if (!isUnderGeneratedRoot)
+                {
+                    return root;
+                }
+
+                fallbackMatch = fallbackMatch == null ? root : fallbackMatch;
+            }
+
+            Transform[] children = root.GetComponentsInChildren<Transform>(true);
+            for (int j = 0; j < children.Length; j++)
+            {
+                if (children[j] != null && children[j].gameObject.name == objectName)
+                {
+                    bool isUnderGeneratedRoot = generatedRoot != null && children[j].IsChildOf(generatedRoot);
+                    if (!isUnderGeneratedRoot)
+                    {
+                        return children[j].gameObject;
+                    }
+
+                    fallbackMatch = fallbackMatch == null ? children[j].gameObject : fallbackMatch;
+                }
+            }
+        }
+
+        return fallbackMatch;
+    }
+
+    private static T FindSceneComponentByName<T>(string objectName) where T : Component
+    {
+        GameObject sceneObject = FindSceneObjectByName(objectName);
+        return sceneObject != null ? sceneObject.GetComponent<T>() : null;
+    }
+
+    private static GameObject ResolveSceneObject(GameObject currentObject, params string[] candidateNames)
+    {
+        for (int i = 0; i < candidateNames.Length; i++)
+        {
+            GameObject foundObject = FindSceneObjectByName(candidateNames[i]);
+            if (foundObject != null)
+            {
+                return foundObject;
+            }
+        }
+
+        return currentObject;
+    }
+
+    private static T ResolveSceneComponent<T>(T currentComponent, params string[] candidateNames) where T : Component
+    {
+        for (int i = 0; i < candidateNames.Length; i++)
+        {
+            T foundComponent = FindSceneComponentByName<T>(candidateNames[i]);
+            if (foundComponent != null)
+            {
+                return foundComponent;
+            }
+        }
+
+        return currentComponent;
+    }
+
+    private static void SetNamedObjectsActive(string objectName, GameObject canonicalObject, bool isActive)
+    {
+        Scene activeScene = SceneManager.GetActiveScene();
+        GameObject[] roots = activeScene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            GameObject root = roots[i];
+            if (root == null)
+            {
+                continue;
+            }
+
+            Transform[] children = root.GetComponentsInChildren<Transform>(true);
+            for (int j = 0; j < children.Length; j++)
+            {
+                Transform child = children[j];
+                if (child == null || child.gameObject.name != objectName)
+                {
+                    continue;
+                }
+
+                child.gameObject.SetActive(canonicalObject != null && child.gameObject == canonicalObject && isActive);
+            }
+        }
     }
 
     /// <summary>
