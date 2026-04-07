@@ -38,6 +38,13 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public void Tick(float deltaTime)
         {
+            if (_sessionState.Outcome != BoardSessionOutcome.None)
+            {
+                NotifyChanged();
+                return;
+            }
+
+            _sessionState.EnsureConsistentReferences();
             _progressionController.SyncDisabledState();
 
             if (_sessionState.IsAwaitingLevelUpChoice)
@@ -52,7 +59,22 @@ namespace BoardGame.Runtime.Controllers
                 return;
             }
 
-            _actionStateMachine.Tick(_sessionState, _nodeStatesById, deltaTime);
+            _sessionState.ElapsedSeconds += deltaTime;
+            _sessionState.SimulationStepIndex += 1;
+
+            foreach (BoardAgentState agentState in _sessionState.AgentStates)
+            {
+                _actionStateMachine.Tick(_sessionState, agentState, _nodeStatesById, deltaTime);
+
+                if (_sessionState.Outcome != BoardSessionOutcome.None ||
+                    _sessionState.IsAwaitingLevelUpChoice ||
+                    _sessionState.IsAwaitingLootInteraction)
+                {
+                    break;
+                }
+            }
+
+            _sessionState.EnsureConsistentReferences();
             NotifyChanged();
         }
 

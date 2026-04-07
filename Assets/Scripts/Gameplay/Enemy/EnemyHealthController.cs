@@ -23,6 +23,7 @@ public class EnemyHealthController : MonoBehaviour
 
     private void Start()
     {
+        WhiteboxCharacterVisualUtility.ApplyCharacterWhite(gameObject);
         _currentHealth = MaxHealth;
         UpdateHealthBar();
     }
@@ -96,6 +97,7 @@ public class EnemyHealthController : MonoBehaviour
             : Quaternion.identity;
 
         GameObject lootContainerObject = Instantiate(DeathLootContainerPrefab, spawnPosition, spawnRotation);
+        WhiteboxCharacterVisualUtility.ApplySolidColor(lootContainerObject, new Color(0.96f, 0.96f, 0.98f, 1f));
         LootBoxEntity lootBox = lootContainerObject.GetComponent<LootBoxEntity>();
         if (lootBox == null)
         {

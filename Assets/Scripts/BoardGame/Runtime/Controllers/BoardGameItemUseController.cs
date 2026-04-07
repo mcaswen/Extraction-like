@@ -30,13 +30,22 @@ namespace BoardGame.Runtime.Controllers
         {
             if (_sessionState.IsAwaitingLevelUpChoice)
             {
-                _sessionState.StatusMessage = "Choose a level-up upgrade before using items";
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Choose a level-up upgrade before using items");
                 NotifyChanged();
                 return false;
             }
 
-            bool success = _lootResolutionService.TryConsumeItem(_sessionState.AgentState, instanceId, out string message);
-            _sessionState.StatusMessage = message;
+            BoardAgentState agentState = _sessionState.GetFocusedAgentState();
+
+            if (agentState == null)
+            {
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("No focused AI was found");
+                NotifyChanged();
+                return false;
+            }
+
+            bool success = _lootResolutionService.TryConsumeItem(agentState, instanceId, out string message);
+            _sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(agentState, message);
             NotifyChanged();
             return success;
         }

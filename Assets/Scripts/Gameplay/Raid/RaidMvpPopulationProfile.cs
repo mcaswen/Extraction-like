@@ -10,6 +10,10 @@ public class RaidMvpPopulationProfile : ScriptableObject
 {
     [Header("Scene Bootstrap")]
     public GameObject PlayerPrefab;
+    public GameObject DefaultEnemyDeathLootPrefab;
+    public bool SpawnStartingGearDrops = true;
+    public GameObject StartingBagWorldPrefab;
+    public GameObject StartingRigWorldPrefab;
     public bool ClearPreviousGeneratedRoot = true;
     public string GeneratedRootName = "Generated_RaidMvp";
     public bool UseFixedSeed = true;
@@ -21,6 +25,8 @@ public class RaidMvpPopulationProfile : ScriptableObject
     public float SpawnHeightOffset = 0.05f;
     public float DefaultEnemySpacing = 2.8f;
     public float DefaultChestSpacing = 2.2f;
+    public float StartingDropSpacing = 1.6f;
+    public bool OverrideMissingEnemyDeathLootPrefab = true;
 
     [Header("Extraction Fallback")]
     public bool AutoCreateExtractionPointForExtractionRegion = true;

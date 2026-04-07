@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BoardGame.Config;
 using BoardGame.Runtime.Services;
 using BoardGame.Runtime.State;
+using UnityEngine;
 
 namespace BoardGame.Runtime.Controllers
 {
@@ -13,6 +14,7 @@ namespace BoardGame.Runtime.Controllers
     {
         private readonly SO_BoardGame_MapDefinition _mapDefinition;
         private readonly SO_BoardGame_RuleSet _ruleSet;
+        private readonly SO_BoardGame_AgentRoster _agentRoster;
         private readonly BoardGraphService _graphService;
         private readonly BoardCombatResolutionService _combatResolutionService;
         private readonly BoardLootResolutionService _lootResolutionService;
@@ -20,12 +22,14 @@ namespace BoardGame.Runtime.Controllers
         public BoardGameSessionBootstrapController(
             SO_BoardGame_MapDefinition mapDefinition,
             SO_BoardGame_RuleSet ruleSet,
+            SO_BoardGame_AgentRoster agentRoster,
             BoardGraphService graphService,
             BoardCombatResolutionService combatResolutionService,
             BoardLootResolutionService lootResolutionService)
         {
             _mapDefinition = mapDefinition;
             _ruleSet = ruleSet;
+            _agentRoster = agentRoster;
             _graphService = graphService;
             _combatResolutionService = combatResolutionService;
             _lootResolutionService = lootResolutionService;
@@ -37,8 +41,8 @@ namespace BoardGame.Runtime.Controllers
         public BoardGameSessionState CreateSession(Dictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
             List<BoardNodeRuntimeState> nodeStates = BuildNodeStates(nodeStatesById);
-            BoardAgentState agentState = BuildAgentState();
-            return new BoardGameSessionState(_mapDefinition.MapId, agentState, nodeStates);
+            List<BoardAgentState> agentStates = BuildAgentStates();
+            return new BoardGameSessionState(_mapDefinition.MapId, agentStates, nodeStates);
         }
 
         /// <summary>
@@ -83,28 +87,83 @@ namespace BoardGame.Runtime.Controllers
         /// 初始化角色运行时状态
         /// 包含起点、基础属性和开局自带道具
         /// </summary>
-        private BoardAgentState BuildAgentState()
+        private List<BoardAgentState> BuildAgentStates()
         {
-            BoardAgentState agentState = new BoardAgentState(
-                _ruleSet.AgentStats.MaxHealth,
-                _ruleSet.AgentStats.Attack,
-                _ruleSet.AgentStats.Defense,
-                _ruleSet.AgentStats.MaxCarryCapacity);
-            agentState.Level = _ruleSet.ProgressionRules.StartingLevel;
-            agentState.CurrentExperience = 0;
-            agentState.RequiredExperienceToNextLevel = _ruleSet.ProgressionRules.StartingRequiredExperience;
+            List<BoardAgentState> agentStates = new List<BoardAgentState>();
+            IReadOnlyList<BoardGameAgentRosterEntry> rosterEntries = ResolveAgentRosterEntries();
 
-            string startNodeId = _graphService.GetStartNodeId();
-            agentState.CurrentNodeId = startNodeId;
-            agentState.WorldPosition = _graphService.GetNodePosition(startNodeId);
-            agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
-
-            foreach (BoardItemInstance itemInstance in _lootResolutionService.CreateStartingItems(_ruleSet.AgentStats.StartingHealingPotionCount))
+            for (int index = 0; index < rosterEntries.Count; index++)
             {
-                agentState.InventoryState.Items.Add(itemInstance);
+                BoardGameAgentRosterEntry rosterEntry = rosterEntries[index];
+                string agentId = string.IsNullOrEmpty(rosterEntry.AgentId)
+                    ? $"agent_{index + 1:00}"
+                    : rosterEntry.AgentId;
+                string displayName = string.IsNullOrEmpty(rosterEntry.DisplayName)
+                    ? $"Agent {index + 1}"
+                    : rosterEntry.DisplayName;
+
+                BoardAgentState agentState = new BoardAgentState(
+                    agentId,
+                    displayName,
+                    rosterEntry.AgentColor,
+                    _ruleSet.AgentStats.MaxHealth,
+                    _ruleSet.AgentStats.Attack,
+                    _ruleSet.AgentStats.Defense,
+                    _ruleSet.AgentStats.MaxCarryCapacity);
+                agentState.Level = _ruleSet.ProgressionRules.StartingLevel;
+                agentState.CurrentExperience = 0;
+                agentState.RequiredExperienceToNextLevel = _ruleSet.ProgressionRules.StartingRequiredExperience;
+
+                string startNodeId = ResolveAgentStartNodeId(rosterEntry);
+                agentState.CurrentNodeId = startNodeId;
+                agentState.WorldPosition = _graphService.GetNodePosition(startNodeId);
+                agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
+
+                foreach (BoardItemInstance itemInstance in _lootResolutionService.CreateStartingItems(_ruleSet.AgentStats.StartingHealingPotionCount))
+                {
+                    agentState.InventoryState.Items.Add(itemInstance);
+                }
+
+                agentStates.Add(agentState);
             }
 
-            return agentState;
+            return agentStates;
+        }
+
+        /// <summary>
+        /// 解析当前应使用的 Agent roster
+        /// 未配置时回退到四个默认 Agent，避免原型场景因为漏挂配置直接失效
+        /// </summary>
+        private IReadOnlyList<BoardGameAgentRosterEntry> ResolveAgentRosterEntries()
+        {
+            if (_agentRoster != null && _agentRoster.AgentEntries != null && _agentRoster.AgentEntries.Count > 0)
+            {
+                return _agentRoster.AgentEntries;
+            }
+
+            return new List<BoardGameAgentRosterEntry>
+            {
+                new BoardGameAgentRosterEntry("agent_01", "Agent 1", new Color(0.94f, 0.39f, 0.31f, 1f)),
+                new BoardGameAgentRosterEntry("agent_02", "Agent 2", new Color(0.27f, 0.62f, 0.98f, 1f)),
+                new BoardGameAgentRosterEntry("agent_03", "Agent 3", new Color(0.27f, 0.79f, 0.44f, 1f)),
+                new BoardGameAgentRosterEntry("agent_04", "Agent 4", new Color(0.96f, 0.76f, 0.23f, 1f))
+            };
+        }
+
+        /// <summary>
+        /// 解析单个 Agent 的出生节点
+        /// roster 未显式指定时统一回退到地图默认起点
+        /// </summary>
+        private string ResolveAgentStartNodeId(BoardGameAgentRosterEntry rosterEntry)
+        {
+            if (rosterEntry != null &&
+                !string.IsNullOrEmpty(rosterEntry.StartNodeId) &&
+                _graphService.TryGetNode(rosterEntry.StartNodeId, out _))
+            {
+                return rosterEntry.StartNodeId;
+            }
+
+            return _graphService.GetStartNodeId();
         }
 
         /// <summary>

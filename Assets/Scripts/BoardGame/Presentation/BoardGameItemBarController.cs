@@ -41,7 +41,19 @@ namespace BoardGame.Presentation
                 return;
             }
 
-            IEnumerable<IGrouping<string, BoardItemInstance>> groupedItems = _runtimeQueryController.SessionState.AgentState.InventoryState
+            BoardAgentState agentState = _runtimeQueryController.GetFocusedAgentState();
+
+            if (agentState == null)
+            {
+                foreach (BoardGameItemSlotView itemSlot in _itemSlots)
+                {
+                    itemSlot?.ClearSlot();
+                }
+
+                return;
+            }
+
+            IEnumerable<IGrouping<string, BoardItemInstance>> groupedItems = agentState.InventoryState
                 .GetConsumables()
                 .GroupBy(item => item.ItemId);
 

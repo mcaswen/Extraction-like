@@ -57,17 +57,36 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
-        /// 结算一次战斗 tick
-        /// 规则为“AI 先手，若敌人未死则敌人反击”
+        /// 结算一次共享战斗 tick
+        /// 节点内所有存活 Agent 共同输出伤害，敌方若未死则同时反击所有在场 Agent
         /// </summary>
-        public BoardCombatTickResult ResolveCombatTick(BoardAgentState agentState, BoardNodeRuntimeState nodeState, bool isBoss)
+        public BoardCombatTickResult ResolveCombatTick(
+            IReadOnlyList<BoardAgentState> participantAgents,
+            BoardNodeRuntimeState nodeState,
+            bool isBoss)
         {
             int defenderDefense = isBoss ? nodeState.BossDefense : nodeState.EnemyDefense;
             int defenderHealth = isBoss ? nodeState.BossCurrentHealth : nodeState.EnemyCurrentHealth;
-            int attackerDamage = Mathf.Max(1, agentState.Attack - defenderDefense);
+            int totalDamageDealt = 0;
+            int activeParticipantCount = 0;
 
-            // 先处理 AI 对敌方的伤害
-            defenderHealth = Mathf.Max(0, defenderHealth - attackerDamage);
+            if (participantAgents != null)
+            {
+                for (int index = 0; index < participantAgents.Count; index++)
+                {
+                    BoardAgentState participantAgent = participantAgents[index];
+
+                    if (participantAgent == null || !participantAgent.IsAlive)
+                    {
+                        continue;
+                    }
+
+                    totalDamageDealt += Mathf.Max(1, participantAgent.Attack - defenderDefense);
+                    activeParticipantCount++;
+                }
+            }
+
+            defenderHealth = Mathf.Max(0, defenderHealth - totalDamageDealt);
 
             if (isBoss)
             {
@@ -79,17 +98,32 @@ namespace BoardGame.Runtime.Services
             }
 
             bool defenderDefeated = defenderHealth <= 0;
-            int agentDamageTaken = 0;
+            int totalDamageTaken = 0;
+            int downedAgentCount = 0;
 
-            if (!defenderDefeated)
+            if (!defenderDefeated && participantAgents != null)
             {
-                // 只有敌方存活时，才会触发反击
                 int enemyAttack = isBoss ? nodeState.BossAttack : nodeState.EnemyAttack;
-                agentDamageTaken = Mathf.Max(1, enemyAttack - agentState.Defense);
-                agentState.CurrentHealth = Mathf.Max(0, agentState.CurrentHealth - agentDamageTaken);
-            }
 
-            bool agentDefeated = agentState.CurrentHealth <= 0;
+                for (int index = 0; index < participantAgents.Count; index++)
+                {
+                    BoardAgentState participantAgent = participantAgents[index];
+
+                    if (participantAgent == null || !participantAgent.IsAlive)
+                    {
+                        continue;
+                    }
+
+                    int damageTaken = Mathf.Max(1, enemyAttack - participantAgent.Defense);
+                    participantAgent.CurrentHealth = Mathf.Max(0, participantAgent.CurrentHealth - damageTaken);
+                    totalDamageTaken += damageTaken;
+
+                    if (!participantAgent.IsAlive)
+                    {
+                        downedAgentCount++;
+                    }
+                }
+            }
 
             if (isBoss)
             {
@@ -100,7 +134,12 @@ namespace BoardGame.Runtime.Services
                 nodeState.EnemyState = defenderDefeated ? BoardEnemyStateType.Cleared : BoardEnemyStateType.Engaged;
             }
 
-            return new BoardCombatTickResult(attackerDamage, agentDamageTaken, defenderDefeated, agentDefeated);
+            return new BoardCombatTickResult(
+                totalDamageDealt,
+                totalDamageTaken,
+                defenderDefeated,
+                downedAgentCount,
+                activeParticipantCount);
         }
     }
 
@@ -109,17 +148,24 @@ namespace BoardGame.Runtime.Services
     /// </summary>
     public sealed class BoardCombatTickResult
     {
-        public BoardCombatTickResult(int damageDealt, int damageTaken, bool encounterDefeated, bool agentDefeated)
+        public BoardCombatTickResult(
+            int totalDamageDealt,
+            int totalDamageTaken,
+            bool encounterDefeated,
+            int downedAgentCount,
+            int activeParticipantCount)
         {
-            DamageDealt = damageDealt;
-            DamageTaken = damageTaken;
+            TotalDamageDealt = totalDamageDealt;
+            TotalDamageTaken = totalDamageTaken;
             EncounterDefeated = encounterDefeated;
-            AgentDefeated = agentDefeated;
+            DownedAgentCount = Mathf.Max(0, downedAgentCount);
+            ActiveParticipantCount = Mathf.Max(0, activeParticipantCount);
         }
 
-        public int DamageDealt { get; }
-        public int DamageTaken { get; }
+        public int TotalDamageDealt { get; }
+        public int TotalDamageTaken { get; }
         public bool EncounterDefeated { get; }
-        public bool AgentDefeated { get; }
+        public int DownedAgentCount { get; }
+        public int ActiveParticipantCount { get; }
     }
 }

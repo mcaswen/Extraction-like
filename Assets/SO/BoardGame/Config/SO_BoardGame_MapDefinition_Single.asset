@@ -10,11 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95bfba5704446a143a05e19b278fec09, type: 3}
-  m_Name: SO_BoardGame_MapDefinition
+  m_Name: SO_BoardGame_MapDefinition_Single
   m_EditorClassIdentifier: 
   _mapId: sample_board_map
   _displayName: Test Map
   _startNodeId: 1
+  _nodeIconSet:
+    _resourceLowIcon: {fileID: 21300000, guid: 9e2be96db8c3d9c42a72376d1d384042, type: 3}
+    _resourceMediumIcon: {fileID: 21300000, guid: 5afce1a775b6d3a47b577931c5a40b25,
+      type: 3}
+    _resourceHighIcon: {fileID: 21300000, guid: f8b455ecf6727f443915528d67b36915,
+      type: 3}
+    _enemyLowIcon: {fileID: 21300000, guid: 4c5ddc223bb1ff54db1e7df49ab85486, type: 3}
+    _enemyMediumIcon: {fileID: 21300000, guid: 20d2259c52f9d4d43b92cb42c0224f70, type: 3}
+    _enemyHighIcon: {fileID: 21300000, guid: d90e6b42ab3a5264580db64cd90f4381, type: 3}
+    _bossIcon: {fileID: 21300000, guid: 5a6fd474aeb231e4586a08beddb9b042, type: 3}
+    _extractIcon: {fileID: 21300000, guid: 2ad0d0c830e2f7e4eb2bb0d16d068328, type: 3}
   _nodes:
   - _nodeId: 0
     _description: 

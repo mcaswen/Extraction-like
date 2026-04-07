@@ -32,6 +32,8 @@ namespace BoardGame.Runtime.State
         [SerializeField] private int _enemyMaxHealth;
         [SerializeField] private int _enemyAttack;
         [SerializeField] private int _enemyDefense;
+        [SerializeField] private float _combatTickAccumulatorSeconds;
+        [SerializeField] private int _lastCombatProcessedStep = -1;
 
         [SerializeField] private BoardBossStateType _bossState = BoardBossStateType.Untriggered;
         [SerializeField] private int _bossCurrentHealth;
@@ -144,6 +146,18 @@ namespace BoardGame.Runtime.State
             set => _enemyDefense = Mathf.Max(0, value);
         }
 
+        public float CombatTickAccumulatorSeconds
+        {
+            get => _combatTickAccumulatorSeconds;
+            set => _combatTickAccumulatorSeconds = Mathf.Max(0f, value);
+        }
+
+        public int LastCombatProcessedStep
+        {
+            get => _lastCombatProcessedStep;
+            set => _lastCombatProcessedStep = value;
+        }
+
         public BoardBossStateType BossState
         {
             get => _bossState;
@@ -203,6 +217,14 @@ namespace BoardGame.Runtime.State
         public bool HasPendingLootContainer()
         {
             return _lootTotalItemCount > 0;
+        }
+
+        /// <summary>
+        /// 查询节点是否还保留着可再次打开的共享 loot
+        /// </summary>
+        public bool HasPendingLootInteraction()
+        {
+            return HasPendingLootContainer() && HasRemainingLootItems();
         }
 
         /// <summary>

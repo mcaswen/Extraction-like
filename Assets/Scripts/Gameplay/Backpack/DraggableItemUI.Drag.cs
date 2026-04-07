@@ -48,6 +48,7 @@ public partial class DraggableItemUI
     /// <param name="eventData">当前指针事件</param>
     public void OnEndDrag(PointerEventData eventData)
     {
+        InventoryUIController sourceGrid = CurrentGrid;
         EquipmentSlotUI targetSlot = GetHoveredEquipmentSlot(eventData);
         InventoryUIController targetGrid = targetSlot == null ? GetHoveredGrid(eventData) : null;
 
@@ -55,6 +56,7 @@ public partial class DraggableItemUI
 
         if (targetSlot != null && targetSlot.TryHandleDrop(this))
         {
+            NotifyLootTransferredFromLootChest(sourceGrid, null);
             return;
         }
 
@@ -88,11 +90,13 @@ public partial class DraggableItemUI
 
         if (TryPlaceInEmptySpace(targetGrid, targetController, targetIndex, width, height))
         {
+            NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
             return;
         }
 
         if (TryMergeWithBlockingItem(targetController, targetIndex, width, height))
         {
+            NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
             return;
         }
 
@@ -471,6 +475,7 @@ public partial class DraggableItemUI
             return;
         }
 
+        InventoryUIController sourceGrid = CurrentGrid;
         if (!InventoryScreenController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
         {
             return;
@@ -480,6 +485,28 @@ public partial class DraggableItemUI
         transform.SetParent(targetGrid.ItemContainer, false);
         CurrentGrid = targetGrid;
         PlaceSuccessfully(position, needsRotation);
+        NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
+    }
+
+    private void NotifyLootTransferredFromLootChest(InventoryUIController sourceGrid, InventoryUIController targetGrid)
+    {
+        InventoryScreenController inventoryController = InventoryScreenController.Instance;
+        if (inventoryController == null || RaidFlowController.Instance == null || ItemData == null)
+        {
+            return;
+        }
+
+        if (sourceGrid != inventoryController.LootChestGrid)
+        {
+            return;
+        }
+
+        if (targetGrid == inventoryController.LootChestGrid)
+        {
+            return;
+        }
+
+        RaidFlowController.Instance.NotifyLootCollected(ItemData.ItemName);
     }
 
     // 从当前 UI 射线结果里找出鼠标悬停的背包网格

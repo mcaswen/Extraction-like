@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d,
     type: 3}
+  DefaultEnemyDeathLootPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+    type: 3}
   ClearPreviousGeneratedRoot: 1
   GeneratedRootName: Generated_RaidMvp
   UseFixedSeed: 1
@@ -25,6 +27,7 @@ MonoBehaviour:
   SpawnHeightOffset: 0.05
   DefaultEnemySpacing: 3
   DefaultChestSpacing: 2.4
+  OverrideMissingEnemyDeathLootPrefab: 1
   AutoCreateExtractionPointForExtractionRegion: 1
   ExtractionDurationSeconds: 4
   ExtractionTriggerSize: {x: 4.5, y: 2.4, z: 4.5}

@@ -32,12 +32,13 @@ public class RaidFlowController : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this);
             return;
         }
 
         Instance = this;
         Time.timeScale = 1f;
+        EnsureMinimapExists();
     }
 
     private void Start()
@@ -205,5 +206,15 @@ public class RaidFlowController : MonoBehaviour
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 26f), title);
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 56f, panelRect.width - 48f, 24f), detail);
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 92f, panelRect.width - 48f, 24f), $"按 {RestartKey} 重新开始");
+    }
+    private static void EnsureMinimapExists()
+    {
+        if (FindObjectOfType<RaidMinimapController>() != null)
+        {
+            return;
+        }
+
+        GameObject minimapObject = new GameObject("RaidMinimapController");
+        minimapObject.AddComponent<RaidMinimapController>();
     }
 }

@@ -20,12 +20,15 @@ namespace BoardGame.Config
         [SerializeField] private string _mapId = "sample_board_map";
         [SerializeField] private string _displayName = "Sample Fixed Map";
         [SerializeField] private string _startNodeId = "start";
+        [Header("Node Icons")]
+        [SerializeField] private BoardGameNodeIconSet _nodeIconSet = new BoardGameNodeIconSet();
         [SerializeField] private List<BoardMapNodeDefinition> _nodes = new List<BoardMapNodeDefinition>();
         [SerializeField] private List<BoardMapEdgeDefinition> _edges = new List<BoardMapEdgeDefinition>();
 
         public string MapId => _mapId;
         public string DisplayName => _displayName;
         public string StartNodeId => _startNodeId;
+        public BoardGameNodeIconSet NodeIconSet => _nodeIconSet;
         public IReadOnlyList<BoardMapNodeDefinition> Nodes => _nodes;
         public IReadOnlyList<BoardMapEdgeDefinition> Edges => _edges;
 
@@ -244,6 +247,71 @@ namespace BoardGame.Config
         public BoardResourceTier ResourceTier => _resourceTier;
         public BoardDangerTier DangerTier => _dangerTier;
         public Vector2 Position => _position;
+    }
+
+    /// <summary>
+    /// 鑺傜偣鍥炬爣閰嶇疆
+    /// 鎸夎祫婧愮瓑绾у拰鍗遍櫓绛夌骇涓篟esource Enemy Boss 鎻愪緵鍙厤缃?Sprite
+    /// </summary>
+    [Serializable]
+    public sealed class BoardGameNodeIconSet
+    {
+        [Header("Resource Icons")]
+        [SerializeField] private Sprite _resourceLowIcon;
+        [SerializeField] private Sprite _resourceMediumIcon;
+        [SerializeField] private Sprite _resourceHighIcon;
+
+        [Header("Enemy Icons")]
+        [SerializeField] private Sprite _enemyLowIcon;
+        [SerializeField] private Sprite _enemyMediumIcon;
+        [SerializeField] private Sprite _enemyHighIcon;
+
+        [Header("Boss Icon")]
+        [SerializeField] private Sprite _bossIcon;
+
+        [Header("Extract Icon")]
+        [SerializeField] private Sprite _extractIcon;
+
+        public Sprite GetIcon(BoardNodeType nodeType, BoardResourceTier resourceTier, BoardDangerTier dangerTier)
+        {
+            switch (nodeType)
+            {
+                case BoardNodeType.Resource:
+                    switch (resourceTier)
+                    {
+                        case BoardResourceTier.Low:
+                            return _resourceLowIcon;
+                        case BoardResourceTier.Medium:
+                            return _resourceMediumIcon;
+                        case BoardResourceTier.High:
+                            return _resourceHighIcon;
+                        default:
+                            return null;
+                    }
+
+                case BoardNodeType.Enemy:
+                    switch (dangerTier)
+                    {
+                        case BoardDangerTier.Low:
+                            return _enemyLowIcon;
+                        case BoardDangerTier.Medium:
+                            return _enemyMediumIcon;
+                        case BoardDangerTier.High:
+                            return _enemyHighIcon;
+                        default:
+                            return null;
+                    }
+
+                case BoardNodeType.Boss:
+                    return _bossIcon;
+
+                case BoardNodeType.Extract:
+                    return _extractIcon;
+
+                default:
+                    return null;
+            }
+        }
     }
 
     /// <summary>

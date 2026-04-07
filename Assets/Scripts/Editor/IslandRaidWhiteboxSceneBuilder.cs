@@ -87,6 +87,7 @@ public static class IslandRaidWhiteboxSceneBuilder
         CreateLabels(root);
         CreatePerspectiveFadeController(root);
         PositionCameraForPreview();
+        SceneLylSupportMigrator.EnsureCoreGameplaySupport(newScene);
 
         EditorSceneManager.SaveScene(newScene, SceneAssetPath);
         AssetDatabase.Refresh();
@@ -149,7 +150,7 @@ public static class IslandRaidWhiteboxSceneBuilder
         water.transform.SetParent(root, false);
         water.transform.position = new Vector3(bounds.center.x, -0.55f, bounds.center.z);
         water.transform.localScale = new Vector3(bounds.size.x + CellSize * 6f, 0.6f, bounds.size.z + CellSize * 6f);
-        ApplyColor(water, new Color(0.42f, 0.52f, 0.6f, 1f));
+        ApplyColor(water, new Color(0.22f, 0.56f, 0.72f, 1f));
     }
 
     private static void CreateFloorTiles(Transform root, Dictionary<Vector2Int, ZoneType> cells)
@@ -205,7 +206,7 @@ public static class IslandRaidWhiteboxSceneBuilder
                 wall.transform.SetParent(wallRoot, false);
                 wall.transform.position = GridToWorld(cell.x, cell.y, 0f) + offset;
                 wall.transform.localScale = wallScale;
-                ApplyColor(wall, new Color(0.21f, 0.23f, 0.28f, 1f));
+                ApplyColor(wall, new Color(0.1f, 0.12f, 0.16f, 1f));
                 wall.AddComponent<PerspectiveFadeWall>();
             }
         }
@@ -341,11 +342,11 @@ public static class IslandRaidWhiteboxSceneBuilder
     {
         return zoneType switch
         {
-            ZoneType.Corridor => new Color(0.7f, 0.7f, 0.73f, 1f),
-            ZoneType.Resource => new Color(0.78f, 0.78f, 0.81f, 1f),
-            ZoneType.DenseResource => new Color(0.75f, 0.8f, 0.77f, 1f),
-            ZoneType.Boss => new Color(0.56f, 0.58f, 0.62f, 1f),
-            _ => new Color(0.76f, 0.76f, 0.78f, 1f)
+            ZoneType.Corridor => new Color(0.72f, 0.74f, 0.78f, 1f),
+            ZoneType.Resource => new Color(0.82f, 0.84f, 0.88f, 1f),
+            ZoneType.DenseResource => new Color(0.72f, 0.82f, 0.8f, 1f),
+            ZoneType.Boss => new Color(0.58f, 0.62f, 0.7f, 1f),
+            _ => new Color(0.8f, 0.82f, 0.85f, 1f)
         };
     }
 

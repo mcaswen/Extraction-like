@@ -22,6 +22,10 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
     private void Start()
     {
         ResolveSceneSupport();
+        if (FloatingPromptUI != null)
+        {
+            FloatingPromptUI.gameObject.SetActive(false);
+        }
         TryBindPlayer();
     }
 
@@ -74,6 +78,7 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
             if (floatingPromptObject != null)
             {
                 FloatingPromptUI = floatingPromptObject.GetComponent<RectTransform>();
+                floatingPromptObject.SetActive(false);
             }
         }
 

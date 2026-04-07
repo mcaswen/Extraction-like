@@ -22,6 +22,9 @@ public class LootGenerationEntry
 /// </summary>
 public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractable
 {
+    private const bool EnableLootBoxDebug = true;
+    private static readonly Color ChestWhite = new Color(0.96f, 0.96f, 0.98f, 1f);
+
     [Header("Loot Box")]
     public string BoxName = "军用物资箱";
     public InventoryItemData FirstTimeLootItem;
@@ -47,6 +50,8 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     private void Awake()
     {
+        WhiteboxCharacterVisualUtility.ApplySolidColor(gameObject, ChestWhite);
+
         if (PrecalculateLootOnSpawn)
         {
             PrecalculateLootIfNeeded();
@@ -99,9 +104,11 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         if (InventoryScreenController.Instance == null || InventoryScreenController.Instance.IsInventoryOpen)
         {
+            LogDebug($"Interact blocked. InventoryController={(InventoryScreenController.Instance != null)} IsInventoryOpen={(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)}");
             return;
         }
 
+        LogDebug("Interact accepted. Opening loot box UI.");
         InventoryScreenController.Instance.OpenLootBox(this);
     }
 
@@ -294,6 +301,16 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         }
 
         return false;
+    }
+
+    private void LogDebug(string message)
+    {
+        if (!EnableLootBoxDebug)
+        {
+            return;
+        }
+
+        Debug.Log($"[LootBoxDebug:{BoxName}] {message}");
     }
 
     // 深拷贝物品快照列表，防止外部直接改写容器内部缓存
