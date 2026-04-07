@@ -55,11 +55,8 @@ namespace BoardGame.Views
                 return;
             }
 
-            Bounds localBounds = _sourceRenderer != null
-                ? _sourceRenderer.localBounds
-                : new Bounds(Vector3.zero, Vector3.one);
-
-            _radius = Mathf.Max(localBounds.extents.x, localBounds.extents.y) + Mathf.Max(0.01f, padding);
+            float baseRadius = ResolveSourceRadiusInHaloSpace();
+            _radius = Mathf.Max(0.01f, baseRadius) + Mathf.Max(0.01f, padding);
             _lineRenderer.widthMultiplier = Mathf.Max(0.01f, width);
             _lineRenderer.positionCount = SegmentCount;
 
@@ -70,6 +67,27 @@ namespace BoardGame.Views
                 float y = Mathf.Sin(angle) * _radius;
                 _lineRenderer.SetPosition(index, new Vector3(x, y, 0f));
             }
+        }
+
+        private float ResolveSourceRadiusInHaloSpace()
+        {
+            if (_sourceRenderer == null)
+            {
+                return 0.5f;
+            }
+
+            Bounds worldBounds = _sourceRenderer.bounds;
+            float worldRadius = Mathf.Max(worldBounds.extents.x, worldBounds.extents.y);
+            float haloWorldScale = Mathf.Max(
+                Mathf.Abs(transform.lossyScale.x),
+                Mathf.Abs(transform.lossyScale.y));
+
+            if (haloWorldScale <= Mathf.Epsilon)
+            {
+                return worldRadius;
+            }
+
+            return worldRadius / haloWorldScale;
         }
 
         private void SetVisible(bool isVisible)

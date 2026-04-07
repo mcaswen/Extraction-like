@@ -53,13 +53,21 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool CanOpenActiveLootNode()
         {
-            if (!_sessionState.IsAwaitingLootInteraction || _sessionState.IsLootInteractionOpen)
+            if (_sessionState.IsAwaitingLevelUpChoice ||
+                !_sessionState.IsAwaitingLootInteraction ||
+                _sessionState.IsLootInteractionOpen)
             {
                 return false;
             }
 
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
-            return nodeState != null && nodeState.HasPendingLootContainer();
+            BoardAgentState activeAgentState = GetActiveInteractionAgentState();
+            BoardAgentState focusedAgentState = _sessionState.GetFocusedAgentState();
+            return nodeState != null &&
+                   nodeState.HasPendingLootContainer() &&
+                   activeAgentState != null &&
+                   focusedAgentState != null &&
+                   activeAgentState.AgentId == focusedAgentState.AgentId;
         }
 
         /// <summary>
@@ -69,15 +77,37 @@ namespace BoardGame.Runtime.Controllers
         {
             nodeState = GetActiveLootNodeState();
 
-            if (!_bagLayoutSettings.EnableBagSystem || nodeState == null || !CanOpenActiveLootNode())
+            if (_sessionState.IsAwaitingLevelUpChoice)
+            {
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Choose a level-up upgrade before opening loot");
+                NotifyChanged();
+                return false;
+            }
+
+            if (!_bagLayoutSettings.EnableBagSystem)
+            {
+                return false;
+            }
+
+            if ((nodeState == null || !CanOpenActiveLootNode()) && !TryActivateFocusedLootInteraction())
+            {
+                return false;
+            }
+
+            nodeState = GetActiveLootNodeState();
+
+            if (nodeState == null || !CanOpenActiveLootNode())
             {
                 return false;
             }
 
             _sessionState.IsLootInteractionOpen = true;
-            _sessionState.StatusMessage = nodeState.IsLootRevealComplete()
-                ? $"Loot bag opened at {nodeState.NodeId}"
-                : $"Searching {nodeState.NodeId}";
+            _sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                GetActiveInteractionAgentState(),
+                nodeState,
+                nodeState.IsLootRevealComplete()
+                    ? "Loot bag opened"
+                    : "Searching loot");
             NotifyChanged();
             return true;
         }
@@ -117,17 +147,18 @@ namespace BoardGame.Runtime.Controllers
             int revealedItemCount)
         {
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
+            BoardAgentState agentState = GetActiveInteractionAgentState();
 
-            if (nodeState == null)
+            if (nodeState == null || agentState == null)
             {
                 return;
             }
 
-            _sessionState.AgentState.InventoryState.Items.Clear();
+            agentState.InventoryState.Items.Clear();
 
             if (playerInventoryItems != null)
             {
-                _sessionState.AgentState.InventoryState.Items.AddRange(playerInventoryItems.Where(item => item != null));
+                agentState.InventoryState.Items.AddRange(playerInventoryItems.Where(item => item != null));
             }
 
             nodeState.LootContainerItems.Clear();
@@ -169,8 +200,8 @@ namespace BoardGame.Runtime.Controllers
                 ResumeAfterLootInteraction(
                     nodeState,
                     nodeState.IsLootRevealComplete()
-                        ? $"Closed loot at {nodeState.NodeId}, AI resumed. The node can be revisited"
-                        : $"Paused loot search at {nodeState.NodeId}, AI resumed. The node can be revisited");
+                        ? "Closed loot, AI resumed and the node can be revisited"
+                        : "Paused loot search, AI resumed and the node can be revisited");
             }
 
             NotifyChanged();
@@ -214,8 +245,9 @@ namespace BoardGame.Runtime.Controllers
         private void ResolveActiveLootWithoutBagSystem(float deltaTime)
         {
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
+            BoardAgentState agentState = GetActiveInteractionAgentState();
 
-            if (nodeState == null)
+            if (nodeState == null || agentState == null)
             {
                 return;
             }
@@ -256,15 +288,21 @@ namespace BoardGame.Runtime.Controllers
 
             // 先让自动收取逻辑直接改写当前库存，再把节点 loot 清空并统一走关闭流程
             BoardAutoCollectResult autoCollectResult = _lootResolutionService.AutoCollect(
-                _sessionState.AgentState.InventoryState,
+                agentState.InventoryState,
                 sourceItems);
 
             int revealedItemCount = nodeState.LootTotalItemCount;
             CloseActiveLootNode(
                 new List<BoardLootContainerItemState>(),
-                _sessionState.AgentState.InventoryState.Items.ToList(),
+                agentState.InventoryState.Items.ToList(),
                 revealedItemCount);
-            _sessionState.StatusMessage = $"Auto collected loot at {nodeState.NodeId}. {autoCollectResult.Summary}";
+            string autoCollectMessage = string.IsNullOrEmpty(autoCollectResult.Summary)
+                ? "Auto collected loot"
+                : $"Auto collected loot {autoCollectResult.Summary}";
+            _sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                agentState,
+                nodeState,
+                autoCollectMessage);
         }
 
         private static void AdvanceBaglessLootReveal(BoardNodeRuntimeState nodeState, float deltaTime)
@@ -312,13 +350,13 @@ namespace BoardGame.Runtime.Controllers
         private void SyncLootActionProgress()
         {
             BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
+            BoardAgentState agentState = GetActiveInteractionAgentState();
 
-            if (nodeState == null)
+            if (nodeState == null || agentState == null)
             {
                 return;
             }
 
-            BoardAgentState agentState = _sessionState.AgentState;
             agentState.CurrentActionType = BoardActionType.Searching;
 
             if (!_bagLayoutSettings.EnableBagSystem &&
@@ -347,10 +385,63 @@ namespace BoardGame.Runtime.Controllers
         }
 
         /// <summary>
+        /// 允许当前焦点 Agent 直接接管自己脚下节点上剩余的共享 loot
+        /// 这样多人同节点时切换焦点后不需要先离开再回来才能继续 search
+        /// </summary>
+        private bool TryActivateFocusedLootInteraction()
+        {
+            if (_sessionState.IsAwaitingLootInteraction || _sessionState.IsLootInteractionOpen)
+            {
+                return false;
+            }
+
+            BoardAgentState focusedAgentState = _sessionState.GetFocusedAgentState();
+
+            if (focusedAgentState == null || string.IsNullOrEmpty(focusedAgentState.CurrentNodeId))
+            {
+                return false;
+            }
+
+            if (!_nodeStatesById.TryGetValue(focusedAgentState.CurrentNodeId, out BoardNodeRuntimeState nodeState) ||
+                nodeState == null ||
+                !nodeState.HasPendingLootInteraction())
+            {
+                return false;
+            }
+
+            _sessionState.ActiveInteractionAgentId = focusedAgentState.AgentId;
+            _sessionState.ActiveLootNodeId = nodeState.NodeId;
+            _sessionState.IsLootInteractionOpen = false;
+            focusedAgentState.CurrentActionType = BoardActionType.Searching;
+            focusedAgentState.CurrentActionDuration = 1f;
+            focusedAgentState.CurrentActionAccumulatorSeconds = 0f;
+            focusedAgentState.CurrentActionProgress = nodeState.GetLootRevealProgress01();
+            focusedAgentState.CombatJoinStepIndex = -1;
+
+            if (nodeState.NodeType == BoardNodeType.Resource)
+            {
+                nodeState.ResourceState = nodeState.IsLootRevealComplete()
+                    ? BoardResourceStateType.SearchCompleted
+                    : BoardResourceStateType.Searching;
+            }
+
+            _sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                focusedAgentState,
+                nodeState,
+                nodeState.IsLootRevealComplete()
+                    ? "Loot remains, press F to reopen"
+                    : "Loot remains, press F to continue searching");
+            NotifyChanged();
+            return true;
+        }
+
+        /// <summary>
         /// 完成当前 loot 节点的最终结算，并把角色动作重置回空闲态
         /// </summary>
         private void FinalizeActiveLootNode(BoardNodeRuntimeState nodeState)
         {
+            BoardAgentState agentState = GetActiveInteractionAgentState();
+
             // 节点最终状态要根据节点类型分别落到各自的终态字段上，避免混用通用状态
             switch (nodeState.NodeType)
             {
@@ -365,17 +456,23 @@ namespace BoardGame.Runtime.Controllers
                     break;
             }
 
+            _sessionState.ActiveInteractionAgentId = string.Empty;
             _sessionState.ActiveLootNodeId = string.Empty;
             _sessionState.IsLootInteractionOpen = false;
             nodeState.ResetLootContainer();
 
-            BoardAgentState agentState = _sessionState.AgentState;
+            if (agentState == null)
+            {
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.Node(nodeState, "Finished searching");
+                return;
+            }
+
             agentState.CurrentActionType = BoardActionType.Idle;
             agentState.CurrentActionProgress = 0f;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionAccumulatorSeconds = 0f;
 
-            if (ShouldResumeRedirectPathAfterLoot())
+            if (ShouldResumeRedirectPathAfterLoot(agentState))
             {
                 agentState.AutonomousDecisionElapsedSeconds = 0f;
             }
@@ -386,7 +483,10 @@ namespace BoardGame.Runtime.Controllers
                 agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
             }
 
-            _sessionState.StatusMessage = $"Finished searching {nodeState.NodeId}";
+            _sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                agentState,
+                nodeState,
+                "Finished searching");
         }
 
         /// <summary>
@@ -394,16 +494,24 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         private void ResumeAfterLootInteraction(BoardNodeRuntimeState nodeState, string statusMessage)
         {
+            BoardAgentState agentState = GetActiveInteractionAgentState();
+
+            _sessionState.ActiveInteractionAgentId = string.Empty;
             _sessionState.ActiveLootNodeId = string.Empty;
             _sessionState.IsLootInteractionOpen = false;
 
-            BoardAgentState agentState = _sessionState.AgentState;
+            if (agentState == null)
+            {
+                _sessionState.StatusMessage = BoardGameStatusMessageUtility.Node(nodeState, statusMessage);
+                return;
+            }
+
             agentState.CurrentActionType = BoardActionType.Idle;
             agentState.CurrentActionProgress = 0f;
             agentState.CurrentActionDuration = 1f;
             agentState.CurrentActionAccumulatorSeconds = 0f;
 
-            if (ShouldResumeRedirectPathAfterLoot())
+            if (ShouldResumeRedirectPathAfterLoot(agentState))
             {
                 agentState.AutonomousDecisionElapsedSeconds = 0f;
             }
@@ -414,18 +522,30 @@ namespace BoardGame.Runtime.Controllers
                 agentState.AutonomousDecisionElapsedSeconds = _ruleSet.AutonomousRules.ReevaluateIntervalSeconds;
             }
 
-            _sessionState.StatusMessage = statusMessage;
+            _sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(agentState, nodeState, statusMessage);
         }
 
         /// <summary>
         /// 判断当前 loot 收口后是否应继续沿玩家指定的远点路径前进
         /// </summary>
-        private bool ShouldResumeRedirectPathAfterLoot()
+        private static bool ShouldResumeRedirectPathAfterLoot(BoardAgentState agentState)
         {
-            BoardAgentState agentState = _sessionState.AgentState;
+            if (agentState == null)
+            {
+                return false;
+            }
+
             return agentState.IntentSource == BoardIntentSource.PlayerRedirect &&
                    agentState.RemainingPathNodeIds.Count > 0 &&
                    !string.IsNullOrEmpty(agentState.CurrentTargetNodeId);
+        }
+
+        /// <summary>
+        /// 获取当前 loot 交互归属的 Agent
+        /// </summary>
+        private BoardAgentState GetActiveInteractionAgentState()
+        {
+            return _sessionState.GetActiveInteractionAgentState() ?? _sessionState.GetFocusedAgentState();
         }
 
         /// <summary>

@@ -22,6 +22,7 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public BoardInterruptEvaluation Evaluate(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             string targetNodeId)
         {
@@ -35,11 +36,9 @@ namespace BoardGame.Runtime.Services
                 return BoardInterruptEvaluation.Fail("The target node is invalid");
             }
 
-            BoardAgentState agentState = sessionState.AgentState;
-
-            if (sessionState.IsAwaitingLootInteraction)
+            if (sessionState.IsLootInteractionOpen)
             {
-                return BoardInterruptEvaluation.Fail("Target redirection is disabled while loot interaction is pending");
+                return BoardInterruptEvaluation.Fail("Target redirection is disabled while the loot panel is open");
             }
 
             if (agentState.CurrentActionType == BoardActionType.FightingBoss)

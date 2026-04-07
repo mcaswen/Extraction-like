@@ -33,11 +33,10 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public void TickCurrentNodeAction(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             float deltaTime)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (!_nodeActionHandlersByActionType.TryGetValue(agentState.CurrentActionType, out IBoardNodeActionHandler handler))
             {
                 return;
@@ -49,7 +48,7 @@ namespace BoardGame.Runtime.Services
                 return;
             }
 
-            handler.Tick(_nodeActionHandlerContext, sessionState, nodeState, deltaTime);
+            handler.Tick(_nodeActionHandlerContext, sessionState, agentState, nodeState, deltaTime);
         }
 
         /// <summary>
@@ -58,9 +57,10 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public bool TryBeginActionOnCurrentTargetNode(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
-            return TryBeginActionOnCurrentNode(sessionState, nodeStatesById, true);
+            return TryBeginActionOnCurrentNode(sessionState, agentState, nodeStatesById, true);
         }
 
         /// <summary>
@@ -69,10 +69,9 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public bool TryBeginActionOnVisitedRedirectNode(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (agentState.IntentSource != BoardIntentSource.PlayerRedirect ||
                 agentState.RemainingPathNodeIds.Count == 0)
             {
@@ -85,7 +84,7 @@ namespace BoardGame.Runtime.Services
                 return false;
             }
 
-            return TryBeginActionOnCurrentNode(sessionState, nodeStatesById, false);
+            return TryBeginActionOnCurrentNode(sessionState, agentState, nodeStatesById, false);
         }
 
         /// <summary>
@@ -94,14 +93,13 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         public void FinalizeCurrentActionForRedirect(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (_nodeActionHandlersByActionType.TryGetValue(agentState.CurrentActionType, out IBoardNodeActionHandler handler) &&
                 TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState))
             {
-                handler.FinalizeForRedirect(_nodeActionHandlerContext, sessionState, nodeState);
+                handler.FinalizeForRedirect(_nodeActionHandlerContext, sessionState, agentState, nodeState);
             }
 
             if (agentState.CurrentActionType != BoardActionType.Moving)
@@ -111,6 +109,7 @@ namespace BoardGame.Runtime.Services
             }
 
             agentState.CurrentActionAccumulatorSeconds = 0f;
+            ClearPendingLootInteractionForRedirect(sessionState, agentState);
         }
 
         /// <summary>
@@ -119,11 +118,10 @@ namespace BoardGame.Runtime.Services
         /// </summary>
         private bool TryBeginActionOnCurrentNode(
             BoardGameSessionState sessionState,
+            BoardAgentState agentState,
             IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById,
             bool requireCurrentTargetMatch)
         {
-            BoardAgentState agentState = sessionState.AgentState;
-
             if (string.IsNullOrEmpty(agentState.CurrentNodeId) ||
                 !nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState nodeState))
             {
@@ -137,7 +135,7 @@ namespace BoardGame.Runtime.Services
                 return false;
             }
 
-            if (TryBeginPendingLootInteraction(sessionState, nodeState))
+            if (TryBeginPendingLootInteraction(sessionState, agentState, nodeState))
             {
                 return true;
             }
@@ -147,24 +145,33 @@ namespace BoardGame.Runtime.Services
                 return false;
             }
 
-            return handler.TryBegin(_nodeActionHandlerContext, sessionState, nodeState);
+            return handler.TryBegin(_nodeActionHandlerContext, sessionState, agentState, nodeState);
         }
 
         /// <summary>
         /// 若节点上还有未收口的 loot，就先把状态机切回统一的 Searching 交互流程
         /// 这样节点动作和 loot 面板始终共享同一套完成度
         /// </summary>
-        private bool TryBeginPendingLootInteraction(BoardGameSessionState sessionState, BoardNodeRuntimeState nodeState)
+        private bool TryBeginPendingLootInteraction(
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            BoardNodeRuntimeState nodeState)
         {
             if (nodeState == null || !nodeState.HasPendingLootContainer() || !nodeState.HasRemainingLootItems())
             {
                 return false;
             }
 
-            BoardAgentState agentState = sessionState.AgentState;
+            if (_nodeActionHandlerContext.BagLayoutSettings.EnableBagSystem)
+            {
+                return false;
+            }
+
+            sessionState.ActiveInteractionAgentId = agentState.AgentId;
             bool bagSystemEnabled = _nodeActionHandlerContext.BagLayoutSettings.EnableBagSystem;
             sessionState.ActiveLootNodeId = nodeState.NodeId;
             sessionState.IsLootInteractionOpen = false;
+            sessionState.FocusedAgentId = agentState.AgentId;
             agentState.CurrentActionType = BoardActionType.Searching;
             agentState.CurrentActionDuration = bagSystemEnabled
                 ? 1f
@@ -181,11 +188,14 @@ namespace BoardGame.Runtime.Services
                     : BoardResourceStateType.Searching;
             }
 
-            sessionState.StatusMessage = bagSystemEnabled
-                ? nodeState.IsLootRevealComplete()
-                    ? $"Loot remains at {nodeState.NodeId}, press F to reopen"
-                    : $"Loot remains at {nodeState.NodeId}, press F to continue searching"
-                : GetBaglessLootStatus(nodeState);
+            sessionState.StatusMessage = BoardGameStatusMessageUtility.AgentAtNode(
+                agentState,
+                nodeState,
+                bagSystemEnabled
+                    ? (nodeState.IsLootRevealComplete()
+                        ? "Loot remains, press F to reopen"
+                        : "Loot remains, press F to continue searching")
+                    : GetBaglessLootStatus(nodeState));
             return true;
         }
 
@@ -234,6 +244,23 @@ namespace BoardGame.Runtime.Services
             nodeState = null;
             return !string.IsNullOrEmpty(agentState.CurrentNodeId) &&
                    nodeStatesById.TryGetValue(agentState.CurrentNodeId, out nodeState);
+        }
+
+        private static void ClearPendingLootInteractionForRedirect(
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState)
+        {
+            if (sessionState == null ||
+                agentState == null ||
+                sessionState.IsLootInteractionOpen ||
+                sessionState.ActiveInteractionAgentId != agentState.AgentId)
+            {
+                return;
+            }
+
+            sessionState.ActiveInteractionAgentId = string.Empty;
+            sessionState.ActiveLootNodeId = string.Empty;
+            sessionState.IsLootInteractionOpen = false;
         }
 
         /// <summary>

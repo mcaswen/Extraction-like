@@ -10,6 +10,9 @@ namespace BoardGame.Runtime.State
     [Serializable]
     public sealed class BoardAgentState
     {
+        [SerializeField] private string _agentId;
+        [SerializeField] private string _displayName = "Agent";
+        [SerializeField] private Color _agentColor = Color.white;
         [SerializeField] private string _currentNodeId;
         [SerializeField] private string _previousNodeId;
         [SerializeField] private string _currentTargetNodeId;
@@ -38,14 +41,46 @@ namespace BoardGame.Runtime.State
         [SerializeField] private float _currentEdgeTargetProgress01 = 1f;
 
         [SerializeField] private float _autonomousDecisionElapsedSeconds;
+        [SerializeField] private bool _isDownedPermanently;
+        [SerializeField] private float _extractProgressSeconds;
+        [SerializeField] private int _pendingLevelUpCount;
+        [SerializeField] private int _combatJoinStepIndex = -1;
 
-        public BoardAgentState(int maxHealth, int attack, int defense, float maxCapacity = 9f)
+        public BoardAgentState(
+            string agentId,
+            string displayName,
+            Color agentColor,
+            int maxHealth,
+            int attack,
+            int defense,
+            float maxCapacity = 9f)
         {
+            _agentId = agentId ?? string.Empty;
+            _displayName = string.IsNullOrEmpty(displayName) ? "Agent" : displayName;
+            _agentColor = agentColor;
             _currentHealth = maxHealth;
             _maxHealth = maxHealth;
             _attack = attack;
             _defense = defense;
             _inventoryState = new BoardInventoryState(maxCapacity);
+        }
+
+        public string AgentId
+        {
+            get => _agentId;
+            set => _agentId = value ?? string.Empty;
+        }
+
+        public string DisplayName
+        {
+            get => _displayName;
+            set => _displayName = string.IsNullOrEmpty(value) ? "Agent" : value;
+        }
+
+        public Color AgentColor
+        {
+            get => _agentColor;
+            set => _agentColor = value;
         }
 
         public string CurrentNodeId
@@ -196,8 +231,34 @@ namespace BoardGame.Runtime.State
             set => _autonomousDecisionElapsedSeconds = Mathf.Max(0f, value);
         }
 
+        public bool IsDownedPermanently
+        {
+            get => _isDownedPermanently;
+            set => _isDownedPermanently = value;
+        }
+
+        public float ExtractProgressSeconds
+        {
+            get => _extractProgressSeconds;
+            set => _extractProgressSeconds = Mathf.Max(0f, value);
+        }
+
+        public int PendingLevelUpCount
+        {
+            get => _pendingLevelUpCount;
+            set => _pendingLevelUpCount = Mathf.Max(0, value);
+        }
+
+        public int CombatJoinStepIndex
+        {
+            get => _combatJoinStepIndex;
+            set => _combatJoinStepIndex = value;
+        }
+
         public bool IsOnEdge => !string.IsNullOrEmpty(_currentEdgeId);
         public bool IsAlive => _currentHealth > 0;
+        public bool HasExtracted => _currentActionType == BoardActionType.Completed;
+        public bool IsFocusable => IsAlive || HasExtracted;
 
         /// <summary>
         /// 清空边上移动缓存，把角色状态收回到节点态
