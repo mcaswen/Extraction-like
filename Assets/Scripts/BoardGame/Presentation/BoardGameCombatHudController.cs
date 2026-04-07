@@ -94,6 +94,9 @@ namespace BoardGame.Presentation
         [SerializeField] private RectTransform _combatLogContainer;
         [SerializeField] private TextMeshProUGUI _combatLogTemplateText;
 
+        [Header("Floating Text")]
+        [SerializeField] private TextMeshProUGUI _floatingTextTemplateText;
+
         private readonly List<TMP_Text> _logLineTexts = new List<TMP_Text>();
         private readonly List<string> _logLines = new List<string>();
         private readonly List<FloatingCombatTextEntry> _floatingTextEntries = new List<FloatingCombatTextEntry>();
@@ -110,6 +113,7 @@ namespace BoardGame.Presentation
         private float _enemyDisplayedFill = 1f;
         private float _targetOverlayAlpha;
         private int _messageTemplateCursor;
+        private bool _isRuntimeUiInitialized;
 
         /// <summary>
         /// 绑定只读运行时查询，并准备运行时战斗 UI
@@ -345,8 +349,7 @@ namespace BoardGame.Presentation
             {
                 SpawnFloatingText(
                     _enemyWidgets != null ? _enemyWidgets.FloatingAnchor : null,
-                    $"-{enemyDamage}",
-                    new Color(1f, 0.83f, 0.29f, 0.98f));
+                    $"-{enemyDamage}");
                 AppendLogLine(BuildSquadAttackLog(nextSnapshot, enemyDamage));
             }
 
@@ -356,8 +359,7 @@ namespace BoardGame.Presentation
             {
                 SpawnFloatingText(
                     _friendlyWidgets != null ? _friendlyWidgets.FloatingAnchor : null,
-                    $"-{squadDamage}",
-                    new Color(1f, 0.39f, 0.35f, 0.98f));
+                    $"-{squadDamage}");
                 AppendLogLine(BuildEnemyAttackLog(nextSnapshot, squadDamage));
             }
 
@@ -367,8 +369,7 @@ namespace BoardGame.Presentation
             {
                 SpawnFloatingText(
                     _friendlyWidgets != null ? _friendlyWidgets.FloatingAnchor : null,
-                    $"+{squadHealing}",
-                    new Color(0.4f, 0.94f, 0.58f, 0.98f));
+                    $"+{squadHealing}");
                 AppendLogLine(BuildHealingLog(nextSnapshot, squadHealing));
             }
 
@@ -451,6 +452,16 @@ namespace BoardGame.Presentation
                 scaler.referenceResolution = new Vector2(1920f, 1080f);
             }
 
+            if (_floatingTextTemplateText != null && _floatingTextTemplateText.gameObject.activeSelf)
+            {
+                _floatingTextTemplateText.gameObject.SetActive(false);
+            }
+
+            if (_isRuntimeUiInitialized)
+            {
+                return;
+            }
+
             if (_overlayRoot == null)
             {
                 _overlayRoot = gameObject;
@@ -488,14 +499,7 @@ namespace BoardGame.Presentation
             if (HasManualUiBindings())
             {
                 BindManualUiReferences();
-                _overlayRoot.SetActive(false);
-                return;
-            }
-
-            if (_friendlyWidgets != null &&
-                _enemyWidgets != null &&
-                _logLineTexts.Count == MaxLogLineCount)
-            {
+                _isRuntimeUiInitialized = true;
                 _overlayRoot.SetActive(false);
                 return;
             }
@@ -646,6 +650,7 @@ namespace BoardGame.Presentation
                 }
             }
 
+            _isRuntimeUiInitialized = true;
             _overlayRoot.SetActive(false);
         }
 
@@ -1034,28 +1039,45 @@ namespace BoardGame.Presentation
             }
         }
 
-        private void SpawnFloatingText(RectTransform anchor, string valueText, Color color)
+        private void SpawnFloatingText(RectTransform anchor, string valueText)
         {
             if (anchor == null)
             {
                 return;
             }
 
-            TMP_Text floatingText = CreateText(
+            TMP_Text floatingText = CreateFloatingText(anchor);
+            RectTransform floatingRect = floatingText.rectTransform;
+            Color textColor = new Color(0f, 0f, 0f, 0.98f);
+            floatingRect.anchoredPosition = new Vector2(Random.Range(-44f, 44f), Random.Range(-18f, 18f));
+            floatingText.text = valueText;
+            floatingText.color = textColor;
+
+            _floatingTextEntries.Add(new FloatingCombatTextEntry(
+                floatingText,
+                floatingRect.anchoredPosition,
+                textColor));
+        }
+
+        private TMP_Text CreateFloatingText(RectTransform anchor)
+        {
+            if (_floatingTextTemplateText != null)
+            {
+                TextMeshProUGUI floatingText = Instantiate(_floatingTextTemplateText, anchor);
+                floatingText.gameObject.name = $"FloatingText_{_floatingTextEntries.Count + 1}";
+                floatingText.gameObject.SetActive(true);
+                floatingText.raycastTarget = false;
+                return floatingText;
+            }
+
+            return CreateText(
                 $"FloatingText_{_floatingTextEntries.Count + 1}",
                 anchor,
-                new Vector2(Random.Range(-44f, 44f), Random.Range(-18f, 18f)),
+                Vector2.zero,
                 new Vector2(160f, 34f),
                 28f,
                 FontStyles.Bold,
                 TextAlignmentOptions.Center);
-            floatingText.text = valueText;
-            floatingText.color = color;
-
-            _floatingTextEntries.Add(new FloatingCombatTextEntry(
-                floatingText,
-                floatingText.rectTransform.anchoredPosition,
-                color));
         }
 
         private void TickFloatingTexts(float deltaTime)

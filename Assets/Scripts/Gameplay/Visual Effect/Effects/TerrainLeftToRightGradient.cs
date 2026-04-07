@@ -21,28 +21,23 @@ public class TerrainLeftToRightGradient : MonoBehaviour
     private Terrain _terrain;
     private TerrainData _terrainData;
 
-    // 🔧 只修复报错，不改动逻辑
     private void OnValidate()
     {
-        _terrain = GetComponent<Terrain>();
-        if (_terrain != null)
-        {
-            _terrainData = _terrain.terrainData;
-        }
-
-        if (autoUpdate && Application.isEditor)
-        {
-            // 👇 这里加一行判断，直接防止报错（唯一修改点1）
-            if (_terrainData != null)
-                UpdateTerrainGradient();
-        }
+        CacheTerrainReferences();
     }
 
     private void Awake()
     {
+        CacheTerrainReferences();
+    }
+
+    private void CacheTerrainReferences()
+    {
         _terrain = GetComponent<Terrain>();
         if (_terrain != null)
+        {
             _terrainData = _terrain.terrainData;
+        }
     }
 
     /// <summary>
@@ -51,7 +46,7 @@ public class TerrainLeftToRightGradient : MonoBehaviour
     [ContextMenu("更新地形渐变")]
     public void UpdateTerrainGradient()
     {
-        // 👇 这里直接return，不执行报错代码（唯一修改点2）
+        CacheTerrainReferences();
         if (_terrainData == null) return;
 
         // 1. 获取地形高度图分辨率

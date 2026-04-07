@@ -6,17 +6,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-[InitializeOnLoad]
 public static class SceneLylSupportMigrator
 {
     private const string SourceScenePath = "Assets/Scenes/Scene_lyl.unity";
-    private static bool _autoImportScheduled;
-
-    static SceneLylSupportMigrator()
-    {
-        EditorSceneManager.sceneOpened += OnSceneOpened;
-        EditorApplication.delayCall += TryAutoImportCurrentScene;
-    }
 
     [MenuItem("Tools/Whitebox/Import Core Gameplay Support From Scene_lyl")]
     private static void ImportCoreGameplaySupportFromSceneLyl()
@@ -52,6 +44,11 @@ public static class SceneLylSupportMigrator
             return false;
         }
 
+        if (HasCoreGameplaySupport(targetScene))
+        {
+            return false;
+        }
+
         Scene sourceScene = EditorSceneManager.OpenScene(SourceScenePath, OpenSceneMode.Additive);
         try
         {
@@ -71,71 +68,6 @@ public static class SceneLylSupportMigrator
         }
     }
 
-    private static void OnSceneOpened(Scene scene, OpenSceneMode mode)
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-        {
-            return;
-        }
-
-        if (mode == OpenSceneMode.Additive && string.Equals(scene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        ScheduleAutoImport(scene);
-    }
-
-    private static void TryAutoImportCurrentScene()
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-        {
-            return;
-        }
-
-        ScheduleAutoImport(SceneManager.GetActiveScene());
-    }
-
-    private static void ScheduleAutoImport(Scene scene)
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-        {
-            return;
-        }
-
-        if (!scene.IsValid() || string.Equals(scene.path, SourceScenePath, System.StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        if (_autoImportScheduled)
-        {
-            return;
-        }
-
-        _autoImportScheduled = true;
-        EditorApplication.delayCall += () =>
-        {
-            _autoImportScheduled = false;
-            if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)
-            {
-                return;
-            }
-
-            if (!scene.IsValid())
-            {
-                return;
-            }
-
-            if (HasCoreGameplaySupport(scene))
-            {
-                return;
-            }
-
-            EnsureCoreGameplaySupport(scene);
-        };
-    }
-
     private static void ImportInventorySupport(Scene sourceScene, Scene targetScene)
     {
         InventoryScreenController sourceInventory = FindComponentInScene<InventoryScreenController>(sourceScene);
@@ -150,36 +82,29 @@ public static class SceneLylSupportMigrator
             return;
         }
 
-        if (targetInventory != null)
+        if (targetInventory == null)
         {
-            GameObject existingRoot = targetInventory.transform.root.gameObject;
-            if (existingRoot != null)
+            HashSet<GameObject> movedRoots = new HashSet<GameObject>();
+            MoveReferencedRoot(sourceInventory.gameObject, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.InventoryPanel != null ? sourceInventory.InventoryPanel.gameObject : null, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.PocketGrid != null ? sourceInventory.PocketGrid.gameObject : null, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.TacticalRigGrid != null ? sourceInventory.TacticalRigGrid.gameObject : null, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.BackpackGrid != null ? sourceInventory.BackpackGrid.gameObject : null, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.LootChestGrid != null ? sourceInventory.LootChestGrid.gameObject : null, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.RigSlot != null ? sourceInventory.RigSlot.gameObject : null, targetScene, movedRoots);
+            MoveReferencedRoot(sourceInventory.BackpackSlot != null ? sourceInventory.BackpackSlot.gameObject : null, targetScene, movedRoots);
+
+            InventoryItemFactory sourceFactory = sourceInventory.GetComponent<InventoryItemFactory>();
+            if (sourceFactory != null && sourceFactory.GlobalDragLayer != null)
             {
-                Undo.DestroyObjectImmediate(existingRoot);
+                MoveReferencedRoot(sourceFactory.GlobalDragLayer.gameObject, targetScene, movedRoots);
             }
-            targetInventory = null;
-        }
 
-        HashSet<GameObject> movedRoots = new HashSet<GameObject>();
-        MoveReferencedRoot(sourceInventory.gameObject, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.InventoryPanel != null ? sourceInventory.InventoryPanel.gameObject : null, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.PocketGrid != null ? sourceInventory.PocketGrid.gameObject : null, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.TacticalRigGrid != null ? sourceInventory.TacticalRigGrid.gameObject : null, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.BackpackGrid != null ? sourceInventory.BackpackGrid.gameObject : null, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.LootChestGrid != null ? sourceInventory.LootChestGrid.gameObject : null, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.RigSlot != null ? sourceInventory.RigSlot.gameObject : null, targetScene, movedRoots);
-        MoveReferencedRoot(sourceInventory.BackpackSlot != null ? sourceInventory.BackpackSlot.gameObject : null, targetScene, movedRoots);
-
-        InventoryItemFactory sourceFactory = sourceInventory.GetComponent<InventoryItemFactory>();
-        if (sourceFactory != null && sourceFactory.GlobalDragLayer != null)
-        {
-            MoveReferencedRoot(sourceFactory.GlobalDragLayer.gameObject, targetScene, movedRoots);
-        }
-
-        targetInventory = FindComponentInScene<InventoryScreenController>(targetScene);
-        if (targetInventory == null && sourceInventory.gameObject.scene == targetScene)
-        {
-            targetInventory = sourceInventory;
+            targetInventory = FindComponentInScene<InventoryScreenController>(targetScene);
+            if (targetInventory == null && sourceInventory.gameObject.scene == targetScene)
+            {
+                targetInventory = sourceInventory;
+            }
         }
 
         if (targetInventory != null)
@@ -192,13 +117,15 @@ public static class SceneLylSupportMigrator
     private static void ImportPromptSupport(Scene sourceScene, Scene targetScene)
     {
         GameObject sourceFloatingPrompt = FindRootByName(sourceScene, "FloatingPrompt");
+        bool importedFloatingPrompt = false;
         if (sourceFloatingPrompt != null && FindRootByName(targetScene, "FloatingPrompt") == null)
         {
             MoveRootToScene(sourceFloatingPrompt, targetScene);
+            importedFloatingPrompt = true;
         }
 
         GameObject targetFloatingPrompt = FindRootByName(targetScene, "FloatingPrompt");
-        if (targetFloatingPrompt != null)
+        if (importedFloatingPrompt && targetFloatingPrompt != null)
         {
             targetFloatingPrompt.SetActive(false);
         }
@@ -239,24 +166,18 @@ public static class SceneLylSupportMigrator
         else if (sourceFollow != null)
         {
             CameraFollowController targetFollow = targetCamera.GetComponent<CameraFollowController>();
+            bool createdFollow = false;
             if (targetFollow == null)
             {
                 targetFollow = Undo.AddComponent<CameraFollowController>(targetCamera.gameObject);
+                createdFollow = true;
             }
 
-            targetFollow.Offset = sourceFollow.Offset;
-            targetFollow.SmoothSpeed = sourceFollow.SmoothSpeed;
-            targetFollow.TargetTransform = targetPlayer != null ? targetPlayer.transform : null;
-
-            targetCamera.transform.position = sourceCamera.transform.position;
-            targetCamera.transform.rotation = sourceCamera.transform.rotation;
-            targetCamera.orthographic = sourceCamera.orthographic;
-            targetCamera.orthographicSize = sourceCamera.orthographicSize;
-            targetCamera.fieldOfView = sourceCamera.fieldOfView;
-            targetCamera.nearClipPlane = sourceCamera.nearClipPlane;
-            targetCamera.farClipPlane = sourceCamera.farClipPlane;
-            targetCamera.clearFlags = sourceCamera.clearFlags;
-            targetCamera.backgroundColor = sourceCamera.backgroundColor;
+            if (createdFollow)
+            {
+                targetFollow.Offset = sourceFollow.Offset;
+                targetFollow.SmoothSpeed = sourceFollow.SmoothSpeed;
+            }
         }
 
         if (targetCamera != null && targetPlayer != null)
@@ -279,12 +200,14 @@ public static class SceneLylSupportMigrator
 
         PlayerInteraction targetInteraction = targetPlayer.GetComponent<PlayerInteraction>();
         PlayerInteraction sourceInteraction = FindComponentInScene<PlayerInteraction>(sourceScene);
+        bool createdInteraction = false;
         if (targetInteraction == null)
         {
             targetInteraction = Undo.AddComponent<PlayerInteraction>(targetPlayer);
+            createdInteraction = true;
         }
 
-        if (sourceInteraction != null)
+        if (createdInteraction && sourceInteraction != null)
         {
             targetInteraction.InteractionRadius = sourceInteraction.InteractionRadius;
             targetInteraction.InteractableLayer = sourceInteraction.InteractableLayer;
@@ -294,34 +217,53 @@ public static class SceneLylSupportMigrator
         GameObject floatingPrompt = FindRootByName(targetScene, "FloatingPrompt");
         if (floatingPrompt != null)
         {
-            targetInteraction.FloatingPromptUI = floatingPrompt.GetComponent<RectTransform>();
-            targetInteraction.PromptText = floatingPrompt.GetComponentInChildren<Text>(true);
+            if (!IsSceneComponentReferenceValid(targetInteraction.FloatingPromptUI, targetScene))
+            {
+                targetInteraction.FloatingPromptUI = floatingPrompt.GetComponent<RectTransform>();
+            }
+
+            if (!IsSceneComponentReferenceValid(targetInteraction.PromptText, targetScene))
+            {
+                targetInteraction.PromptText = floatingPrompt.GetComponentInChildren<Text>(true);
+            }
         }
     }
 
     private static void EnsureRuntimeBinderConfigured(Scene targetScene)
     {
         SceneRuntimePlayerBinder binder = FindComponentInScene<SceneRuntimePlayerBinder>(targetScene);
+        bool createdBinder = false;
         if (binder == null)
         {
             GameObject binderObject = new GameObject("SceneRuntimePlayerBinder");
             Undo.RegisterCreatedObjectUndo(binderObject, "Create Scene Runtime Player Binder");
             EditorSceneManager.MoveGameObjectToScene(binderObject, targetScene);
             binder = binderObject.AddComponent<SceneRuntimePlayerBinder>();
+            createdBinder = true;
         }
 
         GameObject floatingPrompt = FindRootByName(targetScene, "FloatingPrompt");
         if (floatingPrompt != null)
         {
-            binder.FloatingPromptUI = floatingPrompt.GetComponent<RectTransform>();
-            binder.FloatingPromptText = floatingPrompt.GetComponentInChildren<Text>(true);
-            floatingPrompt.SetActive(false);
+            if (createdBinder || !IsSceneComponentReferenceValid(binder.FloatingPromptUI, targetScene))
+            {
+                binder.FloatingPromptUI = floatingPrompt.GetComponent<RectTransform>();
+            }
+
+            if (createdBinder || !IsSceneComponentReferenceValid(binder.FloatingPromptText, targetScene))
+            {
+                binder.FloatingPromptText = floatingPrompt.GetComponentInChildren<Text>(true);
+            }
         }
 
         Camera targetCamera = FindCameraWithFollow(targetScene);
         if (targetCamera != null)
         {
-            binder.CameraFollow = targetCamera.GetComponent<CameraFollowController>();
+            CameraFollowController targetFollow = targetCamera.GetComponent<CameraFollowController>();
+            if (createdBinder || !IsSceneComponentReferenceValid(binder.CameraFollow, targetScene))
+            {
+                binder.CameraFollow = targetFollow;
+            }
         }
     }
 
@@ -477,25 +419,51 @@ public static class SceneLylSupportMigrator
         InventoryUIController[] grids = Resources.FindObjectsOfTypeAll<InventoryUIController>();
         EquipmentSlotUI[] slots = Resources.FindObjectsOfTypeAll<EquipmentSlotUI>();
 
-        controller.InventoryPanel = FindSceneObjectByName(targetScene, "LeftPanel");
-        controller.PocketGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "PocketGrid");
-        controller.TacticalRigGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "RigInternalGrid");
-        if (controller.TacticalRigGrid == null)
+        if (!IsSceneObjectReferenceValid(controller.InventoryPanel, targetScene))
         {
-            controller.TacticalRigGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "TacticalRigGrid");
+            controller.InventoryPanel = FindSceneObjectByName(targetScene, "LeftPanel");
         }
 
-        controller.BackpackGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "BackpackGrid");
-        controller.LootChestGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "LootChestPanel");
+        if (!IsSceneComponentReferenceValid(controller.PocketGrid, targetScene))
+        {
+            controller.PocketGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "PocketGrid");
+        }
+
+        if (!IsSceneComponentReferenceValid(controller.TacticalRigGrid, targetScene))
+        {
+            controller.TacticalRigGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "RigInternalGrid");
+            if (controller.TacticalRigGrid == null)
+            {
+                controller.TacticalRigGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "TacticalRigGrid");
+            }
+        }
+
+        if (!IsSceneComponentReferenceValid(controller.BackpackGrid, targetScene))
+        {
+            controller.BackpackGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "BackpackGrid");
+        }
+
+        if (!IsSceneComponentReferenceValid(controller.LootChestGrid, targetScene))
+        {
+            controller.LootChestGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "LootChestPanel");
+        }
         if (controller.LootChestGrid == null)
         {
             controller.LootChestGrid = FindSceneComponentByName<InventoryUIController>(targetScene, grids, "LootChestGrid");
         }
-        controller.RigSlot = FindSceneComponentByName<EquipmentSlotUI>(targetScene, slots, "RigSlot");
-        controller.BackpackSlot = FindSceneComponentByName<EquipmentSlotUI>(targetScene, slots, "BackpackSlot");
+
+        if (!IsSceneComponentReferenceValid(controller.RigSlot, targetScene))
+        {
+            controller.RigSlot = FindSceneComponentByName<EquipmentSlotUI>(targetScene, slots, "RigSlot");
+        }
+
+        if (!IsSceneComponentReferenceValid(controller.BackpackSlot, targetScene))
+        {
+            controller.BackpackSlot = FindSceneComponentByName<EquipmentSlotUI>(targetScene, slots, "BackpackSlot");
+        }
 
         InventoryItemFactory inventoryItemFactory = controller.GetComponent<InventoryItemFactory>();
-        if (inventoryItemFactory != null)
+        if (inventoryItemFactory != null && !IsSceneComponentReferenceValid(inventoryItemFactory.GlobalDragLayer, targetScene))
         {
             GameObject globalDragLayer = FindSceneObjectByName(targetScene, "GlobalDragLayer");
             if (globalDragLayer != null)
@@ -551,5 +519,15 @@ public static class SceneLylSupportMigrator
         }
 
         return null;
+    }
+
+    private static bool IsSceneObjectReferenceValid(GameObject reference, Scene targetScene)
+    {
+        return reference != null && reference.scene == targetScene;
+    }
+
+    private static bool IsSceneComponentReferenceValid<T>(T reference, Scene targetScene) where T : Component
+    {
+        return reference != null && reference.gameObject.scene == targetScene;
     }
 }
