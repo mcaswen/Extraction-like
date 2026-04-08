@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System;
 using BoardGame.Runtime;
 using BoardGame.Runtime.Controllers;
 using BoardGame.Runtime.State;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 namespace BoardGame.Presentation
 {
@@ -705,6 +707,9 @@ namespace BoardGame.Presentation
 
         private void BindManualUiReferences()
         {
+            _friendlyHealthFillImage = ResolveManualHealthFillImage(_friendlyHealthFillImage);
+            _enemyHealthFillImage = ResolveManualHealthFillImage(_enemyHealthFillImage);
+
             _friendlyWidgets = new CombatSideWidgets(
                 _friendlyTitleText,
                 _friendlySubtitleText,
@@ -712,6 +717,8 @@ namespace BoardGame.Presentation
                 _friendlyAttackText,
                 _friendlyDefenseText,
                 _friendlyHealthFillImage,
+                ResolveHealthFillBaseSize(_friendlyHealthFillImage),
+                ResolveHealthFillLeftEdge(_friendlyHealthFillImage),
                 _friendlyFloatingAnchor);
 
             _enemyWidgets = new CombatSideWidgets(
@@ -721,9 +728,82 @@ namespace BoardGame.Presentation
                 _enemyAttackText,
                 _enemyDefenseText,
                 _enemyHealthFillImage,
+                ResolveHealthFillBaseSize(_enemyHealthFillImage),
+                ResolveHealthFillLeftEdge(_enemyHealthFillImage),
                 _enemyFloatingAnchor);
 
             EnsureManualLogTexts();
+        }
+
+        private static Image ResolveManualHealthFillImage(Image assignedImage)
+        {
+            if (assignedImage == null)
+            {
+                return null;
+            }
+
+            Transform searchRoot = assignedImage.transform.parent;
+
+            if (searchRoot != null)
+            {
+                Image namedFillImage = null;
+
+                foreach (Image candidateImage in searchRoot.GetComponentsInChildren<Image>(true))
+                {
+                    if (candidateImage == null)
+                    {
+                        continue;
+                    }
+
+                    if (candidateImage.name.IndexOf("fill", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        namedFillImage = candidateImage;
+                        break;
+                    }
+                }
+
+                if (namedFillImage != null)
+                {
+                    assignedImage = namedFillImage;
+                }
+            }
+
+            return assignedImage;
+        }
+
+        private static Vector2 ResolveHealthFillBaseSize(Image healthFillImage)
+        {
+            if (healthFillImage == null || healthFillImage.rectTransform == null)
+            {
+                return Vector2.zero;
+            }
+
+            RectTransform rectTransform = healthFillImage.rectTransform;
+            Vector2 sizeDelta = rectTransform.sizeDelta;
+
+            if (sizeDelta.x <= Mathf.Epsilon)
+            {
+                sizeDelta.x = rectTransform.rect.width;
+            }
+
+            if (sizeDelta.y <= Mathf.Epsilon)
+            {
+                sizeDelta.y = rectTransform.rect.height;
+            }
+
+            return sizeDelta;
+        }
+
+        private static float ResolveHealthFillLeftEdge(Image healthFillImage)
+        {
+            if (healthFillImage == null || healthFillImage.rectTransform == null)
+            {
+                return 0f;
+            }
+
+            RectTransform rectTransform = healthFillImage.rectTransform;
+            Vector2 baseSize = ResolveHealthFillBaseSize(healthFillImage);
+            return rectTransform.anchoredPosition.x - (baseSize.x * rectTransform.pivot.x);
         }
 
         private void EnsureManualLogTexts()
@@ -941,6 +1021,8 @@ namespace BoardGame.Presentation
                 attackText,
                 defenseText,
                 healthFillImage,
+                ResolveHealthFillBaseSize(healthFillImage),
+                ResolveHealthFillLeftEdge(healthFillImage),
                 floatingAnchorRect);
         }
 
@@ -1124,15 +1206,8 @@ namespace BoardGame.Presentation
             _friendlyDisplayedFill = Mathf.MoveTowards(_friendlyDisplayedFill, friendlyTarget, deltaTime * ImmediateFillSpeed);
             _enemyDisplayedFill = Mathf.MoveTowards(_enemyDisplayedFill, enemyTarget, deltaTime * ImmediateFillSpeed);
 
-            if (_friendlyWidgets != null && _friendlyWidgets.HealthFillImage != null)
-            {
-                _friendlyWidgets.HealthFillImage.fillAmount = _friendlyDisplayedFill;
-            }
-
-            if (_enemyWidgets != null && _enemyWidgets.HealthFillImage != null)
-            {
-                _enemyWidgets.HealthFillImage.fillAmount = _enemyDisplayedFill;
-            }
+            ApplyHealthFillAmount(_friendlyWidgets, _friendlyDisplayedFill);
+            ApplyHealthFillAmount(_enemyWidgets, _enemyDisplayedFill);
         }
 
         private void ResetDisplayedHealth(CombatSnapshot snapshot)
@@ -1145,15 +1220,43 @@ namespace BoardGame.Presentation
             _friendlyDisplayedFill = snapshot.SquadCurrentHealth01;
             _enemyDisplayedFill = snapshot.EnemyCurrentHealth01;
 
-            if (_friendlyWidgets != null && _friendlyWidgets.HealthFillImage != null)
+            ApplyHealthFillAmount(_friendlyWidgets, _friendlyDisplayedFill);
+            ApplyHealthFillAmount(_enemyWidgets, _enemyDisplayedFill);
+        }
+
+        private static void ApplyHealthFillAmount(CombatSideWidgets widgets, float fillAmount)
+        {
+            if (widgets == null || widgets.HealthFillImage == null)
             {
-                _friendlyWidgets.HealthFillImage.fillAmount = _friendlyDisplayedFill;
+                return;
             }
 
-            if (_enemyWidgets != null && _enemyWidgets.HealthFillImage != null)
+            Image healthFillImage = widgets.HealthFillImage;
+            float clampedFillAmount = Mathf.Clamp01(fillAmount);
+
+            if (healthFillImage.type == Image.Type.Filled)
             {
-                _enemyWidgets.HealthFillImage.fillAmount = _enemyDisplayedFill;
+                healthFillImage.fillAmount = clampedFillAmount;
+                return;
             }
+
+            RectTransform rectTransform = healthFillImage.rectTransform;
+
+            if (rectTransform == null)
+            {
+                return;
+            }
+
+            Vector2 baseSize = widgets.HealthFillBaseSize;
+
+            if (baseSize.x <= Mathf.Epsilon)
+            {
+                baseSize = new Vector2(Mathf.Max(1f, rectTransform.rect.width), rectTransform.sizeDelta.y);
+            }
+
+            rectTransform.pivot = new Vector2(0f, rectTransform.pivot.y);
+            rectTransform.sizeDelta = new Vector2(baseSize.x * clampedFillAmount, baseSize.y);
+            rectTransform.anchoredPosition = new Vector2(widgets.HealthFillLeftEdge, rectTransform.anchoredPosition.y);
         }
 
         private void SpawnFloatingText(RectTransform anchor, string valueText)
@@ -1369,6 +1472,8 @@ namespace BoardGame.Presentation
                 TMP_Text attackText,
                 TMP_Text defenseText,
                 Image healthFillImage,
+                Vector2 healthFillBaseSize,
+                float healthFillLeftEdge,
                 RectTransform floatingAnchor)
             {
                 TitleText = titleText;
@@ -1377,6 +1482,8 @@ namespace BoardGame.Presentation
                 AttackText = attackText;
                 DefenseText = defenseText;
                 HealthFillImage = healthFillImage;
+                HealthFillBaseSize = healthFillBaseSize;
+                HealthFillLeftEdge = healthFillLeftEdge;
                 FloatingAnchor = floatingAnchor;
             }
 
@@ -1386,6 +1493,8 @@ namespace BoardGame.Presentation
             public TMP_Text AttackText { get; }
             public TMP_Text DefenseText { get; }
             public Image HealthFillImage { get; }
+            public Vector2 HealthFillBaseSize { get; }
+            public float HealthFillLeftEdge { get; }
             public RectTransform FloatingAnchor { get; }
         }
 
