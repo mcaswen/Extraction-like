@@ -42,6 +42,17 @@ namespace BoardGame.Runtime.Controllers
         {
             List<BoardNodeRuntimeState> nodeStates = BuildNodeStates(nodeStatesById);
             List<BoardAgentState> agentStates = BuildAgentStates();
+
+            foreach (BoardAgentState agentState in agentStates)
+            {
+                if (agentState != null &&
+                    !string.IsNullOrEmpty(agentState.CurrentNodeId) &&
+                    nodeStatesById.TryGetValue(agentState.CurrentNodeId, out BoardNodeRuntimeState startNodeState))
+                {
+                    startNodeState.MarkExplored();
+                }
+            }
+
             return new BoardGameSessionState(_mapDefinition.MapId, agentStates, nodeStates);
         }
 
