@@ -46,6 +46,7 @@ namespace BoardGame.Runtime.Controllers
 
             _sessionState.EnsureConsistentReferences();
             _progressionController.SyncDisabledState();
+            _progressionController.SyncFocusedPendingChoices();
 
             if (_sessionState.IsAwaitingLevelUpChoice)
             {

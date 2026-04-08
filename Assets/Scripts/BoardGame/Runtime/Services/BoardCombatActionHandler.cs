@@ -151,7 +151,6 @@ namespace BoardGame.Runtime.Services
                 sessionState.ActiveInteractionAgentId = lootInteractionOwner != null ? lootInteractionOwner.AgentId : string.Empty;
                 sessionState.ActiveLootNodeId = nodeState.NodeId;
                 sessionState.IsLootInteractionOpen = false;
-                sessionState.FocusedAgentId = lootInteractionOwner != null ? lootInteractionOwner.AgentId : sessionState.FocusedAgentId;
 
                 if (lootInteractionOwner != null)
                 {

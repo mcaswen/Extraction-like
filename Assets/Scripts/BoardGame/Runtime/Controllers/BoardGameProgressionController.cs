@@ -33,6 +33,16 @@ namespace BoardGame.Runtime.Controllers
             _progressionService.SetConfiguredChoiceTypes(configuredChoiceTypes);
         }
 
+        public void SyncFocusedPendingChoices()
+        {
+            if (!_isFeatureEnabled)
+            {
+                return;
+            }
+
+            _progressionService.SyncFocusedPendingChoices(_sessionState);
+        }
+
         /// <summary>
         /// 在升级系统关闭时，清空历史遗留的待选状态
         /// </summary>

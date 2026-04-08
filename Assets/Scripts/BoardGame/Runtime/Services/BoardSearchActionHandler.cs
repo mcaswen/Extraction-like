@@ -73,7 +73,6 @@ namespace BoardGame.Runtime.Services
             sessionState.ActiveInteractionAgentId = agentState.AgentId;
             sessionState.ActiveLootNodeId = nodeState.NodeId;
             sessionState.IsLootInteractionOpen = false;
-            sessionState.FocusedAgentId = agentState.AgentId;
             agentState.CurrentActionType = BoardActionType.Searching;
             agentState.CurrentActionDuration = bagSystemEnabled
                 ? 1f

@@ -169,14 +169,15 @@ namespace BoardGame.Runtime.Services
             }
 
             sessionState.ActiveLevelUpAgentId = string.Empty;
+            sessionState.PendingLevelUpChoices.Clear();
 
-            if (TryRollPendingChoices(sessionState, null))
+            BoardAgentState nextPendingAgentState = ResolvePendingLevelUpAgent(sessionState, null);
+
+            if (nextPendingAgentState != null)
             {
-                BoardAgentState nextAgentState = sessionState.GetActiveLevelUpAgentState();
-                string nextAgentLabel = nextAgentState != null ? nextAgentState.DisplayName : "another AI";
                 message = BoardGameStatusMessageUtility.Agent(
                     activeAgentState,
-                    $"Applied {choice.DisplayLabel}. {nextAgentLabel} now has a pending upgrade");
+                    $"Applied {choice.DisplayLabel}. Another AI has a pending upgrade");
                 sessionState.StatusMessage = message;
                 return true;
             }
@@ -184,6 +185,33 @@ namespace BoardGame.Runtime.Services
             message = BoardGameStatusMessageUtility.Agent(activeAgentState, $"Applied {choice.DisplayLabel}");
             sessionState.StatusMessage = message;
             return true;
+        }
+
+        public void SyncFocusedPendingChoices(BoardGameSessionState sessionState)
+        {
+            if (!IsEnabled || sessionState == null)
+            {
+                return;
+            }
+
+            if (sessionState.IsAwaitingLevelUpChoice)
+            {
+                return;
+            }
+
+            BoardAgentState focusedAgentState = sessionState.GetFocusedAgentState();
+
+            if (focusedAgentState == null || focusedAgentState.PendingLevelUpCount <= 0)
+            {
+                return;
+            }
+
+            if (TryRollPendingChoices(sessionState, focusedAgentState))
+            {
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(
+                    focusedAgentState,
+                    "Choose an upgrade");
+            }
         }
 
         private BoardExperienceGrantResult GrantExperience(
@@ -210,7 +238,9 @@ namespace BoardGame.Runtime.Services
                 result.LevelsGained += 1;
             }
 
-            if (agentState.PendingLevelUpCount > 0 && !sessionState.IsAwaitingLevelUpChoice)
+            if (agentState.PendingLevelUpCount > 0 &&
+                !sessionState.IsAwaitingLevelUpChoice &&
+                sessionState.GetFocusedAgentState()?.AgentId == agentState.AgentId)
             {
                 result.TriggeredLevelUpChoice = TryRollPendingChoices(sessionState, agentState);
             }
@@ -241,7 +271,6 @@ namespace BoardGame.Runtime.Services
             }
 
             sessionState.ActiveLevelUpAgentId = agentState.AgentId;
-            sessionState.FocusedAgentId = agentState.AgentId;
 
             if (_configuredChoiceTypes.Count > 0)
             {

@@ -21,6 +21,7 @@ namespace BoardGame.Presentation
         private const float ImmediateFillSpeed = 10f;
         private const float FloatingTextLifetimeSeconds = 1.1f;
         private const float FloatingTextRiseSpeed = 54f;
+        private const float ResolvedEncounterHoldSeconds = 1f;
         private static readonly Color CombatTextColor = new Color(0f, 0f, 0f, 0.98f);
 
         private static readonly string[] SquadAttackTemplates =
@@ -116,10 +117,13 @@ namespace BoardGame.Presentation
         private float _friendlyDisplayedFill = 1f;
         private float _enemyDisplayedFill = 1f;
         private float _targetOverlayAlpha;
+        private float _resolvedEncounterHoldRemainingSeconds;
         private int _messageTemplateCursor;
         private int _floatingTextSequenceId;
         private bool _isFeatureEnabled = true;
         private bool _isRuntimeUiInitialized;
+        private string _activeResolvedEncounterKey = string.Empty;
+        private string _consumedResolvedEncounterKey = string.Empty;
 
         /// <summary>
         /// 绑定只读运行时查询，并准备运行时战斗 UI
@@ -160,6 +164,8 @@ namespace BoardGame.Presentation
             _currentSnapshot = null;
             _activeEncounterKey = string.Empty;
             _targetOverlayAlpha = 0f;
+            _resolvedEncounterHoldRemainingSeconds = 0f;
+            _activeResolvedEncounterKey = string.Empty;
 
             if (_overlayCanvasGroup != null)
             {
@@ -191,6 +197,7 @@ namespace BoardGame.Presentation
             }
 
             float deltaTime = Time.unscaledDeltaTime;
+            TickResolvedEncounterHold(deltaTime);
             TickOverlayVisibility(deltaTime);
             TickHealthBarAnimation(deltaTime);
             TickFloatingTexts(deltaTime);
@@ -209,6 +216,13 @@ namespace BoardGame.Presentation
             EnsureRuntimeUi();
 
             CombatSnapshot nextSnapshot = BuildFocusedCombatSnapshot();
+            bool isResolvedEncounterHoldSnapshot = false;
+
+            if (nextSnapshot == null)
+            {
+                nextSnapshot = BuildResolvedEncounterHoldSnapshot();
+                isResolvedEncounterHoldSnapshot = nextSnapshot != null;
+            }
 
             if (nextSnapshot == null)
             {
@@ -216,6 +230,16 @@ namespace BoardGame.Presentation
                 _activeEncounterKey = string.Empty;
                 _targetOverlayAlpha = 0f;
                 return;
+            }
+
+            if (isResolvedEncounterHoldSnapshot)
+            {
+                BeginOrRefreshResolvedEncounterHold(nextSnapshot.EncounterKey);
+            }
+            else
+            {
+                _resolvedEncounterHoldRemainingSeconds = 0f;
+                _activeResolvedEncounterKey = string.Empty;
             }
 
             if (_overlayRoot != null && !_overlayRoot.activeSelf)
@@ -245,6 +269,164 @@ namespace BoardGame.Presentation
             _activeEncounterKey = nextSnapshot.EncounterKey;
             _currentSnapshot = nextSnapshot;
             ApplySnapshotToUi(nextSnapshot);
+        }
+
+        private CombatSnapshot BuildResolvedEncounterHoldSnapshot()
+        {
+            if (_currentSnapshot == null)
+            {
+                return null;
+            }
+
+            bool isContinuingActiveHold =
+                _activeResolvedEncounterKey == _currentSnapshot.EncounterKey &&
+                _resolvedEncounterHoldRemainingSeconds > 0f;
+            bool canStartNewHold =
+                string.IsNullOrEmpty(_activeResolvedEncounterKey) &&
+                _currentSnapshot.EncounterKey != _consumedResolvedEncounterKey;
+
+            if (!isContinuingActiveHold && !canStartNewHold)
+            {
+                return null;
+            }
+
+            BoardNodeRuntimeState nodeState = _runtimeQueryController.GetNodeState(_currentSnapshot.NodeId);
+
+            if (nodeState == null || !IsEncounterResolved(nodeState, _currentSnapshot.IsBoss))
+            {
+                return null;
+            }
+
+            return BuildEncounterSnapshotFromNodeState(nodeState, _currentSnapshot.IsBoss);
+        }
+
+        private CombatSnapshot BuildEncounterSnapshotFromNodeState(BoardNodeRuntimeState nodeState, bool isBoss)
+        {
+            if (nodeState == null)
+            {
+                return null;
+            }
+
+            List<string> participantNames = new List<string>();
+            List<string> aliveParticipantNames = new List<string>();
+            int squadCurrentHealth = 0;
+            int squadMaxHealth = 0;
+            int squadAttack = 0;
+            int squadDefenseTotal = 0;
+            int squadTotalCount = 0;
+            int squadAliveCount = 0;
+
+            IReadOnlyList<BoardAgentState> agentStates = _runtimeQueryController.GetAgentStates();
+
+            for (int index = 0; index < agentStates.Count; index++)
+            {
+                BoardAgentState agentState = agentStates[index];
+
+                if (agentState == null ||
+                    agentState.HasExtracted ||
+                    agentState.CurrentNodeId != nodeState.NodeId)
+                {
+                    continue;
+                }
+
+                squadTotalCount++;
+                participantNames.Add(agentState.DisplayName);
+                squadCurrentHealth += agentState.CurrentHealth;
+                squadMaxHealth += agentState.MaxHealth;
+
+                if (!agentState.IsAlive)
+                {
+                    continue;
+                }
+
+                squadAliveCount++;
+                squadAttack += agentState.Attack;
+                squadDefenseTotal += agentState.Defense;
+                aliveParticipantNames.Add(agentState.DisplayName);
+            }
+
+            if (squadTotalCount <= 0)
+            {
+                return null;
+            }
+
+            int squadDefenseAverage = squadAliveCount > 0
+                ? Mathf.RoundToInt((float)squadDefenseTotal / squadAliveCount)
+                : 0;
+            int enemyCurrentHealth = isBoss ? nodeState.BossCurrentHealth : nodeState.EnemyCurrentHealth;
+            int enemyMaxHealth = Mathf.Max(1, isBoss ? nodeState.BossMaxHealth : nodeState.EnemyMaxHealth);
+            int enemyAttack = isBoss ? nodeState.BossAttack : nodeState.EnemyAttack;
+            int enemyDefense = isBoss ? nodeState.BossDefense : nodeState.EnemyDefense;
+            string enemyLabel = isBoss
+                ? "Boss Target"
+                : $"{BoardGameTypes.GetDangerLabel(nodeState.DangerTier)} Threat Hostile";
+            string rosterText = participantNames.Count > 0
+                ? $"Squad online: {string.Join(" / ", participantNames)}"
+                : "Squad online";
+
+            return new CombatSnapshot(
+                $"{nodeState.NodeId}_{(isBoss ? "boss" : "enemy")}",
+                nodeState.NodeId,
+                isBoss,
+                rosterText,
+                squadCurrentHealth,
+                Mathf.Max(1, squadMaxHealth),
+                squadAttack,
+                squadDefenseAverage,
+                squadTotalCount,
+                squadAliveCount,
+                enemyCurrentHealth,
+                enemyMaxHealth,
+                enemyAttack,
+                enemyDefense,
+                enemyLabel,
+                participantNames,
+                aliveParticipantNames);
+        }
+
+        private void BeginOrRefreshResolvedEncounterHold(string encounterKey)
+        {
+            if (string.IsNullOrEmpty(encounterKey))
+            {
+                return;
+            }
+
+            if (_activeResolvedEncounterKey != encounterKey)
+            {
+                _activeResolvedEncounterKey = encounterKey;
+                _resolvedEncounterHoldRemainingSeconds = ResolvedEncounterHoldSeconds;
+            }
+        }
+
+        private void TickResolvedEncounterHold(float deltaTime)
+        {
+            if (string.IsNullOrEmpty(_activeResolvedEncounterKey) || _resolvedEncounterHoldRemainingSeconds <= 0f)
+            {
+                return;
+            }
+
+            _resolvedEncounterHoldRemainingSeconds = Mathf.Max(0f, _resolvedEncounterHoldRemainingSeconds - deltaTime);
+
+            if (_resolvedEncounterHoldRemainingSeconds > 0f)
+            {
+                return;
+            }
+
+            _consumedResolvedEncounterKey = _activeResolvedEncounterKey;
+            _activeResolvedEncounterKey = string.Empty;
+            _targetOverlayAlpha = 0f;
+        }
+
+        private static bool IsEncounterResolved(BoardNodeRuntimeState nodeState, bool isBoss)
+        {
+            if (nodeState == null)
+            {
+                return false;
+            }
+
+            return isBoss
+                ? nodeState.BossCurrentHealth <= 0 || nodeState.BossState == BoardBossStateType.Defeated
+                : nodeState.EnemyCurrentHealth <= 0 || nodeState.EnemyState == BoardEnemyStateType.Cleared;
         }
 
         /// <summary>
