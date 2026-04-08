@@ -100,7 +100,8 @@ namespace BoardGame.Presentation
 
         private readonly List<TMP_Text> _logLineTexts = new List<TMP_Text>();
         private readonly List<string> _logLines = new List<string>();
-        private readonly List<FloatingCombatTextEntry> _floatingTextEntries = new List<FloatingCombatTextEntry>();
+        private readonly BoardGameFloatingTextPresenter _floatingTextPresenter =
+            new BoardGameFloatingTextPresenter(FloatingTextLifetimeSeconds, FloatingTextRiseSpeed);
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private Canvas _parentCanvas;
@@ -114,6 +115,7 @@ namespace BoardGame.Presentation
         private float _enemyDisplayedFill = 1f;
         private float _targetOverlayAlpha;
         private int _messageTemplateCursor;
+        private int _floatingTextSequenceId;
         private bool _isFeatureEnabled = true;
         private bool _isRuntimeUiInitialized;
 
@@ -1162,31 +1164,26 @@ namespace BoardGame.Presentation
             }
 
             TMP_Text floatingText = CreateFloatingText(anchor);
-            RectTransform floatingRect = floatingText.rectTransform;
-            Color textColor = CombatTextColor;
-            floatingRect.anchoredPosition = new Vector2(Random.Range(-44f, 44f), Random.Range(-18f, 18f));
+            Vector3 startLocalPosition = new Vector3(Random.Range(-44f, 44f), Random.Range(-18f, 18f), 0f);
             floatingText.text = valueText;
-            floatingText.color = textColor;
-
-            _floatingTextEntries.Add(new FloatingCombatTextEntry(
-                floatingText,
-                floatingRect.anchoredPosition,
-                textColor));
+            _floatingTextPresenter.Add(floatingText, startLocalPosition, floatingText.color);
         }
 
         private TMP_Text CreateFloatingText(RectTransform anchor)
         {
+            _floatingTextSequenceId += 1;
+
             if (_floatingTextTemplateText != null)
             {
                 TextMeshProUGUI floatingText = Instantiate(_floatingTextTemplateText, anchor);
-                floatingText.gameObject.name = $"FloatingText_{_floatingTextEntries.Count + 1}";
+                floatingText.gameObject.name = $"FloatingText_{_floatingTextSequenceId}";
                 floatingText.gameObject.SetActive(true);
                 floatingText.raycastTarget = false;
                 return floatingText;
             }
 
             return CreateText(
-                $"FloatingText_{_floatingTextEntries.Count + 1}",
+                $"FloatingText_{_floatingTextSequenceId}",
                 anchor,
                 Vector2.zero,
                 new Vector2(160f, 34f),
@@ -1197,33 +1194,7 @@ namespace BoardGame.Presentation
 
         private void TickFloatingTexts(float deltaTime)
         {
-            for (int index = _floatingTextEntries.Count - 1; index >= 0; index--)
-            {
-                FloatingCombatTextEntry entry = _floatingTextEntries[index];
-
-                if (entry == null || entry.Label == null)
-                {
-                    _floatingTextEntries.RemoveAt(index);
-                    continue;
-                }
-
-                entry.ElapsedSeconds += deltaTime;
-                float progress01 = Mathf.Clamp01(entry.ElapsedSeconds / FloatingTextLifetimeSeconds);
-                Vector2 anchoredPosition = entry.StartAnchoredPosition + Vector2.up * (FloatingTextRiseSpeed * progress01);
-                entry.Label.rectTransform.anchoredPosition = anchoredPosition;
-
-                Color color = entry.BaseColor;
-                color.a *= 1f - progress01;
-                entry.Label.color = color;
-
-                if (entry.ElapsedSeconds < FloatingTextLifetimeSeconds)
-                {
-                    continue;
-                }
-
-                Destroy(entry.Label.gameObject);
-                _floatingTextEntries.RemoveAt(index);
-            }
+            _floatingTextPresenter.Tick(deltaTime);
         }
 
         private void AppendLogLine(string message)
@@ -1418,19 +1389,5 @@ namespace BoardGame.Presentation
             public RectTransform FloatingAnchor { get; }
         }
 
-        private sealed class FloatingCombatTextEntry
-        {
-            public FloatingCombatTextEntry(TMP_Text label, Vector2 startAnchoredPosition, Color baseColor)
-            {
-                Label = label;
-                StartAnchoredPosition = startAnchoredPosition;
-                BaseColor = baseColor;
-            }
-
-            public TMP_Text Label { get; }
-            public Vector2 StartAnchoredPosition { get; }
-            public Color BaseColor { get; }
-            public float ElapsedSeconds { get; set; }
-        }
     }
 }

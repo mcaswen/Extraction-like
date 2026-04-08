@@ -330,7 +330,6 @@ namespace BoardGame.Config
     [Serializable]
     public sealed class BoardProgressionRuleDefinition
     {
-        [SerializeField] private bool _enabled = true;
         [SerializeField] private int _startingLevel = 1;
         [SerializeField] private int _startingRequiredExperience = 50;
         [SerializeField] private int _requiredExperienceGrowthPerLevel = 25;
@@ -340,12 +339,6 @@ namespace BoardGame.Config
             new List<BoardEncounterExperienceDefinition>();
         [SerializeField] private List<BoardLevelUpBuffDefinition> _buffDefinitions =
             new List<BoardLevelUpBuffDefinition>();
-
-        public bool Enabled
-        {
-            get => _enabled;
-            set => _enabled = value;
-        }
 
         public int StartingLevel
         {

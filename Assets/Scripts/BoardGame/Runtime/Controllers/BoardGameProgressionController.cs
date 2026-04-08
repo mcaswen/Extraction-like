@@ -1,5 +1,4 @@
 using System;
-using BoardGame.Config;
 using BoardGame.Runtime.Services;
 using BoardGame.Runtime.State;
 
@@ -12,17 +11,17 @@ namespace BoardGame.Runtime.Controllers
     public sealed class BoardGameProgressionController
     {
         private readonly BoardGameSessionState _sessionState;
-        private readonly SO_BoardGame_RuleSet _ruleSet;
         private readonly BoardProgressionService _progressionService;
+        private readonly bool _isFeatureEnabled;
 
         public BoardGameProgressionController(
             BoardGameSessionState sessionState,
-            SO_BoardGame_RuleSet ruleSet,
-            BoardProgressionService progressionService)
+            BoardProgressionService progressionService,
+            bool isFeatureEnabled)
         {
             _sessionState = sessionState;
-            _ruleSet = ruleSet;
             _progressionService = progressionService;
+            _isFeatureEnabled = isFeatureEnabled;
         }
 
         public event Action Changed;
@@ -32,7 +31,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public void SyncDisabledState()
         {
-            if (_ruleSet.ProgressionRules.Enabled ||
+            if (_isFeatureEnabled ||
                 (!_sessionState.IsAwaitingLevelUpChoice &&
                  _sessionState.PendingLevelUpCount <= 0 &&
                  _sessionState.PendingLevelUpChoices.Count <= 0))
@@ -48,7 +47,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryApplyLevelUpChoice(int choiceIndex)
         {
-            if (!_ruleSet.ProgressionRules.Enabled)
+            if (!_isFeatureEnabled)
             {
                 _sessionState.StatusMessage = BoardGameStatusMessageUtility.System("Level-up progression is currently disabled");
                 NotifyChanged();

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using BoardGame.Presentation;
 
 public partial class DraggableItemUI
 {
@@ -470,13 +471,34 @@ public partial class DraggableItemUI
     // 通过主控制器寻找快捷转移目标，并直接执行网格内搬运
     private void ExecuteQuickTransfer()
     {
-        if (CurrentGrid == null || ItemData == null || InventoryScreenController.Instance == null)
+        if (CurrentGrid == null || ItemData == null)
         {
             return;
         }
 
         InventoryUIController sourceGrid = CurrentGrid;
-        if (!InventoryScreenController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
+        InventoryUIController targetGrid = null;
+        Vector2Int position = Vector2Int.zero;
+        bool needsRotation = false;
+        bool resolvedTarget = InventoryScreenController.Instance != null &&
+                              InventoryScreenController.Instance.TryFindQuickTransferTarget(
+                                  CurrentGrid,
+                                  this,
+                                  out targetGrid,
+                                  out position,
+                                  out needsRotation);
+
+        if (!resolvedTarget && BoardGameLootInventoryController.ActiveInstance != null)
+        {
+            resolvedTarget = BoardGameLootInventoryController.ActiveInstance.TryFindQuickTransferTarget(
+                CurrentGrid,
+                this,
+                out targetGrid,
+                out position,
+                out needsRotation);
+        }
+
+        if (!resolvedTarget)
         {
             return;
         }

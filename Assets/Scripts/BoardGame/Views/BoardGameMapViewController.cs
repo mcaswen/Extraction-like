@@ -23,6 +23,10 @@ namespace BoardGame.Views
 
         private readonly Dictionary<string, BoardGameEdgeView> _edgeViewsById =
             new Dictionary<string, BoardGameEdgeView>();
+        private readonly Dictionary<string, int> _lastAgentHealthById =
+            new Dictionary<string, int>();
+        private readonly Dictionary<string, BoardActionType> _lastAgentActionTypeById =
+            new Dictionary<string, BoardActionType>();
 
         private SO_BoardGame_MapDefinition _mapDefinition;
         private BoardGraphService _graphService;
@@ -168,10 +172,22 @@ namespace BoardGame.Views
                 Vector3 displayPosition = agentDisplayPositions.TryGetValue(agentState.AgentId, out Vector3 resolvedPosition)
                     ? resolvedPosition
                     : agentState.WorldPosition;
+
+                if (_lastAgentHealthById.TryGetValue(agentState.AgentId, out int previousHealth) &&
+                    _lastAgentActionTypeById.TryGetValue(agentState.AgentId, out BoardActionType previousActionType))
+                {
+                    agentViewPair.Value.HandleCombatHealthDelta(
+                        agentState.CurrentHealth - previousHealth,
+                        agentState.CurrentActionType,
+                        previousActionType);
+                }
+
                 agentViewPair.Value.Refresh(
                     agentState,
                     displayPosition,
                     focusedAgentState != null && agentState.AgentId == focusedAgentState.AgentId);
+                _lastAgentHealthById[agentState.AgentId] = agentState.CurrentHealth;
+                _lastAgentActionTypeById[agentState.AgentId] = agentState.CurrentActionType;
             }
         }
 

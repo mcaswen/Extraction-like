@@ -120,7 +120,6 @@ namespace BoardGame.Config
         {
             return new BoardProgressionRuleDefinition
             {
-                Enabled = true,
                 StartingLevel = 1,
                 StartingRequiredExperience = 50,
                 RequiredExperienceGrowthPerLevel = 25,

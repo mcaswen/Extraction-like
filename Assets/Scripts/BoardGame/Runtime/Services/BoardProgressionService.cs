@@ -17,11 +17,16 @@ namespace BoardGame.Runtime.Services
             new Dictionary<BoardDangerTier, int>();
 
         private readonly SO_BoardGame_RuleSet _ruleSet;
-        private bool IsEnabled => _ruleSet != null && _ruleSet.ProgressionRules.Enabled;
+        private readonly bool _isFeatureEnabled;
+        private bool IsEnabled => _ruleSet != null && _isFeatureEnabled;
 
-        public BoardProgressionService(SO_BoardGame_RuleSet ruleSet, SO_BoardGame_LootTableSet lootTableSet)
+        public BoardProgressionService(
+            SO_BoardGame_RuleSet ruleSet,
+            SO_BoardGame_LootTableSet lootTableSet,
+            bool isFeatureEnabled)
         {
             _ruleSet = ruleSet;
+            _isFeatureEnabled = isFeatureEnabled;
 
             foreach (BoardItemDefinition itemDefinition in lootTableSet.ItemDefinitions)
             {

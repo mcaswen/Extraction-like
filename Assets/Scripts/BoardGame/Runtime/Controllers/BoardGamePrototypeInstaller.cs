@@ -18,6 +18,7 @@ namespace BoardGame.Runtime.Controllers
         [SerializeField] private SO_BoardGame_LootTableSet _lootTableSet;
         [SerializeField] private SO_BoardGame_AgentRoster _agentRoster;
         [SerializeField] private BoardGameBagLayoutSettings _bagLayoutSettings = new BoardGameBagLayoutSettings();
+        [SerializeField] private bool _enableProgressionSystem = true;
 
         [Header("Map View")]
         [SerializeField] private Transform _mapRoot;
@@ -53,7 +54,8 @@ namespace BoardGame.Runtime.Controllers
                 _ruleSet,
                 _lootTableSet,
                 _agentRoster,
-                _bagLayoutSettings);
+                _bagLayoutSettings,
+                _enableProgressionSystem);
 
             if (_mapViewController != null)
             {

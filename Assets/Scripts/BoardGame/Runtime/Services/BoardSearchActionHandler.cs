@@ -68,21 +68,6 @@ namespace BoardGame.Runtime.Services
             if (bagSystemEnabled)
             {
                 nodeState.SyncSearchProgressFromLootReveal();
-
-                nodeState.ResourceState = nodeState.IsLootRevealComplete()
-                    ? BoardResourceStateType.SearchCompleted
-                    : (nodeState.SearchProgressSeconds > 0f
-                        ? BoardResourceStateType.PartiallySearched
-                        : BoardResourceStateType.Unsearched);
-
-                BoardNodeActionHandlerUtility.FinishCurrentTarget(
-                    context,
-                    sessionState,
-                    agentState,
-                    nodeState.IsLootRevealComplete()
-                        ? "Loot ready, press F to reopen"
-                        : "Loot ready, press F to start or continue searching");
-                return true;
             }
 
             sessionState.ActiveInteractionAgentId = agentState.AgentId;
@@ -90,9 +75,11 @@ namespace BoardGame.Runtime.Services
             sessionState.IsLootInteractionOpen = false;
             sessionState.FocusedAgentId = agentState.AgentId;
             agentState.CurrentActionType = BoardActionType.Searching;
-            agentState.CurrentActionDuration = Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
+            agentState.CurrentActionDuration = bagSystemEnabled
+                ? 1f
+                : Mathf.Max(0.1f, nodeState.SearchRequiredSeconds);
             agentState.CurrentActionAccumulatorSeconds = 0f;
-            agentState.CurrentActionProgress = GetSearchActionProgress(nodeState, false);
+            agentState.CurrentActionProgress = GetSearchActionProgress(nodeState, bagSystemEnabled);
             return true;
         }
 
