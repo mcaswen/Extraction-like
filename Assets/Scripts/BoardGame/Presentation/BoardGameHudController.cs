@@ -14,6 +14,8 @@ namespace BoardGame.Presentation
     public sealed class BoardGameHudController : MonoBehaviour
     {
         [SerializeField] private TMP_Text _healthText;
+        [Header("Progression")]
+        [SerializeField] private GameObject _progressionPanelRoot;
         [SerializeField] private TMP_Text _levelText;
         [SerializeField] private TMP_Text _experienceText;
         [SerializeField] private TMP_Text _valueText;
@@ -30,24 +32,14 @@ namespace BoardGame.Presentation
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameHudContextFormatter _contextFormatter;
-        private bool _createdRuntimeLevelText;
-        private bool _createdRuntimeExperienceText;
 
         public void Bind(BoardGameRuntimeQueryController runtimeQueryController)
         {
             _runtimeQueryController = runtimeQueryController;
             _contextFormatter = new BoardGameHudContextFormatter(runtimeQueryController);
 
-            if (_runtimeQueryController.IsProgressionEnabled)
-            {
-                EnsureProgressionWidgets();
-            }
-            else
-            {
-                SetProgressionWidgetsVisible(false);
-            }
-
             EnsureAttributeWidgets();
+            SetProgressionWidgetsVisible(_runtimeQueryController.IsProgressionEnabled);
             _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
@@ -90,11 +82,7 @@ namespace BoardGame.Presentation
 
             if (_experienceText != null)
             {
-                _experienceText.text = progressionEnabled
-                    ? (_createdRuntimeExperienceText
-                        ? $"{agentState.CurrentExperience}/{agentState.RequiredExperienceToNextLevel}"
-                        : $"XP: {agentState.CurrentExperience}/{agentState.RequiredExperienceToNextLevel}")
-                    : string.Empty;
+                _experienceText.text = string.Empty;
             }
 
             if (_valueText != null)
@@ -202,57 +190,6 @@ namespace BoardGame.Presentation
             if (_capacityProgressFillImage != null)
             {
                 SetWidgetVisible(_capacityText, false);
-            }
-        }
-
-        private void EnsureProgressionWidgets()
-        {
-            if (_runtimeQueryController != null && !_runtimeQueryController.IsProgressionEnabled)
-            {
-                return;
-            }
-
-            if (_levelText != null && _experienceText != null && _experienceProgressFillImage != null)
-            {
-                return;
-            }
-
-            TMP_Text templateText = _healthText != null ? _healthText : GetComponentInChildren<TMP_Text>();
-
-            if (templateText == null)
-            {
-                return;
-            }
-
-            if (_levelText == null)
-            {
-                _levelText = CreateRuntimeText(
-                    "T_Level",
-                    new Vector2(-684.97906f, 146f),
-                    new Vector2(484.042f, 48f),
-                    templateText,
-                    42f);
-                _createdRuntimeLevelText = true;
-            }
-
-            if (_experienceText == null)
-            {
-                _experienceText = CreateRuntimeText(
-                    "T_Experience",
-                    new Vector2(-684.97906f, 102f),
-                    new Vector2(484.042f, 36f),
-                    templateText,
-                    32f);
-                _createdRuntimeExperienceText = true;
-            }
-
-            if (_experienceProgressFillImage == null)
-            {
-                _experienceProgressFillImage = CreateRuntimeProgressBar(
-                    "XP_ProgressBar",
-                    new Vector2(-684.97906f, 66f),
-                    new Vector2(484.042f, 16f),
-                    new Color(0.29f, 0.84f, 0.62f, 0.95f));
             }
         }
 
@@ -397,8 +334,15 @@ namespace BoardGame.Presentation
 
         private void SetProgressionWidgetsVisible(bool isVisible)
         {
+            if (_progressionPanelRoot != null)
+            {
+                SetWidgetVisible(_progressionPanelRoot.transform, isVisible);
+                SetWidgetVisible(_experienceText, false);
+                return;
+            }
+
             SetWidgetVisible(_levelText, isVisible);
-            SetWidgetVisible(_experienceText, isVisible);
+            SetWidgetVisible(_experienceText, false);
             SetProgressBarVisible(_experienceProgressFillImage, isVisible);
         }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ namespace BoardGame.Runtime.Services
 
         private readonly Dictionary<BoardDangerTier, int> _encounterExperienceByDangerTier =
             new Dictionary<BoardDangerTier, int>();
+        private readonly List<BoardLevelUpBuffType> _configuredChoiceTypes =
+            new List<BoardLevelUpBuffType>();
 
         private readonly SO_BoardGame_RuleSet _ruleSet;
         private readonly bool _isFeatureEnabled;
@@ -41,6 +44,21 @@ namespace BoardGame.Runtime.Services
                 }
 
                 _encounterExperienceByDangerTier[encounterDefinition.DangerTier] = Mathf.Max(0, encounterDefinition.ExperienceValue);
+            }
+        }
+
+        public void SetConfiguredChoiceTypes(IReadOnlyList<BoardLevelUpBuffType> configuredChoiceTypes)
+        {
+            _configuredChoiceTypes.Clear();
+
+            if (configuredChoiceTypes == null)
+            {
+                return;
+            }
+
+            foreach (BoardLevelUpBuffType configuredChoiceType in configuredChoiceTypes)
+            {
+                _configuredChoiceTypes.Add(configuredChoiceType);
             }
         }
 
@@ -225,6 +243,19 @@ namespace BoardGame.Runtime.Services
             sessionState.ActiveLevelUpAgentId = agentState.AgentId;
             sessionState.FocusedAgentId = agentState.AgentId;
 
+            if (_configuredChoiceTypes.Count > 0)
+            {
+                foreach (BoardLevelUpBuffType configuredChoiceType in _configuredChoiceTypes)
+                {
+                    if (TryRollConfiguredChoice(configuredChoiceType, buffDefinitions, out BoardLevelUpChoice configuredChoice))
+                    {
+                        sessionState.PendingLevelUpChoices.Add(configuredChoice);
+                    }
+                }
+
+                return sessionState.PendingLevelUpChoices.Count > 0;
+            }
+
             List<BoardLevelUpBuffDefinition> remainingDefinitions = new List<BoardLevelUpBuffDefinition>(buffDefinitions);
 
             for (int index = 0; index < _ruleSet.ProgressionRules.ChoicesPerLevel; index++)
@@ -246,6 +277,41 @@ namespace BoardGame.Runtime.Services
             }
 
             return sessionState.PendingLevelUpChoices.Count > 0;
+        }
+
+        private static bool TryRollConfiguredChoice(
+            BoardLevelUpBuffType configuredChoiceType,
+            IReadOnlyList<BoardLevelUpBuffDefinition> buffDefinitions,
+            out BoardLevelUpChoice choice)
+        {
+            choice = null;
+
+            if (buffDefinitions == null || buffDefinitions.Count == 0)
+            {
+                return false;
+            }
+
+            List<BoardLevelUpBuffDefinition> matchingDefinitions = new List<BoardLevelUpBuffDefinition>();
+
+            foreach (BoardLevelUpBuffDefinition buffDefinition in buffDefinitions)
+            {
+                if (buffDefinition != null && buffDefinition.BuffType == configuredChoiceType)
+                {
+                    matchingDefinitions.Add(buffDefinition);
+                }
+            }
+
+            if (matchingDefinitions.Count == 0)
+            {
+                return false;
+            }
+
+            BoardLevelUpBuffDefinition pickedDefinition = matchingDefinitions[Random.Range(0, matchingDefinitions.Count)];
+            int rolledValue = Random.Range(
+                Mathf.Max(1, pickedDefinition.MinValue),
+                Mathf.Max(pickedDefinition.MinValue, pickedDefinition.MaxValue) + 1);
+            choice = new BoardLevelUpChoice(pickedDefinition.BuffType, rolledValue);
+            return true;
         }
 
         /// <summary>

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using BoardGame.Runtime;
 using BoardGame.Runtime.Services;
 using BoardGame.Runtime.State;
 
@@ -25,6 +27,11 @@ namespace BoardGame.Runtime.Controllers
         }
 
         public event Action Changed;
+
+        public void SetConfiguredChoiceTypes(IReadOnlyList<BoardLevelUpBuffType> configuredChoiceTypes)
+        {
+            _progressionService.SetConfiguredChoiceTypes(configuredChoiceTypes);
+        }
 
         /// <summary>
         /// 在升级系统关闭时，清空历史遗留的待选状态

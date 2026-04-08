@@ -28,11 +28,12 @@ namespace BoardGame.Presentation
             _runtimeQueryController = runtimeQueryController;
             _progressionController = progressionController;
 
-            if (_runtimeQueryController == null)
+            if (_runtimeQueryController == null || _progressionController == null)
             {
                 return;
             }
 
+            _progressionController.SetConfiguredChoiceTypes(CollectConfiguredChoiceTypes());
             _runtimeQueryController.Changed += Refresh;
             Refresh();
         }
@@ -112,6 +113,23 @@ namespace BoardGame.Presentation
         private bool HasConfiguredUi()
         {
             return _panelRoot != null && _optionViews.Count > 0;
+        }
+
+        private List<BoardLevelUpBuffType> CollectConfiguredChoiceTypes()
+        {
+            List<BoardLevelUpBuffType> configuredChoiceTypes = new List<BoardLevelUpBuffType>();
+
+            foreach (BoardGameLevelUpOptionView optionView in _optionViews)
+            {
+                if (optionView == null)
+                {
+                    continue;
+                }
+
+                configuredChoiceTypes.Add(optionView.FixedBuffType);
+            }
+
+            return configuredChoiceTypes;
         }
 
         private static BoardLevelUpOptionPresentation BuildOptionPresentation(BoardLevelUpChoice choice)

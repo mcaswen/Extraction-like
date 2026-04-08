@@ -1,3 +1,4 @@
+using BoardGame.Runtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,8 +13,11 @@ namespace BoardGame.Views
     [RequireComponent(typeof(RectTransform))]
     public sealed class BoardGameLevelUpOptionView : MonoBehaviour
     {
+        [SerializeField] private BoardLevelUpBuffType _fixedBuffType = BoardLevelUpBuffType.AttackFlat;
         [SerializeField] private Button _button;
         [SerializeField] private TMP_Text _descriptionText;
+
+        public BoardLevelUpBuffType FixedBuffType => _fixedBuffType;
 
         public void Bind(
             string description,
