@@ -207,6 +207,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _nodeId: 1
   _isStartNode: 1
+--- !u!114 &199576557 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5473873274366787920, guid: 6a671c9a1dd8d314dba222cb467fe211,
+    type: 3}
+  m_PrefabInstance: {fileID: 1731443471}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &239058758 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5517231284165842396, guid: 6a671c9a1dd8d314dba222cb467fe211,
@@ -527,18 +539,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 888263649}
   m_SourcePrefab: {fileID: 100100000, guid: 82149f3bdcec5724ca642e48655817c3, type: 3}
---- !u!114 &413220389 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2413237340060728801, guid: 6a671c9a1dd8d314dba222cb467fe211,
-    type: 3}
-  m_PrefabInstance: {fileID: 1731443471}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &427955218 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7704667783759986840, guid: 5815dd20458680d47b59111b56bb369c,
@@ -1901,7 +1901,7 @@ MonoBehaviour:
   _overlayRoot: {fileID: 1942064272}
   _friendlyAttackText: {fileID: 689787985}
   _friendlyDefenseText: {fileID: 435142840}
-  _friendlyHealthFillImage: {fileID: 413220389}
+  _friendlyHealthFillImage: {fileID: 199576557}
   _friendlyFloatingAnchor: {fileID: 239058758}
   _enemyAttackText: {fileID: 878302179}
   _enemyDefenseText: {fileID: 1070343040}
@@ -3542,6 +3542,7 @@ MonoBehaviour:
     _playerInventoryRows: 4
     _lootContainerRows: 3
     _minimumLootContainerColumns: 3
+  _enableProgressionSystem: 1
   _mapRoot: {fileID: 248796599}
   _mapViewController: {fileID: 248796598}
   _nodeViewPrefab: {fileID: 4848305417641138124, guid: 82149f3bdcec5724ca642e48655817c3,
