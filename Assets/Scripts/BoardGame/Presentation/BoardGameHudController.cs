@@ -30,6 +30,8 @@ namespace BoardGame.Presentation
 
         private BoardGameRuntimeQueryController _runtimeQueryController;
         private BoardGameHudContextFormatter _contextFormatter;
+        private bool _createdRuntimeLevelText;
+        private bool _createdRuntimeExperienceText;
 
         public void Bind(BoardGameRuntimeQueryController runtimeQueryController)
         {
@@ -59,8 +61,6 @@ namespace BoardGame.Presentation
 
             BoardGameSessionState sessionState = _runtimeQueryController.SessionState;
             BoardAgentState agentState = _runtimeQueryController.GetFocusedAgentState();
-            int aliveAgentCount = _runtimeQueryController.GetAliveAgentCount();
-            int totalAgentCount = _runtimeQueryController.GetTotalAgentCount();
 
             if (agentState == null)
             {
@@ -84,14 +84,16 @@ namespace BoardGame.Presentation
             if (_levelText != null)
             {
                 _levelText.text = progressionEnabled
-                    ? $"Focus: {agentState.DisplayName}  Lv: {agentState.Level}  Alive: {aliveAgentCount}/{totalAgentCount}"
-                    : $"Focus: {agentState.DisplayName}  Alive: {aliveAgentCount}/{totalAgentCount}";
+                    ? $"Lv: {agentState.Level}"
+                    : string.Empty;
             }
 
             if (_experienceText != null)
             {
                 _experienceText.text = progressionEnabled
-                    ? $"XP: {agentState.CurrentExperience}/{agentState.RequiredExperienceToNextLevel}"
+                    ? (_createdRuntimeExperienceText
+                        ? $"{agentState.CurrentExperience}/{agentState.RequiredExperienceToNextLevel}"
+                        : $"XP: {agentState.CurrentExperience}/{agentState.RequiredExperienceToNextLevel}")
                     : string.Empty;
             }
 
@@ -230,6 +232,7 @@ namespace BoardGame.Presentation
                     new Vector2(484.042f, 48f),
                     templateText,
                     42f);
+                _createdRuntimeLevelText = true;
             }
 
             if (_experienceText == null)
@@ -240,6 +243,7 @@ namespace BoardGame.Presentation
                     new Vector2(484.042f, 36f),
                     templateText,
                     32f);
+                _createdRuntimeExperienceText = true;
             }
 
             if (_experienceProgressFillImage == null)
