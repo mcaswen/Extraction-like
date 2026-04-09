@@ -35,7 +35,7 @@ namespace BoardGame.Config
             return new BoardAgentStatDefinition
             {
                 MaxHealth = 100,
-                Attack = 20,
+                Attack = 10,
                 Defense = 0,
                 MaxCarryCapacity = 9f,
                 StartingHealingPotionCount = 1
@@ -91,11 +91,11 @@ namespace BoardGame.Config
                 TickIntervalSeconds = 1f,
                 EnemyDefinitions = new List<BoardEnemyStatDefinition>
                 {
-                    new BoardEnemyStatDefinition(BoardDangerTier.Low, 20, 10, 5),
-                    new BoardEnemyStatDefinition(BoardDangerTier.Medium, 20, 15, 10),
-                    new BoardEnemyStatDefinition(BoardDangerTier.High, 25, 10, 15)
+                    new BoardEnemyStatDefinition(BoardDangerTier.Low, 20, 2, 10),
+                    new BoardEnemyStatDefinition(BoardDangerTier.Medium, 20, 4, 15),
+                    new BoardEnemyStatDefinition(BoardDangerTier.High, 30, 6, 10)
                 },
-                BossDefinition = new BoardBossStatDefinition(25, 15, 15)
+                BossDefinition = new BoardBossStatDefinition(30, 8, 10)
             };
         }
 
