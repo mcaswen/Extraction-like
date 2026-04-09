@@ -96,6 +96,12 @@ namespace BoardGame.Runtime.Services
                 return;
             }
 
+            // 回到已部分处理的节点时，即使旧 target 已经被清掉，也要优先恢复搜索或 loot
+            if (_nodeActionService.TryResumeActionOnCurrentNode(sessionState, agentState, nodeStatesById))
+            {
+                return;
+            }
+
             // 当前节点本身是可撤离点时，先判断是否满足默认 AI 的撤离条件
             if (TryBeginAutonomousExtract(sessionState, agentState, nodeStatesById))
             {

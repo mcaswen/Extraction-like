@@ -88,6 +88,31 @@ namespace BoardGame.Runtime.Services
         }
 
         /// <summary>
+        /// 当 AI 回到一个已部分处理的节点时，允许它在没有显式 target 的情况下恢复动作
+        /// 当前主要用于资源点续搜，以及敌人或 Boss 清点后的共享 loot 续搜
+        /// </summary>
+        public bool TryResumeActionOnCurrentNode(
+            BoardGameSessionState sessionState,
+            BoardAgentState agentState,
+            IReadOnlyDictionary<string, BoardNodeRuntimeState> nodeStatesById)
+        {
+            if (!TryGetCurrentNodeState(agentState, nodeStatesById, out BoardNodeRuntimeState nodeState))
+            {
+                return false;
+            }
+
+            bool shouldResumeSearch = nodeState.HasPendingLootInteraction() ||
+                                      (nodeState.NodeType == BoardNodeType.Resource && nodeState.IsPartiallyProcessed());
+
+            if (!shouldResumeSearch)
+            {
+                return false;
+            }
+
+            return TryBeginActionOnCurrentNode(sessionState, agentState, nodeStatesById, false);
+        }
+
+        /// <summary>
         /// 玩家改写目标前，对当前动作做安全收口
         /// 具体节点动作的收口逻辑交给对应处理器
         /// </summary>
@@ -158,11 +183,6 @@ namespace BoardGame.Runtime.Services
             BoardNodeRuntimeState nodeState)
         {
             if (nodeState == null || !nodeState.HasPendingLootContainer() || !nodeState.HasRemainingLootItems())
-            {
-                return false;
-            }
-
-            if (_nodeActionHandlerContext.BagLayoutSettings.EnableBagSystem)
             {
                 return false;
             }

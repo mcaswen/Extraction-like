@@ -54,20 +54,13 @@ namespace BoardGame.Runtime.Controllers
         public bool CanOpenActiveLootNode()
         {
             if (_sessionState.IsAwaitingLevelUpChoice ||
-                !_sessionState.IsAwaitingLootInteraction ||
-                _sessionState.IsLootInteractionOpen)
+                _sessionState.IsLootInteractionOpen ||
+                !_bagLayoutSettings.EnableBagSystem)
             {
                 return false;
             }
 
-            BoardNodeRuntimeState nodeState = GetActiveLootNodeState();
-            BoardAgentState activeAgentState = GetActiveInteractionAgentState();
-            BoardAgentState focusedAgentState = _sessionState.GetFocusedAgentState();
-            return nodeState != null &&
-                   nodeState.HasPendingLootContainer() &&
-                   activeAgentState != null &&
-                   focusedAgentState != null &&
-                   activeAgentState.AgentId == focusedAgentState.AgentId;
+            return TryResolveFocusedLootInteractionCandidate(out _, out _);
         }
 
         /// <summary>
@@ -75,7 +68,7 @@ namespace BoardGame.Runtime.Controllers
         /// </summary>
         public bool TryOpenActiveLootNode(out BoardNodeRuntimeState nodeState)
         {
-            nodeState = GetActiveLootNodeState();
+            nodeState = null;
 
             if (_sessionState.IsAwaitingLevelUpChoice)
             {
@@ -89,14 +82,14 @@ namespace BoardGame.Runtime.Controllers
                 return false;
             }
 
-            if ((nodeState == null || !CanOpenActiveLootNode()) && !TryActivateFocusedLootInteraction())
+            if (!TryActivateFocusedLootInteraction())
             {
                 return false;
             }
 
             nodeState = GetActiveLootNodeState();
 
-            if (nodeState == null || !CanOpenActiveLootNode())
+            if (nodeState == null)
             {
                 return false;
             }
@@ -386,25 +379,16 @@ namespace BoardGame.Runtime.Controllers
 
         /// <summary>
         /// 允许当前焦点 Agent 直接接管自己脚下节点上剩余的共享 loot
-        /// 这样多人同节点时切换焦点后不需要先离开再回来才能继续 search
+        /// 只要它当前仍处于 Searching 状态，就不再受旧的全局 loot owner 限制
         /// </summary>
         private bool TryActivateFocusedLootInteraction()
         {
-            if (_sessionState.IsAwaitingLootInteraction || _sessionState.IsLootInteractionOpen)
+            if (_sessionState.IsLootInteractionOpen)
             {
                 return false;
             }
 
-            BoardAgentState focusedAgentState = _sessionState.GetFocusedAgentState();
-
-            if (focusedAgentState == null || string.IsNullOrEmpty(focusedAgentState.CurrentNodeId))
-            {
-                return false;
-            }
-
-            if (!_nodeStatesById.TryGetValue(focusedAgentState.CurrentNodeId, out BoardNodeRuntimeState nodeState) ||
-                nodeState == null ||
-                !nodeState.HasPendingLootInteraction())
+            if (!TryResolveFocusedLootInteractionCandidate(out BoardAgentState focusedAgentState, out BoardNodeRuntimeState nodeState))
             {
                 return false;
             }
@@ -431,7 +415,34 @@ namespace BoardGame.Runtime.Controllers
                 nodeState.IsLootRevealComplete()
                     ? "Loot remains, press F to reopen"
                     : "Loot remains, press F to continue searching");
-            NotifyChanged();
+            return true;
+        }
+
+        /// <summary>
+        /// 解析当前焦点 AI 是否可以直接接管自己脚下节点的 loot 搜索
+        /// 条件是它当前就在节点上、动作处于 Searching，并且该节点仍有待处理的共享 loot
+        /// </summary>
+        private bool TryResolveFocusedLootInteractionCandidate(
+            out BoardAgentState focusedAgentState,
+            out BoardNodeRuntimeState nodeState)
+        {
+            focusedAgentState = _sessionState.GetFocusedAgentState();
+            nodeState = null;
+
+            if (focusedAgentState == null ||
+                focusedAgentState.CurrentActionType != BoardActionType.Searching ||
+                string.IsNullOrEmpty(focusedAgentState.CurrentNodeId))
+            {
+                return false;
+            }
+
+            if (!_nodeStatesById.TryGetValue(focusedAgentState.CurrentNodeId, out nodeState) ||
+                nodeState == null ||
+                !nodeState.HasPendingLootInteraction())
+            {
+                return false;
+            }
+
             return true;
         }
 

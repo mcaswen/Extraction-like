@@ -49,6 +49,14 @@ namespace BoardGame.Presentation
             BoardNodeRuntimeState activeLootNodeState = _runtimeQueryController.SessionState != null
                 ? _runtimeQueryController.GetNodeState(_runtimeQueryController.SessionState.ActiveLootNodeId)
                 : null;
+            BoardAgentState focusedAgentState = _runtimeQueryController.GetFocusedAgentState();
+            BoardNodeRuntimeState focusedNodeState = focusedAgentState != null
+                ? _runtimeQueryController.GetNodeState(focusedAgentState.CurrentNodeId)
+                : null;
+            bool focusedAgentCanEnterLootSearch = focusedAgentState != null &&
+                                                  focusedAgentState.CurrentActionType == BoardActionType.Searching &&
+                                                  focusedNodeState != null &&
+                                                  focusedNodeState.HasPendingLootInteraction();
 
             if (_runtimeQueryController.IsLootInteractionOpen && activeInteractionAgentState != null)
             {
@@ -56,11 +64,15 @@ namespace BoardGame.Presentation
                 return $"Loot: {activeInteractionAgentState.DisplayName} is managing {nodeLabel}";
             }
 
-            if (_runtimeQueryController.IsAwaitingLootInteraction && activeInteractionAgentState != null)
+            if (_runtimeQueryController.IsAwaitingLootInteraction &&
+                (focusedAgentCanEnterLootSearch || activeInteractionAgentState != null))
             {
+                string interactionAgentLabel = focusedAgentCanEnterLootSearch
+                    ? focusedAgentState.DisplayName
+                    : activeInteractionAgentState.DisplayName;
                 return _runtimeQueryController.IsBagSystemEnabled
-                    ? $"Loot: {activeInteractionAgentState.DisplayName} press F to open or continue searching"
-                    : $"Loot: {activeInteractionAgentState.DisplayName} is auto searching and collecting";
+                    ? $"Loot: {interactionAgentLabel} press F to open or continue searching"
+                    : $"Loot: {interactionAgentLabel} is auto searching and collecting";
             }
 
             return "Control: Tab switches focus, click a node to redirect";
