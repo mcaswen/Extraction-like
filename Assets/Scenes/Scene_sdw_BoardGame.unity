@@ -355,6 +355,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 302031700}
   m_CullTransparentMesh: 1
+--- !u!114 &313959637 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7258863987798865348, guid: 6a671c9a1dd8d314dba222cb467fe211,
+    type: 3}
+  m_PrefabInstance: {fileID: 1731443471}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &317925826
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1983,6 +1995,14 @@ MonoBehaviour:
   _enemyDefenseText: {fileID: 1070343040}
   _enemyHealthFillImage: {fileID: 454164897}
   _enemyFloatingAnchor: {fileID: 17967284}
+  _enemyIconImage: {fileID: 313959637}
+  _enemyIconFallbackText: {fileID: 0}
+  _enemyIconSpriteOptions:
+  - {fileID: 21300000, guid: d81f098fba4e8bc4787e10dea9250005, type: 3}
+  - {fileID: 21300000, guid: 7bb0c633b2f27344ab5878925a17ffb4, type: 3}
+  - {fileID: 21300000, guid: f7ae080561de1664683d26cc76e60154, type: 3}
+  - {fileID: 21300000, guid: 6b095e3652f4331438bb34f9fdca66aa, type: 3}
+  - {fileID: 21300000, guid: 20e2d1d89e9e4fe48b832d33f2d84987, type: 3}
   _combatLogContainer: {fileID: 2119365482}
   _combatLogTemplateText: {fileID: 79944511}
   _floatingTextTemplateText: {fileID: 740795299}
@@ -3841,7 +3861,7 @@ MonoBehaviour:
     type: 3}
   _hudController: {fileID: 1071971259}
   _combatHudController: {fileID: 1071971261}
-  _enableCombatHud: 0
+  _enableCombatHud: 1
   _itemBarController: {fileID: 1933702292}
   _levelUpController: {fileID: 1071971260}
   _lootInventoryController: {fileID: 0}

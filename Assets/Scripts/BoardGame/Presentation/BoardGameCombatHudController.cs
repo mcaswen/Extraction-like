@@ -90,6 +90,9 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _enemyDefenseText;
         [SerializeField] private Image _enemyHealthFillImage;
         [SerializeField] private RectTransform _enemyFloatingAnchor;
+        [SerializeField] private Image _enemyIconImage;
+        [SerializeField] private TMP_Text _enemyIconFallbackText;
+        [SerializeField] private List<Sprite> _enemyIconSpriteOptions = new List<Sprite>();
         private TMP_Text _enemyTitleText;
         private TMP_Text _enemySubtitleText;
         private TMP_Text _enemyHealthText;
@@ -113,6 +116,8 @@ namespace BoardGame.Presentation
 
         private CombatSnapshot _currentSnapshot;
         private string _activeEncounterKey = string.Empty;
+        private string _activeEncounterIconKey = string.Empty;
+        private Sprite _activeEncounterEnemyIcon;
 
         private float _friendlyDisplayedFill = 1f;
         private float _enemyDisplayedFill = 1f;
@@ -228,6 +233,8 @@ namespace BoardGame.Presentation
             {
                 _currentSnapshot = null;
                 _activeEncounterKey = string.Empty;
+                _activeEncounterIconKey = string.Empty;
+                _activeEncounterEnemyIcon = null;
                 _targetOverlayAlpha = 0f;
                 return;
             }
@@ -256,6 +263,7 @@ namespace BoardGame.Presentation
             {
                 _logLines.Clear();
                 ResetDisplayedHealth(nextSnapshot);
+                CacheEncounterEnemyIcon(nextSnapshot);
                 AppendLogLine(nextSnapshot.IsBoss
                     ? GetNextTemplate(BossIntroTemplates)
                     : GetNextTemplate(EnemyIntroTemplates));
@@ -264,6 +272,11 @@ namespace BoardGame.Presentation
             else
             {
                 AppendLogsFromSnapshotDiff(_currentSnapshot, nextSnapshot);
+            }
+
+            if (_activeEncounterIconKey != nextSnapshot.EncounterKey)
+            {
+                CacheEncounterEnemyIcon(nextSnapshot);
             }
 
             _activeEncounterKey = nextSnapshot.EncounterKey;
@@ -635,8 +648,67 @@ namespace BoardGame.Presentation
                 snapshot.EnemyHealthText,
                 $"{snapshot.EnemyAttack}",
                 $"{snapshot.EnemyDefense}");
+            ApplyEnemyIcon(_activeEncounterEnemyIcon);
 
             RefreshLogTexts();
+        }
+
+        private void CacheEncounterEnemyIcon(CombatSnapshot snapshot)
+        {
+            if (snapshot == null)
+            {
+                _activeEncounterIconKey = string.Empty;
+                _activeEncounterEnemyIcon = null;
+                return;
+            }
+
+            _activeEncounterIconKey = snapshot.EncounterKey ?? string.Empty;
+            _activeEncounterEnemyIcon = PickRandomEnemyIcon();
+        }
+
+        private Sprite PickRandomEnemyIcon()
+        {
+            if (_enemyIconSpriteOptions == null || _enemyIconSpriteOptions.Count == 0)
+            {
+                return null;
+            }
+
+            int validIconCount = 0;
+
+            for (int index = 0; index < _enemyIconSpriteOptions.Count; index++)
+            {
+                if (_enemyIconSpriteOptions[index] != null)
+                {
+                    validIconCount++;
+                }
+            }
+
+            if (validIconCount <= 0)
+            {
+                return null;
+            }
+
+            int pickedValidIndex = Random.Range(0, validIconCount);
+            int currentValidIndex = 0;
+
+            for (int index = 0; index < _enemyIconSpriteOptions.Count; index++)
+            {
+                Sprite candidateSprite = _enemyIconSpriteOptions[index];
+
+                if (candidateSprite == null)
+                {
+                    continue;
+                }
+
+                if (currentValidIndex == pickedValidIndex)
+                {
+                    return candidateSprite;
+                }
+
+                currentValidIndex++;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -901,6 +973,8 @@ namespace BoardGame.Presentation
                 _friendlyHealthFillImage,
                 ResolveHealthFillBaseSize(_friendlyHealthFillImage),
                 ResolveHealthFillLeftEdge(_friendlyHealthFillImage),
+                null,
+                null,
                 _friendlyFloatingAnchor);
 
             _enemyWidgets = new CombatSideWidgets(
@@ -912,6 +986,8 @@ namespace BoardGame.Presentation
                 _enemyHealthFillImage,
                 ResolveHealthFillBaseSize(_enemyHealthFillImage),
                 ResolveHealthFillLeftEdge(_enemyHealthFillImage),
+                _enemyIconImage,
+                _enemyIconFallbackText,
                 _enemyFloatingAnchor);
 
             EnsureManualLogTexts();
@@ -1148,6 +1224,18 @@ namespace BoardGame.Presentation
             Image iconPlateImage = iconPlateObject.GetComponent<Image>();
             iconPlateImage.color = accentColor;
 
+            GameObject iconImageObject = new GameObject("IconImage", typeof(RectTransform), typeof(Image));
+            iconImageObject.transform.SetParent(iconPlateObject.transform, false);
+            RectTransform iconImageRect = iconImageObject.GetComponent<RectTransform>();
+            iconImageRect.anchorMin = Vector2.zero;
+            iconImageRect.anchorMax = Vector2.one;
+            iconImageRect.offsetMin = new Vector2(8f, 8f);
+            iconImageRect.offsetMax = new Vector2(-8f, -8f);
+            Image iconImage = iconImageObject.GetComponent<Image>();
+            iconImage.raycastTarget = false;
+            iconImage.preserveAspect = true;
+            iconImage.enabled = false;
+
             TMP_Text iconFallbackText = CreateText(
                 "IconFallback",
                 iconPlateObject.transform,
@@ -1205,6 +1293,8 @@ namespace BoardGame.Presentation
                 healthFillImage,
                 ResolveHealthFillBaseSize(healthFillImage),
                 ResolveHealthFillLeftEdge(healthFillImage),
+                iconImage,
+                iconFallbackText,
                 floatingAnchorRect);
         }
 
@@ -1349,6 +1439,25 @@ namespace BoardGame.Presentation
             {
                 widgets.DefenseText.text = defenseText;
                 ApplyTextColor(widgets.DefenseText);
+            }
+        }
+
+        private void ApplyEnemyIcon(Sprite iconSprite)
+        {
+            if (_enemyWidgets == null)
+            {
+                return;
+            }
+
+            if (_enemyWidgets.IconImage != null)
+            {
+                _enemyWidgets.IconImage.sprite = iconSprite;
+                _enemyWidgets.IconImage.enabled = iconSprite != null;
+            }
+
+            if (_enemyWidgets.IconFallbackText != null)
+            {
+                _enemyWidgets.IconFallbackText.gameObject.SetActive(iconSprite == null);
             }
         }
 
@@ -1656,6 +1765,8 @@ namespace BoardGame.Presentation
                 Image healthFillImage,
                 Vector2 healthFillBaseSize,
                 float healthFillLeftEdge,
+                Image iconImage,
+                TMP_Text iconFallbackText,
                 RectTransform floatingAnchor)
             {
                 TitleText = titleText;
@@ -1666,6 +1777,8 @@ namespace BoardGame.Presentation
                 HealthFillImage = healthFillImage;
                 HealthFillBaseSize = healthFillBaseSize;
                 HealthFillLeftEdge = healthFillLeftEdge;
+                IconImage = iconImage;
+                IconFallbackText = iconFallbackText;
                 FloatingAnchor = floatingAnchor;
             }
 
@@ -1677,6 +1790,8 @@ namespace BoardGame.Presentation
             public Image HealthFillImage { get; }
             public Vector2 HealthFillBaseSize { get; }
             public float HealthFillLeftEdge { get; }
+            public Image IconImage { get; }
+            public TMP_Text IconFallbackText { get; }
             public RectTransform FloatingAnchor { get; }
         }
 

@@ -32,27 +32,26 @@ MonoBehaviour:
     _tickIntervalSeconds: 1
     _enemyDefinitions:
     - _dangerTier: 1
-      _maxHealth: 20
-      _attack: 2
-      _defense: 10
-    - _dangerTier: 2
-      _maxHealth: 20
+      _maxHealth: 10
       _attack: 4
-      _defense: 15
-    - _dangerTier: 3
-      _maxHealth: 30
+      _defense: 6
+    - _dangerTier: 2
+      _maxHealth: 15
       _attack: 6
-      _defense: 10
+      _defense: 5
+    - _dangerTier: 3
+      _maxHealth: 24
+      _attack: 6
+      _defense: 4
     _bossDefinition:
       _maxHealth: 30
-      _attack: 8
-      _defense: 10
+      _attack: 9
+      _defense: 4
   _extractRules:
     _durationSeconds: 4
     _canInterrupt: 1
     _preserveProgressOnInterrupt: 1
   _progressionRules:
-    _enabled: 0
     _startingLevel: 1
     _startingRequiredExperience: 50
     _requiredExperienceGrowthPerLevel: 25
