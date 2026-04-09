@@ -171,7 +171,6 @@ namespace BoardGame.Runtime.Services
             bool bagSystemEnabled = _nodeActionHandlerContext.BagLayoutSettings.EnableBagSystem;
             sessionState.ActiveLootNodeId = nodeState.NodeId;
             sessionState.IsLootInteractionOpen = false;
-            sessionState.FocusedAgentId = agentState.AgentId;
             agentState.CurrentActionType = BoardActionType.Searching;
             agentState.CurrentActionDuration = bagSystemEnabled
                 ? 1f

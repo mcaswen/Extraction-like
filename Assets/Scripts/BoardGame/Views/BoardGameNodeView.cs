@@ -20,9 +20,11 @@ namespace BoardGame.Views
         private static readonly Color SelectionHaloColor = new Color(0.22f, 0.62f, 1f, 1f);
         private static readonly Color RedirectHaloColor = new Color(0.35f, 0.78f, 1f, 1f);
         private static readonly Color TargetHaloColor = new Color(0.97f, 0.78f, 0.18f, 1f);
+        private static readonly Color ExploredOverlayColor = new Color(0.2f, 0.2f, 0.2f, 0.48f);
         private static readonly Vector3 DefaultIconScale = Vector3.one;
 
         [SerializeField] private SpriteRenderer _iconRenderer;
+        [SerializeField] private SpriteRenderer _exploredOverlayRenderer;
         [SerializeField] private Sprite _fallbackSprite;
         [SerializeField] private Transform _progressFillTransform;
         [SerializeField] private SpriteRenderer _progressFillRenderer;
@@ -77,6 +79,7 @@ namespace BoardGame.Views
             }
 
             EnsureIconRenderer();
+            EnsureExploredOverlayRenderer();
             EnsureHalos();
         }
 
@@ -108,8 +111,10 @@ namespace BoardGame.Views
 
             Sprite iconSprite = ResolveDisplaySprite(nodeState);
             RefreshIconRenderer(iconSprite, ResolveDisplayColor(nodeState, iconSprite));
-            _selectionHalo?.Initialize(_iconRenderer, HaloPadding, HaloWidth);
-            _targetHalo?.Initialize(_iconRenderer, HaloPadding, HaloWidth);
+            RefreshExploredOverlay(iconSprite, nodeState.HasBeenExplored);
+            SpriteRenderer haloSourceRenderer = ResolveHaloSourceRenderer();
+            _selectionHalo?.Initialize(haloSourceRenderer, HaloPadding, HaloWidth);
+            _targetHalo?.Initialize(haloSourceRenderer, HaloPadding, HaloWidth);
             _selectionHalo?.Refresh(
                 isSelected || canRedirect,
                 canRedirect ? RedirectHaloColor : SelectionHaloColor);
@@ -312,9 +317,9 @@ namespace BoardGame.Views
             }
 
             _selectionHalo = EnsureHalo("SelectionHalo");
-            _selectionHalo.Initialize(_iconRenderer, HaloPadding, HaloWidth);
+            _selectionHalo.Initialize(ResolveHaloSourceRenderer(), HaloPadding, HaloWidth);
             _targetHalo = EnsureHalo("TargetHalo");
-            _targetHalo.Initialize(_iconRenderer, HaloPadding, HaloWidth);
+            _targetHalo.Initialize(ResolveHaloSourceRenderer(), HaloPadding, HaloWidth);
         }
 
         private BoardGameSelectionHalo EnsureHalo(string haloName)
@@ -373,6 +378,47 @@ namespace BoardGame.Views
             _iconRenderer.enabled = false;
         }
 
+        private void EnsureExploredOverlayRenderer()
+        {
+            if (_iconRenderer == null)
+            {
+                return;
+            }
+
+            if (_exploredOverlayRenderer != null)
+            {
+                return;
+            }
+
+            Transform overlayTransform = transform.Find("ExploredOverlayRenderer");
+            GameObject overlayObject;
+
+            if (overlayTransform == null)
+            {
+                overlayObject = new GameObject("ExploredOverlayRenderer");
+                overlayObject.transform.SetParent(transform, false);
+            }
+            else
+            {
+                overlayObject = overlayTransform.gameObject;
+            }
+
+            _exploredOverlayRenderer = overlayObject.GetComponent<SpriteRenderer>();
+
+            if (_exploredOverlayRenderer == null)
+            {
+                _exploredOverlayRenderer = overlayObject.AddComponent<SpriteRenderer>();
+            }
+
+            overlayObject.transform.localPosition = Vector3.zero;
+            overlayObject.transform.localRotation = Quaternion.identity;
+            overlayObject.transform.localScale = DefaultIconScale;
+            _exploredOverlayRenderer.sortingLayerID = _iconRenderer.sortingLayerID;
+            _exploredOverlayRenderer.sortingOrder = _iconRenderer.sortingOrder + 1;
+            _exploredOverlayRenderer.color = ExploredOverlayColor;
+            _exploredOverlayRenderer.enabled = false;
+        }
+
         private void RefreshIconRenderer(Sprite iconSprite, Color tintColor)
         {
             if (_iconRenderer == null)
@@ -386,6 +432,28 @@ namespace BoardGame.Views
             _iconRenderer.transform.localScale = iconSprite != null
                 ? ResolveIconScale(iconSprite)
                 : DefaultIconScale;
+        }
+
+        private void RefreshExploredOverlay(Sprite iconSprite, bool isExplored)
+        {
+            if (_exploredOverlayRenderer == null)
+            {
+                return;
+            }
+
+            _exploredOverlayRenderer.sprite = iconSprite;
+            _exploredOverlayRenderer.color = ExploredOverlayColor;
+            _exploredOverlayRenderer.sortingLayerID = _iconRenderer.sortingLayerID;
+            _exploredOverlayRenderer.sortingOrder = _iconRenderer.sortingOrder + 1;
+            _exploredOverlayRenderer.enabled = isExplored && iconSprite != null;
+            _exploredOverlayRenderer.transform.localScale = _iconRenderer != null
+                ? _iconRenderer.transform.localScale
+                : DefaultIconScale;
+        }
+
+        private SpriteRenderer ResolveHaloSourceRenderer()
+        {
+            return _exploredOverlayRenderer != null ? _exploredOverlayRenderer : _iconRenderer;
         }
 
         private Vector3 ResolveIconScale(Sprite iconSprite)

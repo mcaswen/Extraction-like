@@ -44,6 +44,7 @@ namespace BoardGame.Runtime.State
         [SerializeField] private BoardExtractStateType _extractState = BoardExtractStateType.Available;
         [SerializeField] private float _extractProgressSeconds;
         [SerializeField] private float _extractRequiredSeconds;
+        [SerializeField] private bool _hasBeenExplored;
 
         public BoardNodeRuntimeState(
             string nodeId,
@@ -206,6 +207,12 @@ namespace BoardGame.Runtime.State
             set => _extractRequiredSeconds = Mathf.Max(0.1f, value);
         }
 
+        public bool HasBeenExplored
+        {
+            get => _hasBeenExplored;
+            set => _hasBeenExplored = value;
+        }
+
         /// <summary>
         /// 当前资源点是否仍有未完成的搜索过程
         /// </summary>
@@ -328,6 +335,15 @@ namespace BoardGame.Runtime.State
             // 资源点仍沿用搜索进度条表现，所以这里把每件 loot 抽象成一段统一的 reveal 进度
             _searchRequiredSeconds = Mathf.Max(1f, _lootTotalItemCount);
             _searchProgressSeconds = Mathf.Clamp(_lootRevealedItemCount, 0f, _searchRequiredSeconds);
+        }
+
+        /// <summary>
+        /// 标记该节点已被任意一个 Agent 实际踏入过
+        /// 用于地图上的已探索视觉表现
+        /// </summary>
+        public void MarkExplored()
+        {
+            _hasBeenExplored = true;
         }
 
         /// <summary>

@@ -17,16 +17,16 @@ MonoBehaviour:
   - _agentId: agent_01
     _displayName: Agent 1
     _agentColor: {r: 0.94, g: 0.39, b: 0.31, a: 1}
-    _startNodeId: 1
+    _startNodeId: a
   - _agentId: agent_02
     _displayName: Agent 2
     _agentColor: {r: 0.27, g: 0.62, b: 0.98, a: 1}
-    _startNodeId: 1
+    _startNodeId: b
   - _agentId: agent_03
     _displayName: Agent 3
     _agentColor: {r: 0.27, g: 0.79, b: 0.44, a: 1}
-    _startNodeId: 1
+    _startNodeId: c
   - _agentId: agent_04
     _displayName: Agent 4
     _agentColor: {r: 0.96, g: 0.76, b: 0.23, a: 1}
-    _startNodeId: 1
+    _startNodeId: d

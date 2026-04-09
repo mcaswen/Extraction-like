@@ -17,4 +17,4 @@ MonoBehaviour:
   - _agentId: agent_01
     _displayName: Agent 1
     _agentColor: {r: 0.94, g: 0.39, b: 0.31, a: 1}
-    _startNodeId: 1
+    _startNodeId: a

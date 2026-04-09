@@ -190,6 +190,12 @@ namespace BoardGame.Runtime.Services
             agentState.PreviousNodeId = previousNodeId;
             agentState.CurrentNodeId = arrivedNodeId;
             agentState.WorldPosition = _graphService.GetNodePosition(arrivedNodeId);
+
+            if (nodeStatesById.TryGetValue(arrivedNodeId, out BoardNodeRuntimeState arrivedNodeState))
+            {
+                arrivedNodeState.MarkExplored();
+            }
+
             agentState.ClearEdgeTravel();
             agentState.CurrentActionType = BoardActionType.Idle;
             agentState.CurrentActionProgress = 0f;

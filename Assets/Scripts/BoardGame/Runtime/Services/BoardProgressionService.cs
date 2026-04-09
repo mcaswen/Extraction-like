@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BoardGame.Config;
+using BoardGame.Runtime;
 using BoardGame.Runtime.State;
 using UnityEngine;
 
@@ -15,13 +16,20 @@ namespace BoardGame.Runtime.Services
 
         private readonly Dictionary<BoardDangerTier, int> _encounterExperienceByDangerTier =
             new Dictionary<BoardDangerTier, int>();
+        private readonly List<BoardLevelUpBuffType> _configuredChoiceTypes =
+            new List<BoardLevelUpBuffType>();
 
         private readonly SO_BoardGame_RuleSet _ruleSet;
-        private bool IsEnabled => _ruleSet != null && _ruleSet.ProgressionRules.Enabled;
+        private readonly bool _isFeatureEnabled;
+        private bool IsEnabled => _ruleSet != null && _isFeatureEnabled;
 
-        public BoardProgressionService(SO_BoardGame_RuleSet ruleSet, SO_BoardGame_LootTableSet lootTableSet)
+        public BoardProgressionService(
+            SO_BoardGame_RuleSet ruleSet,
+            SO_BoardGame_LootTableSet lootTableSet,
+            bool isFeatureEnabled)
         {
             _ruleSet = ruleSet;
+            _isFeatureEnabled = isFeatureEnabled;
 
             foreach (BoardItemDefinition itemDefinition in lootTableSet.ItemDefinitions)
             {
@@ -36,6 +44,21 @@ namespace BoardGame.Runtime.Services
                 }
 
                 _encounterExperienceByDangerTier[encounterDefinition.DangerTier] = Mathf.Max(0, encounterDefinition.ExperienceValue);
+            }
+        }
+
+        public void SetConfiguredChoiceTypes(IReadOnlyList<BoardLevelUpBuffType> configuredChoiceTypes)
+        {
+            _configuredChoiceTypes.Clear();
+
+            if (configuredChoiceTypes == null)
+            {
+                return;
+            }
+
+            foreach (BoardLevelUpBuffType configuredChoiceType in configuredChoiceTypes)
+            {
+                _configuredChoiceTypes.Add(configuredChoiceType);
             }
         }
 
@@ -146,14 +169,15 @@ namespace BoardGame.Runtime.Services
             }
 
             sessionState.ActiveLevelUpAgentId = string.Empty;
+            sessionState.PendingLevelUpChoices.Clear();
 
-            if (TryRollPendingChoices(sessionState, null))
+            BoardAgentState nextPendingAgentState = ResolvePendingLevelUpAgent(sessionState, null);
+
+            if (nextPendingAgentState != null)
             {
-                BoardAgentState nextAgentState = sessionState.GetActiveLevelUpAgentState();
-                string nextAgentLabel = nextAgentState != null ? nextAgentState.DisplayName : "another AI";
                 message = BoardGameStatusMessageUtility.Agent(
                     activeAgentState,
-                    $"Applied {choice.DisplayLabel}. {nextAgentLabel} now has a pending upgrade");
+                    $"Applied {choice.DisplayLabel}. Another AI has a pending upgrade");
                 sessionState.StatusMessage = message;
                 return true;
             }
@@ -161,6 +185,33 @@ namespace BoardGame.Runtime.Services
             message = BoardGameStatusMessageUtility.Agent(activeAgentState, $"Applied {choice.DisplayLabel}");
             sessionState.StatusMessage = message;
             return true;
+        }
+
+        public void SyncFocusedPendingChoices(BoardGameSessionState sessionState)
+        {
+            if (!IsEnabled || sessionState == null)
+            {
+                return;
+            }
+
+            if (sessionState.IsAwaitingLevelUpChoice)
+            {
+                return;
+            }
+
+            BoardAgentState focusedAgentState = sessionState.GetFocusedAgentState();
+
+            if (focusedAgentState == null || focusedAgentState.PendingLevelUpCount <= 0)
+            {
+                return;
+            }
+
+            if (TryRollPendingChoices(sessionState, focusedAgentState))
+            {
+                sessionState.StatusMessage = BoardGameStatusMessageUtility.Agent(
+                    focusedAgentState,
+                    "Choose an upgrade");
+            }
         }
 
         private BoardExperienceGrantResult GrantExperience(
@@ -187,7 +238,9 @@ namespace BoardGame.Runtime.Services
                 result.LevelsGained += 1;
             }
 
-            if (agentState.PendingLevelUpCount > 0 && !sessionState.IsAwaitingLevelUpChoice)
+            if (agentState.PendingLevelUpCount > 0 &&
+                !sessionState.IsAwaitingLevelUpChoice &&
+                sessionState.GetFocusedAgentState()?.AgentId == agentState.AgentId)
             {
                 result.TriggeredLevelUpChoice = TryRollPendingChoices(sessionState, agentState);
             }
@@ -218,7 +271,19 @@ namespace BoardGame.Runtime.Services
             }
 
             sessionState.ActiveLevelUpAgentId = agentState.AgentId;
-            sessionState.FocusedAgentId = agentState.AgentId;
+
+            if (_configuredChoiceTypes.Count > 0)
+            {
+                foreach (BoardLevelUpBuffType configuredChoiceType in _configuredChoiceTypes)
+                {
+                    if (TryRollConfiguredChoice(configuredChoiceType, buffDefinitions, out BoardLevelUpChoice configuredChoice))
+                    {
+                        sessionState.PendingLevelUpChoices.Add(configuredChoice);
+                    }
+                }
+
+                return sessionState.PendingLevelUpChoices.Count > 0;
+            }
 
             List<BoardLevelUpBuffDefinition> remainingDefinitions = new List<BoardLevelUpBuffDefinition>(buffDefinitions);
 
@@ -241,6 +306,41 @@ namespace BoardGame.Runtime.Services
             }
 
             return sessionState.PendingLevelUpChoices.Count > 0;
+        }
+
+        private static bool TryRollConfiguredChoice(
+            BoardLevelUpBuffType configuredChoiceType,
+            IReadOnlyList<BoardLevelUpBuffDefinition> buffDefinitions,
+            out BoardLevelUpChoice choice)
+        {
+            choice = null;
+
+            if (buffDefinitions == null || buffDefinitions.Count == 0)
+            {
+                return false;
+            }
+
+            List<BoardLevelUpBuffDefinition> matchingDefinitions = new List<BoardLevelUpBuffDefinition>();
+
+            foreach (BoardLevelUpBuffDefinition buffDefinition in buffDefinitions)
+            {
+                if (buffDefinition != null && buffDefinition.BuffType == configuredChoiceType)
+                {
+                    matchingDefinitions.Add(buffDefinition);
+                }
+            }
+
+            if (matchingDefinitions.Count == 0)
+            {
+                return false;
+            }
+
+            BoardLevelUpBuffDefinition pickedDefinition = matchingDefinitions[Random.Range(0, matchingDefinitions.Count)];
+            int rolledValue = Random.Range(
+                Mathf.Max(1, pickedDefinition.MinValue),
+                Mathf.Max(pickedDefinition.MinValue, pickedDefinition.MaxValue) + 1);
+            choice = new BoardLevelUpChoice(pickedDefinition.BuffType, rolledValue);
+            return true;
         }
 
         /// <summary>

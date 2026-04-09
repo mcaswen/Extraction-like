@@ -16,6 +16,7 @@ namespace BoardGame.Runtime.Controllers
         private readonly SO_BoardGame_LootTableSet _lootTableSet;
         private readonly SO_BoardGame_AgentRoster _agentRoster;
         private readonly BoardGameBagLayoutSettings _bagLayoutSettings;
+        private readonly bool _isProgressionEnabled;
 
         private readonly BoardGraphService _graphService;
         private readonly BoardPathfindingService _pathfindingService;
@@ -45,19 +46,21 @@ namespace BoardGame.Runtime.Controllers
             SO_BoardGame_RuleSet ruleSet,
             SO_BoardGame_LootTableSet lootTableSet,
             SO_BoardGame_AgentRoster agentRoster,
-            BoardGameBagLayoutSettings bagLayoutSettings)
+            BoardGameBagLayoutSettings bagLayoutSettings,
+            bool isProgressionEnabled)
         {
             _mapDefinition = mapDefinition;
             _ruleSet = ruleSet;
             _lootTableSet = lootTableSet;
             _agentRoster = agentRoster;
             _bagLayoutSettings = bagLayoutSettings ?? new BoardGameBagLayoutSettings();
+            _isProgressionEnabled = isProgressionEnabled;
 
             _graphService = new BoardGraphService(mapDefinition);
             _pathfindingService = new BoardPathfindingService(_graphService);
             _combatResolutionService = new BoardCombatResolutionService(ruleSet);
             _lootResolutionService = new BoardLootResolutionService(lootTableSet);
-            _progressionService = new BoardProgressionService(ruleSet, lootTableSet);
+            _progressionService = new BoardProgressionService(ruleSet, lootTableSet, _isProgressionEnabled);
             _decisionService = new BoardAgentDecisionService(_graphService);
             _interruptService = new BoardInterruptService(ruleSet);
             _actionStateMachine = new BoardAgentActionStateMachine(
@@ -88,15 +91,18 @@ namespace BoardGame.Runtime.Controllers
                 _selectionStateController,
                 _agentFocusController,
                 _graphService,
-                _ruleSet,
-                _bagLayoutSettings);
+                _bagLayoutSettings,
+                _isProgressionEnabled);
             _targetRedirectController = new BoardGameTargetRedirectController(
                 _sessionState,
                 _nodeStatesById,
                 _interruptService,
                 _actionStateMachine);
             _itemUseController = new BoardGameItemUseController(_sessionState, _lootResolutionService);
-            _progressionController = new BoardGameProgressionController(_sessionState, _ruleSet, _progressionService);
+            _progressionController = new BoardGameProgressionController(
+                _sessionState,
+                _progressionService,
+                _isProgressionEnabled);
             _lootInteractionController = new BoardGameLootInteractionController(
                 _sessionState,
                 _nodeStatesById,
@@ -152,7 +158,7 @@ namespace BoardGame.Runtime.Controllers
         public string SelectedNodeId => _selectionStateController.SelectedNodeId;
         public bool IsBagSystemEnabled => _bagLayoutSettings.EnableBagSystem;
         public bool IsRedirectModeActive => false;
-        public bool IsProgressionEnabled => _ruleSet.ProgressionRules.Enabled;
+        public bool IsProgressionEnabled => _isProgressionEnabled;
         public bool IsAwaitingLevelUpChoice => IsProgressionEnabled && _sessionState.IsAwaitingLevelUpChoice;
         public bool IsAwaitingLootInteraction => _sessionState.IsAwaitingLootInteraction;
         public bool IsLootInteractionOpen => _sessionState.IsLootInteractionOpen;

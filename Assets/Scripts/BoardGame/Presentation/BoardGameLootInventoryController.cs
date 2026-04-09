@@ -17,6 +17,8 @@ namespace BoardGame.Presentation
         private const float GridCellSize = 52f;
         private const float GridSpacing = 4f;
 
+        public static BoardGameLootInventoryController ActiveInstance { get; private set; }
+
         private readonly Dictionary<string, BoardItemInstance> _itemInstancesByRuntimeId =
             new Dictionary<string, BoardItemInstance>();
 
@@ -54,7 +56,61 @@ namespace BoardGame.Presentation
             _runtimeQueryController = runtimeQueryController;
             _lootInteractionController = lootInteractionController;
             _parentCanvas = parentCanvas;
+            ActiveInstance = this;
             EnsureOverlay();
+        }
+
+        private void OnDestroy()
+        {
+            if (ActiveInstance == this)
+            {
+                ActiveInstance = null;
+            }
+        }
+
+        public bool TryFindQuickTransferTarget(
+            InventoryUIController sourceGrid,
+            DraggableItemUI itemView,
+            out InventoryUIController targetGrid,
+            out Vector2Int position,
+            out bool needsRotation)
+        {
+            targetGrid = null;
+            position = Vector2Int.zero;
+            needsRotation = false;
+
+            if (!_isOpen || sourceGrid == null || itemView == null || itemView.ItemData == null)
+            {
+                return false;
+            }
+
+            InventoryUIController oppositeGrid = null;
+
+            if (sourceGrid == _lootGrid)
+            {
+                oppositeGrid = _playerGrid;
+            }
+            else if (sourceGrid == _playerGrid)
+            {
+                oppositeGrid = _lootGrid;
+            }
+
+            if (oppositeGrid == null || !itemView.CanBePlacedInGrid(oppositeGrid))
+            {
+                return false;
+            }
+
+            if (!oppositeGrid.GetGridController().FindFirstAvailableSpace(
+                    itemView.ItemData.Width,
+                    itemView.ItemData.Height,
+                    out position,
+                    out needsRotation))
+            {
+                return false;
+            }
+
+            targetGrid = oppositeGrid;
+            return true;
         }
 
         /// <summary>

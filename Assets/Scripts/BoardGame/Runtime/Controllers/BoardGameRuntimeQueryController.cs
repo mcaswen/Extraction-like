@@ -17,8 +17,8 @@ namespace BoardGame.Runtime.Controllers
         private readonly BoardGameSelectionStateController _selectionStateController;
         private readonly BoardGameAgentFocusController _agentFocusController;
         private readonly BoardGraphService _graphService;
-        private readonly SO_BoardGame_RuleSet _ruleSet;
         private readonly BoardGameBagLayoutSettings _bagLayoutSettings;
+        private readonly bool _isProgressionEnabled;
 
         public BoardGameRuntimeQueryController(
             BoardGameSessionState sessionState,
@@ -26,16 +26,16 @@ namespace BoardGame.Runtime.Controllers
             BoardGameSelectionStateController selectionStateController,
             BoardGameAgentFocusController agentFocusController,
             BoardGraphService graphService,
-            SO_BoardGame_RuleSet ruleSet,
-            BoardGameBagLayoutSettings bagLayoutSettings)
+            BoardGameBagLayoutSettings bagLayoutSettings,
+            bool isProgressionEnabled)
         {
             _sessionState = sessionState;
             _nodeStatesById = nodeStatesById;
             _selectionStateController = selectionStateController;
             _agentFocusController = agentFocusController;
             _graphService = graphService;
-            _ruleSet = ruleSet;
             _bagLayoutSettings = bagLayoutSettings;
+            _isProgressionEnabled = isProgressionEnabled;
         }
 
         public event Action Changed;
@@ -44,7 +44,7 @@ namespace BoardGame.Runtime.Controllers
         public string SelectedNodeId => _selectionStateController.SelectedNodeId;
         public BoardGameBagLayoutSettings BagLayoutSettings => _bagLayoutSettings;
         public bool IsBagSystemEnabled => _bagLayoutSettings.EnableBagSystem;
-        public bool IsProgressionEnabled => _ruleSet.ProgressionRules.Enabled;
+        public bool IsProgressionEnabled => _isProgressionEnabled;
         public bool IsAwaitingLevelUpChoice => IsProgressionEnabled && _sessionState.IsAwaitingLevelUpChoice;
         public bool IsAwaitingLootInteraction => _sessionState.IsAwaitingLootInteraction;
         public bool IsLootInteractionOpen => _sessionState.IsLootInteractionOpen;
