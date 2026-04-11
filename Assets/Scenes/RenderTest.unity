@@ -154,18 +154,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb2f25f000046974e8544529fccf308d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 8
-  patchSize: 6
+  gridSize: 64
+  patchSize: 32
   gravity: 9.81
   windSpeed: 12
   windDirection: {x: 1, y: 0.3}
   amplitude: 0.01
-  smallWaveDamping: 0.1
-  targetMaterial: {fileID: 2100000, guid: 4f49365842bd34243b87feb018f9c9c4, type: 2}
+  smallWaveDamping: 0.01
+  targetMaterial: {fileID: 2100000, guid: aca6c9a2543a16c478c1faedbf31138e, type: 2}
   heightMapProperty: _HeightMap
   normalMapProperty: _NormalMap
   updateEveryFrame: 1
-  heightScale: 50
+  heightScale: 5
   syncNearShoreMaterial: 1
   shoreWaveDirAlignWithWind: 1
   shoreWaveDirection: {x: -1, y: 0.35}
@@ -213,7 +213,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4f49365842bd34243b87feb018f9c9c4, type: 2}
+  - {fileID: 2100000, guid: aca6c9a2543a16c478c1faedbf31138e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
