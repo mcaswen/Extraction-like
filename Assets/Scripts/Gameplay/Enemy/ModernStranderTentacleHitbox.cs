@@ -55,7 +55,7 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
 
     private void NotifyOwner(Collider other)
     {
-        if (_owner == null || !other.CompareTag("Player"))
+        if (_owner == null || !_owner.isActiveAndEnabled || !other.CompareTag("Player"))
         {
             return;
         }

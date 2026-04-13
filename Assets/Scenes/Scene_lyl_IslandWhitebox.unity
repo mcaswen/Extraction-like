@@ -20433,6 +20433,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExtractionPointName: "\u64A4\u79BB\u70B9 A"
   ExtractionDurationSeconds: 3.2
+  DetectionHorizontalScale: 0.08
+  WorldPromptVerticalOffset: 0.9
 --- !u!65 &162653590
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -94733,6 +94735,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExtractionPointName: "\u64A4\u79BB\u70B9 B"
   ExtractionDurationSeconds: 3.2
+  DetectionHorizontalScale: 0.08
+  WorldPromptVerticalOffset: 0.9
 --- !u!65 &824603108
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -176198,6 +176202,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExtractionPointName: "\u9F99\u9AA8\u7901\u64A4\u79BB\u70B9"
   ExtractionDurationSeconds: 4
+  DetectionHorizontalScale: 0.82
+  WorldPromptVerticalOffset: 0.9
 --- !u!65 &1541036502
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -215937,6 +215943,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExtractionPointName: MainDockFloor
   ExtractionDurationSeconds: 4
+  DetectionHorizontalScale: 0.82
+  WorldPromptVerticalOffset: 0.9
 --- !u!65 &1858020556
 BoxCollider:
   m_ObjectHideFlags: 0

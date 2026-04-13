@@ -529,6 +529,7 @@ public partial class DraggableItemUI
         }
 
         RaidFlowController.Instance.NotifyLootCollected(ItemData.ItemName);
+        PlayerShootingController.Instance?.TryUnlockFromItem(ItemData);
     }
 
     // 从当前 UI 射线结果里找出鼠标悬停的背包网格

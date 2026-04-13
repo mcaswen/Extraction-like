@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1b5cc54a2a7430da2985100a107f6ce, type: 3}
+  m_Name: SO_RaidMagicKnowledgeScatterProfile
+  m_EditorClassIdentifier: 
+  TargetScenePath: Assets/Scenes/Scene_lyl_IslandWhitebox.unity
+  GeneratedRootName: Generated_MagicKnowledgePickups
+  ClearPreviousGeneratedRoot: 1
+  UseFixedSeed: 1
+  FixedSeed: 20260409
+  PlacementAttemptsPerItem: 64
+  GroundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  GroundProbeHeight: 40
+  SpawnHeightOffset: 0.05
+  RegionEdgePadding: 1
+  GlobalMinSpacing: 4
+  SpawnEntries:
+  - EntryId: ice_freeze_book
+    Label: Ice Freeze Notes
+    Prefab: {fileID: 3128921469748997861, guid: bef3944341687d2459c130949d72c6c6,
+      type: 3}
+    Count: 2
+    MinSpacing: 6
+    AllowedRegionPurposes: 6
+  - EntryId: ice_cone_book
+    Label: Ice Cone Grimoire
+    Prefab: {fileID: 895722129077960847, guid: 9c73fb0a9f9ec664cba8438156a6bf71, type: 3}
+    Count: 2
+    MinSpacing: 6
+    AllowedRegionPurposes: 6
+  - EntryId: earth_wall_book
+    Label: Earth Wall Manual
+    Prefab: {fileID: 3122794045242049989, guid: f2266265d5162244b81eda7036fa0a70,
+      type: 3}
+    Count: 2
+    MinSpacing: 7
+    AllowedRegionPurposes: 10
+  - EntryId: rune_pattern_tablet
+    Label: Rune Pattern Tablet
+    Prefab: {fileID: 4126775815186926059, guid: f4360df66a670bf42a719f2b2b7f6a40,
+      type: 3}
+    Count: 3
+    MinSpacing: 5
+    AllowedRegionPurposes: 14
+  - EntryId: traveler_boots_relic
+    Label: Traveler Boots
+    Prefab: {fileID: 918945784540093476, guid: 334f2b5118510d14b9acc25a5dfbe382, type: 3}
+    Count: 1
+    MinSpacing: 9
+    AllowedRegionPurposes: 12
+  - EntryId: time_hourglass_relic
+    Label: Time Hourglass
+    Prefab: {fileID: 723265631686223575, guid: ab39ff142c263ed40b681daf0c0d4bf0, type: 3}
+    Count: 1
+    MinSpacing: 10
+    AllowedRegionPurposes: 8
+  - EntryId: space_hourglass_relic
+    Label: Space Hourglass
+    Prefab: {fileID: 9166516383186004592, guid: 2910e87c9089c164e994845c3bc3ff61,
+      type: 3}
+    Count: 1
+    MinSpacing: 10
+    AllowedRegionPurposes: 12

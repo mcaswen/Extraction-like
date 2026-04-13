@@ -1,10 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// 最小可运行战斗流程控制器。
-/// 负责统计击杀、搜刮、撤离和失败状态，并提供最简 HUD 与重开入口。
-/// </summary>
 public class RaidFlowController : MonoBehaviour
 {
     public static RaidFlowController Instance { get; private set; }
@@ -23,6 +19,7 @@ public class RaidFlowController : MonoBehaviour
     private float _extractionProgressSeconds;
     private string _recentEventMessage = string.Empty;
     private float _recentEventTimer;
+    private GUIStyle _worldPromptStyle;
 
     public bool IsInputLocked => _isMissionCompleted || _isMissionFailed;
     public int RemainingEnemyCount => Mathf.Max(0, _initialEnemyCount - _enemiesKilledCount);
@@ -73,6 +70,7 @@ public class RaidFlowController : MonoBehaviour
     private void OnGUI()
     {
         DrawMissionHud();
+        DrawExtractionWorldPrompt();
         DrawMissionResult();
     }
 
@@ -103,8 +101,12 @@ public class RaidFlowController : MonoBehaviour
     {
         if (isInside)
         {
-            _activeExtractionPoint = extractionPoint;
-            _extractionProgressSeconds = 0f;
+            if (_activeExtractionPoint != extractionPoint)
+            {
+                _activeExtractionPoint = extractionPoint;
+                _extractionProgressSeconds = 0f;
+            }
+
             return;
         }
 
@@ -186,6 +188,65 @@ public class RaidFlowController : MonoBehaviour
         }
     }
 
+    private void DrawExtractionWorldPrompt()
+    {
+        if (_activeExtractionPoint == null || _isMissionCompleted || _isMissionFailed)
+        {
+            return;
+        }
+
+        Camera worldCamera = Camera.main;
+        if (worldCamera == null)
+        {
+            return;
+        }
+
+        Vector3 screenPosition = worldCamera.WorldToScreenPoint(_activeExtractionPoint.GetWorldPromptPosition());
+        if (screenPosition.z <= 0f)
+        {
+            return;
+        }
+
+        EnsureWorldPromptStyle();
+
+        string promptText;
+        if (RequireLootBeforeExtraction && _lootCollectedCount <= 0)
+        {
+            promptText = "需至少带走 1 件战利品";
+        }
+        else
+        {
+            float remainingTime = Mathf.Max(0f, _activeExtractionPoint.ExtractionDurationSeconds - _extractionProgressSeconds);
+            promptText = $"撤离等待 {remainingTime:0.0}s";
+        }
+
+        const float width = 176f;
+        const float height = 28f;
+        Rect rect = new Rect(
+            screenPosition.x - width * 0.5f,
+            Screen.height - screenPosition.y - height * 0.5f,
+            width,
+            height);
+
+        GUI.Box(rect, string.Empty);
+        GUI.Label(rect, promptText, _worldPromptStyle);
+    }
+
+    private void EnsureWorldPromptStyle()
+    {
+        if (_worldPromptStyle != null)
+        {
+            return;
+        }
+
+        _worldPromptStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontStyle = FontStyle.Bold
+        };
+        _worldPromptStyle.normal.textColor = Color.white;
+    }
+
     private void DrawMissionResult()
     {
         if (!_isMissionCompleted && !_isMissionFailed)
@@ -207,6 +268,7 @@ public class RaidFlowController : MonoBehaviour
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 56f, panelRect.width - 48f, 24f), detail);
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 92f, panelRect.width - 48f, 24f), $"按 {RestartKey} 重新开始");
     }
+
     private static void EnsureMinimapExists()
     {
         if (FindObjectOfType<RaidMinimapController>() != null)

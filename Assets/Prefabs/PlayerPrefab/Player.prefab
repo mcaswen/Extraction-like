@@ -261,7 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7719064fa4a92a9418430ca0278b55c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
+  MaxHealth: 220
   CorrosionTintColor: {r: 0.45, g: 1, b: 0.55, a: 1}
   CorrosionTintStrength: 0.45
 --- !u!114 &7743609549829651864
@@ -285,6 +285,13 @@ MonoBehaviour:
   TrailDuration: 0.05
   SilenceTintStrength: 0.55
   SilenceTintColor: {r: 0.32, g: 0.82, b: 1, a: 1}
+  StartWithIceFreezeUnlocked: 1
+  StartWithIceConeUnlocked: 1
+  StartWithEarthWallUnlocked: 1
+  StartWithTravelerBootsUnlocked: 1
+  StartWithTimeHourglassUnlocked: 1
+  StartWithSpaceHourglassUnlocked: 1
+  StartWithRunePatternLevel: 1
 --- !u!54 &9216309406287422568
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -70,20 +70,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, MeleeAttackRange * 0.85f);
         }
-
-        if (PlayerTransform == null)
-        {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
-            {
-                PlayerTransform = playerObject.transform;
-            }
-        }
-
-        if (PlayerTransform != null)
-        {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        }
+        EnsurePlayerReferences();
 
         if (MinimumRangedDistance <= MeleeAttackRange + 0.5f)
         {
@@ -97,7 +84,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
     private void Update()
     {
-        if (PlayerTransform == null)
+        if (!EnsurePlayerReferences())
         {
             return;
         }
@@ -487,6 +474,42 @@ public class AncientStranderBehaviorController : MonoBehaviour
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool EnsurePlayerReferences()
+    {
+        if (PlayerTransform == null)
+        {
+            if (PlayerHealthController.Instance != null)
+            {
+                PlayerTransform = PlayerHealthController.Instance.transform;
+            }
+            else
+            {
+                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null)
+                {
+                    PlayerTransform = playerObject.transform;
+                }
+            }
+        }
+
+        if (PlayerTransform != null && _playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
+            if (_playerHealthController == null)
+            {
+                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
+            }
+        }
+
+        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        {
+            _playerHealthController = PlayerHealthController.Instance;
+            PlayerTransform = _playerHealthController.transform;
+        }
+
+        return PlayerTransform != null && _playerHealthController != null;
     }
 
     private void OnDrawGizmosSelected()

@@ -58,19 +58,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void Start()
     {
-        if (PlayerTransform == null)
-        {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
-            {
-                PlayerTransform = playerObject.transform;
-            }
-        }
-
-        if (PlayerTransform != null)
-        {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        }
+        EnsurePlayerReferences();
 
         EnsureRuneWeakpointsExist();
         EnsureBeamRenderers();
@@ -80,7 +68,13 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void Update()
     {
-        if (CurrentState == SentinelState.Disabled || PlayerTransform == null)
+        if (CurrentState == SentinelState.Disabled)
+        {
+            UpdateBeamVisuals();
+            return;
+        }
+
+        if (!EnsurePlayerReferences())
         {
             UpdateBeamVisuals();
             return;
@@ -301,7 +295,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private bool IsPlayerOutOfRange()
     {
-        if (PlayerTransform == null)
+        if (!EnsurePlayerReferences())
         {
             return true;
         }
@@ -464,5 +458,41 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         {
             Gizmos.DrawLine(EyeOrigin.position, PlayerTransform.position + Vector3.up * 0.9f);
         }
+    }
+
+    private bool EnsurePlayerReferences()
+    {
+        if (PlayerTransform == null)
+        {
+            if (PlayerHealthController.Instance != null)
+            {
+                PlayerTransform = PlayerHealthController.Instance.transform;
+            }
+            else
+            {
+                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null)
+                {
+                    PlayerTransform = playerObject.transform;
+                }
+            }
+        }
+
+        if (PlayerTransform != null && _playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
+            if (_playerHealthController == null)
+            {
+                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
+            }
+        }
+
+        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        {
+            _playerHealthController = PlayerHealthController.Instance;
+            PlayerTransform = _playerHealthController.transform;
+        }
+
+        return PlayerTransform != null && _playerHealthController != null;
     }
 }

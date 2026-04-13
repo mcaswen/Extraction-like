@@ -44,22 +44,14 @@ public class RangedEnemyBehaviorController : MonoBehaviour
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         EnsureAgentReady();
-
-        if (PlayerTransform == null)
-        {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
-            {
-                PlayerTransform = playerObject.transform;
-            }
-        }
+        EnsurePlayerTransform();
 
         GetNewPatrolPoint();
     }
 
     private void Update()
     {
-        if (PlayerTransform == null)
+        if (!EnsurePlayerTransform())
         {
             return;
         }
@@ -207,6 +199,40 @@ public class RangedEnemyBehaviorController : MonoBehaviour
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool EnsurePlayerTransform()
+    {
+        if (PlayerTransform != null)
+        {
+            if (PlayerTransform.GetComponent<PlayerHealthController>() != null)
+            {
+                return true;
+            }
+
+            if (PlayerHealthController.Instance != null)
+            {
+                PlayerTransform = PlayerHealthController.Instance.transform;
+                return true;
+            }
+
+            return true;
+        }
+
+        if (PlayerHealthController.Instance != null)
+        {
+            PlayerTransform = PlayerHealthController.Instance.transform;
+            return true;
+        }
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = playerObject.transform;
+        return true;
     }
 
     private void OnDrawGizmosSelected()

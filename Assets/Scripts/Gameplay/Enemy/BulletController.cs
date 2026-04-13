@@ -5,10 +5,22 @@ using UnityEngine;
 /// </summary>
 public class BulletController : MonoBehaviour
 {
+    public enum AttackElementType
+    {
+        Physical,
+        Fire,
+        Ice
+    }
+
     public float MoveSpeed = 20f;
     public float Damage = 25f;
     public float LifeTime = 3f;
     public Color BulletColor = new Color(0.98f, 0.98f, 1f, 1f);
+    public AttackElementType AttackElement = AttackElementType.Fire;
+    public float SlowMultiplier = 1f;
+    public float SlowDurationSeconds = 0f;
+    public float FreezeDurationSeconds = 0f;
+    public float FrozenFireBonusMultiplier = 2f;
 
     private Rigidbody _rigidbody;
 
@@ -63,7 +75,7 @@ public class BulletController : MonoBehaviour
         EnemyHealthController enemyHealthController = other.GetComponentInParent<EnemyHealthController>();
         if (enemyHealthController != null)
         {
-            enemyHealthController.TakeDamage(Damage);
+            ApplyElementalDamage(enemyHealthController);
         }
 
         Destroy(gameObject);
@@ -104,6 +116,42 @@ public class BulletController : MonoBehaviour
             }
 
             rendererComponent.material = runtimeMaterial;
+        }
+    }
+
+    private void ApplyElementalDamage(EnemyHealthController enemyHealthController)
+    {
+        if (enemyHealthController == null)
+        {
+            return;
+        }
+
+        EnemyStatusEffectController statusEffectController = enemyHealthController.GetComponent<EnemyStatusEffectController>();
+        if (statusEffectController == null)
+        {
+            statusEffectController = enemyHealthController.gameObject.AddComponent<EnemyStatusEffectController>();
+        }
+
+        float finalDamage = Damage;
+        if (AttackElement == AttackElementType.Fire && statusEffectController.IsFrozen)
+        {
+            finalDamage *= Mathf.Max(1f, FrozenFireBonusMultiplier);
+            statusEffectController.BreakFreeze();
+        }
+
+        enemyHealthController.TakeDamage(finalDamage);
+
+        if (AttackElement == AttackElementType.Ice)
+        {
+            if (SlowDurationSeconds > 0f)
+            {
+                statusEffectController.ApplySlow(SlowMultiplier, SlowDurationSeconds);
+            }
+
+            if (FreezeDurationSeconds > 0f)
+            {
+                statusEffectController.ApplyFreeze(FreezeDurationSeconds);
+            }
         }
     }
 }

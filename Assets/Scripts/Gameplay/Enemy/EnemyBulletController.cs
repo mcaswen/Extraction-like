@@ -30,7 +30,19 @@ public class EnemyBulletController : MonoBehaviour
         }
 
         // 检查是不是打中了玩家
-        PlayerHealthController playerHealthController = other.GetComponent<PlayerHealthController>();
+        PlayerHealthController playerHealthController = other.GetComponentInParent<PlayerHealthController>();
+        if (playerHealthController == null && other.CompareTag("Player"))
+        {
+            Transform playerRoot = other.transform.root;
+            if (playerRoot != null && playerRoot.CompareTag("Player"))
+            {
+                playerHealthController = playerRoot.GetComponent<PlayerHealthController>();
+                if (playerHealthController == null)
+                {
+                    playerHealthController = playerRoot.gameObject.AddComponent<PlayerHealthController>();
+                }
+            }
+        }
         if (playerHealthController != null)
         {
             // 打中玩家，玩家扣血
