@@ -311,18 +311,21 @@ public class InventoryScreenController : MonoBehaviour
         if (TryResolveAvailableSpace(BackpackSlot, BackpackGrid, itemData, out InventoryUIController backpackTarget, out Vector2Int backpackPosition, out bool backpackRotation))
         {
             InventoryItemFactory.Instance.SpawnItemInGrid(itemData, backpackTarget, backpackPosition.x, backpackPosition.y, amount, backpackRotation);
+            TryUnlockMagicFromItem(itemData);
             return true;
         }
 
         if (TryResolveAvailableSpace(RigSlot, TacticalRigGrid, itemData, out InventoryUIController rigTarget, out Vector2Int rigPosition, out bool rigRotation))
         {
             InventoryItemFactory.Instance.SpawnItemInGrid(itemData, rigTarget, rigPosition.x, rigPosition.y, amount, rigRotation);
+            TryUnlockMagicFromItem(itemData);
             return true;
         }
 
         if (TryResolveAvailableSpace(PocketGrid, itemData, out InventoryUIController pocketTarget, out Vector2Int pocketPosition, out bool pocketRotation))
         {
             InventoryItemFactory.Instance.SpawnItemInGrid(itemData, pocketTarget, pocketPosition.x, pocketPosition.y, amount, pocketRotation);
+            TryUnlockMagicFromItem(itemData);
             return true;
         }
 
@@ -355,6 +358,7 @@ public class InventoryScreenController : MonoBehaviour
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
             RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
+            TryUnlockMagicFromItem(worldItem.ItemData);
             return true;
         }
 
@@ -370,6 +374,7 @@ public class InventoryScreenController : MonoBehaviour
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
             RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
+            TryUnlockMagicFromItem(worldItem.ItemData);
             return true;
         }
 
@@ -385,6 +390,7 @@ public class InventoryScreenController : MonoBehaviour
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
             RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
+            TryUnlockMagicFromItem(worldItem.ItemData);
             return true;
         }
 
@@ -817,23 +823,42 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
+        bool didHandlePickup;
         if (!slot.HasEquippedItem)
         {
-            return TryEquipWorldContainer(
+            didHandlePickup = TryEquipWorldContainer(
                 slot,
                 worldItem,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            if (didHandlePickup)
+            {
+                TryUnlockMagicFromItem(worldItem.ItemData);
+            }
+
+            return didHandlePickup;
         }
 
         if (worldItem.ItemData.Type == ItemType.Rig)
         {
-            return TrySwapRig(worldItem, slot);
+            didHandlePickup = TrySwapRig(worldItem, slot);
+            if (didHandlePickup)
+            {
+                TryUnlockMagicFromItem(worldItem.ItemData);
+            }
+
+            return didHandlePickup;
         }
 
         if (worldItem.ItemData.Type == ItemType.Bag)
         {
-            return TrySwapBackpack(worldItem, slot);
+            didHandlePickup = TrySwapBackpack(worldItem, slot);
+            if (didHandlePickup)
+            {
+                TryUnlockMagicFromItem(worldItem.ItemData);
+            }
+
+            return didHandlePickup;
         }
 
         return false;
@@ -1334,6 +1359,16 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static void TryUnlockMagicFromItem(InventoryItemData itemData)
+    {
+        if (itemData == null || PlayerShootingController.Instance == null)
+        {
+            return;
+        }
+
+        PlayerShootingController.Instance.TryUnlockFromItem(itemData);
     }
 
     // 深拷贝容器物品快照，确保 UI 编辑和世界实例不会共享状态引用

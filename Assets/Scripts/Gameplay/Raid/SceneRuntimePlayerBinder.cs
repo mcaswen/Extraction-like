@@ -96,6 +96,12 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
             return;
         }
 
+        PlayerHealthController playerHealthController = playerTransform.GetComponent<PlayerHealthController>();
+        if (playerHealthController == null)
+        {
+            playerHealthController = playerTransform.gameObject.AddComponent<PlayerHealthController>();
+        }
+
         PlayerInteraction interaction = playerTransform.GetComponent<PlayerInteraction>();
         if (interaction == null)
         {

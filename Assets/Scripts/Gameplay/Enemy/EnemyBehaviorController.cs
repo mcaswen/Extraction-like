@@ -44,27 +44,14 @@ public class EnemyBehaviorController : MonoBehaviour
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         EnsureAgentReady();
-
-        if (PlayerTransform == null)
-        {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
-            {
-                PlayerTransform = playerObject.transform;
-            }
-        }
-
-        if (PlayerTransform != null)
-        {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        }
+        EnsurePlayerReferences();
 
         GetNewPatrolPoint();
     }
 
     private void Update()
     {
-        if (PlayerTransform == null)
+        if (!EnsurePlayerReferences())
         {
             return;
         }
@@ -206,6 +193,42 @@ public class EnemyBehaviorController : MonoBehaviour
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool EnsurePlayerReferences()
+    {
+        if (PlayerTransform == null)
+        {
+            if (PlayerHealthController.Instance != null)
+            {
+                PlayerTransform = PlayerHealthController.Instance.transform;
+            }
+            else
+            {
+                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null)
+                {
+                    PlayerTransform = playerObject.transform;
+                }
+            }
+        }
+
+        if (PlayerTransform != null && _playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
+            if (_playerHealthController == null)
+            {
+                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
+            }
+        }
+
+        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        {
+            _playerHealthController = PlayerHealthController.Instance;
+            PlayerTransform = _playerHealthController.transform;
+        }
+
+        return PlayerTransform != null && _playerHealthController != null;
     }
 
     private void OnDrawGizmosSelected()

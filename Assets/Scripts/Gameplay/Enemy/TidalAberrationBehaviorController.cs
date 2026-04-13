@@ -78,22 +78,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour
         {
             _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, effectiveMeleeRange * 0.9f);
         }
-
-        if (PlayerTransform == null)
-        {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
-            {
-                PlayerTransform = playerObject.transform;
-            }
-        }
-
-        if (PlayerTransform != null)
-        {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-            _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-            _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
-        }
+        EnsurePlayerReferences();
 
         EnsureLineRenderers();
         GetNewPatrolPoint();
@@ -101,7 +86,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour
 
     private void Update()
     {
-        if (PlayerTransform == null)
+        if (!EnsurePlayerReferences())
         {
             return;
         }
@@ -490,6 +475,65 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool EnsurePlayerReferences()
+    {
+        if (PlayerTransform == null)
+        {
+            if (PlayerHealthController.Instance != null)
+            {
+                PlayerTransform = PlayerHealthController.Instance.transform;
+            }
+            else
+            {
+                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null)
+                {
+                    PlayerTransform = playerObject.transform;
+                }
+            }
+        }
+
+        if (PlayerTransform != null)
+        {
+            if (_playerHealthController == null)
+            {
+                _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
+                if (_playerHealthController == null)
+                {
+                    _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
+                }
+            }
+
+            if (_playerMovementController == null)
+            {
+                _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
+            }
+
+            if (_playerShootingController == null)
+            {
+                _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
+            }
+        }
+
+        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        {
+            _playerHealthController = PlayerHealthController.Instance;
+            PlayerTransform = _playerHealthController.transform;
+        }
+
+        if (_playerMovementController == null && PlayerTransform != null)
+        {
+            _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
+        }
+
+        if (_playerShootingController == null && PlayerTransform != null)
+        {
+            _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
+        }
+
+        return PlayerTransform != null && _playerHealthController != null;
     }
 
     private void OnDrawGizmosSelected()

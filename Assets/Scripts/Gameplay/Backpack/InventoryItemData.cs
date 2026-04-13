@@ -28,6 +28,21 @@ public enum ItemRarity
 }
 
 /// <summary>
+/// Optional gameplay unlocks granted when the item is brought out.
+/// </summary>
+public enum MagicUnlockType
+{
+    None,
+    IceFreeze,
+    IceCone,
+    EarthWall,
+    RunePattern,
+    TravelerBoots,
+    TimeHourglass,
+    SpaceHourglass
+}
+
+/// <summary>
 /// 物品静态配置
 /// ScriptableObject 只承载配置，不承载运行时状态
 /// </summary>
@@ -65,6 +80,11 @@ public class InventoryItemData : ScriptableObject
     [Header("Search")]
     public bool RequiresSearchInLootContainer = true;
     public float SearchDurationOverride = -1f;
+
+    [Header("Magic Unlock")]
+    public MagicUnlockType MagicUnlock = MagicUnlockType.None;
+    [Min(1)]
+    public int RunePatternPoints = 1;
 
     /// <summary>
     /// 获取该物品在战利品容器中的默认搜索时长
