@@ -140,6 +140,13 @@ Material:
     - _RefractionBlend: 0.728
     - _RefractionIOR: 1.45
     - _RefractionStrength: 0.0521
+    - _SSREdgeFade: 12
+    - _SSRIntensity: 0.55
+    - _SSRMaxDistance: 55
+    - _SSRRoughFade: 2.2
+    - _SSRStartOffset: 0.12
+    - _SSRStepWorld: 1.15
+    - _SSRThickness: 0.65
     - _ShallowFFTScale: 0.55
     - _ShoreDepthRange: 12
     - _ShoreFalloff: 6.12
@@ -147,6 +154,8 @@ Material:
     - _ShoreWaveAmplitude: 0.15
     - _ShoreWaveFrequency: 0.073
     - _ShoreWaveSpeed: 1.57
+    - _SkyboxHorizonBoost: 0.55
+    - _SkyboxReflectionBlend: 0.22
     - _Smoothness: 0.804
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

@@ -22,6 +22,10 @@ Shader "TA/OceanFFT_URP"
         _IndirectDiffuse ("Indirect Diffuse (SH)", Range(0, 1)) = 0.42
         _EnvironmentSpecular ("Environment Specular", Range(0, 1)) = 0.38
 
+        [Header(Skybox Reflection)]
+        _SkyboxReflectionBlend ("Skybox vs Probes Mix", Range(0, 1)) = 0.22
+        _SkyboxHorizonBoost ("Extra Sky At Grazing", Range(0, 2)) = 0.55
+
         [Header(Refraction)]
         [HDR] _RefractionTint ("Refraction Tint", Color) = (0.82, 0.94, 1.0, 1)
         _RefractionStrength ("Screen UV Offset (TS Normal)", Range(0, 0.08)) = 0.022
@@ -97,6 +101,8 @@ Shader "TA/OceanFFT_URP"
                 half _FresnelBias;
                 half _IndirectDiffuse;
                 half _EnvironmentSpecular;
+                half _SkyboxReflectionBlend;
+                half _SkyboxHorizonBoost;
                 half4 _RefractionTint;
                 half _RefractionStrength;
                 half _RefractionBlend;
@@ -266,7 +272,17 @@ Shader "TA/OceanFFT_URP"
                 half3 bakedGI = SampleSH(normalWS) * _IndirectDiffuse;
                 half fresnelTermGI = Pow4(1.0 - NdotV);
                 half3 reflectVector = reflect(-viewDir, normalWS);
-                half3 indirectSpecular = GlossyEnvironmentReflection(reflectVector, input.positionWS, brdfData.perceptualRoughness, 1.0h, screenUV);
+                half3 envFromPipeline = GlossyEnvironmentReflection(reflectVector, input.positionWS, brdfData.perceptualRoughness, 1.0h, screenUV);
+                half3 indirectSpecular = envFromPipeline;
+#if !defined(_ENVIRONMENTREFLECTIONS_OFF)
+                {
+                    half skyMip = PerceptualRoughnessToMipmapLevel(brdfData.perceptualRoughness);
+                    half4 skyEnc = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectVector, skyMip);
+                    half3 skyboxRefl = DecodeHDREnvironment(skyEnc, unity_SpecCube0_HDR);
+                    half skyMix = saturate(_SkyboxReflectionBlend + (1.0h - NdotV) * _SkyboxHorizonBoost);
+                    indirectSpecular = lerp(envFromPipeline, skyboxRefl, skyMix);
+                }
+#endif
                 indirectSpecular *= _EnvironmentSpecular;
                 half3 indirectLit = EnvironmentBRDF(brdfData, bakedGI, indirectSpecular, fresnelTermGI);
 
