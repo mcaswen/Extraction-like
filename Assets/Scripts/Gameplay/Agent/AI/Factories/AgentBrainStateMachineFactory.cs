@@ -1,41 +1,41 @@
 using Core.StateMachine.Runtime;
-using Gameplay.Player.AI.States;
+using Gameplay.Agent.AI.States;
 
-namespace Gameplay.Player.AI.Factories
+namespace Gameplay.Agent.AI.Factories
 {
     /// <summary>
-    /// 主角 Brain 状态机装配工厂
+    /// Agent Brain 状态机装配工厂
     /// 负责将状态实例、层级关系和转移规则组装为完整的分层状态机
     /// </summary>
-    public sealed class PlayerBrainStateMachineFactory
+    public sealed class AgentBrainStateMachineFactory
     {
-        private readonly PlayerBrainStateFactory _stateFactory;
-        private readonly PlayerBrainTransitionRules _transitionRules;
+        private readonly AgentBrainStateFactory _stateFactory;
+        private readonly AgentBrainTransitionRules _transitionRules;
 
-        public PlayerBrainStateMachineFactory(
-            PlayerBrainStateFactory stateFactory,
-            PlayerBrainTransitionRules transitionRules)
+        public AgentBrainStateMachineFactory(
+            AgentBrainStateFactory stateFactory,
+            AgentBrainTransitionRules transitionRules)
         {
             _stateFactory = stateFactory;
             _transitionRules = transitionRules;
         }
 
         /// <summary>
-        /// 构建主角 Brain 的 MVP 宏状态机
+        /// 构建Agent Brain 的 MVP 宏状态机
         /// 当前版本只处理 Explore / Combat / SearchResource / InteractLoot / Extraction 五个宏状态，
         /// </summary>
         /// <param name="stateMachineContext"></param>
         /// <returns></returns>
         public HierarchicalStateMachine Build(StateMachineContext stateMachineContext)
         {
-            PlayerBrainState rootState = _stateFactory.CreateRootState();
-            PlayerBrainState raidState = _stateFactory.CreateRaidState();
+            AgentBrainState rootState = _stateFactory.CreateRootState();
+            AgentBrainState raidState = _stateFactory.CreateRaidState();
 
-            PlayerBrainState exploreState = _stateFactory.CreateExploreState();
-            PlayerBrainState combatState = _stateFactory.CreateCombatState();
-            PlayerBrainState searchResourceState = _stateFactory.CreateSearchResourceState();
-            PlayerBrainState interactLootState = _stateFactory.CreateInteractLootState();
-            PlayerBrainState extractionState = _stateFactory.CreateExtractionState();
+            AgentBrainState exploreState = _stateFactory.CreateExploreState();
+            AgentBrainState combatState = _stateFactory.CreateCombatState();
+            AgentBrainState searchResourceState = _stateFactory.CreateSearchResourceState();
+            AgentBrainState interactLootState = _stateFactory.CreateInteractLootState();
+            AgentBrainState extractionState = _stateFactory.CreateExtractionState();
 
             // 先建立状态层级。
             // 当前宏状态都挂在 Raid 之下，方便后续继续向下细拆子状态。

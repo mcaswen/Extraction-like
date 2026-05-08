@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace Gameplay.Player.Data
+namespace Gameplay.Agent.Data
 {
     /// <summary>
-    /// 主角受到伤害的请求数据结构
+    /// Agent受到伤害的请求数据结构
     /// 包含伤害数值、击中位置和击中方向等信息
     /// </summary>
     public readonly struct DamageRequest

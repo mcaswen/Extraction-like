@@ -1,18 +1,18 @@
 using Core.BehaviorTree.Blackboard;
-using Gameplay.Player.Data;
+using Gameplay.Agent.Data;
 
-namespace Gameplay.Player.Core
+namespace Gameplay.Agent.Core
 {
     /// <summary>
-    /// 玩家干预层控制器
+    /// Agent干预层控制器
     /// 当前阶段只负责接收和暂存干预请求，并写入黑板
     /// 不在此处解释具体业务含义
     /// </summary>
-    public sealed class PlayerInterventionController
+    public sealed class AgentInterventionController
     {
         private readonly BehaviorBlackboard _blackboard;
 
-        public PlayerInterventionController(BehaviorBlackboard blackboard)
+        public AgentInterventionController(BehaviorBlackboard blackboard)
         {
             _blackboard = blackboard;
         }
@@ -22,15 +22,15 @@ namespace Gameplay.Player.Core
         /// </summary>
         /// <param name="directiveRequest"></param>
         /// <param name="timeSeconds"></param>
-        public void SubmitDirective(PlayerDirectiveRequest directiveRequest, double timeSeconds)
+        public void SubmitDirective(AgentDirectiveRequest directiveRequest, double timeSeconds)
         {
             _blackboard.SetValue(
-                PlayerBlackboardKeys.HasPendingDirective,
-                directiveRequest.DirectiveType != PlayerDirectiveType.None,
+                AgentBlackboardKeys.HasPendingDirective,
+                directiveRequest.DirectiveType != AgentDirectiveType.None,
                 timeSeconds);
 
             _blackboard.SetValue(
-                PlayerBlackboardKeys.PendingDirectiveRequest,
+                AgentBlackboardKeys.PendingDirectiveRequest,
                 directiveRequest,
                 timeSeconds);
         }
@@ -42,12 +42,12 @@ namespace Gameplay.Player.Core
         public void ClearDirective(double timeSeconds)
         {
             _blackboard.SetValue(
-                PlayerBlackboardKeys.HasPendingDirective,
+                AgentBlackboardKeys.HasPendingDirective,
                 false,
                 timeSeconds);
 
             _blackboard.RemoveValue(
-                PlayerBlackboardKeys.PendingDirectiveRequest,
+                AgentBlackboardKeys.PendingDirectiveRequest,
                 timeSeconds);
         }
     }

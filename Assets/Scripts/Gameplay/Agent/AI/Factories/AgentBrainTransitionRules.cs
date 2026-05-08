@@ -1,14 +1,14 @@
 using Core.BehaviorTree.Blackboard;
 using Core.StateMachine.Runtime;
-using Gameplay.Player.Data;
+using Gameplay.Agent.Data;
 
-namespace Gameplay.Player.AI.Factories
+namespace Gameplay.Agent.AI.Factories
 {
     /// <summary>
-    /// 主角 Brain 宏状态转移规则集合
+    /// Agent Brain 宏状态转移规则集合
     /// 将状态转移条件从 Controller 中剥离出来，避免状态机构建逻辑与规则判断逻辑缠在一起
     /// </summary>
-    public sealed class PlayerBrainTransitionRules
+    public sealed class AgentBrainTransitionRules
     {
         /// <summary>
         /// 判断是否可以进入战斗状态
@@ -18,8 +18,8 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanEnterCombat(StateMachineContext context)
         {
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
             return !isDead && hasVisibleEnemy;
         }
 
@@ -31,10 +31,10 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanEnterSearchResource(StateMachineContext context)
         {
-            bool hasResourceTarget = GetBool(context, PlayerBlackboardKeys.HasResourceTarget);
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool shouldExtract = GetBool(context, PlayerBlackboardKeys.ShouldExtract);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && hasResourceTarget && !hasVisibleEnemy && !shouldExtract;
         }
@@ -47,8 +47,8 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanEnterInteractLoot(StateMachineContext context)
         {
-            bool hasInteractableTarget = GetBool(context, PlayerBlackboardKeys.HasInteractableTarget);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && hasInteractableTarget;
         }
@@ -61,8 +61,8 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanEnterExtraction(StateMachineContext context)
         {
-            bool shouldExtract = GetBool(context, PlayerBlackboardKeys.ShouldExtract);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && shouldExtract;
         }
@@ -75,9 +75,9 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanLeaveCombatToExplore(StateMachineContext context)
         {
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool shouldExtract = GetBool(context, PlayerBlackboardKeys.ShouldExtract);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && !hasVisibleEnemy && !shouldExtract;
         }
@@ -90,10 +90,10 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanLeaveSearchResourceToExplore(StateMachineContext context)
         {
-            bool hasResourceTarget = GetBool(context, PlayerBlackboardKeys.HasResourceTarget);
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool shouldExtract = GetBool(context, PlayerBlackboardKeys.ShouldExtract);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && !hasResourceTarget && !hasVisibleEnemy && !shouldExtract;
         }
@@ -106,10 +106,10 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanLeaveInteractLootToExplore(StateMachineContext context)
         {
-            bool hasInteractableTarget = GetBool(context, PlayerBlackboardKeys.HasInteractableTarget);
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool shouldExtract = GetBool(context, PlayerBlackboardKeys.ShouldExtract);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && !hasInteractableTarget && !hasVisibleEnemy && !shouldExtract;
         }
@@ -122,8 +122,8 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanExtractionBeInterruptedByCombat(StateMachineContext context)
         {
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && hasVisibleEnemy;
         }
@@ -136,9 +136,9 @@ namespace Gameplay.Player.AI.Factories
         /// <returns></returns>
         public bool CanLeaveExtractionToExplore(StateMachineContext context)
         {
-            bool shouldExtract = GetBool(context, PlayerBlackboardKeys.ShouldExtract);
-            bool hasVisibleEnemy = GetBool(context, PlayerBlackboardKeys.HasVisibleEnemy);
-            bool isDead = GetBool(context, PlayerBlackboardKeys.PlayerIsDead);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && !shouldExtract && !hasVisibleEnemy;
         }

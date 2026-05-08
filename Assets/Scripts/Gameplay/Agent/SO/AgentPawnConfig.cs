@@ -1,15 +1,15 @@
 using UnityEngine;
 
-namespace Gameplay.Player.SO
+namespace Gameplay.Agent.SO
 {
     /// <summary>
-    /// 主角身体层静态配置。
+    /// Agent身体层静态配置。
     /// 当前阶段先只承载 Pawn Root 真正会用到的最小基础参数
     /// </summary>
     [CreateAssetMenu(
-        fileName = "SO_Player_PawnConfig",
-        menuName = "SO/Player/PawnConfig")]
-    public sealed class PlayerPawnConfig : ScriptableObject
+        fileName = "SO_Agent_PawnConfig",
+        menuName = "SO/Agent/PawnConfig")]
+    public sealed class AgentPawnConfig : ScriptableObject
     {
         [Header("基础属性")]
         [SerializeField] private int _maxHealth = 100;

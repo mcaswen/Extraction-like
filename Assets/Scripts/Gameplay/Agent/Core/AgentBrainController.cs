@@ -4,19 +4,19 @@ using Core.BehaviorTree.Debugging;
 using Core.BehaviorTree.Runtime;
 using Core.StateMachine.Debugging;
 using Core.StateMachine.Runtime;
-using Gameplay.Player.AI.Factories;
-using Gameplay.Player.Data;
-using Gameplay.Player.Interfaces;
+using Gameplay.Agent.AI.Factories;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Interfaces;
 
-namespace Gameplay.Player.Core
+namespace Gameplay.Agent.Core
 {
     /// <summary>
-    /// 主角 AI 大脑总控
-    /// 负责持有 Blackboard、行为树上下文、状态机上下文，并驱动主角自主决策+行动的 MVP 宏状态机
+    /// Agent AI 大脑总控
+    /// 负责持有 Blackboard、行为树上下文、状态机上下文，并驱动Agent自主决策+行动的 MVP 宏状态机
     /// </summary>
-    public sealed class PlayerBrainController
+    public sealed class AgentBrainController
     {
-        private readonly IPlayerReadOnly _playerReadOnly;
+        private readonly IAgentReadOnly _agentReadOnly;
 
         private readonly BehaviorBlackboard _blackboard;
         private readonly BehaviorTreeDebugTrace _behaviorTreeDebugTrace;
@@ -28,21 +28,21 @@ namespace Gameplay.Player.Core
 
         public BehaviorBlackboard Blackboard => _blackboard;
 
-        public PlayerMacroStateId CurrentMacroStateId =>
-            _blackboard.GetValueOrDefault<PlayerMacroStateId>(
-                PlayerBlackboardKeys.CurrentMacroStateId,
-                PlayerMacroStateId.None);
+        public AgentMacroStateId CurrentMacroStateId =>
+            _blackboard.GetValueOrDefault<AgentMacroStateId>(
+                AgentBlackboardKeys.CurrentMacroStateId,
+                AgentMacroStateId.None);
 
         public string CurrentMacroStateName => CurrentMacroStateId.ToString();
 
         /// <summary>
         /// 装配各大组件，比如 Blackboard、Context、StateMachine，并将它们连接起来
         /// </summary>
-        /// <param name="playerReadOnly"></param>
+        /// <param name="agentReadOnly"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public PlayerBrainController(IPlayerReadOnly playerReadOnly)
+        public AgentBrainController(IAgentReadOnly agentReadOnly)
         {
-            _playerReadOnly = playerReadOnly ?? throw new ArgumentNullException(nameof(playerReadOnly));
+            _agentReadOnly = agentReadOnly ?? throw new ArgumentNullException(nameof(agentReadOnly));
 
             _blackboard = new BehaviorBlackboard();
             _behaviorTreeDebugTrace = new BehaviorTreeDebugTrace();
@@ -51,16 +51,16 @@ namespace Gameplay.Player.Core
             _behaviorTreeContext = new BehaviorTreeContext(
                 _blackboard,
                 _behaviorTreeDebugTrace,
-                _playerReadOnly);
+                _agentReadOnly);
 
             _stateMachineContext = new StateMachineContext(
                 _behaviorTreeContext,
                 _stateMachineDebugTrace);
 
-            PlayerBrainStateFactory stateFactory = new PlayerBrainStateFactory();
-            PlayerBrainTransitionRules transitionRules = new PlayerBrainTransitionRules();
-            PlayerBrainStateMachineFactory stateMachineFactory =
-                new PlayerBrainStateMachineFactory(stateFactory, transitionRules);
+            AgentBrainStateFactory stateFactory = new AgentBrainStateFactory();
+            AgentBrainTransitionRules transitionRules = new AgentBrainTransitionRules();
+            AgentBrainStateMachineFactory stateMachineFactory =
+                new AgentBrainStateMachineFactory(stateFactory, transitionRules);
 
             _stateMachine = stateMachineFactory.Build(_stateMachineContext);
         }

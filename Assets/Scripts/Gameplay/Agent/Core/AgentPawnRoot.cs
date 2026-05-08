@@ -1,31 +1,31 @@
 using UnityEngine;
 using Core.BehaviorTree.Blackboard;
-using Gameplay.Player.Data;
-using Gameplay.Player.Interfaces;
-using Gameplay.Player.SO;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.SO;
 
-namespace Gameplay.Player.Core
+namespace Gameplay.Agent.Core
 {
     /// <summary>
-    /// 主角实体总入口。
+    /// Agent实体总入口。
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层。
     /// </summary>
-    public sealed class PlayerPawnRoot : MonoBehaviour, IPlayerReadOnly, IPlayerCommandReceiver
+    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver
     {
         [Header("Data")]
-        [SerializeField] private PlayerPawnConfig _pawnConfig;
+        [SerializeField] private AgentPawnConfig _pawnConfig;
 
         private int _currentHealth;
 
-        private PlayerBrainController _brainController;
-        private PlayerInterventionController _interventionController;
+        private AgentBrainController _brainController;
+        private AgentInterventionController _interventionController;
 
         public Transform CachedTransform => transform;
         public Vector3 Position => transform.position;
         public Vector3 Forward => transform.forward;
 
-        public PlayerMacroStateId CurrentMacroStateId =>
-            _brainController != null ? _brainController.CurrentMacroStateId : PlayerMacroStateId.None;
+        public AgentMacroStateId CurrentMacroStateId =>
+            _brainController != null ? _brainController.CurrentMacroStateId : AgentMacroStateId.None;
 
         public string CurrentMacroStateName => CurrentMacroStateId.ToString();
 
@@ -41,15 +41,15 @@ namespace Gameplay.Player.Core
         {
             if (_pawnConfig == null)
             {
-                Debug.LogError("PlayerPawnRoot 缺少 PlayerPawnConfig 配置。", this);
+                Debug.LogError("AgentPawnRoot 缺少 AgentPawnConfig 配置。", this);
                 enabled = false;
                 return;
             }
 
             _currentHealth = _pawnConfig.MaxHealth;
 
-            _brainController = new PlayerBrainController(this);
-            _interventionController = new PlayerInterventionController(_brainController.Blackboard);
+            _brainController = new AgentBrainController(this);
+            _interventionController = new AgentInterventionController(_brainController.Blackboard);
 
             InitializeBlackboardFacts(Time.timeAsDouble);
             _brainController.Start(Time.timeAsDouble);
@@ -67,7 +67,7 @@ namespace Gameplay.Player.Core
         }
 
         /// <summary>
-        /// 使主角受到伤害
+        /// 使Agent受到伤害
         /// </summary>
         /// <param name="damageRequest"></param>
         public void ApplyDamage(DamageRequest damageRequest)
@@ -80,65 +80,65 @@ namespace Gameplay.Player.Core
         }
 
         /// <summary>
-        /// 设置主角是否感知到敌人
+        /// 设置Agent是否感知到敌人
         /// </summary>
         /// <param name="hasVisibleEnemy"></param>
         public void SetVisibleEnemy(bool hasVisibleEnemy)
         {
             _brainController.SetFact(
-                PlayerBlackboardKeys.HasVisibleEnemy,
+                AgentBlackboardKeys.HasVisibleEnemy,
                 hasVisibleEnemy,
                 Time.timeAsDouble);
         }
 
         /// <summary>
-        /// 设置主角当前是否有可搜索资源点
+        /// 设置Agent当前是否有可搜索资源点
         /// </summary>
         /// <param name="hasResourceTarget"></param>
         public void SetHasResourceTarget(bool hasResourceTarget)
         {
             _brainController.SetFact(
-                PlayerBlackboardKeys.HasResourceTarget,
+                AgentBlackboardKeys.HasResourceTarget,
                 hasResourceTarget,
                 Time.timeAsDouble);
         }
 
         /// <summary>
-        /// 设置主角当前是否有可交互目标
+        /// 设置Agent当前是否有可交互目标
         /// </summary>
         /// <param name="hasInteractableTarget"></param>
         public void SetHasInteractableTarget(bool hasInteractableTarget)
         {
             _brainController.SetFact(
-                PlayerBlackboardKeys.HasInteractableTarget,
+                AgentBlackboardKeys.HasInteractableTarget,
                 hasInteractableTarget,
                 Time.timeAsDouble);
         }
 
         /// <summary>
-        /// 设置主角当前是否应该撤离
+        /// 设置Agent当前是否应该撤离
         /// </summary>
         /// <param name="shouldExtract"></param>
         public void SetShouldExtract(bool shouldExtract)
         {
             _brainController.SetFact(
-                PlayerBlackboardKeys.ShouldExtract,
+                AgentBlackboardKeys.ShouldExtract,
                 shouldExtract,
                 Time.timeAsDouble);
         }
 
         /// <summary>
-        /// 提交一个玩家干预请求。
+        /// 提交一个Agent干预请求。
         /// 当前阶段只做缓存，不在 Pawn Root 中解释业务。
         /// </summary>
         /// <param name="directiveRequest"></param>
-        public void SubmitDirective(PlayerDirectiveRequest directiveRequest)
+        public void SubmitDirective(AgentDirectiveRequest directiveRequest)
         {
             _interventionController.SubmitDirective(directiveRequest, Time.timeAsDouble);
         }
 
         /// <summary>
-        /// 清除当前待处理的玩家干预请求。
+        /// 清除当前待处理的Agent干预请求。
         /// </summary>
         public void ClearDirective()
         {
@@ -149,14 +149,14 @@ namespace Gameplay.Player.Core
         // 避免状态机第一帧读取到未初始化的黑板值
         private void InitializeBlackboardFacts(double timeSeconds)
         {
-            _brainController.SetFact(PlayerBlackboardKeys.PlayerIsDead, false, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.PlayerHealthRatio, 1f, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.HasVisibleEnemy, false, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.HasResourceTarget, false, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.HasInteractableTarget, false, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.ShouldExtract, false, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.NeedRecovery, false, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.HasPendingDirective, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, 1f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasResourceTarget, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasPendingDirective, false, timeSeconds);
         }
 
         // 将 Pawn 身体层事实同步给 Brain
@@ -165,9 +165,9 @@ namespace Gameplay.Player.Core
             bool isDead = IsDead;
             bool needRecovery = !isDead && HealthRatio <= _pawnConfig.LowHealthRecoveryThreshold;
 
-            _brainController.SetFact(PlayerBlackboardKeys.PlayerIsDead, isDead, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.PlayerHealthRatio, HealthRatio, timeSeconds);
-            _brainController.SetFact(PlayerBlackboardKeys.NeedRecovery, needRecovery, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, isDead, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, HealthRatio, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, needRecovery, timeSeconds);
         }
     }
 }
