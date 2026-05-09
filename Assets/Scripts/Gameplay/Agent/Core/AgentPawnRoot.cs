@@ -2,6 +2,7 @@ using UnityEngine;
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Runtime;
 using Gameplay.Agent.SO;
 
 namespace Gameplay.Agent.Core
@@ -13,13 +14,19 @@ namespace Gameplay.Agent.Core
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver
     {
         [Header("Data")]
+        [SerializeField] private string _agentId;
         [SerializeField] private AgentPawnConfig _pawnConfig;
 
         private int _currentHealth;
+        private bool _isInitialized;
+        private bool _isRegistered;
+        private AgentId _runtimeAgentId;
 
         private AgentBrainController _brainController;
         private AgentInterventionController _interventionController;
 
+        public AgentId AgentId => _runtimeAgentId;
+        public string AgentIdValue => _runtimeAgentId.Value;
         public Transform CachedTransform => transform;
         public Vector3 Position => transform.position;
         public Vector3 Forward => transform.forward;
@@ -39,11 +46,78 @@ namespace Gameplay.Agent.Core
 
         private void Awake()
         {
+            EnsureInitialized();
+        }
+
+        private void OnEnable()
+        {
+            if (EnsureInitialized())
+                RegisterWithRuntime();
+        }
+
+        private void OnDisable()
+        {
+            UnregisterFromRuntime();
+        }
+
+        private void Update()
+        {
+            if (!_isInitialized)
+                return;
+
+            double timeSeconds = Time.timeAsDouble;
+
+            // 每帧先把身体层事实同步给 Brain
+            SyncBodyFactsToBlackboard(timeSeconds);
+
+            // 驱动自主 Brain 更新
+            _brainController.Tick(Time.deltaTime, timeSeconds);
+        }
+
+        /// <summary>
+        /// 运行时生成或覆盖 AgentId。
+        /// 只允许在注册前调用，避免 Registry 中出现悬挂索引。
+        /// </summary>
+        /// <param name="agentId"></param>
+        public bool TryAssignAgentId(string agentId)
+        {
+            return TryAssignAgentId(Gameplay.Agent.Runtime.AgentId.FromString(agentId));
+        }
+
+        /// <summary>
+        /// 运行时生成或覆盖 AgentId。
+        /// 只允许在注册前调用，避免 Registry 中出现悬挂索引。
+        /// </summary>
+        /// <param name="agentId"></param>
+        public bool TryAssignAgentId(AgentId agentId)
+        {
+            if (_isRegistered)
+            {
+                Debug.LogWarning("Agent 已注册到运行时 Registry，不能直接修改 AgentId。", this);
+                return false;
+            }
+
+            _agentId = agentId.Value;
+            _runtimeAgentId = ResolveRuntimeAgentId();
+
+            if (_brainController != null)
+                _brainController.SetFact(AgentBlackboardKeys.AgentId, _runtimeAgentId, Time.timeAsDouble);
+
+            return !_runtimeAgentId.IsEmpty;
+        }
+
+        private bool EnsureInitialized()
+        {
+            if (_isInitialized)
+                return true;
+
+            _runtimeAgentId = ResolveRuntimeAgentId();
+
             if (_pawnConfig == null)
             {
                 Debug.LogError("AgentPawnRoot 缺少 AgentPawnConfig 配置。", this);
                 enabled = false;
-                return;
+                return false;
             }
 
             _currentHealth = _pawnConfig.MaxHealth;
@@ -53,17 +127,8 @@ namespace Gameplay.Agent.Core
 
             InitializeBlackboardFacts(Time.timeAsDouble);
             _brainController.Start(Time.timeAsDouble);
-        }
-
-        private void Update()
-        {
-            double timeSeconds = Time.timeAsDouble;
-
-            // 每帧先把身体层事实同步给 Brain
-            SyncBodyFactsToBlackboard(timeSeconds);
-
-            // 驱动自主 Brain 更新
-            _brainController.Tick(Time.deltaTime, timeSeconds);
+            _isInitialized = true;
+            return true;
         }
 
         /// <summary>
@@ -134,7 +199,8 @@ namespace Gameplay.Agent.Core
         /// <param name="directiveRequest"></param>
         public void SubmitDirective(AgentDirectiveRequest directiveRequest)
         {
-            _interventionController.SubmitDirective(directiveRequest, Time.timeAsDouble);
+            AgentDirectiveRequest routedRequest = directiveRequest.WithTargetAgentId(AgentId);
+            _interventionController.SubmitDirective(routedRequest, Time.timeAsDouble);
         }
 
         /// <summary>
@@ -145,10 +211,40 @@ namespace Gameplay.Agent.Core
             _interventionController.ClearDirective(Time.timeAsDouble);
         }
 
+        private AgentId ResolveRuntimeAgentId()
+        {
+            if (Gameplay.Agent.Runtime.AgentId.TryCreate(_agentId, out AgentId resolvedAgentId))
+                return resolvedAgentId;
+
+            return Gameplay.Agent.Runtime.AgentId.FromString($"{gameObject.name}_{GetInstanceID()}");
+        }
+
+        private void RegisterWithRuntime()
+        {
+            if (_isRegistered)
+                return;
+
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
+            _isRegistered = registry.Register(this);
+        }
+
+        private void UnregisterFromRuntime()
+        {
+            if (!_isRegistered)
+                return;
+
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+            if (registry != null)
+                registry.Unregister(this);
+
+            _isRegistered = false;
+        }
+
         // 初始化 Brain 启动所需的默认事实，
         // 避免状态机第一帧读取到未初始化的黑板值
         private void InitializeBlackboardFacts(double timeSeconds)
         {
+            _brainController.SetFact(AgentBlackboardKeys.AgentId, _runtimeAgentId, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, 1f, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, false, timeSeconds);

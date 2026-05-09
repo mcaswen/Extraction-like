@@ -1,5 +1,7 @@
 using UnityEngine;
 using Core.BehaviorTree.Blackboard;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Runtime;
 
 namespace Gameplay.Agent.Interfaces
 {
@@ -9,11 +11,15 @@ namespace Gameplay.Agent.Interfaces
     /// </summary>
     public interface IAgentReadOnly
     {
+        AgentId AgentId { get; }
+        string AgentIdValue { get; }
+
         // 位置相关
         Transform CachedTransform { get; }
         Vector3 Position { get; }
         Vector3 Forward { get; }
 
+        AgentMacroStateId CurrentMacroStateId { get; } // 当前状态机的宏观状态 ID
         string CurrentMacroStateName { get; } // 当前状态机的宏观状态名称
 
         // 属性相关

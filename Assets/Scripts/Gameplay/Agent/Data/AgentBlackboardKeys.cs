@@ -8,6 +8,9 @@ namespace Gameplay.Agent.Data
     /// </summary>
     public static class AgentBlackboardKeys
     {
+        public static readonly BlackboardKey AgentId =
+            new BlackboardKey("Agent_Id");
+
         /// <summary>
         /// 当前宏状态 ID
         /// 这里记录的是 Brain 宏状态，不是身体层动画 / 动作状态
