@@ -37,8 +37,8 @@ namespace Gameplay.Agent.AI.Factories
             AgentBrainState interactLootState = _stateFactory.CreateInteractLootState();
             AgentBrainState extractionState = _stateFactory.CreateExtractionState();
 
-            // 先建立状态层级。
-            // 当前宏状态都挂在 Raid 之下，方便后续继续向下细拆子状态。
+            // 先建立状态层级
+            // 当前宏状态都挂在 Raid 之下，方便后续继续向下细拆子状态
             rootState.AddChild(raidState, true);
 
             raidState.AddChild(exploreState, true);

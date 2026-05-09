@@ -5,7 +5,7 @@ namespace Gameplay.Agent.Data
 {
     /// <summary>
     /// Agent干预请求数据结构
-    /// DirectiveType 表示“做什么”，TargetRef 表示“对谁/哪里做”。
+    /// DirectiveType 表示“做什么”，TargetRef 表示“对谁/哪里做”
     /// </summary>
     public readonly struct AgentDirectiveRequest
     {

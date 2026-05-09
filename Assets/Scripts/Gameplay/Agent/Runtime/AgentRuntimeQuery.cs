@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// Agent 运行时查询入口。
-    /// 用独立查询对象承接“找 Agent”的需求，避免查询逻辑散落到 UI、敌人、任务系统里。
+    /// Agent 运行时查询入口
+    /// 用独立查询对象承接“找 Agent”的需求，避免查询逻辑散落到 UI、敌人、任务系统里
     /// </summary>
     public sealed class AgentRuntimeQuery
     {

@@ -4,8 +4,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// Agent 命令路由器。
-    /// 外部系统可以把“对哪个 Agent 做什么”交给这里，避免直接依赖单个 Pawn。
+    /// Agent 命令路由器
+    /// 外部系统可以把“对哪个 Agent 做什么”交给这里，避免直接依赖单个 Pawn
     /// </summary>
     public sealed class AgentCommandRouter : MonoBehaviour
     {

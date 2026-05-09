@@ -4,8 +4,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// 运行时 Agent 标识。
-    /// 使用独立值对象，避免多 Agent 场景里继续靠单例或 GameObject 名字寻址。
+    /// 运行时 Agent 标识
+    /// 使用独立值对象，避免多 Agent 场景里继续靠单例或 GameObject 名字寻址
     /// </summary>
     [Serializable]
     public struct AgentId : IEquatable<AgentId>

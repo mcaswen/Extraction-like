@@ -3,8 +3,8 @@ using System;
 namespace Gameplay.Agent.Data
 {
     /// <summary>
-    /// Agent干预请求类型。
-    /// DirectiveType 表示“要做什么”，具体目标由 AgentTargetRef 表示。
+    /// Agent干预请求类型
+    /// DirectiveType 表示“要做什么”，具体目标由 AgentTargetRef 表示
     /// </summary>
     public enum AgentDirectiveType
     {

@@ -6,8 +6,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// 多 Agent 运行时注册表。
-    /// 允许外部系统按 AgentId 查询具体 Agent，而不是依赖某个单体 Pawn 单例。
+    /// 多 Agent 运行时注册表
+    /// 允许外部系统按 AgentId 查询具体 Agent，而不是依赖某个单体 Pawn 单例
     /// </summary>
     public sealed class AgentRuntimeRegistry : MonoBehaviour
     {

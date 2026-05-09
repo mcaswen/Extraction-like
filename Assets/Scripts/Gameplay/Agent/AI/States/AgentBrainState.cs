@@ -23,7 +23,7 @@ namespace Gameplay.Agent.AI.States
 
         protected override void OnEnter(StateMachineContext context, StateChangeReason reason)
         {
-            // 进入状态时同步宏状态 ID，而不是同步裸字符串。
+            // 进入状态时同步宏状态 ID，而不是同步裸字符串
             // 后续 UI、调试面板、行为树观察器都应围绕强类型状态值工作
             context.Blackboard.SetValue(
                 AgentBlackboardKeys.CurrentMacroStateId,

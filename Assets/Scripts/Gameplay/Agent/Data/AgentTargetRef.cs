@@ -4,8 +4,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Data
 {
     /// <summary>
-    /// Agent 目标语义。
-    /// 描述 Agent 要处理“什么类型的问题”，不描述目标如何被绑定。
+    /// Agent 目标语义
+    /// 描述 Agent 要处理“什么类型的问题”，不描述目标如何被绑定
     /// </summary>
     public enum AgentTargetKind
     {
@@ -17,8 +17,8 @@ namespace Gameplay.Agent.Data
     }
 
     /// <summary>
-    /// Agent 目标绑定方式。
-    /// ConcreteObject 服务当前 MVP 场景对象，AbstractPoint 服务之后的抽象资源点/敌人点。
+    /// Agent 目标绑定方式
+    /// ConcreteObject 服务当前 MVP 场景对象，AbstractPoint 服务之后的抽象资源点/敌人点
     /// </summary>
     public enum AgentTargetBindingType
     {
@@ -28,8 +28,8 @@ namespace Gameplay.Agent.Data
     }
 
     /// <summary>
-    /// Agent 目标引用。
-    /// 用一套结构同时承载当前场景里的具体箱子/敌人，以及之后的抽象资源点/敌人点。
+    /// Agent 目标引用
+    /// 用一套结构同时承载当前场景里的具体箱子/敌人，以及之后的抽象资源点/敌人点
     /// </summary>
     [Serializable]
     public struct AgentTargetRef

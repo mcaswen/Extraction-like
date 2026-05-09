@@ -87,7 +87,7 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 外部事实写入统一入口。
+        /// 外部事实写入统一入口
         /// Pawn、感知模块、外部系统都应通过该方法把事实同步给 Brain，而不是直接散写内部状态
         /// </summary>
         /// <typeparam name="T"></typeparam>

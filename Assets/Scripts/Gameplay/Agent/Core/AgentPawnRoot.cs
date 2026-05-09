@@ -8,8 +8,8 @@ using Gameplay.Agent.SO;
 namespace Gameplay.Agent.Core
 {
     /// <summary>
-    /// Agent实体总入口。
-    /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层。
+    /// Agent实体总入口
+    /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver
     {
@@ -75,8 +75,8 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 运行时生成或覆盖 AgentId。
-        /// 只允许在注册前调用，避免 Registry 中出现悬挂索引。
+        /// 运行时生成或覆盖 AgentId
+        /// 只允许在注册前调用，避免 Registry 中出现悬挂索引
         /// </summary>
         /// <param name="agentId"></param>
         public bool TryAssignAgentId(string agentId)
@@ -85,8 +85,8 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 运行时生成或覆盖 AgentId。
-        /// 只允许在注册前调用，避免 Registry 中出现悬挂索引。
+        /// 运行时生成或覆盖 AgentId
+        /// 只允许在注册前调用，避免 Registry 中出现悬挂索引
         /// </summary>
         /// <param name="agentId"></param>
         public bool TryAssignAgentId(AgentId agentId)
@@ -193,8 +193,8 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 提交一个Agent干预请求。
-        /// 当前阶段只做缓存，不在 Pawn Root 中解释业务。
+        /// 提交一个Agent干预请求
+        /// 当前阶段只做缓存，不在 Pawn Root 中解释业务
         /// </summary>
         /// <param name="directiveRequest"></param>
         public void SubmitDirective(AgentDirectiveRequest directiveRequest)
@@ -204,7 +204,7 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 清除当前待处理的Agent干预请求。
+        /// 清除当前待处理的Agent干预请求
         /// </summary>
         public void ClearDirective()
         {

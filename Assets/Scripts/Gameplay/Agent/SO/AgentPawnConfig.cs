@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Gameplay.Agent.SO
 {
     /// <summary>
-    /// Agent身体层静态配置。
+    /// Agent身体层静态配置
     /// 当前阶段先只承载 Pawn Root 真正会用到的最小基础参数
     /// </summary>
     [CreateAssetMenu(

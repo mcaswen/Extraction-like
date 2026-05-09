@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// Registry 对外暴露的运行时句柄。
-    /// 外部系统通过它拿只读视图或命令接口，而不是持有 Pawn 内部字段。
+    /// Registry 对外暴露的运行时句柄
+    /// 外部系统通过它拿只读视图或命令接口，而不是持有 Pawn 内部字段
     /// </summary>
     public readonly struct AgentRuntimeHandle
     {
