@@ -21,7 +21,7 @@ Gameplay Agent 模块用于：
 当前阶段桌游系统不再作为主要集成对象。Agent 模块主要服务 Raid MVP：
 
 1. Agent 能识别并击杀一个敌人
-2. Agent 能前往并搜索一个箱子
+2. Agent 能前往并搜索资源目标，包括箱子和地面掉落物
 3. Agent 能在满足条件后前往撤离点
 4. 全局状态能根据击杀、拾取、撤离结果正确刷新胜负
 
@@ -488,7 +488,8 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
    - 提供 Agent 上下文读取、PendingDirectiveRequest 解析、目标位置解析、移动、清理指令等通用逻辑
 3. MoveToTargetActionNode
    - 输入：AgentTargetRef
-   - 行为：优先通过 NavMeshAgent 驱动 Agent 朝 TargetPosition / TargetObject.position 移动
+   - 行为：优先通过 NavMeshAgent 驱动 Agent 朝目标位置移动
+   - 资源目标会优先取目标 Collider 上离 Agent 最近的点，避免 Agent 挤向箱子或掉落物中心
    - 输出：到达后返回 Success，未到达返回 Running
 4. EngageEnemyActionNode
    - 输入：Engage 指令中的敌人目标
@@ -509,7 +510,8 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
 2. 不建议在节点里堆大量 UI / 背包 / 敌人细节
 3. 移动当前优先走 NavMeshAgent，NavMesh 尚未准备好时保留直线兜底
 4. 战斗当前优先发射子弹，子弹组件不可用时保留直接伤害兜底
-5. 当前节点已先实现 MVP 直连版本，后续可以继续把背包/撤离桥接逻辑抽成 Adapter
+5. AgentCombatShooter 发射物会接入 Skill Effect 层，避免技能物互相阻挡
+6. 当前节点已先实现 MVP 直连版本，后续可以继续把背包/撤离桥接逻辑抽成 Adapter
 
 来源：
 
@@ -684,8 +686,10 @@ Agent 与 Backpack 的边界：
 
 1. AgentLootInteractionService
 2. TrySearchLootBox(LootBoxEntity lootBox)
-3. TryCollectFirstAvailableLoot(LootBoxEntity lootBox)
-4. TryCollectWorldLoot(WorldLootItem worldLootItem)
+3. TryConfirmLootBoxSearched(LootBoxEntity lootBox)
+4. TryConfirmWorldLootSearched(WorldLootItem worldLootItem)
+5. TryCollectFirstAvailableLoot(LootBoxEntity lootBox)
+6. TryCollectWorldLoot(WorldLootItem worldLootItem)
 
 原因：
 
@@ -772,7 +776,7 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 1. 外部系统或测试脚本提交 EngageConcreteEnemy
 2. Agent 进入 Combat
 3. Combat 行为树执行攻击
-4. EnemyHealthController.TakeDamage 结算伤害
+4. AgentCombatShooter 发射子弹并由 BulletController 结算伤害
 5. 敌人死亡后 EnemyHealthController.Die 触发 RaidFlowController.NotifyEnemyKilled
 6. EnemyHealthController 生成死亡战利品箱
 
@@ -784,16 +788,18 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 4. AgentBrainTransitionRules.CanEnterCombat 返回 true
 5. Combat 状态行为树执行 EngageEnemyActionNode
 6. EngageEnemyActionNode 解析 EnemyHealthController
-7. EngageEnemyActionNode 调用 TakeDamage
-8. 目标失效或死亡后清理 HasVisibleEnemy / Directive
+7. EngageEnemyActionNode 优先通过 AgentCombatShooter 发射子弹
+8. 子弹组件不可用时回退调用 TakeDamage
+9. 目标失效或死亡后清理 HasVisibleEnemy / Directive
 
 边界提醒：
 
 1. EngageEnemyActionNode 不直接 Destroy 敌人
 2. EngageEnemyActionNode 不直接通知 RaidFlowController 敌人死亡
 3. 敌人死亡掉落仍由 EnemyHealthController 负责
+4. 子弹/技能表现物使用 Skill Effect 层，避免被其他技能物阻挡
 
-### 9.2 AI 搜索一个箱子
+### 9.2 AI 搜索资源目标
 
 目标：
 
@@ -967,11 +973,12 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 1. 按 AgentPawnConfig.TargetDiscoveryRange 扫描目标
 2. 敌人优先于资源点，资源点优先于撤离点
 3. 自动生成 AgentDirectiveRequest 并写入 Agent 命令接口
+4. 当前 Search 指令中的资源仍有效时，优先保持当前资源目标
 
 后续可扩展：
 
 1. 视野角度与遮挡检测
-2. 目标锁定与短时间记忆
+2. 更完整的目标短时间记忆与丢失宽限
 3. 多 Agent 之间的目标分配
 4. 从 FindObjectsOfType 替换为运行时目标 Registry
 
