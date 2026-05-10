@@ -46,7 +46,12 @@ namespace Gameplay.Agent.AI.Actions
                     $"Target kind [{targetRef.Kind}] does not match [{_targetKind}]");
             }
 
-            if (!TryResolveTargetPosition(targetRef, out UnityEngine.Vector3 targetPosition))
+            UnityEngine.Vector3 targetPosition;
+            bool resolvedTargetPosition = _targetKind == AgentTargetKind.Resource
+                ? TryResolveInteractionTargetPosition(targetRef, agent.Position, out targetPosition)
+                : TryResolveTargetPosition(targetRef, out targetPosition);
+
+            if (!resolvedTargetPosition)
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Directive target position is invalid");
 
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);

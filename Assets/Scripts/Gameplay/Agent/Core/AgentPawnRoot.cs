@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.AI;
 using Core.BehaviorTree.Blackboard;
+using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
@@ -11,11 +13,22 @@ namespace Gameplay.Agent.Core
     /// Agent实体总入口
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
+    [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter))]
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver
     {
+        private const int RangeGizmoSegmentCount = 64;
+        private static readonly Color TargetDiscoveryRangeGizmoColor = new Color(0.1f, 0.65f, 1f, 0.85f);
+        private static readonly Color AttackRangeGizmoColor = new Color(1f, 0.28f, 0.18f, 0.85f);
+
         [Header("Data")]
         [SerializeField] private string _agentId;
         [SerializeField] private AgentPawnConfig _pawnConfig;
+
+        [Header("Components")]
+        [SerializeField] private NavMeshAgent _navMeshAgent;
+
+        [Header("Editor Gizmos")]
+        [SerializeField] private bool _showRangeGizmos = true;
 
         private int _currentHealth;
         private bool _isInitialized;
@@ -28,6 +41,7 @@ namespace Gameplay.Agent.Core
         public AgentId AgentId => _runtimeAgentId;
         public string AgentIdValue => _runtimeAgentId.Value;
         public Transform CachedTransform => transform;
+        public NavMeshAgent NavMeshAgent => _navMeshAgent;
         public Vector3 Position => transform.position;
         public Vector3 Forward => transform.forward;
 
@@ -40,13 +54,27 @@ namespace Gameplay.Agent.Core
         public int MaxHealth => _pawnConfig != null ? _pawnConfig.MaxHealth : 0;
         public float HealthRatio => MaxHealth <= 0 ? 0f : (float)_currentHealth / MaxHealth;
         public bool IsDead => _currentHealth <= 0;
+        public bool EnableTargetDiscovery => _pawnConfig != null && _pawnConfig.EnableTargetDiscovery;
+        public float TargetDiscoveryRange => _pawnConfig != null ? _pawnConfig.TargetDiscoveryRange : 0f;
+        public float TargetDiscoveryInterval => _pawnConfig != null ? _pawnConfig.TargetDiscoveryInterval : 0.5f;
 
         public BehaviorBlackboard Blackboard =>
             _brainController != null ? _brainController.Blackboard : null;
 
         private void Awake()
         {
+            CacheComponents();
             EnsureInitialized();
+        }
+
+        private void Reset()
+        {
+            CacheComponents();
+        }
+
+        private void OnValidate()
+        {
+            CacheComponents();
         }
 
         private void OnEnable()
@@ -58,6 +86,15 @@ namespace Gameplay.Agent.Core
         private void OnDisable()
         {
             UnregisterFromRuntime();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (!_showRangeGizmos || _pawnConfig == null)
+                return;
+
+            DrawRangeCircle(transform.position, _pawnConfig.TargetDiscoveryRange, TargetDiscoveryRangeGizmoColor);
+            DrawRangeCircle(transform.position, _pawnConfig.AttackRange, AttackRangeGizmoColor);
         }
 
         private void Update()
@@ -111,6 +148,7 @@ namespace Gameplay.Agent.Core
             if (_isInitialized)
                 return true;
 
+            CacheComponents();
             _runtimeAgentId = ResolveRuntimeAgentId();
 
             if (_pawnConfig == null)
@@ -219,6 +257,12 @@ namespace Gameplay.Agent.Core
             return Gameplay.Agent.Runtime.AgentId.FromString($"{gameObject.name}_{GetInstanceID()}");
         }
 
+        private void CacheComponents()
+        {
+            if (_navMeshAgent == null)
+                _navMeshAgent = GetComponent<NavMeshAgent>();
+        }
+
         private void RegisterWithRuntime()
         {
             if (_isRegistered)
@@ -226,6 +270,8 @@ namespace Gameplay.Agent.Core
 
             AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
             _isRegistered = registry.Register(this);
+            if (_isRegistered)
+                AgentTargetDiscoveryController.GetOrCreate();
         }
 
         private void UnregisterFromRuntime()
@@ -270,6 +316,30 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, isDead, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, HealthRatio, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, needRecovery, timeSeconds);
+        }
+
+        private static void DrawRangeCircle(Vector3 center, float radius, Color color)
+        {
+            if (radius <= 0f)
+                return;
+
+            Color previousColor = Gizmos.color;
+            Gizmos.color = color;
+
+            Vector3 previousPoint = center + new Vector3(radius, 0f, 0f);
+            for (int index = 1; index <= RangeGizmoSegmentCount; index++)
+            {
+                float angle = index / (float)RangeGizmoSegmentCount * Mathf.PI * 2f;
+                Vector3 nextPoint = center + new Vector3(
+                    Mathf.Cos(angle) * radius,
+                    0f,
+                    Mathf.Sin(angle) * radius);
+
+                Gizmos.DrawLine(previousPoint, nextPoint);
+                previousPoint = nextPoint;
+            }
+
+            Gizmos.color = previousColor;
         }
     }
 }

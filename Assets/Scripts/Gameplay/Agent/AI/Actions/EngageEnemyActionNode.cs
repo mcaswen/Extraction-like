@@ -1,4 +1,5 @@
 using Core.BehaviorTree.Runtime;
+using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using UnityEngine;
@@ -60,7 +61,12 @@ namespace Gameplay.Agent.AI.Actions
             float attackDamage = GetFloat(context, AgentBlackboardKeys.AttackDamage, 25f);
             float attackInterval = GetFloat(context, AgentBlackboardKeys.AttackInterval, 0.65f);
 
-            enemyHealthController.TakeDamage(attackDamage);
+            if (!TryShootEnemy(agent, enemyHealthController, attackDamage))
+            {
+                // 子弹组件未配置时保留直接伤害兜底，避免 MVP 战斗链路被资产配置卡住
+                enemyHealthController.TakeDamage(attackDamage);
+            }
+
             _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, attackInterval);
 
             if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
@@ -76,6 +82,15 @@ namespace Gameplay.Agent.AI.Actions
         {
             SetFact(context, AgentBlackboardKeys.HasVisibleEnemy, false);
             ClearPendingDirective(context);
+        }
+
+        private static bool TryShootEnemy(
+            IAgentReadOnly agent,
+            global::EnemyHealthController enemyHealthController,
+            float attackDamage)
+        {
+            AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
+            return shooter != null && shooter.TryShootAt(enemyHealthController, attackDamage);
         }
     }
 }

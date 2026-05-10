@@ -19,6 +19,11 @@ namespace Gameplay.Agent.SO
         [SerializeField] private float _moveStoppingDistance = 0.25f;
         [SerializeField] private float _interactionDistance = 1.5f;
 
+        [Header("目标发现参数")]
+        [SerializeField] private bool _enableTargetDiscovery = true;
+        [SerializeField] private float _targetDiscoveryRange = 30f;
+        [SerializeField] private float _targetDiscoveryInterval = 0.5f;
+
         [Header("战斗参数")]
         [SerializeField] private float _attackRange = 6f;
         [SerializeField] private float _attackDamage = 25f;
@@ -31,6 +36,9 @@ namespace Gameplay.Agent.SO
         public float MoveSpeed => _moveSpeed;
         public float MoveStoppingDistance => _moveStoppingDistance;
         public float InteractionDistance => _interactionDistance;
+        public bool EnableTargetDiscovery => _enableTargetDiscovery;
+        public float TargetDiscoveryRange => _targetDiscoveryRange;
+        public float TargetDiscoveryInterval => _targetDiscoveryInterval;
         public float AttackRange => _attackRange;
         public float AttackDamage => _attackDamage;
         public float AttackInterval => _attackInterval;

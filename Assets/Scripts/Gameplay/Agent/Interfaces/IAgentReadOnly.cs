@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
@@ -16,6 +17,7 @@ namespace Gameplay.Agent.Interfaces
 
         // 位置相关
         Transform CachedTransform { get; }
+        NavMeshAgent NavMeshAgent { get; }
         Vector3 Position { get; }
         Vector3 Forward { get; }
 
