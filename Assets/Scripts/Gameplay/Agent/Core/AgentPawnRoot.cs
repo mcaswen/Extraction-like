@@ -252,6 +252,12 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, _pawnConfig.MoveSpeed, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.MoveStoppingDistance, _pawnConfig.MoveStoppingDistance, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.InteractionDistance, _pawnConfig.InteractionDistance, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackRange, _pawnConfig.AttackRange, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackDamage, _pawnConfig.AttackDamage, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackInterval, _pawnConfig.AttackInterval, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasPendingDirective, false, timeSeconds);
         }
 

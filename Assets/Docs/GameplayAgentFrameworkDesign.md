@@ -476,7 +476,7 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
 
 - Assets/Scripts/Gameplay/Agent/AI/Factories/AgentBrainTransitionRules.cs
 
-### 7.4 行为树执行节点规划
+### 7.4 行为树执行节点
 
 当前已存在：
 
@@ -484,31 +484,30 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
    - 维持状态树 Running
    - 同步 CurrentMacroStateId / CurrentMacroStateName
    - 主要用于框架接通验证
-
-下一步需要补的 MVP 执行节点：
-
-1. MoveToTargetActionNode
+2. AgentActionNodeBase
+   - 提供 Agent 上下文读取、PendingDirectiveRequest 解析、目标位置解析、移动、清理指令等通用逻辑
+3. MoveToTargetActionNode
    - 输入：AgentTargetRef
    - 行为：驱动 Agent 朝 TargetPosition / TargetObject.position 移动
    - 输出：到达后返回 Success，未到达返回 Running
-2. EngageEnemyActionNode
+4. EngageEnemyActionNode
    - 输入：Engage 指令中的敌人目标
    - 行为：解析 EnemyHealthController，对目标造成伤害
    - 输出：敌人死亡或目标失效后清除战斗事实
-3. SearchResourceActionNode
+5. SearchResourceActionNode
    - 输入：Search 指令中的 LootBoxEntity 或资源点
-   - 行为：前往资源目标，并触发资源搜索/预生成
-   - 输出：找到可交互战利品或搜索完成
-4. ExtractActionNode
+   - 行为：前往资源目标，触发资源搜索/预生成，并尝试收纳第一件可用战利品
+   - 输出：收纳成功、空箱或目标失效后完成搜索
+6. ExtractActionNode
    - 输入：Extract / MoveTo 指令中的撤离点目标
-   - 行为：前往撤离点并保持在撤离范围内
+   - 行为：前往撤离点并把进入撤离范围的状态桥接给 RaidFlowController
    - 输出：等待 RaidFlowController 完成撤离
 
 注意点：
 
 1. 执行节点应尽量只依赖公开接口或 Agent 专用适配层
 2. 不建议在节点里堆大量 UI / 背包 / 敌人细节
-3. 若现有系统没有无 UI 的公开接口，应先加小型 Adapter，再让节点调用 Adapter
+3. 当前节点已先实现 MVP 直连版本，后续可以继续把背包/撤离桥接逻辑抽成 Adapter
 
 来源：
 
@@ -814,23 +813,27 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 ## 10. 边界情况、风险点与已知问题
 
-### 10.1 当前执行节点仍未落地
+### 10.1 执行节点已落地但仍是 MVP 版本
 
 现状：
 
 1. 宏状态树已接通
 2. 状态转移规则已存在
-3. 具体 Combat / Search / Interact / Extract 执行动作仍需补齐
+3. Combat / SearchResource / InteractLoot / Extraction 已绑定最小执行节点
+4. SearchResourceActionNode 当前会直接尝试从 LootBoxEntity 收纳第一件可用战利品
+5. ExtractActionNode 当前会通过 RaidFlowController.SetPlayerInsideExtractionPoint 桥接撤离进入状态
 
 风险：
 
-1. 只有状态变化，没有真实行动
-2. 外部系统提交 Directive 后只能影响黑板和状态，不能完成 MVP
+1. 搜索与撤离节点仍包含跨系统桥接逻辑
+2. 背包 UI 驱动链路较重，AI 自动收纳失败时会持续等待
+3. 撤离点仍没有真正支持多 Agent 的进入者身份
 
 建议：
 
-1. 下一步优先补四个 MVP 节点
-2. 节点只做薄执行，不把其他系统细节塞进 AgentBrainController
+1. 后续补 AgentLootInteractionService，把收纳与 Raid 通知从节点里抽走
+2. 后续补 AgentExtractionPresenceService，让撤离点识别 AgentPawnRoot
+3. 保持 AgentBrainController 只负责装配与 Tick，不把具体业务塞回 Brain
 
 ### 10.2 旧 Player 单例依赖尚未完全替换
 
@@ -905,21 +908,21 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 ## 11. 扩展点与后续工作
 
-### 11.1 行为执行节点
+### 11.1 执行节点适配层
 
-优先级最高的扩展：
+可继续抽出的适配层：
 
-1. MoveToTargetActionNode
-2. EngageEnemyActionNode
-3. SearchResourceActionNode
-4. ExtractActionNode
+1. AgentMovementMotor
+2. AgentCombatInteractionService
+3. AgentLootInteractionService
+4. AgentExtractionPresenceService
 
 建议实现方式：
 
-1. 先实现最小可用版本
-2. 目标解析统一从 PendingDirectiveRequest 读取
-3. 移动逻辑独立为 AgentMovementMotor 或 AgentMovementController
-4. 交互细节通过 Adapter 调用 Enemy / Backpack / Raid
+1. 目标解析继续统一从 PendingDirectiveRequest 读取
+2. 移动逻辑从节点中下沉到 AgentMovementMotor
+3. 交互细节通过 Adapter 调用 Enemy / Backpack / Raid
+4. 行为树节点只保留流程控制和结果判断
 
 ### 11.2 Agent 感知层
 

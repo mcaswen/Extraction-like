@@ -39,9 +39,27 @@ namespace Gameplay.Agent.Data
         public static readonly BlackboardKey ShouldExtract =
             new BlackboardKey("Agent_ShouldExtract");
 
-        // TODO: 当前设为派生事实，后续考虑直接改为单状态
+        // NeedRecovery 由生命值比例派生，供状态转移或行为节点读取
         public static readonly BlackboardKey NeedRecovery =
             new BlackboardKey("Agent_NeedRecovery");
+
+        public static readonly BlackboardKey MoveSpeed =
+            new BlackboardKey("Agent_MoveSpeed");
+
+        public static readonly BlackboardKey MoveStoppingDistance =
+            new BlackboardKey("Agent_MoveStoppingDistance");
+
+        public static readonly BlackboardKey InteractionDistance =
+            new BlackboardKey("Agent_InteractionDistance");
+
+        public static readonly BlackboardKey AttackRange =
+            new BlackboardKey("Agent_AttackRange");
+
+        public static readonly BlackboardKey AttackDamage =
+            new BlackboardKey("Agent_AttackDamage");
+
+        public static readonly BlackboardKey AttackInterval =
+            new BlackboardKey("Agent_AttackInterval");
 
         /// <summary>
         /// 是否存在待处理的Agent干预请求

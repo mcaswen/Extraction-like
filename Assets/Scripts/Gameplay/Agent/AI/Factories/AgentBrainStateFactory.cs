@@ -1,4 +1,5 @@
 using BehaviorTreeType = global::Core.BehaviorTree.Runtime.BehaviorTree;
+using Core.BehaviorTree.Nodes.Composites;
 using Gameplay.Agent.AI.Actions;
 using Gameplay.Agent.AI.States;
 using Gameplay.Agent.Data;
@@ -7,7 +8,7 @@ namespace Gameplay.Agent.AI.Factories
 {
     /// <summary>
     /// Agent Brain 宏状态实例创建工厂
-    /// 负责创建各状态对象，并为其挂上当前阶段最小占位行为树
+    /// 负责创建各状态对象，并为可执行宏状态挂接对应行为树
     /// </summary>
     public sealed class AgentBrainStateFactory
     {
@@ -38,7 +39,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.Combat,
                 "Combat",
-                BuildMaintainStateTree(AgentMacroStateId.Combat));
+                BuildCombatTree());
         }
 
         public AgentBrainState CreateSearchResourceState()
@@ -46,7 +47,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.SearchResource,
                 "SearchResource",
-                BuildMaintainStateTree(AgentMacroStateId.SearchResource));
+                BuildSearchResourceTree(AgentMacroStateId.SearchResource));
         }
 
         public AgentBrainState CreateInteractLootState()
@@ -54,7 +55,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.InteractLoot,
                 "InteractLoot",
-                BuildMaintainStateTree(AgentMacroStateId.InteractLoot));
+                BuildSearchResourceTree(AgentMacroStateId.InteractLoot));
         }
 
         public AgentBrainState CreateExtractionState()
@@ -62,13 +63,11 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.Extraction,
                 "Extraction",
-                BuildMaintainStateTree(AgentMacroStateId.Extraction));
+                BuildExtractionTree());
         }
 
         /// <summary>
-        /// 当前阶段每个宏状态先绑定一棵最小占位树
-        /// 这样做的目的不是“逻辑完整”，而是验证状态机与行为树已经真正接通
-        /// 后续状态内具体行为节点补齐后，只需要替换这里返回的树构造方式
+        /// 构建只维持宏状态标记的保底行为树
         /// </summary>
         /// <param name="macroStateId"></param>
         /// <returns></returns>
@@ -79,6 +78,54 @@ namespace Gameplay.Agent.AI.Factories
                 new MaintainMacroStateActionNode(
                     $"{macroStateId}_MaintainMacroState",
                     macroStateId));
+        }
+
+        private static BehaviorTreeType BuildCombatTree()
+        {
+            // 战斗树先统一靠近目标，再由攻击节点处理射程内的持续攻击
+            return new BehaviorTreeType(
+                "CombatTree",
+                new SequenceNode(
+                    "Combat_EngageSequence",
+                    new MoveToTargetActionNode(
+                        "Combat_MoveToEnemy",
+                        AgentDirectiveType.Engage,
+                        AgentTargetKind.Enemy,
+                        AgentBlackboardKeys.AttackRange,
+                        6f),
+                    new EngageEnemyActionNode("Combat_EngageEnemy")));
+        }
+
+        private static BehaviorTreeType BuildSearchResourceTree(AgentMacroStateId macroStateId)
+        {
+            // 搜索和开箱共用同一条执行链，宏状态差异只保留在状态名上
+            return new BehaviorTreeType(
+                $"{macroStateId}Tree",
+                new SequenceNode(
+                    $"{macroStateId}_SearchSequence",
+                    new MoveToTargetActionNode(
+                        $"{macroStateId}_MoveToResource",
+                        AgentDirectiveType.Search,
+                        AgentTargetKind.Resource,
+                        AgentBlackboardKeys.InteractionDistance,
+                        1.5f),
+                    new SearchResourceActionNode($"{macroStateId}_SearchResource")));
+        }
+
+        private static BehaviorTreeType BuildExtractionTree()
+        {
+            // 撤离树先到达范围，再让撤离节点持续桥接 RaidFlowController 的计时状态
+            return new BehaviorTreeType(
+                "ExtractionTree",
+                new SequenceNode(
+                    "Extraction_Sequence",
+                    new MoveToTargetActionNode(
+                        "Extraction_MoveToPoint",
+                        AgentDirectiveType.Extract,
+                        AgentTargetKind.Extraction,
+                        AgentBlackboardKeys.InteractionDistance,
+                        1.5f),
+                    new ExtractActionNode("Extraction_Extract")));
         }
     }
 }
