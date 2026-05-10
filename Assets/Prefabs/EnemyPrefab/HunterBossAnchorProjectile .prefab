@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 99244087352593052}
   - component: {fileID: 4457436382003230718}
   - component: {fileID: 6629006824753292828}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 'HunterBossAnchorProjectile '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
