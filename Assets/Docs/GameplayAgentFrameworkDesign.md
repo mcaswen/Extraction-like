@@ -488,16 +488,16 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
    - 提供 Agent 上下文读取、PendingDirectiveRequest 解析、目标位置解析、移动、清理指令等通用逻辑
 3. MoveToTargetActionNode
    - 输入：AgentTargetRef
-   - 行为：驱动 Agent 朝 TargetPosition / TargetObject.position 移动
+   - 行为：优先通过 NavMeshAgent 驱动 Agent 朝 TargetPosition / TargetObject.position 移动
    - 输出：到达后返回 Success，未到达返回 Running
 4. EngageEnemyActionNode
    - 输入：Engage 指令中的敌人目标
-   - 行为：解析 EnemyHealthController，对目标造成伤害
+   - 行为：解析 EnemyHealthController，优先通过 AgentCombatShooter 发射子弹
    - 输出：敌人死亡或目标失效后清除战斗事实
 5. SearchResourceActionNode
-   - 输入：Search 指令中的 LootBoxEntity 或资源点
-   - 行为：前往资源目标，触发资源搜索/预生成，并尝试收纳第一件可用战利品
-   - 输出：收纳成功、空箱或目标失效后完成搜索
+   - 输入：Search 指令中的 LootBoxEntity / WorldLootItem 或资源点
+   - 行为：前往资源目标，触发资源搜索/预生成，发现战利品后等待玩家打开并关闭背包
+   - 输出：玩家关闭背包、空箱或目标失效后完成搜索
 6. ExtractActionNode
    - 输入：Extract / MoveTo 指令中的撤离点目标
    - 行为：前往撤离点并把进入撤离范围的状态桥接给 RaidFlowController
@@ -507,12 +507,44 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
 
 1. 执行节点应尽量只依赖公开接口或 Agent 专用适配层
 2. 不建议在节点里堆大量 UI / 背包 / 敌人细节
-3. 当前节点已先实现 MVP 直连版本，后续可以继续把背包/撤离桥接逻辑抽成 Adapter
+3. 移动当前优先走 NavMeshAgent，NavMesh 尚未准备好时保留直线兜底
+4. 战斗当前优先发射子弹，子弹组件不可用时保留直接伤害兜底
+5. 当前节点已先实现 MVP 直连版本，后续可以继续把背包/撤离桥接逻辑抽成 Adapter
 
 来源：
 
 - Assets/Scripts/Gameplay/Agent/AI/Actions
 - Assets/Scripts/Gameplay/Agent/AI/Factories/AgentBrainStateFactory.cs
+- Assets/Scripts/Gameplay/Agent/Combat/AgentCombatShooter.cs
+
+### 7.5 MVP 目标发现
+
+AgentTargetDiscoveryController 负责：
+
+1. 遍历 AgentRuntimeRegistry 中已注册的 Agent
+2. 按 AgentPawnConfig 中的 TargetDiscoveryRange 扫描附近目标
+3. 按 敌人 > 资源点 > 撤离点 的优先级选择目标
+4. 通过 IAgentCommandReceiver 写入事实与 AgentDirectiveRequest
+
+当前目标来源：
+
+1. EnemyHealthController
+2. LootBoxEntity
+3. WorldLootItem
+4. ExtractionPointController
+
+注意点：
+
+1. 目标发现层只负责选目标，不直接执行移动、攻击、拾取或撤离
+2. 发现层写入 HasVisibleEnemy / HasResourceTarget / HasInteractableTarget / ShouldExtract
+3. 行为树节点继续从 PendingDirectiveRequest 读取具体目标
+4. 资源点会跳过已无战利品、无有效物品数据或已被标记搜刮完成的对象
+5. 当前 Search 指令里的资源目标仍有效时会优先保持该目标，避免箱子和地面掉落物之间来回切换
+
+来源：
+
+- Assets/Scripts/Gameplay/Agent/Runtime/AgentTargetDiscoveryController.cs
+- Assets/Scripts/Gameplay/Agent/SO/AgentPawnConfig.cs
 
 ## 8. 其他系统与 Agent 的交互边界
 
@@ -605,7 +637,7 @@ DamageRequest damageRequest = new DamageRequest(
 AgentCommandRouter.GetOrCreate().TryApplyDamage(agentId, damageRequest);
 ```
 
-3. 外部感知系统告知 Agent 看到敌人：
+3. 外部系统手动告知 Agent 看到敌人：
 
 ```csharp
 AgentCommandRouter.GetOrCreate().TrySetVisibleEnemy(agentId, true);
@@ -636,8 +668,8 @@ Agent 与 Backpack 的边界：
 1. Agent 不直接改背包格子模型
 2. Agent 不直接改 LootBoxEntity 的私有保存列表
 3. Agent 不应为了 AI 搜索强制打开玩家 UI
-4. Agent 搜索箱子应通过 LootBoxEntity 的公开方法或后续 Loot Adapter
-5. Agent 自动拾取应通过 InventoryScreenController / 专用无 UI 服务完成
+4. Agent 当前发现战利品后等待玩家打开并关闭背包，MVP 视为搜刮完成
+5. Agent 后续自动拾取应通过 InventoryScreenController / 专用无 UI 服务完成
 
 当前可用接口：
 
@@ -646,6 +678,7 @@ Agent 与 Backpack 的边界：
 3. LootBoxEntity.SaveItems
 4. InventoryScreenController.TryPickupItem
 5. InventoryScreenController.TryStoreWorldItem
+6. WorldLootItem.ItemData / CurrentAmount
 
 建议补充的 Agent 专用适配层：
 
@@ -766,19 +799,19 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 1. 外部系统或测试脚本提交 SearchConcreteResource
 2. Agent 进入 SearchResource
-3. Agent 前往箱子位置
-4. Agent 搜索箱子并生成/读取战利品
-5. Agent 拿到至少一件战利品后 RaidFlowController 记录 loot count
+3. Agent 前往箱子或地面掉落物附近
+4. Agent 搜索箱子并生成/读取战利品，或确认地面掉落物有效
+5. 玩家打开并关闭背包后，当前 MVP 视为资源已搜刮完成
 
 推荐链路：
 
 1. 目标系统调用 AgentCommandRouter.TrySetHasResourceTarget(agentId, true)
 2. 目标系统调用 AgentCommandRouter.TrySubmitDirective(agentId, SearchConcreteResource)
 3. Agent 进入 SearchResource
-4. MoveToTargetActionNode 前往 LootBoxEntity
-5. SearchResourceActionNode 调用 LootBoxEntity.PrecalculateLootIfNeeded
-6. InteractLoot 状态或 Loot Adapter 尝试把物品放入角色容器
-7. Backpack 系统成功收纳后通知 RaidFlowController.NotifyLootCollected
+4. MoveToTargetActionNode 前往资源碰撞体附近
+5. SearchResourceActionNode 识别 LootBoxEntity 或 WorldLootItem
+6. SearchResourceActionNode 等待玩家完成一次背包开关确认
+7. 资源被 AgentTargetDiscoveryController 标记为已搜刮
 
 边界提醒：
 
@@ -820,13 +853,13 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 1. 宏状态树已接通
 2. 状态转移规则已存在
 3. Combat / SearchResource / InteractLoot / Extraction 已绑定最小执行节点
-4. SearchResourceActionNode 当前会直接尝试从 LootBoxEntity 收纳第一件可用战利品
+4. SearchResourceActionNode 当前会在发现资源后等待玩家打开并关闭背包
 5. ExtractActionNode 当前会通过 RaidFlowController.SetPlayerInsideExtractionPoint 桥接撤离进入状态
 
 风险：
 
 1. 搜索与撤离节点仍包含跨系统桥接逻辑
-2. 背包 UI 驱动链路较重，AI 自动收纳失败时会持续等待
+2. 背包 UI 驱动链路较重，当前 MVP 仍需要玩家进行一次背包开关确认
 3. 撤离点仍没有真正支持多 Agent 的进入者身份
 
 建议：
@@ -876,11 +909,12 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 现状：
 
 1. LootBoxEntity.Interact 会打开 Inventory UI
-2. 物品转移主要由拖拽 UI 完成
+2. WorldLootItem.Interact 会尝试直接收纳，不会打开 Inventory UI
+3. 物品转移主要由拖拽 UI 完成
 
 风险：
 
-1. AI 搜索箱子会被迫打开玩家 UI
+1. AI 搜索资源当前只能等待玩家 UI 行为确认，不能真正自动转移战利品
 2. 行为树节点若直接改背包内部数据，容易破坏背包一致性
 
 建议：
@@ -926,15 +960,20 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 ### 11.2 Agent 感知层
 
-当前 SetVisibleEnemy / SetHasResourceTarget / SetHasInteractableTarget 需要外部系统主动设置。
+当前已有 AgentTargetDiscoveryController 作为 MVP 感知层。
+
+当前能力：
+
+1. 按 AgentPawnConfig.TargetDiscoveryRange 扫描目标
+2. 敌人优先于资源点，资源点优先于撤离点
+3. 自动生成 AgentDirectiveRequest 并写入 Agent 命令接口
 
 后续可扩展：
 
-1. AgentPerceptionController
-2. 敌人扫描
-3. 资源扫描
-4. 可交互扫描
-5. 感知结果自动生成 AgentDirectiveRequest
+1. 视野角度与遮挡检测
+2. 目标锁定与短时间记忆
+3. 多 Agent 之间的目标分配
+4. 从 FindObjectsOfType 替换为运行时目标 Registry
 
 边界：
 
@@ -1007,18 +1046,19 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 1. 外部系统提交 EngageConcreteEnemy
 2. Agent 进入 Combat
 3. EngageEnemyActionNode 解析 EnemyHealthController
-4. 调用 EnemyHealthController.TakeDamage
+4. 优先通过 AgentCombatShooter 发射子弹
 5. EnemyHealthController 负责死亡、掉落、NotifyEnemyKilled
-6. Agent 清理战斗事实或等待下一个目标
+6. 子弹配置不可用时回退为直接伤害
+7. Agent 清理战斗事实或等待下一个目标
 
-### 12.5 Agent 搜索箱子
+### 12.5 Agent 搜索资源
 
 1. 外部系统提交 SearchConcreteResource
 2. Agent 进入 SearchResource
-3. MoveToTargetActionNode 移动到箱子
-4. SearchResourceActionNode 触发 LootBoxEntity.PrecalculateLootIfNeeded
-5. Loot Adapter 尝试将战利品放入角色容器
-6. Backpack 成功收纳后通知 RaidFlowController
+3. MoveToTargetActionNode 移动到资源碰撞体附近
+4. SearchResourceActionNode 识别 LootBoxEntity 或 WorldLootItem
+5. LootBoxEntity 会触发 PrecalculateLootIfNeeded
+6. 玩家打开并关闭背包后标记资源已搜刮
 
 ### 12.6 Agent 撤离
 

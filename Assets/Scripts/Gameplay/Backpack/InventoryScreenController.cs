@@ -1151,14 +1151,6 @@ public class InventoryScreenController : MonoBehaviour
             }
         }
 
-        LogDebug(
-            $"Refs => InventoryPanel={GetObjectName(InventoryPanel)} " +
-            $"PocketGrid={GetObjectName(PocketGrid)} " +
-            $"TacticalRigGrid={GetObjectName(TacticalRigGrid)} " +
-            $"BackpackGrid={GetObjectName(BackpackGrid)} " +
-            $"LootChestGrid={GetObjectName(LootChestGrid)} " +
-            $"RigSlot={GetObjectName(RigSlot)} " +
-            $"BackpackSlot={GetObjectName(BackpackSlot)}");
     }
 
     private void SanitizeDuplicateUiObjects()
@@ -1207,11 +1199,6 @@ public class InventoryScreenController : MonoBehaviour
 #endif
 
         return false;
-    }
-
-    private static string GetObjectName(UnityEngine.Object target)
-    {
-        return target != null ? target.name : "null";
     }
 
     private static void LogDebug(string message)
