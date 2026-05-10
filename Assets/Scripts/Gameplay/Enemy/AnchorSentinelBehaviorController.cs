@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
@@ -52,9 +53,11 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     private PlayerHealthController _playerHealthController;
     private float _stateTimer;
     private float _beamTickTimer;
+    private float _beamTotalDamage;
     private float _activeStateTimer;
     private int _expectedRuneIndex;
     private bool _hasDroppedLoot;
+    private bool _isBeamFiring;
 
     private void Start()
     {
@@ -169,6 +172,8 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
             CurrentState = SentinelState.Firing;
             _stateTimer = 0f;
             _beamTickTimer = 0f;
+            _beamTotalDamage = 0f;
+            _isBeamFiring = true;
         }
     }
 
@@ -188,12 +193,13 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
             _beamTickTimer -= BeamTickInterval;
             if (_playerHealthController != null)
             {
-                _playerHealthController.TakeDamage(BeamDamagePerSecond * BeamTickInterval);
+                _beamTotalDamage += _playerHealthController.TakeDamage(BeamDamagePerSecond * BeamTickInterval);
             }
         }
 
         if (_stateTimer >= FiringDuration)
         {
+            FinishBeamAttack();
             CurrentState = SentinelState.Cooldown;
             _stateTimer = 0f;
         }
@@ -236,6 +242,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void DisableSentinel()
     {
+        FinishBeamAttack();
         CurrentState = SentinelState.Disabled;
         UpdateBeamVisuals();
         RaidFlowController.Instance?.NotifyEnemyKilled(gameObject.name);
@@ -305,12 +312,25 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void ReturnToDormantState()
     {
+        FinishBeamAttack();
         CurrentState = SentinelState.Dormant;
         _stateTimer = 0f;
         _beamTickTimer = 0f;
         _activeStateTimer = 0f;
         ResetPuzzleProgress();
         UpdateBeamVisuals();
+    }
+
+    private void FinishBeamAttack()
+    {
+        if (!_isBeamFiring)
+        {
+            return;
+        }
+
+        EnemySkillDamageLogger.LogSkillDamage(this, "Energy Beam", _beamTotalDamage);
+        _isBeamFiring = false;
+        _beamTotalDamage = 0f;
     }
 
     private void ResetPuzzleProgress()
@@ -395,6 +415,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     {
         GameObject lineObject = new GameObject(objectName);
         lineObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(lineObject);
         LineRenderer lineRenderer = lineObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;

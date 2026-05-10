@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
@@ -23,6 +24,11 @@ public class BulletController : MonoBehaviour
     public float FrozenFireBonusMultiplier = 2f;
 
     private Rigidbody _rigidbody;
+
+    private void Awake()
+    {
+        SkillEffectLayerUtility.ApplyToRoot(gameObject);
+    }
 
     private void Start()
     {
@@ -60,6 +66,11 @@ public class BulletController : MonoBehaviour
         }
 
         if (other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
         {
             return;
         }

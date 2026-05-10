@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
@@ -9,9 +10,16 @@ public class HunterBossAnchorProjectile : MonoBehaviour
     public float LifeTime = 4f;
     public float Damage = 16f;
     public float KnockbackStrength = 5.5f;
+    public GameObject SourceEnemy;
+    public string SkillName = "Anchor Throw";
 
     private Rigidbody _rigidbody;
     private bool _hasHitTarget;
+
+    private void Awake()
+    {
+        SkillEffectLayerUtility.ApplyToRoot(gameObject);
+    }
 
     private void Start()
     {
@@ -55,7 +63,13 @@ public class HunterBossAnchorProjectile : MonoBehaviour
             return;
         }
 
+        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
+        {
+            return;
+        }
+
         _hasHitTarget = true;
+        float totalDamage = 0f;
 
         if (other.CompareTag("Player"))
         {
@@ -63,7 +77,7 @@ public class HunterBossAnchorProjectile : MonoBehaviour
             PlayerMovementController playerMovement = other.GetComponentInParent<PlayerMovementController>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(Damage);
+                totalDamage = playerHealth.TakeDamage(Damage);
             }
 
             if (playerMovement != null)
@@ -73,6 +87,7 @@ public class HunterBossAnchorProjectile : MonoBehaviour
             }
         }
 
+        EnemySkillDamageLogger.LogSkillDamage(SourceEnemy != null ? SourceEnemy : gameObject, SkillName, totalDamage);
         Destroy(gameObject);
     }
 
@@ -112,6 +127,7 @@ public class HunterBossVortexField : MonoBehaviour
 
         EnsureTrigger();
         EnsureVisual();
+        SkillEffectLayerUtility.ApplyToRoot(gameObject);
         Destroy(gameObject, _lifeTime);
     }
 

@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -61,6 +62,8 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     private float _rangedAttackTimer;
     private float _meleeVisualTimer;
     private float _rangedVisualTimer;
+    private float _electricTickTimer;
+    private float _meleeTotalDamage;
     private bool _isMeleeLatched;
     private bool _isRangedCasting;
 
@@ -196,9 +199,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour
         if (_isMeleeLatched)
         {
             _meleeVisualTimer += Time.deltaTime;
-            if (_playerHealthController != null)
+            _electricTickTimer += Time.deltaTime;
+            float electricTickInterval = Mathf.Max(0.05f, ElectricTickInterval);
+            while (_electricTickTimer >= electricTickInterval)
             {
-                _playerHealthController.TakeDamage(ElectricTickDamagePerSecond * ElectricTickInterval);
+                _electricTickTimer -= electricTickInterval;
+                if (_playerHealthController != null)
+                {
+                    _meleeTotalDamage += _playerHealthController.TakeDamage(ElectricTickDamagePerSecond * electricTickInterval);
+                }
             }
 
             if (_meleeVisualTimer >= MeleeLatchDuration)
@@ -267,25 +276,35 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     {
         _meleeAttackTimer = 0f;
         _meleeVisualTimer = 0f;
+        _electricTickTimer = 0f;
+        _meleeTotalDamage = 0f;
         _isMeleeLatched = true;
 
         if (_playerHealthController != null)
         {
-            _playerHealthController.TakeDamage(MeleeContactDamage);
+            _meleeTotalDamage += _playerHealthController.TakeDamage(MeleeContactDamage);
         }
 
         if (_playerShootingController != null)
         {
             _playerShootingController.ApplySilence(SilenceDuration);
         }
-
-        Debug.Log($"[{name}] 近战电击命中玩家。");
     }
 
     private void StopMeleeAttack()
     {
+        bool wasMeleeLatched = _isMeleeLatched;
+        float totalDamage = _meleeTotalDamage;
+
         _isMeleeLatched = false;
         _meleeVisualTimer = 0f;
+        _electricTickTimer = 0f;
+        _meleeTotalDamage = 0f;
+
+        if (wasMeleeLatched)
+        {
+            EnemySkillDamageLogger.LogSkillDamage(this, "Electric Tentacle", totalDamage);
+        }
     }
 
     private void PerformRangedAttack()
@@ -302,17 +321,23 @@ public class TidalAberrationBehaviorController : MonoBehaviour
         {
             if (hit.collider.CompareTag("Player"))
             {
+                float totalDamage = 0f;
                 if (_playerHealthController != null)
                 {
-                    _playerHealthController.TakeDamage(WaterJetDamage);
+                    totalDamage = _playerHealthController.TakeDamage(WaterJetDamage);
                 }
 
                 if (_playerMovementController != null)
                 {
                     _playerMovementController.ApplyExternalImpulse(direction, WaterJetKnockbackStrength);
                 }
+
+                EnemySkillDamageLogger.LogSkillDamage(this, "Water Jet", totalDamage);
+                return;
             }
         }
+
+        EnemySkillDamageLogger.LogSkillDamage(this, "Water Jet", 0f);
     }
 
     private void StopRangedAttack()
@@ -338,6 +363,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     {
         GameObject lineObject = new GameObject(objectName);
         lineObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(lineObject);
         LineRenderer lineRenderer = lineObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;

@@ -400,7 +400,7 @@ MonoBehaviour:
   TentacleHitboxWidth: 0.55
   TentacleHitboxHeight: 0.55
   LatchPullStrength: 0.5
-  CorrosionDamagePerSecond: 10
+  CorrosionDamagePerSecond: 5
   CorrosionDuration: 2.5
   CorrosionTickInterval: 0.25
   InitialContactDamage: 6

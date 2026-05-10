@@ -331,7 +331,7 @@ MonoBehaviour:
   RoarChargeDuration: 1.2
   RoarCooldown: 7
   RoarRange: 12
-  RoarDamage: 999
+  RoarDamage: 100
   CoverMask:
     serializedVersion: 2
     m_Bits: 0

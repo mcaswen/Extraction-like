@@ -105,31 +105,35 @@ public class PlayerHealthController : MonoBehaviour
     }
 
     /// <summary>
-    /// Apply direct damage to the player.
+    /// Apply direct damage to the player and return the actual health loss
     /// </summary>
-    public void TakeDamage(float damage)
+    /// <param name="damage"></param>
+    /// <returns></returns>
+    public float TakeDamage(float damage)
     {
         if (Instance != null && Instance != this)
         {
-            Instance.TakeDamage(damage);
-            return;
+            return Instance.TakeDamage(damage);
         }
 
         if (IsDead || damage <= 0f)
         {
-            return;
+            return 0f;
         }
 
+        float previousHealth = CurrentHealth;
         float effectiveMultiplier = Mathf.Max(MinimumDamageTakenMultiplier, _damageTakenMultiplier);
         CurrentHealth -= damage * effectiveMultiplier;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
         UpdateHealthBar();
 
-        Debug.Log($"Player took damage, current HP: {CurrentHealth}");
+        float actualDamage = previousHealth - CurrentHealth;
         if (CurrentHealth <= 0f)
         {
             Die();
         }
+
+        return actualDamage;
     }
 
     /// <summary>
@@ -469,4 +473,3 @@ public class PlayerHealthController : MonoBehaviour
         }
     }
 }
-

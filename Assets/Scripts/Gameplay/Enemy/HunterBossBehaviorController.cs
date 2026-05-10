@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
@@ -56,7 +57,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     public float RoarChargeDuration = 1.2f;
     public float RoarCooldown = 7f;
     public float RoarRange = 12f;
-    public float RoarDamage = 999f;
+    public float RoarDamage = 100f;
     public LayerMask CoverMask;
     public float CoverCheckHeight = 1.1f;
 
@@ -223,6 +224,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     private void PerformMeleeAttack()
     {
         _meleeVisualTimer = MeleeVisualDuration;
+        float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.4f;
         Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
         foreach (Collider hit in hits)
@@ -236,7 +238,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             PlayerMovementController playerMovement = hit.GetComponentInParent<PlayerMovementController>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(MeleeDamage);
+                totalDamage += playerHealth.TakeDamage(MeleeDamage);
             }
 
             if (playerMovement != null)
@@ -245,6 +247,8 @@ public class HunterBossBehaviorController : MonoBehaviour
                 playerMovement.ApplyExternalImpulse(pushDirection, MeleeKnockbackStrength);
             }
         }
+
+        EnemySkillDamageLogger.LogSkillDamage(this, "Anchor Sweep", totalDamage);
     }
 
     private void SpawnOrMoveVortexField()
@@ -257,6 +261,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             if (VortexFieldPrefab != null)
             {
                 GameObject vortexObject = Instantiate(VortexFieldPrefab, vortexPosition, Quaternion.identity);
+                SkillEffectLayerUtility.ApplyToRoot(vortexObject);
                 _activeVortexField = vortexObject.GetComponent<HunterBossVortexField>();
             }
 
@@ -264,6 +269,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             {
                 GameObject vortexObject = new GameObject("HunterBossVortexField");
                 vortexObject.transform.position = vortexPosition;
+                SkillEffectLayerUtility.ApplyToRoot(vortexObject);
                 _activeVortexField = vortexObject.AddComponent<HunterBossVortexField>();
             }
 
@@ -296,6 +302,8 @@ public class HunterBossBehaviorController : MonoBehaviour
         {
             projectile.Damage = AnchorThrowDamage;
             projectile.KnockbackStrength = AnchorThrowKnockback;
+            projectile.SourceEnemy = gameObject;
+            projectile.SkillName = "Anchor Throw";
             projectile.Launch(direction * AnchorThrowSpeed);
         }
     }
@@ -321,18 +329,22 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void ExecuteRoar(float distanceToPlayer)
     {
+        float totalDamage = 0f;
         if (_playerHealthController == null || distanceToPlayer > RoarRange)
         {
+            EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
             return;
         }
 
         if (IsPlayerProtectedByCover())
         {
-            _playerHealthController.TakeDamage(RoarDamage * 0.1f);
+            totalDamage = _playerHealthController.TakeDamage(RoarDamage * 0.1f);
+            EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
             return;
         }
 
-        _playerHealthController.TakeDamage(RoarDamage);
+        totalDamage = _playerHealthController.TakeDamage(RoarDamage);
+        EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
     }
 
     private bool IsPlayerProtectedByCover()
@@ -393,6 +405,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         GameObject lineObject = new GameObject("RoarWave");
         lineObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(lineObject);
         RoarWaveRenderer = lineObject.AddComponent<LineRenderer>();
         RoarWaveRenderer.positionCount = 2;
         RoarWaveRenderer.enabled = false;
@@ -412,6 +425,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     {
         GameObject lineObject = new GameObject(objectName);
         lineObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(lineObject);
 
         LineRenderer lineRenderer = lineObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
@@ -522,7 +536,9 @@ public class HunterBossBehaviorController : MonoBehaviour
     {
         if (AnchorProjectilePrefab != null)
         {
-            return Instantiate(AnchorProjectilePrefab, ProjectileOrigin.position, Quaternion.LookRotation(direction));
+            GameObject prefabProjectileObject = Instantiate(AnchorProjectilePrefab, ProjectileOrigin.position, Quaternion.LookRotation(direction));
+            SkillEffectLayerUtility.ApplyToRoot(prefabProjectileObject);
+            return prefabProjectileObject;
         }
 
         GameObject projectileObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -530,6 +546,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         projectileObject.transform.position = ProjectileOrigin.position;
         projectileObject.transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(90f, 0f, 0f);
         projectileObject.transform.localScale = new Vector3(0.25f, 0.35f, 0.25f);
+        SkillEffectLayerUtility.ApplyToRoot(projectileObject);
 
         Renderer rendererComponent = projectileObject.GetComponent<Renderer>();
         if (rendererComponent != null)

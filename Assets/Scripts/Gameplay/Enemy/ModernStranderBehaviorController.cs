@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -37,7 +38,7 @@ public class ModernStranderBehaviorController : MonoBehaviour
     public float TentacleHitboxWidth = 0.55f;
     public float TentacleHitboxHeight = 0.55f;
     public float LatchPullStrength = 3.4f;
-    public float CorrosionDamagePerSecond = 10f;
+    public float CorrosionDamagePerSecond = 5f;
     public float CorrosionDuration = 2.5f;
     public float CorrosionTickInterval = 0.25f;
     public float InitialContactDamage = 6f;
@@ -57,9 +58,11 @@ public class ModernStranderBehaviorController : MonoBehaviour
     private float _waitTimer;
     private float _attackTimer;
     private float _latchTimer;
+    private float _tentacleTotalDamage;
     private bool _isTentacleStriking;
     private bool _isTentacleLatched;
     private bool _hasAppliedInitialLatchDamage;
+    private bool _hasAddedTentacleCorrosionDamage;
     private ModernStranderTentacleHitbox _tentacleHitbox;
 
     private void Start()
@@ -102,17 +105,27 @@ public class ModernStranderBehaviorController : MonoBehaviour
 
     private void OnDisable()
     {
+        bool hadActiveTentacle = _isTentacleStriking || _isTentacleLatched;
+        float totalDamage = _tentacleTotalDamage;
+
         // Space-hourglass magic seal can disable this behaviour mid-attack.
         // Ensure any active tentacle latch/hitbox stops immediately.
         _isTentacleStriking = false;
         _isTentacleLatched = false;
         _latchTimer = 0f;
+        _tentacleTotalDamage = 0f;
         _hasAppliedInitialLatchDamage = false;
+        _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(false);
 
         if (TentacleRenderer != null)
         {
             TentacleRenderer.enabled = false;
+        }
+
+        if (hadActiveTentacle)
+        {
+            EnemySkillDamageLogger.LogSkillDamage(this, "Corrosive Tentacle", totalDamage);
         }
     }
 
@@ -226,26 +239,37 @@ public class ModernStranderBehaviorController : MonoBehaviour
     {
         _attackTimer = 0f;
         _latchTimer = 0f;
+        _tentacleTotalDamage = 0f;
         _isTentacleStriking = true;
         _isTentacleLatched = false;
         _hasAppliedInitialLatchDamage = false;
+        _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(true);
     }
 
     private void StopTentacleAttack()
     {
+        bool hadActiveTentacle = _isTentacleStriking || _isTentacleLatched;
         bool hadLatchedPlayer = _isTentacleLatched;
+        float totalDamage = _tentacleTotalDamage;
         Vector3 puddlePosition = PlayerTransform != null ? PlayerTransform.position : transform.position;
 
         _isTentacleStriking = false;
         _isTentacleLatched = false;
         _latchTimer = 0f;
+        _tentacleTotalDamage = 0f;
         _hasAppliedInitialLatchDamage = false;
+        _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(false);
 
         if (hadLatchedPlayer)
         {
             SpawnCorrosivePuddle(puddlePosition);
+        }
+
+        if (hadActiveTentacle)
+        {
+            EnemySkillDamageLogger.LogSkillDamage(this, "Corrosive Tentacle", totalDamage);
         }
     }
 
@@ -266,11 +290,17 @@ public class ModernStranderBehaviorController : MonoBehaviour
         }
 
         _hasAppliedInitialLatchDamage = true;
-        _playerHealthController.TakeDamage(InitialContactDamage);
+        _tentacleTotalDamage += _playerHealthController.TakeDamage(InitialContactDamage);
         _playerHealthController.ApplyCorrosion(
             CorrosionDamagePerSecond,
             CorrosionDuration,
             CorrosionTickInterval);
+
+        if (!_hasAddedTentacleCorrosionDamage)
+        {
+            _hasAddedTentacleCorrosionDamage = true;
+            _tentacleTotalDamage += CorrosionDamagePerSecond * CorrosionDuration;
+        }
     }
 
     private void EnsureTentacleRenderer()
@@ -313,6 +343,7 @@ public class ModernStranderBehaviorController : MonoBehaviour
 
         GameObject hitboxObject = new GameObject("TentacleHitbox");
         hitboxObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(hitboxObject);
         _tentacleHitbox = hitboxObject.AddComponent<ModernStranderTentacleHitbox>();
         _tentacleHitbox.Initialize(this, TentacleHitboxWidth, TentacleHitboxHeight);
         SetTentacleHitboxEnabled(false);
@@ -374,6 +405,7 @@ public class ModernStranderBehaviorController : MonoBehaviour
         if (CorrosivePuddlePrefab != null)
         {
             GameObject puddleObject = Instantiate(CorrosivePuddlePrefab, puddlePosition, Quaternion.identity);
+            SkillEffectLayerUtility.ApplyToRoot(puddleObject);
             CorrosiveSlimePuddle puddle = puddleObject.GetComponent<CorrosiveSlimePuddle>();
             if (puddle != null)
             {
@@ -384,6 +416,7 @@ public class ModernStranderBehaviorController : MonoBehaviour
 
         GameObject defaultPuddleObject = new GameObject("CorrosiveSlimePuddle");
         defaultPuddleObject.transform.position = puddlePosition;
+        SkillEffectLayerUtility.ApplyToRoot(defaultPuddleObject);
         CorrosiveSlimePuddle defaultPuddle = defaultPuddleObject.AddComponent<CorrosiveSlimePuddle>();
         defaultPuddle.Configure(PuddleRadius, PuddleLifetime, PuddleDamagePerSecond, PuddleCorrosionDuration, PuddleTickInterval);
     }

@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
@@ -20,6 +21,7 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
 
         _boxCollider = GetComponent<BoxCollider>();
         _boxCollider.isTrigger = true;
+        SkillEffectLayerUtility.ApplyToRoot(gameObject);
     }
 
     public void UpdateHitboxTransform(Vector3 origin, Vector3 target)
@@ -90,6 +92,7 @@ public class CorrosiveSlimePuddle : MonoBehaviour
 
         EnsureVisual();
         EnsureTrigger();
+        SkillEffectLayerUtility.ApplyToRoot(gameObject);
         Destroy(gameObject, _lifeTime);
     }
 

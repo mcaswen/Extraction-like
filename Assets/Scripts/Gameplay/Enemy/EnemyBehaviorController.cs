@@ -125,11 +125,13 @@ public class EnemyBehaviorController : MonoBehaviour
         _attackTimer += Time.deltaTime;
         if (_attackTimer >= AttackInterval)
         {
+            float totalDamage = 0f;
             if (_playerHealthController != null)
             {
-                _playerHealthController.TakeDamage(AttackDamage);
+                totalDamage = _playerHealthController.TakeDamage(AttackDamage);
             }
 
+            EnemySkillDamageLogger.LogSkillDamage(this, "Basic Melee Attack", totalDamage);
             _attackTimer = 0f;
         }
     }

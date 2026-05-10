@@ -137,7 +137,13 @@ public class RangedEnemyBehaviorController : MonoBehaviour
             return;
         }
 
-        Instantiate(EnemyBulletPrefab, FirePoint.position, FirePoint.rotation);
+        GameObject bulletObject = Instantiate(EnemyBulletPrefab, FirePoint.position, FirePoint.rotation);
+        EnemyBulletController bulletController = bulletObject.GetComponent<EnemyBulletController>();
+        if (bulletController != null)
+        {
+            bulletController.SourceEnemy = gameObject;
+            bulletController.SkillName = "Ranged Shot";
+        }
     }
 
     private void GetNewPatrolPoint()

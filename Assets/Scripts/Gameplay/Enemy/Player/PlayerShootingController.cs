@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
@@ -674,6 +675,7 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         GameObject bulletObject = Instantiate(BulletPrefab, FirePoint.position, FirePoint.rotation);
+        SkillEffectLayerUtility.ApplyToRoot(bulletObject);
         BulletController bullet = bulletObject.GetComponent<BulletController>();
         if (bullet != null)
         {
@@ -777,6 +779,7 @@ public class PlayerShootingController : MonoBehaviour
         wallObject.transform.position = spawnPosition;
         wallObject.transform.rotation = Quaternion.LookRotation(forward.normalized, Vector3.up);
         wallObject.transform.localScale = EarthWallSize;
+        SkillEffectLayerUtility.ApplyToRoot(wallObject);
 
         Rigidbody wallRigidbody = wallObject.AddComponent<Rigidbody>();
         wallRigidbody.isKinematic = true;
@@ -864,6 +867,7 @@ public class PlayerShootingController : MonoBehaviour
         GameObject indicatorObject = new GameObject("IceFreezeGroundIndicator");
         indicatorObject.transform.position = origin;
         indicatorObject.transform.rotation = Quaternion.identity;
+        SkillEffectLayerUtility.ApplyToRoot(indicatorObject);
 
         MeshFilter meshFilter = indicatorObject.AddComponent<MeshFilter>();
         MeshRenderer meshRenderer = indicatorObject.AddComponent<MeshRenderer>();
@@ -927,6 +931,7 @@ public class PlayerShootingController : MonoBehaviour
             }
         }
 
+        SkillEffectLayerUtility.ApplyToRoot(pillarsRoot);
         Destroy(pillarsRoot, lifetime);
     }
 
@@ -964,6 +969,7 @@ public class PlayerShootingController : MonoBehaviour
         GameObject indicatorObject = new GameObject("IceConeGroundIndicator");
         indicatorObject.transform.position = origin;
         indicatorObject.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+        SkillEffectLayerUtility.ApplyToRoot(indicatorObject);
 
         MeshFilter meshFilter = indicatorObject.AddComponent<MeshFilter>();
         MeshRenderer meshRenderer = indicatorObject.AddComponent<MeshRenderer>();
@@ -1028,6 +1034,7 @@ public class PlayerShootingController : MonoBehaviour
             }
         }
 
+        SkillEffectLayerUtility.ApplyToRoot(spikesRoot);
         Destroy(spikesRoot, duration);
     }
 
@@ -1647,5 +1654,4 @@ public class PlayerShootingController : MonoBehaviour
         }
     }
 }
-
 

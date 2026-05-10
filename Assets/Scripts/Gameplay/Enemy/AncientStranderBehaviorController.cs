@@ -1,3 +1,4 @@
+using Gameplay.SkillEffect;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -57,6 +58,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
     private float _rangedAttackTimer;
     private float _meleeVisualTimer;
     private float _biteStrikeTimer;
+    private float _biteTotalDamage;
     private bool _isBiteStriking;
     private bool _hasAppliedBiteDamage;
     private AncientStranderBiteHitbox _biteHitbox;
@@ -235,6 +237,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
     private void PerformMeleeAttack()
     {
         _meleeVisualTimer = MeleeVisualDuration;
+        float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.2f;
         Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
         foreach (Collider hit in hits)
@@ -247,15 +250,18 @@ public class AncientStranderBehaviorController : MonoBehaviour
             PlayerHealthController playerHealth = hit.GetComponentInParent<PlayerHealthController>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(MeleeDamage);
+                totalDamage += playerHealth.TakeDamage(MeleeDamage);
             }
         }
+
+        EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Sweep", totalDamage);
     }
 
     private void BeginBiteStrike()
     {
         _rangedAttackTimer = 0f;
         _biteStrikeTimer = 0f;
+        _biteTotalDamage = 0f;
         _isBiteStriking = true;
         _hasAppliedBiteDamage = false;
         SetBiteHitboxEnabled(true);
@@ -269,15 +275,24 @@ public class AncientStranderBehaviorController : MonoBehaviour
         }
 
         _hasAppliedBiteDamage = true;
-        playerHealth.TakeDamage(BiteDamage);
+        _biteTotalDamage += playerHealth.TakeDamage(BiteDamage);
     }
 
     private void StopBiteStrike()
     {
+        bool wasBiteStriking = _isBiteStriking;
+        float totalDamage = _biteTotalDamage;
+
         _isBiteStriking = false;
         _biteStrikeTimer = 0f;
+        _biteTotalDamage = 0f;
         _hasAppliedBiteDamage = false;
         SetBiteHitboxEnabled(false);
+
+        if (wasBiteStriking)
+        {
+            EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Bite", totalDamage);
+        }
     }
 
     private void EnsureLineRenderers()
@@ -297,6 +312,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
     {
         GameObject lineObject = new GameObject(objectName);
         lineObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(lineObject);
         LineRenderer lineRenderer = lineObject.AddComponent<LineRenderer>();
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
@@ -327,6 +343,7 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
         GameObject hitboxObject = new GameObject("FishboneBiteHitbox");
         hitboxObject.transform.SetParent(transform, false);
+        SkillEffectLayerUtility.ApplyToRoot(hitboxObject);
         _biteHitbox = hitboxObject.AddComponent<AncientStranderBiteHitbox>();
         _biteHitbox.Initialize(this, BiteHitboxWidth, BiteHitboxHeight);
         SetBiteHitboxEnabled(false);
