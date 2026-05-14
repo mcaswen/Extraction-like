@@ -2,6 +2,8 @@ using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 
 namespace Gameplay.Agent.AI.Actions
@@ -31,8 +33,9 @@ namespace Gameplay.Agent.AI.Actions
             if (!TryGetDirective(context, AgentDirectiveType.Engage, out AgentDirectiveRequest directiveRequest))
                 return FailMissingDirective(AgentDirectiveType.Engage);
 
-            if (!TryGetTargetComponent(
-                    directiveRequest.TargetRef,
+            if (!TryResolveEnemyTarget(
+                    directiveRequest,
+                    agent,
                     out global::EnemyHealthController enemyHealthController))
             {
                 // 目标丢失等价于本次战斗目标已结束，清理事实让状态机回落
@@ -43,9 +46,12 @@ namespace Gameplay.Agent.AI.Actions
             if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
             {
                 // 敌人死亡结算交给 Enemy 系统，Agent 只收尾自身指令
+                GameplayTargetRegistry.GetOrCreate().NotifyEnemyDefeated(enemyHealthController);
                 CompleteCombat(context);
                 return Succeed();
             }
+
+            GameplayTargetRegistry.GetOrCreate().NotifyEnemyEngaged(enemyHealthController);
 
             Vector3 targetPosition = enemyHealthController.transform.position;
             float attackRange = GetFloat(context, AgentBlackboardKeys.AttackRange, 6f);
@@ -71,6 +77,7 @@ namespace Gameplay.Agent.AI.Actions
 
             if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
             {
+                GameplayTargetRegistry.GetOrCreate().NotifyEnemyDefeated(enemyHealthController);
                 CompleteCombat(context);
                 return Succeed();
             }
@@ -82,6 +89,23 @@ namespace Gameplay.Agent.AI.Actions
         {
             SetFact(context, AgentBlackboardKeys.HasVisibleEnemy, false);
             ClearPendingDirective(context);
+        }
+
+        private bool TryResolveEnemyTarget(
+            AgentDirectiveRequest directiveRequest,
+            IAgentReadOnly agent,
+            out global::EnemyHealthController enemyHealthController)
+        {
+            if (TryGetTargetComponent(
+                    directiveRequest.TargetRef,
+                    out EnemyClusterAuthoring enemyCluster))
+            {
+                return enemyCluster.TryGetNearestAliveEnemy(agent.Position, out enemyHealthController);
+            }
+
+            return TryGetTargetComponent(
+                directiveRequest.TargetRef,
+                out enemyHealthController);
         }
 
         private static bool TryShootEnemy(

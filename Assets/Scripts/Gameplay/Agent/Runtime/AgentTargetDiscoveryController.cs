@@ -2,13 +2,15 @@ using System.Collections.Generic;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
     /// Agent MVP 目标发现系统
-    /// 按发现范围为每个已注册 Agent 选择一个最高优先级目标，并写入现有命令接口
+    /// 按发现范围为每个已注册 Agent 选择一个最高优先级群目标，并写入现有命令接口
     /// </summary>
     public sealed class AgentTargetDiscoveryController : MonoBehaviour
     {
@@ -18,6 +20,9 @@ namespace Gameplay.Agent.Runtime
 
         private readonly List<AgentRuntimeHandle> _agentBuffer =
             new List<AgentRuntimeHandle>();
+
+        private readonly List<GameplayTargetClusterAuthoringBase> _clusterBuffer =
+            new List<GameplayTargetClusterAuthoringBase>();
 
         private readonly Dictionary<AgentId, double> _nextScanTimeByAgentId =
             new Dictionary<AgentId, double>();
@@ -138,80 +143,117 @@ namespace Gameplay.Agent.Runtime
                 return;
             }
 
-            // 优先级由判断顺序表达：敌人 > 资源点 > 撤离点
-            if (TryFindNearestEnemy(agent.Position, rangeSqr, out global::EnemyHealthController enemy))
-            {
-                ApplyEnemyTarget(handle, commandReceiver, enemy);
-                return;
-            }
+            GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
 
-            if (TryKeepCurrentResourceTarget(agent, rangeSqr, out GameObject resourceObject) ||
-                TryFindNearestResource(agent.Position, rangeSqr, out resourceObject))
-            {
-                ApplyResourceTarget(handle, commandReceiver, resourceObject);
-                return;
-            }
-
-            if (TryFindNearestExtractionPoint(
+            // 优先级由判断顺序表达：敌人群 > 资源群 > 撤离点群
+            if (TryFindNearestEnemyCluster(
+                    targetRegistry,
                     agent.Position,
                     rangeSqr,
-                    out global::ExtractionPointController extractionPoint))
+                    out EnemyClusterAuthoring enemyCluster))
             {
-                ApplyExtractionTarget(handle, commandReceiver, extractionPoint);
+                ApplyEnemyClusterTarget(handle, commandReceiver, enemyCluster);
+                return;
+            }
+
+            if (TryKeepCurrentResourceClusterTarget(agent, rangeSqr, out ResourceClusterAuthoring resourceCluster) ||
+                TryFindNearestResourceCluster(targetRegistry, agent.Position, rangeSqr, out resourceCluster))
+            {
+                ApplyResourceClusterTarget(handle, commandReceiver, resourceCluster);
+                return;
+            }
+
+            if (TryFindNearestExtractionCluster(
+                    targetRegistry,
+                    agent.Position,
+                    rangeSqr,
+                    out ExtractionClusterAuthoring extractionCluster))
+            {
+                ApplyExtractionClusterTarget(handle, commandReceiver, extractionCluster);
                 return;
             }
 
             ClearTargetFacts(commandReceiver);
         }
 
-        private static void ApplyEnemyTarget(
+        /// <summary>
+        /// 将敌人群写入 Agent 指令
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="commandReceiver"></param>
+        /// <param name="enemyCluster"></param>
+        private static void ApplyEnemyClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
-            global::EnemyHealthController enemy)
+            EnemyClusterAuthoring enemyCluster)
         {
             // 发现层只选择目标，具体攻击流程仍交给 Combat 行为树
             commandReceiver.SetVisibleEnemy(true);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
-            commandReceiver.SubmitDirective(AgentDirectiveRequest.EngageConcreteEnemy(
-                enemy.gameObject,
-                BuildTargetId("Enemy", enemy.gameObject),
+
+            string targetId = enemyCluster.TargetId;
+            commandReceiver.SubmitDirective(new AgentDirectiveRequest(
+                AgentDirectiveType.Engage,
+                AgentTargetRef.FromConcreteObject(
+                    AgentTargetKind.Enemy,
+                    enemyCluster.gameObject,
+                    targetId),
+                targetId,
                 handle.AgentId));
         }
 
-        private static void ApplyResourceTarget(
+        /// <summary>
+        /// 将资源群写入 Agent 指令
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="commandReceiver"></param>
+        /// <param name="resourceCluster"></param>
+        private static void ApplyResourceClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
-            GameObject resourceObject)
+            ResourceClusterAuthoring resourceCluster)
         {
             // 资源点同时标记为可交互目标，兼容当前 SearchResource / InteractLoot 状态拆分
             commandReceiver.SetVisibleEnemy(false);
             commandReceiver.SetHasResourceTarget(true);
             commandReceiver.SetHasInteractableTarget(true);
             commandReceiver.SetShouldExtract(false);
-            commandReceiver.SubmitDirective(AgentDirectiveRequest.SearchConcreteResource(
-                resourceObject,
-                BuildTargetId("Resource", resourceObject),
+
+            string targetId = resourceCluster.TargetId;
+            commandReceiver.SubmitDirective(new AgentDirectiveRequest(
+                AgentDirectiveType.Search,
+                AgentTargetRef.FromConcreteObject(
+                    AgentTargetKind.Resource,
+                    resourceCluster.gameObject,
+                    targetId),
+                targetId,
                 handle.AgentId));
         }
 
-        private static void ApplyExtractionTarget(
+        /// <summary>
+        /// 将撤离点群写入 Agent 指令
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="commandReceiver"></param>
+        /// <param name="extractionCluster"></param>
+        private static void ApplyExtractionClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
-            global::ExtractionPointController extractionPoint)
+            ExtractionClusterAuthoring extractionCluster)
         {
             commandReceiver.SetVisibleEnemy(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(true);
 
-            string targetId = BuildTargetId("Extraction", extractionPoint.gameObject);
+            string targetId = extractionCluster.TargetId;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 AgentDirectiveType.Extract,
                 AgentTargetRef.FromConcreteObject(
                     AgentTargetKind.Extraction,
-                    extractionPoint.gameObject,
+                    extractionCluster.gameObject,
                     targetId),
                 targetId,
                 handle.AgentId));
@@ -226,65 +268,95 @@ namespace Gameplay.Agent.Runtime
             commandReceiver.ClearDirective();
         }
 
-        private static bool TryFindNearestEnemy(
+        /// <summary>
+        /// 在发现范围内寻找最近的可接战敌人群
+        /// </summary>
+        /// <param name="targetRegistry"></param>
+        /// <param name="agentPosition"></param>
+        /// <param name="rangeSqr"></param>
+        /// <param name="nearestEnemyCluster"></param>
+        /// <returns></returns>
+        private bool TryFindNearestEnemyCluster(
+            GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
             float rangeSqr,
-            out global::EnemyHealthController nearestEnemy)
+            out EnemyClusterAuthoring nearestEnemyCluster)
         {
-            nearestEnemy = null;
+            nearestEnemyCluster = null;
             float nearestDistanceSqr = float.MaxValue;
-            global::EnemyHealthController[] enemies = FindObjectsOfType<global::EnemyHealthController>(false);
+            targetRegistry.CopyClustersTo(_clusterBuffer);
 
-            for (int i = 0; i < enemies.Length; i++)
+            for (int i = 0; i < _clusterBuffer.Count; i++)
             {
-                global::EnemyHealthController enemy = enemies[i];
-                if (enemy == null ||
-                    !enemy.gameObject.activeInHierarchy ||
-                    enemy.GetCurrentHealthRatio() <= 0f)
+                if (!(_clusterBuffer[i] is EnemyClusterAuthoring enemyCluster) ||
+                    enemyCluster.HasBeenCompleted ||
+                    !enemyCluster.TryGetNearestAliveEnemy(agentPosition, out _))
                 {
                     continue;
                 }
 
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemy.transform.position);
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemyCluster.CenterPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
                     continue;
 
-                nearestEnemy = enemy;
+                nearestEnemyCluster = enemyCluster;
                 nearestDistanceSqr = distanceSqr;
             }
 
-            return nearestEnemy != null;
+            return nearestEnemyCluster != null;
         }
 
-        private static bool TryFindNearestResource(
+        /// <summary>
+        /// 在发现范围内寻找最近的未完成资源群
+        /// </summary>
+        /// <param name="targetRegistry"></param>
+        /// <param name="agentPosition"></param>
+        /// <param name="rangeSqr"></param>
+        /// <param name="nearestResourceCluster"></param>
+        /// <returns></returns>
+        private bool TryFindNearestResourceCluster(
+            GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
             float rangeSqr,
-            out GameObject nearestResourceObject)
+            out ResourceClusterAuthoring nearestResourceCluster)
         {
-            nearestResourceObject = null;
+            nearestResourceCluster = null;
             float nearestDistanceSqr = float.MaxValue;
+            targetRegistry.CopyClustersTo(_clusterBuffer);
 
-            FindNearestLootBoxResource(
-                agentPosition,
-                rangeSqr,
-                ref nearestDistanceSqr,
-                ref nearestResourceObject);
+            for (int i = 0; i < _clusterBuffer.Count; i++)
+            {
+                if (!(_clusterBuffer[i] is ResourceClusterAuthoring resourceCluster) ||
+                    resourceCluster.HasBeenCompleted ||
+                    !resourceCluster.TryGetNearestIncompleteResource(agentPosition, out _))
+                {
+                    continue;
+                }
 
-            FindNearestWorldLootResource(
-                agentPosition,
-                rangeSqr,
-                ref nearestDistanceSqr,
-                ref nearestResourceObject);
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, resourceCluster.CenterPosition);
+                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
+                    continue;
 
-            return nearestResourceObject != null;
+                nearestResourceCluster = resourceCluster;
+                nearestDistanceSqr = distanceSqr;
+            }
+
+            return nearestResourceCluster != null;
         }
 
-        private static bool TryKeepCurrentResourceTarget(
+        /// <summary>
+        /// 当前资源群仍可处理时，继续保持该目标
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <param name="rangeSqr"></param>
+        /// <param name="resourceCluster"></param>
+        /// <returns></returns>
+        private static bool TryKeepCurrentResourceClusterTarget(
             IAgentReadOnly agent,
             float rangeSqr,
-            out GameObject resourceObject)
+            out ResourceClusterAuthoring resourceCluster)
         {
-            resourceObject = null;
+            resourceCluster = null;
             if (agent == null || agent.Blackboard == null)
                 return false;
 
@@ -301,144 +373,61 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
-            resourceObject = directiveRequest.TargetObject;
-            if (!IsResourceObjectAvailable(resourceObject))
+            if (directiveRequest.TargetObject == null ||
+                !directiveRequest.TargetObject.TryGetComponent(out resourceCluster) ||
+                resourceCluster.HasBeenCompleted ||
+                !resourceCluster.TryGetNearestIncompleteResource(agent.Position, out _))
             {
-                resourceObject = null;
+                resourceCluster = null;
                 return false;
             }
 
-            float distanceSqr = GetPlanarDistanceSqr(agent.Position, resourceObject.transform.position);
+            float distanceSqr = GetPlanarDistanceSqr(agent.Position, resourceCluster.CenterPosition);
             if (distanceSqr > rangeSqr)
             {
-                resourceObject = null;
+                resourceCluster = null;
                 return false;
             }
 
             return true;
         }
 
-        // 同一资源优先级下按水平距离挑最近目标，箱子和地面物品共享这套比较规则
-        private static void FindNearestLootBoxResource(
+        /// <summary>
+        /// 在发现范围内寻找最近的可用撤离点群
+        /// </summary>
+        /// <param name="targetRegistry"></param>
+        /// <param name="agentPosition"></param>
+        /// <param name="rangeSqr"></param>
+        /// <param name="nearestExtractionCluster"></param>
+        /// <returns></returns>
+        private bool TryFindNearestExtractionCluster(
+            GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
             float rangeSqr,
-            ref float nearestDistanceSqr,
-            ref GameObject nearestResourceObject)
+            out ExtractionClusterAuthoring nearestExtractionCluster)
         {
-            global::LootBoxEntity[] lootBoxes = FindObjectsOfType<global::LootBoxEntity>(false);
-
-            for (int i = 0; i < lootBoxes.Length; i++)
-            {
-                global::LootBoxEntity lootBox = lootBoxes[i];
-                if (!IsLootBoxResourceAvailable(lootBox))
-                    continue;
-
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, lootBox.transform.position);
-                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
-                    continue;
-
-                nearestResourceObject = lootBox.gameObject;
-                nearestDistanceSqr = distanceSqr;
-            }
-        }
-
-        // 地面掉落物也属于当前 MVP 的资源目标，但执行层仍由 SearchResource 统一接管
-        private static void FindNearestWorldLootResource(
-            Vector3 agentPosition,
-            float rangeSqr,
-            ref float nearestDistanceSqr,
-            ref GameObject nearestResourceObject)
-        {
-            global::WorldLootItem[] worldItems = FindObjectsOfType<global::WorldLootItem>(false);
-
-            for (int i = 0; i < worldItems.Length; i++)
-            {
-                global::WorldLootItem worldItem = worldItems[i];
-                if (!IsWorldLootResourceAvailable(worldItem))
-                    continue;
-
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, worldItem.transform.position);
-                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
-                    continue;
-
-                nearestResourceObject = worldItem.gameObject;
-                nearestDistanceSqr = distanceSqr;
-            }
-        }
-
-        private static bool IsLootBoxResourceAvailable(global::LootBoxEntity lootBox)
-        {
-            return lootBox != null &&
-                   lootBox.gameObject.activeInHierarchy &&
-                   !IsResourceMarkedSearched(lootBox.gameObject) &&
-                   lootBox.GetSavedItems().Count > 0;
-        }
-
-        private static bool IsWorldLootResourceAvailable(global::WorldLootItem worldItem)
-        {
-            return worldItem != null &&
-                   worldItem.gameObject.activeInHierarchy &&
-                   !IsResourceMarkedSearched(worldItem.gameObject) &&
-                   worldItem.ItemData != null &&
-                   worldItem.CurrentAmount > 0;
-        }
-
-        private static bool IsResourceObjectAvailable(GameObject resourceObject)
-        {
-            if (resourceObject == null || !resourceObject.activeInHierarchy)
-                return false;
-
-            if (TryGetTargetComponent(resourceObject, out global::LootBoxEntity lootBox))
-                return IsLootBoxResourceAvailable(lootBox);
-
-            if (TryGetTargetComponent(resourceObject, out global::WorldLootItem worldItem))
-                return IsWorldLootResourceAvailable(worldItem);
-
-            return false;
-        }
-
-        private static bool TryGetTargetComponent<TComponent>(
-            GameObject targetObject,
-            out TComponent component)
-            where TComponent : Component
-        {
-            component = targetObject.GetComponent<TComponent>();
-            if (component != null)
-                return true;
-
-            component = targetObject.GetComponentInParent<TComponent>();
-            if (component != null)
-                return true;
-
-            component = targetObject.GetComponentInChildren<TComponent>();
-            return component != null;
-        }
-
-        private static bool TryFindNearestExtractionPoint(
-            Vector3 agentPosition,
-            float rangeSqr,
-            out global::ExtractionPointController nearestExtractionPoint)
-        {
-            nearestExtractionPoint = null;
+            nearestExtractionCluster = null;
             float nearestDistanceSqr = float.MaxValue;
-            global::ExtractionPointController[] extractionPoints =
-                FindObjectsOfType<global::ExtractionPointController>(false);
+            targetRegistry.CopyClustersTo(_clusterBuffer);
 
-            for (int i = 0; i < extractionPoints.Length; i++)
+            for (int i = 0; i < _clusterBuffer.Count; i++)
             {
-                global::ExtractionPointController extractionPoint = extractionPoints[i];
-                if (extractionPoint == null || !extractionPoint.gameObject.activeInHierarchy)
+                if (!(_clusterBuffer[i] is ExtractionClusterAuthoring extractionCluster) ||
+                    extractionCluster.HasBeenCompleted ||
+                    !extractionCluster.TryGetNearestExtractionPoint(agentPosition, out _))
+                {
                     continue;
+                }
 
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionPoint.transform.position);
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionCluster.CenterPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
                     continue;
 
-                nearestExtractionPoint = extractionPoint;
+                nearestExtractionCluster = extractionCluster;
                 nearestDistanceSqr = distanceSqr;
             }
 
-            return nearestExtractionPoint != null;
+            return nearestExtractionCluster != null;
         }
 
         private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)
@@ -449,12 +438,5 @@ namespace Gameplay.Agent.Runtime
             return deltaX * deltaX + deltaZ * deltaZ;
         }
 
-        private static string BuildTargetId(string prefix, GameObject targetObject)
-        {
-            if (targetObject == null)
-                return string.Empty;
-
-            return $"{prefix}_{targetObject.name}_{targetObject.GetInstanceID()}";
-        }
     }
 }

@@ -1,6 +1,7 @@
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Targets.Authoring;
 using UnityEngine;
 
 namespace Gameplay.Agent.AI.Actions
@@ -25,17 +26,21 @@ namespace Gameplay.Agent.AI.Actions
             if (!TryGetDirective(context, AgentDirectiveType.Extract, out AgentDirectiveRequest directiveRequest))
                 return FailMissingDirective(AgentDirectiveType.Extract);
 
-            if (!TryResolveTargetPosition(directiveRequest.TargetRef, out Vector3 targetPosition))
+            if (!TryResolveExtractionTarget(
+                    directiveRequest,
+                    agent,
+                    out Vector3 targetPosition,
+                    out global::ExtractionPointController extractionPoint))
+            {
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Extraction target position is invalid");
+            }
 
             float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             if (!MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
                 return Running();
 
-            if (!TryGetTargetComponent(
-                    directiveRequest.TargetRef,
-                    out global::ExtractionPointController extractionPoint))
+            if (extractionPoint == null)
             {
                 // 抽象撤离点只完成移动，具体胜负由未来撤离 Adapter 处理
                 return Succeed();
@@ -56,6 +61,37 @@ namespace Gameplay.Agent.AI.Actions
         {
             // 中断同样要收尾撤离状态，防止切目标后继续倒计时
             ClearActiveExtractionPoint();
+        }
+
+        private bool TryResolveExtractionTarget(
+            AgentDirectiveRequest directiveRequest,
+            IAgentReadOnly agent,
+            out Vector3 targetPosition,
+            out global::ExtractionPointController extractionPoint)
+        {
+            if (TryGetTargetComponent(
+                    directiveRequest.TargetRef,
+                    out ExtractionClusterAuthoring extractionCluster))
+            {
+                if (!extractionCluster.TryGetNearestExtractionPoint(agent.Position, out extractionPoint))
+                {
+                    targetPosition = extractionCluster.CenterPosition;
+                    return true;
+                }
+
+                targetPosition = extractionPoint.transform.position;
+                return true;
+            }
+
+            if (TryGetTargetComponent(
+                    directiveRequest.TargetRef,
+                    out extractionPoint))
+            {
+                targetPosition = extractionPoint.transform.position;
+                return true;
+            }
+
+            return TryResolveTargetPosition(directiveRequest.TargetRef, out targetPosition);
         }
 
         private void SetActiveExtractionPoint(global::ExtractionPointController extractionPoint)

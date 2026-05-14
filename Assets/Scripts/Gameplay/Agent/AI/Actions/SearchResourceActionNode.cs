@@ -3,6 +3,8 @@ using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 
 namespace Gameplay.Agent.AI.Actions
@@ -13,7 +15,9 @@ namespace Gameplay.Agent.AI.Actions
     public sealed class SearchResourceActionNode : AgentActionNodeBase
     {
         private GameObject _waitingResourceObject;
+        private GameObject _activeConcreteResourceObject;
         private string _activeResourceTargetId;
+        private bool _hasReachedClusterCenter;
         private bool _hasReachedInteractionRange;
         private bool _hasObservedInventoryOpen;
 
@@ -35,19 +39,126 @@ namespace Gameplay.Agent.AI.Actions
             if (!TryGetDirective(context, AgentDirectiveType.Search, out AgentDirectiveRequest directiveRequest))
                 return FailMissingDirective(AgentDirectiveType.Search);
 
-            if (!TryResolveInteractionTargetPosition(
+            SyncActiveResourceTarget(directiveRequest);
+
+            if (TryGetTargetComponent(
                     directiveRequest.TargetRef,
+                    out ResourceClusterAuthoring resourceCluster))
+            {
+                return SearchResourceCluster(context, agent, resourceCluster);
+            }
+
+            if (directiveRequest.TargetObject == null)
+            {
+                return SearchAbstractResourcePoint(context, agent, directiveRequest);
+            }
+
+            return SearchResourceObject(context, agent, directiveRequest.TargetObject, true);
+        }
+
+        private BehaviorNodeResult SearchAbstractResourcePoint(
+            BehaviorTreeContext context,
+            IAgentReadOnly agent,
+            AgentDirectiveRequest directiveRequest)
+        {
+            if (!TryResolveTargetPosition(directiveRequest.TargetRef, out Vector3 targetPosition))
+                return Fail(BehaviorFailureCode.MissingBlackboardValue, "Resource target position is invalid");
+
+            float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
+            float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
+
+            if (!_hasReachedInteractionRange &&
+                !MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
+            {
+                return Running();
+            }
+
+            _hasReachedInteractionRange = true;
+            StopAgentMovement(agent);
+
+            // 抽象资源点暂时视为搜索完成，后续由资源点 Adapter 接管
+            CompleteResourceSearch(context);
+            return Succeed();
+        }
+
+        private BehaviorNodeResult SearchResourceCluster(
+            BehaviorTreeContext context,
+            IAgentReadOnly agent,
+            ResourceClusterAuthoring resourceCluster)
+        {
+            float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
+            float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
+
+            if (!_hasReachedClusterCenter &&
+                !MoveAgentTowards(
+                    agent,
+                    resourceCluster.CenterPosition,
+                    interactionDistance,
+                    moveSpeed,
+                    context.DeltaTime))
+            {
+                return Running();
+            }
+
+            _hasReachedClusterCenter = true;
+
+            if (!resourceCluster.TryGetNearestIncompleteResource(agent.Position, out GameObject resourceObject))
+            {
+                CompleteResourceSearch(context);
+                return Succeed();
+            }
+
+            if (_activeConcreteResourceObject != resourceObject)
+            {
+                _activeConcreteResourceObject = resourceObject;
+                _hasReachedInteractionRange = false;
+                ResetWaitState();
+            }
+
+            BehaviorNodeResult result = SearchResourceObject(context, agent, resourceObject, false);
+            if (result.Status != BehaviorNodeStatus.Success)
+                return result;
+
+            if (resourceCluster.HasBeenCompleted)
+            {
+                CompleteResourceSearch(context);
+                return Succeed();
+            }
+
+            ResetConcreteResourceState();
+            return Running();
+        }
+
+        private BehaviorNodeResult SearchResourceObject(
+            BehaviorTreeContext context,
+            IAgentReadOnly agent,
+            GameObject resourceObject,
+            bool clearDirectiveOnComplete)
+        {
+            if (resourceObject == null)
+            {
+                if (clearDirectiveOnComplete)
+                    CompleteResourceSearch(context);
+
+                return Succeed();
+            }
+
+            AgentTargetRef resourceTargetRef = AgentTargetRef.FromConcreteObject(
+                AgentTargetKind.Resource,
+                resourceObject,
+                resourceObject.name);
+
+            if (!TryResolveInteractionTargetPosition(
+                    resourceTargetRef,
                     agent.Position,
                     out Vector3 targetPosition))
             {
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Resource target position is invalid");
             }
 
-            SyncActiveResourceTarget(directiveRequest);
-
             float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
-            // 搜索前先靠近目标，避免远距离直接收纳箱子
+            // 搜索前先靠近具体资源，避免远距离直接收纳箱子
             if (!_hasReachedInteractionRange &&
                 !MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
             {
@@ -58,21 +169,22 @@ namespace Gameplay.Agent.AI.Actions
             StopAgentMovement(agent);
 
             if (TryGetTargetComponent(
-                    directiveRequest.TargetRef,
+                    resourceTargetRef,
                     out global::LootBoxEntity lootBox))
             {
-                return SearchLootBox(context, lootBox);
+                return SearchLootBox(context, lootBox, clearDirectiveOnComplete);
             }
 
             if (TryGetTargetComponent(
-                    directiveRequest.TargetRef,
+                    resourceTargetRef,
                     out global::WorldLootItem worldItem))
             {
-                return SearchWorldLootItem(context, worldItem);
+                return SearchWorldLootItem(context, worldItem, clearDirectiveOnComplete);
             }
 
-            // 抽象资源点暂时视为搜索完成，后续由资源点 Adapter 接管
-            CompleteResourceSearch(context);
+            if (clearDirectiveOnComplete)
+                CompleteResourceSearch(context);
+
             return Succeed();
         }
 
@@ -88,12 +200,13 @@ namespace Gameplay.Agent.AI.Actions
 
         private BehaviorNodeResult SearchLootBox(
             BehaviorTreeContext context,
-            global::LootBoxEntity lootBox)
+            global::LootBoxEntity lootBox,
+            bool clearDirectiveOnComplete)
         {
             lootBox.PrecalculateLootIfNeeded();
             if (AgentTargetDiscoveryController.IsResourceMarkedSearched(lootBox.gameObject))
             {
-                CompleteResourceSearch(context);
+                CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
 
@@ -101,20 +214,21 @@ namespace Gameplay.Agent.AI.Actions
             if (savedItems.Count <= 0)
             {
                 // 空箱也算搜索完成，避免 Agent 卡在无收益资源点
-                CompleteResourceSearch(context);
+                CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
 
-            return WaitForPlayerInventoryClose(context, lootBox.gameObject);
+            return WaitForPlayerInventoryClose(context, lootBox.gameObject, clearDirectiveOnComplete);
         }
 
         private BehaviorNodeResult SearchWorldLootItem(
             BehaviorTreeContext context,
-            global::WorldLootItem worldItem)
+            global::WorldLootItem worldItem,
+            bool clearDirectiveOnComplete)
         {
             if (AgentTargetDiscoveryController.IsResourceMarkedSearched(worldItem.gameObject))
             {
-                CompleteResourceSearch(context);
+                CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
 
@@ -122,11 +236,21 @@ namespace Gameplay.Agent.AI.Actions
             {
                 // 无效地面物品不再保留为搜索目标，避免 Agent 被空对象卡住
                 AgentTargetDiscoveryController.MarkResourceSearched(worldItem.gameObject);
-                CompleteResourceSearch(context);
+                CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
 
-            return WaitForPlayerInventoryClose(context, worldItem.gameObject);
+            return WaitForPlayerInventoryClose(context, worldItem.gameObject, clearDirectiveOnComplete);
+        }
+
+        private void CompleteConcreteResourceSearch(
+            BehaviorTreeContext context,
+            GameObject resourceObject,
+            bool clearDirectiveOnComplete)
+        {
+            GameplayTargetRegistry.GetOrCreate().NotifyResourceCompleted(resourceObject);
+            if (clearDirectiveOnComplete)
+                CompleteResourceSearch(context);
         }
 
         private void CompleteResourceSearch(BehaviorTreeContext context)
@@ -144,6 +268,8 @@ namespace Gameplay.Agent.AI.Actions
 
             // 目标切换时清掉上一资源的等待/到达缓存，避免直接沿用旧资源的停靠状态
             _activeResourceTargetId = targetId;
+            _activeConcreteResourceObject = null;
+            _hasReachedClusterCenter = false;
             _hasReachedInteractionRange = false;
             ResetWaitState();
         }
@@ -158,7 +284,8 @@ namespace Gameplay.Agent.AI.Actions
 
         private BehaviorNodeResult WaitForPlayerInventoryClose(
             BehaviorTreeContext context,
-            GameObject resourceObject)
+            GameObject resourceObject,
+            bool clearDirectiveOnComplete)
         {
             // 找到战利品后不再自动拾取，等待玩家完成一次背包开关确认
             global::InventoryScreenController inventoryController =
@@ -173,6 +300,7 @@ namespace Gameplay.Agent.AI.Actions
             {
                 _waitingResourceObject = resourceObject;
                 _hasObservedInventoryOpen = inventoryController.IsInventoryOpen;
+                GameplayTargetRegistry.GetOrCreate().NotifyResourceTouched(resourceObject);
             }
 
             if (inventoryController.IsInventoryOpen)
@@ -186,7 +314,7 @@ namespace Gameplay.Agent.AI.Actions
 
             // 玩家打开过背包并关闭后，MVP 视为该资源点处理完毕
             AgentTargetDiscoveryController.MarkResourceSearched(resourceObject);
-            CompleteResourceSearch(context);
+            CompleteConcreteResourceSearch(context, resourceObject, clearDirectiveOnComplete);
             return Succeed();
         }
 
@@ -199,6 +327,15 @@ namespace Gameplay.Agent.AI.Actions
         private void ResetSearchState()
         {
             _activeResourceTargetId = string.Empty;
+            _activeConcreteResourceObject = null;
+            _hasReachedClusterCenter = false;
+            _hasReachedInteractionRange = false;
+            ResetWaitState();
+        }
+
+        private void ResetConcreteResourceState()
+        {
+            _activeConcreteResourceObject = null;
             _hasReachedInteractionRange = false;
             ResetWaitState();
         }

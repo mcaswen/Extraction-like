@@ -3,6 +3,7 @@ using Core.BehaviorTree.Nodes.Leaves;
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Targets.Authoring;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -52,6 +53,13 @@ namespace Gameplay.Agent.AI.Actions
 
             if (targetRef.TargetObject != null)
             {
+                if (targetRef.TargetObject.TryGetComponent(
+                        out GameplayTargetClusterAuthoringBase clusterTarget))
+                {
+                    targetPosition = clusterTarget.CenterPosition;
+                    return true;
+                }
+
                 // 具体对象优先，抽象点位可能是旧快照
                 targetPosition = targetRef.TargetObject.transform.position;
                 return true;
@@ -85,6 +93,9 @@ namespace Gameplay.Agent.AI.Actions
 
             GameObject targetObject = targetRef.TargetObject;
             if (targetObject == null)
+                return true;
+
+            if (targetObject.TryGetComponent(out GameplayTargetClusterAuthoringBase _))
                 return true;
 
             Collider[] colliders = targetObject.GetComponentsInChildren<Collider>();
