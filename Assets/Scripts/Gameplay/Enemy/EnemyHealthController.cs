@@ -79,6 +79,7 @@ public class EnemyHealthController : MonoBehaviour
         }
 
         _hasDied = true;
+        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyEnemyDefeated(this);
         RaidFlowController.Instance?.NotifyEnemyKilled(gameObject.name);
         SpawnDeathLootContainer();
         Destroy(gameObject);

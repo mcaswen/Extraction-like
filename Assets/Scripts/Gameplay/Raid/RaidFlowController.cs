@@ -101,6 +101,7 @@ public class RaidFlowController : MonoBehaviour
     {
         if (isInside)
         {
+            Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionTouched(extractionPoint);
             if (_activeExtractionPoint != extractionPoint)
             {
                 _activeExtractionPoint = extractionPoint;
@@ -146,6 +147,7 @@ public class RaidFlowController : MonoBehaviour
         }
 
         _isMissionCompleted = true;
+        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionCompleted(_activeExtractionPoint);
         Time.timeScale = 0f;
     }
 

@@ -150,6 +150,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         _savedCellStates = CloneCellStateList(cellStates);
         _hasPrecalculatedLoot = true;
         _isFirstTimeOpen = false;
+        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyResourceCompleted(gameObject);
         Debug.Log($"[{BoxName}] Saved {_savedItems.Count} items.");
     }
 
