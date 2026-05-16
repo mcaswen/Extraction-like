@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
+  m_Name: pure_gold_ring
+  m_EditorClassIdentifier: 
+  ContainerColumns: 0
+  ContainerRows: 0
+  BlockedCells: []
+  ItemID: pure_gold_ring
+  ItemName: "\u7EAF\u91D1\u6212\u6307"
+  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  Type: 5
+  Rarity: 3
+  Width: 1
+  Height: 1
+  IsStackable: 0
+  MaxStack: 1
+  WorldPrefab: {fileID: 1249563173052325301, guid: 774b2a9a4dcb0ee46bbbd9b66653c64b,
+    type: 3}
+  SellPrice: 300
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1
+  MagicUnlock: 0
+  RunePatternPoints: 1

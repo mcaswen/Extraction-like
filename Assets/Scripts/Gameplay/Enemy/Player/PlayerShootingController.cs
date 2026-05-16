@@ -126,6 +126,8 @@ public class PlayerShootingController : MonoBehaviour
     public Vector2 SkillPanelSize = new Vector2(320f, 288f);
 
     private float _silenceDurationRemaining;
+    private float _attackDebuffDurationRemaining;
+    private float _attackDebuffMultiplier = 1f;
     private Renderer[] _cachedRenderers;
     private Color[] _originalColors;
     private Camera _mainCamera;
@@ -676,6 +678,7 @@ public class PlayerShootingController : MonoBehaviour
 
         GameObject bulletObject = Instantiate(BulletPrefab, FirePoint.position, FirePoint.rotation);
         SkillEffectLayerUtility.ApplyToRoot(bulletObject);
+        EnemySuspicionStimulusBus.ReportGunshot(FirePoint.position, transform);
         BulletController bullet = bulletObject.GetComponent<BulletController>();
         if (bullet != null)
         {
@@ -1334,6 +1337,11 @@ public class PlayerShootingController : MonoBehaviour
         _dashCooldownRemaining = Mathf.Max(0f, _dashCooldownRemaining - deltaTime);
         _timeHourglassCooldownRemaining = Mathf.Max(0f, _timeHourglassCooldownRemaining - deltaTime);
         _spaceHourglassCooldownRemaining = Mathf.Max(0f, _spaceHourglassCooldownRemaining - deltaTime);
+        _attackDebuffDurationRemaining = Mathf.Max(0f, _attackDebuffDurationRemaining - deltaTime);
+        if (_attackDebuffDurationRemaining <= 0f)
+        {
+            _attackDebuffMultiplier = 1f;
+        }
     }
 
     private void TickUnlockMessage()
@@ -1456,7 +1464,19 @@ public class PlayerShootingController : MonoBehaviour
 
     private float GetAttackMultiplier()
     {
-        return 1f + Mathf.Max(0, _runePatternLevel) * AttackBonusPerRuneLevel;
+        return (1f + Mathf.Max(0, _runePatternLevel) * AttackBonusPerRuneLevel) *
+            (_attackDebuffDurationRemaining > 0f ? _attackDebuffMultiplier : 1f);
+    }
+
+    public void ApplyAttackMultiplierDebuff(float multiplier, float duration)
+    {
+        if (duration <= 0f || multiplier <= 0f)
+        {
+            return;
+        }
+
+        _attackDebuffDurationRemaining = Mathf.Max(_attackDebuffDurationRemaining, duration);
+        _attackDebuffMultiplier = Mathf.Min(_attackDebuffMultiplier, Mathf.Clamp(multiplier, 0.1f, 1f));
     }
 
     private void ApplyRuneCombatEnhancement()

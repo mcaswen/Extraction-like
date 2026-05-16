@@ -88,6 +88,10 @@ public class BulletController : MonoBehaviour
         {
             ApplyElementalDamage(enemyHealthController);
         }
+        else
+        {
+            EnemySuspicionStimulusBus.ReportProjectileImpact(transform.position, transform);
+        }
 
         Destroy(gameObject);
     }
@@ -144,10 +148,17 @@ public class BulletController : MonoBehaviour
         }
 
         float finalDamage = Damage;
-        if (AttackElement == AttackElementType.Fire && statusEffectController.IsFrozen)
+        HunterBossBehaviorController hunterBoss = enemyHealthController.GetComponent<HunterBossBehaviorController>();
+        bool canBreakFrozenForceField = hunterBoss != null && hunterBoss.IsForceFieldFrozen;
+        if (AttackElement == AttackElementType.Fire && (statusEffectController.IsFrozen || canBreakFrozenForceField))
         {
-            finalDamage *= Mathf.Max(1f, FrozenFireBonusMultiplier);
+            float fireBonusMultiplier = hunterBoss != null
+                ? Mathf.Max(FrozenFireBonusMultiplier, hunterBoss.ForceFieldFireDamageMultiplier)
+                : FrozenFireBonusMultiplier;
+            finalDamage *= Mathf.Max(1f, fireBonusMultiplier);
             statusEffectController.BreakFreeze();
+            statusEffectController.BreakSlow();
+            hunterBoss?.NotifyFrozenForceFieldBrokenByFire();
         }
 
         enemyHealthController.TakeDamage(finalDamage);

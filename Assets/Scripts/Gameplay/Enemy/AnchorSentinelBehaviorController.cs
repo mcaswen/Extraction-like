@@ -18,6 +18,10 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     public SentinelState CurrentState = SentinelState.Dormant;
 
+    [Header("Config")]
+    [SerializeField, Tooltip("Runtime source of truth for this enemy's tunable values.")]
+    private AnchorSentinelConfig _config;
+
     [Header("References")]
     public Transform PlayerTransform;
     public Transform EyeOrigin;
@@ -25,30 +29,40 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     public LineRenderer FiringBeamRenderer;
     public AnchorSentinelRuneWeakpoint[] RuneWeakpoints;
 
-    [Header("Puzzle Rules")]
+    [HideInInspector]
     public bool AutoInitializeRunes = true;
+    [HideInInspector]
     public bool AutoSpawnDefaultRunes = true;
+    [HideInInspector]
     public int DefaultRuneCount = 3;
+    [HideInInspector]
     public float DefaultRuneRadius = 1.8f;
+    [HideInInspector]
     public float DefaultRuneHeight = 1.25f;
+    [HideInInspector]
     public Vector3 DefaultRuneScale = new Vector3(0.35f, 0.35f, 0.35f);
+    [HideInInspector]
     public bool UseArrayOrderAsPuzzleSequence = true;
+    [HideInInspector]
     public bool WrongRuneImmediatelyActivates = true;
 
-    [Header("Beam Attack")]
+    [HideInInspector]
     public float DetectionRange = 16f;
+    [HideInInspector]
     public float LockDuration = 1.1f;
+    [HideInInspector]
     public float FiringDuration = 0.55f;
+    [HideInInspector]
     public float CooldownDuration = 1.5f;
-    public float ActiveRecoveryDuration = 5f;
+    [HideInInspector]
+    public float ActiveRecoveryDuration = 0f;
+    [HideInInspector]
     public float BeamDamagePerSecond = 22f;
+    [HideInInspector]
     public float BeamTickInterval = 0.12f;
 
-    [Header("Death Loot")]
-    public bool SpawnLootContainerOnDisable = true;
-    public GameObject DeathLootContainerPrefab;
+    [Header("Death Loot References")]
     public Transform DeathLootSpawnPoint;
-    public Vector3 DeathLootSpawnOffset = new Vector3(0f, 0.25f, 0f);
 
     private PlayerHealthController _playerHealthController;
     private float _stateTimer;
@@ -61,12 +75,44 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void Start()
     {
+        if (!ApplyConfig())
+        {
+            return;
+        }
+
         EnsurePlayerReferences();
 
         EnsureRuneWeakpointsExist();
         EnsureBeamRenderers();
         InitializeRunesIfNeeded();
         UpdateBeamVisuals();
+    }
+
+    private bool ApplyConfig()
+    {
+        if (_config == null)
+        {
+            Debug.LogError($"[{name}] Missing AnchorSentinelConfig.", this);
+            enabled = false;
+            return false;
+        }
+
+        AutoInitializeRunes = _config.AutoInitializeRunes;
+        AutoSpawnDefaultRunes = _config.AutoSpawnDefaultRunes;
+        DefaultRuneCount = _config.DefaultRuneCount;
+        DefaultRuneRadius = _config.DefaultRuneRadius;
+        DefaultRuneHeight = _config.DefaultRuneHeight;
+        DefaultRuneScale = _config.DefaultRuneScale;
+        UseArrayOrderAsPuzzleSequence = _config.UseArrayOrderAsPuzzleSequence;
+        WrongRuneImmediatelyActivates = _config.WrongRuneImmediatelyActivates;
+        DetectionRange = _config.DetectionRange;
+        LockDuration = _config.LockDuration;
+        FiringDuration = _config.FiringDuration;
+        CooldownDuration = _config.CooldownDuration;
+        ActiveRecoveryDuration = _config.ActiveRecoveryDuration;
+        BeamDamagePerSecond = _config.BeamDamagePerSecond;
+        BeamTickInterval = _config.BeamTickInterval;
+        return true;
     }
 
     private void Update()
@@ -86,7 +132,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         if (CurrentState != SentinelState.Dormant)
         {
             _activeStateTimer += Time.deltaTime;
-            if (_activeStateTimer >= ActiveRecoveryDuration)
+            if (ActiveRecoveryDuration > 0f && _activeStateTimer >= ActiveRecoveryDuration)
             {
                 ReturnToDormantState();
                 UpdateBeamVisuals();
@@ -201,7 +247,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         {
             FinishBeamAttack();
             CurrentState = SentinelState.Cooldown;
-            _stateTimer = 0f;
+            _stateTimer = FiringDuration;
         }
     }
 
@@ -214,10 +260,10 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         }
 
         _stateTimer += Time.deltaTime;
-        if (_stateTimer >= CooldownDuration)
+        if (_stateTimer >= Mathf.Max(FiringDuration, CooldownDuration))
         {
             CurrentState = SentinelState.Locking;
-            _stateTimer = 0f;
+            _stateTimer = LockDuration;
         }
     }
 
@@ -229,7 +275,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         }
 
         CurrentState = SentinelState.Locking;
-        _stateTimer = 0f;
+        _stateTimer = LockDuration;
         _activeStateTimer = 0f;
         foreach (AnchorSentinelRuneWeakpoint rune in RuneWeakpoints)
         {
@@ -252,11 +298,15 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void SpawnDeathLootContainer()
     {
-        if (!SpawnLootContainerOnDisable || DeathLootContainerPrefab == null || _hasDroppedLoot)
+        EnemyDeathLootSettings deathLoot = _config != null ? _config.DeathLoot : null;
+        if (_hasDroppedLoot ||
+            deathLoot == null ||
+            !deathLoot.SpawnLootContainerOnDeath ||
+            deathLoot.DeathLootContainerPrefab == null)
         {
-            if (SpawnLootContainerOnDisable && DeathLootContainerPrefab == null)
+            if (deathLoot != null && deathLoot.SpawnLootContainerOnDeath && deathLoot.DeathLootContainerPrefab == null)
             {
-                Debug.LogWarning($"[{name}] Anchor Sentinel has no DeathLootContainerPrefab assigned.");
+                Debug.LogWarning($"[{name}] Anchor Sentinel config has no DeathLootContainerPrefab assigned.");
             }
             return;
         }
@@ -264,12 +314,12 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         _hasDroppedLoot = true;
         Vector3 spawnPosition = DeathLootSpawnPoint != null
             ? DeathLootSpawnPoint.position
-            : transform.position + DeathLootSpawnOffset;
+            : transform.position + deathLoot.DeathLootSpawnOffset;
         Quaternion spawnRotation = DeathLootSpawnPoint != null
             ? DeathLootSpawnPoint.rotation
             : Quaternion.identity;
 
-        GameObject lootContainerObject = Instantiate(DeathLootContainerPrefab, spawnPosition, spawnRotation);
+        GameObject lootContainerObject = Instantiate(deathLoot.DeathLootContainerPrefab, spawnPosition, spawnRotation);
         WhiteboxCharacterVisualUtility.ApplySolidColor(lootContainerObject, new Color(0.96f, 0.96f, 0.98f, 1f));
         LootBoxEntity lootBox = lootContainerObject.GetComponent<LootBoxEntity>();
         if (lootBox == null)

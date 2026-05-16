@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
+  m_Name: organic_fiber
+  m_EditorClassIdentifier: 
+  ContainerColumns: 0
+  ContainerRows: 0
+  BlockedCells: []
+  ItemID: organic_fiber
+  ItemName: "\u6709\u673A\u7EA4\u7EF4"
+  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  Type: 5
+  Rarity: 0
+  Width: 2
+  Height: 2
+  IsStackable: 0
+  MaxStack: 1
+  WorldPrefab: {fileID: 372559211172123505, guid: b2797afb861d1ba42864335bb073733f,
+    type: 3}
+  SellPrice: 30
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1
+  MagicUnlock: 0
+  RunePatternPoints: 1

@@ -409,7 +409,6 @@ public static class RaidMvpScenePopulationBuilder
             }
 
             spawnedObject.transform.rotation = rotation;
-            TryConfigureSpawnedEnemyDeathLoot(profile, pool, spawnedObject);
             occupiedPositions.Add(spawnedObject.transform.position);
             occupiedRadii.Add(spacing);
         }
@@ -544,38 +543,6 @@ public static class RaidMvpScenePopulationBuilder
 
         Undo.RegisterCreatedObjectUndo(instance, $"Spawn {prefab.name}");
         return instance;
-    }
-
-    private static void TryConfigureSpawnedEnemyDeathLoot(RaidMvpPopulationProfile profile, RaidRegionPrefabPool pool, GameObject spawnedObject)
-    {
-        if (profile == null || spawnedObject == null || !profile.OverrideMissingEnemyDeathLootPrefab)
-        {
-            return;
-        }
-
-        EnemyHealthController enemyHealthController = spawnedObject.GetComponentInChildren<EnemyHealthController>();
-        if (enemyHealthController == null || enemyHealthController.DeathLootContainerPrefab != null)
-        {
-            return;
-        }
-
-        GameObject resolvedLootPrefab = profile.DefaultEnemyDeathLootPrefab;
-        if (resolvedLootPrefab == null && pool != null && pool.ChestPrefabs != null)
-        {
-            for (int i = 0; i < pool.ChestPrefabs.Count; i++)
-            {
-                if (pool.ChestPrefabs[i] != null && pool.ChestPrefabs[i].Prefab != null)
-                {
-                    resolvedLootPrefab = pool.ChestPrefabs[i].Prefab;
-                    break;
-                }
-            }
-        }
-
-        if (resolvedLootPrefab != null)
-        {
-            enemyHealthController.DeathLootContainerPrefab = resolvedLootPrefab;
-        }
     }
 
     private static bool TryGetSelectionBounds(out Bounds bounds)

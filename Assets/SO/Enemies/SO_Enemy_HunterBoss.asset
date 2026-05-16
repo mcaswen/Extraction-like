@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b03da5e2dc98e204a93674822475a3f6, type: 3}
+  m_Name: SO_Enemy_HunterBoss
+  m_EditorClassIdentifier: 
+  _enemyId: hunterboss
+  _displayName: "HunterBoss\u20144"
+  _maxHealth: 100
+  _deathLoot:
+    _spawnLootContainerOnDeath: 1
+    _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+      type: 3}
+    _deathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
+  _detectionRange: 18
+  _loseRange: 24
+  _chaseSpeed: 3.5
+  _meleeAttackRange: 4
+  _meleeAttackInterval: 2.4
+  _meleeAttackRadius: 2.2
+  _meleeDamage: 18
+  _meleeKnockbackStrength: 6
+  _meleeVisualDuration: 0.22
+  _anchorProjectilePrefab: {fileID: 2918509184010544663, guid: 133b1b7f63cfda547b5c8516b2285a1a,
+    type: 3}
+  _vortexFieldPrefab: {fileID: 0}
+  _vortexTriggerDistance: 10
+  _vortexTriggerMeleeCount: 3
+  _vortexRadius: 3
+  _vortexChargeDuration: 2
+  _vortexImmobilizeDuration: 3
+  _anchorThrowSpeed: 14
+  _anchorThrowDamage: 16
+  _anchorThrowKnockback: 5.5
+  _anchorProjectileLifeTime: 4
+  _anchorThrowCooldown: 3
+  _rageThreshold: 0.5
+  _roarChargeDuration: 3
+  _roarCooldown: 7
+  _roarRange: 12
+  _roarAngle: 120
+  _roarDamage: 999
+  _coverMask:
+    serializedVersion: 2
+    m_Bits: 0
+  _coverCheckHeight: 1.1
+  _rageShieldMaxHealthRatio: 0.2
+  _forceFieldDefenseMultiplier: 2
+  _forceFieldFrozenMoveSpeedMultiplier: 0.55
+  _forceFieldFireDamageMultiplier: 3
+  _trembleMoveSpeedMultiplier: 0.8
+  _trembleAttackMultiplier: 0.8
+  _trembleDuration: 3

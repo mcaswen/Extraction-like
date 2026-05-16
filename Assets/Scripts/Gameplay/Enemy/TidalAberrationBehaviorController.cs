@@ -7,7 +7,10 @@ using UnityEngine.AI;
 /// 近距离使用水母触须电击玩家，远距离喷射高压水柱击退玩家。
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
-public class TidalAberrationBehaviorController : MonoBehaviour
+[RequireComponent(typeof(EnemyLookController))]
+[RequireComponent(typeof(EnemySuspicionSensor))]
+[RequireComponent(typeof(EnemyPatrolAwarenessController))]
+public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSource
 {
     public enum EnemyState
     {
@@ -19,6 +22,10 @@ public class TidalAberrationBehaviorController : MonoBehaviour
 
     public EnemyState CurrentState;
 
+    [Header("Config")]
+    [SerializeField, Tooltip("Runtime source of truth for this enemy's tunable values.")]
+    private TidalAberrationConfig _config;
+
     [Header("References")]
     public Transform PlayerTransform;
     public Transform MeleeOrigin;
@@ -26,37 +33,68 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     public LineRenderer ElectricTentacleRenderer;
     public LineRenderer WaterJetRenderer;
 
-    [Header("Patrol")]
+    [HideInInspector]
     public float PatrolRadius = 8f;
+    [HideInInspector]
     public float PatrolWaitTime = 1.5f;
 
-    [Header("Detection")]
+    [HideInInspector]
     public float DetectionRange = 14f;
+    [HideInInspector]
+    public float ViewAngle = 360f;
+    [HideInInspector]
+    public LayerMask LineOfSightBlockMask = 1;
+    [HideInInspector]
+    public LayerMask GroundMask = 1;
+    [HideInInspector]
+    public float EyeHeight = 1.2f;
+    [HideInInspector]
+    public float TargetHeight = 1f;
+    [HideInInspector]
     public float LoseRange = 18f;
 
-    [Header("Melee Attack")]
+    [HideInInspector]
     public float MeleeAttackRange = 3f;
+    [HideInInspector]
     public float MeleeAttackInterval = 2.2f;
+    [HideInInspector]
     public float MeleeLatchDuration = 0.8f;
+    [HideInInspector]
     public float MeleeContactDamage = 10f;
+    [HideInInspector]
     public float SilenceDuration = 1.5f;
+    [HideInInspector]
     public float ElectricTickDamagePerSecond = 4f;
+    [HideInInspector]
     public float ElectricTickInterval = 0.25f;
 
-    [Header("Ranged Attack")]
+    [HideInInspector]
     public float MinimumRangedDistance = 4.5f;
+    [HideInInspector]
     public float RangedAttackRange = 9f;
-    public float RangedAttackInterval = 2.6f;
+    [HideInInspector]
+    public float RangedAttackInterval = 8f;
+    [HideInInspector]
     public float WaterJetDuration = 0.18f;
+    [HideInInspector]
     public float WaterJetDamage = 14f;
+    [HideInInspector]
     public float WaterJetKnockbackStrength = 5.2f;
+    [HideInInspector]
+    public float KnockbackMoveSpeedMultiplier = 0.5f;
+    [HideInInspector]
+    public float KnockbackSlowDuration = 1f;
+    [HideInInspector]
     public float WaterJetMaxDistance = 10f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyPatrolRouteFollower _patrolRouteFollower;
+    private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
     private PlayerShootingController _playerShootingController;
     private Vector3 _startingPosition;
+    private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
@@ -66,10 +104,29 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     private float _meleeTotalDamage;
     private bool _isMeleeLatched;
     private bool _isRangedCasting;
+    private bool _hasWarnedMissingFixedRoute;
+
+    public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
+    Transform IEnemyVisionSource.PlayerTransform => PlayerTransform;
+    float IEnemyVisionSource.DetectionRange => DetectionRange;
+    float IEnemyVisionSource.ViewAngle => ViewAngle;
+    LayerMask IEnemyVisionSource.LineOfSightBlockMask => LineOfSightBlockMask;
+    LayerMask IEnemyVisionSource.GroundMask => GroundMask;
+    float IEnemyVisionSource.EyeHeight => EyeHeight;
+    float IEnemyVisionSource.TargetHeight => TargetHeight;
+    public bool ShouldShowVision => CurrentState == EnemyState.Patrol || (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState);
+    public bool CanSeePlayerForVision => CanSeePlayer();
 
     private void Start()
     {
+        if (!ApplyConfig())
+        {
+            return;
+        }
+
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
+        _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         float effectiveMeleeRange = GetEffectiveMeleeRange();
@@ -81,10 +138,59 @@ public class TidalAberrationBehaviorController : MonoBehaviour
         {
             _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, effectiveMeleeRange * 0.9f);
         }
+        ApplyHealthConfig();
         EnsurePlayerReferences();
+        InitializePatrolRoute();
 
         EnsureLineRenderers();
-        GetNewPatrolPoint();
+        SetNextPatrolDestination();
+    }
+
+    private bool ApplyConfig()
+    {
+        if (_config == null)
+        {
+            Debug.LogError($"[{name}] Missing TidalAberrationConfig.", this);
+            enabled = false;
+            return false;
+        }
+
+        PatrolRadius = _config.Patrol.PatrolRadius;
+        PatrolWaitTime = _config.Patrol.PatrolWaitTime;
+        _patrolMode = _config.Patrol.PatrolMode;
+        DetectionRange = _config.Detection.DetectionRange;
+        ViewAngle = _config.Detection.ViewAngle;
+        LineOfSightBlockMask = _config.Detection.LineOfSightBlockMask;
+        GroundMask = _config.Detection.GroundMask;
+        EyeHeight = _config.Detection.EyeHeight;
+        TargetHeight = _config.Detection.TargetHeight;
+        LoseRange = _config.Detection.LoseRange;
+        MeleeAttackRange = _config.MeleeAttackRange;
+        MeleeAttackInterval = _config.MeleeAttackInterval;
+        MeleeLatchDuration = _config.MeleeLatchDuration;
+        MeleeContactDamage = _config.MeleeContactDamage;
+        SilenceDuration = _config.SilenceDuration;
+        ElectricTickDamagePerSecond = _config.ElectricTickDamagePerSecond;
+        ElectricTickInterval = _config.ElectricTickInterval;
+        MinimumRangedDistance = _config.MinimumRangedDistance;
+        RangedAttackRange = _config.RangedAttackRange;
+        RangedAttackInterval = _config.RangedAttackInterval;
+        WaterJetDuration = _config.WaterJetDuration;
+        WaterJetDamage = _config.WaterJetDamage;
+        WaterJetKnockbackStrength = _config.WaterJetKnockbackStrength;
+        KnockbackMoveSpeedMultiplier = _config.KnockbackMoveSpeedMultiplier;
+        KnockbackSlowDuration = _config.KnockbackSlowDuration;
+        WaterJetMaxDistance = _config.WaterJetMaxDistance;
+        return true;
+    }
+
+    private void ApplyHealthConfig()
+    {
+        EnemyHealthController healthController = GetComponent<EnemyHealthController>();
+        if (healthController != null)
+        {
+            healthController.ApplyConfig(_config);
+        }
     }
 
     private void Update()
@@ -116,18 +222,45 @@ public class TidalAberrationBehaviorController : MonoBehaviour
 
     private void PatrolBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer <= DetectionRange)
+        if (_patrolAwareness != null &&
+            _patrolAwareness.TickAwareness(
+                CanSeePlayer,
+                () => CurrentState = EnemyState.Chase,
+                ResetPatrolDestination))
         {
+            return;
+        }
+
+        if (CanSeePlayer())
+        {
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                Mathf.Max(DetectionRange, 12f),
+                0.8f,
+                2.5f,
+                0.8f,
+                PlayerTransform);
             CurrentState = EnemyState.Chase;
             return;
         }
 
-        if (HasReachedCurrentDestination())
+        bool isWaiting = HasReachedCurrentDestination();
+        _patrolAwareness?.TickPassivePatrol(
+            isWaiting,
+            GetCurrentPatrolLookTarget(),
+            GetCurrentPatrolWaitScanArc());
+        if (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState)
+        {
+            return;
+        }
+
+        if (isWaiting)
         {
             _waitTimer += Time.deltaTime;
-            if (_waitTimer >= PatrolWaitTime)
+            if (_waitTimer >= GetCurrentPatrolWaitTime())
             {
-                GetNewPatrolPoint();
+                SetNextPatrolDestination();
                 _waitTimer = 0f;
             }
         }
@@ -141,7 +274,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            GetNewPatrolPoint();
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                DetectionRange,
+                0.78f,
+                3f,
+                1.6f,
+                PlayerTransform);
+            ResetPatrolDestination();
             return;
         }
 
@@ -174,7 +315,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour
             StopMeleeAttack();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            GetNewPatrolPoint();
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                DetectionRange,
+                0.78f,
+                3f,
+                1.6f,
+                PlayerTransform);
+            ResetPatrolDestination();
             return;
         }
 
@@ -233,7 +382,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour
             StopRangedAttack();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            GetNewPatrolPoint();
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                DetectionRange,
+                0.78f,
+                3f,
+                1.6f,
+                PlayerTransform);
+            ResetPatrolDestination();
             return;
         }
 
@@ -330,6 +487,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour
                 if (_playerMovementController != null)
                 {
                     _playerMovementController.ApplyExternalImpulse(direction, WaterJetKnockbackStrength);
+                    _playerMovementController.ApplyMoveSpeedDebuff(KnockbackMoveSpeedMultiplier, KnockbackSlowDuration);
                 }
 
                 EnemySkillDamageLogger.LogSkillDamage(this, "Water Jet", totalDamage);
@@ -438,11 +596,52 @@ public class TidalAberrationBehaviorController : MonoBehaviour
 
     private void LookAtPlayer()
     {
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
         Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
         transform.LookAt(lookPosition);
     }
 
-    private void GetNewPatrolPoint()
+    private void InitializePatrolRoute()
+    {
+        _patrolRouteFollower = GetComponent<EnemyPatrolRouteFollower>();
+    }
+
+    private void SetNextPatrolDestination()
+    {
+        if (ShouldUseFixedPatrol())
+        {
+            if (_patrolRouteFollower != null &&
+                _patrolRouteFollower.TryAdvanceToNextDestination(transform.position, out Vector3 routeDestination))
+            {
+                TrySetDestination(routeDestination);
+                return;
+            }
+
+            WarnMissingFixedRouteIfNeeded();
+        }
+
+        SetRandomPatrolDestination();
+    }
+
+    private void ResetPatrolDestination()
+    {
+        if (ShouldUseFixedPatrol())
+        {
+            if (_patrolRouteFollower != null &&
+                _patrolRouteFollower.TrySetNearestDestination(transform.position, out Vector3 routeDestination))
+            {
+                TrySetDestination(routeDestination);
+                return;
+            }
+
+            WarnMissingFixedRouteIfNeeded();
+        }
+
+        SetRandomPatrolDestination();
+    }
+
+    private void SetRandomPatrolDestination()
     {
         Vector3 randomDirection = Random.insideUnitSphere * PatrolRadius;
         randomDirection += _startingPosition;
@@ -451,6 +650,45 @@ public class TidalAberrationBehaviorController : MonoBehaviour
         {
             TrySetDestination(hit.position);
         }
+    }
+
+    private float GetCurrentPatrolWaitTime()
+    {
+        return ShouldUseFixedPatrol() && _patrolRouteFollower != null
+            ? _patrolRouteFollower.GetCurrentWaitTime(PatrolWaitTime)
+            : PatrolWaitTime;
+    }
+
+    private Transform GetCurrentPatrolLookTarget()
+    {
+        return ShouldUseFixedPatrol() &&
+               _patrolRouteFollower != null &&
+               _patrolRouteFollower.TryGetCurrentLookTarget(out Transform lookTarget)
+            ? lookTarget
+            : null;
+    }
+
+    private float GetCurrentPatrolWaitScanArc()
+    {
+        return ShouldUseFixedPatrol() && _patrolRouteFollower != null
+            ? _patrolRouteFollower.GetCurrentWaitScanArc(-1f)
+            : -1f;
+    }
+
+    private bool ShouldUseFixedPatrol()
+    {
+        return _patrolMode == EnemyPatrolMode.FixedRoute;
+    }
+
+    private void WarnMissingFixedRouteIfNeeded()
+    {
+        if (!ShouldUseFixedPatrol() || _hasWarnedMissingFixedRoute || _patrolRouteFollower != null)
+        {
+            return;
+        }
+
+        _hasWarnedMissingFixedRoute = true;
+        Debug.LogWarning($"[{name}] Patrol mode is FixedRoute, but no EnemyPatrolRouteFollower was assigned. Falling back to random-radius patrol.", this);
     }
 
     private bool EnsureAgentReady()
@@ -501,6 +739,18 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool CanSeePlayer()
+    {
+        return EnemyVisionUtility.CanSeeTarget(
+            VisionTransform,
+            PlayerTransform,
+            DetectionRange,
+            ViewAngle,
+            LineOfSightBlockMask,
+            EyeHeight,
+            TargetHeight);
     }
 
     private bool EnsurePlayerReferences()
@@ -565,8 +815,14 @@ public class TidalAberrationBehaviorController : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         float effectiveMeleeRange = Mathf.Max(MeleeAttackRange, 4f);
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, DetectionRange);
+        EnemyVisionUtility.DrawVisionGizmos(
+            VisionTransform,
+            PlayerTransform,
+            DetectionRange,
+            ViewAngle,
+            EyeHeight,
+            TargetHeight,
+            Color.cyan);
         Gizmos.color = new Color(0.2f, 1f, 0.2f, 1f);
         Gizmos.DrawWireSphere(transform.position, effectiveMeleeRange);
         Gizmos.color = new Color(0.15f, 0.95f, 0.95f, 1f);

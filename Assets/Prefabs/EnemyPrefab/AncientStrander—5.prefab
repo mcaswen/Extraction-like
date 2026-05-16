@@ -179,12 +179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5ffc04fcf5b484481de243f9253c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _config: {fileID: 11400000, guid: 35afc88f384a3cf40ae4e481a088f530, type: 2}
   MaxHealth: 100
   HealthFillImage: {fileID: 4366938441407559849}
-  SpawnLootContainerOnDeath: 1
-  DeathLootContainerPrefab: {fileID: 0}
   DeathLootSpawnPoint: {fileID: 0}
-  DeathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
 --- !u!114 &1021460545521434558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,6 +196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentState: 0
+  _config: {fileID: 11400000, guid: 35afc88f384a3cf40ae4e481a088f530, type: 2}
   PlayerTransform: {fileID: 0}
   MeleeOrigin: {fileID: 0}
   BiteOrigin: {fileID: 0}

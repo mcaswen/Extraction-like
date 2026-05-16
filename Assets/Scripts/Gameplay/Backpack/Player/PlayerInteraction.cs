@@ -139,6 +139,9 @@ public class PlayerInteraction : MonoBehaviour
         if (IsPrimaryInteractPressed() && _closestInteractable != null)
         {
             LogDebug($"F received. Interactable={_closestInteractable.GetType().Name} Target={(_closestTransform != null ? _closestTransform.name : "null")}");
+            EnemySuspicionStimulusBus.ReportLootInteraction(
+                _closestTransform != null ? _closestTransform.position : transform.position,
+                transform);
             _closestInteractable.Interact();
         }
         else if (IsPrimaryInteractPressed())
@@ -149,6 +152,9 @@ public class PlayerInteraction : MonoBehaviour
         if (IsSecondaryInteractPressed() && _closestSecondaryInteractable != null)
         {
             LogDebug($"E received. Secondary={_closestSecondaryInteractable.GetType().Name} Target={(_closestTransform != null ? _closestTransform.name : "null")}");
+            EnemySuspicionStimulusBus.ReportLootInteraction(
+                _closestTransform != null ? _closestTransform.position : transform.position,
+                transform);
             _closestSecondaryInteractable.SecondaryInteract();
         }
         else if (IsSecondaryInteractPressed())

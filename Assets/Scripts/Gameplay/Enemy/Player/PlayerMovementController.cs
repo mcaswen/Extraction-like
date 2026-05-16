@@ -19,6 +19,9 @@ public class PlayerMovementController : MonoBehaviour
     private float _immobilizeDurationRemaining;
     private float _speedBoostDurationRemaining;
     private float _speedBoostMultiplier = 1f;
+    private float _speedDebuffDurationRemaining;
+    private float _speedDebuffMultiplier = 1f;
+    private float _nextFootstepStimulusTime;
     private Renderer[] _cachedRenderers;
     private Color[] _originalColors;
 
@@ -50,10 +53,17 @@ public class PlayerMovementController : MonoBehaviour
             horizontal = 0f;
             vertical = 0f;
         }
-        float effectiveMoveSpeed = MoveSpeed * (_speedBoostDurationRemaining > 0f ? _speedBoostMultiplier : 1f);
+        float effectiveMoveSpeed = MoveSpeed *
+            (_speedBoostDurationRemaining > 0f ? _speedBoostMultiplier : 1f) *
+            (_speedDebuffDurationRemaining > 0f ? _speedDebuffMultiplier : 1f);
         Vector3 movement = new Vector3(horizontal, 0f, vertical).normalized * effectiveMoveSpeed;
         Vector3 finalVelocity = movement + _externalPullVelocity + _externalImpulseVelocity;
         _playerRigidbody.MovePosition(_playerRigidbody.position + finalVelocity * Time.fixedDeltaTime);
+        if (movement.sqrMagnitude > 0.01f && Time.time >= _nextFootstepStimulusTime)
+        {
+            EnemySuspicionStimulusBus.ReportFootstep(transform.position, transform);
+            _nextFootstepStimulusTime = Time.time + 0.65f;
+        }
         _externalPullVelocity = Vector3.Lerp(_externalPullVelocity, Vector3.zero, ExternalPullDamping * Time.fixedDeltaTime);
         _externalImpulseVelocity = Vector3.Lerp(_externalImpulseVelocity, Vector3.zero, ExternalImpulseDamping * Time.fixedDeltaTime);
         _immobilizeDurationRemaining = Mathf.Max(0f, _immobilizeDurationRemaining - Time.fixedDeltaTime);
@@ -61,6 +71,12 @@ public class PlayerMovementController : MonoBehaviour
         if (_speedBoostDurationRemaining <= 0f)
         {
             _speedBoostMultiplier = 1f;
+        }
+
+        _speedDebuffDurationRemaining = Mathf.Max(0f, _speedDebuffDurationRemaining - Time.unscaledDeltaTime);
+        if (_speedDebuffDurationRemaining <= 0f)
+        {
+            _speedDebuffMultiplier = 1f;
         }
     }
 
@@ -141,6 +157,17 @@ public class PlayerMovementController : MonoBehaviour
 
         _speedBoostDurationRemaining = Mathf.Max(_speedBoostDurationRemaining, duration);
         _speedBoostMultiplier = Mathf.Max(_speedBoostMultiplier, multiplier);
+    }
+
+    public void ApplyMoveSpeedDebuff(float multiplier, float duration)
+    {
+        if (duration <= 0f || multiplier <= 0f)
+        {
+            return;
+        }
+
+        _speedDebuffDurationRemaining = Mathf.Max(_speedDebuffDurationRemaining, duration);
+        _speedDebuffMultiplier = Mathf.Min(_speedDebuffMultiplier, Mathf.Clamp(multiplier, 0.1f, 1f));
     }
 
     private void CacheRendererColors()

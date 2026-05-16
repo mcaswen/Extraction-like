@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd1f3e61baf639e44a70925ee60b54b1, type: 3}
+  m_Name: SO_Enemy_AnchorSentinel
+  m_EditorClassIdentifier: 
+  _enemyId: anchorsentinel
+  _displayName: "AnchorSentinel\u20143"
+  _maxHealth: 100
+  _deathLoot:
+    _spawnLootContainerOnDeath: 1
+    _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+      type: 3}
+    _deathLootSpawnOffset: {x: 0, y: 0.25, z: 0}
+  _autoInitializeRunes: 1
+  _autoSpawnDefaultRunes: 1
+  _defaultRuneCount: 3
+  _defaultRuneRadius: 1.8
+  _defaultRuneHeight: 1.25
+  _defaultRuneScale: {x: 0.35, y: 0.35, z: 0.35}
+  _useArrayOrderAsPuzzleSequence: 0
+  _wrongRuneImmediatelyActivates: 1
+  _detectionRange: 16
+  _lockDuration: 5
+  _firingDuration: 3
+  _cooldownDuration: 5
+  _activeRecoveryDuration: 0
+  _beamDamagePerSecond: 22
+  _beamTickInterval: 0.12

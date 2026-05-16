@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 875263a026a75db468958552d8b51e88, type: 3}
+  m_Name: SO_Enemy_ModernStrander
+  m_EditorClassIdentifier: 
+  _enemyId: modernstrander
+  _displayName: "ModernStrander\u20141"
+  _maxHealth: 100
+  _deathLoot:
+    _spawnLootContainerOnDeath: 1
+    _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+      type: 3}
+    _deathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
+  _patrol:
+    _patrolMode: 0
+    _patrolRadius: 8
+    _patrolWaitTime: 1.5
+  _detection:
+    _detectionRange: 12
+    _viewAngle: 78
+    _lineOfSightBlockMask:
+      serializedVersion: 2
+      m_Bits: 1
+    _groundMask:
+      serializedVersion: 2
+      m_Bits: 1
+    _eyeHeight: 1.2
+    _targetHeight: 1
+    _loseRange: 16
+  _attackRange: 3.2
+  _attackInterval: 5
+  _tentacleLatchDuration: 1.1
+  _tentacleHitboxWidth: 0.55
+  _tentacleHitboxHeight: 0.55
+  _latchPullStrength: 0.5
+  _corrosionDamagePerSecond: 10
+  _corrosionDuration: 2.5
+  _corrosionTickInterval: 0.25
+  _initialContactDamage: 6
+  _corrosivePuddlePrefab: {fileID: 0}
+  _puddleLifetime: 5
+  _puddleRadius: 1.1
+  _puddleDamagePerSecond: 6
+  _puddleCorrosionDuration: 1.8
+  _puddleTickInterval: 0.25

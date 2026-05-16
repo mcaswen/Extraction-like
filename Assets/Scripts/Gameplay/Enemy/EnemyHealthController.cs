@@ -9,25 +9,63 @@ using UnityEngine.UI;
 /// </summary>
 public class EnemyHealthController : MonoBehaviour
 {
-    public float MaxHealth = 100f;
+    [SerializeField, HideInInspector]
+    private EnemyHealthConfigBase _config;
+
+    [HideInInspector] public float MaxHealth = 100f;
 
     [Header("Health UI")]
     public Image HealthFillImage;
 
-    [Header("Death Loot")]
-    public bool SpawnLootContainerOnDeath = true;
-    public GameObject DeathLootContainerPrefab;
+    [Header("References")]
     public Transform DeathLootSpawnPoint;
-    public Vector3 DeathLootSpawnOffset = new Vector3(0f, 0.1f, 0f);
 
     private float _currentHealth;
+    private float _currentShield;
+    private float _damageTakenMultiplier = 1f;
     private bool _hasDied;
+    private EnemyDeathLootSettings _deathLootSettings;
 
     private void Start()
     {
         WhiteboxCharacterVisualUtility.ApplyCharacterWhite(gameObject);
+        if (_config != null)
+        {
+            ApplyConfigIfAssigned();
+        }
         _currentHealth = MaxHealth;
         UpdateHealthBar();
+    }
+
+    public void ApplyConfig(EnemyHealthConfigBase config)
+    {
+        if (config == null)
+        {
+            Debug.LogError($"[{name}] EnemyHealthController requires an enemy config.", this);
+            enabled = false;
+            return;
+        }
+
+        _config = config;
+        ApplyConfigIfAssigned();
+        if (!_hasDied)
+        {
+            _currentHealth = MaxHealth;
+            UpdateHealthBar();
+        }
+    }
+
+    private void ApplyConfigIfAssigned()
+    {
+        if (_config == null)
+        {
+            Debug.LogError($"[{name}] EnemyHealthController requires an enemy config.", this);
+            enabled = false;
+            return;
+        }
+
+        MaxHealth = _config.MaxHealth;
+        _deathLootSettings = _config.DeathLoot;
     }
 
     /// <summary>
@@ -40,9 +78,25 @@ public class EnemyHealthController : MonoBehaviour
             return;
         }
 
-        _currentHealth -= damageAmount;
+        float remainingDamage = damageAmount * Mathf.Max(0f, _damageTakenMultiplier);
+        if (_currentShield > 0f)
+        {
+            float absorbedDamage = Mathf.Min(_currentShield, remainingDamage);
+            _currentShield -= absorbedDamage;
+            remainingDamage -= absorbedDamage;
+        }
+
+        if (remainingDamage <= 0f)
+        {
+            UpdateHealthBar();
+            EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
+            return;
+        }
+
+        _currentHealth -= remainingDamage;
         _currentHealth = Mathf.Clamp(_currentHealth, 0f, MaxHealth);
         UpdateHealthBar();
+        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
 
         if (_currentHealth <= 0f)
         {
@@ -63,11 +117,29 @@ public class EnemyHealthController : MonoBehaviour
         return _currentHealth / MaxHealth;
     }
 
+    public void AddShield(float shieldAmount)
+    {
+        if (_hasDied || shieldAmount <= 0f)
+        {
+            return;
+        }
+
+        _currentShield += shieldAmount;
+        UpdateHealthBar();
+    }
+
+    public float CurrentShield => _currentShield;
+
+    public void SetDamageTakenMultiplier(float multiplier)
+    {
+        _damageTakenMultiplier = Mathf.Max(0f, multiplier);
+    }
+
     private void UpdateHealthBar()
     {
         if (HealthFillImage != null)
         {
-            HealthFillImage.fillAmount = MaxHealth <= 0f ? 0f : _currentHealth / MaxHealth;
+            HealthFillImage.fillAmount = MaxHealth <= 0f ? 0f : Mathf.Clamp01((_currentHealth + _currentShield) / MaxHealth);
         }
     }
 
@@ -87,19 +159,21 @@ public class EnemyHealthController : MonoBehaviour
 
     private void SpawnDeathLootContainer()
     {
-        if (!SpawnLootContainerOnDeath || DeathLootContainerPrefab == null)
+        if (_deathLootSettings == null ||
+            !_deathLootSettings.SpawnLootContainerOnDeath ||
+            _deathLootSettings.DeathLootContainerPrefab == null)
         {
             return;
         }
 
         Vector3 spawnPosition = DeathLootSpawnPoint != null
             ? DeathLootSpawnPoint.position
-            : transform.position + DeathLootSpawnOffset;
+            : transform.position + _deathLootSettings.DeathLootSpawnOffset;
         Quaternion spawnRotation = DeathLootSpawnPoint != null
             ? DeathLootSpawnPoint.rotation
             : Quaternion.identity;
 
-        GameObject lootContainerObject = Instantiate(DeathLootContainerPrefab, spawnPosition, spawnRotation);
+        GameObject lootContainerObject = Instantiate(_deathLootSettings.DeathLootContainerPrefab, spawnPosition, spawnRotation);
         WhiteboxCharacterVisualUtility.ApplySolidColor(lootContainerObject, new Color(0.96f, 0.96f, 0.98f, 1f));
         LootBoxEntity lootBox = lootContainerObject.GetComponent<LootBoxEntity>();
         if (lootBox == null)
@@ -141,6 +215,7 @@ public class EnemyStatusEffectController : MonoBehaviour
 
     public bool IsFrozen => _freezeDurationRemaining > 0f;
     public bool IsMagicSealed => _magicSealDurationRemaining > 0f;
+    public float SlowMultiplier => _slowDurationRemaining > 0f ? _slowMultiplier : 1f;
 
     private void Awake()
     {
@@ -210,6 +285,12 @@ public class EnemyStatusEffectController : MonoBehaviour
         _freezeDurationRemaining = 0f;
     }
 
+    public void BreakSlow()
+    {
+        _slowDurationRemaining = 0f;
+        _slowMultiplier = 1f;
+    }
+
     private void TickDurations()
     {
         if (_freezeDurationRemaining > 0f)
@@ -267,7 +348,7 @@ public class EnemyStatusEffectController : MonoBehaviour
             }
 
             bool defaultEnabled = _defaultScriptState.TryGetValue(script, out bool value) && value;
-            bool shouldBlockByFreeze = IsFrozen;
+            bool shouldBlockByFreeze = IsFrozen && !IsFreezeMovementOnlyScript(script);
             bool shouldBlockBySeal = IsMagicSealed && IsMagicSensitiveScript(script);
             bool shouldEnable = defaultEnabled && !shouldBlockByFreeze && !shouldBlockBySeal;
 
@@ -374,5 +455,11 @@ public class EnemyStatusEffectController : MonoBehaviour
                typeName == "TidalAberrationBehaviorController" ||
                typeName == "ModernStranderBehaviorController" ||
                typeName == "HunterBossBehaviorController";
+    }
+
+    private static bool IsFreezeMovementOnlyScript(MonoBehaviour script)
+    {
+        HunterBossBehaviorController hunterBoss = script as HunterBossBehaviorController;
+        return hunterBoss != null && hunterBoss.IsForceFieldActive;
     }
 }

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 684b8b77cb2cf85479d1751e5d706ebf, type: 3}
+  m_Name: SO_Enemy_TidalAberration
+  m_EditorClassIdentifier: 
+  _enemyId: tidalaberration
+  _displayName: "TidalAberration\u20142"
+  _maxHealth: 100
+  _deathLoot:
+    _spawnLootContainerOnDeath: 1
+    _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+      type: 3}
+    _deathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
+  _patrol:
+    _patrolRadius: 8
+    _patrolWaitTime: 1.5
+  _detection:
+    _detectionRange: 14
+    _viewAngle: 124
+    _loseRange: 18
+  _meleeAttackRange: 4
+  _meleeAttackInterval: 2.2
+  _meleeLatchDuration: 0.8
+  _meleeContactDamage: 1
+  _silenceDuration: 1.5
+  _electricTickDamagePerSecond: 4
+  _electricTickInterval: 0.25
+  _minimumRangedDistance: 5
+  _rangedAttackRange: 9
+  _rangedAttackInterval: 8
+  _waterJetDuration: 0.18
+  _waterJetDamage: 14
+  _waterJetKnockbackStrength: 5.2
+  _knockbackMoveSpeedMultiplier: 0.5
+  _knockbackSlowDuration: 1
+  _waterJetMaxDistance: 10

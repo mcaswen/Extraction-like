@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 898bd0154de718e488aa6db174b57c14, type: 3}
+  m_Name: SO_Enemy_Ranged
+  m_EditorClassIdentifier: 
+  _enemyId: ranged
+  _displayName: RangedEnemy
+  _maxHealth: 100
+  _deathLoot:
+    _spawnLootContainerOnDeath: 1
+    _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+      type: 3}
+    _deathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
+  _patrol:
+    _patrolRadius: 10
+    _patrolWaitTime: 2
+  _detection:
+    _detectionRange: 15
+    _viewAngle: 112
+    _loseRange: 20
+  _enemyBulletPrefab: {fileID: 1898266739398482834, guid: 84a3a1ae387624544827a8bcb4870350,
+    type: 3}
+  _bulletMoveSpeed: 15
+  _bulletDamage: 15
+  _bulletLifeTime: 3
+  _attackRange: 10
+  _attackInterval: 2

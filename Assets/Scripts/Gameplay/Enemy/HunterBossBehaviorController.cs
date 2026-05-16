@@ -19,47 +19,94 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     public BossState CurrentState;
 
+    [Header("Config")]
+    [SerializeField, Tooltip("Runtime source of truth for this boss's tunable values.")]
+    private HunterBossConfig _config;
+
     [Header("References")]
     public Transform PlayerTransform;
     public Transform MeleeOrigin;
     public Transform ProjectileOrigin;
     public Transform EyeOrigin;
-    public GameObject AnchorProjectilePrefab;
-    public GameObject VortexFieldPrefab;
     public LineRenderer MeleeSwingRenderer;
     public LineRenderer RoarWaveRenderer;
 
-    [Header("Movement")]
+    [HideInInspector]
+    public GameObject AnchorProjectilePrefab;
+    [HideInInspector]
+    public GameObject VortexFieldPrefab;
+
+    [HideInInspector]
     public float DetectionRange = 18f;
+    [HideInInspector]
     public float LoseRange = 24f;
+    [HideInInspector]
     public float ChaseSpeed = 3.5f;
 
-    [Header("Melee Anchor Sweep")]
+    [HideInInspector]
     public float MeleeAttackRange = 4f;
+    [HideInInspector]
     public float MeleeAttackInterval = 2.4f;
+    [HideInInspector]
     public float MeleeAttackRadius = 2.2f;
+    [HideInInspector]
     public float MeleeDamage = 18f;
+    [HideInInspector]
     public float MeleeKnockbackStrength = 6f;
+    [HideInInspector]
     public float MeleeVisualDuration = 0.22f;
 
-    [Header("Vortex + Anchor Throw")]
+    [HideInInspector]
     public float VortexTriggerDistance = 10f;
+    [HideInInspector]
+    public int VortexTriggerMeleeCount = 3;
+    [HideInInspector]
     public float VortexRadius = 3f;
-    public float VortexChargeDuration = 1.4f;
-    public float VortexImmobilizeDuration = 0.4f;
+    [HideInInspector]
+    public float VortexChargeDuration = 2f;
+    [HideInInspector]
+    public float VortexImmobilizeDuration = 3f;
+    [HideInInspector]
     public float AnchorThrowSpeed = 14f;
+    [HideInInspector]
     public float AnchorThrowDamage = 16f;
+    [HideInInspector]
     public float AnchorThrowKnockback = 5.5f;
+    [HideInInspector]
+    public float AnchorProjectileLifeTime = 4f;
+    [HideInInspector]
     public float AnchorThrowCooldown = 3f;
 
-    [Header("Roar")]
+    [HideInInspector]
     public float RageThreshold = 0.5f;
-    public float RoarChargeDuration = 1.2f;
+    [HideInInspector]
+    public float RoarChargeDuration = 3f;
+    [HideInInspector]
     public float RoarCooldown = 7f;
+    [HideInInspector]
     public float RoarRange = 12f;
-    public float RoarDamage = 100f;
+    [HideInInspector]
+    public float RoarAngle = 120f;
+    [HideInInspector]
+    public float RoarDamage = 999f;
+    [HideInInspector]
     public LayerMask CoverMask;
+    [HideInInspector]
     public float CoverCheckHeight = 1.1f;
+    [HideInInspector]
+    public float RageShieldMaxHealthRatio = 0.2f;
+    [HideInInspector]
+    public float ForceFieldDefenseMultiplier = 2f;
+    [HideInInspector]
+    public float ForceFieldFrozenMoveSpeedMultiplier = 0.55f;
+    [HideInInspector]
+    public float ForceFieldFireDamageMultiplier = 3f;
+    [HideInInspector]
+    public float TrembleMoveSpeedMultiplier = 0.8f;
+    [HideInInspector]
+    public float TrembleAttackMultiplier = 0.8f;
+    [HideInInspector]
+    public float TrembleDuration = 3f;
 
     private EnemyHealthController _healthController;
     private PlayerHealthController _playerHealthController;
@@ -70,16 +117,89 @@ public class HunterBossBehaviorController : MonoBehaviour
     private float _currentCooldownDuration;
     private float _roarTimer;
     private float _meleeVisualTimer;
+    private float _vortexAnchorThrowTimer;
+    private int _meleeHitCounter;
     private bool _hasTriggeredRageRoar;
+    private bool _isForceFieldActive;
+    private bool _isForceFieldFrozen;
     private HunterBossVortexField _activeVortexField;
+    private EnemyStatusEffectController _statusEffectController;
+    private Renderer[] _cachedRenderers;
+    private Color[] _originalRendererColors;
+
+    public bool IsForceFieldActive => _isForceFieldActive;
+    public bool IsForceFieldFrozen => _isForceFieldFrozen;
 
     private void Start()
     {
+        if (!ApplyConfig())
+        {
+            return;
+        }
+
         _healthController = GetComponent<EnemyHealthController>();
+        if (_healthController != null)
+        {
+            _healthController.ApplyConfig(_config);
+        }
+        _statusEffectController = GetComponent<EnemyStatusEffectController>();
+        if (_statusEffectController == null)
+        {
+            _statusEffectController = gameObject.AddComponent<EnemyStatusEffectController>();
+        }
         EnsurePlayerReferences();
+        CacheRendererColors();
 
         EnsureLineRenderers();
         CurrentState = BossState.Idle;
+    }
+
+    private bool ApplyConfig()
+    {
+        if (_config == null)
+        {
+            Debug.LogError($"[{name}] Missing HunterBossConfig.", this);
+            enabled = false;
+            return false;
+        }
+
+        DetectionRange = _config.DetectionRange;
+        LoseRange = _config.LoseRange;
+        ChaseSpeed = _config.ChaseSpeed;
+        MeleeAttackRange = _config.MeleeAttackRange;
+        MeleeAttackInterval = _config.MeleeAttackInterval;
+        MeleeAttackRadius = _config.MeleeAttackRadius;
+        MeleeDamage = _config.MeleeDamage;
+        MeleeKnockbackStrength = _config.MeleeKnockbackStrength;
+        MeleeVisualDuration = _config.MeleeVisualDuration;
+        AnchorProjectilePrefab = _config.AnchorProjectilePrefab;
+        VortexFieldPrefab = _config.VortexFieldPrefab;
+        VortexTriggerDistance = _config.VortexTriggerDistance;
+        VortexTriggerMeleeCount = _config.VortexTriggerMeleeCount;
+        VortexRadius = _config.VortexRadius;
+        VortexChargeDuration = _config.VortexChargeDuration;
+        VortexImmobilizeDuration = _config.VortexImmobilizeDuration;
+        AnchorThrowSpeed = _config.AnchorThrowSpeed;
+        AnchorThrowDamage = _config.AnchorThrowDamage;
+        AnchorThrowKnockback = _config.AnchorThrowKnockback;
+        AnchorProjectileLifeTime = _config.AnchorProjectileLifeTime;
+        AnchorThrowCooldown = _config.AnchorThrowCooldown;
+        RageThreshold = _config.RageThreshold;
+        RoarChargeDuration = _config.RoarChargeDuration;
+        RoarCooldown = _config.RoarCooldown;
+        RoarRange = _config.RoarRange;
+        RoarAngle = _config.RoarAngle;
+        RoarDamage = _config.RoarDamage;
+        CoverMask = _config.CoverMask;
+        CoverCheckHeight = _config.CoverCheckHeight;
+        RageShieldMaxHealthRatio = _config.RageShieldMaxHealthRatio;
+        ForceFieldDefenseMultiplier = _config.ForceFieldDefenseMultiplier;
+        ForceFieldFrozenMoveSpeedMultiplier = _config.ForceFieldFrozenMoveSpeedMultiplier;
+        ForceFieldFireDamageMultiplier = _config.ForceFieldFireDamageMultiplier;
+        TrembleMoveSpeedMultiplier = _config.TrembleMoveSpeedMultiplier;
+        TrembleAttackMultiplier = _config.TrembleAttackMultiplier;
+        TrembleDuration = _config.TrembleDuration;
+        return true;
     }
 
     private void Update()
@@ -91,6 +211,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
         HandleRageRoar(distanceToPlayer);
+        TickForceFieldElementalState();
 
         switch (CurrentState)
         {
@@ -141,13 +262,6 @@ public class HunterBossBehaviorController : MonoBehaviour
             _meleeTimer = MeleeAttackInterval;
             return;
         }
-
-        if (distanceToPlayer <= VortexTriggerDistance)
-        {
-            CurrentState = BossState.VortexAttack;
-            _vortexTimer = 0f;
-            SpawnOrMoveVortexField();
-        }
     }
 
     private void TickMelee(float distanceToPlayer)
@@ -163,7 +277,22 @@ public class HunterBossBehaviorController : MonoBehaviour
         if (_meleeTimer >= MeleeAttackInterval)
         {
             _meleeTimer = 0f;
-            PerformMeleeAttack();
+            bool didHitPlayer = PerformMeleeAttack();
+            if (didHitPlayer)
+            {
+                _meleeHitCounter++;
+            }
+
+            if (_meleeHitCounter >= VortexTriggerMeleeCount && distanceToPlayer <= VortexTriggerDistance)
+            {
+                _meleeHitCounter = 0;
+                CurrentState = BossState.VortexAttack;
+                _vortexTimer = 0f;
+                _vortexAnchorThrowTimer = 0f;
+                SpawnOrMoveVortexField();
+                return;
+            }
+
             EnterCooldown(1.1f);
         }
     }
@@ -180,16 +309,21 @@ public class HunterBossBehaviorController : MonoBehaviour
         LookAtPlayer();
         _vortexTimer += Time.deltaTime;
 
-        if (_activeVortexField != null && _vortexTimer >= VortexChargeDuration * 0.4f)
+        if (_activeVortexField != null && _vortexTimer >= VortexChargeDuration)
         {
             _activeVortexField.Arm();
         }
 
         if (_vortexTimer >= VortexChargeDuration)
         {
-            ThrowAnchorProjectile();
-            ClearVortexField();
-            EnterCooldown(AnchorThrowCooldown);
+            _vortexAnchorThrowTimer += Time.deltaTime;
+            if (_vortexAnchorThrowTimer >= VortexImmobilizeDuration)
+            {
+                _meleeHitCounter = 0;
+                ThrowAnchorProjectile();
+                ClearVortexField();
+                EnterCooldown(AnchorThrowCooldown);
+            }
         }
     }
 
@@ -217,12 +351,22 @@ public class HunterBossBehaviorController : MonoBehaviour
                 return;
             }
 
+            if (_meleeHitCounter >= VortexTriggerMeleeCount && distanceToPlayer <= VortexTriggerDistance)
+            {
+                CurrentState = BossState.VortexAttack;
+                _vortexTimer = 0f;
+                _vortexAnchorThrowTimer = 0f;
+                SpawnOrMoveVortexField();
+                return;
+            }
+
             CurrentState = BossState.Chase;
         }
     }
 
-    private void PerformMeleeAttack()
+    private bool PerformMeleeAttack()
     {
+        bool didHitPlayer = false;
         _meleeVisualTimer = MeleeVisualDuration;
         float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.4f;
@@ -239,6 +383,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             if (playerHealth != null)
             {
                 totalDamage += playerHealth.TakeDamage(MeleeDamage);
+                didHitPlayer = true;
             }
 
             if (playerMovement != null)
@@ -249,11 +394,12 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         EnemySkillDamageLogger.LogSkillDamage(this, "Anchor Sweep", totalDamage);
+        return didHitPlayer;
     }
 
     private void SpawnOrMoveVortexField()
     {
-        Vector3 vortexPosition = PlayerTransform.position;
+        Vector3 vortexPosition = transform.position;
         vortexPosition.y = 0.02f;
 
         if (_activeVortexField == null)
@@ -273,7 +419,7 @@ public class HunterBossBehaviorController : MonoBehaviour
                 _activeVortexField = vortexObject.AddComponent<HunterBossVortexField>();
             }
 
-            _activeVortexField.Configure(VortexRadius, VortexChargeDuration + 0.4f, VortexImmobilizeDuration, false);
+            _activeVortexField.Configure(VortexRadius, VortexChargeDuration + VortexImmobilizeDuration + 0.2f, VortexImmobilizeDuration, false);
         }
         else
         {
@@ -300,6 +446,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         HunterBossAnchorProjectile projectile = projectileObject.GetComponent<HunterBossAnchorProjectile>();
         if (projectile != null)
         {
+            projectile.LifeTime = AnchorProjectileLifeTime;
             projectile.Damage = AnchorThrowDamage;
             projectile.KnockbackStrength = AnchorThrowKnockback;
             projectile.SourceEnemy = gameObject;
@@ -322,15 +469,25 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         _hasTriggeredRageRoar = true;
+        _isForceFieldActive = true;
+        _isForceFieldFrozen = false;
+        if (_healthController != null)
+        {
+            _healthController.AddShield(_healthController.MaxHealth * RageShieldMaxHealthRatio);
+            _healthController.SetDamageTakenMultiplier(1f / Mathf.Max(1f, ForceFieldDefenseMultiplier));
+        }
+
         CurrentState = BossState.RoarAttack;
         _roarTimer = 0f;
+        _vortexAnchorThrowTimer = 0f;
+        _meleeHitCounter = 0;
         ClearVortexField();
     }
 
     private void ExecuteRoar(float distanceToPlayer)
     {
         float totalDamage = 0f;
-        if (_playerHealthController == null || distanceToPlayer > RoarRange)
+        if (_playerHealthController == null || distanceToPlayer > RoarRange || !IsPlayerInRoarCone())
         {
             EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
             return;
@@ -339,12 +496,28 @@ public class HunterBossBehaviorController : MonoBehaviour
         if (IsPlayerProtectedByCover())
         {
             totalDamage = _playerHealthController.TakeDamage(RoarDamage * 0.1f);
+            ApplyTrembleToPlayer();
             EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
             return;
         }
 
         totalDamage = _playerHealthController.TakeDamage(RoarDamage);
+        ApplyTrembleToPlayer();
         EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
+    }
+
+    private void ApplyTrembleToPlayer()
+    {
+        if (TrembleDuration <= 0f)
+        {
+            return;
+        }
+
+        _playerMovementController?.ApplyMoveSpeedDebuff(TrembleMoveSpeedMultiplier, TrembleDuration);
+        PlayerShootingController playerShootingController = PlayerTransform != null
+            ? PlayerTransform.GetComponent<PlayerShootingController>()
+            : PlayerShootingController.Instance;
+        playerShootingController?.ApplyAttackMultiplierDebuff(TrembleAttackMultiplier, TrembleDuration);
     }
 
     private bool IsPlayerProtectedByCover()
@@ -366,6 +539,23 @@ public class HunterBossBehaviorController : MonoBehaviour
         return Physics.Raycast(origin, direction.normalized, distance, CoverMask);
     }
 
+    private bool IsPlayerInRoarCone()
+    {
+        if (PlayerTransform == null)
+        {
+            return false;
+        }
+
+        Vector3 directionToPlayer = PlayerTransform.position - transform.position;
+        directionToPlayer.y = 0f;
+        if (directionToPlayer.sqrMagnitude <= 0.001f)
+        {
+            return true;
+        }
+
+        return Vector3.Angle(transform.forward, directionToPlayer.normalized) <= RoarAngle * 0.5f;
+    }
+
     private void EnterCooldown(float duration)
     {
         CurrentState = BossState.Cooldown;
@@ -382,7 +572,8 @@ public class HunterBossBehaviorController : MonoBehaviour
             return;
         }
 
-        transform.position += direction.normalized * ChaseSpeed * Time.deltaTime;
+        float speedMultiplier = _isForceFieldFrozen ? ForceFieldFrozenMoveSpeedMultiplier : 1f;
+        transform.position += direction.normalized * ChaseSpeed * speedMultiplier * Time.deltaTime;
     }
 
     private void LookAtPlayer()
@@ -452,6 +643,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     {
         UpdateMeleeSwingVisual();
         UpdateRoarWaveVisual();
+        UpdateForceFieldVisual();
     }
 
     private void UpdateMeleeSwingVisual()
@@ -517,6 +709,75 @@ public class HunterBossBehaviorController : MonoBehaviour
         {
             Destroy(_activeVortexField.gameObject);
             _activeVortexField = null;
+        }
+    }
+
+    private void TickForceFieldElementalState()
+    {
+        if (!_isForceFieldActive || _statusEffectController == null)
+        {
+            return;
+        }
+
+        if (_statusEffectController.IsFrozen || _statusEffectController.SlowMultiplier < 1f)
+        {
+            _isForceFieldFrozen = true;
+        }
+
+        if (_isForceFieldFrozen && _statusEffectController.IsFrozen)
+        {
+            _statusEffectController.BreakFreeze();
+            _statusEffectController.ApplySlow(ForceFieldFrozenMoveSpeedMultiplier, 0.2f);
+        }
+    }
+
+    public void NotifyFrozenForceFieldBrokenByFire()
+    {
+        if (!_isForceFieldActive)
+        {
+            return;
+        }
+
+        _isForceFieldFrozen = false;
+        _statusEffectController?.BreakSlow();
+    }
+
+    private void CacheRendererColors()
+    {
+        _cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        _originalRendererColors = new Color[_cachedRenderers.Length];
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            _originalRendererColors[i] = rendererComponent != null && rendererComponent.material.HasProperty("_Color")
+                ? rendererComponent.material.color
+                : Color.white;
+        }
+    }
+
+    private void UpdateForceFieldVisual()
+    {
+        if (!_isForceFieldActive || _cachedRenderers == null || _originalRendererColors == null)
+        {
+            return;
+        }
+
+        Color tintColor = _isForceFieldFrozen
+            ? new Color(0.42f, 0.74f, 1f, 1f)
+            : new Color(0.72f, 0.56f, 1f, 1f);
+        float pulse = 0.5f + Mathf.Sin(Time.time * (_isForceFieldFrozen ? 5f : 9f)) * 0.5f;
+        float tintStrength = (_isForceFieldFrozen ? 0.55f : 0.28f) * (0.65f + pulse * 0.35f);
+
+        for (int i = 0; i < _cachedRenderers.Length; i++)
+        {
+            Renderer rendererComponent = _cachedRenderers[i];
+            if (rendererComponent == null || !rendererComponent.material.HasProperty("_Color"))
+            {
+                continue;
+            }
+
+            rendererComponent.material.color = Color.Lerp(_originalRendererColors[i], tintColor, tintStrength);
         }
     }
 

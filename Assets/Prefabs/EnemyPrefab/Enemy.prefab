@@ -338,6 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentState: 0
+  _config: {fileID: 11400000, guid: 0caf51c8d760b6e42970e81512afe0bd, type: 2}
   PlayerTransform: {fileID: 0}
   PatrolRadius: 10
   PatrolWaitTime: 2
@@ -358,12 +359,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5ffc04fcf5b484481de243f9253c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _config: {fileID: 11400000, guid: 0caf51c8d760b6e42970e81512afe0bd, type: 2}
   MaxHealth: 100
   HealthFillImage: {fileID: 8477242165044203154}
-  SpawnLootContainerOnDeath: 1
-  DeathLootContainerPrefab: {fileID: 0}
   DeathLootSpawnPoint: {fileID: 0}
-  DeathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
 --- !u!1 &5147704890662195532
 GameObject:
   m_ObjectHideFlags: 0

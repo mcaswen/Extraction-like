@@ -7,7 +7,10 @@ using UnityEngine.AI;
 /// 近战挥舞鱼骨造成小范围伤害，中距离延伸鱼骨并撕咬玩家。
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
-public class AncientStranderBehaviorController : MonoBehaviour
+[RequireComponent(typeof(EnemyLookController))]
+[RequireComponent(typeof(EnemySuspicionSensor))]
+[RequireComponent(typeof(EnemyPatrolAwarenessController))]
+public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource
 {
     public enum EnemyState
     {
@@ -19,6 +22,10 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
     public EnemyState CurrentState;
 
+    [Header("Config")]
+    [SerializeField, Tooltip("Runtime source of truth for this enemy's tunable values.")]
+    private AncientStranderConfig _config;
+
     [Header("References")]
     public Transform PlayerTransform;
     public Transform MeleeOrigin;
@@ -26,33 +33,58 @@ public class AncientStranderBehaviorController : MonoBehaviour
     public LineRenderer MeleeSwingRenderer;
     public LineRenderer FishboneBiteRenderer;
 
-    [Header("Patrol")]
+    [HideInInspector]
     public float PatrolRadius = 8f;
+    [HideInInspector]
     public float PatrolWaitTime = 1.4f;
 
-    [Header("Detection")]
+    [HideInInspector]
     public float DetectionRange = 13f;
+    [HideInInspector]
+    public float ViewAngle = 360f;
+    [HideInInspector]
+    public LayerMask LineOfSightBlockMask = 1;
+    [HideInInspector]
+    public LayerMask GroundMask = 1;
+    [HideInInspector]
+    public float EyeHeight = 1.2f;
+    [HideInInspector]
+    public float TargetHeight = 1f;
+    [HideInInspector]
     public float LoseRange = 17f;
 
-    [Header("Melee Fishbone Sweep")]
+    [HideInInspector]
     public float MeleeAttackRange = 2.8f;
+    [HideInInspector]
     public float MeleeAttackInterval = 1.8f;
+    [HideInInspector]
     public float MeleeAttackRadius = 1.9f;
+    [HideInInspector]
     public float MeleeDamage = 12f;
+    [HideInInspector]
     public float MeleeVisualDuration = 0.2f;
 
-    [Header("Ranged Fishbone Bite")]
+    [HideInInspector]
     public float MinimumRangedDistance = 3.4f;
+    [HideInInspector]
     public float RangedAttackRange = 7.6f;
+    [HideInInspector]
     public float RangedAttackInterval = 2.4f;
+    [HideInInspector]
     public float BiteStrikeDuration = 0.42f;
+    [HideInInspector]
     public float BiteHitboxWidth = 0.42f;
+    [HideInInspector]
     public float BiteHitboxHeight = 0.42f;
+    [HideInInspector]
     public float BiteDamage = 15f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyPatrolRouteFollower _patrolRouteFollower;
+    private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
     private Vector3 _startingPosition;
+    private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
@@ -61,18 +93,39 @@ public class AncientStranderBehaviorController : MonoBehaviour
     private float _biteTotalDamage;
     private bool _isBiteStriking;
     private bool _hasAppliedBiteDamage;
+    private bool _hasWarnedMissingFixedRoute;
     private AncientStranderBiteHitbox _biteHitbox;
+
+    public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
+    Transform IEnemyVisionSource.PlayerTransform => PlayerTransform;
+    float IEnemyVisionSource.DetectionRange => DetectionRange;
+    float IEnemyVisionSource.ViewAngle => ViewAngle;
+    LayerMask IEnemyVisionSource.LineOfSightBlockMask => LineOfSightBlockMask;
+    LayerMask IEnemyVisionSource.GroundMask => GroundMask;
+    float IEnemyVisionSource.EyeHeight => EyeHeight;
+    float IEnemyVisionSource.TargetHeight => TargetHeight;
+    public bool ShouldShowVision => CurrentState == EnemyState.Patrol || (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState);
+    public bool CanSeePlayerForVision => CanSeePlayer();
 
     private void Start()
     {
+        if (!ApplyConfig())
+        {
+            return;
+        }
+
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
+        _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         if (EnsureAgentReady())
         {
             _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, MeleeAttackRange * 0.85f);
         }
+        ApplyHealthConfig();
         EnsurePlayerReferences();
+        InitializePatrolRoute();
 
         if (MinimumRangedDistance <= MeleeAttackRange + 0.5f)
         {
@@ -81,7 +134,50 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
         EnsureLineRenderers();
         EnsureBiteHitbox();
-        GetNewPatrolPoint();
+        SetNextPatrolDestination();
+    }
+
+    private bool ApplyConfig()
+    {
+        if (_config == null)
+        {
+            Debug.LogError($"[{name}] Missing AncientStranderConfig.", this);
+            enabled = false;
+            return false;
+        }
+
+        PatrolRadius = _config.Patrol.PatrolRadius;
+        PatrolWaitTime = _config.Patrol.PatrolWaitTime;
+        _patrolMode = _config.Patrol.PatrolMode;
+        DetectionRange = _config.Detection.DetectionRange;
+        ViewAngle = _config.Detection.ViewAngle;
+        LineOfSightBlockMask = _config.Detection.LineOfSightBlockMask;
+        GroundMask = _config.Detection.GroundMask;
+        EyeHeight = _config.Detection.EyeHeight;
+        TargetHeight = _config.Detection.TargetHeight;
+        LoseRange = _config.Detection.LoseRange;
+        MeleeAttackRange = _config.MeleeAttackRange;
+        MeleeAttackInterval = _config.MeleeAttackInterval;
+        MeleeAttackRadius = _config.MeleeAttackRadius;
+        MeleeDamage = _config.MeleeDamage;
+        MeleeVisualDuration = _config.MeleeVisualDuration;
+        MinimumRangedDistance = _config.MinimumRangedDistance;
+        RangedAttackRange = _config.RangedAttackRange;
+        RangedAttackInterval = _config.RangedAttackInterval;
+        BiteStrikeDuration = _config.BiteStrikeDuration;
+        BiteHitboxWidth = _config.BiteHitboxWidth;
+        BiteHitboxHeight = _config.BiteHitboxHeight;
+        BiteDamage = _config.BiteDamage;
+        return true;
+    }
+
+    private void ApplyHealthConfig()
+    {
+        EnemyHealthController healthController = GetComponent<EnemyHealthController>();
+        if (healthController != null)
+        {
+            healthController.ApplyConfig(_config);
+        }
     }
 
     private void Update()
@@ -115,18 +211,45 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
     private void PatrolBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer <= DetectionRange)
+        if (_patrolAwareness != null &&
+            _patrolAwareness.TickAwareness(
+                CanSeePlayer,
+                () => CurrentState = EnemyState.Chase,
+                ResetPatrolDestination))
         {
+            return;
+        }
+
+        if (CanSeePlayer())
+        {
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                Mathf.Max(DetectionRange, 12f),
+                0.8f,
+                2.5f,
+                0.8f,
+                PlayerTransform);
             CurrentState = EnemyState.Chase;
             return;
         }
 
-        if (HasReachedCurrentDestination())
+        bool isWaiting = HasReachedCurrentDestination();
+        _patrolAwareness?.TickPassivePatrol(
+            isWaiting,
+            GetCurrentPatrolLookTarget(),
+            GetCurrentPatrolWaitScanArc());
+        if (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState)
+        {
+            return;
+        }
+
+        if (isWaiting)
         {
             _waitTimer += Time.deltaTime;
-            if (_waitTimer >= PatrolWaitTime)
+            if (_waitTimer >= GetCurrentPatrolWaitTime())
             {
-                GetNewPatrolPoint();
+                SetNextPatrolDestination();
                 _waitTimer = 0f;
             }
         }
@@ -138,7 +261,15 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            GetNewPatrolPoint();
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                DetectionRange,
+                0.78f,
+                3f,
+                1.6f,
+                PlayerTransform);
+            ResetPatrolDestination();
             return;
         }
 
@@ -168,7 +299,15 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            GetNewPatrolPoint();
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                DetectionRange,
+                0.78f,
+                3f,
+                1.6f,
+                PlayerTransform);
+            ResetPatrolDestination();
             return;
         }
 
@@ -195,7 +334,15 @@ public class AncientStranderBehaviorController : MonoBehaviour
             StopBiteStrike();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            GetNewPatrolPoint();
+            EnemySuspicionStimulusBus.Raise(
+                EnemySuspicionStimulusType.PlayerLastSeen,
+                PlayerTransform.position,
+                DetectionRange,
+                0.78f,
+                3f,
+                1.6f,
+                PlayerTransform);
+            ResetPatrolDestination();
             return;
         }
 
@@ -428,11 +575,52 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
     private void LookAtPlayer()
     {
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
         Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
         transform.LookAt(lookPosition);
     }
 
-    private void GetNewPatrolPoint()
+    private void InitializePatrolRoute()
+    {
+        _patrolRouteFollower = GetComponent<EnemyPatrolRouteFollower>();
+    }
+
+    private void SetNextPatrolDestination()
+    {
+        if (ShouldUseFixedPatrol())
+        {
+            if (_patrolRouteFollower != null &&
+                _patrolRouteFollower.TryAdvanceToNextDestination(transform.position, out Vector3 routeDestination))
+            {
+                TrySetDestination(routeDestination);
+                return;
+            }
+
+            WarnMissingFixedRouteIfNeeded();
+        }
+
+        SetRandomPatrolDestination();
+    }
+
+    private void ResetPatrolDestination()
+    {
+        if (ShouldUseFixedPatrol())
+        {
+            if (_patrolRouteFollower != null &&
+                _patrolRouteFollower.TrySetNearestDestination(transform.position, out Vector3 routeDestination))
+            {
+                TrySetDestination(routeDestination);
+                return;
+            }
+
+            WarnMissingFixedRouteIfNeeded();
+        }
+
+        SetRandomPatrolDestination();
+    }
+
+    private void SetRandomPatrolDestination()
     {
         Vector3 randomDirection = Random.insideUnitSphere * PatrolRadius;
         randomDirection += _startingPosition;
@@ -441,6 +629,45 @@ public class AncientStranderBehaviorController : MonoBehaviour
         {
             TrySetDestination(hit.position);
         }
+    }
+
+    private float GetCurrentPatrolWaitTime()
+    {
+        return ShouldUseFixedPatrol() && _patrolRouteFollower != null
+            ? _patrolRouteFollower.GetCurrentWaitTime(PatrolWaitTime)
+            : PatrolWaitTime;
+    }
+
+    private Transform GetCurrentPatrolLookTarget()
+    {
+        return ShouldUseFixedPatrol() &&
+               _patrolRouteFollower != null &&
+               _patrolRouteFollower.TryGetCurrentLookTarget(out Transform lookTarget)
+            ? lookTarget
+            : null;
+    }
+
+    private float GetCurrentPatrolWaitScanArc()
+    {
+        return ShouldUseFixedPatrol() && _patrolRouteFollower != null
+            ? _patrolRouteFollower.GetCurrentWaitScanArc(-1f)
+            : -1f;
+    }
+
+    private bool ShouldUseFixedPatrol()
+    {
+        return _patrolMode == EnemyPatrolMode.FixedRoute;
+    }
+
+    private void WarnMissingFixedRouteIfNeeded()
+    {
+        if (!ShouldUseFixedPatrol() || _hasWarnedMissingFixedRoute || _patrolRouteFollower != null)
+        {
+            return;
+        }
+
+        _hasWarnedMissingFixedRoute = true;
+        Debug.LogWarning($"[{name}] Patrol mode is FixedRoute, but no EnemyPatrolRouteFollower was assigned. Falling back to random-radius patrol.", this);
     }
 
     private bool EnsureAgentReady()
@@ -493,6 +720,18 @@ public class AncientStranderBehaviorController : MonoBehaviour
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
     }
 
+    private bool CanSeePlayer()
+    {
+        return EnemyVisionUtility.CanSeeTarget(
+            VisionTransform,
+            PlayerTransform,
+            DetectionRange,
+            ViewAngle,
+            LineOfSightBlockMask,
+            EyeHeight,
+            TargetHeight);
+    }
+
     private bool EnsurePlayerReferences()
     {
         if (PlayerTransform == null)
@@ -531,8 +770,14 @@ public class AncientStranderBehaviorController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, DetectionRange);
+        EnemyVisionUtility.DrawVisionGizmos(
+            VisionTransform,
+            PlayerTransform,
+            DetectionRange,
+            ViewAngle,
+            EyeHeight,
+            TargetHeight,
+            Color.cyan);
         Gizmos.color = new Color(0.85f, 0.82f, 0.65f, 1f);
         Gizmos.DrawWireSphere(transform.position, MeleeAttackRange);
         Gizmos.color = new Color(0.62f, 0.75f, 0.88f, 1f);

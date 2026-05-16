@@ -351,6 +351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentState: 0
+  _config: {fileID: 11400000, guid: 10e00930a66ccd743a8ea4585cf13d59, type: 2}
   PlayerTransform: {fileID: 0}
   EyeOrigin: {fileID: 3499561586034863819}
   LockBeamRenderer: {fileID: 0}
@@ -374,10 +375,7 @@ MonoBehaviour:
   ActiveRecoveryDuration: 5
   BeamDamagePerSecond: 22
   BeamTickInterval: 0.12
-  SpawnLootContainerOnDisable: 1
-  DeathLootContainerPrefab: {fileID: 0}
   DeathLootSpawnPoint: {fileID: 0}
-  DeathLootSpawnOffset: {x: 0, y: 0.25, z: 0}
 --- !u!1 &1109452702970512861
 GameObject:
   m_ObjectHideFlags: 0

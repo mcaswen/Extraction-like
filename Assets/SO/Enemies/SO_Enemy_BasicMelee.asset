@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2027be1c00f3c644ab32db97b3686b15, type: 3}
+  m_Name: SO_Enemy_BasicMelee
+  m_EditorClassIdentifier: 
+  _enemyId: basicmelee
+  _displayName: Enemy
+  _maxHealth: 100
+  _deathLoot:
+    _spawnLootContainerOnDeath: 1
+    _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
+      type: 3}
+    _deathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
+  _patrol:
+    _patrolRadius: 10
+    _patrolWaitTime: 2
+  _detection:
+    _detectionRange: 15
+    _viewAngle: 112
+    _loseRange: 20
+  _attackRange: 2.5
+  _attackDamage: 15
+  _attackInterval: 1.5

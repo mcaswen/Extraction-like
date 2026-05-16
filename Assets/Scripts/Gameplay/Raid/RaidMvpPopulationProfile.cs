@@ -10,6 +10,7 @@ public class RaidMvpPopulationProfile : ScriptableObject
 {
     [Header("Scene Bootstrap")]
     public GameObject PlayerPrefab;
+    [HideInInspector]
     public GameObject DefaultEnemyDeathLootPrefab;
     public bool SpawnStartingGearDrops = true;
     public GameObject StartingBagWorldPrefab;
@@ -26,6 +27,7 @@ public class RaidMvpPopulationProfile : ScriptableObject
     public float DefaultEnemySpacing = 2.8f;
     public float DefaultChestSpacing = 2.2f;
     public float StartingDropSpacing = 1.6f;
+    [HideInInspector]
     public bool OverrideMissingEnemyDeathLootPrefab = true;
 
     [Header("Extraction Fallback")]

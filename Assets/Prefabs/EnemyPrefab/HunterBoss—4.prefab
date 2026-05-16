@@ -255,12 +255,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5ffc04fcf5b484481de243f9253c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _config: {fileID: 11400000, guid: f362d2c7e175c404d852c03f7b94b075, type: 2}
   MaxHealth: 100
   HealthFillImage: {fileID: 8045978311863404209}
-  SpawnLootContainerOnDeath: 1
-  DeathLootContainerPrefab: {fileID: 0}
   DeathLootSpawnPoint: {fileID: 0}
-  DeathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
 --- !u!54 &3028265292951797234
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -301,15 +299,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentState: 0
+  _config: {fileID: 11400000, guid: f362d2c7e175c404d852c03f7b94b075, type: 2}
   PlayerTransform: {fileID: 0}
   MeleeOrigin: {fileID: 6678566767293772861}
   ProjectileOrigin: {fileID: 3330404298776172343}
   EyeOrigin: {fileID: 3922987088329311086}
+  MeleeSwingRenderer: {fileID: 0}
+  RoarWaveRenderer: {fileID: 0}
   AnchorProjectilePrefab: {fileID: 2918509184010544663, guid: 133b1b7f63cfda547b5c8516b2285a1a,
     type: 3}
   VortexFieldPrefab: {fileID: 0}
-  MeleeSwingRenderer: {fileID: 0}
-  RoarWaveRenderer: {fileID: 0}
   DetectionRange: 18
   LoseRange: 24
   ChaseSpeed: 3.5
@@ -326,6 +325,7 @@ MonoBehaviour:
   AnchorThrowSpeed: 14
   AnchorThrowDamage: 16
   AnchorThrowKnockback: 5.5
+  AnchorProjectileLifeTime: 4
   AnchorThrowCooldown: 3
   RageThreshold: 0.5
   RoarChargeDuration: 1.2

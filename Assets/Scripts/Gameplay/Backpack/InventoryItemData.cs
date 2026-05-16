@@ -77,6 +77,10 @@ public class InventoryItemData : ScriptableObject
     [Header("World")]
     public GameObject WorldPrefab;
 
+    [Header("Economy")]
+    [Min(0)]
+    public int SellPrice;
+
     [Header("Search")]
     public bool RequiresSearchInLootContainer = true;
     public float SearchDurationOverride = -1f;
