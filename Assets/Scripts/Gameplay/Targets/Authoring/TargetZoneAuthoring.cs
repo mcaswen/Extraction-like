@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Gameplay.Targets.Data;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 
 namespace Gameplay.Targets.Authoring
@@ -14,22 +15,53 @@ namespace Gameplay.Targets.Authoring
         [SerializeField] private List<GameplayTargetClusterAuthoringBase> _clusters =
             new List<GameplayTargetClusterAuthoringBase>();
 
+        [Header("Zone Range Shape")]
+        [SerializeField] private float _rangePadding = 4f;
+        [SerializeField] private float _fallbackRadius = 8f;
+        [SerializeField] private int _circleSegments = 48;
+        [SerializeField] private int _smoothSegmentsPerEdge = 8;
+        [SerializeField] private float _rangeHeightOffset = 0.08f;
+        [SerializeField] private bool _drawGizmos = true;
+        [SerializeField] private Color _rangeColor = new Color(0.04f, 0.45f, 0.28f, 0.95f);
+        [SerializeField] private float _rangeLineWidth = 0.18f;
+        [SerializeField] private LineRenderer _rangeLineRenderer;
+
+        [Header("Ground Projection")]
+        [SerializeField] private float _groundProbeHeight = 20f;
+        [SerializeField] private float _groundProbeDistance = 80f;
+        [SerializeField] private float _minGroundNormalY = 0.35f;
+
+        private readonly List<Vector3> _sourcePointBuffer = new List<Vector3>();
+        private readonly List<Vector3> _rangePoints = new List<Vector3>();
+        private Vector3 _cachedCenterPosition;
+        private bool _hasCachedShape;
+
         public override GameplayTargetLevel TargetLevel => GameplayTargetLevel.Zone;
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Mixed;
+        public override Vector3 CenterPosition => _hasCachedShape ? _cachedCenterPosition : transform.position;
         protected override string IdPrefix => "Zone";
 
         public IReadOnlyList<GameplayTargetClusterAuthoringBase> Clusters => _clusters;
+        public IReadOnlyList<Vector3> RangePoints => _rangePoints;
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            RefreshRangeShape();
+        }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            RebuildClusterListFromChildren();
+            AddMissingChildClusters();
             RefreshAggregatedState();
+            RefreshRangeShape();
         }
 
         private void Update()
         {
             RefreshAggregatedState();
+            RefreshRangeShape();
         }
 
         /// <summary>
@@ -43,6 +75,7 @@ namespace Gameplay.Targets.Authoring
 
             _clusters.Add(cluster);
             RefreshAggregatedState();
+            RefreshRangeShape();
         }
 
         /// <summary>
@@ -56,6 +89,7 @@ namespace Gameplay.Targets.Authoring
 
             _clusters.Remove(cluster);
             RefreshAggregatedState();
+            RefreshRangeShape();
         }
 
         /// <summary>
@@ -72,10 +106,7 @@ namespace Gameplay.Targets.Authoring
             {
                 GameplayTargetClusterAuthoringBase cluster = _clusters[i];
                 if (cluster == null)
-                {
-                    _clusters.RemoveAt(i);
                     continue;
-                }
 
                 hasAnyCluster = true;
                 hasTouchedCluster |= cluster.HasBeenTouched;
@@ -91,15 +122,150 @@ namespace Gameplay.Targets.Authoring
         {
             // Zone 与 Cluster 强绑定，默认只收集当前 Zone 子层级下的群目标
             _clusters.Clear();
+            AddMissingChildClusters();
+            RefreshRangeShape();
+        }
+
+        // 自动补充子层级中的群目标，但不清空手动配置，避免编辑器列表槽位被刷新逻辑吞掉
+        private void AddMissingChildClusters()
+        {
             GameplayTargetClusterAuthoringBase[] childClusters =
                 GetComponentsInChildren<GameplayTargetClusterAuthoringBase>(true);
-            _clusters.AddRange(childClusters);
+            for (int i = 0; i < childClusters.Length; i++)
+            {
+                GameplayTargetClusterAuthoringBase childCluster = childClusters[i];
+                if (childCluster == null || childCluster.Zone != this || _clusters.Contains(childCluster))
+                    continue;
 
+                _clusters.Add(childCluster);
+            }
+        }
+
+        /// <summary>
+        /// 刷新区域目标范围轮廓
+        /// 区域圈基于子群目标范围点生成，默认比群目标更宽更深
+        /// </summary>
+        public void RefreshRangeShape()
+        {
+            BuildRangeShape();
+            ApplyRangeLineRenderer();
+        }
+
+        [ContextMenu("Attach Range Line Renderer")]
+        private void AttachRangeLineRenderer()
+        {
+            if (_rangeLineRenderer == null)
+                _rangeLineRenderer = GetComponent<LineRenderer>();
+
+            if (_rangeLineRenderer == null)
+                _rangeLineRenderer = gameObject.AddComponent<LineRenderer>();
+
+            _rangeLineRenderer.loop = true;
+            _rangeLineRenderer.useWorldSpace = true;
+
+            RefreshRangeShape();
+        }
+
+        // 收集子群轮廓点作为区域范围的输入，保证区域圈包住所有小群
+        private void CollectSourcePoints()
+        {
+            _sourcePointBuffer.Clear();
             for (int i = _clusters.Count - 1; i >= 0; i--)
             {
-                if (_clusters[i] == null || _clusters[i].Zone != this)
-                    _clusters.RemoveAt(i);
+                GameplayTargetClusterAuthoringBase cluster = _clusters[i];
+                if (cluster == null)
+                    continue;
+
+                IReadOnlyList<Vector3> clusterRangePoints = cluster.RangePoints;
+                if (clusterRangePoints != null && clusterRangePoints.Count > 0)
+                {
+                    for (int pointIndex = 0; pointIndex < clusterRangePoints.Count; pointIndex++)
+                    {
+                        _sourcePointBuffer.Add(clusterRangePoints[pointIndex]);
+                    }
+
+                    continue;
+                }
+
+                _sourcePointBuffer.Add(cluster.CenterPosition);
             }
+        }
+
+        // 根据子群位置生成区域轮廓，并将结果投射到地面
+        private void BuildRangeShape()
+        {
+            CollectSourcePoints();
+
+            GameplayTargetShapeUtility.BuildSmoothRange(
+                _sourcePointBuffer,
+                transform.position,
+                _rangePadding,
+                _fallbackRadius,
+                _circleSegments,
+                _smoothSegmentsPerEdge,
+                _rangePoints,
+                out _cachedCenterPosition);
+
+            _cachedCenterPosition = GameplayTargetShapeUtility.ProjectPointToGround(
+                _cachedCenterPosition,
+                transform,
+                _groundProbeHeight,
+                _groundProbeDistance,
+                _minGroundNormalY);
+            _cachedCenterPosition += Vector3.up * _rangeHeightOffset;
+
+            for (int i = 0; i < _rangePoints.Count; i++)
+            {
+                Vector3 point = GameplayTargetShapeUtility.ProjectPointToGround(
+                    _rangePoints[i],
+                    transform,
+                    _groundProbeHeight,
+                    _groundProbeDistance,
+                    _minGroundNormalY);
+                point.y += _rangeHeightOffset;
+                _rangePoints[i] = point;
+            }
+
+            _hasCachedShape = true;
+        }
+
+        // 如果配置了 LineRenderer，则把区域轮廓同步到场景表现
+        private void ApplyRangeLineRenderer()
+        {
+            if (_rangeLineRenderer == null)
+                return;
+
+            _rangeLineRenderer.useWorldSpace = true;
+            _rangeLineRenderer.loop = true;
+            _rangeLineRenderer.startColor = _rangeColor;
+            _rangeLineRenderer.endColor = _rangeColor;
+            _rangeLineRenderer.widthMultiplier = Mathf.Max(0.01f, _rangeLineWidth);
+            _rangeLineRenderer.positionCount = _rangePoints.Count;
+            for (int i = 0; i < _rangePoints.Count; i++)
+            {
+                _rangeLineRenderer.SetPosition(i, _rangePoints[i]);
+            }
+        }
+
+        // Gizmo 使用同一份区域轮廓点，方便未挂 LineRenderer 时也能预览范围
+        private void OnDrawGizmos()
+        {
+            if (!_drawGizmos)
+                return;
+
+            BuildRangeShape();
+            if (_rangePoints.Count <= 1)
+                return;
+
+            Gizmos.color = _rangeColor;
+            for (int i = 0; i < _rangePoints.Count; i++)
+            {
+                Vector3 current = _rangePoints[i];
+                Vector3 next = _rangePoints[(i + 1) % _rangePoints.Count];
+                Gizmos.DrawLine(current, next);
+            }
+
+            Gizmos.DrawSphere(_cachedCenterPosition, 0.28f);
         }
     }
 }

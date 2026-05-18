@@ -9,7 +9,9 @@ namespace Gameplay.Targets.Runtime
     /// </summary>
     public static class GameplayTargetShapeUtility
     {
+        private const int GroundHitBufferSize = 16;
         private const float MinDirectionSqrMagnitude = 0.0001f;
+        private static readonly RaycastHit[] GroundHitBuffer = new RaycastHit[GroundHitBufferSize];
 
         /// <summary>
         /// 根据一组世界坐标生成水平平滑范围轮廓
@@ -67,6 +69,95 @@ namespace Gameplay.Targets.Runtime
             BuildClosedCatmullRom(hull, center.y, Mathf.Max(1, smoothSegmentsPerEdge), resultPoints);
         }
 
+        /// <summary>
+        /// 将范围点投射到最近的可用地表
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="ownerTransform"></param>
+        /// <param name="probeHeight"></param>
+        /// <param name="probeDistance"></param>
+        /// <param name="minGroundNormalY"></param>
+        /// <returns></returns>
+        public static Vector3 ProjectPointToGround(
+            Vector3 point,
+            Transform ownerTransform,
+            float probeHeight,
+            float probeDistance,
+            float minGroundNormalY)
+        {
+            float safeProbeHeight = Mathf.Max(0.1f, probeHeight);
+            float safeProbeDistance = Mathf.Max(safeProbeHeight + 0.1f, probeDistance);
+            Vector3 origin = point + Vector3.up * safeProbeHeight;
+            int hitCount = Physics.RaycastNonAlloc(
+                origin,
+                Vector3.down,
+                GroundHitBuffer,
+                safeProbeDistance,
+                Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Ignore);
+
+            if (hitCount <= 0)
+                return point;
+
+            float closestDistance = float.MaxValue;
+            Vector3 projectedPoint = point;
+            bool hasProjectedPoint = false;
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit hitInfo = GroundHitBuffer[i];
+                if (!IsValidGroundHit(hitInfo, ownerTransform, minGroundNormalY))
+                    continue;
+
+                if (hitInfo.distance >= closestDistance)
+                    continue;
+
+                closestDistance = hitInfo.distance;
+                projectedPoint = hitInfo.point;
+                hasProjectedPoint = true;
+            }
+
+            return hasProjectedPoint ? projectedPoint : point;
+        }
+
+        // 过滤技能、UI、目标实体本身等不适合作为地面的碰撞体
+        private static bool IsValidGroundHit(
+            RaycastHit hitInfo,
+            Transform ownerTransform,
+            float minGroundNormalY)
+        {
+            if (hitInfo.collider == null)
+                return false;
+
+            if (hitInfo.normal.y < Mathf.Clamp01(minGroundNormalY))
+                return false;
+
+            Transform hitTransform = hitInfo.collider.transform;
+            if (ownerTransform != null && hitTransform.IsChildOf(ownerTransform))
+                return false;
+
+            int hitLayer = hitInfo.collider.gameObject.layer;
+            if (hitLayer == LayerMask.NameToLayer("UI"))
+                return false;
+
+            if (hitLayer == LayerMask.NameToLayer("Skill Effect"))
+                return false;
+
+            if (hitInfo.collider.GetComponentInParent<global::EnemyHealthController>() != null)
+                return false;
+
+            if (hitInfo.collider.GetComponentInParent<global::LootBoxEntity>() != null)
+                return false;
+
+            if (hitInfo.collider.GetComponentInParent<global::WorldLootItem>() != null)
+                return false;
+
+            if (hitInfo.collider.GetComponentInParent<global::ExtractionPointController>() != null)
+                return false;
+
+            return true;
+        }
+
         // 计算所有成员点的平均中心
         private static Vector3 CalculateCenter(IReadOnlyList<Vector3> sourcePositions)
         {
@@ -116,22 +207,28 @@ namespace Gameplay.Targets.Runtime
             Vector3 side = new Vector3(-direction.z, 0f, direction.x);
             int halfSegments = Mathf.Max(6, segmentCount / 2);
 
-            AddArc(first, -side, side, radius, halfSegments, resultPoints);
-            AddArc(second, side, -side, radius, halfSegments, resultPoints);
+            AddArc(first, -side, side, radius, halfSegments, true, resultPoints);
+            AddArc(second, side, -side, radius, halfSegments, true, resultPoints);
         }
 
-        // 向范围点列表追加一段水平圆弧
+        // 向范围点列表追加一段水平圆弧，显式指定扫描方向来避免 180 度半圆选错外侧
         private static void AddArc(
             Vector3 center,
             Vector3 fromDirection,
             Vector3 toDirection,
             float radius,
             int segmentCount,
+            bool clockwise,
             List<Vector3> resultPoints)
         {
             float fromAngle = Mathf.Atan2(fromDirection.z, fromDirection.x);
             float toAngle = Mathf.Atan2(toDirection.z, toDirection.x);
             float deltaAngle = Mathf.DeltaAngle(fromAngle * Mathf.Rad2Deg, toAngle * Mathf.Rad2Deg) * Mathf.Deg2Rad;
+            if (clockwise && deltaAngle > 0f)
+                deltaAngle -= Mathf.PI * 2f;
+
+            if (!clockwise && deltaAngle < 0f)
+                deltaAngle += Mathf.PI * 2f;
 
             for (int i = 0; i <= segmentCount; i++)
             {

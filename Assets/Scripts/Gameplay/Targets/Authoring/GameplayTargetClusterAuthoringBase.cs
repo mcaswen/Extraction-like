@@ -22,8 +22,14 @@ namespace Gameplay.Targets.Authoring
         [SerializeField] private int _smoothSegmentsPerEdge = 6;
         [SerializeField] private float _rangeHeightOffset = 0.05f;
         [SerializeField] private bool _drawGizmos = true;
-        [SerializeField] private Color _gizmoColor = new Color(0.15f, 0.85f, 0.65f, 0.9f);
+        [SerializeField] private Color _rangeColor = new Color(0.15f, 0.85f, 0.65f, 0.9f);
+        [SerializeField] private float _rangeLineWidth = 0.08f;
         [SerializeField] private LineRenderer _rangeLineRenderer;
+
+        [Header("Ground Projection")]
+        [SerializeField] private float _groundProbeHeight = 20f;
+        [SerializeField] private float _groundProbeDistance = 80f;
+        [SerializeField] private float _minGroundNormalY = 0.35f;
 
         private readonly List<Vector3> _memberPositionBuffer = new List<Vector3>();
         private readonly List<Vector3> _rangePoints = new List<Vector3>();
@@ -91,8 +97,6 @@ namespace Gameplay.Targets.Authoring
 
             _rangeLineRenderer.loop = true;
             _rangeLineRenderer.useWorldSpace = true;
-            if (_rangeLineRenderer.widthMultiplier <= 0f)
-                _rangeLineRenderer.widthMultiplier = 0.08f;
 
             RefreshRangeShape();
         }
@@ -145,11 +149,22 @@ namespace Gameplay.Targets.Authoring
                 _rangePoints,
                 out _cachedCenterPosition);
 
+            _cachedCenterPosition = GameplayTargetShapeUtility.ProjectPointToGround(
+                _cachedCenterPosition,
+                transform,
+                _groundProbeHeight,
+                _groundProbeDistance,
+                _minGroundNormalY);
             _cachedCenterPosition += Vector3.up * _rangeHeightOffset;
 
             for (int i = 0; i < _rangePoints.Count; i++)
             {
-                Vector3 point = _rangePoints[i];
+                Vector3 point = GameplayTargetShapeUtility.ProjectPointToGround(
+                    _rangePoints[i],
+                    transform,
+                    _groundProbeHeight,
+                    _groundProbeDistance,
+                    _minGroundNormalY);
                 point.y += _rangeHeightOffset;
                 _rangePoints[i] = point;
             }
@@ -165,6 +180,9 @@ namespace Gameplay.Targets.Authoring
 
             _rangeLineRenderer.useWorldSpace = true;
             _rangeLineRenderer.loop = true;
+            _rangeLineRenderer.startColor = _rangeColor;
+            _rangeLineRenderer.endColor = _rangeColor;
+            _rangeLineRenderer.widthMultiplier = Mathf.Max(0.01f, _rangeLineWidth);
             _rangeLineRenderer.positionCount = _rangePoints.Count;
             for (int i = 0; i < _rangePoints.Count; i++)
             {
@@ -182,7 +200,7 @@ namespace Gameplay.Targets.Authoring
             if (_rangePoints.Count <= 1)
                 return;
 
-            Gizmos.color = _gizmoColor;
+            Gizmos.color = _rangeColor;
             for (int i = 0; i < _rangePoints.Count; i++)
             {
                 Vector3 current = _rangePoints[i];
