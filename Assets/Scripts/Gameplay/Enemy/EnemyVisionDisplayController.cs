@@ -14,9 +14,6 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
     [SerializeField]
     private bool _createRuntimeToggle = true;
 
-    [SerializeField]
-    private string _toggleLabel = "Enemy Vision";
-
     private Toggle _runtimeToggle;
     private bool _isUpdatingToggle;
 
@@ -146,7 +143,7 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
         rootRect.anchorMax = new Vector2(0f, 1f);
         rootRect.pivot = new Vector2(0f, 1f);
         rootRect.anchoredPosition = new Vector2(20f, -20f);
-        rootRect.sizeDelta = new Vector2(220f, 36f);
+        rootRect.sizeDelta = new Vector2(36f, 36f);
 
         Image background = root.GetComponent<Image>();
         background.color = new Color(0.02f, 0.04f, 0.06f, 0.72f);
@@ -166,25 +163,6 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
 
         Image checkmark = checkmarkObject.GetComponent<Image>();
         checkmark.color = new Color(0.18f, 0.86f, 1f, 0.9f);
-
-        GameObject labelObject = new GameObject(
-            "Label",
-            typeof(RectTransform),
-            typeof(CanvasRenderer),
-            typeof(Text));
-        RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-        labelRect.SetParent(rootRect, false);
-        labelRect.anchorMin = new Vector2(0f, 0f);
-        labelRect.anchorMax = new Vector2(1f, 1f);
-        labelRect.offsetMin = new Vector2(38f, 0f);
-        labelRect.offsetMax = new Vector2(-8f, 0f);
-
-        Text label = labelObject.GetComponent<Text>();
-        label.text = $"{_toggleLabel} [{_toggleKey}]";
-        label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        label.fontSize = 15;
-        label.alignment = TextAnchor.MiddleLeft;
-        label.color = new Color(0.92f, 0.98f, 1f, 0.96f);
 
         Toggle toggle = root.GetComponent<Toggle>();
         toggle.targetGraphic = background;
