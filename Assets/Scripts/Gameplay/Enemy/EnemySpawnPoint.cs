@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -97,6 +98,7 @@ public sealed class EnemySpawnPoint : MonoBehaviour
             sequenceIndex,
             entry.NavMeshSampleRadius > 0f ? entry.NavMeshSampleRadius : _spawnNavMeshSampleRadius);
 
+        RegisterSpawnedEnemyTarget(enemy);
         return enemy;
     }
 
@@ -150,6 +152,20 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         }
 
         return Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f) * baseRotation;
+    }
+
+    // 出生点只负责声明来源，生成后的活跃敌人归属由目标注册表转交给对应活跃群
+    private void RegisterSpawnedEnemyTarget(GameObject enemy)
+    {
+        if (enemy == null)
+            return;
+
+        EnemyHealthController enemyHealth = enemy.GetComponent<EnemyHealthController>();
+        if (enemyHealth == null)
+            enemyHealth = enemy.GetComponentInChildren<EnemyHealthController>(true);
+
+        if (enemyHealth != null)
+            GameplayTargetRegistry.GetOrCreate().TryRegisterSpawnedEnemy(transform, enemyHealth);
     }
 
     private void OnValidate()

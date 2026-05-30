@@ -98,7 +98,7 @@ namespace Gameplay.Agent.AI.Actions
         {
             if (TryGetTargetComponent(
                     directiveRequest.TargetRef,
-                    out EnemyClusterAuthoring enemyCluster))
+                    out ActiveEnemyClusterAuthoring enemyCluster))
             {
                 return enemyCluster.TryGetNearestAliveEnemy(agent.Position, out enemyHealthController);
             }

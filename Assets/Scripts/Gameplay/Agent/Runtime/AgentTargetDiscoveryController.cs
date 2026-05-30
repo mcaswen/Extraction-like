@@ -145,14 +145,24 @@ namespace Gameplay.Agent.Runtime
 
             GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
 
-            // 优先级由判断顺序表达：敌人群 > 资源群 > 撤离点群
+            // 优先级由判断顺序表达：活跃敌人群 > 敌人来源群 > 资源群 > 撤离点群
             if (TryFindNearestEnemyCluster(
                     targetRegistry,
                     agent.Position,
                     rangeSqr,
-                    out EnemyClusterAuthoring enemyCluster))
+                    out ActiveEnemyClusterAuthoring enemyCluster))
             {
                 ApplyEnemyClusterTarget(handle, commandReceiver, enemyCluster);
+                return;
+            }
+
+            if (TryFindNearestEnemySourceCluster(
+                    targetRegistry,
+                    agent.Position,
+                    rangeSqr,
+                    out EnemySourceClusterAuthoring enemySourceCluster))
+            {
+                ApplyEnemySourceClusterTarget(handle, commandReceiver, enemySourceCluster);
                 return;
             }
 
@@ -185,10 +195,11 @@ namespace Gameplay.Agent.Runtime
         private static void ApplyEnemyClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
-            EnemyClusterAuthoring enemyCluster)
+            ActiveEnemyClusterAuthoring enemyCluster)
         {
             // 发现层只选择目标，具体攻击流程仍交给 Combat 行为树
             commandReceiver.SetVisibleEnemy(true);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
@@ -199,6 +210,34 @@ namespace Gameplay.Agent.Runtime
                 AgentTargetRef.FromConcreteObject(
                     AgentTargetKind.Enemy,
                     enemyCluster.gameObject,
+                    targetId),
+                targetId,
+                handle.AgentId));
+        }
+
+        /// <summary>
+        /// 将敌人来源群写入 Agent 侦查指令
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="commandReceiver"></param>
+        /// <param name="enemySourceCluster"></param>
+        private static void ApplyEnemySourceClusterTarget(
+            AgentRuntimeHandle handle,
+            IAgentCommandReceiver commandReceiver,
+            EnemySourceClusterAuthoring enemySourceCluster)
+        {
+            commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(true);
+            commandReceiver.SetHasResourceTarget(false);
+            commandReceiver.SetHasInteractableTarget(false);
+            commandReceiver.SetShouldExtract(false);
+
+            string targetId = enemySourceCluster.TargetId;
+            commandReceiver.SubmitDirective(new AgentDirectiveRequest(
+                AgentDirectiveType.MoveTo,
+                AgentTargetRef.FromConcreteObject(
+                    AgentTargetKind.EnemySource,
+                    enemySourceCluster.gameObject,
                     targetId),
                 targetId,
                 handle.AgentId));
@@ -217,6 +256,7 @@ namespace Gameplay.Agent.Runtime
         {
             // 资源点同时标记为可交互目标，兼容当前 SearchResource / InteractLoot 状态拆分
             commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(true);
             commandReceiver.SetHasInteractableTarget(true);
             commandReceiver.SetShouldExtract(false);
@@ -244,6 +284,7 @@ namespace Gameplay.Agent.Runtime
             ExtractionClusterAuthoring extractionCluster)
         {
             commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(true);
@@ -262,6 +303,7 @@ namespace Gameplay.Agent.Runtime
         private static void ClearTargetFacts(IAgentCommandReceiver commandReceiver)
         {
             commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
@@ -280,7 +322,7 @@ namespace Gameplay.Agent.Runtime
             GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
             float rangeSqr,
-            out EnemyClusterAuthoring nearestEnemyCluster)
+            out ActiveEnemyClusterAuthoring nearestEnemyCluster)
         {
             nearestEnemyCluster = null;
             float nearestDistanceSqr = float.MaxValue;
@@ -288,7 +330,7 @@ namespace Gameplay.Agent.Runtime
 
             for (int i = 0; i < _clusterBuffer.Count; i++)
             {
-                if (!(_clusterBuffer[i] is EnemyClusterAuthoring enemyCluster) ||
+                if (!(_clusterBuffer[i] is ActiveEnemyClusterAuthoring enemyCluster) ||
                     enemyCluster.HasBeenCompleted ||
                     !enemyCluster.TryGetNearestAliveEnemy(agentPosition, out _))
                 {
@@ -304,6 +346,44 @@ namespace Gameplay.Agent.Runtime
             }
 
             return nearestEnemyCluster != null;
+        }
+
+        /// <summary>
+        /// 在发现范围内寻找最近的未完成敌人来源群
+        /// </summary>
+        /// <param name="targetRegistry"></param>
+        /// <param name="agentPosition"></param>
+        /// <param name="rangeSqr"></param>
+        /// <param name="nearestEnemySourceCluster"></param>
+        /// <returns></returns>
+        private bool TryFindNearestEnemySourceCluster(
+            GameplayTargetRegistry targetRegistry,
+            Vector3 agentPosition,
+            float rangeSqr,
+            out EnemySourceClusterAuthoring nearestEnemySourceCluster)
+        {
+            nearestEnemySourceCluster = null;
+            float nearestDistanceSqr = float.MaxValue;
+            targetRegistry.CopyClustersTo(_clusterBuffer);
+
+            for (int i = 0; i < _clusterBuffer.Count; i++)
+            {
+                if (!(_clusterBuffer[i] is EnemySourceClusterAuthoring enemySourceCluster) ||
+                    enemySourceCluster.HasBeenCompleted ||
+                    !enemySourceCluster.TryGetNearestSpawnPoint(agentPosition, out _))
+                {
+                    continue;
+                }
+
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemySourceCluster.CenterPosition);
+                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
+                    continue;
+
+                nearestEnemySourceCluster = enemySourceCluster;
+                nearestDistanceSqr = distanceSqr;
+            }
+
+            return nearestEnemySourceCluster != null;
         }
 
         /// <summary>

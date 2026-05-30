@@ -195,6 +195,18 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
+        /// 设置Agent当前是否有可侦查的敌人来源点
+        /// </summary>
+        /// <param name="hasEnemySourceTarget"></param>
+        public void SetHasEnemySourceTarget(bool hasEnemySourceTarget)
+        {
+            _brainController.SetFact(
+                AgentBlackboardKeys.HasEnemySourceTarget,
+                hasEnemySourceTarget,
+                Time.timeAsDouble);
+        }
+
+        /// <summary>
         /// 设置Agent当前是否有可搜索资源点
         /// </summary>
         /// <param name="hasResourceTarget"></param>
@@ -294,6 +306,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, 1f, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasResourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);

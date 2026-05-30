@@ -13,7 +13,8 @@ namespace Gameplay.Agent.Data
         Resource = 1,
         Enemy = 2,
         Location = 3,
-        Extraction = 4
+        Extraction = 4,
+        EnemySource = 5
     }
 
     /// <summary>

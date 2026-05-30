@@ -33,6 +33,7 @@ namespace Gameplay.Agent.AI.Factories
 
             AgentBrainState exploreState = _stateFactory.CreateExploreState();
             AgentBrainState combatState = _stateFactory.CreateCombatState();
+            AgentBrainState investigateEnemySourceState = _stateFactory.CreateInvestigateEnemySourceState();
             AgentBrainState searchResourceState = _stateFactory.CreateSearchResourceState();
             AgentBrainState interactLootState = _stateFactory.CreateInteractLootState();
             AgentBrainState extractionState = _stateFactory.CreateExtractionState();
@@ -43,6 +44,7 @@ namespace Gameplay.Agent.AI.Factories
 
             raidState.AddChild(exploreState, true);
             raidState.AddChild(combatState);
+            raidState.AddChild(investigateEnemySourceState);
             raidState.AddChild(searchResourceState);
             raidState.AddChild(interactLootState);
             raidState.AddChild(extractionState);
@@ -59,6 +61,12 @@ namespace Gameplay.Agent.AI.Factories
                 searchResourceState,
                 _transitionRules.CanEnterSearchResource,
                 90));
+
+            exploreState.AddTransition(new StateTransition(
+                "ExploreToInvestigateEnemySource",
+                investigateEnemySourceState,
+                _transitionRules.CanEnterInvestigateEnemySource,
+                95));
 
             exploreState.AddTransition(new StateTransition(
                 "ExploreToExtraction",
@@ -78,6 +86,37 @@ namespace Gameplay.Agent.AI.Factories
                 exploreState,
                 _transitionRules.CanLeaveCombatToExplore,
                 80));
+
+            combatState.AddTransition(new StateTransition(
+                "CombatToInvestigateEnemySource",
+                investigateEnemySourceState,
+                _transitionRules.CanEnterInvestigateEnemySource,
+                75));
+
+            // InvestigateEnemySource 转移
+            investigateEnemySourceState.AddTransition(new StateTransition(
+                "InvestigateEnemySourceToCombat",
+                combatState,
+                _transitionRules.CanEnterCombat,
+                100));
+
+            investigateEnemySourceState.AddTransition(new StateTransition(
+                "InvestigateEnemySourceToSearchResource",
+                searchResourceState,
+                _transitionRules.CanEnterSearchResource,
+                90));
+
+            investigateEnemySourceState.AddTransition(new StateTransition(
+                "InvestigateEnemySourceToExtraction",
+                extractionState,
+                _transitionRules.CanEnterExtraction,
+                80));
+
+            investigateEnemySourceState.AddTransition(new StateTransition(
+                "InvestigateEnemySourceToExplore",
+                exploreState,
+                _transitionRules.CanLeaveInvestigateEnemySourceToExplore,
+                70));
 
             // SearchResource 转移
             searchResourceState.AddTransition(new StateTransition(
@@ -129,6 +168,12 @@ namespace Gameplay.Agent.AI.Factories
                 combatState,
                 _transitionRules.CanExtractionBeInterruptedByCombat,
                 100));
+
+            extractionState.AddTransition(new StateTransition(
+                "ExtractionToInvestigateEnemySource",
+                investigateEnemySourceState,
+                _transitionRules.CanEnterInvestigateEnemySource,
+                90));
 
             extractionState.AddTransition(new StateTransition(
                 "ExtractionToExplore",

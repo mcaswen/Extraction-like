@@ -5,14 +5,13 @@ using UnityEngine;
 namespace Gameplay.Targets.Authoring
 {
     /// <summary>
-    /// 敌人群目标配置
-    /// 通过出生点划分敌人群，运行时范围会跟随已注册敌人动态刷新
+    /// 活跃敌人群目标配置
+    /// 只表达已经存在于场景中的敌人，不再承担出生点来源语义
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class EnemyClusterAuthoring : GameplayTargetClusterAuthoringBase
+    public sealed class ActiveEnemyClusterAuthoring : GameplayTargetClusterAuthoringBase
     {
-        [Header("Enemy Sources")]
-        [SerializeField] private List<Transform> _spawnPoints = new List<Transform>();
+        [Header("Manual Enemy Members")]
         [SerializeField] private List<GameplayTargetEntityMember> _initialEnemies =
             new List<GameplayTargetEntityMember>();
 
@@ -20,62 +19,41 @@ namespace Gameplay.Targets.Authoring
             new List<GameplayTargetEntityMember>();
 
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Enemy;
-        protected override string IdPrefix => "EnemyCluster";
+        protected override string IdPrefix => "ActiveEnemyCluster";
         protected override bool RefreshStateEveryFrame => true;
         protected override bool RefreshRangeEveryFrame => true;
 
-        public IReadOnlyList<Transform> SpawnPoints => _spawnPoints;
         public IReadOnlyList<GameplayTargetEntityMember> InitialEnemies => _initialEnemies;
+        public bool HasRegisteredEnemy => CountRegisteredEnemies() > 0;
 
-        /// <summary>
-        /// 尝试把出生点生成的敌人注册到当前敌人群
-        /// </summary>
-        /// <param name="spawnPoint"></param>
-        /// <param name="enemy"></param>
-        /// <returns></returns>
-        public bool TryRegisterSpawnedEnemy(
-            Transform spawnPoint,
-            global::EnemyHealthController enemy)
+        protected override void OnValidate()
         {
-            if (!ContainsSpawnPoint(spawnPoint))
-                return false;
+            base.OnValidate();
+            _initialEnemies ??= new List<GameplayTargetEntityMember>();
+        }
 
-            RegisterSpawnedEnemy(enemy);
-            return true;
+        protected override void OnEnable()
+        {
+            _initialEnemies ??= new List<GameplayTargetEntityMember>();
+            base.OnEnable();
         }
 
         /// <summary>
-        /// 注册一个运行时生成的敌人
+        /// 手动注册一个场景中已经存在的敌人
+        /// </summary>
+        /// <param name="enemy"></param>
+        public void RegisterSceneEnemy(global::EnemyHealthController enemy)
+        {
+            RegisterEnemy(enemy, _initialEnemies, "SceneEnemy");
+        }
+
+        /// <summary>
+        /// 注册一个出生点运行时生成的敌人
         /// </summary>
         /// <param name="enemy"></param>
         public void RegisterSpawnedEnemy(global::EnemyHealthController enemy)
         {
-            if (enemy == null || ContainsEnemy(enemy))
-                return;
-
-            string entityId = $"{TargetId}_RuntimeEnemy_{enemy.GetInstanceID()}";
-            _runtimeEnemies.Add(new GameplayTargetEntityMember(entityId, enemy.gameObject));
-            RefreshRuntimeState();
-            RefreshRangeShape();
-        }
-
-        /// <summary>
-        /// 判断出生点是否属于当前敌人群
-        /// </summary>
-        /// <param name="spawnPoint"></param>
-        /// <returns></returns>
-        public bool ContainsSpawnPoint(Transform spawnPoint)
-        {
-            if (spawnPoint == null)
-                return false;
-
-            for (int i = 0; i < _spawnPoints.Count; i++)
-            {
-                if (_spawnPoints[i] == spawnPoint)
-                    return true;
-            }
-
-            return false;
+            RegisterEnemy(enemy, _runtimeEnemies, "RuntimeEnemy");
         }
 
         /// <summary>
@@ -143,16 +121,6 @@ namespace Gameplay.Targets.Authoring
         {
             CollectAliveEnemyPositions(_initialEnemies, memberPositions);
             CollectAliveEnemyPositions(_runtimeEnemies, memberPositions);
-
-            if (memberPositions.Count > 0)
-                return;
-
-            for (int i = 0; i < _spawnPoints.Count; i++)
-            {
-                Transform spawnPoint = _spawnPoints[i];
-                if (spawnPoint != null)
-                    memberPositions.Add(spawnPoint.position);
-            }
         }
 
         protected override void RefreshRuntimeState()
@@ -176,9 +144,27 @@ namespace Gameplay.Targets.Authoring
             EnsureMemberIds();
         }
 
+        // 所有敌人注册入口共用同一套去重和刷新流程
+        private void RegisterEnemy(
+            global::EnemyHealthController enemy,
+            List<GameplayTargetEntityMember> members,
+            string idLabel)
+        {
+            if (enemy == null || members == null || ContainsEnemy(enemy))
+                return;
+
+            string entityId = $"{TargetId}_{idLabel}_{enemy.GetInstanceID()}";
+            members.Add(new GameplayTargetEntityMember(entityId, enemy.gameObject));
+            RefreshRuntimeState();
+            RefreshRangeShape();
+        }
+
         // 补齐初始敌人成员 ID，运行时生成敌人会使用实例 ID 生成临时成员 ID
         private void EnsureMemberIds()
         {
+            if (_initialEnemies == null)
+                return;
+
             for (int i = 0; i < _initialEnemies.Count; i++)
             {
                 _initialEnemies[i]?.EnsureEntityId(TargetId, i);
@@ -197,7 +183,7 @@ namespace Gameplay.Targets.Authoring
             List<GameplayTargetEntityMember> members,
             global::EnemyHealthController enemy)
         {
-            if (enemy == null)
+            if (members == null || enemy == null)
                 return null;
 
             for (int i = 0; i < members.Count; i++)
@@ -229,6 +215,9 @@ namespace Gameplay.Targets.Authoring
             ref float nearestDistanceSqr,
             ref global::EnemyHealthController nearestEnemy)
         {
+            if (members == null)
+                return;
+
             for (int i = 0; i < members.Count; i++)
             {
                 GameplayTargetEntityMember member = members[i];
@@ -249,6 +238,9 @@ namespace Gameplay.Targets.Authoring
             List<GameplayTargetEntityMember> members,
             List<Vector3> memberPositions)
         {
+            if (members == null)
+                return;
+
             for (int i = 0; i < members.Count; i++)
             {
                 if (TryGetAliveEnemy(members[i], out global::EnemyHealthController enemy))
@@ -263,6 +255,9 @@ namespace Gameplay.Targets.Authoring
             ref bool hasTouchedEnemy,
             ref bool hasIncompleteEnemy)
         {
+            if (members == null)
+                return;
+
             for (int i = 0; i < members.Count; i++)
             {
                 GameplayTargetEntityMember member = members[i];
@@ -323,6 +318,14 @@ namespace Gameplay.Targets.Authoring
         {
             enemy = null;
             return member != null && member.TryGetComponent(out enemy) && enemy != null;
+        }
+
+        private int CountRegisteredEnemies()
+        {
+            int count = 0;
+            count += _initialEnemies != null ? _initialEnemies.Count : 0;
+            count += _runtimeEnemies.Count;
+            return count;
         }
 
         private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)

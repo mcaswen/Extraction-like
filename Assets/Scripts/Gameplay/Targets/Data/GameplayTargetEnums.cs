@@ -22,6 +22,7 @@ namespace Gameplay.Targets.Data
         Mixed = 1,
         Resource = 2,
         Enemy = 3,
-        Extraction = 4
+        Extraction = 4,
+        EnemySource = 5
     }
 }

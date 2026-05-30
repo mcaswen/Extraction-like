@@ -11,6 +11,7 @@ namespace Gameplay.Agent.Data
         Combat = 2,
         SearchResource = 3,
         InteractLoot = 4,
-        Extraction = 5
+        Extraction = 5,
+        InvestigateEnemySource = 6
     }
 }

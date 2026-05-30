@@ -188,7 +188,7 @@ namespace Gameplay.Targets.Runtime
         /// <returns></returns>
         public bool TryFindEnemyClusterByEnemy(
             global::EnemyHealthController enemy,
-            out EnemyClusterAuthoring enemyCluster)
+            out ActiveEnemyClusterAuthoring enemyCluster)
         {
             enemyCluster = null;
             if (enemy == null)
@@ -196,7 +196,7 @@ namespace Gameplay.Targets.Runtime
 
             for (int i = 0; i < _clusters.Count; i++)
             {
-                if (_clusters[i] is EnemyClusterAuthoring candidate &&
+                if (_clusters[i] is ActiveEnemyClusterAuthoring candidate &&
                     candidate.ContainsEnemy(enemy))
                 {
                     enemyCluster = candidate;
@@ -260,12 +260,12 @@ namespace Gameplay.Targets.Runtime
         /// <param name="enemy"></param>
         public void NotifyEnemyEngaged(global::EnemyHealthController enemy)
         {
-            if (TryFindEnemyClusterByEnemy(enemy, out EnemyClusterAuthoring enemyCluster))
+            if (TryFindEnemyClusterByEnemy(enemy, out ActiveEnemyClusterAuthoring enemyCluster))
                 enemyCluster.MarkEnemyTouched(enemy);
         }
 
         /// <summary>
-        /// 尝试把出生点生成的敌人注册到对应敌人群
+        /// 尝试把出生点生成的敌人注册到对应活跃敌人群
         /// </summary>
         /// <param name="spawnPoint"></param>
         /// <param name="enemy"></param>
@@ -279,8 +279,8 @@ namespace Gameplay.Targets.Runtime
 
             for (int i = 0; i < _clusters.Count; i++)
             {
-                if (_clusters[i] is EnemyClusterAuthoring enemyCluster &&
-                    enemyCluster.TryRegisterSpawnedEnemy(spawnPoint, enemy))
+                if (_clusters[i] is EnemySourceClusterAuthoring sourceCluster &&
+                    sourceCluster.TryRegisterSpawnedEnemy(spawnPoint, enemy))
                 {
                     return true;
                 }
@@ -295,7 +295,7 @@ namespace Gameplay.Targets.Runtime
         /// <param name="enemy"></param>
         public void NotifyEnemyDefeated(global::EnemyHealthController enemy)
         {
-            if (TryFindEnemyClusterByEnemy(enemy, out EnemyClusterAuthoring enemyCluster))
+            if (TryFindEnemyClusterByEnemy(enemy, out ActiveEnemyClusterAuthoring enemyCluster))
                 enemyCluster.MarkEnemyCompleted(enemy);
         }
 

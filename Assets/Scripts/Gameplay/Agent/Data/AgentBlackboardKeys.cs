@@ -30,6 +30,9 @@ namespace Gameplay.Agent.Data
         public static readonly BlackboardKey HasVisibleEnemy =
             new BlackboardKey("Agent_HasVisibleEnemy");
 
+        public static readonly BlackboardKey HasEnemySourceTarget =
+            new BlackboardKey("Agent_HasEnemySourceTarget");
+
         public static readonly BlackboardKey HasResourceTarget =
             new BlackboardKey("Agent_HasResourceTarget");
 

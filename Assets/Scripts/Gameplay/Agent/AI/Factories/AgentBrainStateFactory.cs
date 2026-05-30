@@ -42,6 +42,14 @@ namespace Gameplay.Agent.AI.Factories
                 BuildCombatTree());
         }
 
+        public AgentBrainState CreateInvestigateEnemySourceState()
+        {
+            return new AgentBrainState(
+                AgentMacroStateId.InvestigateEnemySource,
+                "InvestigateEnemySource",
+                BuildInvestigateEnemySourceTree());
+        }
+
         public AgentBrainState CreateSearchResourceState()
         {
             return new AgentBrainState(
@@ -94,6 +102,19 @@ namespace Gameplay.Agent.AI.Factories
                         AgentBlackboardKeys.AttackRange,
                         6f),
                     new EngageEnemyActionNode("Combat_EngageEnemy")));
+        }
+
+        private static BehaviorTreeType BuildInvestigateEnemySourceTree()
+        {
+            // 敌人来源点只负责靠近侦查，真正接战必须等活跃敌人群出现
+            return new BehaviorTreeType(
+                "InvestigateEnemySourceTree",
+                new MoveToTargetActionNode(
+                    "InvestigateEnemySource_MoveToSource",
+                    AgentDirectiveType.MoveTo,
+                    AgentTargetKind.EnemySource,
+                    AgentBlackboardKeys.MoveStoppingDistance,
+                    2f));
         }
 
         private static BehaviorTreeType BuildSearchResourceTree(AgentMacroStateId macroStateId)

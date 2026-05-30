@@ -33,10 +33,27 @@ namespace Gameplay.Agent.AI.Factories
         {
             bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && hasResourceTarget && !hasVisibleEnemy && !shouldExtract;
+            return !isDead && hasResourceTarget && !hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract;
+        }
+
+        /// <summary>
+        /// 判断是否可以进入敌人来源侦查状态
+        /// 条件：有敌人来源目标 + 没有可见敌人 + 不应该撤离 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanEnterInvestigateEnemySource(StateMachineContext context)
+        {
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+
+            return !isDead && hasEnemySourceTarget && !hasVisibleEnemy && !shouldExtract;
         }
 
         /// <summary>
@@ -76,10 +93,27 @@ namespace Gameplay.Agent.AI.Factories
         public bool CanLeaveCombatToExplore(StateMachineContext context)
         {
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && !hasVisibleEnemy && !shouldExtract;
+            return !isDead && !hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract;
+        }
+
+        /// <summary>
+        /// 判断是否可以从敌人来源侦查状态离开进入探索状态
+        /// 条件：没有敌人来源目标 + 没有可见敌人 + 不应该撤离 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanLeaveInvestigateEnemySourceToExplore(StateMachineContext context)
+        {
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+
+            return !isDead && !hasEnemySourceTarget && !hasVisibleEnemy && !shouldExtract;
         }
 
         /// <summary>
@@ -138,9 +172,10 @@ namespace Gameplay.Agent.AI.Factories
         {
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && !shouldExtract && !hasVisibleEnemy;
+            return !isDead && !shouldExtract && !hasVisibleEnemy && !hasEnemySourceTarget;
         }
 
         private static bool GetBool(StateMachineContext context, BlackboardKey key, bool defaultValue = false)
