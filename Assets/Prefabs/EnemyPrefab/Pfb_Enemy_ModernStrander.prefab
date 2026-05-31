@@ -238,7 +238,7 @@ GameObject:
   - component: {fileID: 290659066914818504}
   - component: {fileID: 429588153530790071}
   m_Layer: 0
-  m_Name: "ModernStrander\u20141"
+  m_Name: Pfb_Enemy_ModernStrander
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

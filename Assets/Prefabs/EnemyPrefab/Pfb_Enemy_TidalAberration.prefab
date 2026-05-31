@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 5867228801376526301}
   - component: {fileID: 9206075261079981239}
   m_Layer: 0
-  m_Name: "TidalAberration\u20142"
+  m_Name: Pfb_Enemy_TidalAberration
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

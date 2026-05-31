@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 7464813012692974206}
   - component: {fileID: 1021460545521434558}
   m_Layer: 0
-  m_Name: "AncientStrander\u20145"
+  m_Name: Pfb_Enemy_AncientStrander
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
