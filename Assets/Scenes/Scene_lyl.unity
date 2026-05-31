@@ -420,6 +420,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ExtractionPointName: "\u64A4\u79BB\u70B9"
   ExtractionDurationSeconds: 3
+  DetectionHorizontalScale: 1
+  WorldPromptVerticalOffset: 0.9
 --- !u!135 &337031281
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2235,6 +2237,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 7154663679573477190, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154663679573477190, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818713743661244645, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818713743661244645, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7891956034681514829, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -2263,6 +2285,26 @@ PrefabInstance:
     - target: {fileID: 8522719320717434373, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
         type: 3}
       propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873939934009012315, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873939934009012315, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873939934009012315, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873939934009012315, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+        type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9139510958167406963, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
