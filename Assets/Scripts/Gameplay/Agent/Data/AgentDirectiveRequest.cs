@@ -9,18 +9,66 @@ namespace Gameplay.Agent.Data
     /// </summary>
     public readonly struct AgentDirectiveRequest
     {
-        public AgentId TargetAgentId { get; } // 指令目标 Agent
-        public AgentDirectiveType DirectiveType { get; } // 干预请求类型
-        public AgentTargetRef TargetRef { get; } // 指令目标引用
+        /// <summary>
+        /// 指令要投递到的目标 Agent
+        /// 为空时由路由器选择默认 Agent
+        /// </summary>
+        public AgentId TargetAgentId { get; }
 
-        public GameObject TargetObject => TargetRef.TargetObject; // 兼容旧调用：具体目标对象
-        public Vector3 TargetPosition => TargetRef.TargetPosition; // 兼容旧调用：目标位置
-        public bool HasTargetPosition => TargetRef.HasTargetPosition; // 兼容旧调用：是否包含有效位置
+        /// <summary>
+        /// 干预请求类型，表示 Agent 要做什么
+        /// </summary>
+        public AgentDirectiveType DirectiveType { get; }
+
+        /// <summary>
+        /// 指令目标引用，表示 Agent 要对谁或哪里执行
+        /// </summary>
+        public AgentTargetRef TargetRef { get; }
+
+        /// <summary>
+        /// 兼容旧调用的具体目标对象
+        /// </summary>
+        public GameObject TargetObject => TargetRef.TargetObject;
+
+        /// <summary>
+        /// 兼容旧调用的目标位置
+        /// </summary>
+        public Vector3 TargetPosition => TargetRef.TargetPosition;
+
+        /// <summary>
+        /// 兼容旧调用的位置有效标记
+        /// </summary>
+        public bool HasTargetPosition => TargetRef.HasTargetPosition;
+
+        /// <summary>
+        /// 目标业务 ID
+        /// </summary>
         public string TargetId => TargetRef.TargetId;
+
+        /// <summary>
+        /// 指令携带的兼容载荷 ID
+        /// </summary>
         public string PayloadId { get; }
+
+        /// <summary>
+        /// 外部系统生成的命令 ID
+        /// </summary>
         public string CommandId { get; }
+
+        /// <summary>
+        /// 指令优先级，数值越高越应被优先处理
+        /// </summary>
         public int Priority { get; }
 
+        /// <summary>
+        /// 创建搜索具体资源对象的指令
+        /// </summary>
+        /// <param name="resourceObject"></param>
+        /// <param name="targetId"></param>
+        /// <param name="targetAgentId"></param>
+        /// <param name="commandId"></param>
+        /// <param name="priority"></param>
+        /// <returns></returns>
         public static AgentDirectiveRequest SearchConcreteResource(
             GameObject resourceObject,
             string targetId = "",
@@ -37,6 +85,15 @@ namespace Gameplay.Agent.Data
                 priority);
         }
 
+        /// <summary>
+        /// 创建接战具体敌人对象的指令
+        /// </summary>
+        /// <param name="enemyObject"></param>
+        /// <param name="targetId"></param>
+        /// <param name="targetAgentId"></param>
+        /// <param name="commandId"></param>
+        /// <param name="priority"></param>
+        /// <returns></returns>
         public static AgentDirectiveRequest EngageConcreteEnemy(
             GameObject enemyObject,
             string targetId = "",
@@ -53,6 +110,15 @@ namespace Gameplay.Agent.Data
                 priority);
         }
 
+        /// <summary>
+        /// 创建搜索抽象资源点的指令
+        /// </summary>
+        /// <param name="targetId"></param>
+        /// <param name="targetPosition"></param>
+        /// <param name="targetAgentId"></param>
+        /// <param name="commandId"></param>
+        /// <param name="priority"></param>
+        /// <returns></returns>
         public static AgentDirectiveRequest SearchAbstractResourcePoint(
             string targetId,
             Vector3 targetPosition,
@@ -69,6 +135,15 @@ namespace Gameplay.Agent.Data
                 priority);
         }
 
+        /// <summary>
+        /// 创建接战抽象敌人点的指令
+        /// </summary>
+        /// <param name="targetId"></param>
+        /// <param name="targetPosition"></param>
+        /// <param name="targetAgentId"></param>
+        /// <param name="commandId"></param>
+        /// <param name="priority"></param>
+        /// <returns></returns>
         public static AgentDirectiveRequest EngageAbstractEnemyPoint(
             string targetId,
             Vector3 targetPosition,
@@ -85,6 +160,15 @@ namespace Gameplay.Agent.Data
                 priority);
         }
 
+        /// <summary>
+        /// 使用目标引用创建 Agent 干预请求
+        /// </summary>
+        /// <param name="directiveType"></param>
+        /// <param name="targetRef"></param>
+        /// <param name="payloadId"></param>
+        /// <param name="targetAgentId"></param>
+        /// <param name="commandId"></param>
+        /// <param name="priority"></param>
         public AgentDirectiveRequest(
             AgentDirectiveType directiveType,
             AgentTargetRef targetRef,
@@ -101,6 +185,18 @@ namespace Gameplay.Agent.Data
             Priority = priority;
         }
 
+        /// <summary>
+        /// 使用旧版目标参数创建 Agent 干预请求
+        /// 内部会转换为 AgentTargetRef 以兼容新旧调用
+        /// </summary>
+        /// <param name="directiveType"></param>
+        /// <param name="targetObject"></param>
+        /// <param name="targetPosition"></param>
+        /// <param name="hasTargetPosition"></param>
+        /// <param name="payloadId"></param>
+        /// <param name="targetAgentId"></param>
+        /// <param name="commandId"></param>
+        /// <param name="priority"></param>
         public AgentDirectiveRequest(
             AgentDirectiveType directiveType,
             GameObject targetObject = null,
@@ -124,6 +220,12 @@ namespace Gameplay.Agent.Data
             Priority = priority;
         }
 
+        /// <summary>
+        /// 返回替换目标 AgentId 后的新请求
+        /// 保持结构体不可变，避免路由时修改原始请求
+        /// </summary>
+        /// <param name="targetAgentId"></param>
+        /// <returns></returns>
         public AgentDirectiveRequest WithTargetAgentId(AgentId targetAgentId)
         {
             return new AgentDirectiveRequest(
@@ -135,6 +237,11 @@ namespace Gameplay.Agent.Data
                 Priority);
         }
 
+        /// <summary>
+        /// 返回替换目标引用后的新请求
+        /// </summary>
+        /// <param name="targetRef"></param>
+        /// <returns></returns>
         public AgentDirectiveRequest WithTargetRef(AgentTargetRef targetRef)
         {
             return new AgentDirectiveRequest(

@@ -12,6 +12,11 @@ namespace Gameplay.Agent.AI.Actions
     {
         private readonly AgentMacroStateId _macroStateId;
 
+        /// <summary>
+        /// 创建维持宏状态的行为节点
+        /// </summary>
+        /// <param name="nodeName"></param>
+        /// <param name="macroStateId"></param>
         public MaintainMacroStateActionNode(string nodeName, AgentMacroStateId macroStateId)
             : base(nodeName)
         {

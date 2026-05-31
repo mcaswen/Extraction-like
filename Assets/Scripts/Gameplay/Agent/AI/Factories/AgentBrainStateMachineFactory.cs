@@ -12,6 +12,11 @@ namespace Gameplay.Agent.AI.Factories
         private readonly AgentBrainStateFactory _stateFactory;
         private readonly AgentBrainTransitionRules _transitionRules;
 
+        /// <summary>
+        /// 创建 Agent Brain 状态机装配工厂
+        /// </summary>
+        /// <param name="stateFactory"></param>
+        /// <param name="transitionRules"></param>
         public AgentBrainStateMachineFactory(
             AgentBrainStateFactory stateFactory,
             AgentBrainTransitionRules transitionRules)
@@ -22,7 +27,7 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 构建Agent Brain 的 MVP 宏状态机
-        /// 当前版本只处理 Explore / Combat / SearchResource / InteractLoot / Extraction 五个宏状态，
+        /// 当前版本处理 Explore / Combat / InvestigateEnemySource / SearchResource / InteractLoot / Extraction 六个宏状态
         /// </summary>
         /// <param name="stateMachineContext"></param>
         /// <returns></returns>

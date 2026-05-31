@@ -30,8 +30,16 @@ namespace Gameplay.Agent.Runtime
         private readonly HashSet<int> _searchedResourceInstanceIds =
             new HashSet<int>();
 
+        /// <summary>
+        /// 当前场景中的 Agent 目标发现系统实例
+        /// </summary>
         public static AgentTargetDiscoveryController ActiveInstance => _activeInstance;
 
+        /// <summary>
+        /// 获取或创建 Agent 目标发现系统
+        /// Agent 注册成功后会确保该系统存在
+        /// </summary>
+        /// <returns></returns>
         public static AgentTargetDiscoveryController GetOrCreate()
         {
             if (_activeInstance != null)
@@ -46,6 +54,11 @@ namespace Gameplay.Agent.Runtime
             return _activeInstance;
         }
 
+        /// <summary>
+        /// 标记一个资源对象已经被 Agent 搜索过
+        /// 用于避免目标发现反复选择同一个已处理资源
+        /// </summary>
+        /// <param name="resourceObject"></param>
         public static void MarkResourceSearched(GameObject resourceObject)
         {
             if (_activeInstance == null || resourceObject == null)
@@ -54,6 +67,11 @@ namespace Gameplay.Agent.Runtime
             _activeInstance._searchedResourceInstanceIds.Add(resourceObject.GetInstanceID());
         }
 
+        /// <summary>
+        /// 判断资源对象是否已经被 Agent 搜索过
+        /// </summary>
+        /// <param name="resourceObject"></param>
+        /// <returns></returns>
         public static bool IsResourceMarkedSearched(GameObject resourceObject)
         {
             return _activeInstance != null &&
@@ -130,6 +148,7 @@ namespace Gameplay.Agent.Runtime
             _nextScanTimeByAgentId[handle.AgentId] = timeSeconds + interval;
         }
 
+        // 按固定优先级选择目标，保证战斗目标不会被资源或撤离点抢占
         private void RefreshAgentTarget(AgentRuntimeHandle handle)
         {
             IAgentReadOnly agent = handle.ReadOnly;
@@ -300,6 +319,7 @@ namespace Gameplay.Agent.Runtime
                 handle.AgentId));
         }
 
+        // 清空目标事实时也清除指令，避免状态机继续执行上一帧的目标
         private static void ClearTargetFacts(IAgentCommandReceiver commandReceiver)
         {
             commandReceiver.SetVisibleEnemy(false);

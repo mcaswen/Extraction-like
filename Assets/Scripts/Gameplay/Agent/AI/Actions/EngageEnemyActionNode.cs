@@ -15,6 +15,10 @@ namespace Gameplay.Agent.AI.Actions
     {
         private double _nextAttackTime;
 
+        /// <summary>
+        /// 创建敌人接战行为节点
+        /// </summary>
+        /// <param name="nodeName"></param>
         public EngageEnemyActionNode(string nodeName)
             : base(nodeName)
         {
@@ -91,6 +95,7 @@ namespace Gameplay.Agent.AI.Actions
             ClearPendingDirective(context);
         }
 
+        // 指令可以直接指向敌人，也可以指向活跃敌人群，节点只关心最终可攻击目标
         private bool TryResolveEnemyTarget(
             AgentDirectiveRequest directiveRequest,
             IAgentReadOnly agent,

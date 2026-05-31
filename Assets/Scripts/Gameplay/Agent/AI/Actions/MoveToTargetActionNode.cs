@@ -15,6 +15,14 @@ namespace Gameplay.Agent.AI.Actions
         private readonly BlackboardKey _stoppingDistanceKey;
         private readonly float _defaultStoppingDistance;
 
+        /// <summary>
+        /// 创建移动到指令目标的行为节点
+        /// </summary>
+        /// <param name="nodeName"></param>
+        /// <param name="directiveType"></param>
+        /// <param name="targetKind"></param>
+        /// <param name="stoppingDistanceKey"></param>
+        /// <param name="defaultStoppingDistance"></param>
         public MoveToTargetActionNode(
             string nodeName,
             AgentDirectiveType directiveType,

@@ -10,6 +10,12 @@ namespace Gameplay.Agent.AI.States
     /// </summary>
     public sealed class AgentBrainState : StateMachineState
     {
+        /// <summary>
+        /// 创建一个可绑定行为树的 Agent Brain 状态
+        /// </summary>
+        /// <param name="macroStateId"></param>
+        /// <param name="stateName"></param>
+        /// <param name="boundBehaviorTree"></param>
         public AgentBrainState(
             AgentMacroStateId macroStateId,
             string stateName,
@@ -19,6 +25,9 @@ namespace Gameplay.Agent.AI.States
             MacroStateId = macroStateId;
         }
 
+        /// <summary>
+        /// 当前状态对应的 Agent 宏状态 ID
+        /// </summary>
         public AgentMacroStateId MacroStateId { get; }
 
         protected override void OnEnter(StateMachineContext context, StateChangeReason reason)

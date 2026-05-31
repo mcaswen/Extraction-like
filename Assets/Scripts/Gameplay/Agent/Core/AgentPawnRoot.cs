@@ -38,26 +38,85 @@ namespace Gameplay.Agent.Core
         private AgentBrainController _brainController;
         private AgentInterventionController _interventionController;
 
+        /// <summary>
+        /// Agent 的强类型运行时 ID
+        /// </summary>
         public AgentId AgentId => _runtimeAgentId;
+
+        /// <summary>
+        /// Agent 的字符串运行时 ID
+        /// </summary>
         public string AgentIdValue => _runtimeAgentId.Value;
+
+        /// <summary>
+        /// 当前 Pawn 的缓存 Transform
+        /// </summary>
         public Transform CachedTransform => transform;
+
+        /// <summary>
+        /// 当前 Pawn 使用的 NavMeshAgent
+        /// </summary>
         public NavMeshAgent NavMeshAgent => _navMeshAgent;
+
+        /// <summary>
+        /// 当前世界坐标
+        /// </summary>
         public Vector3 Position => transform.position;
+
+        /// <summary>
+        /// 当前世界朝向
+        /// </summary>
         public Vector3 Forward => transform.forward;
 
+        /// <summary>
+        /// 当前 Brain 宏状态 ID
+        /// </summary>
         public AgentMacroStateId CurrentMacroStateId =>
             _brainController != null ? _brainController.CurrentMacroStateId : AgentMacroStateId.None;
 
+        /// <summary>
+        /// 当前 Brain 宏状态名称
+        /// </summary>
         public string CurrentMacroStateName => CurrentMacroStateId.ToString();
 
+        /// <summary>
+        /// 当前生命值
+        /// </summary>
         public int CurrentHealth => _currentHealth;
+
+        /// <summary>
+        /// 最大生命值
+        /// </summary>
         public int MaxHealth => _pawnConfig != null ? _pawnConfig.MaxHealth : 0;
+
+        /// <summary>
+        /// 当前生命比例
+        /// </summary>
         public float HealthRatio => MaxHealth <= 0 ? 0f : (float)_currentHealth / MaxHealth;
+
+        /// <summary>
+        /// 当前 Pawn 是否死亡
+        /// </summary>
         public bool IsDead => _currentHealth <= 0;
+
+        /// <summary>
+        /// 是否启用目标发现
+        /// </summary>
         public bool EnableTargetDiscovery => _pawnConfig != null && _pawnConfig.EnableTargetDiscovery;
+
+        /// <summary>
+        /// 目标发现半径
+        /// </summary>
         public float TargetDiscoveryRange => _pawnConfig != null ? _pawnConfig.TargetDiscoveryRange : 0f;
+
+        /// <summary>
+        /// 目标发现扫描间隔
+        /// </summary>
         public float TargetDiscoveryInterval => _pawnConfig != null ? _pawnConfig.TargetDiscoveryInterval : 0.5f;
 
+        /// <summary>
+        /// Brain 使用的运行时黑板
+        /// </summary>
         public BehaviorBlackboard Blackboard =>
             _brainController != null ? _brainController.Blackboard : null;
 

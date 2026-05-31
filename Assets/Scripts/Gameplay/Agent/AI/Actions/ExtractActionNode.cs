@@ -13,6 +13,10 @@ namespace Gameplay.Agent.AI.Actions
     {
         private global::ExtractionPointController _activeExtractionPoint;
 
+        /// <summary>
+        /// 创建撤离行为节点
+        /// </summary>
+        /// <param name="nodeName"></param>
         public ExtractActionNode(string nodeName)
             : base(nodeName)
         {
@@ -63,6 +67,7 @@ namespace Gameplay.Agent.AI.Actions
             ClearActiveExtractionPoint();
         }
 
+        // 指令可以指向撤离群、具体撤离点或抽象点，统一解析为最终停靠位置
         private bool TryResolveExtractionTarget(
             AgentDirectiveRequest directiveRequest,
             IAgentReadOnly agent,
