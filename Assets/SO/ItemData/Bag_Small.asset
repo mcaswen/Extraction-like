@@ -13,18 +13,22 @@ MonoBehaviour:
   m_Name: Bag_Small
   m_EditorClassIdentifier: 
   ContainerColumns: 5
-  ContainerRows: 4
+  ContainerRows: 6
   BlockedCells: []
   ItemID: 6
   ItemName: "\u6218\u672F\u5C0F\u5305"
   ItemIcon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   Type: 4
   Rarity: 2
+  EquipmentKind: 0
   Width: 2
   Height: 2
   IsStackable: 0
   MaxStack: 1
   WorldPrefab: {fileID: 8374898293007583537, guid: 5948b2c2384b83942a2c6a547fa70cec,
     type: 3}
+  SellPrice: 0
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1
+  MagicUnlock: 0
+  RunePatternPoints: 1

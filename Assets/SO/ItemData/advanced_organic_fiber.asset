@@ -20,6 +20,7 @@ MonoBehaviour:
   ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
   Type: 5
   Rarity: 2
+  EquipmentKind: 0
   Width: 2
   Height: 2
   IsStackable: 0

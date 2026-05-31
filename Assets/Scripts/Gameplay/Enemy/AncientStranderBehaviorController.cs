@@ -10,8 +10,11 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
 [RequireComponent(typeof(EnemyPatrolAwarenessController))]
-public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource
+public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver
 {
+    private const float DirectDamageForcedChaseDuration = 4f;
+    private const float DirectDamageDestinationSampleRadius = 4f;
+
     public enum EnemyState
     {
         Patrol,
@@ -91,8 +94,11 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private float _meleeVisualTimer;
     private float _biteStrikeTimer;
     private float _biteTotalDamage;
+    private float _directDamageForcedChaseEndTime = -1f;
+    private Vector3 _directDamageFallbackPosition;
     private bool _isBiteStriking;
     private bool _hasAppliedBiteDamage;
+    private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
     private AncientStranderBiteHitbox _biteHitbox;
 
@@ -257,7 +263,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void ChaseBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
@@ -290,12 +296,12 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         SetAgentStopped(false);
-        TrySetDestination(PlayerTransform.position);
+        TrySetChaseDestination();
     }
 
     private void MeleeAttackBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
@@ -329,7 +335,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void RangedBiteAttackBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             StopBiteStrike();
             CurrentState = EnemyState.Patrol;
@@ -440,6 +446,32 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Bite", totalDamage);
         }
+    }
+
+    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    {
+        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        {
+            return;
+        }
+
+        PlayerTransform = context.Attacker;
+        BeginDirectDamageForcedChase(context);
+        _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
+        }
+
+        StopBiteStrike();
+        _waitTimer = 0f;
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        FacePlayerImmediately();
+
+        CurrentState = EnemyState.Chase;
+        SetAgentStopped(false);
+        TrySetChaseDestination();
     }
 
     private void EnsureLineRenderers()
@@ -718,6 +750,82 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool TrySetChaseDestination()
+    {
+        if (PlayerTransform == null)
+        {
+            return false;
+        }
+
+        if (TrySetSampledDestination(PlayerTransform.position, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        if (_hasDirectDamageFallbackPosition &&
+            TrySetSampledDestination(_directDamageFallbackPosition, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        return TrySetDestination(PlayerTransform.position);
+    }
+
+    private bool TrySetSampledDestination(Vector3 position, float radius)
+    {
+        return NavMesh.SamplePosition(position, out NavMeshHit hit, Mathf.Max(0.1f, radius), NavMesh.AllAreas) &&
+               TrySetDestination(hit.position);
+    }
+
+    private void BeginDirectDamageForcedChase(EnemyDamageContext context)
+    {
+        _directDamageForcedChaseEndTime = Time.time + DirectDamageForcedChaseDuration;
+        _directDamageFallbackPosition = ResolveDirectDamageFallbackPosition(context);
+        _hasDirectDamageFallbackPosition = true;
+    }
+
+    private bool IsDirectDamageForcedChaseActive()
+    {
+        return Time.time < _directDamageForcedChaseEndTime;
+    }
+
+    private Vector3 ResolveDirectDamageFallbackPosition(EnemyDamageContext context)
+    {
+        if (context.SourcePosition.sqrMagnitude > 0.0001f)
+        {
+            return context.SourcePosition;
+        }
+
+        if (context.Attacker != null)
+        {
+            return context.Attacker.position;
+        }
+
+        if (context.HitPosition.sqrMagnitude > 0.0001f)
+        {
+            return context.HitPosition;
+        }
+
+        return transform.position;
+    }
+
+    private void FacePlayerImmediately()
+    {
+        if (PlayerTransform == null)
+        {
+            return;
+        }
+
+        Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
+        Vector3 direction = lookPosition - transform.position;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
     }
 
     private bool CanSeePlayer()

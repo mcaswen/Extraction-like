@@ -3,6 +3,72 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
+public enum EnemyDamageSourceType
+{
+    Unknown,
+    Projectile,
+    Magic,
+    Melee,
+    Environment
+}
+
+public readonly struct EnemyDamageContext
+{
+    public readonly Transform Attacker;
+    public readonly Vector3 HitPosition;
+    public readonly Vector3 SourcePosition;
+    public readonly Vector3 IncomingDirection;
+    public readonly bool IsDirectPlayerDamage;
+    public readonly EnemyDamageSourceType SourceType;
+
+    public EnemyDamageContext(
+        Transform attacker,
+        Vector3 hitPosition,
+        Vector3 sourcePosition,
+        Vector3 incomingDirection,
+        bool isDirectPlayerDamage,
+        EnemyDamageSourceType sourceType)
+    {
+        Attacker = attacker;
+        HitPosition = hitPosition;
+        SourcePosition = sourcePosition;
+        IncomingDirection = incomingDirection.sqrMagnitude > 0.0001f
+            ? incomingDirection.normalized
+            : Vector3.zero;
+        IsDirectPlayerDamage = isDirectPlayerDamage;
+        SourceType = sourceType;
+    }
+
+    public static EnemyDamageContext Empty => new EnemyDamageContext(
+        null,
+        Vector3.zero,
+        Vector3.zero,
+        Vector3.zero,
+        false,
+        EnemyDamageSourceType.Unknown);
+
+    public static EnemyDamageContext FromPlayer(
+        Transform playerTransform,
+        Vector3 hitPosition,
+        Vector3 sourcePosition,
+        Vector3 incomingDirection,
+        EnemyDamageSourceType sourceType)
+    {
+        return new EnemyDamageContext(
+            playerTransform,
+            hitPosition,
+            sourcePosition,
+            incomingDirection,
+            playerTransform != null,
+            sourceType);
+    }
+}
+
+public interface IEnemyDirectDamageReceiver
+{
+    void NotifyDirectPlayerDamage(EnemyDamageContext context);
+}
+
 /// <summary>
 /// 敌人生命控制器。
 /// 负责受伤、血条刷新、死亡和死亡掉落容器生成。
@@ -88,6 +154,11 @@ public class EnemyHealthController : MonoBehaviour
     /// </summary>
     public void TakeDamage(float damageAmount)
     {
+        TakeDamage(damageAmount, EnemyDamageContext.Empty);
+    }
+
+    public void TakeDamage(float damageAmount, EnemyDamageContext context)
+    {
         if (_hasDied)
         {
             return;
@@ -104,19 +175,35 @@ public class EnemyHealthController : MonoBehaviour
         if (remainingDamage <= 0f)
         {
             UpdateHealthBar();
-            EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
+            NotifyDamageReaction(context);
             return;
         }
 
         _currentHealth -= remainingDamage;
         _currentHealth = Mathf.Clamp(_currentHealth, 0f, MaxHealth);
         UpdateHealthBar();
-        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
+        NotifyDamageReaction(context);
 
         if (_currentHealth <= 0f)
         {
             Die();
         }
+    }
+
+    private void NotifyDamageReaction(EnemyDamageContext context)
+    {
+        if (context.IsDirectPlayerDamage && context.Attacker != null)
+        {
+            IEnemyDirectDamageReceiver[] receivers = GetComponents<IEnemyDirectDamageReceiver>();
+            for (int i = 0; i < receivers.Length; i++)
+            {
+                receivers[i]?.NotifyDirectPlayerDamage(context);
+            }
+
+            return;
+        }
+
+        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
     }
 
     /// <summary>

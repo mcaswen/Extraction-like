@@ -11,8 +11,20 @@ public enum ItemType
     Medical,
     Rig,
     Bag,
-    Junk
+    Junk,
+    Equipment
 }
+
+public enum EquipmentSlotKind
+{
+    None,
+    Head,
+    Body,
+    Face,
+    Headphone,
+    Totem
+}
+
 
 /// <summary>
 /// 物品稀有度
@@ -62,6 +74,8 @@ public class InventoryItemData : ScriptableObject
     [Header("Category")]
     public ItemType Type = ItemType.Junk;
     public ItemRarity Rarity = ItemRarity.Common;
+    public EquipmentSlotKind EquipmentKind = EquipmentSlotKind.None;
+
 
     [Header("Shape")]
     [Range(1, 10)]

@@ -11,6 +11,7 @@ public class InventoryUIController : MonoBehaviour
     [Header("View References")]
     public RectTransform ItemContainer;
     public Transform GridBackground;
+    public Sprite CellBackgroundSprite;
     public float CellSize = 50f;
     public float Spacing = 2f;
 
@@ -40,6 +41,61 @@ public class InventoryUIController : MonoBehaviour
         int cols = _gridController != null ? Mathf.Max(1, _gridController.Columns) : 1;
         int rows = _gridController != null ? Mathf.Max(1, _gridController.Rows) : 1;
         ConfigureGridLayerTransforms(GetItemActualSize(cols, rows));
+    }
+
+    public bool NeedsBackgroundCellRefresh()
+    {
+        if (GridBackground == null)
+        {
+            return false;
+        }
+
+        InventoryGridController gridController = GetGridController();
+        if (gridController == null)
+        {
+            return false;
+        }
+
+        int expectedCellCount = Mathf.Max(1, gridController.Columns) * Mathf.Max(1, gridController.Rows);
+        if (GridBackground.childCount != expectedCellCount)
+        {
+            return true;
+        }
+
+        if (CellBackgroundSprite == null)
+        {
+            return false;
+        }
+
+        foreach (Transform child in GridBackground)
+        {
+            Image image = child.GetComponent<Image>();
+            if (image == null || image.sprite != CellBackgroundSprite)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void RefreshBackgroundCellsFromCurrentConfig()
+    {
+        InventoryGridController gridController = GetGridController();
+        if (gridController == null)
+        {
+            return;
+        }
+
+        int cols = Mathf.Max(1, gridController.Columns);
+        int rows = Mathf.Max(1, gridController.Rows);
+
+        Vector2 gridSize = GetItemActualSize(cols, rows);
+        ResizeGrid(gridSize);
+        ConfigureGridLayerTransforms(gridSize);
+        RebuildBackgroundCells(cols, rows, gridController.BlockedCells);
+        ForceLayoutRefresh();
+        HideHighlight();
     }
 
     private void Start()
@@ -461,7 +517,17 @@ public class InventoryUIController : MonoBehaviour
                 cell.transform.SetParent(GridBackground, false);
 
                 Image image = cell.GetComponent<Image>();
-                image.color = new Color(0.15f, 0.15f, 0.15f, 0.8f);
+                if (CellBackgroundSprite != null)
+                {
+                    image.sprite = CellBackgroundSprite;
+                    image.type = Image.Type.Sliced;
+                    image.color = Color.white;
+                }
+                else
+                {
+                    image.color = new Color(0.15f, 0.15f, 0.15f, 0.8f);
+                }
+
                 image.enabled = !blockedSet.Contains(new Vector2Int(x, y));
             }
         }
@@ -688,4 +754,7 @@ public static class InventoryAutoSortService
 
         return left.ItemData.Type.CompareTo(right.ItemData.Type);
     }
+
+
+
 }

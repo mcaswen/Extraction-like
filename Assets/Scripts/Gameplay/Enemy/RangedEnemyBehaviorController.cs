@@ -8,8 +8,11 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
 [RequireComponent(typeof(EnemyPatrolAwarenessController))]
-public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource
+public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver
 {
+    private const float DirectDamageForcedChaseDuration = 4f;
+    private const float DirectDamageDestinationSampleRadius = 4f;
+
     public enum EnemyState
     {
         Patrol,
@@ -64,6 +67,9 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private float _waitTimer;
     private float _attackTimer;
+    private float _directDamageForcedChaseEndTime = -1f;
+    private Vector3 _directDamageFallbackPosition;
+    private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
 
     public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
@@ -204,7 +210,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource
 
     private void ChaseBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
             EnemySuspicionStimulusBus.Raise(
@@ -227,7 +233,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource
         }
 
         SetAgentStopped(false);
-        TrySetDestination(PlayerTransform.position);
+        TrySetChaseDestination();
     }
 
     private void AttackBehavior(float distanceToPlayer)
@@ -269,6 +275,25 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource
             bullet.SourceEnemy = gameObject;
             bullet.SkillName = "Ranged Shot";
         }
+    }
+
+    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    {
+        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        {
+            return;
+        }
+
+        PlayerTransform = context.Attacker;
+        BeginDirectDamageForcedChase(context);
+        _waitTimer = 0f;
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        FacePlayerImmediately();
+
+        CurrentState = EnemyState.Chase;
+        SetAgentStopped(false);
+        TrySetChaseDestination();
     }
 
     private void InitializePatrolRoute()
@@ -408,6 +433,82 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource
     private bool TrySetDestination(Vector3 destination)
     {
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
+    }
+
+    private bool TrySetChaseDestination()
+    {
+        if (PlayerTransform == null)
+        {
+            return false;
+        }
+
+        if (TrySetSampledDestination(PlayerTransform.position, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        if (_hasDirectDamageFallbackPosition &&
+            TrySetSampledDestination(_directDamageFallbackPosition, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        return TrySetDestination(PlayerTransform.position);
+    }
+
+    private bool TrySetSampledDestination(Vector3 position, float radius)
+    {
+        return NavMesh.SamplePosition(position, out NavMeshHit hit, Mathf.Max(0.1f, radius), NavMesh.AllAreas) &&
+               TrySetDestination(hit.position);
+    }
+
+    private void BeginDirectDamageForcedChase(EnemyDamageContext context)
+    {
+        _directDamageForcedChaseEndTime = Time.time + DirectDamageForcedChaseDuration;
+        _directDamageFallbackPosition = ResolveDirectDamageFallbackPosition(context);
+        _hasDirectDamageFallbackPosition = true;
+    }
+
+    private bool IsDirectDamageForcedChaseActive()
+    {
+        return Time.time < _directDamageForcedChaseEndTime;
+    }
+
+    private Vector3 ResolveDirectDamageFallbackPosition(EnemyDamageContext context)
+    {
+        if (context.SourcePosition.sqrMagnitude > 0.0001f)
+        {
+            return context.SourcePosition;
+        }
+
+        if (context.Attacker != null)
+        {
+            return context.Attacker.position;
+        }
+
+        if (context.HitPosition.sqrMagnitude > 0.0001f)
+        {
+            return context.HitPosition;
+        }
+
+        return transform.position;
+    }
+
+    private void FacePlayerImmediately()
+    {
+        if (PlayerTransform == null)
+        {
+            return;
+        }
+
+        Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
+        Vector3 direction = lookPosition - transform.position;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
     }
 
     private bool CanSeePlayer()

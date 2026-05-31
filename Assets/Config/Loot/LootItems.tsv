@@ -1,16 +1,28 @@
-ItemID	ItemName	Type	Rarity	Width	Height	IsStackable	MaxStack	ContainerColumns	ContainerRows	BlockedCells	RequiresSearchInLootContainer	SearchDurationOverride	MagicUnlock	RunePatternPoints	Enabled	SellPrice	Notes
-book	书	Other	Common	1	1	No	1				Yes	-1	None	1	Yes	10	
-notebook	笔记	Other	Common	1	1	No	1				Yes	-1	None	1	Yes	20	
-organic_fiber	有机纤维	Other	Common	2	2	No	1				Yes	-1	None	1	Yes	30	
-military_radio	军用对讲机	Other	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	40	
-uphone_phone	uphone手机	Other	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	60	
-lesser_organic_fiber	次级有机纤维	Other	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	80	
-usb_drive	u盘	Other	Rare	1	1	No	1				Yes	-1	None	1	Yes	80	
-intel_file	情报文件	Other	Rare	1	2	No	1				Yes	-1	None	1	Yes	100	
-advanced_organic_fiber	高级有机纤维	Other	Rare	2	2	No	1				Yes	-1	None	1	Yes	120	
-pocket_watch	怀表	Other	Epic	1	1	No	1				Yes	-1	None	1	Yes	400	
-pure_gold_ring	纯金戒指	Other	Epic	1	1	No	1				Yes	-1	None	1	Yes	300	
-top_organic_fiber	顶级有机纤维	Other	Epic	2	3	No	1				Yes	-1	None	1	Yes	500	
-graphics_card	显示卡	Other	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500	
-saluzzo_aged_wine	萨卢佐醇酿	Other	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500	
-wizard_hat	巫师帽	Other	Legendary	3	3	No	1				Yes	-1	None	1	Yes	2000	
+ItemID	ItemName	Type	EquipmentKind	Rarity	Width	Height	IsStackable	MaxStack	ContainerColumns	ContainerRows	BlockedCells	RequiresSearchInLootContainer	SearchDurationOverride	MagicUnlock	RunePatternPoints	Enabled	SellPrice	Notes
+book	书	Other	None	Common	1	1	No	1				Yes	-1	None	1	Yes	10
+notebook	笔记	Other	None	Common	1	1	No	1				Yes	-1	None	1	Yes	20
+organic_fiber	有机纤维	Other	None	Common	2	2	No	1				Yes	-1	None	1	Yes	30
+military_radio	军用对讲机	Other	None	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	40
+uphone_phone	uphone手机	Other	None	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	60
+lesser_organic_fiber	次级有机纤维	Other	None	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	80
+usb_drive	u盘	Other	None	Rare	1	1	No	1				Yes	-1	None	1	Yes	80
+intel_file	情报文件	Other	None	Rare	1	2	No	1				Yes	-1	None	1	Yes	100
+advanced_organic_fiber	高级有机纤维	Other	None	Rare	2	2	No	1				Yes	-1	None	1	Yes	120
+pocket_watch	怀表	Other	None	Epic	1	1	No	1				Yes	-1	None	1	Yes	400
+pure_gold_ring	纯金戒指	Other	None	Epic	1	1	No	1				Yes	-1	None	1	Yes	300
+top_organic_fiber	顶级有机纤维	Other	None	Epic	2	3	No	1				Yes	-1	None	1	Yes	500
+graphics_card	显示卡	Other	None	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500
+saluzzo_aged_wine	萨卢佐醇酿	Other	None	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500
+wizard_hat	巫师帽	Other	None	Legendary	3	3	No	1				Yes	-1	None	1	Yes	2000
+equip_head_green	绿色头部装备	Equipment	Head	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	100
+equip_head_blue	蓝色头部装备	Equipment	Head	Rare	2	2	No	1				Yes	-1	None	1	Yes	300
+equip_body_green	绿色身体装备	Equipment	Body	Uncommon	2	3	No	1				Yes	-1	None	1	Yes	100
+equip_body_blue	蓝色身体装备	Equipment	Body	Rare	2	3	No	1				Yes	-1	None	1	Yes	300
+equip_body_gold	金色身体装备	Equipment	Body	Legendary	2	3	No	1				Yes	-1	None	1	Yes	800
+equip_face_green	绿色面部装备	Equipment	Face	Uncommon	1	1	No	1				Yes	-1	None	1	Yes	100
+equip_face_blue	蓝色面部装备	Equipment	Face	Rare	1	1	No	1				Yes	-1	None	1	Yes	300
+equip_headphone_green	绿色耳机	Equipment	Headphone	Uncommon	2	1	No	1				Yes	-1	None	1	Yes	100
+equip_headphone_blue	蓝色耳机	Equipment	Headphone	Rare	2	1	No	1				Yes	-1	None	1	Yes	300
+equip_totem_green	绿色图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100
+equip_totem_blue	蓝色图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300
+equip_totem_gold	金色图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800

@@ -23,6 +23,7 @@ public class PlayerShootingController : MonoBehaviour
     public float WeaponDamage = 25f;
     public float WeaponRange = 100f;
     public float FrozenFireBonusMultiplier = 2.2f;
+    public bool ReportGunshotStimulus;
 
     [Header("Status Effect")]
     public float SilenceTintStrength = 0.55f;
@@ -678,10 +679,15 @@ public class PlayerShootingController : MonoBehaviour
 
         GameObject bulletObject = Instantiate(BulletPrefab, FirePoint.position, FirePoint.rotation);
         SkillEffectLayerUtility.ApplyToRoot(bulletObject);
-        EnemySuspicionStimulusBus.ReportGunshot(FirePoint.position, transform);
+        if (ReportGunshotStimulus)
+        {
+            EnemySuspicionStimulusBus.ReportGunshot(FirePoint.position, transform);
+        }
         BulletController bullet = bulletObject.GetComponent<BulletController>();
         if (bullet != null)
         {
+            bullet.SourceTransform = transform;
+            bullet.ReportImpactStimulus = false;
             bullet.Damage = WeaponDamage * GetAttackMultiplier();
             bullet.AttackElement = BulletController.AttackElementType.Fire;
             bullet.FrozenFireBonusMultiplier = FrozenFireBonusMultiplier;
@@ -704,7 +710,9 @@ public class PlayerShootingController : MonoBehaviour
 
         EnemyStatusEffectController statusController = GetOrCreateEnemyStatus(enemyHealthController);
         statusController.ApplyFreeze(IceFreezeDuration);
-        enemyHealthController.TakeDamage(IceFreezeDamage * GetAttackMultiplier());
+        enemyHealthController.TakeDamage(
+            IceFreezeDamage * GetAttackMultiplier(),
+            CreatePlayerDamageContext(enemyHealthController.transform.position, EnemyDamageSourceType.Magic));
         SpawnIceFreezeVisual(enemyHealthController.transform.position);
         _iceFreezeCooldownRemaining = IceFreezeCooldownSeconds;
         return true;
@@ -752,7 +760,9 @@ public class PlayerShootingController : MonoBehaviour
             uniqueTargets.Add(enemyHealthController);
             EnemyStatusEffectController statusController = GetOrCreateEnemyStatus(enemyHealthController);
             statusController.ApplySlow(IceConeSlowMultiplier, IceConeSlowDuration);
-            enemyHealthController.TakeDamage(IceConeDamage * GetAttackMultiplier());
+            enemyHealthController.TakeDamage(
+                IceConeDamage * GetAttackMultiplier(),
+                CreatePlayerDamageContext(enemyHealthController.transform.position, EnemyDamageSourceType.Magic));
         }
 
         SpawnIceConeVisual(origin, forward);
@@ -1460,6 +1470,18 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         return statusController;
+    }
+
+    private EnemyDamageContext CreatePlayerDamageContext(Vector3 hitPosition, EnemyDamageSourceType sourceType)
+    {
+        Vector3 sourcePosition = FirePoint != null ? FirePoint.position : transform.position;
+        Vector3 incomingDirection = hitPosition - sourcePosition;
+        return EnemyDamageContext.FromPlayer(
+            transform,
+            hitPosition,
+            sourcePosition,
+            incomingDirection,
+            sourceType);
     }
 
     private float GetAttackMultiplier()

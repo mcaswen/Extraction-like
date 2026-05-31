@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using BoardGame.Presentation;
 
 public partial class DraggableItemUI
 {
@@ -21,9 +20,14 @@ public partial class DraggableItemUI
         SplitUIController.Instance?.CloseWindow();
         _originalParent = transform.parent;
 
-        if (TryDetachFromEquipmentSlot())
+        if (TryDetachFromEquipmentSlot(out bool blockedByLockedSlot))
         {
             CurrentGrid = null;
+        }
+        else if (blockedByLockedSlot)
+        {
+            CurrentlyDraggedItem = null;
+            return;
         }
         else if (CurrentGrid != null)
         {
@@ -49,7 +53,6 @@ public partial class DraggableItemUI
     /// <param name="eventData">当前指针事件</param>
     public void OnEndDrag(PointerEventData eventData)
     {
-        InventoryUIController sourceGrid = CurrentGrid;
         EquipmentSlotUI targetSlot = GetHoveredEquipmentSlot(eventData);
         InventoryUIController targetGrid = targetSlot == null ? GetHoveredGrid(eventData) : null;
 
@@ -57,7 +60,6 @@ public partial class DraggableItemUI
 
         if (targetSlot != null && targetSlot.TryHandleDrop(this))
         {
-            NotifyLootTransferredFromLootChest(sourceGrid, null);
             return;
         }
 
@@ -91,13 +93,11 @@ public partial class DraggableItemUI
 
         if (TryPlaceInEmptySpace(targetGrid, targetController, targetIndex, width, height))
         {
-            NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
             return;
         }
 
         if (TryMergeWithBlockingItem(targetController, targetIndex, width, height))
         {
-            NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
             return;
         }
 
@@ -110,15 +110,28 @@ public partial class DraggableItemUI
     }
 
     // 如果拖拽物原本挂在装备槽上，先把槽位中的运行时状态同步并卸下
-    private bool TryDetachFromEquipmentSlot()
+    private bool TryDetachFromEquipmentSlot(out bool blockedByLockedSlot)
     {
+        blockedByLockedSlot = false;
+
         EquipmentSlotUI sourceSlot = GetComponentInParent<EquipmentSlotUI>();
         if (sourceSlot == null || sourceSlot.EquippedItem != this)
         {
             return false;
         }
 
+        if (sourceSlot.IsDefaultLockedContainerSlot)
+        {
+            blockedByLockedSlot = true;
+            return false;
+        }
+
         sourceSlot.Unequip();
+
+        CurrentGrid = null;
+        _currentPreviewIsRotated = false;
+        UpdateVisualSize(false);
+
         return true;
     }
 
@@ -471,34 +484,12 @@ public partial class DraggableItemUI
     // 通过主控制器寻找快捷转移目标，并直接执行网格内搬运
     private void ExecuteQuickTransfer()
     {
-        if (CurrentGrid == null || ItemData == null)
+        if (CurrentGrid == null || ItemData == null || InventoryScreenController.Instance == null)
         {
             return;
         }
 
-        InventoryUIController sourceGrid = CurrentGrid;
-        InventoryUIController targetGrid = null;
-        Vector2Int position = Vector2Int.zero;
-        bool needsRotation = false;
-        bool resolvedTarget = InventoryScreenController.Instance != null &&
-                              InventoryScreenController.Instance.TryFindQuickTransferTarget(
-                                  CurrentGrid,
-                                  this,
-                                  out targetGrid,
-                                  out position,
-                                  out needsRotation);
-
-        if (!resolvedTarget && BoardGameLootInventoryController.ActiveInstance != null)
-        {
-            resolvedTarget = BoardGameLootInventoryController.ActiveInstance.TryFindQuickTransferTarget(
-                CurrentGrid,
-                this,
-                out targetGrid,
-                out position,
-                out needsRotation);
-        }
-
-        if (!resolvedTarget)
+        if (!InventoryScreenController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
         {
             return;
         }
@@ -507,29 +498,6 @@ public partial class DraggableItemUI
         transform.SetParent(targetGrid.ItemContainer, false);
         CurrentGrid = targetGrid;
         PlaceSuccessfully(position, needsRotation);
-        NotifyLootTransferredFromLootChest(sourceGrid, targetGrid);
-    }
-
-    private void NotifyLootTransferredFromLootChest(InventoryUIController sourceGrid, InventoryUIController targetGrid)
-    {
-        InventoryScreenController inventoryController = InventoryScreenController.Instance;
-        if (inventoryController == null || RaidFlowController.Instance == null || ItemData == null)
-        {
-            return;
-        }
-
-        if (sourceGrid != inventoryController.LootChestGrid)
-        {
-            return;
-        }
-
-        if (targetGrid == inventoryController.LootChestGrid)
-        {
-            return;
-        }
-
-        RaidFlowController.Instance.NotifyLootCollected(ItemData.ItemName);
-        PlayerShootingController.Instance?.TryUnlockFromItem(ItemData);
     }
 
     // 从当前 UI 射线结果里找出鼠标悬停的背包网格

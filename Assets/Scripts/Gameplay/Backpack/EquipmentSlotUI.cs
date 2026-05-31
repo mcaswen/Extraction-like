@@ -6,8 +6,17 @@
 /// </summary>
 public class EquipmentSlotUI : MonoBehaviour
 {
+    [Header("Accepted Item")]
     public ItemType AcceptedType;
+    public EquipmentSlotKind AcceptedEquipmentKind = EquipmentSlotKind.None;
+
+    [Header("Linked Container Grid")]
     public InventoryUIController LinkedGrid;
+
+    [Header("Lock")]
+    public bool IsDefaultLockedContainerSlot;
+
+    private bool IsEquipmentKindSlot => AcceptedEquipmentKind != EquipmentSlotKind.None;
 
     public DraggableItemUI EquippedItem { get; private set; }
     public bool HasEquippedItem => EquippedItem != null;
@@ -24,6 +33,23 @@ public class EquipmentSlotUI : MonoBehaviour
         InitializeRuntimeState(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen);
     }
 
+
+    private bool CanAcceptItem(InventoryItemData itemData)
+    {
+        if (itemData == null)
+        {
+            return false;
+        }
+
+        if (IsEquipmentKindSlot)
+        {
+            return itemData.Type == ItemType.Equipment &&
+                   itemData.EquipmentKind == AcceptedEquipmentKind;
+        }
+
+        return itemData.Type == AcceptedType;
+    }
+
     /// <summary>
     /// 尝试把一个物品装备到当前槽位
     /// </summary>
@@ -38,21 +64,94 @@ public class EquipmentSlotUI : MonoBehaviour
             return false;
         }
 
-        if (item.ItemData.Type != AcceptedType || EquippedItem != null)
+        if (!CanAcceptItem(item.ItemData) || EquippedItem != null)
         {
             return false;
         }
 
         EquippedItem = item;
         _isLinkedGridInitialized = false;
+
         item.CurrentGrid = null;
         item.transform.SetParent(transform, false);
-        item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+
+        ApplyEquippedItemVisual(item);
+
+        if (AcceptedEquipmentKind != EquipmentSlotKind.None)
+        {
+            SetLinkedGridVisible(false);
+            return true;
+        }
 
         InitializeLinkedGridFromEquippedItem();
         SetLinkedGridVisible(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen);
 
         return true;
+    }
+
+    private void ApplyEquippedItemVisual(DraggableItemUI item)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        RectTransform itemRect = item.GetComponent<RectTransform>();
+        if (itemRect == null)
+        {
+            return;
+        }
+
+        itemRect.localScale = Vector3.one;
+        itemRect.localRotation = Quaternion.identity;
+        itemRect.anchorMin = new Vector2(0f, 1f);
+        itemRect.anchorMax = new Vector2(0f, 1f);
+        itemRect.pivot = new Vector2(0f, 1f);
+        itemRect.anchoredPosition = Vector2.zero;
+
+        if (AcceptedEquipmentKind == EquipmentSlotKind.None)
+        {
+            return;
+        }
+
+        RectTransform slotRect = transform as RectTransform;
+        Vector2 targetSize = slotRect != null ? slotRect.rect.size : Vector2.zero;
+
+        if (targetSize.x <= 0f || targetSize.y <= 0f)
+        {
+            targetSize = slotRect != null ? slotRect.sizeDelta : Vector2.zero;
+        }
+
+        if (targetSize.x <= 0f || targetSize.y <= 0f)
+        {
+            targetSize = new Vector2(50f, 50f);
+        }
+
+        itemRect.sizeDelta = targetSize;
+    }
+
+    private void ApplyEquipmentSlotVisualSize(DraggableItemUI item)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        RectTransform itemRect = item.GetComponent<RectTransform>();
+        RectTransform slotRect = transform as RectTransform;
+        if (itemRect == null || slotRect == null)
+        {
+            return;
+        }
+
+        itemRect.anchorMin = new Vector2(0f, 1f);
+        itemRect.anchorMax = new Vector2(0f, 1f);
+        itemRect.pivot = new Vector2(0f, 1f);
+        itemRect.anchoredPosition = Vector2.zero;
+        itemRect.localScale = Vector3.one;
+        itemRect.localRotation = Quaternion.identity;
+
+        itemRect.sizeDelta = slotRect.rect.size;
     }
 
     /// <summary>
@@ -62,7 +161,12 @@ public class EquipmentSlotUI : MonoBehaviour
     /// <returns>是否处理成功</returns>
     public bool TryHandleDrop(DraggableItemUI item)
     {
-        if (item == null || item.ItemData == null || item.ItemData.Type != AcceptedType)
+        if (item == null || item.ItemData == null || !CanAcceptItem(item.ItemData))
+        {
+            return false;
+        }
+
+        if (IsDefaultLockedContainerSlot && HasEquippedItem)
         {
             return false;
         }
@@ -74,11 +178,12 @@ public class EquipmentSlotUI : MonoBehaviour
 
         if (EquippedItem == item)
         {
-            item.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            ApplyEquippedItemVisual(item);
             return true;
         }
 
-        return InventoryScreenController.Instance != null && InventoryScreenController.Instance.TryReplaceEquippedContainerFromDrag(this, item);
+        return InventoryScreenController.Instance != null &&
+               InventoryScreenController.Instance.TryReplaceEquippedContainerFromDrag(this, item);
     }
 
     /// <summary>
@@ -96,6 +201,14 @@ public class EquipmentSlotUI : MonoBehaviour
     public void InitializeRuntimeState(bool showLinkedGrid)
     {
         EnsureEquippedItemReference();
+
+        if (IsEquipmentKindSlot)
+        {
+            ApplyEquippedItemVisual(EquippedItem);
+            SetLinkedGridVisible(false);
+            return;
+        }
+
         InitializeLinkedGridFromEquippedItem();
         SetLinkedGridVisible(showLinkedGrid);
     }
@@ -106,6 +219,15 @@ public class EquipmentSlotUI : MonoBehaviour
     /// <param name="isVisible">是否显示关联内部网格</param>
     public void SetLinkedGridVisible(bool isVisible)
     {
+        if (IsEquipmentKindSlot)
+        {
+            if (LinkedGrid != null)
+            {
+                LinkedGrid.gameObject.SetActive(false);
+            }
+
+            return;
+        }
         if (LinkedGrid == null)
         {
             return;
@@ -125,6 +247,11 @@ public class EquipmentSlotUI : MonoBehaviour
     /// </summary>
     public void SyncEquippedItemRuntimeDataFromGrid()
     {
+        if (IsEquipmentKindSlot)
+        {
+            return;
+
+        }
         if (EquippedItem == null || LinkedGrid == null)
         {
             return;
@@ -146,7 +273,7 @@ public class EquipmentSlotUI : MonoBehaviour
         }
 
         DraggableItemUI releasedItem = EquippedItem;
-        if (LinkedGrid != null)
+        if (!IsEquipmentKindSlot && LinkedGrid != null)
         {
             releasedItem.InternalItems = LinkedGrid.ExtractSaveData();
             releasedItem.InternalCellStates = LinkedGrid.ExtractCellStateData();
@@ -176,18 +303,14 @@ public class EquipmentSlotUI : MonoBehaviour
                 continue;
             }
 
-            if (item.ItemData.Type != AcceptedType)
+            if (!CanAcceptItem(item.ItemData))
             {
                 continue;
             }
 
             EquippedItem = item;
             EquippedItem.CurrentGrid = null;
-            RectTransform itemRect = item.GetComponent<RectTransform>();
-            if (itemRect != null)
-            {
-                itemRect.anchoredPosition = Vector2.zero;
-            }
+            ApplyEquippedItemVisual(item);
             break;
         }
     }

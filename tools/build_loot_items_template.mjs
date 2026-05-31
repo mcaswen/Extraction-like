@@ -10,6 +10,7 @@ const headers = [
   "ItemID",
   "ItemName",
   "Type",
+  "EquipmentKind",
   "Rarity",
   "Width",
   "Height",
@@ -30,7 +31,8 @@ const headers = [
 const descriptions = [
   "Stable unique key. Use lowercase English letters, numbers, and underscores.",
   "Display name shown to players.",
-  "Bag, Rig, or Other. Other imports as ItemType.Junk.",
+  "Bag, Rig, Equipment, or Other. Other imports as ItemType.Junk.",
+  "Use None for non-equipment; Head, Body, Face, Headphone, or Totem for equipment.",
   "Common, Uncommon, Rare, Epic, or Legendary.",
   "Inventory footprint width. Range 1-10.",
   "Inventory footprint height. Range 1-10.",
@@ -49,27 +51,40 @@ const descriptions = [
 ];
 
 const lootRows = [
-  { itemId: "book", itemName: "书" },
-  { itemId: "notebook", itemName: "笔记" },
-  { itemId: "organic_fiber", itemName: "有机纤维" },
-  { itemId: "military_radio", itemName: "军用对讲机" },
-  { itemId: "uphone_phone", itemName: "uphone手机" },
-  { itemId: "lesser_organic_fiber", itemName: "次级有机纤维" },
-  { itemId: "usb_drive", itemName: "u盘" },
-  { itemId: "intel_file", itemName: "情报文件" },
-  { itemId: "advanced_organic_fiber", itemName: "高级有机纤维" },
-  { itemId: "pocket_watch", itemName: "怀表" },
-  { itemId: "pure_gold_ring", itemName: "纯金戒指" },
-  { itemId: "top_organic_fiber", itemName: "顶级有机纤维" },
-  { itemId: "graphics_card", itemName: "显示卡" },
-  { itemId: "saluzzo_aged_wine", itemName: "萨卢佐醇酿" },
-  { itemId: "wizard_hat", itemName: "巫师帽" },
+  { itemId: "book", itemName: "书", sellPrice: 10 },
+  { itemId: "notebook", itemName: "笔记", sellPrice: 20 },
+  { itemId: "organic_fiber", itemName: "有机纤维", width: 2, height: 2, sellPrice: 30 },
+  { itemId: "military_radio", itemName: "军用对讲机", rarity: "Uncommon", width: 1, height: 2, sellPrice: 40 },
+  { itemId: "uphone_phone", itemName: "uphone手机", rarity: "Uncommon", width: 1, height: 2, sellPrice: 60 },
+  { itemId: "lesser_organic_fiber", itemName: "次级有机纤维", rarity: "Uncommon", width: 2, height: 2, sellPrice: 80 },
+  { itemId: "usb_drive", itemName: "u盘", rarity: "Rare", sellPrice: 80 },
+  { itemId: "intel_file", itemName: "情报文件", rarity: "Rare", width: 1, height: 2, sellPrice: 100 },
+  { itemId: "advanced_organic_fiber", itemName: "高级有机纤维", rarity: "Rare", width: 2, height: 2, sellPrice: 120 },
+  { itemId: "pocket_watch", itemName: "怀表", rarity: "Epic", sellPrice: 400 },
+  { itemId: "pure_gold_ring", itemName: "纯金戒指", rarity: "Epic", sellPrice: 300 },
+  { itemId: "top_organic_fiber", itemName: "顶级有机纤维", rarity: "Epic", width: 2, height: 3, sellPrice: 500 },
+  { itemId: "graphics_card", itemName: "显示卡", rarity: "Legendary", width: 1, height: 2, sellPrice: 1500 },
+  { itemId: "saluzzo_aged_wine", itemName: "萨卢佐醇酿", rarity: "Legendary", width: 1, height: 2, sellPrice: 1500 },
+  { itemId: "wizard_hat", itemName: "巫师帽", rarity: "Legendary", width: 3, height: 3, sellPrice: 2000 },
+  { itemId: "equip_head_green", itemName: "绿色头部装备", type: "Equipment", equipmentKind: "Head", rarity: "Uncommon", width: 2, height: 2, sellPrice: 100 },
+  { itemId: "equip_head_blue", itemName: "蓝色头部装备", type: "Equipment", equipmentKind: "Head", rarity: "Rare", width: 2, height: 2, sellPrice: 300 },
+  { itemId: "equip_body_green", itemName: "绿色身体装备", type: "Equipment", equipmentKind: "Body", rarity: "Uncommon", width: 2, height: 3, sellPrice: 100 },
+  { itemId: "equip_body_blue", itemName: "蓝色身体装备", type: "Equipment", equipmentKind: "Body", rarity: "Rare", width: 2, height: 3, sellPrice: 300 },
+  { itemId: "equip_body_gold", itemName: "金色身体装备", type: "Equipment", equipmentKind: "Body", rarity: "Legendary", width: 2, height: 3, sellPrice: 800 },
+  { itemId: "equip_face_green", itemName: "绿色面部装备", type: "Equipment", equipmentKind: "Face", rarity: "Uncommon", width: 1, height: 1, sellPrice: 100 },
+  { itemId: "equip_face_blue", itemName: "蓝色面部装备", type: "Equipment", equipmentKind: "Face", rarity: "Rare", width: 1, height: 1, sellPrice: 300 },
+  { itemId: "equip_headphone_green", itemName: "绿色耳机", type: "Equipment", equipmentKind: "Headphone", rarity: "Uncommon", width: 2, height: 1, sellPrice: 100 },
+  { itemId: "equip_headphone_blue", itemName: "蓝色耳机", type: "Equipment", equipmentKind: "Headphone", rarity: "Rare", width: 2, height: 1, sellPrice: 300 },
+  { itemId: "equip_totem_green", itemName: "绿色图腾", type: "Equipment", equipmentKind: "Totem", rarity: "Uncommon", width: 1, height: 2, sellPrice: 100 },
+  { itemId: "equip_totem_blue", itemName: "蓝色图腾", type: "Equipment", equipmentKind: "Totem", rarity: "Rare", width: 1, height: 2, sellPrice: 300 },
+  { itemId: "equip_totem_gold", itemName: "金色图腾", type: "Equipment", equipmentKind: "Totem", rarity: "Legendary", width: 1, height: 2, sellPrice: 800 },
 ];
 
 const sampleRows = lootRows.map((row) => [
   row.itemId,
   row.itemName,
   row.type ?? "Other",
+  row.equipmentKind ?? "None",
   row.rarity ?? "Common",
   row.width ?? 1,
   row.height ?? 1,
@@ -108,7 +123,14 @@ function columnName(index) {
 
 function toTsv(rows) {
   return rows
-    .map((row) => row.map((value) => String(value ?? "").replace(/\t/g, " ").replace(/\r?\n/g, " ")).join("\t"))
+    .map((row) => {
+      const cleaned = row.map((value) => String(value ?? "").replace(/\t/g, " ").replace(/\r?\n/g, " "));
+      while (cleaned.length > 0 && cleaned[cleaned.length - 1] === "") {
+        cleaned.pop();
+      }
+
+      return cleaned.join("\t");
+    })
     .join("\r\n");
 }
 
@@ -158,25 +180,29 @@ async function main() {
   sheet.getRange(`A1:${lastColumn}${maxRows}`).format.autofitColumns();
   sheet.getRange("A:A").format.numberFormat = "@";
   sheet.getRange("B:B").format.numberFormat = "@";
-  sheet.getRange("K:K").format.numberFormat = "@";
-  sheet.getRange("Q:Q").format.numberFormat = "0";
+  sheet.getRange("L:L").format.numberFormat = "@";
+  sheet.getRange("R:R").format.numberFormat = "0";
   sheet.freezePanes.freezeRows(2);
 
   sheet.getRange(columnRange("C", 3, maxRows)).dataValidation = {
     allowBlank: false,
-    list: { inCellDropDown: true, source: ["Bag", "Rig", "Other"] },
+    list: { inCellDropDown: true, source: ["Bag", "Rig", "Equipment", "Other"] },
   };
   sheet.getRange(columnRange("D", 3, maxRows)).dataValidation = {
     allowBlank: false,
+    list: { inCellDropDown: true, source: ["None", "Head", "Body", "Face", "Headphone", "Totem"] },
+  };
+  sheet.getRange(columnRange("E", 3, maxRows)).dataValidation = {
+    allowBlank: false,
     list: { inCellDropDown: true, source: ["Common", "Uncommon", "Rare", "Epic", "Legendary"] },
   };
-  for (const column of ["G", "L", "P"]) {
+  for (const column of ["H", "M", "Q"]) {
     sheet.getRange(columnRange(column, 3, maxRows)).dataValidation = {
       allowBlank: false,
       list: { inCellDropDown: true, source: ["Yes", "No"] },
     };
   }
-  sheet.getRange(columnRange("N", 3, maxRows)).dataValidation = {
+  sheet.getRange(columnRange("O", 3, maxRows)).dataValidation = {
     allowBlank: false,
     list: {
       inCellDropDown: true,
@@ -193,7 +219,7 @@ async function main() {
     },
   };
 
-  for (const column of ["E", "F"]) {
+  for (const column of ["F", "G"]) {
     sheet.getRange(columnRange(column, 3, maxRows)).dataValidation = {
       allowBlank: false,
       rule: { type: "whole", operator: "between", formula1: 1, formula2: 10 },
@@ -205,7 +231,7 @@ async function main() {
     };
   }
 
-  for (const column of ["H", "O"]) {
+  for (const column of ["I", "P"]) {
     sheet.getRange(columnRange(column, 3, maxRows)).dataValidation = {
       allowBlank: true,
       rule: { type: "whole", operator: "greaterThanOrEqual", formula1: 1 },
@@ -217,7 +243,7 @@ async function main() {
     };
   }
 
-  sheet.getRange(columnRange("M", 3, maxRows)).dataValidation = {
+  sheet.getRange(columnRange("N", 3, maxRows)).dataValidation = {
     allowBlank: false,
     rule: { type: "decimal", operator: "greaterThanOrEqual", formula1: -1 },
     errorAlert: {
@@ -227,7 +253,7 @@ async function main() {
     },
   };
 
-  sheet.getRange(columnRange("Q", 3, maxRows)).dataValidation = {
+  sheet.getRange(columnRange("R", 3, maxRows)).dataValidation = {
     allowBlank: false,
     rule: { type: "whole", operator: "greaterThanOrEqual", formula1: 0 },
     errorAlert: {
@@ -237,19 +263,26 @@ async function main() {
     },
   };
 
-  const rarityRange = sheet.getRange(`D3:D${maxRows}`);
+  const rarityRange = sheet.getRange(`E3:E${maxRows}`);
   for (const [rarity, color] of Object.entries(rarityColors)) {
-    rarityRange.conditionalFormats.addCustom(`=$D3="${rarity}"`, {
+    rarityRange.conditionalFormats.addCustom(`=$E3="${rarity}"`, {
       fill: color,
       font: { color: "#111827", bold: true },
     });
   }
 
   lists.getRange("A1:B1").values = [["List", "Value"]];
-  lists.getRange("A2:B19").values = [
+  lists.getRange("A2:B26").values = [
     ["Type", "Bag"],
     ["Type", "Rig"],
+    ["Type", "Equipment"],
     ["Type", "Other"],
+    ["EquipmentKind", "None"],
+    ["EquipmentKind", "Head"],
+    ["EquipmentKind", "Body"],
+    ["EquipmentKind", "Face"],
+    ["EquipmentKind", "Headphone"],
+    ["EquipmentKind", "Totem"],
     ["Rarity", "Common"],
     ["Rarity", "Uncommon"],
     ["Rarity", "Rare"],
@@ -266,7 +299,7 @@ async function main() {
     ["MagicUnlock", "TimeHourglass"],
     ["MagicUnlock", "SpaceHourglass"],
   ];
-  lists.getRange("A1:B19").format.autofitColumns();
+  lists.getRange("A1:B26").format.autofitColumns();
 
   const tsv = `${toTsv([headers, ...sampleRows])}\r\n`;
   await fs.writeFile(tsvPath, tsv, "utf8");

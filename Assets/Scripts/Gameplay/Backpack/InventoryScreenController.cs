@@ -1,10 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 /// <summary>
 /// 背包模块总控制器
@@ -13,11 +9,25 @@ using UnityEngine.InputSystem;
 public class InventoryScreenController : MonoBehaviour
 {
     public static InventoryScreenController Instance { get; private set; }
-    private const bool EnableBackpackDebug = true;
 
+
+    public bool IsInventoryOpen { get; private set; }
+
+    [Header("Legacy Container Slots")]
     public EquipmentSlotUI RigSlot;
     public EquipmentSlotUI BackpackSlot;
-    public bool IsInventoryOpen { get; private set; }
+
+    [Header("Equipment Slots")]
+    public EquipmentSlotUI HeadSlot;
+    public EquipmentSlotUI BodySlot;
+    public EquipmentSlotUI FaceSlot;
+    public EquipmentSlotUI HeadphoneSlot;
+    public EquipmentSlotUI TotemSlotA;
+    public EquipmentSlotUI TotemSlotB;
+
+    [Header("Default Backpack")]
+    public InventoryItemData DefaultBackpackItem;
+
 
     [Header("Panels")]
     public GameObject InventoryPanel;
@@ -37,16 +47,12 @@ public class InventoryScreenController : MonoBehaviour
     public bool HasActiveExternalContainer => _activeSessionContext != null;
     public bool UsesCustomPlayerInventory => _activeSessionContext != null && _activeSessionContext.UseCustomPlayerInventory;
     public InventoryUIController ActiveExternalGrid => HasActiveExternalContainer ? LootChestGrid : null;
-    public InventoryUIController ActivePlayerGrid => UsesCustomPlayerInventory ? PocketGrid : null;
+    public InventoryUIController ActivePlayerGrid => BackpackGrid;
 
     private void Awake()
     {
         Instance = this;
-        EnsureSceneReferences();
         InitializeRuntimeScreen();
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        LogDebug("Awake completed.");
     }
 
     private void OnDestroy()
@@ -59,35 +65,14 @@ public class InventoryScreenController : MonoBehaviour
 
     private void Start()
     {
-        EnsureSceneReferences();
-        InitializeRuntimeScreen();
+        EnsureDefaultBackpackEquipped();
         RefreshCharacterContainerState(false);
-        LogDebug("Start completed.");
     }
 
     private void Update()
     {
-        EnsureSceneReferences();
-
-        if (IsInventoryOpen)
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            SetMainInventoryUiVisible(true);
-            SetLootUiVisible(HasActiveExternalContainer);
-            RefreshVisibleStateForCurrentContext();
-        }
-        else
-        {
-            SetMainInventoryUiVisible(false);
-        }
-
-        if (!IsInventoryOpen && _activeSessionContext == null)
-        {
-            SetLootUiVisible(false);
-        }
-
-        if (IsInventoryTogglePressed())
-        {
-            LogDebug($"Tab received. IsInventoryOpen(before)={IsInventoryOpen}");
             ToggleInventory();
         }
     }
@@ -97,18 +82,18 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void InitializeRuntimeScreen()
     {
-        EnsureSceneReferences();
-        SanitizeDuplicateUiObjects();
-        IsInventoryOpen = false;
-        _activeSessionContext = null;
-        _customPlayerInventoryUiApplied = false;
+        if (InventoryPanel != null)
+        {
+            InventoryPanel.SetActive(false);
+        }
 
-        SetMainInventoryUiVisible(false);
-        SetLootUiVisible(false);
+        if (LootChestGrid != null)
+        {
+            LootChestGrid.gameObject.SetActive(false);
+        }
 
         RestoreStandardPlayerInventoryUiState();
         RefreshCharacterContainerState(false);
-        LogDebug("InitializeRuntimeScreen applied hidden state.");
     }
 
     /// <summary>
@@ -117,15 +102,11 @@ public class InventoryScreenController : MonoBehaviour
     /// <param name="lootBox">要打开的场景容器实体</param>
     public void OpenLootBox(LootBoxEntity lootBox)
     {
-        EnsureSceneReferences();
-
         if (lootBox == null || LootChestGrid == null)
         {
-            LogDebug($"OpenLootBox aborted. lootBox={(lootBox != null ? lootBox.name : "null")} LootChestGrid={(LootChestGrid != null ? LootChestGrid.name : "null")}");
             return;
         }
 
-        LogDebug($"OpenLootBox accepted. lootBox={lootBox.name}");
         InventoryScreenSessionContext sessionContext = lootBox.CreateInventorySessionContext();
         OpenInventorySession(sessionContext);
     }
@@ -135,11 +116,8 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void OpenInventorySession(InventoryScreenSessionContext sessionContext)
     {
-        EnsureSceneReferences();
-
         if (sessionContext == null || LootChestGrid == null)
         {
-            LogDebug($"OpenInventorySession aborted. sessionContext={(sessionContext != null)} LootChestGrid={(LootChestGrid != null ? LootChestGrid.name : "null")}");
             return;
         }
 
@@ -162,8 +140,6 @@ public class InventoryScreenController : MonoBehaviour
         {
             RefreshVisibleStateForCurrentContext();
         }
-
-        LogDebug($"OpenInventorySession finished. IsInventoryOpen={IsInventoryOpen} HasActiveExternalContainer={HasActiveExternalContainer}");
     }
 
     /// <summary>
@@ -171,9 +147,6 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void ToggleInventory()
     {
-        EnsureSceneReferences();
-        LogDebug($"ToggleInventory called. IsInventoryOpen(before)={IsInventoryOpen}");
-
         if (IsInventoryOpen)
         {
             CloseInventory();
@@ -182,8 +155,6 @@ public class InventoryScreenController : MonoBehaviour
         {
             OpenInventory();
         }
-
-        LogDebug($"ToggleInventory finished. IsInventoryOpen(after)={IsInventoryOpen}");
     }
 
     /// <summary>
@@ -191,17 +162,13 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void OpenInventory()
     {
-        EnsureSceneReferences();
-
         if (IsInventoryOpen)
         {
-            LogDebug("OpenInventory skipped because already open.");
             return;
         }
 
         IsInventoryOpen = true;
         OpenInventoryInternal();
-        LogDebug("OpenInventory executed.");
     }
 
     /// <summary>
@@ -209,17 +176,13 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void CloseInventory()
     {
-        EnsureSceneReferences();
-
         if (!IsInventoryOpen)
         {
-            LogDebug("CloseInventory skipped because already closed.");
             return;
         }
 
         IsInventoryOpen = false;
         CloseInventoryInternal();
-        LogDebug("CloseInventory executed.");
     }
 
     /// <summary>
@@ -240,11 +203,11 @@ public class InventoryScreenController : MonoBehaviour
     /// <param name="needsRotation">目标位置是否需要旋转</param>
     /// <returns>是否找到合法目标</returns>
     public bool TryFindQuickTransferTarget(
-        InventoryUIController sourceGrid,
-        DraggableItemUI itemView,
-        out InventoryUIController targetGrid,
-        out Vector2Int position,
-        out bool needsRotation)
+    InventoryUIController sourceGrid,
+    DraggableItemUI itemView,
+    out InventoryUIController targetGrid,
+    out Vector2Int position,
+    out bool needsRotation)
     {
         targetGrid = null;
         position = Vector2Int.zero;
@@ -255,39 +218,32 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
-        if (!UsesCustomPlayerInventory)
-        {
-            RefreshCharacterContainerState(IsInventoryOpen);
-        }
+        EnsureDefaultBackpackEquipped();
+        RefreshCharacterContainerState(IsInventoryOpen);
 
         if (sourceGrid == LootChestGrid)
         {
-            if (UsesCustomPlayerInventory)
-            {
-                return TryResolveAvailableSpace(PocketGrid, itemView, out targetGrid, out position, out needsRotation);
-            }
-
-            if (TryResolveAvailableSpace(BackpackSlot, BackpackGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
-            if (TryResolveAvailableSpace(RigSlot, TacticalRigGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
-            if (TryResolveAvailableSpace(PocketGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
-            return false;
+            return TryResolveAvailableSpace(
+                BackpackGrid,
+                itemView,
+                out targetGrid,
+                out position,
+                out needsRotation);
         }
 
-        if (sourceGrid == PocketGrid || sourceGrid == TacticalRigGrid || sourceGrid == BackpackGrid)
+        if (sourceGrid == BackpackGrid)
         {
             if (HasActiveExternalContainer)
             {
-                return TryResolveAvailableSpace(LootChestGrid, itemView, out targetGrid, out position, out needsRotation);
+                return TryResolveAvailableSpace(
+                    LootChestGrid,
+                    itemView,
+                    out targetGrid,
+                    out position,
+                    out needsRotation);
             }
 
-            if (UsesCustomPlayerInventory)
-            {
-                return false;
-            }
-
-            if (sourceGrid != BackpackGrid && TryResolveAvailableSpace(BackpackSlot, BackpackGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
-            if (sourceGrid != TacticalRigGrid && TryResolveAvailableSpace(RigSlot, TacticalRigGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
-            if (sourceGrid != PocketGrid && TryResolveAvailableSpace(PocketGrid, itemView, out targetGrid, out position, out needsRotation)) return true;
+            return false;
         }
 
         return false;
@@ -306,26 +262,23 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
+        EnsureDefaultBackpackEquipped();
         RefreshCharacterContainerState(IsInventoryOpen);
 
-        if (TryResolveAvailableSpace(BackpackSlot, BackpackGrid, itemData, out InventoryUIController backpackTarget, out Vector2Int backpackPosition, out bool backpackRotation))
+        if (TryResolveAvailableSpace(
+            BackpackGrid,
+            itemData,
+            out InventoryUIController backpackTarget,
+            out Vector2Int backpackPosition,
+            out bool backpackRotation))
         {
-            InventoryItemFactory.Instance.SpawnItemInGrid(itemData, backpackTarget, backpackPosition.x, backpackPosition.y, amount, backpackRotation);
-            TryUnlockMagicFromItem(itemData);
-            return true;
-        }
-
-        if (TryResolveAvailableSpace(RigSlot, TacticalRigGrid, itemData, out InventoryUIController rigTarget, out Vector2Int rigPosition, out bool rigRotation))
-        {
-            InventoryItemFactory.Instance.SpawnItemInGrid(itemData, rigTarget, rigPosition.x, rigPosition.y, amount, rigRotation);
-            TryUnlockMagicFromItem(itemData);
-            return true;
-        }
-
-        if (TryResolveAvailableSpace(PocketGrid, itemData, out InventoryUIController pocketTarget, out Vector2Int pocketPosition, out bool pocketRotation))
-        {
-            InventoryItemFactory.Instance.SpawnItemInGrid(itemData, pocketTarget, pocketPosition.x, pocketPosition.y, amount, pocketRotation);
-            TryUnlockMagicFromItem(itemData);
+            InventoryItemFactory.Instance.SpawnItemInGrid(
+                itemData,
+                backpackTarget,
+                backpackPosition.x,
+                backpackPosition.y,
+                amount,
+                backpackRotation);
             return true;
         }
 
@@ -344,9 +297,15 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
+        EnsureDefaultBackpackEquipped();
         RefreshCharacterContainerState(IsInventoryOpen);
 
-        if (TryResolveAvailableSpace(BackpackSlot, BackpackGrid, worldItem, out InventoryUIController backpackTarget, out Vector2Int backpackPosition, out bool backpackRotation))
+        if (TryResolveAvailableSpace(
+            BackpackGrid,
+            worldItem,
+            out InventoryUIController backpackTarget,
+            out Vector2Int backpackPosition,
+            out bool backpackRotation))
         {
             InventoryItemFactory.Instance.SpawnItemInGrid(
                 worldItem.ItemData,
@@ -357,40 +316,6 @@ public class InventoryScreenController : MonoBehaviour
                 backpackRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
-            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
-            TryUnlockMagicFromItem(worldItem.ItemData);
-            return true;
-        }
-
-        if (TryResolveAvailableSpace(RigSlot, TacticalRigGrid, worldItem, out InventoryUIController rigTarget, out Vector2Int rigPosition, out bool rigRotation))
-        {
-            InventoryItemFactory.Instance.SpawnItemInGrid(
-                worldItem.ItemData,
-                rigTarget,
-                rigPosition.x,
-                rigPosition.y,
-                worldItem.CurrentAmount,
-                rigRotation,
-                CloneSaveDataList(worldItem.InternalItems),
-                CloneCellStateList(worldItem.InternalCellStates));
-            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
-            TryUnlockMagicFromItem(worldItem.ItemData);
-            return true;
-        }
-
-        if (TryResolveAvailableSpace(PocketGrid, worldItem, out InventoryUIController pocketTarget, out Vector2Int pocketPosition, out bool pocketRotation))
-        {
-            InventoryItemFactory.Instance.SpawnItemInGrid(
-                worldItem.ItemData,
-                pocketTarget,
-                pocketPosition.x,
-                pocketPosition.y,
-                worldItem.CurrentAmount,
-                pocketRotation,
-                CloneSaveDataList(worldItem.InternalItems),
-                CloneCellStateList(worldItem.InternalCellStates));
-            RaidFlowController.Instance?.NotifyLootCollected(worldItem.ItemData.ItemName);
-            TryUnlockMagicFromItem(worldItem.ItemData);
             return true;
         }
 
@@ -404,23 +329,6 @@ public class InventoryScreenController : MonoBehaviour
     /// <returns>是否成功装备</returns>
     public bool TryEquipWorldContainer(WorldLootItem worldItem)
     {
-        if (worldItem == null || worldItem.ItemData == null)
-        {
-            return false;
-        }
-
-        RefreshCharacterContainerState(IsInventoryOpen);
-
-        if (worldItem.ItemData.Type == ItemType.Bag)
-        {
-            return TryHandleContainerPickup(worldItem, BackpackSlot);
-        }
-
-        if (worldItem.ItemData.Type == ItemType.Rig)
-        {
-            return TryHandleContainerPickup(worldItem, RigSlot);
-        }
-
         return false;
     }
 
@@ -437,7 +345,15 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
-        if (incomingItem.ItemData.Type != slot.AcceptedType)
+        if (slot.AcceptedEquipmentKind != EquipmentSlotKind.None)
+        {
+            if (incomingItem.ItemData.Type != ItemType.Equipment ||
+                incomingItem.ItemData.EquipmentKind != slot.AcceptedEquipmentKind)
+            {
+                return false;
+            }
+        }
+        else if (incomingItem.ItemData.Type != slot.AcceptedType)
         {
             return false;
         }
@@ -457,6 +373,18 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
+        if (slot.AcceptedEquipmentKind != EquipmentSlotKind.None)
+        {
+            if (!TryMoveReleasedEquipmentToBackpack(oldItem))
+            {
+                slot.ReleaseEquippedItem();
+                slot.TryEquip(oldItem);
+                return false;
+            }
+
+            return true;
+        }
+
         DropItemViewToWorld(
             oldItem,
             CloneSaveDataList(oldItem.InternalItems),
@@ -464,15 +392,41 @@ public class InventoryScreenController : MonoBehaviour
         return true;
     }
 
+    private bool TryMoveReleasedEquipmentToBackpack(DraggableItemUI oldItem)
+    {
+        if (oldItem == null || oldItem.ItemData == null || BackpackGrid == null)
+        {
+            return false;
+        }
+
+        if (!TryResolveAvailableSpace(
+            BackpackGrid,
+            oldItem,
+            out InventoryUIController targetGrid,
+            out Vector2Int position,
+            out bool needsRotation))
+        {
+            return false;
+        }
+
+        oldItem.transform.SetParent(targetGrid.ItemContainer, false);
+        oldItem.CurrentGrid = targetGrid;
+        oldItem.PlaceSuccessfully(position, needsRotation);
+        return true;
+    }
+
     // 打开背包面板时，同步角色容器状态并释放鼠标
     private void OpenInventoryInternal()
     {
-        SetMainInventoryUiVisible(true);
+        if (InventoryPanel != null)
+        {
+            InventoryPanel.SetActive(true);
+        }
+
         RefreshVisibleStateForCurrentContext();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        LogDebug("OpenInventoryInternal applied visible state.");
     }
 
     // 关闭背包面板时，回收拖拽态并保存当前容器运行时数据
@@ -487,12 +441,13 @@ public class InventoryScreenController : MonoBehaviour
         CloseActiveSessionIfNeeded();
         RefreshCharacterContainerState(false);
 
-        SetMainInventoryUiVisible(false);
-        SetLootUiVisible(false);
+        if (InventoryPanel != null)
+        {
+            InventoryPanel.SetActive(false);
+        }
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        LogDebug("CloseInventoryInternal applied hidden state.");
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // 关闭当前会话，并把左右容器的运行时结果统一交给会话回调处理
@@ -553,17 +508,18 @@ public class InventoryScreenController : MonoBehaviour
 
         if (sessionContext.UseCustomPlayerInventory)
         {
-            ApplyCustomPlayerInventoryUiState();
+            RestoreStandardPlayerInventoryUiState();
+            EnsureDefaultBackpackEquipped();
 
-            if (PocketGrid != null)
+            if (BackpackGrid != null)
             {
-                PocketGrid.RebuildGridUI(
-                    Mathf.Max(1, sessionContext.PlayerColumns),
-                    Mathf.Max(1, sessionContext.PlayerRows),
-                    new List<Vector2Int>(sessionContext.PlayerBlockedCells ?? new List<Vector2Int>()));
-                PocketGrid.LoadFromRuntimeState(
-                    CloneSaveDataList(sessionContext.PlayerItems),
-                    CloneCellStateList(sessionContext.PlayerCellStates));
+                BackpackGrid.RebuildGridUI(5, 6, new List<Vector2Int>());
+                if (sessionContext.UseCustomPlayerInventory)
+                {
+                    BackpackGrid.LoadFromRuntimeState(
+                        CloneSaveDataList(sessionContext.PlayerItems),
+                        CloneCellStateList(sessionContext.PlayerCellStates));
+                }
             }
         }
         else
@@ -584,27 +540,55 @@ public class InventoryScreenController : MonoBehaviour
         }
     }
 
+    private void EnsureBackpackGridVisible()
+    {
+        if (BackpackGrid == null)
+        {
+            return;
+        }
+
+        BackpackGrid.gameObject.SetActive(true);
+
+        InventoryGridController gridController = BackpackGrid.GetGridController();
+        if (gridController == null)
+        {
+            return;
+        }
+
+        if (gridController.Columns != 5 || gridController.Rows != 6)
+        {
+            BackpackGrid.RebuildGridUI(5, 6, new List<Vector2Int>());
+            return;
+        }
+
+        if (BackpackGrid.NeedsBackgroundCellRefresh())
+        {
+            BackpackGrid.RefreshBackgroundCellsFromCurrentConfig();
+        }
+    }
+
     // 根据当前会话模式刷新界面显隐：普通模式展示角色装备联动格，自定义模式只保留玩家格子和外部容器
     private void RefreshVisibleStateForCurrentContext()
     {
-        SetMainInventoryUiVisible(IsInventoryOpen);
+        RestoreStandardPlayerInventoryUiState();
+        EnsureDefaultBackpackEquipped();
+        RefreshCharacterContainerState(true);
+        EnsureBackpackGridVisible();
 
-        if (UsesCustomPlayerInventory)
+        if (PocketGrid != null)
         {
-            ApplyCustomPlayerInventoryUiState();
-
-            if (PocketGrid != null)
-            {
-                PocketGrid.gameObject.SetActive(true);
-            }
-        }
-        else
-        {
-            RestoreStandardPlayerInventoryUiState();
-            RefreshCharacterContainerState(true);
+            PocketGrid.gameObject.SetActive(false);
         }
 
-        SetLootUiVisible(HasActiveExternalContainer && IsInventoryOpen);
+        if (TacticalRigGrid != null)
+        {
+            TacticalRigGrid.gameObject.SetActive(false);
+        }
+
+        if (LootChestGrid != null)
+        {
+            LootChestGrid.gameObject.SetActive(HasActiveExternalContainer);
+        }
     }
 
     // 自定义会话期间隐藏主玩法专属的装备槽和联动格，保留一个扁平玩家格子即可
@@ -635,10 +619,10 @@ public class InventoryScreenController : MonoBehaviour
             TacticalRigGrid.gameObject.SetActive(false);
         }
 
-        if (BackpackGrid != null)
-        {
-            BackpackGrid.gameObject.SetActive(false);
-        }
+        //if (BackpackGrid != null)
+        //{
+        //    BackpackGrid.gameObject.SetActive(false);
+        //}
 
         _customPlayerInventoryUiApplied = true;
     }
@@ -823,42 +807,23 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
-        bool didHandlePickup;
         if (!slot.HasEquippedItem)
         {
-            didHandlePickup = TryEquipWorldContainer(
+            return TryEquipWorldContainer(
                 slot,
                 worldItem,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
-            if (didHandlePickup)
-            {
-                TryUnlockMagicFromItem(worldItem.ItemData);
-            }
-
-            return didHandlePickup;
         }
 
         if (worldItem.ItemData.Type == ItemType.Rig)
         {
-            didHandlePickup = TrySwapRig(worldItem, slot);
-            if (didHandlePickup)
-            {
-                TryUnlockMagicFromItem(worldItem.ItemData);
-            }
-
-            return didHandlePickup;
+            return TrySwapRig(worldItem, slot);
         }
 
         if (worldItem.ItemData.Type == ItemType.Bag)
         {
-            didHandlePickup = TrySwapBackpack(worldItem, slot);
-            if (didHandlePickup)
-            {
-                TryUnlockMagicFromItem(worldItem.ItemData);
-            }
-
-            return didHandlePickup;
+            return TrySwapBackpack(worldItem, slot);
         }
 
         return false;
@@ -1122,207 +1087,68 @@ public class InventoryScreenController : MonoBehaviour
         return !hasItems && !hasCellStates;
     }
 
-    // 根据界面开关状态决定是否展示背包和胸挂的联动内部网格
-    private void RefreshCharacterContainerState(bool showLinkedGrids)
+    private void EnsureDefaultBackpackEquipped()
     {
-        BackpackSlot?.InitializeRuntimeState(showLinkedGrids);
-        RigSlot?.InitializeRuntimeState(showLinkedGrids);
-    }
-
-    private void EnsureSceneReferences()
-    {
-        InventoryPanel = ResolveSceneObject(InventoryPanel, "LeftPanel");
-        PocketGrid = ResolveSceneComponent(PocketGrid, "PocketGrid");
-        TacticalRigGrid = ResolveSceneComponent(TacticalRigGrid, "RigInternalGrid", "TacticalRigGrid");
-        BackpackGrid = ResolveSceneComponent(BackpackGrid, "BackpackGrid");
-        LootChestGrid = ResolveSceneComponent(LootChestGrid, "LootChestPanel", "LootChestGrid");
-        RigSlot = ResolveSceneComponent(RigSlot, "RigSlot");
-        BackpackSlot = ResolveSceneComponent(BackpackSlot, "BackpackSlot");
-
-        InventoryItemFactory inventoryItemFactory = InventoryItemFactory.Instance != null
-            ? InventoryItemFactory.Instance
-            : FindObjectOfType<InventoryItemFactory>(true);
-        if (inventoryItemFactory != null)
-        {
-            GameObject dragLayerObject = FindSceneObjectByName("GlobalDragLayer");
-            if (dragLayerObject != null)
-            {
-                inventoryItemFactory.GlobalDragLayer = dragLayerObject.transform;
-            }
-        }
-
-    }
-
-    private void SanitizeDuplicateUiObjects()
-    {
-        SetNamedObjectsActive("LeftPanel", InventoryPanel, IsInventoryOpen);
-        SetNamedObjectsActive("TacticalRigPanel", FindSceneObjectByName("TacticalRigPanel"), IsInventoryOpen);
-        SetNamedObjectsActive("LootChestPanel", LootChestGrid != null ? LootChestGrid.gameObject : null, HasActiveExternalContainer && IsInventoryOpen);
-        SetNamedObjectsActive("LootChestGrid", LootChestGrid != null ? LootChestGrid.gameObject : null, HasActiveExternalContainer && IsInventoryOpen);
-    }
-
-    private void SetMainInventoryUiVisible(bool isVisible)
-    {
-        if (InventoryPanel != null)
-        {
-            InventoryPanel.SetActive(isVisible);
-        }
-
-        GameObject tacticalRigPanel = FindSceneObjectByName("TacticalRigPanel");
-        if (tacticalRigPanel != null)
-        {
-            tacticalRigPanel.SetActive(isVisible);
-        }
-    }
-
-    private void SetLootUiVisible(bool isVisible)
-    {
-        if (LootChestGrid != null)
-        {
-            LootChestGrid.gameObject.SetActive(isVisible);
-        }
-    }
-
-    private static bool IsInventoryTogglePressed()
-    {
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            return true;
-        }
-
-#if ENABLE_INPUT_SYSTEM
-        Keyboard keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.tabKey.wasPressedThisFrame)
-        {
-            return true;
-        }
-#endif
-
-        return false;
-    }
-
-    private static void LogDebug(string message)
-    {
-        if (!EnableBackpackDebug)
+        if (BackpackSlot == null || DefaultBackpackItem == null)
         {
             return;
         }
 
-        Debug.Log($"[BackpackDebug] {message}");
-    }
+        BackpackSlot.InitializeRuntimeState(false);
 
-    private static GameObject FindSceneObjectByName(string objectName)
-    {
-        if (string.IsNullOrEmpty(objectName))
+        if (BackpackSlot.HasEquippedItem)
         {
-            return null;
+            return;
         }
 
-        Scene activeScene = SceneManager.GetActiveScene();
-        Transform generatedRoot = null;
-        GameObject generatedRootObject = GameObject.Find("Generated_RaidMvp");
-        if (generatedRootObject != null && generatedRootObject.scene == activeScene)
+        if (InventoryItemFactory.Instance == null)
         {
-            generatedRoot = generatedRootObject.transform;
+            return;
         }
 
-        GameObject fallbackMatch = null;
-        GameObject[] roots = activeScene.GetRootGameObjects();
-        for (int i = 0; i < roots.Length; i++)
+        DraggableItemUI defaultBackpack = InventoryItemFactory.Instance.CreateFloatingItem(
+            DefaultBackpackItem,
+            1,
+            null,
+            null);
+
+        if (defaultBackpack == null)
         {
-            GameObject root = roots[i];
-            if (root == null)
-            {
-                continue;
-            }
-
-            if (root.name == objectName)
-            {
-                bool isUnderGeneratedRoot = generatedRoot != null && root.transform.IsChildOf(generatedRoot);
-                if (!isUnderGeneratedRoot)
-                {
-                    return root;
-                }
-
-                fallbackMatch = fallbackMatch == null ? root : fallbackMatch;
-            }
-
-            Transform[] children = root.GetComponentsInChildren<Transform>(true);
-            for (int j = 0; j < children.Length; j++)
-            {
-                if (children[j] != null && children[j].gameObject.name == objectName)
-                {
-                    bool isUnderGeneratedRoot = generatedRoot != null && children[j].IsChildOf(generatedRoot);
-                    if (!isUnderGeneratedRoot)
-                    {
-                        return children[j].gameObject;
-                    }
-
-                    fallbackMatch = fallbackMatch == null ? children[j].gameObject : fallbackMatch;
-                }
-            }
+            return;
         }
 
-        return fallbackMatch;
-    }
-
-    private static T FindSceneComponentByName<T>(string objectName) where T : Component
-    {
-        GameObject sceneObject = FindSceneObjectByName(objectName);
-        return sceneObject != null ? sceneObject.GetComponent<T>() : null;
-    }
-
-    private static GameObject ResolveSceneObject(GameObject currentObject, params string[] candidateNames)
-    {
-        for (int i = 0; i < candidateNames.Length; i++)
+        if (!BackpackSlot.TryEquip(defaultBackpack))
         {
-            GameObject foundObject = FindSceneObjectByName(candidateNames[i]);
-            if (foundObject != null)
-            {
-                return foundObject;
-            }
+            Destroy(defaultBackpack.gameObject);
+        }
+    }
+
+    // 根据界面开关状态决定是否展示背包和胸挂的联动内部网格
+    private void RefreshCharacterContainerState(bool showLinkedGrids)
+    {
+        EnsureDefaultBackpackEquipped();
+
+        BackpackSlot?.InitializeRuntimeState(false);
+
+        if (BackpackGrid != null)
+        {
+            BackpackGrid.gameObject.SetActive(showLinkedGrids);
         }
 
-        return currentObject;
-    }
-
-    private static T ResolveSceneComponent<T>(T currentComponent, params string[] candidateNames) where T : Component
-    {
-        for (int i = 0; i < candidateNames.Length; i++)
+        if (RigSlot != null)
         {
-            T foundComponent = FindSceneComponentByName<T>(candidateNames[i]);
-            if (foundComponent != null)
-            {
-                return foundComponent;
-            }
+            RigSlot.SetLinkedGridVisible(false);
+            RigSlot.gameObject.SetActive(false);
         }
 
-        return currentComponent;
-    }
-
-    private static void SetNamedObjectsActive(string objectName, GameObject canonicalObject, bool isActive)
-    {
-        Scene activeScene = SceneManager.GetActiveScene();
-        GameObject[] roots = activeScene.GetRootGameObjects();
-        for (int i = 0; i < roots.Length; i++)
+        if (PocketGrid != null)
         {
-            GameObject root = roots[i];
-            if (root == null)
-            {
-                continue;
-            }
+            PocketGrid.gameObject.SetActive(false);
+        }
 
-            Transform[] children = root.GetComponentsInChildren<Transform>(true);
-            for (int j = 0; j < children.Length; j++)
-            {
-                Transform child = children[j];
-                if (child == null || child.gameObject.name != objectName)
-                {
-                    continue;
-                }
-
-                child.gameObject.SetActive(canonicalObject != null && child.gameObject == canonicalObject && isActive);
-            }
+        if (TacticalRigGrid != null)
+        {
+            TacticalRigGrid.gameObject.SetActive(false);
         }
     }
 
@@ -1335,27 +1161,25 @@ public class InventoryScreenController : MonoBehaviour
     /// <returns>命中的装备槽，没有则返回空</returns>
     public EquipmentSlotUI GetEquipmentSlotAtScreenPosition(Vector2 screenPosition, Camera eventCamera)
     {
-        if (IsScreenPointInsideSlot(BackpackSlot, screenPosition, eventCamera))
-        {
-            return BackpackSlot;
-        }
+        EquipmentSlotUI[] slots =
+{
+    HeadSlot,
+    BodySlot,
+    FaceSlot,
+    HeadphoneSlot,
+    TotemSlotA,
+    TotemSlotB
+};
 
-        if (IsScreenPointInsideSlot(RigSlot, screenPosition, eventCamera))
+        for (int i = 0; i < slots.Length; i++)
         {
-            return RigSlot;
+            if (IsScreenPointInsideSlot(slots[i], screenPosition, eventCamera))
+            {
+                return slots[i];
+            }
         }
 
         return null;
-    }
-
-    private static void TryUnlockMagicFromItem(InventoryItemData itemData)
-    {
-        if (itemData == null || PlayerShootingController.Instance == null)
-        {
-            return;
-        }
-
-        PlayerShootingController.Instance.TryUnlockFromItem(itemData);
     }
 
     // 深拷贝容器物品快照，确保 UI 编辑和世界实例不会共享状态引用
@@ -1381,13 +1205,14 @@ public class InventoryScreenController : MonoBehaviour
     // 用矩形包含关系检测装备槽命中，避免被拖拽物体的 Raycast 阻挡
     private static bool IsScreenPointInsideSlot(EquipmentSlotUI slot, Vector2 screenPosition, Camera eventCamera)
     {
-        if (slot == null)
+        if (slot == null || !slot.gameObject.activeInHierarchy)
         {
             return false;
         }
 
         RectTransform slotRect = slot.transform as RectTransform;
-        return slotRect != null && RectTransformUtility.RectangleContainsScreenPoint(slotRect, screenPosition, eventCamera);
+        return slotRect != null &&
+               RectTransformUtility.RectangleContainsScreenPoint(slotRect, screenPosition, eventCamera);
     }
 
     // 深拷贝容器格子状态，避免多个运行时对象互相污染 blocked cell 数据
@@ -1409,4 +1234,6 @@ public class InventoryScreenController : MonoBehaviour
 
         return clone;
     }
+
+
 }
