@@ -285,7 +285,7 @@ namespace Gameplay.Targets.Authoring
                 return;
             }
 
-            if (!enemy.gameObject.activeInHierarchy || enemy.GetCurrentHealthRatio() <= 0f)
+            if (!enemy.IsAlive)
                 member.MarkCompleted();
         }
 
@@ -309,7 +309,7 @@ namespace Gameplay.Targets.Authoring
             if (!TryGetEnemy(member, out enemy))
                 return false;
 
-            return enemy.gameObject.activeInHierarchy && enemy.GetCurrentHealthRatio() > 0f;
+            return enemy.IsAlive;
         }
 
         private static bool TryGetEnemy(

@@ -24,16 +24,30 @@ public class EnemyHealthController : MonoBehaviour
     private float _currentShield;
     private float _damageTakenMultiplier = 1f;
     private bool _hasDied;
+    private bool _hasInitializedHealth;
     private EnemyDeathLootSettings _deathLootSettings;
+
+    /// <summary>
+    /// 敌人当前是否仍可作为战斗目标
+    /// </summary>
+    public bool IsAlive
+    {
+        get
+        {
+            InitializeHealthIfNeeded();
+            return enabled && gameObject.activeInHierarchy && !_hasDied && _currentHealth > 0f;
+        }
+    }
+
+    private void Awake()
+    {
+        InitializeHealthIfNeeded();
+    }
 
     private void Start()
     {
         WhiteboxCharacterVisualUtility.ApplyCharacterWhite(gameObject);
-        if (_config != null)
-        {
-            ApplyConfigIfAssigned();
-        }
-        _currentHealth = MaxHealth;
+        InitializeHealthIfNeeded();
         UpdateHealthBar();
     }
 
@@ -51,6 +65,7 @@ public class EnemyHealthController : MonoBehaviour
         if (!_hasDied)
         {
             _currentHealth = MaxHealth;
+            _hasInitializedHealth = true;
             UpdateHealthBar();
         }
     }
@@ -109,6 +124,7 @@ public class EnemyHealthController : MonoBehaviour
     /// </summary>
     public float GetCurrentHealthRatio()
     {
+        InitializeHealthIfNeeded();
         if (MaxHealth <= 0f)
         {
             return 0f;
@@ -133,6 +149,23 @@ public class EnemyHealthController : MonoBehaviour
     public void SetDamageTakenMultiplier(float multiplier)
     {
         _damageTakenMultiplier = Mathf.Max(0f, multiplier);
+    }
+
+    // 目标系统可能早于 Start 查询敌人状态，因此血量初始化需要可重入
+    private void InitializeHealthIfNeeded()
+    {
+        if (_hasInitializedHealth || _hasDied)
+        {
+            return;
+        }
+
+        if (_config != null)
+        {
+            ApplyConfigIfAssigned();
+        }
+
+        _currentHealth = MaxHealth;
+        _hasInitializedHealth = true;
     }
 
     private void UpdateHealthBar()
