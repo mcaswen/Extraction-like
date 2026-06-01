@@ -34,6 +34,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     public bool PrecalculateLootOnSpawn = true;
     public int MinLootRollCount = 3;
     public int MaxLootRollCount = 8;
+    public bool GenerateEachLootTableEntryOnce;
     public List<LootGenerationEntry> LootTable = new List<LootGenerationEntry>();
 
     [SerializeField]
@@ -199,6 +200,12 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
         if (LootTable != null && LootTable.Count > 0)
         {
+            if (GenerateEachLootTableEntryOnce)
+            {
+                AddEachLootTableEntryOnce(generatedLoot);
+                return generatedLoot;
+            }
+
             int rollCount = Random.Range(MinLootRollCount, MaxLootRollCount + 1);
             for (int i = 0; i < rollCount; i++)
             {
@@ -216,6 +223,28 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         }
 
         return generatedLoot;
+    }
+
+    // Adds every configured entry once for deterministic test boxes.
+    private void AddEachLootTableEntryOnce(List<ContainerItemSaveData> generatedLoot)
+    {
+        foreach (LootGenerationEntry entry in LootTable)
+        {
+            if (entry == null || entry.ItemData == null || entry.Weight <= 0)
+            {
+                continue;
+            }
+
+            if (Random.value > entry.SpawnChance)
+            {
+                continue;
+            }
+
+            int amount = entry.ItemData.IsStackable
+                ? Random.Range(Mathf.Max(1, entry.MinAmount), Mathf.Max(entry.MinAmount, entry.MaxAmount) + 1)
+                : 1;
+            generatedLoot.Add(CreateGeneratedLoot(entry.ItemData, amount));
+        }
     }
 
     // 根据权重和概率从掉落表里选出一次实际掉落项

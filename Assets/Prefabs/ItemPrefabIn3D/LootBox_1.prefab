@@ -127,15 +127,36 @@ MonoBehaviour:
   PrecalculateLootOnSpawn: 1
   MinLootRollCount: 3
   MaxLootRollCount: 8
+  GenerateEachLootTableEntryOnce: 1
   LootTable:
-  - ItemData: {fileID: 11400000, guid: 77be87d82f6cbc94291784928d91e6d6, type: 2}
-    Weight: 50
-    MinAmount: 10
-    MaxAmount: 20
-    SpawnChance: 1
-  - ItemData: {fileID: 11400000, guid: 326b1a488f0b3f24eab4aeb26946babe, type: 2}
-    Weight: 20
+  - ItemData: {fileID: 11400000, guid: ac1d4be35a5b8414196607570998925f, type: 2}
+    Weight: 1
     MinAmount: 1
     MaxAmount: 1
-    SpawnChance: 0.6
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: e517dceb8e1b6414c83579c264448006, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: b3ceb5d5e4aa9bf49a604b08c48a8a14, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 6dc78a1572172064b961ca97db525795, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 7b49453b6b7f96349ac8f98d3acdf6b7, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 20c8b97ce0dfa3140958eeae1eda1a7b, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
   _savedCellStates: []
