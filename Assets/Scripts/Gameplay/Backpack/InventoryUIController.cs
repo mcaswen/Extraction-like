@@ -20,6 +20,14 @@ public class InventoryUIController : MonoBehaviour
 
     private Image _highlighterImage;
     private InventoryGridController _gridController;
+    private InventoryContainerRuntimeState _runtimeState;
+    private readonly Dictionary<InventoryItemRuntimeState, DraggableItemUI> _itemViewsByState =
+        new Dictionary<InventoryItemRuntimeState, DraggableItemUI>();
+
+    /// <summary>
+    /// 当前网格绑定的容器运行时数据源
+    /// </summary>
+    public InventoryContainerRuntimeState RuntimeState => EnsureRuntimeState();
 
     private void Awake()
     {
@@ -244,33 +252,37 @@ public class InventoryUIController : MonoBehaviour
     public void LoadFromRuntimeState(List<ContainerItemSaveData> saveDataList, List<ContainerCellStateSaveData> cellStates)
     {
         ClearUI();
+        BindRuntimeState(InventoryContainerRuntimeState.CreateFromSaveData(
+            CloneSaveDataList(saveDataList),
+            CloneCellStateList(cellStates)));
 
-        if (saveDataList != null)
+        List<InventoryContainerItemRuntimeState> itemsToRender = new List<InventoryContainerItemRuntimeState>(RuntimeState.Items);
+        List<InventoryItemRuntimeState> failedItems = new List<InventoryItemRuntimeState>();
+        foreach (InventoryContainerItemRuntimeState itemState in itemsToRender)
         {
-            foreach (ContainerItemSaveData data in saveDataList)
+            if (itemState?.ItemState?.ItemData == null)
             {
-                if (data?.ItemData == null)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                DraggableItemUI itemView = InventoryItemFactory.Instance.SpawnItemInGrid(
-                    data.ItemData,
-                    this,
-                    data.X,
-                    data.Y,
-                    data.Amount,
-                    data.IsRotated,
-                    CloneSaveDataList(data.InternalItems),
-                    CloneCellStateList(data.InternalCellStates));
-                if (itemView != null)
-                {
-                    itemView.ApplyContainerRuntimeState(data);
-                }
+            DraggableItemUI itemView = InventoryItemFactory.Instance.SpawnItemInGrid(
+                itemState.ItemState,
+                this,
+                itemState.GridPosition.x,
+                itemState.GridPosition.y,
+                itemState.IsRotated);
+            if (itemView == null)
+            {
+                failedItems.Add(itemState.ItemState);
             }
         }
 
-        GetGridController().ApplyRuntimeCellStates(CloneCellStateList(cellStates));
+        foreach (InventoryItemRuntimeState failedItem in failedItems)
+        {
+            RuntimeState.UnregisterItem(failedItem);
+        }
+
+        GetGridController().ApplyRuntimeCellStates(RuntimeState.CreateCellStateSnapshot());
     }
 
     /// <summary>
@@ -278,6 +290,11 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     public List<ContainerItemSaveData> ExtractSaveData()
     {
+        if (_runtimeState != null)
+        {
+            return _runtimeState.CreateItemSaveDataSnapshot();
+        }
+
         List<ContainerItemSaveData> saveDataList = new List<ContainerItemSaveData>();
         if (ItemContainer == null)
         {
@@ -306,7 +323,14 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     public List<ContainerCellStateSaveData> ExtractCellStateData()
     {
-        return GetGridController().ExtractRuntimeCellStates();
+        List<ContainerCellStateSaveData> cellStates = GetGridController().ExtractRuntimeCellStates();
+        if (_runtimeState != null)
+        {
+            _runtimeState.SetCellStates(cellStates);
+            return _runtimeState.CreateCellStateSnapshot();
+        }
+
+        return cellStates;
     }
 
     /// <summary>
@@ -337,7 +361,67 @@ public class InventoryUIController : MonoBehaviour
         }
 
         GetGridController().ClearDynamicCells();
+        _runtimeState?.Clear();
+        _itemViewsByState.Clear();
         HideHighlight();
+    }
+
+    /// <summary>
+    /// 绑定当前网格对应的容器运行时数据源
+    /// </summary>
+    /// <param name="runtimeState">容器运行时数据源</param>
+    public void BindRuntimeState(InventoryContainerRuntimeState runtimeState)
+    {
+        _runtimeState = runtimeState ?? new InventoryContainerRuntimeState();
+    }
+
+    /// <summary>
+    /// 记录物品在当前容器中的摆放状态
+    /// </summary>
+    /// <param name="itemView">物品视图</param>
+    /// <param name="gridPosition">物品所在格子坐标</param>
+    /// <param name="isRotated">物品是否旋转摆放</param>
+    public void RegisterItemPlacement(DraggableItemUI itemView, Vector2Int gridPosition, bool isRotated)
+    {
+        if (itemView == null)
+        {
+            return;
+        }
+
+        EnsureRuntimeState().RegisterItem(itemView.RuntimeState, gridPosition, isRotated);
+        _itemViewsByState[itemView.RuntimeState] = itemView;
+    }
+
+    /// <summary>
+    /// 从当前容器运行时数据源中移除物品
+    /// </summary>
+    /// <param name="itemView">要移除的物品视图</param>
+    public void UnregisterItem(DraggableItemUI itemView)
+    {
+        if (itemView == null)
+        {
+            return;
+        }
+
+        _runtimeState?.UnregisterItem(itemView.RuntimeState);
+        _itemViewsByState.Remove(itemView.RuntimeState);
+    }
+
+    /// <summary>
+    /// 根据物品运行时状态查找当前网格中的物品视图
+    /// </summary>
+    /// <param name="itemState">物品运行时状态</param>
+    /// <param name="itemView">找到的物品视图</param>
+    /// <returns>是否找到对应视图</returns>
+    public bool TryGetItemView(InventoryItemRuntimeState itemState, out DraggableItemUI itemView)
+    {
+        if (itemState == null)
+        {
+            itemView = null;
+            return false;
+        }
+
+        return _itemViewsByState.TryGetValue(itemState, out itemView) && itemView != null;
     }
 
     /// <summary>
@@ -396,6 +480,17 @@ public class InventoryUIController : MonoBehaviour
         _highlighterImage = Highlighter.GetComponent<Image>();
         Highlighter.gameObject.SetActive(false);
         ConfigureHighlighterTransform();
+    }
+
+    // 延迟创建容器运行时状态，兼容场景中尚未显式绑定数据源的旧网格
+    private InventoryContainerRuntimeState EnsureRuntimeState()
+    {
+        if (_runtimeState == null)
+        {
+            _runtimeState = new InventoryContainerRuntimeState();
+        }
+
+        return _runtimeState;
     }
 
     // 根据当前 blocked 配置刷新背景格显隐

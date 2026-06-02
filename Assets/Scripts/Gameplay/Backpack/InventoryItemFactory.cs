@@ -46,6 +46,36 @@ public class InventoryItemFactory : MonoBehaviour
             return null;
         }
 
+        InventoryItemRuntimeState runtimeState = InventoryItemRuntimeState.Create(
+            itemData,
+            amount,
+            internalItems,
+            internalCellStates);
+        return SpawnItemInGrid(runtimeState, targetGrid, startX, startY, isRotated);
+    }
+
+    /// <summary>
+    /// 在指定网格中用已有运行时状态生成一个物品视图
+    /// </summary>
+    /// <param name="runtimeState">物品运行时状态</param>
+    /// <param name="targetGrid">要生成到的目标网格</param>
+    /// <param name="startX">起始横坐标</param>
+    /// <param name="startY">起始纵坐标</param>
+    /// <param name="isRotated">是否以旋转后的占格生成</param>
+    /// <returns>生成出的物品视图，失败则返回空</returns>
+    public DraggableItemUI SpawnItemInGrid(
+        InventoryItemRuntimeState runtimeState,
+        InventoryUIController targetGrid,
+        int startX,
+        int startY,
+        bool isRotated = false)
+    {
+        if (runtimeState == null || runtimeState.ItemData == null || targetGrid == null)
+        {
+            return null;
+        }
+
+        InventoryItemData itemData = runtimeState.ItemData;
         int width = isRotated ? itemData.Height : itemData.Width;
         int height = isRotated ? itemData.Width : itemData.Height;
         if (!targetGrid.GetGridController().IsSpaceAvailable(startX, startY, width, height))
@@ -66,7 +96,7 @@ public class InventoryItemFactory : MonoBehaviour
             return null;
         }
 
-        ConfigureItemView(itemView, itemData, amount, targetGrid, internalItems, internalCellStates);
+        ConfigureItemView(itemView, runtimeState, targetGrid);
         itemView.InitializeItem(itemData, new Vector2Int(startX, startY), isRotated);
         targetGrid.GetGridController().PlaceItem(itemView, startX, startY, isRotated);
         return itemView;
@@ -104,7 +134,10 @@ public class InventoryItemFactory : MonoBehaviour
             return null;
         }
 
-        ConfigureItemView(itemView, itemData, amount, null, internalItems, internalCellStates);
+        ConfigureItemView(
+            itemView,
+            InventoryItemRuntimeState.Create(itemData, amount, internalItems, internalCellStates),
+            null);
 
         Image image = itemView.GetComponent<Image>();
         if (image != null && itemData.ItemIcon != null)
@@ -123,19 +156,19 @@ public class InventoryItemFactory : MonoBehaviour
     // 把静态配置和运行时快照统一灌入物品视图，避免生成入口分散赋值
     private static void ConfigureItemView(
         DraggableItemUI itemView,
-        InventoryItemData itemData,
-        int amount,
-        InventoryUIController targetGrid,
-        List<ContainerItemSaveData> internalItems,
-        List<ContainerCellStateSaveData> internalCellStates)
+        InventoryItemRuntimeState runtimeState,
+        InventoryUIController targetGrid)
     {
+        InventoryItemData itemData = runtimeState != null ? runtimeState.ItemData : null;
+        if (itemData == null)
+        {
+            return;
+        }
+
         itemView.name = itemData.ItemName;
         itemView.IsDebugItem = false;
         itemView.CurrentGrid = targetGrid;
-        itemView.CurrentAmount = amount;
-        itemView.ItemData = itemData;
-        itemView.InternalItems = CloneSaveDataList(internalItems);
-        itemView.InternalCellStates = CloneCellStateList(internalCellStates);
+        itemView.BindRuntimeState(runtimeState);
     }
 
     // 创建物品 GameObject；如果没有配置 prefab，则构建最小可用的运行时视图
@@ -170,43 +203,4 @@ public class InventoryItemFactory : MonoBehaviour
         return itemObject;
     }
 
-    // 深拷贝容器内物品列表，防止多个运行时实例意外共享引用
-    private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
-    {
-        List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();
-        if (source == null)
-        {
-            return clone;
-        }
-
-        foreach (ContainerItemSaveData item in source)
-        {
-            if (item != null)
-            {
-                clone.Add(item.DeepCopy());
-            }
-        }
-
-        return clone;
-    }
-
-    // 深拷贝运行时格子状态列表，保持各容器实例相互独立
-    private static List<ContainerCellStateSaveData> CloneCellStateList(List<ContainerCellStateSaveData> source)
-    {
-        List<ContainerCellStateSaveData> clone = new List<ContainerCellStateSaveData>();
-        if (source == null)
-        {
-            return clone;
-        }
-
-        foreach (ContainerCellStateSaveData item in source)
-        {
-            if (item != null)
-            {
-                clone.Add(item.DeepCopy());
-            }
-        }
-
-        return clone;
-    }
 }

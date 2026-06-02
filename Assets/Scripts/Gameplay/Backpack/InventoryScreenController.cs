@@ -361,6 +361,7 @@ public class InventoryScreenController : MonoBehaviour
         slot.InitializeRuntimeState(false);
         slot.SyncEquippedItemRuntimeDataFromGrid();
 
+        InventoryItemRuntimeState oldItemState = slot.EquippedItemState;
         DraggableItemUI oldItem = slot.ReleaseEquippedItem();
         if (oldItem == null)
         {
@@ -387,8 +388,8 @@ public class InventoryScreenController : MonoBehaviour
 
         DropItemViewToWorld(
             oldItem,
-            CloneSaveDataList(oldItem.InternalItems),
-            CloneCellStateList(oldItem.InternalCellStates));
+            CloneSaveDataList(oldItemState?.InternalItems),
+            CloneCellStateList(oldItemState?.InternalCellStates));
         return true;
     }
 
@@ -836,7 +837,8 @@ public class InventoryScreenController : MonoBehaviour
         slot.SyncEquippedItemRuntimeDataFromGrid();
 
         DraggableItemUI oldItem = slot.EquippedItem;
-        if (oldItem == null)
+        InventoryItemRuntimeState oldItemState = slot.EquippedItemState;
+        if (oldItem == null || oldItemState == null)
         {
             return false;
         }
@@ -864,8 +866,8 @@ public class InventoryScreenController : MonoBehaviour
 
         DropItemViewToWorld(
             oldItem,
-            CloneSaveDataList(oldItem.InternalItems),
-            CloneCellStateList(oldItem.InternalCellStates));
+            CloneSaveDataList(oldItemState.InternalItems),
+            CloneCellStateList(oldItemState.InternalCellStates));
         return true;
     }
 
@@ -876,13 +878,14 @@ public class InventoryScreenController : MonoBehaviour
         slot.SyncEquippedItemRuntimeDataFromGrid();
 
         DraggableItemUI oldItem = slot.EquippedItem;
-        if (oldItem == null)
+        InventoryItemRuntimeState oldItemState = slot.EquippedItemState;
+        if (oldItem == null || oldItemState == null)
         {
             return false;
         }
 
         bool shouldTransferOldContents = TryBuildReplacementBagLayout(
-            oldItem,
+            oldItemState,
             worldItem,
             out List<ContainerItemSaveData> transferredLayout);
 
@@ -913,24 +916,24 @@ public class InventoryScreenController : MonoBehaviour
 
         DropItemViewToWorld(
             oldItem,
-            shouldTransferOldContents ? new List<ContainerItemSaveData>() : CloneSaveDataList(oldItem.InternalItems),
-            shouldTransferOldContents ? new List<ContainerCellStateSaveData>() : CloneCellStateList(oldItem.InternalCellStates));
+            shouldTransferOldContents ? new List<ContainerItemSaveData>() : CloneSaveDataList(oldItemState.InternalItems),
+            shouldTransferOldContents ? new List<ContainerCellStateSaveData>() : CloneCellStateList(oldItemState.InternalCellStates));
         return true;
     }
 
     // 当新包容量更大时，尝试把新包原内容和旧包内容合并重排成一套布局
     private static bool TryBuildReplacementBagLayout(
-        DraggableItemUI oldBagItem,
+        InventoryItemRuntimeState oldBagState,
         WorldLootItem newBagWorldItem,
         out List<ContainerItemSaveData> sortedLayout)
     {
         sortedLayout = new List<ContainerItemSaveData>();
-        if (oldBagItem == null || oldBagItem.ItemData == null || newBagWorldItem == null || newBagWorldItem.ItemData == null)
+        if (oldBagState == null || oldBagState.ItemData == null || newBagWorldItem == null || newBagWorldItem.ItemData == null)
         {
             return false;
         }
 
-        int oldCapacity = GetContainerCapacity(oldBagItem.ItemData);
+        int oldCapacity = GetContainerCapacity(oldBagState.ItemData);
         int newCapacity = GetContainerCapacity(newBagWorldItem.ItemData);
         if (newCapacity <= oldCapacity)
         {
@@ -938,7 +941,7 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         List<ContainerItemSaveData> combinedItems = CloneSaveDataList(newBagWorldItem.InternalItems);
-        combinedItems.AddRange(CloneSaveDataList(oldBagItem.InternalItems));
+        combinedItems.AddRange(CloneSaveDataList(oldBagState.InternalItems));
 
         return InventoryAutoSortService.TryBuildSortedLayout(
             newBagWorldItem.ItemData.ContainerColumns,

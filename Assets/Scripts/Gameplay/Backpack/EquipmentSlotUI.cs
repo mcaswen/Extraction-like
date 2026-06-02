@@ -19,8 +19,10 @@ public class EquipmentSlotUI : MonoBehaviour
     private bool IsEquipmentKindSlot => AcceptedEquipmentKind != EquipmentSlotKind.None;
 
     public DraggableItemUI EquippedItem { get; private set; }
-    public bool HasEquippedItem => EquippedItem != null;
+    public InventoryItemRuntimeState EquippedItemState => _runtimeState.EquippedItemState;
+    public bool HasEquippedItem => _runtimeState.HasEquippedItem;
 
+    private readonly EquipmentSlotRuntimeState _runtimeState = new EquipmentSlotRuntimeState();
     private bool _isLinkedGridInitialized;
 
     private void Start()
@@ -64,11 +66,12 @@ public class EquipmentSlotUI : MonoBehaviour
             return false;
         }
 
-        if (!CanAcceptItem(item.ItemData) || EquippedItem != null)
+        if (!CanAcceptItem(item.ItemData) || HasEquippedItem)
         {
             return false;
         }
 
+        _runtimeState.Equip(item.RuntimeState);
         EquippedItem = item;
         _isLinkedGridInitialized = false;
 
@@ -233,7 +236,7 @@ public class EquipmentSlotUI : MonoBehaviour
             return;
         }
 
-        if (EquippedItem == null)
+        if (!HasEquippedItem)
         {
             LinkedGrid.gameObject.SetActive(false);
             return;
@@ -252,13 +255,14 @@ public class EquipmentSlotUI : MonoBehaviour
             return;
 
         }
-        if (EquippedItem == null || LinkedGrid == null)
+        if (!HasEquippedItem || LinkedGrid == null)
         {
             return;
         }
 
-        EquippedItem.InternalItems = LinkedGrid.ExtractSaveData();
-        EquippedItem.InternalCellStates = LinkedGrid.ExtractCellStateData();
+        _runtimeState.SyncInternalContainerState(
+            LinkedGrid.ExtractSaveData(),
+            LinkedGrid.ExtractCellStateData());
     }
 
     /// <summary>
@@ -267,7 +271,7 @@ public class EquipmentSlotUI : MonoBehaviour
     /// <returns>被释放的物品，没有则返回空</returns>
     public DraggableItemUI ReleaseEquippedItem()
     {
-        if (EquippedItem == null)
+        if (!HasEquippedItem)
         {
             return null;
         }
@@ -275,13 +279,15 @@ public class EquipmentSlotUI : MonoBehaviour
         DraggableItemUI releasedItem = EquippedItem;
         if (!IsEquipmentKindSlot && LinkedGrid != null)
         {
-            releasedItem.InternalItems = LinkedGrid.ExtractSaveData();
-            releasedItem.InternalCellStates = LinkedGrid.ExtractCellStateData();
+            _runtimeState.SyncInternalContainerState(
+                LinkedGrid.ExtractSaveData(),
+                LinkedGrid.ExtractCellStateData());
             LinkedGrid.ClearUI();
             LinkedGrid.gameObject.SetActive(false);
         }
 
         _isLinkedGridInitialized = false;
+        _runtimeState.Clear();
         EquippedItem = null;
         ReparentReleasedItem(releasedItem);
         return releasedItem;
@@ -292,6 +298,11 @@ public class EquipmentSlotUI : MonoBehaviour
     {
         if (EquippedItem != null)
         {
+            if (!HasEquippedItem)
+            {
+                _runtimeState.Equip(EquippedItem.RuntimeState);
+            }
+
             return;
         }
 
@@ -308,6 +319,7 @@ public class EquipmentSlotUI : MonoBehaviour
                 continue;
             }
 
+            _runtimeState.Equip(item.RuntimeState);
             EquippedItem = item;
             EquippedItem.CurrentGrid = null;
             ApplyEquippedItemVisual(item);
@@ -318,16 +330,16 @@ public class EquipmentSlotUI : MonoBehaviour
     // 根据当前装备物品重建关联的内部网格，使装备槽与容器内容保持同步
     private void InitializeLinkedGridFromEquippedItem()
     {
-        if (_isLinkedGridInitialized || LinkedGrid == null || EquippedItem == null || EquippedItem.ItemData == null)
+        if (_isLinkedGridInitialized || LinkedGrid == null || !HasEquippedItem || EquippedItemState.ItemData == null)
         {
             return;
         }
 
         LinkedGrid.RebuildGridUI(
-            EquippedItem.ItemData.ContainerColumns,
-            EquippedItem.ItemData.ContainerRows,
-            EquippedItem.ItemData.BlockedCells);
-        LinkedGrid.LoadFromRuntimeState(EquippedItem.InternalItems, EquippedItem.InternalCellStates);
+            EquippedItemState.ItemData.ContainerColumns,
+            EquippedItemState.ItemData.ContainerRows,
+            EquippedItemState.ItemData.BlockedCells);
+        LinkedGrid.LoadFromRuntimeState(EquippedItemState.InternalItems, EquippedItemState.InternalCellStates);
         _isLinkedGridInitialized = true;
     }
 

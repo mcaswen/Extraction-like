@@ -6,6 +6,15 @@ using UnityEngine.UI;
 public partial class DraggableItemUI
 {
     /// <summary>
+    /// 绑定物品运行时状态
+    /// </summary>
+    /// <param name="runtimeState">新的运行时状态</param>
+    public void BindRuntimeState(InventoryItemRuntimeState runtimeState)
+    {
+        _runtimeState = runtimeState ?? new InventoryItemRuntimeState();
+    }
+
+    /// <summary>
     /// 初始化运行时物品视图
     /// </summary>
     /// <param name="data">静态物品配置</param>
@@ -15,7 +24,7 @@ public partial class DraggableItemUI
     {
         EnsureComponents();
 
-        ItemData = data;
+        _runtimeState.ItemData = data;
         _originalGridIndex = startPos;
         _originalIsRotated = isRotated;
         _currentPreviewIsRotated = isRotated;
@@ -46,20 +55,9 @@ public partial class DraggableItemUI
             return;
         }
 
-        _requiresSearch = saveData.RequiresSearch;
-        RuntimeItemId = saveData.RuntimeItemId;
-        _searchDurationSeconds = saveData.SearchDurationSeconds > 0f
-            ? saveData.SearchDurationSeconds
-            : (ItemData != null ? ItemData.GetSearchDurationSeconds() : 0f);
-        _searchProgressSeconds = Mathf.Clamp(saveData.SearchProgressSeconds, 0f, _searchDurationSeconds);
-        _isSearched = !_requiresSearch || saveData.IsSearched || _searchProgressSeconds >= _searchDurationSeconds;
+        _runtimeState.ApplyContainerSaveData(saveData);
         _isRevealAnimating = false;
         _revealAnimationTimer = 0f;
-
-        if (_isSearched)
-        {
-            _searchProgressSeconds = _searchDurationSeconds;
-        }
 
         UpdateAmountText();
         UpdateSearchVisualState();
@@ -196,10 +194,10 @@ public partial class DraggableItemUI
             cloneCanvasGroup.blocksRaycasts = true;
         }
 
-        cloneItem.CurrentAmount = splitAmount;
-        cloneItem.InternalItems = CloneSaveDataList(InternalItems);
-        cloneItem.InternalCellStates = CloneCellStateList(InternalCellStates);
-        cloneItem.InitializeItem(ItemData, position, needsRotation);
+        InventoryItemRuntimeState splitState = _runtimeState.DeepCopy();
+        splitState.Amount = splitAmount;
+        cloneItem.BindRuntimeState(splitState);
+        cloneItem.InitializeItem(splitState.ItemData, position, needsRotation);
         CurrentGrid.GetGridController().PlaceItem(cloneItem, position.x, position.y, needsRotation);
     }
 
@@ -208,21 +206,7 @@ public partial class DraggableItemUI
     /// </summary>
     public ContainerItemSaveData CreateSaveDataSnapshot()
     {
-        return new ContainerItemSaveData
-        {
-            RuntimeItemId = RuntimeItemId,
-            ItemData = ItemData,
-            Amount = CurrentAmount,
-            X = _originalGridIndex.x,
-            Y = _originalGridIndex.y,
-            IsRotated = _originalIsRotated,
-            RequiresSearch = _requiresSearch,
-            IsSearched = _isSearched,
-            SearchProgressSeconds = _searchProgressSeconds,
-            SearchDurationSeconds = _searchDurationSeconds,
-            InternalItems = CloneSaveDataList(InternalItems),
-            InternalCellStates = CloneCellStateList(InternalCellStates)
-        };
+        return _runtimeState.CreateSaveDataSnapshot(_originalGridIndex, _originalIsRotated);
     }
 
     /// <summary>
@@ -241,28 +225,26 @@ public partial class DraggableItemUI
     /// <returns>搜索是否在本次推进后完成</returns>
     public bool AdvanceSearchProgressManually(float deltaSeconds)
     {
-        if (!_requiresSearch || _isSearched)
+        if (!RequiresSearch || IsSearched)
         {
             return false;
         }
 
-        float previousProgress = _searchProgressSeconds;
-        _searchProgressSeconds = Mathf.Min(_searchProgressSeconds + Mathf.Max(0f, deltaSeconds), _searchDurationSeconds);
-
-        if (_searchProgressSeconds >= _searchDurationSeconds)
+        float previousProgress = SearchProgressSeconds;
+        bool completed = _runtimeState.AdvanceSearchProgress(deltaSeconds);
+        if (completed)
         {
-            _isSearched = true;
             _isRevealAnimating = true;
             _revealAnimationTimer = 0f;
             UpdateAmountText();
         }
 
-        if (!Mathf.Approximately(previousProgress, _searchProgressSeconds) || _isSearched)
+        if (!Mathf.Approximately(previousProgress, SearchProgressSeconds) || completed)
         {
             UpdateSearchVisualState();
         }
 
-        return _isSearched;
+        return IsSearched;
     }
 
     /// <summary>
@@ -270,9 +252,7 @@ public partial class DraggableItemUI
     /// </summary>
     public bool IsContainerCompletelyEmpty()
     {
-        bool hasInternalItems = InternalItems != null && InternalItems.Count > 0;
-        bool hasInternalCellStates = InternalCellStates != null && InternalCellStates.Count > 0;
-        return !hasInternalItems && !hasInternalCellStates;
+        return _runtimeState.IsContainerCompletelyEmpty();
     }
 
     /// <summary>
