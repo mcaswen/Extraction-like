@@ -24,6 +24,7 @@ MonoBehaviour:
     _patrolRadius: 10
     _patrolWaitTime: 2
   _detection:
+    _awarenessPreset: 2
     _detectionRange: 15
     _viewAngle: 112
     _loseRange: 20

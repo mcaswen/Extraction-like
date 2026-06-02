@@ -88,6 +88,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private PlayerHealthController _playerHealthController;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
+    private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
@@ -123,6 +124,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
+        _patrolAwareness?.ConfigurePreset(_awarenessPreset);
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         if (EnsureAgentReady())
@@ -155,6 +157,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         PatrolRadius = _config.Patrol.PatrolRadius;
         PatrolWaitTime = _config.Patrol.PatrolWaitTime;
         _patrolMode = _config.Patrol.PatrolMode;
+        _awarenessPreset = _config.Detection.AwarenessPreset;
         DetectionRange = _config.Detection.DetectionRange;
         ViewAngle = _config.Detection.ViewAngle;
         LineOfSightBlockMask = _config.Detection.LineOfSightBlockMask;
@@ -228,14 +231,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (CanSeePlayer())
         {
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                Mathf.Max(DetectionRange, 12f),
-                0.8f,
-                2.5f,
-                0.8f,
-                PlayerTransform);
+            ReportPlayerLastSeen(Mathf.Max(DetectionRange, 12f), 0.8f, 2.5f, 0.8f);
             CurrentState = EnemyState.Chase;
             return;
         }
@@ -267,14 +263,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -305,14 +294,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -340,14 +322,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
             StopBiteStrike();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -650,6 +625,23 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         SetRandomPatrolDestination();
+    }
+
+    private void ReportPlayerLastSeen(float radius, float strength, float duration, float uncertaintyRadius)
+    {
+        if (!_awarenessPreset.ShouldReportPlayerLastSeen() || PlayerTransform == null)
+        {
+            return;
+        }
+
+        EnemySuspicionStimulusBus.Raise(
+            EnemySuspicionStimulusType.PlayerLastSeen,
+            PlayerTransform.position,
+            radius,
+            strength,
+            duration,
+            uncertaintyRadius,
+            PlayerTransform);
     }
 
     private void SetRandomPatrolDestination()

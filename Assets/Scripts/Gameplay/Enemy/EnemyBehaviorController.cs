@@ -62,6 +62,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
     private PlayerHealthController _playerHealthController;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
+    private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
     private float _waitTimer;
     private float _attackTimer;
     private float _directDamageForcedChaseEndTime = -1f;
@@ -90,6 +91,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         _navMeshAgent = GetComponent<NavMeshAgent>();
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
+        _patrolAwareness?.ConfigurePreset(_awarenessPreset);
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         ApplyHealthConfig();
@@ -112,6 +114,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         PatrolRadius = _config.Patrol.PatrolRadius;
         PatrolWaitTime = _config.Patrol.PatrolWaitTime;
         _patrolMode = _config.Patrol.PatrolMode;
+        _awarenessPreset = _config.Detection.AwarenessPreset;
         DetectionRange = _config.Detection.DetectionRange;
         ViewAngle = _config.Detection.ViewAngle;
         LineOfSightBlockMask = _config.Detection.LineOfSightBlockMask;
@@ -169,14 +172,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
 
         if (CanSeePlayer())
         {
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                Mathf.Max(DetectionRange, 12f),
-                0.8f,
-                2.5f,
-                0.8f,
-                PlayerTransform);
+            ReportPlayerLastSeen(Mathf.Max(DetectionRange, 12f), 0.8f, 2.5f, 0.8f);
             CurrentState = EnemyState.Chase;
             return;
         }
@@ -207,14 +203,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -320,6 +309,23 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         }
 
         SetRandomPatrolDestination();
+    }
+
+    private void ReportPlayerLastSeen(float radius, float strength, float duration, float uncertaintyRadius)
+    {
+        if (!_awarenessPreset.ShouldReportPlayerLastSeen() || PlayerTransform == null)
+        {
+            return;
+        }
+
+        EnemySuspicionStimulusBus.Raise(
+            EnemySuspicionStimulusType.PlayerLastSeen,
+            PlayerTransform.position,
+            radius,
+            strength,
+            duration,
+            uncertaintyRadius,
+            PlayerTransform);
     }
 
     private void SetRandomPatrolDestination()

@@ -403,3 +403,9 @@ Implementation steps for this restart:
 - Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success, 0 errors, with 9 existing unrelated warnings.
 - Ran `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
 - Note: this is a temporary playtest configuration and should be reverted after equipment-slot validation if these boxes need their original production loot tables.
+
+## 2026-06-02 Equipment Slot Implementation Acceptance
+
+- User completed Play Mode validation for the equipment-slot implementation.
+- Accepted behavior covers the fixed 5x6 backpack, active BackpackGrid on game start, typed Head/Body/Face/Headphone/Totem equipment slots, rejected wrong-slot drops, and usable equipment test items from loot boxes.
+- Marked Phase 20 `Equipment slot implementation restart` as Done in `task_plan.md`.
