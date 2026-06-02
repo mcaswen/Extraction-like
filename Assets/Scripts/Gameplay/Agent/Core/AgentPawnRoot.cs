@@ -14,7 +14,7 @@ namespace Gameplay.Agent.Core
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter))]
-    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver
+    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver
     {
         private const int RangeGizmoSegmentCount = 64;
         private static readonly Color TargetDiscoveryRangeGizmoColor = new Color(0.1f, 0.65f, 1f, 0.85f);
@@ -98,6 +98,8 @@ namespace Gameplay.Agent.Core
         /// 当前 Pawn 是否死亡
         /// </summary>
         public bool IsDead => _currentHealth <= 0;
+        public Transform DamageRootTransform => transform;
+        public bool IsCombatDamageReceiverAlive => !IsDead;
 
         /// <summary>
         /// 是否启用目标发现
@@ -239,6 +241,19 @@ namespace Gameplay.Agent.Core
 
             _currentHealth = Mathf.Max(0, _currentHealth - Mathf.Max(0, damageRequest.DamageAmount));
             SyncBodyFactsToBlackboard(Time.timeAsDouble);
+        }
+
+        public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
+        {
+            if (IsDead || damage <= 0f)
+                return 0f;
+
+            int previousHealth = _currentHealth;
+            ApplyDamage(new DamageRequest(
+                Mathf.RoundToInt(damage),
+                hitPoint,
+                hitDirection));
+            return Mathf.Max(0, previousHealth - _currentHealth);
         }
 
         /// <summary>

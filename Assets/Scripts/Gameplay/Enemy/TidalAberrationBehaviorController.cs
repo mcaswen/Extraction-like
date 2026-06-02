@@ -96,6 +96,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
     private PlayerShootingController _playerShootingController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
@@ -341,10 +342,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             while (_electricTickTimer >= electricTickInterval)
             {
                 _electricTickTimer -= electricTickInterval;
-                if (_playerHealthController != null)
-                {
-                    _meleeTotalDamage += _playerHealthController.TakeDamage(ElectricTickDamagePerSecond * electricTickInterval);
-                }
+                _meleeTotalDamage += CombatDamageUtility.ApplyDamageTo(
+                    _combatDamageReceiver,
+                    ElectricTickDamagePerSecond * electricTickInterval,
+                    PlayerTransform != null ? PlayerTransform.position : transform.position,
+                    PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+                    gameObject);
             }
 
             if (_meleeVisualTimer >= MeleeLatchDuration)
@@ -418,10 +421,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _meleeTotalDamage = 0f;
         _isMeleeLatched = true;
 
-        if (_playerHealthController != null)
-        {
-            _meleeTotalDamage += _playerHealthController.TakeDamage(MeleeContactDamage);
-        }
+        _meleeTotalDamage += CombatDamageUtility.ApplyDamageTo(
+            _combatDamageReceiver,
+            MeleeContactDamage,
+            PlayerTransform != null ? PlayerTransform.position : transform.position,
+            PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+            gameObject);
 
         if (_playerShootingController != null)
         {
@@ -457,13 +462,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, WaterJetMaxDistance))
         {
-            if (hit.collider.CompareTag("Player"))
+            if (CombatDamageUtility.TryGetDamageReceiver(hit.collider, out ICombatDamageReceiver damageReceiver))
             {
                 float totalDamage = 0f;
-                if (_playerHealthController != null)
-                {
-                    totalDamage = _playerHealthController.TakeDamage(WaterJetDamage);
-                }
+                totalDamage = CombatDamageUtility.ApplyDamageTo(
+                    damageReceiver,
+                    WaterJetDamage,
+                    hit.point,
+                    direction,
+                    gameObject);
 
                 if (_playerMovementController != null)
                 {
@@ -485,30 +492,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _rangedVisualTimer = 0f;
     }
 
-    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    public void NotifyDirectDamage(EnemyDamageContext context)
     {
-        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        if (!context.IsDirectDamage || context.Attacker == null)
         {
             return;
         }
 
-        PlayerTransform = context.Attacker;
+        AssignCombatTarget(context.Attacker);
         BeginDirectDamageForcedChase(context);
-        _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        if (_playerHealthController == null)
-        {
-            _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
-        }
-        _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-        if (_playerMovementController == null)
-        {
-            _playerMovementController = PlayerTransform.GetComponentInParent<PlayerMovementController>();
-        }
-        _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
-        if (_playerShootingController == null)
-        {
-            _playerShootingController = PlayerTransform.GetComponentInParent<PlayerShootingController>();
-        }
 
         StopMeleeAttack();
         StopRangedAttack();
@@ -882,45 +874,72 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             }
         }
 
-        if (PlayerTransform != null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
         {
+            return true;
+        }
+
+        if (PlayerTransform != null &&
+            PlayerTransform.CompareTag("Player") &&
+            _playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
-                _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-                if (_playerHealthController == null)
-                {
-                    _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
-                }
+                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
             }
 
-            if (_playerMovementController == null)
+            _combatDamageReceiver = _playerHealthController;
+            return _combatDamageReceiver != null;
+        }
+
+        if (PlayerHealthController.Instance != null)
+        {
+            return AssignCombatTarget(PlayerHealthController.Instance.transform);
+        }
+
+        return false;
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        _playerHealthController = target.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
+        }
+
+        _playerMovementController = target.GetComponent<PlayerMovementController>();
+        if (_playerMovementController == null)
+        {
+            _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
+        }
+
+        _playerShootingController = target.GetComponent<PlayerShootingController>();
+        if (_playerShootingController == null)
+        {
+            _playerShootingController = target.GetComponentInParent<PlayerShootingController>();
+        }
+
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
             {
-                _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
+                PlayerTransform = receiver.DamageRootTransform;
             }
 
-            if (_playerShootingController == null)
-            {
-                _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
-            }
+            return true;
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
-        {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
-        }
-
-        if (_playerMovementController == null && PlayerTransform != null)
-        {
-            _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-        }
-
-        if (_playerShootingController == null && PlayerTransform != null)
-        {
-            _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
-        }
-
-        return PlayerTransform != null && _playerHealthController != null;
+        _combatDamageReceiver = _playerHealthController;
+        return _combatDamageReceiver != null;
     }
 
     private void OnDrawGizmosSelected()

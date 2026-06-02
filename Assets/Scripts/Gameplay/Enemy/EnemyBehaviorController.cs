@@ -60,6 +60,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
@@ -237,29 +238,27 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         if (_attackTimer >= AttackInterval)
         {
             float totalDamage = 0f;
-            if (_playerHealthController != null)
-            {
-                totalDamage = _playerHealthController.TakeDamage(AttackDamage);
-            }
+            Vector3 hitDirection = PlayerTransform.position - transform.position;
+            totalDamage = CombatDamageUtility.ApplyDamageTo(
+                _combatDamageReceiver,
+                AttackDamage,
+                PlayerTransform.position,
+                hitDirection,
+                gameObject);
 
             EnemySkillDamageLogger.LogSkillDamage(this, "Basic Melee Attack", totalDamage);
             _attackTimer = 0f;
         }
     }
 
-    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    public void NotifyDirectDamage(EnemyDamageContext context)
     {
-        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        if (!context.IsDirectDamage || context.Attacker == null)
         {
             return;
         }
 
-        PlayerTransform = context.Attacker;
-        _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        if (_playerHealthController == null)
-        {
-            _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
-        }
+        AssignCombatTarget(context.Attacker);
 
         BeginDirectDamageForcedChase(context);
         _waitTimer = 0f;
@@ -534,22 +533,60 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
             }
         }
 
-        if (PlayerTransform != null && _playerHealthController == null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
+        {
+            return true;
+        }
+
+        if (PlayerTransform != null &&
+            PlayerTransform.CompareTag("Player") &&
+            _playerHealthController == null)
         {
             _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
                 _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
             }
+
+            _combatDamageReceiver = _playerHealthController;
+            return _combatDamageReceiver != null;
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        if (PlayerHealthController.Instance != null)
         {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
+            return AssignCombatTarget(PlayerHealthController.Instance.transform);
         }
 
-        return PlayerTransform != null && _playerHealthController != null;
+        return false;
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        _playerHealthController = target.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
+        }
+
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
+            {
+                PlayerTransform = receiver.DamageRootTransform;
+            }
+
+            return true;
+        }
+
+        _combatDamageReceiver = _playerHealthController;
+        return _combatDamageReceiver != null;
     }
 
     private void OnDrawGizmosSelected()

@@ -74,7 +74,9 @@ namespace Gameplay.Agent.AI.Actions
             if (!TryShootEnemy(agent, enemyHealthController, attackDamage))
             {
                 // 子弹组件未配置时保留直接伤害兜底，避免 MVP 战斗链路被资产配置卡住
-                enemyHealthController.TakeDamage(attackDamage);
+                enemyHealthController.TakeDamage(
+                    attackDamage,
+                    CreateAgentDamageContext(agent, enemyHealthController));
             }
 
             _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, attackInterval);
@@ -120,6 +122,24 @@ namespace Gameplay.Agent.AI.Actions
         {
             AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
             return shooter != null && shooter.TryShootAt(enemyHealthController, attackDamage);
+        }
+
+        private static global::EnemyDamageContext CreateAgentDamageContext(
+            IAgentReadOnly agent,
+            global::EnemyHealthController enemyHealthController)
+        {
+            Transform attacker = agent.CachedTransform;
+            Vector3 hitPosition = enemyHealthController != null
+                ? enemyHealthController.transform.position
+                : attacker.position;
+            Vector3 sourcePosition = attacker.position;
+            Vector3 incomingDirection = hitPosition - sourcePosition;
+            return global::EnemyDamageContext.FromAttacker(
+                attacker,
+                hitPosition,
+                sourcePosition,
+                incomingDirection,
+                global::EnemyDamageSourceType.Projectile);
         }
     }
 }

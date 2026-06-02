@@ -18,6 +18,7 @@ public readonly struct EnemyDamageContext
     public readonly Vector3 HitPosition;
     public readonly Vector3 SourcePosition;
     public readonly Vector3 IncomingDirection;
+    public readonly bool IsDirectDamage;
     public readonly bool IsDirectPlayerDamage;
     public readonly EnemyDamageSourceType SourceType;
 
@@ -26,6 +27,7 @@ public readonly struct EnemyDamageContext
         Vector3 hitPosition,
         Vector3 sourcePosition,
         Vector3 incomingDirection,
+        bool isDirectDamage,
         bool isDirectPlayerDamage,
         EnemyDamageSourceType sourceType)
     {
@@ -35,6 +37,7 @@ public readonly struct EnemyDamageContext
         IncomingDirection = incomingDirection.sqrMagnitude > 0.0001f
             ? incomingDirection.normalized
             : Vector3.zero;
+        IsDirectDamage = isDirectDamage;
         IsDirectPlayerDamage = isDirectPlayerDamage;
         SourceType = sourceType;
     }
@@ -45,7 +48,25 @@ public readonly struct EnemyDamageContext
         Vector3.zero,
         Vector3.zero,
         false,
+        false,
         EnemyDamageSourceType.Unknown);
+
+    public static EnemyDamageContext FromAttacker(
+        Transform attacker,
+        Vector3 hitPosition,
+        Vector3 sourcePosition,
+        Vector3 incomingDirection,
+        EnemyDamageSourceType sourceType)
+    {
+        return new EnemyDamageContext(
+            attacker,
+            hitPosition,
+            sourcePosition,
+            incomingDirection,
+            attacker != null,
+            attacker != null && attacker.GetComponentInParent<PlayerHealthController>() != null,
+            sourceType);
+    }
 
     public static EnemyDamageContext FromPlayer(
         Transform playerTransform,
@@ -60,13 +81,95 @@ public readonly struct EnemyDamageContext
             sourcePosition,
             incomingDirection,
             playerTransform != null,
+            playerTransform != null,
             sourceType);
     }
 }
 
 public interface IEnemyDirectDamageReceiver
 {
-    void NotifyDirectPlayerDamage(EnemyDamageContext context);
+    void NotifyDirectDamage(EnemyDamageContext context);
+}
+
+public interface ICombatDamageReceiver
+{
+    Transform DamageRootTransform { get; }
+    bool IsCombatDamageReceiverAlive { get; }
+    float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source);
+}
+
+public static class CombatDamageUtility
+{
+    public static bool TryGetDamageReceiver(Component component, out ICombatDamageReceiver receiver)
+    {
+        receiver = null;
+        if (component == null)
+        {
+            return false;
+        }
+
+        MonoBehaviour[] behaviours = component.GetComponentsInParent<MonoBehaviour>();
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is ICombatDamageReceiver candidate &&
+                candidate.IsCombatDamageReceiverAlive)
+            {
+                receiver = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static bool TryGetDamageReceiver(Transform target, out ICombatDamageReceiver receiver)
+    {
+        receiver = null;
+        if (target == null)
+        {
+            return false;
+        }
+
+        MonoBehaviour[] behaviours = target.GetComponentsInParent<MonoBehaviour>();
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is ICombatDamageReceiver candidate &&
+                candidate.IsCombatDamageReceiverAlive)
+            {
+                receiver = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static float ApplyDamageTo(
+        Transform target,
+        float damage,
+        Vector3 hitPoint,
+        Vector3 hitDirection,
+        GameObject source)
+    {
+        return TryGetDamageReceiver(target, out ICombatDamageReceiver receiver)
+            ? ApplyDamageTo(receiver, damage, hitPoint, hitDirection, source)
+            : 0f;
+    }
+
+    public static float ApplyDamageTo(
+        ICombatDamageReceiver receiver,
+        float damage,
+        Vector3 hitPoint,
+        Vector3 hitDirection,
+        GameObject source)
+    {
+        if (receiver == null || !receiver.IsCombatDamageReceiverAlive)
+        {
+            return 0f;
+        }
+
+        return receiver.TakeCombatDamage(damage, hitPoint, hitDirection, source);
+    }
 }
 
 /// <summary>
@@ -192,18 +295,18 @@ public class EnemyHealthController : MonoBehaviour
 
     private void NotifyDamageReaction(EnemyDamageContext context)
     {
-        if (context.IsDirectPlayerDamage && context.Attacker != null)
+        if (context.IsDirectDamage && context.Attacker != null)
         {
             IEnemyDirectDamageReceiver[] receivers = GetComponents<IEnemyDirectDamageReceiver>();
             for (int i = 0; i < receivers.Length; i++)
             {
-                receivers[i]?.NotifyDirectPlayerDamage(context);
+                receivers[i]?.NotifyDirectDamage(context);
             }
 
             return;
         }
 
-        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
+        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, transform);
     }
 
     /// <summary>

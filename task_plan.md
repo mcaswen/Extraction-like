@@ -47,6 +47,7 @@ Out of scope:
 | 20. Equipment slot implementation restart | Done | Fixed 5x6 backpack, six typed equipment slots, equipment data/assets, TSV/XLSX support, and prefab bindings | Static scans, workbook verify, dotnet builds, Unity compile/prefab verification, and user Play Mode acceptance |
 | 21. Enemy direct-hit combat response | Done | Player direct damage carries attacker context; hit patrol enemy locks player and enters chase without alerting nearby enemies | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 | 22. Enemy direct-hit long-range chase fix | Done | Directly hit patrol enemies get a short forced chase window and sampled NavMesh chase destination before normal lose-range leash resumes | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
+| 23. Enemy direct attacker retaliation | Done | Direct Agent/player damage carries an attacker; patrol enemies chase and attack the direct attacker instead of stopping in patrol awareness | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 
 ## TSV Columns
 

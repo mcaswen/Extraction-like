@@ -63,6 +63,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
     private NavMeshAgent _navMeshAgent;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
@@ -266,14 +267,14 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
         }
     }
 
-    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    public void NotifyDirectDamage(EnemyDamageContext context)
     {
-        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        if (!context.IsDirectDamage || context.Attacker == null)
         {
             return;
         }
 
-        PlayerTransform = context.Attacker;
+        AssignCombatTarget(context.Attacker);
         BeginDirectDamageForcedChase(context);
         _waitTimer = 0f;
         _patrolAwareness?.ResetAwareness();
@@ -531,26 +532,15 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
 
     private bool EnsurePlayerTransform()
     {
-        if (PlayerTransform != null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
         {
-            if (PlayerTransform.GetComponent<PlayerHealthController>() != null)
-            {
-                return true;
-            }
-
-            if (PlayerHealthController.Instance != null)
-            {
-                PlayerTransform = PlayerHealthController.Instance.transform;
-                return true;
-            }
-
             return true;
         }
 
         if (PlayerHealthController.Instance != null)
         {
             PlayerTransform = PlayerHealthController.Instance.transform;
-            return true;
+            return AssignCombatTarget(PlayerTransform);
         }
 
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -560,6 +550,29 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
         }
 
         PlayerTransform = playerObject.transform;
+        return AssignCombatTarget(PlayerTransform);
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
+            {
+                PlayerTransform = receiver.DamageRootTransform;
+            }
+
+            return true;
+        }
+
+        _combatDamageReceiver = null;
         return true;
     }
 

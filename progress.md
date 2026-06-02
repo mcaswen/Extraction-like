@@ -409,3 +409,16 @@ Implementation steps for this restart:
 - User completed Play Mode validation for the equipment-slot implementation.
 - Accepted behavior covers the fixed 5x6 backpack, active BackpackGrid on game start, typed Head/Body/Face/Headphone/Totem equipment slots, rejected wrong-slot drops, and usable equipment test items from loot boxes.
 - Marked Phase 20 `Equipment slot implementation restart` as Done in `task_plan.md`.
+
+## 2026-06-02 Enemy Direct Attacker Retaliation
+
+- User asked to implement the complete fix for enemies standing still in Patrol when an Agent/character attacks them.
+- Generalized enemy damage context from direct player damage to direct attacker damage while preserving the existing player path.
+- Added `ICombatDamageReceiver` support for `PlayerHealthController` and `AgentPawnRoot`, so enemy attacks can damage either target type.
+- Updated Agent combat: direct fallback damage now passes attacker context, and Agent-fired bullets assign `SourceTransform`.
+- Updated player/enemy bullet handling to use direct attacker context and common combat damage receiver resolution.
+- Updated the five patrol enemy controllers to receive `NotifyDirectDamage`, assign the direct attacker as combat target, clear awareness, face the attacker, unstop the agent, and enter Chase.
+- Updated special enemy hit paths for Modern Strander, Tidal Aberration, and Ancient Strander so attacks can damage Agent targets while preserving player-only secondary effects.
+- Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success, 0 errors, with 9 existing warnings.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran static scans confirming no `NotifyDirectPlayerDamage` remains and Agent combat now passes source context.

@@ -117,6 +117,7 @@ namespace Gameplay.Agent.Combat
             bulletController.LifeTime = Mathf.Max(0.1f, _bulletLifeTime);
             bulletController.BulletColor = _bulletColor;
             bulletController.AttackElement = _attackElement;
+            bulletController.SourceTransform = transform;
 
             Rigidbody rigidbodyComponent = bulletObject.GetComponent<Rigidbody>();
             if (rigidbodyComponent == null)

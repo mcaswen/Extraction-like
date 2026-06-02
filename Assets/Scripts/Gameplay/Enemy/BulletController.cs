@@ -168,8 +168,8 @@ public class BulletController : MonoBehaviour
             : enemyHealthController.transform.position;
         Vector3 sourcePosition = SourceTransform != null ? SourceTransform.position : transform.position;
         Vector3 incomingDirection = hitPosition - sourcePosition;
-        EnemyDamageContext damageContext = EnemyDamageContext.FromPlayer(
-            ResolvePlayerSource(),
+        EnemyDamageContext damageContext = EnemyDamageContext.FromAttacker(
+            ResolveDamageSource(),
             hitPosition,
             sourcePosition,
             incomingDirection,
@@ -191,14 +191,14 @@ public class BulletController : MonoBehaviour
         }
     }
 
-    private Transform ResolvePlayerSource()
+    private Transform ResolveDamageSource()
     {
         if (TryResolvePlayerRoot(SourceTransform, out Transform playerRoot))
         {
             return playerRoot;
         }
 
-        return null;
+        return SourceTransform;
     }
 
     private static bool TryResolvePlayerRoot(Transform source, out Transform playerRoot)

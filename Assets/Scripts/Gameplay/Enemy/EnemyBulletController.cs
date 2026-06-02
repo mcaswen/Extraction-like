@@ -43,24 +43,33 @@ public class EnemyBulletController : MonoBehaviour
         }
 
         // 检查是不是打中了玩家
-        PlayerHealthController playerHealthController = other.GetComponentInParent<PlayerHealthController>();
-        if (playerHealthController == null && other.CompareTag("Player"))
+        ICombatDamageReceiver damageReceiver = null;
+        CombatDamageUtility.TryGetDamageReceiver(other, out damageReceiver);
+        if (damageReceiver == null && other.CompareTag("Player"))
         {
             Transform playerRoot = other.transform.root;
             if (playerRoot != null && playerRoot.CompareTag("Player"))
             {
-                playerHealthController = playerRoot.GetComponent<PlayerHealthController>();
+                PlayerHealthController playerHealthController = playerRoot.GetComponent<PlayerHealthController>();
                 if (playerHealthController == null)
                 {
                     playerHealthController = playerRoot.gameObject.AddComponent<PlayerHealthController>();
                 }
+
+                damageReceiver = playerHealthController;
             }
         }
         float totalDamage = 0f;
-        if (playerHealthController != null)
+        if (damageReceiver != null)
         {
             // 打中玩家，玩家扣血
-            totalDamage = playerHealthController.TakeDamage(Damage);
+            Vector3 hitPoint = other.ClosestPoint(transform.position);
+            Vector3 hitDirection = hitPoint - transform.position;
+            totalDamage = damageReceiver.TakeCombatDamage(
+                Damage,
+                hitPoint,
+                hitDirection,
+                SourceEnemy);
         }
 
         EnemySkillDamageLogger.LogSkillDamage(SourceEnemy != null ? SourceEnemy : gameObject, SkillName, totalDamage);

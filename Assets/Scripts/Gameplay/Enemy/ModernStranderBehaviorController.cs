@@ -92,6 +92,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
@@ -333,6 +334,16 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         {
             _latchTimer += Time.deltaTime;
 
+            if (_combatDamageReceiver != null && _playerHealthController == null)
+            {
+                _tentacleTotalDamage += CombatDamageUtility.ApplyDamageTo(
+                    _combatDamageReceiver,
+                    CorrosionDamagePerSecond * Time.deltaTime,
+                    PlayerTransform != null ? PlayerTransform.position : transform.position,
+                    PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+                    gameObject);
+            }
+
             if (_playerHealthController != null)
             {
                 _playerHealthController.ApplyCorrosion(
@@ -410,25 +421,15 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
     }
 
-    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    public void NotifyDirectDamage(EnemyDamageContext context)
     {
-        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        if (!context.IsDirectDamage || context.Attacker == null)
         {
             return;
         }
 
-        PlayerTransform = context.Attacker;
+        AssignCombatTarget(context.Attacker);
         BeginDirectDamageForcedChase(context);
-        _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        if (_playerHealthController == null)
-        {
-            _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
-        }
-        _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-        if (_playerMovementController == null)
-        {
-            _playerMovementController = PlayerTransform.GetComponentInParent<PlayerMovementController>();
-        }
 
         StopTentacleAttack();
         _waitTimer = 0f;
@@ -441,14 +442,16 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         TrySetChaseDestination();
     }
 
-    public void NotifyTentacleHit(PlayerHealthController playerHealthController, PlayerMovementController playerMovementController)
+    public void NotifyTentacleHit(ICombatDamageReceiver damageReceiver, PlayerMovementController playerMovementController)
     {
-        if (!_isTentacleStriking || playerHealthController == null)
+        if (!_isTentacleStriking || damageReceiver == null)
         {
             return;
         }
 
-        _playerHealthController = playerHealthController;
+        _combatDamageReceiver = damageReceiver;
+        _playerHealthController = damageReceiver as PlayerHealthController;
+        PlayerTransform = damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform : PlayerTransform;
         _playerMovementController = playerMovementController;
         _isTentacleLatched = true;
 
@@ -458,11 +461,20 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
 
         _hasAppliedInitialLatchDamage = true;
-        _tentacleTotalDamage += _playerHealthController.TakeDamage(InitialContactDamage);
-        _playerHealthController.ApplyCorrosion(
-            CorrosionDamagePerSecond,
-            CorrosionDuration,
-            CorrosionTickInterval);
+        _tentacleTotalDamage += CombatDamageUtility.ApplyDamageTo(
+            _combatDamageReceiver,
+            InitialContactDamage,
+            PlayerTransform != null ? PlayerTransform.position : transform.position,
+            PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+            gameObject);
+
+        if (_playerHealthController != null)
+        {
+            _playerHealthController.ApplyCorrosion(
+                CorrosionDamagePerSecond,
+                CorrosionDuration,
+                CorrosionTickInterval);
+        }
 
         if (!_hasAddedTentacleCorrosionDamage)
         {
@@ -851,35 +863,66 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             }
         }
 
-        if (PlayerTransform != null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
         {
+            return true;
+        }
+
+        if (PlayerTransform != null &&
+            PlayerTransform.CompareTag("Player") &&
+            _playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
-                _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-                if (_playerHealthController == null)
-                {
-                    _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
-                }
+                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
             }
 
-            if (_playerMovementController == null)
+            _combatDamageReceiver = _playerHealthController;
+            return _combatDamageReceiver != null;
+        }
+
+        if (PlayerHealthController.Instance != null)
+        {
+            return AssignCombatTarget(PlayerHealthController.Instance.transform);
+        }
+
+        return false;
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        _playerHealthController = target.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
+        }
+
+        _playerMovementController = target.GetComponent<PlayerMovementController>();
+        if (_playerMovementController == null)
+        {
+            _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
+        }
+
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
             {
-                _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
+                PlayerTransform = receiver.DamageRootTransform;
             }
+
+            return true;
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
-        {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
-        }
-
-        if (_playerMovementController == null && PlayerTransform != null)
-        {
-            _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-        }
-
-        return PlayerTransform != null && _playerHealthController != null;
+        _combatDamageReceiver = _playerHealthController;
+        return _combatDamageReceiver != null;
     }
 
     private void OnDrawGizmosSelected()

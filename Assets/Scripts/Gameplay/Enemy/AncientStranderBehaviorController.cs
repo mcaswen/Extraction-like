@@ -86,6 +86,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
@@ -370,16 +371,17 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
         foreach (Collider hit in hits)
         {
-            if (!hit.CompareTag("Player"))
+            if (!CombatDamageUtility.TryGetDamageReceiver(hit, out ICombatDamageReceiver damageReceiver))
             {
                 continue;
             }
 
-            PlayerHealthController playerHealth = hit.GetComponentInParent<PlayerHealthController>();
-            if (playerHealth != null)
-            {
-                totalDamage += playerHealth.TakeDamage(MeleeDamage);
-            }
+            totalDamage += CombatDamageUtility.ApplyDamageTo(
+                damageReceiver,
+                MeleeDamage,
+                hit.ClosestPoint(center),
+                hit.transform.position - transform.position,
+                gameObject);
         }
 
         EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Sweep", totalDamage);
@@ -395,15 +397,20 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         SetBiteHitboxEnabled(true);
     }
 
-    public void NotifyBiteHit(PlayerHealthController playerHealth)
+    public void NotifyBiteHit(ICombatDamageReceiver damageReceiver)
     {
-        if (!_isBiteStriking || _hasAppliedBiteDamage || playerHealth == null)
+        if (!_isBiteStriking || _hasAppliedBiteDamage || damageReceiver == null)
         {
             return;
         }
 
         _hasAppliedBiteDamage = true;
-        _biteTotalDamage += playerHealth.TakeDamage(BiteDamage);
+        _biteTotalDamage += CombatDamageUtility.ApplyDamageTo(
+            damageReceiver,
+            BiteDamage,
+            damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform.position : transform.position,
+            damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform.position - transform.position : transform.forward,
+            gameObject);
     }
 
     private void StopBiteStrike()
@@ -423,20 +430,15 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
     }
 
-    public void NotifyDirectPlayerDamage(EnemyDamageContext context)
+    public void NotifyDirectDamage(EnemyDamageContext context)
     {
-        if (!context.IsDirectPlayerDamage || context.Attacker == null)
+        if (!context.IsDirectDamage || context.Attacker == null)
         {
             return;
         }
 
-        PlayerTransform = context.Attacker;
+        AssignCombatTarget(context.Attacker);
         BeginDirectDamageForcedChase(context);
-        _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-        if (_playerHealthController == null)
-        {
-            _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
-        }
 
         StopBiteStrike();
         _waitTimer = 0f;
@@ -850,22 +852,60 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
             }
         }
 
-        if (PlayerTransform != null && _playerHealthController == null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
+        {
+            return true;
+        }
+
+        if (PlayerTransform != null &&
+            PlayerTransform.CompareTag("Player") &&
+            _playerHealthController == null)
         {
             _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
                 _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
             }
+
+            _combatDamageReceiver = _playerHealthController;
+            return _combatDamageReceiver != null;
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        if (PlayerHealthController.Instance != null)
         {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
+            return AssignCombatTarget(PlayerHealthController.Instance.transform);
         }
 
-        return PlayerTransform != null && _playerHealthController != null;
+        return false;
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        _playerHealthController = target.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
+        }
+
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
+            {
+                PlayerTransform = receiver.DamageRootTransform;
+            }
+
+            return true;
+        }
+
+        _combatDamageReceiver = _playerHealthController;
+        return _combatDamageReceiver != null;
     }
 
     private void OnDrawGizmosSelected()
@@ -943,12 +983,14 @@ public class AncientStranderBiteHitbox : MonoBehaviour
 
     private void NotifyOwner(Collider other)
     {
-        if (_owner == null || !other.CompareTag("Player"))
+        if (_owner == null)
         {
             return;
         }
 
-        PlayerHealthController playerHealth = other.GetComponentInParent<PlayerHealthController>();
-        _owner.NotifyBiteHit(playerHealth);
+        if (CombatDamageUtility.TryGetDamageReceiver(other, out ICombatDamageReceiver damageReceiver))
+        {
+            _owner.NotifyBiteHit(damageReceiver);
+        }
     }
 }

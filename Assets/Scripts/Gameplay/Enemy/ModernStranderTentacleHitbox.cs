@@ -57,14 +57,18 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
 
     private void NotifyOwner(Collider other)
     {
-        if (_owner == null || !_owner.isActiveAndEnabled || !other.CompareTag("Player"))
+        if (_owner == null || !_owner.isActiveAndEnabled)
         {
             return;
         }
 
-        PlayerHealthController playerHealth = other.GetComponentInParent<PlayerHealthController>();
+        if (!CombatDamageUtility.TryGetDamageReceiver(other, out ICombatDamageReceiver damageReceiver))
+        {
+            return;
+        }
+
         PlayerMovementController playerMovement = other.GetComponentInParent<PlayerMovementController>();
-        _owner.NotifyTentacleHit(playerHealth, playerMovement);
+        _owner.NotifyTentacleHit(damageReceiver, playerMovement);
     }
 }
 

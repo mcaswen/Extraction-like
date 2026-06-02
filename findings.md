@@ -264,3 +264,13 @@ Non-contradictions verified:
 - The fix should preserve the normal leash after a short response period, so the enemy does not chase across the map forever. A short forced chase window after direct player damage is enough to let the agent acquire a real path and visibly retaliate.
 - Directly setting `NavMeshAgent.SetDestination(PlayerTransform.position)` is brittle if the player's exact transform point is off the NavMesh or sitting on a collider edge. Sampling near the player first, then falling back to the recorded damage source position, gives the agent a better first chase target.
 - The direct-hit response still does not alert nearby enemies. It is local to the damaged enemy through `IEnemyDirectDamageReceiver`.
+
+## 2026-06-02 Enemy Direct Attacker Retaliation Findings
+
+- The new "start game, character attacks enemy, enemy remains Patrol and stands still" report can occur when the attacker is an Agent pawn rather than the player.
+- Before this fix, Agent direct fallback damage called `EnemyHealthController.TakeDamage(float)` with no attacker context, and Agent-fired bullets did not assign `BulletController.SourceTransform`. `BulletController` also only converted player sources into direct damage context.
+- Source-less enemy damage entered `EnemyHealthController.NotifyDamageReaction` as a generic damaged stimulus. The hit enemy could consume that as patrol awareness, stop its NavMeshAgent in Suspicious/Search, and keep the main enemy `CurrentState` as Patrol because no combat target was assigned.
+- The fix generalizes `EnemyDamageContext` from "direct player damage" to "direct attacker damage" while preserving the player-specific field for compatibility.
+- `IEnemyDirectDamageReceiver.NotifyDirectDamage` now receives direct Agent/player damage, and all five patrol enemy controllers assign the direct attacker as their combat target, clear awareness, face the target, unstop navigation, and enter Chase.
+- `ICombatDamageReceiver` lets enemy attacks damage both `PlayerHealthController` and `AgentPawnRoot`. Player-only effects such as silence, pull, corrosion tint, and movement knockback still apply only when the target has the matching player component.
+- Source-less damage now reports `EnemyDamaged` with the damaged enemy transform as source, preventing the damaged enemy from treating its own no-source damage as an external patrol suspicion event.

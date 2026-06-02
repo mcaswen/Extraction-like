@@ -4,7 +4,7 @@ using UnityEngine.UI;
 /// <summary>
 /// Player health, death and status effect controller.
 /// </summary>
-public class PlayerHealthController : MonoBehaviour
+public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
 {
     public static PlayerHealthController Instance { get; private set; }
 
@@ -20,6 +20,8 @@ public class PlayerHealthController : MonoBehaviour
 
     public float CurrentHealth { get; private set; }
     public bool IsDead { get; private set; }
+    public Transform DamageRootTransform => transform;
+    public bool IsCombatDamageReceiverAlive => !IsDead;
 
     [Header("Status Effect")]
     public Color CorrosionTintColor = new Color(0.45f, 1f, 0.55f, 1f);
@@ -134,6 +136,11 @@ public class PlayerHealthController : MonoBehaviour
         }
 
         return actualDamage;
+    }
+
+    public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
+    {
+        return TakeDamage(damage);
     }
 
     /// <summary>
