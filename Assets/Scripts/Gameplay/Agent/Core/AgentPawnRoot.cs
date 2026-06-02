@@ -357,6 +357,10 @@ namespace Gameplay.Agent.Core
 
             AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
             _isRegistered = registry.Register(this);
+            if (_isRegistered)
+            {
+                AgentTargetDiscoveryController.GetOrCreate();
+            }
         }
 
         private void UnregisterFromRuntime()

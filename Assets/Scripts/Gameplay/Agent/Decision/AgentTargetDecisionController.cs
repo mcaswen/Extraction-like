@@ -37,6 +37,8 @@ namespace Gameplay.Agent.Decision
         private AgentTargetDecisionService _decisionService;
         private double _nextScanTime;
 
+        public bool IsDecisionModuleActive => isActiveAndEnabled && _enableDecisionModule && _decisionConfig != null;
+
         private void Reset()
         {
             CacheComponents();
@@ -97,7 +99,6 @@ namespace Gameplay.Agent.Decision
             if (!_enableDecisionModule || _decisionConfig == null)
             {
                 WriteDecisionDisabled(agent, "决策组件未启用或缺少 AgentDecisionConfig");
-                ClearTargetFacts(commandReceiver);
                 return;
             }
 
