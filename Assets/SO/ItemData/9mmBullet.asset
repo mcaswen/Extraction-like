@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: 4
   ItemName: 9mmBullet
-  ItemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  ItemIcon: {fileID: 21300000, guid: a4f2db1f9f5f47dca96be7d8af6f0c11, type: 3}
   Type: 1
   Rarity: 0
   Width: 1

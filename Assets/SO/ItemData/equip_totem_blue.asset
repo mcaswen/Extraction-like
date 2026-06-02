@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: equip_totem_blue
   ItemName: "\u84DD\u8272\u56FE\u817E"
-  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  ItemIcon: {fileID: 21300000, guid: 93a4b9187d3948f1a7e13cb1e95a62b4, type: 3}
   Type: 6
   Rarity: 2
   EquipmentKind: 5

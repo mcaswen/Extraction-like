@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: lesser_organic_fiber
   ItemName: "\u6B21\u7EA7\u6709\u673A\u7EA4\u7EF4"
-  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
   Type: 5
   Rarity: 1
   EquipmentKind: 0

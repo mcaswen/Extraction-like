@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: military_radio
   ItemName: "\u519B\u7528\u5BF9\u8BB2\u673A"
-  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
   Type: 5
   Rarity: 1
   EquipmentKind: 0

@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: wizard_hat
   ItemName: "\u5DEB\u5E08\u5E3D"
-  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  ItemIcon: {fileID: 21300000, guid: fd8a9e8d5a764afcb42f92681d7e31aa, type: 3}
   Type: 5
   Rarity: 4
   EquipmentKind: 0

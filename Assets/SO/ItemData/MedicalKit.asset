@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: 3
   ItemName: MedicalKit
-  ItemIcon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
   Type: 2
   Rarity: 1
   Width: 2

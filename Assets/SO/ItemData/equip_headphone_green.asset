@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: equip_headphone_green
   ItemName: "\u7EFF\u8272\u8033\u673A"
-  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
   Type: 6
   Rarity: 1
   EquipmentKind: 4
