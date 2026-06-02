@@ -241,7 +241,17 @@ namespace Gameplay.Agent.AI.Actions
             bool clearDirectiveOnComplete)
         {
             lootBox.PrecalculateLootIfNeeded();
-            if (AgentSearchedResourceRegistry.IsSearched(lootBox.gameObject))
+            if (lootBox.IsBoardGameResourcePoint)
+            {
+                lootBox.RefreshResourcePointState();
+                if (lootBox.IsResourcePointLooted)
+                {
+                    AgentSearchedResourceRegistry.MarkSearched(lootBox.gameObject);
+                    CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
+                    return Succeed();
+                }
+            }
+            else if (AgentSearchedResourceRegistry.IsSearched(lootBox.gameObject))
             {
                 CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -251,6 +261,8 @@ namespace Gameplay.Agent.AI.Actions
             if (savedItems.Count <= 0)
             {
                 // 空箱也算搜索完成，避免 Agent 卡在无收益资源点
+                lootBox.MarkResourcePointLooted();
+                AgentSearchedResourceRegistry.MarkSearched(lootBox.gameObject);
                 CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
@@ -364,6 +376,23 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!_hasObservedInventoryOpen)
                 return Running();
+
+            if (resourceObject.TryGetComponent(out global::LootBoxEntity lootBox) &&
+                lootBox.IsBoardGameResourcePoint)
+            {
+                lootBox.RefreshResourcePointState();
+                if (lootBox.IsResourcePointLooted)
+                {
+                    AgentSearchedResourceRegistry.MarkSearched(resourceObject);
+                    CompleteConcreteResourceSearch(context, resourceObject, clearDirectiveOnComplete);
+                    return Succeed();
+                }
+
+                // 桌游资源点规则下，箱子仍有剩余 loot 就保持未完成，等待玩家再次打开处理。
+                ResetWaitState();
+                GameplayTargetRegistry.GetOrCreate().NotifyResourceTouched(resourceObject);
+                return Running();
+            }
 
             // 玩家打开过背包并关闭后，MVP 视为该资源点处理完毕
             AgentSearchedResourceRegistry.MarkSearched(resourceObject);
