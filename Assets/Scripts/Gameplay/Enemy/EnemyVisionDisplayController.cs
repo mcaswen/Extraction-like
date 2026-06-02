@@ -142,7 +142,7 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
         rootRect.anchorMin = new Vector2(0f, 1f);
         rootRect.anchorMax = new Vector2(0f, 1f);
         rootRect.pivot = new Vector2(0f, 1f);
-        rootRect.anchoredPosition = new Vector2(20f, -20f);
+        rootRect.anchoredPosition = new Vector2(20f, -72f);
         rootRect.sizeDelta = new Vector2(36f, 36f);
 
         Image background = root.GetComponent<Image>();

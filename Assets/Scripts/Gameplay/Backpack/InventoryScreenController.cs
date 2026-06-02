@@ -28,6 +28,10 @@ public class InventoryScreenController : MonoBehaviour
     [Header("Default Backpack")]
     public InventoryItemData DefaultBackpackItem;
 
+    [Header("Carry Load")]
+    [Min(0.1f)]
+    public float MaxCarryWeight = 30f;
+
 
     [Header("Panels")]
     public GameObject InventoryPanel;
@@ -48,6 +52,30 @@ public class InventoryScreenController : MonoBehaviour
     public bool UsesCustomPlayerInventory => _activeSessionContext != null && _activeSessionContext.UseCustomPlayerInventory;
     public InventoryUIController ActiveExternalGrid => HasActiveExternalContainer ? LootChestGrid : null;
     public InventoryUIController ActivePlayerGrid => BackpackGrid;
+
+    public float GetCurrentCarryWeight()
+    {
+        float carryWeight = 0f;
+        carryWeight += GetSlotCarryWeight(BackpackSlot);
+        carryWeight += GetSlotCarryWeight(RigSlot);
+        carryWeight += GetSlotCarryWeight(HeadSlot);
+        carryWeight += GetSlotCarryWeight(BodySlot);
+        carryWeight += GetSlotCarryWeight(FaceSlot);
+        carryWeight += GetSlotCarryWeight(HeadphoneSlot);
+        carryWeight += GetSlotCarryWeight(TotemSlotA);
+        carryWeight += GetSlotCarryWeight(TotemSlotB);
+        return Mathf.Max(0f, carryWeight);
+    }
+
+    public float GetMaxCarryWeight()
+    {
+        return Mathf.Max(0.1f, MaxCarryWeight);
+    }
+
+    public float GetCarryWeightRatio()
+    {
+        return Mathf.Clamp01(GetCurrentCarryWeight() / GetMaxCarryWeight());
+    }
 
     private void Awake()
     {
@@ -440,6 +468,7 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         CloseActiveSessionIfNeeded();
+        SyncCharacterContainerRuntimeState();
         RefreshCharacterContainerState(false);
 
         if (InventoryPanel != null)
@@ -1073,6 +1102,122 @@ public class InventoryScreenController : MonoBehaviour
     private static bool IsContainerItem(ItemType itemType)
     {
         return itemType == ItemType.Bag || itemType == ItemType.Rig;
+    }
+
+    private static float GetSlotCarryWeight(EquipmentSlotUI slot)
+    {
+        if (slot == null || !slot.HasEquippedItem)
+        {
+            return 0f;
+        }
+
+        DraggableItemUI equippedItem = slot.EquippedItem;
+        float carryWeight = GetItemViewOwnCarryWeight(equippedItem);
+        carryWeight += GetSlotContentsCarryWeight(slot, equippedItem);
+        return carryWeight;
+    }
+
+    private static float GetItemViewCarryWeight(DraggableItemUI itemView)
+    {
+        if (itemView == null || itemView.ItemData == null)
+        {
+            return 0f;
+        }
+
+        float carryWeight = GetItemViewOwnCarryWeight(itemView);
+        carryWeight += GetSavedItemsCarryWeight(itemView.InternalItems);
+        return carryWeight;
+    }
+
+    private static float GetItemViewOwnCarryWeight(DraggableItemUI itemView)
+    {
+        if (itemView == null || itemView.ItemData == null)
+        {
+            return 0f;
+        }
+
+        int amount = Mathf.Max(1, itemView.CurrentAmount);
+        return Mathf.Max(0f, itemView.ItemData.CarryWeight) * amount;
+    }
+
+    private static float GetSlotContentsCarryWeight(EquipmentSlotUI slot, DraggableItemUI equippedItem)
+    {
+        if (slot == null || equippedItem == null)
+        {
+            return 0f;
+        }
+
+        InventoryUIController linkedGrid = slot.LinkedGrid;
+        if (linkedGrid == null)
+        {
+            return GetSavedItemsCarryWeight(equippedItem.InternalItems);
+        }
+
+        bool gridHasRuntimeItems = HasRuntimeItemViews(linkedGrid);
+        if (linkedGrid.gameObject.activeInHierarchy || gridHasRuntimeItems)
+        {
+            return GetSavedItemsCarryWeight(linkedGrid.ExtractSaveData());
+        }
+
+        return GetSavedItemsCarryWeight(equippedItem.InternalItems);
+    }
+
+    private void SyncCharacterContainerRuntimeState()
+    {
+        BackpackSlot?.SyncEquippedItemRuntimeDataFromGrid();
+        RigSlot?.SyncEquippedItemRuntimeDataFromGrid();
+        HeadSlot?.SyncEquippedItemRuntimeDataFromGrid();
+        BodySlot?.SyncEquippedItemRuntimeDataFromGrid();
+        FaceSlot?.SyncEquippedItemRuntimeDataFromGrid();
+        HeadphoneSlot?.SyncEquippedItemRuntimeDataFromGrid();
+        TotemSlotA?.SyncEquippedItemRuntimeDataFromGrid();
+        TotemSlotB?.SyncEquippedItemRuntimeDataFromGrid();
+    }
+
+    private static bool HasRuntimeItemViews(InventoryUIController grid)
+    {
+        if (grid == null || grid.ItemContainer == null)
+        {
+            return false;
+        }
+
+        foreach (Transform child in grid.ItemContainer)
+        {
+            if (child == grid.Highlighter)
+            {
+                continue;
+            }
+
+            if (child.GetComponent<DraggableItemUI>() != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static float GetSavedItemsCarryWeight(List<ContainerItemSaveData> items)
+    {
+        if (items == null)
+        {
+            return 0f;
+        }
+
+        float carryWeight = 0f;
+        foreach (ContainerItemSaveData item in items)
+        {
+            if (item == null || item.ItemData == null)
+            {
+                continue;
+            }
+
+            int amount = Mathf.Max(1, item.Amount);
+            carryWeight += Mathf.Max(0f, item.ItemData.CarryWeight) * amount;
+            carryWeight += GetSavedItemsCarryWeight(item.InternalItems);
+        }
+
+        return carryWeight;
     }
 
     // 仅以保存快照中的物品列表和格子状态判断容器是否为空

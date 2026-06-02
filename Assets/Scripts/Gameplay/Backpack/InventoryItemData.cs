@@ -95,6 +95,11 @@ public class InventoryItemData : ScriptableObject
     [Min(0)]
     public int SellPrice;
 
+    [Header("Load")]
+    [InspectorName("负重")]
+    [Min(0f)]
+    public float CarryWeight = 1f;
+
     [Header("Search")]
     public bool RequiresSearchInLootContainer = true;
     public float SearchDurationOverride = -1f;

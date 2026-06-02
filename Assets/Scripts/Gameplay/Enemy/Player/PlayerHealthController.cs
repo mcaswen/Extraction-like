@@ -79,6 +79,7 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
 
         CacheRendererColors();
         EnsureHealthBar();
+        PlayerStatusHudController.EnsureRuntimeInstance();
         UpdateHealthBar();
     }
 

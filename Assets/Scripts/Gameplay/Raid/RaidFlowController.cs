@@ -41,6 +41,7 @@ public class RaidFlowController : MonoBehaviour
     private void Start()
     {
         _initialEnemyCount = FindObjectsOfType<EnemyHealthController>().Length;
+        PlayerStatusHudController.EnsureRuntimeInstance();
     }
 
     private void Update()
@@ -165,6 +166,15 @@ public class RaidFlowController : MonoBehaviour
 
     private void DrawMissionHud()
     {
+        const float panelWidth = 280f;
+        const float panelHeight = 140f;
+        const float panelMargin = 16f;
+        Matrix4x4 previousMatrix = GUI.matrix;
+        GUI.matrix = Matrix4x4.Translate(new Vector3(
+            Screen.width - panelWidth - panelMargin - 16f,
+            Screen.height - panelHeight - panelMargin - 16f,
+            0f)) * previousMatrix;
+
         GUI.Box(new Rect(16f, 16f, 280f, 140f), string.Empty);
         GUI.Label(new Rect(28f, 28f, 240f, 24f), $"任务: {MissionName}");
         GUI.Label(new Rect(28f, 54f, 240f, 22f), $"剩余敌人: {RemainingEnemyCount}");
@@ -188,6 +198,8 @@ public class RaidFlowController : MonoBehaviour
         {
             GUI.Label(new Rect(28f, 120f, 240f, 22f), _recentEventMessage);
         }
+
+        GUI.matrix = previousMatrix;
     }
 
     private void DrawExtractionWorldPrompt()

@@ -287,6 +287,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
                 SearchDurationOverrideText = GetCell(cells, headerIndexes, "SearchDurationOverride").Trim(),
                 MagicUnlockText = GetCell(cells, headerIndexes, "MagicUnlock").Trim(),
                 RunePatternPointsText = GetCell(cells, headerIndexes, "RunePatternPoints").Trim(),
+                CarryWeightText = GetOptionalCell(cells, headerIndexes, "CarryWeight", "1").Trim(),
                 SellPriceText = GetCell(cells, headerIndexes, "SellPrice").Trim(),
                 Notes = GetCell(cells, headerIndexes, "Notes").Trim()
             };
@@ -445,6 +446,12 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
             report.Errors.Add($"Row {row.RowNumber}: RunePatternPoints must be at least 1.");
         }
 
+        if (!float.TryParse(row.CarryWeightText, NumberStyles.Float, CultureInfo.InvariantCulture, out row.CarryWeight) ||
+            row.CarryWeight < 0f)
+        {
+            report.Errors.Add($"Row {row.RowNumber}: CarryWeight must be a non-negative number.");
+        }
+
         if (!TryParseWhole(row.SellPriceText, out row.SellPrice) || row.SellPrice < 0)
         {
             report.Errors.Add($"Row {row.RowNumber}: SellPrice must be a non-negative whole number.");
@@ -492,6 +499,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         itemData.SearchDurationOverride = row.SearchDurationOverride;
         itemData.MagicUnlock = row.MagicUnlock;
         itemData.RunePatternPoints = row.RunePatternPoints;
+        itemData.CarryWeight = row.CarryWeight;
         itemData.SellPrice = row.SellPrice;
 
         if (!hadNonDefaultIcon && defaultIcon != null)
@@ -902,6 +910,21 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         return cells[index];
     }
 
+    private static string GetOptionalCell(
+        List<string> cells,
+        Dictionary<string, int> headerIndexes,
+        string header,
+        string defaultValue)
+    {
+        if (!headerIndexes.ContainsKey(header))
+        {
+            return defaultValue;
+        }
+
+        string value = GetCell(cells, headerIndexes, header);
+        return string.IsNullOrWhiteSpace(value) ? defaultValue : value;
+    }
+
     private static void EnsureAssetFolder(string assetFolder)
     {
         if (AssetDatabase.IsValidFolder(assetFolder))
@@ -1029,6 +1052,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public string SearchDurationOverrideText;
         public string MagicUnlockText;
         public string RunePatternPointsText;
+        public string CarryWeightText;
         public string SellPriceText;
         public string Notes;
         public ItemType Type;
@@ -1045,6 +1069,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public float SearchDurationOverride;
         public MagicUnlockType MagicUnlock;
         public int RunePatternPoints;
+        public float CarryWeight = 1f;
         public int SellPrice;
     }
 

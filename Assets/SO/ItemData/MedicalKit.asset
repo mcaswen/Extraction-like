@@ -26,5 +26,6 @@ MonoBehaviour:
   MaxStack: 1
   WorldPrefab: {fileID: 6139913516932788578, guid: 50797aa59a83f254699da2c4f127173c,
     type: 3}
+  CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

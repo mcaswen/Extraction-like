@@ -28,6 +28,7 @@ MonoBehaviour:
   WorldPrefab: {fileID: 3868587432933561399, guid: b16cf70b9f3819a479bc05825e0f62e3,
     type: 3}
   SellPrice: 300
+  CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1
   MagicUnlock: 0
