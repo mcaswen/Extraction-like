@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.SO;
@@ -356,8 +357,6 @@ namespace Gameplay.Agent.Core
 
             AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
             _isRegistered = registry.Register(this);
-            if (_isRegistered)
-                AgentTargetDiscoveryController.GetOrCreate();
         }
 
         private void UnregisterFromRuntime()
@@ -392,6 +391,16 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AttackDamage, _pawnConfig.AttackDamage, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackInterval, _pawnConfig.AttackInterval, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasPendingDirective, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionModuleEnabled, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionTargetId, string.Empty, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionTargetKind, AgentDecisionTargetKind.None, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionScore, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionRisk, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionCandidateCount, 0, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionRiskEnemyCount, 0, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, _pawnConfig.AttackDamage, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionReason, string.Empty, timeSeconds);
         }
 
         // 将 Pawn 身体层事实同步给 Brain

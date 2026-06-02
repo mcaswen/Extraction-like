@@ -1,6 +1,7 @@
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Decision;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -37,6 +38,19 @@ namespace Gameplay.Agent.Runtime
         [SerializeField] private bool _hasInteractableTarget;
         [SerializeField] private bool _shouldExtract;
         [SerializeField] private bool _hasPendingDirective;
+
+        [Header("决策模块")]
+        [SerializeField] private bool _decisionModuleEnabled;
+        [SerializeField] private string _decisionSummary;
+        [SerializeField] private AgentDecisionTargetKind _decisionTargetKind;
+        [SerializeField] private string _decisionTargetId;
+        [SerializeField] private float _decisionScore;
+        [SerializeField] private float _decisionRisk;
+        [SerializeField] private int _decisionCandidateCount;
+        [SerializeField] private int _decisionRiskEnemyCount;
+        [SerializeField] private float _decisionAttack;
+        [SerializeField] private float _decisionDefense;
+        [SerializeField] private string _decisionReason;
 
         [Header("当前指令")]
         [SerializeField] private AgentDirectiveType _directiveType;
@@ -159,6 +173,19 @@ namespace Gameplay.Agent.Runtime
             _hasInteractableTarget = GetBlackboardValue(AgentBlackboardKeys.HasInteractableTarget, false);
             _shouldExtract = GetBlackboardValue(AgentBlackboardKeys.ShouldExtract, false);
             _hasPendingDirective = GetBlackboardValue(AgentBlackboardKeys.HasPendingDirective, false);
+            _decisionModuleEnabled = GetBlackboardValue(AgentBlackboardKeys.DecisionModuleEnabled, false);
+            _decisionTargetKind = GetBlackboardValue(
+                AgentBlackboardKeys.DecisionTargetKind,
+                AgentDecisionTargetKind.None);
+            _decisionTargetId = GetBlackboardValue(AgentBlackboardKeys.DecisionTargetId, string.Empty);
+            _decisionScore = GetBlackboardValue(AgentBlackboardKeys.DecisionScore, 0f);
+            _decisionRisk = GetBlackboardValue(AgentBlackboardKeys.DecisionRisk, 0f);
+            _decisionCandidateCount = GetBlackboardValue(AgentBlackboardKeys.DecisionCandidateCount, 0);
+            _decisionRiskEnemyCount = GetBlackboardValue(AgentBlackboardKeys.DecisionRiskEnemyCount, 0);
+            _decisionAttack = GetBlackboardValue(AgentBlackboardKeys.DecisionAttack, 0f);
+            _decisionDefense = GetBlackboardValue(AgentBlackboardKeys.DecisionDefense, 0f);
+            _decisionReason = GetBlackboardValue(AgentBlackboardKeys.DecisionReason, string.Empty);
+            _decisionSummary = BuildDecisionSummary();
 
             if (_agent.Blackboard.TryGetValue(
                     AgentBlackboardKeys.PendingDirectiveRequest,
@@ -183,6 +210,27 @@ namespace Gameplay.Agent.Runtime
             }
 
             return _agent.CurrentMacroStateName;
+        }
+
+        // 汇总决策模块的关键结果，Inspector 扫一行就能看出本轮是否选中目标
+        private string BuildDecisionSummary()
+        {
+            if (!_decisionModuleEnabled)
+                return string.IsNullOrWhiteSpace(_decisionReason)
+                    ? "未启用"
+                    : $"未启用 - {_decisionReason}";
+
+            if (_decisionTargetKind == AgentDecisionTargetKind.None ||
+                string.IsNullOrWhiteSpace(_decisionTargetId))
+            {
+                return string.IsNullOrWhiteSpace(_decisionReason)
+                    ? $"启用，无目标 candidates={_decisionCandidateCount}"
+                    : $"启用，无目标 candidates={_decisionCandidateCount} - {_decisionReason}";
+            }
+
+            return $"{_decisionTargetKind} [{_decisionTargetId}] " +
+                   $"score={_decisionScore:0.##} risk={_decisionRisk:0.##} " +
+                   $"candidates={_decisionCandidateCount}";
         }
 
         private T GetBlackboardValue<T>(BlackboardKey key, T defaultValue)
@@ -266,6 +314,17 @@ namespace Gameplay.Agent.Runtime
             _hasInteractableTarget = false;
             _shouldExtract = false;
             _hasPendingDirective = false;
+            _decisionModuleEnabled = false;
+            _decisionSummary = string.Empty;
+            _decisionTargetKind = AgentDecisionTargetKind.None;
+            _decisionTargetId = string.Empty;
+            _decisionScore = 0f;
+            _decisionRisk = 0f;
+            _decisionCandidateCount = 0;
+            _decisionRiskEnemyCount = 0;
+            _decisionAttack = 0f;
+            _decisionDefense = 0f;
+            _decisionReason = string.Empty;
             ClearDirectiveSnapshot();
         }
 

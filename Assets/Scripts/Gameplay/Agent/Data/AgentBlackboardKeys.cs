@@ -125,5 +125,65 @@ namespace Gameplay.Agent.Data
         /// </summary>
         public static readonly BlackboardKey PendingDirectiveRequest =
             new BlackboardKey("Agent_PendingDirectiveRequest");
+
+        /// <summary>
+        /// 当前目标是否由可插拔决策模块产生
+        /// </summary>
+        public static readonly BlackboardKey DecisionModuleEnabled =
+            new BlackboardKey("Agent_DecisionModuleEnabled");
+
+        /// <summary>
+        /// 决策模块本轮选择的目标 ID
+        /// </summary>
+        public static readonly BlackboardKey DecisionTargetId =
+            new BlackboardKey("Agent_DecisionTargetId");
+
+        /// <summary>
+        /// 决策模块本轮选择的目标类型
+        /// </summary>
+        public static readonly BlackboardKey DecisionTargetKind =
+            new BlackboardKey("Agent_DecisionTargetKind");
+
+        /// <summary>
+        /// 决策模块本轮选择目标的评分
+        /// </summary>
+        public static readonly BlackboardKey DecisionScore =
+            new BlackboardKey("Agent_DecisionScore");
+
+        /// <summary>
+        /// 决策模块本轮选择目标的风险值
+        /// </summary>
+        public static readonly BlackboardKey DecisionRisk =
+            new BlackboardKey("Agent_DecisionRisk");
+
+        /// <summary>
+        /// 决策模块本轮收集到的候选目标数量
+        /// </summary>
+        public static readonly BlackboardKey DecisionCandidateCount =
+            new BlackboardKey("Agent_DecisionCandidateCount");
+
+        /// <summary>
+        /// 决策模块本轮参与路径风险估算的敌人数量
+        /// </summary>
+        public static readonly BlackboardKey DecisionRiskEnemyCount =
+            new BlackboardKey("Agent_DecisionRiskEnemyCount");
+
+        /// <summary>
+        /// 决策模块本轮使用的攻击力输入
+        /// </summary>
+        public static readonly BlackboardKey DecisionAttack =
+            new BlackboardKey("Agent_DecisionAttack");
+
+        /// <summary>
+        /// 决策模块本轮使用的防御力输入
+        /// </summary>
+        public static readonly BlackboardKey DecisionDefense =
+            new BlackboardKey("Agent_DecisionDefense");
+
+        /// <summary>
+        /// 决策模块本轮选择或回退的说明
+        /// </summary>
+        public static readonly BlackboardKey DecisionReason =
+            new BlackboardKey("Agent_DecisionReason");
     }
 }

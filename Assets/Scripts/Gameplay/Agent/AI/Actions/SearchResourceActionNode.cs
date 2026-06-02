@@ -241,7 +241,7 @@ namespace Gameplay.Agent.AI.Actions
             bool clearDirectiveOnComplete)
         {
             lootBox.PrecalculateLootIfNeeded();
-            if (AgentTargetDiscoveryController.IsResourceMarkedSearched(lootBox.gameObject))
+            if (AgentSearchedResourceRegistry.IsSearched(lootBox.gameObject))
             {
                 CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -271,7 +271,7 @@ namespace Gameplay.Agent.AI.Actions
             global::WorldLootItem worldItem,
             bool clearDirectiveOnComplete)
         {
-            if (AgentTargetDiscoveryController.IsResourceMarkedSearched(worldItem.gameObject))
+            if (AgentSearchedResourceRegistry.IsSearched(worldItem.gameObject))
             {
                 CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -280,7 +280,7 @@ namespace Gameplay.Agent.AI.Actions
             if (worldItem.ItemData == null || worldItem.CurrentAmount <= 0)
             {
                 // 无效地面物品不再保留为搜索目标，避免 Agent 被空对象卡住
-                AgentTargetDiscoveryController.MarkResourceSearched(worldItem.gameObject);
+                AgentSearchedResourceRegistry.MarkSearched(worldItem.gameObject);
                 CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
@@ -366,7 +366,7 @@ namespace Gameplay.Agent.AI.Actions
                 return Running();
 
             // 玩家打开过背包并关闭后，MVP 视为该资源点处理完毕
-            AgentTargetDiscoveryController.MarkResourceSearched(resourceObject);
+            AgentSearchedResourceRegistry.MarkSearched(resourceObject);
             CompleteConcreteResourceSearch(context, resourceObject, clearDirectiveOnComplete);
             return Succeed();
         }

@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 7464382484415442821}
   - component: {fileID: 5491856885365467676}
   - component: {fileID: 2898261118407030116}
+  - component: {fileID: 6384219047756312460}
   - component: {fileID: 7110605897752205501}
   m_Layer: 0
   m_Name: Player
@@ -156,8 +157,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7719064fa4a92a9418430ca0278b55c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   MaxHealth: 220
   MinimumPlaytestHealth: 220
   MinimumDamageTakenMultiplier: 0.2
@@ -274,6 +275,22 @@ MonoBehaviour:
   _pawnConfig: {fileID: 11400000, guid: a932304332ad443e9a3557f6df43bf34, type: 2}
   _navMeshAgent: {fileID: 5491856885365467676}
   _showRangeGizmos: 1
+--- !u!114 &6384219047756312460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7015472616922862980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c1b7f2a5d4e4b0e9c2f8147a6d3c521, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _enableDecisionModule: 1
+  _decisionConfig: {fileID: 11400000, guid: e28f3c6aa7344eec91db7a68148c3fd2,
+    type: 2}
+  _pawnRoot: {fileID: 2898261118407030116}
 --- !u!114 &7110605897752205501
 MonoBehaviour:
   m_ObjectHideFlags: 0
