@@ -205,6 +205,7 @@ public class InventoryUIController : MonoBehaviour
 
         if (_highlighterImage != null)
         {
+            _highlighterImage.raycastTarget = false;
             _highlighterImage.color = isValid
                 ? new Color(0f, 1f, 0f, 0.35f)
                 : new Color(1f, 0f, 0f, 0.35f);
@@ -478,6 +479,11 @@ public class InventoryUIController : MonoBehaviour
         }
 
         _highlighterImage = Highlighter.GetComponent<Image>();
+        if (_highlighterImage != null)
+        {
+            _highlighterImage.raycastTarget = false;
+        }
+
         Highlighter.gameObject.SetActive(false);
         ConfigureHighlighterTransform();
     }

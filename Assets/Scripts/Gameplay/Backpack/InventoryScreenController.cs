@@ -1040,7 +1040,7 @@ public class InventoryScreenController : MonoBehaviour
         return Mathf.Max(0, itemData.ContainerColumns * itemData.ContainerRows - blockedCount);
     }
 
-    // 世界容器入格时，需要补充校验背包不能装背包以及非空胸挂不能进背包
+    // 世界容器入格时，需要补充校验非空容器不能直接塞入背包内容格
     private static bool CanWorldItemEnterGrid(WorldLootItem worldItem, InventoryUIController targetGrid)
     {
         if (worldItem == null || worldItem.ItemData == null || targetGrid == null)
@@ -1048,12 +1048,7 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
-        if (worldItem.ItemData.Type == ItemType.Bag && Instance != null && Instance.BackpackGrid == targetGrid)
-        {
-            return false;
-        }
-
-        if (worldItem.ItemData.Type == ItemType.Rig &&
+        if (IsContainerItem(worldItem.ItemData.Type) &&
             Instance != null &&
             Instance.BackpackGrid == targetGrid &&
             !IsContainerSnapshotEmpty(worldItem.InternalItems, worldItem.InternalCellStates))
@@ -1072,12 +1067,12 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
-        if (itemData.Type == ItemType.Bag && Instance != null && Instance.BackpackGrid == targetGrid)
-        {
-            return false;
-        }
-
         return true;
+    }
+
+    private static bool IsContainerItem(ItemType itemType)
+    {
+        return itemType == ItemType.Bag || itemType == ItemType.Rig;
     }
 
     // 仅以保存快照中的物品列表和格子状态判断容器是否为空

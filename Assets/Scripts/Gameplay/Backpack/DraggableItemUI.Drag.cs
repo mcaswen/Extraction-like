@@ -55,6 +55,10 @@ public partial class DraggableItemUI
     {
         EquipmentSlotUI targetSlot = GetHoveredEquipmentSlot(eventData);
         InventoryUIController targetGrid = targetSlot == null ? GetHoveredGrid(eventData) : null;
+        bool hasCachedPreviewPlacement = targetGrid != null && _hasPreviewPlacement && _lastPreviewGrid == targetGrid;
+        Vector2Int cachedPreviewIndex = _lastPreviewIndex;
+        int cachedPreviewWidth = _lastPreviewWidth;
+        int cachedPreviewHeight = _lastPreviewHeight;
 
         RestoreDragVisualState();
 
@@ -78,11 +82,11 @@ public partial class DraggableItemUI
         Vector2Int targetIndex;
         int width;
         int height;
-        if (_hasPreviewPlacement && _lastPreviewGrid == targetGrid)
+        if (hasCachedPreviewPlacement)
         {
-            targetIndex = _lastPreviewIndex;
-            width = _lastPreviewWidth;
-            height = _lastPreviewHeight;
+            targetIndex = cachedPreviewIndex;
+            width = cachedPreviewWidth;
+            height = cachedPreviewHeight;
         }
         else
         {
@@ -509,13 +513,29 @@ public partial class DraggableItemUI
         foreach (RaycastResult result in results)
         {
             InventoryUIController grid = result.gameObject.GetComponentInParent<InventoryUIController>();
-            if (grid != null)
+            if (grid != null && IsPointerInsideGrid(grid, eventData))
             {
                 return grid;
             }
         }
 
         return null;
+    }
+
+    // 只把真正落在格子区域内的射线结果当作有效网格，避免外层面板截走跨容器拖放
+    private static bool IsPointerInsideGrid(InventoryUIController grid, PointerEventData eventData)
+    {
+        if (grid == null || eventData == null)
+        {
+            return false;
+        }
+
+        RectTransform hitArea = grid.ItemContainer != null
+            ? grid.ItemContainer
+            : grid.transform as RectTransform;
+
+        return hitArea != null &&
+            RectTransformUtility.RectangleContainsScreenPoint(hitArea, eventData.position, eventData.pressEventCamera);
     }
 
     // 优先通过显式矩形检测命中装备槽，失败后再回退到普通 UI 射线

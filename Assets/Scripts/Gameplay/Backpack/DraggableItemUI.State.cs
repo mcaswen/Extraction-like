@@ -267,12 +267,7 @@ public partial class DraggableItemUI
             return false;
         }
 
-        if (ItemData.Type == ItemType.Bag && IsBackpackGrid(targetGrid))
-        {
-            return false;
-        }
-
-        if (ItemData.Type == ItemType.Rig && IsBackpackGrid(targetGrid) && !IsContainerCompletelyEmpty())
+        if (IsBackpackGrid(targetGrid) && IsContainerItem(ItemData.Type) && !IsContainerCompletelyEmpty())
         {
             return false;
         }
@@ -353,5 +348,11 @@ public partial class DraggableItemUI
     private static bool IsBackpackGrid(InventoryUIController targetGrid)
     {
         return InventoryScreenController.Instance != null && InventoryScreenController.Instance.BackpackGrid == targetGrid;
+    }
+
+    // 空容器可以作为普通物品放入背包，非空容器会被拦截以避免嵌套内容转移混乱
+    private static bool IsContainerItem(ItemType itemType)
+    {
+        return itemType == ItemType.Bag || itemType == ItemType.Rig;
     }
 }
