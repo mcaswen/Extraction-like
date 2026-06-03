@@ -151,9 +151,10 @@ namespace Gameplay.Agent.Runtime
                     targetRegistry,
                     agent.Position,
                     rangeSqr,
-                    out ActiveEnemyClusterAuthoring enemyCluster))
+                    out ActiveEnemyClusterAuthoring enemyCluster,
+                    out global::EnemyHealthController enemy))
             {
-                ApplyEnemyClusterTarget(handle, commandReceiver, enemyCluster);
+                ApplyEnemyClusterTarget(targetRegistry, handle, commandReceiver, enemyCluster, enemy);
                 return;
             }
 
@@ -188,9 +189,11 @@ namespace Gameplay.Agent.Runtime
         }
 
         private static void ApplyEnemyClusterTarget(
+            GameplayTargetRegistry targetRegistry,
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
-            ActiveEnemyClusterAuthoring enemyCluster)
+            ActiveEnemyClusterAuthoring enemyCluster,
+            global::EnemyHealthController enemy)
         {
             commandReceiver.SetVisibleEnemy(true);
             commandReceiver.SetHasEnemySourceTarget(false);
@@ -198,12 +201,13 @@ namespace Gameplay.Agent.Runtime
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
 
-            string targetId = enemyCluster.TargetId;
+            string targetId = ResolveActiveEnemyTargetId(targetRegistry, enemyCluster, enemy);
+            GameObject targetObject = enemy != null ? enemy.gameObject : enemyCluster.gameObject;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 AgentDirectiveType.Engage,
                 AgentTargetRef.FromConcreteObject(
                     AgentTargetKind.Enemy,
-                    enemyCluster.gameObject,
+                    targetObject,
                     targetId),
                 targetId,
                 handle.AgentId));
@@ -289,9 +293,11 @@ namespace Gameplay.Agent.Runtime
             GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
             float rangeSqr,
-            out ActiveEnemyClusterAuthoring nearestEnemyCluster)
+            out ActiveEnemyClusterAuthoring nearestEnemyCluster,
+            out global::EnemyHealthController nearestEnemy)
         {
             nearestEnemyCluster = null;
+            nearestEnemy = null;
             float nearestDistanceSqr = float.MaxValue;
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
@@ -299,7 +305,7 @@ namespace Gameplay.Agent.Runtime
             {
                 if (!(_clusterBuffer[i] is ActiveEnemyClusterAuthoring enemyCluster) ||
                     enemyCluster.HasBeenCompleted ||
-                    !enemyCluster.TryGetNearestAliveEnemy(agentPosition, out _))
+                    !enemyCluster.TryGetNearestAliveEnemy(agentPosition, out global::EnemyHealthController enemy))
                 {
                     continue;
                 }
@@ -311,10 +317,25 @@ namespace Gameplay.Agent.Runtime
                 }
 
                 nearestEnemyCluster = enemyCluster;
+                nearestEnemy = enemy;
                 nearestDistanceSqr = distanceSqr;
             }
 
             return nearestEnemyCluster != null;
+        }
+
+        private static string ResolveActiveEnemyTargetId(
+            GameplayTargetRegistry targetRegistry,
+            ActiveEnemyClusterAuthoring enemyCluster,
+            global::EnemyHealthController enemy)
+        {
+            if (targetRegistry != null &&
+                targetRegistry.TryFindEnemySourceTargetIdByEnemy(enemy, out string sourceTargetId))
+            {
+                return sourceTargetId;
+            }
+
+            return enemyCluster != null ? enemyCluster.TargetId : string.Empty;
         }
 
         private bool TryFindNearestEnemySourceCluster(

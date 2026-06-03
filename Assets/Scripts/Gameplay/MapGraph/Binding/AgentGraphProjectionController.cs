@@ -4,6 +4,8 @@ using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Config;
 using Gameplay.MapGraph.Runtime;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -22,6 +24,8 @@ namespace Gameplay.MapGraph.Binding
         [SerializeField] private float _graphUnitsPerSecond = 2.6f;
         [SerializeField] private float _worldNodeSnapDistance = 2.5f;
         [SerializeField] private bool _snapToBoundTargetByWorldPosition = true;
+        [SerializeField] private bool _driveEdgeProgressByWorldDistance = true;
+        [SerializeField] private float _worldEdgeArrivalDistance = 1.2f;
         [SerializeField] private Color _defaultAgentColor = new Color(0.26f, 0.72f, 1f, 1f);
 
         private readonly MapGraphRuntimeState _runtimeState = new MapGraphRuntimeState();
@@ -91,7 +95,7 @@ namespace Gameplay.MapGraph.Binding
                 EnsureAgentHasGraphPosition(state, handle.ReadOnly);
                 RefreshAgentTargetPath(state, handle.ReadOnly);
                 TrySnapAgentToRealtimeNode(state, handle.ReadOnly);
-                AdvanceGraphMovement(state, Mathf.Max(0f, deltaTime));
+                AdvanceGraphMovement(state, handle.ReadOnly, Mathf.Max(0f, deltaTime));
             }
 
             _runtimeState.RemoveAgentsExcept(_activeAgentIds);
@@ -184,13 +188,23 @@ namespace Gameplay.MapGraph.Binding
                 return false;
             }
 
+            AgentTargetRef targetRef = directiveRequest.TargetRef;
+            if (targetRef.Kind == AgentTargetKind.Enemy &&
+                targetRef.TargetObject != null &&
+                TryResolveEnemySourceNodeFromTargetObject(
+                    targetRef.TargetObject,
+                    targetRef.HasTargetPosition ? targetRef.TargetPosition : agent.Position,
+                    out nodeId))
+            {
+                return true;
+            }
+
             if (!string.IsNullOrWhiteSpace(directiveRequest.TargetId) &&
                 _bindingAuthoring.TryGetNodeIdForTargetId(directiveRequest.TargetId, out nodeId))
             {
                 return true;
             }
 
-            AgentTargetRef targetRef = directiveRequest.TargetRef;
             if (!string.IsNullOrWhiteSpace(targetRef.TargetId) &&
                 _bindingAuthoring.TryGetNodeIdForTargetId(targetRef.TargetId, out nodeId))
             {
@@ -287,8 +301,69 @@ namespace Gameplay.MapGraph.Binding
             return true;
         }
 
-        // UI 棋子沿抽象边匀速推进，只表达图上状态，不参与真实空间移动
-        private void AdvanceGraphMovement(MapGraphAgentRuntimeState state, float deltaTime)
+        // UI 棋子沿抽象边推进，只表达图上状态，不参与真实空间移动
+        private void AdvanceGraphMovement(
+            MapGraphAgentRuntimeState state,
+            IAgentReadOnly agent,
+            float deltaTime)
+        {
+            if (!state.IsOnEdge)
+                return;
+
+            if (_driveEdgeProgressByWorldDistance &&
+                TryAdvanceGraphMovementByWorldDistance(state, agent))
+            {
+                return;
+            }
+
+            AdvanceGraphMovementByTime(state, deltaTime);
+        }
+
+        // 用真实世界中 Agent 到下一节点的距离换算图边进度，让抽象图位置跟 NavMesh 结果同步
+        private bool TryAdvanceGraphMovementByWorldDistance(
+            MapGraphAgentRuntimeState state,
+            IAgentReadOnly agent)
+        {
+            if (agent == null || _bindingAuthoring == null)
+                return false;
+
+            if (!_graphService.TryGetEdge(state.CurrentEdgeId, out MapGraphEdgeDefinition edgeDefinition))
+                return false;
+
+            string startNodeId = ResolveCurrentEdgeStartNodeId(state);
+            string targetNodeId = ResolveCurrentEdgeTargetNodeId(state);
+            if (string.IsNullOrWhiteSpace(startNodeId) || string.IsNullOrWhiteSpace(targetNodeId))
+                return false;
+
+            if (!_bindingAuthoring.TryGetWorldPositionForNodeId(startNodeId, out Vector3 startWorldPosition) ||
+                !_bindingAuthoring.TryGetWorldPositionForNodeId(targetNodeId, out Vector3 targetWorldPosition))
+            {
+                return false;
+            }
+
+            float totalDistance = GetPlanarDistance(startWorldPosition, targetWorldPosition);
+            if (totalDistance <= Mathf.Epsilon)
+                return false;
+
+            float distanceToTarget = GetPlanarDistance(agent.Position, targetWorldPosition);
+            float progressTowardTarget = Mathf.Clamp01(1f - (distanceToTarget / totalDistance));
+            state.CurrentEdgeProgress01 = Mathf.Lerp(
+                state.CurrentEdgeSegmentStartProgress01,
+                state.CurrentEdgeTargetProgress01,
+                progressTowardTarget);
+            state.GraphPosition = _graphService.GetPositionOnEdge(edgeDefinition, state.CurrentEdgeProgress01);
+
+            if (distanceToTarget <= Mathf.Max(0.05f, _worldEdgeArrivalDistance) ||
+                progressTowardTarget >= 0.999f)
+            {
+                CompleteEdgeArrival(state, edgeDefinition);
+            }
+
+            return true;
+        }
+
+        // 找不到节点世界坐标时，保留旧的匀速图上推进兜底
+        private void AdvanceGraphMovementByTime(MapGraphAgentRuntimeState state, float deltaTime)
         {
             if (!state.IsOnEdge)
                 return;
@@ -313,6 +388,13 @@ namespace Gameplay.MapGraph.Binding
             if (!reachedTarget)
                 return;
 
+            CompleteEdgeArrival(state, edgeDefinition);
+        }
+
+        private void CompleteEdgeArrival(
+            MapGraphAgentRuntimeState state,
+            MapGraphEdgeDefinition edgeDefinition)
+        {
             string arrivedNodeId = state.CurrentEdgeTargetProgress01 >= 0.5f
                 ? edgeDefinition.ToNodeId
                 : edgeDefinition.FromNodeId;
@@ -384,6 +466,74 @@ namespace Gameplay.MapGraph.Binding
             return state.CurrentEdgeTargetProgress01 >= 0.5f
                 ? state.CurrentEdgeToNodeId
                 : state.CurrentEdgeFromNodeId;
+        }
+
+        private static string ResolveCurrentEdgeStartNodeId(MapGraphAgentRuntimeState state)
+        {
+            return state.CurrentEdgeSegmentStartProgress01 >= 0.5f
+                ? state.CurrentEdgeToNodeId
+                : state.CurrentEdgeFromNodeId;
+        }
+
+        private bool TryResolveEnemySourceNodeFromTargetObject(
+            GameObject targetObject,
+            Vector3 lookupPosition,
+            out string nodeId)
+        {
+            nodeId = string.Empty;
+            if (targetObject == null || _bindingAuthoring == null)
+                return false;
+
+            GameplayTargetRegistry registry = GameplayTargetRegistry.ActiveInstance;
+            if (registry == null)
+                return false;
+
+            if (TryGetComponentFromTargetObject(targetObject, out global::EnemyHealthController enemy) &&
+                registry.TryFindEnemySourceTargetIdByEnemy(enemy, out string sourceTargetId) &&
+                _bindingAuthoring.TryGetNodeIdForTargetId(sourceTargetId, out nodeId))
+            {
+                return true;
+            }
+
+            if (TryGetComponentFromTargetObject(targetObject, out ActiveEnemyClusterAuthoring activeCluster) &&
+                registry.TryFindEnemySourceClusterByActiveEnemyCluster(
+                    activeCluster,
+                    lookupPosition,
+                    out EnemySourceClusterAuthoring sourceCluster) &&
+                _bindingAuthoring.TryGetNodeIdForTargetId(sourceCluster.TargetId, out nodeId))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryGetComponentFromTargetObject<TComponent>(
+            GameObject targetObject,
+            out TComponent component)
+            where TComponent : Component
+        {
+            component = null;
+            if (targetObject == null)
+                return false;
+
+            component = targetObject.GetComponent<TComponent>();
+            if (component != null)
+                return true;
+
+            component = targetObject.GetComponentInParent<TComponent>();
+            if (component != null)
+                return true;
+
+            component = targetObject.GetComponentInChildren<TComponent>();
+            return component != null;
+        }
+
+        private static float GetPlanarDistance(Vector3 from, Vector3 to)
+        {
+            float deltaX = from.x - to.x;
+            float deltaZ = from.z - to.z;
+            return Mathf.Sqrt((deltaX * deltaX) + (deltaZ * deltaZ));
         }
 
         private Color ResolveStableAgentColor(string agentId)

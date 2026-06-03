@@ -165,7 +165,12 @@ namespace Gameplay.Agent.Decision
 
                 if (cluster is ActiveEnemyClusterAuthoring enemyCluster)
                 {
-                    TryAddActiveEnemyDecisionCandidate(enemyCluster, agent.Position, rangeSqr, currentTargetId);
+                    TryAddActiveEnemyDecisionCandidate(
+                        targetRegistry,
+                        enemyCluster,
+                        agent.Position,
+                        rangeSqr,
+                        currentTargetId);
                     continue;
                 }
 
@@ -187,6 +192,7 @@ namespace Gameplay.Agent.Decision
         }
 
         private void TryAddActiveEnemyDecisionCandidate(
+            GameplayTargetRegistry targetRegistry,
             ActiveEnemyClusterAuthoring enemyCluster,
             Vector3 agentPosition,
             float rangeSqr,
@@ -201,16 +207,19 @@ namespace Gameplay.Agent.Decision
             if (distanceSqr > rangeSqr)
                 return;
 
+            string targetId = ResolveActiveEnemyDecisionTargetId(targetRegistry, enemyCluster, enemy);
+            GameObject targetObject = enemy != null ? enemy.gameObject : enemyCluster.gameObject;
+
             _decisionCandidateBuffer.Add(new AgentDecisionCandidate(
                 AgentDecisionTargetKind.ActiveEnemy,
                 AgentDirectiveType.Engage,
                 AgentTargetKind.Enemy,
-                enemyCluster.TargetId,
-                enemyCluster.gameObject,
-                enemyCluster.CenterPosition,
+                targetId,
+                targetObject,
+                enemy != null ? enemy.transform.position : enemyCluster.CenterPosition,
                 distanceSqr,
                 enemy,
-                IsCurrentTarget(enemyCluster.TargetId, currentTargetId)));
+                IsCurrentTarget(targetId, currentTargetId)));
         }
 
         private void TryAddEnemySourceDecisionCandidate(
@@ -364,6 +373,20 @@ namespace Gameplay.Agent.Decision
         {
             return !string.IsNullOrWhiteSpace(candidateTargetId) &&
                    string.Equals(candidateTargetId, currentTargetId, System.StringComparison.Ordinal);
+        }
+
+        private static string ResolveActiveEnemyDecisionTargetId(
+            GameplayTargetRegistry targetRegistry,
+            ActiveEnemyClusterAuthoring enemyCluster,
+            global::EnemyHealthController enemy)
+        {
+            if (targetRegistry != null &&
+                targetRegistry.TryFindEnemySourceTargetIdByEnemy(enemy, out string sourceTargetId))
+            {
+                return sourceTargetId;
+            }
+
+            return enemyCluster != null ? enemyCluster.TargetId : string.Empty;
         }
 
         private static void ClearTargetFacts(IAgentCommandReceiver commandReceiver)

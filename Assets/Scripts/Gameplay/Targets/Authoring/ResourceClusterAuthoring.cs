@@ -21,6 +21,36 @@ namespace Gameplay.Targets.Authoring
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
 
         /// <summary>
+        /// 按群内桌游资源箱推断资源等级
+        /// 多个资源箱混在同一群时取最高等级
+        /// </summary>
+        /// <param name="resourceTier"></param>
+        /// <returns></returns>
+        public bool TryResolveResourceTier(out global::SceneResourceTier resourceTier)
+        {
+            bool hasTier = false;
+            resourceTier = global::SceneResourceTier.Low;
+
+            for (int i = 0; i < _resourceMembers.Count; i++)
+            {
+                GameplayTargetEntityMember member = _resourceMembers[i];
+                if (member == null || !member.TryGetComponent(out global::LootBoxEntity lootBox))
+                    continue;
+
+                if (!lootBox.IsBoardGameResourcePoint)
+                    continue;
+
+                if (!hasTier || (int)lootBox.ResourceTier > (int)resourceTier)
+                {
+                    resourceTier = lootBox.ResourceTier;
+                    hasTier = true;
+                }
+            }
+
+            return hasTier;
+        }
+
+        /// <summary>
         /// 判断资源对象是否属于当前资源群
         /// </summary>
         /// <param name="resourceObject"></param>

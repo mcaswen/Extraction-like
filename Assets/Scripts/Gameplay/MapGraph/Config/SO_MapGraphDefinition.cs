@@ -15,6 +15,7 @@ namespace Gameplay.MapGraph.Config
         [SerializeField] private string _mapId = "map_graph";
         [SerializeField] private string _displayName = "Map Graph";
         [SerializeField] private string _startNodeId;
+        [SerializeField] private MapGraphNodeIconSet _nodeIconSet = new MapGraphNodeIconSet();
         [SerializeField] private List<MapGraphNodeDefinition> _nodes =
             new List<MapGraphNodeDefinition>();
         [SerializeField] private List<MapGraphEdgeDefinition> _edges =
@@ -34,6 +35,12 @@ namespace Gameplay.MapGraph.Config
         /// 默认起点节点 ID
         /// </summary>
         public string StartNodeId => _startNodeId ?? string.Empty;
+
+        /// <summary>
+        /// 节点图标配置
+        /// 从旧桌游地图转换时会完整复制旧 NodeIconSet
+        /// </summary>
+        public MapGraphNodeIconSet NodeIconSet => _nodeIconSet;
 
         /// <summary>
         /// 图中的全部节点定义

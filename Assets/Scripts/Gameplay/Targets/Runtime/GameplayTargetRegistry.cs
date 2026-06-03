@@ -208,6 +208,89 @@ namespace Gameplay.Targets.Runtime
         }
 
         /// <summary>
+        /// 根据敌人实体查找它所属的敌人来源群
+        /// 运行时生成的敌人优先使用注册时保存的来源 TargetId，兜底按绑定的 ActiveEnemyCluster 反查最近来源群
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <param name="sourceCluster"></param>
+        /// <returns></returns>
+        public bool TryFindEnemySourceClusterByEnemy(
+            global::EnemyHealthController enemy,
+            out EnemySourceClusterAuthoring sourceCluster)
+        {
+            sourceCluster = null;
+            if (!TryFindEnemyClusterByEnemy(enemy, out ActiveEnemyClusterAuthoring activeCluster))
+                return false;
+
+            if (activeCluster.TryGetSourceTargetIdForEnemy(enemy, out string sourceTargetId) &&
+                TryGetTarget(sourceTargetId, out GameplayTargetAuthoringBase sourceTarget) &&
+                sourceTarget is EnemySourceClusterAuthoring registeredSourceCluster)
+            {
+                sourceCluster = registeredSourceCluster;
+                return true;
+            }
+
+            Vector3 lookupPosition = enemy != null ? enemy.transform.position : activeCluster.CenterPosition;
+            return TryFindEnemySourceClusterByActiveEnemyCluster(activeCluster, lookupPosition, out sourceCluster);
+        }
+
+        /// <summary>
+        /// 根据活跃敌人群查找绑定它的敌人来源群
+        /// </summary>
+        /// <param name="activeCluster"></param>
+        /// <param name="lookupPosition"></param>
+        /// <param name="sourceCluster"></param>
+        /// <returns></returns>
+        public bool TryFindEnemySourceClusterByActiveEnemyCluster(
+            ActiveEnemyClusterAuthoring activeCluster,
+            Vector3 lookupPosition,
+            out EnemySourceClusterAuthoring sourceCluster)
+        {
+            sourceCluster = null;
+            if (activeCluster == null)
+                return false;
+
+            float nearestDistanceSqr = float.MaxValue;
+            for (int i = 0; i < _clusters.Count; i++)
+            {
+                if (!(_clusters[i] is EnemySourceClusterAuthoring candidate) ||
+                    candidate.ActiveEnemyCluster != activeCluster)
+                {
+                    continue;
+                }
+
+                float distanceSqr = GetPlanarDistanceSqr(lookupPosition, candidate.CenterPosition);
+                if (distanceSqr >= nearestDistanceSqr)
+                    continue;
+
+                sourceCluster = candidate;
+                nearestDistanceSqr = distanceSqr;
+            }
+
+            return sourceCluster != null;
+        }
+
+        /// <summary>
+        /// 根据敌人实体查找敌人来源群 TargetId
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <param name="sourceTargetId"></param>
+        /// <returns></returns>
+        public bool TryFindEnemySourceTargetIdByEnemy(
+            global::EnemyHealthController enemy,
+            out string sourceTargetId)
+        {
+            if (TryFindEnemySourceClusterByEnemy(enemy, out EnemySourceClusterAuthoring sourceCluster))
+            {
+                sourceTargetId = sourceCluster.TargetId;
+                return !string.IsNullOrWhiteSpace(sourceTargetId);
+            }
+
+            sourceTargetId = string.Empty;
+            return false;
+        }
+
+        /// <summary>
         /// 根据撤离点实体查找所属撤离点群
         /// </summary>
         /// <param name="extractionPoint"></param>

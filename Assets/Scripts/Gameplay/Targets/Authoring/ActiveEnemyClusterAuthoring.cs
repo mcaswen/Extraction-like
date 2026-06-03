@@ -18,6 +18,9 @@ namespace Gameplay.Targets.Authoring
         private readonly List<GameplayTargetEntityMember> _runtimeEnemies =
             new List<GameplayTargetEntityMember>();
 
+        private readonly Dictionary<global::EnemyHealthController, string> _sourceTargetIdsByRuntimeEnemy =
+            new Dictionary<global::EnemyHealthController, string>();
+
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Enemy;
         protected override string IdPrefix => "ActiveEnemyCluster";
         protected override bool RefreshStateEveryFrame => true;
@@ -53,7 +56,19 @@ namespace Gameplay.Targets.Authoring
         /// <param name="enemy"></param>
         public void RegisterSpawnedEnemy(global::EnemyHealthController enemy)
         {
-            RegisterEnemy(enemy, _runtimeEnemies, "RuntimeEnemy");
+            RegisterSpawnedEnemy(enemy, string.Empty);
+        }
+
+        /// <summary>
+        /// 注册一个出生点运行时生成的敌人，并记录它来自哪个敌人来源群
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <param name="sourceTargetId"></param>
+        public void RegisterSpawnedEnemy(
+            global::EnemyHealthController enemy,
+            string sourceTargetId)
+        {
+            RegisterEnemy(enemy, _runtimeEnemies, "RuntimeEnemy", sourceTargetId);
         }
 
         /// <summary>
@@ -67,6 +82,27 @@ namespace Gameplay.Targets.Authoring
                 return false;
 
             return ContainsEnemy(_initialEnemies, enemy) || ContainsEnemy(_runtimeEnemies, enemy);
+        }
+
+        /// <summary>
+        /// 查询运行时敌人对应的敌人来源群 TargetId
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <param name="sourceTargetId"></param>
+        /// <returns></returns>
+        public bool TryGetSourceTargetIdForEnemy(
+            global::EnemyHealthController enemy,
+            out string sourceTargetId)
+        {
+            if (enemy != null &&
+                _sourceTargetIdsByRuntimeEnemy.TryGetValue(enemy, out sourceTargetId) &&
+                !string.IsNullOrWhiteSpace(sourceTargetId))
+            {
+                return true;
+            }
+
+            sourceTargetId = string.Empty;
+            return false;
         }
 
         /// <summary>
@@ -148,15 +184,33 @@ namespace Gameplay.Targets.Authoring
         private void RegisterEnemy(
             global::EnemyHealthController enemy,
             List<GameplayTargetEntityMember> members,
-            string idLabel)
+            string idLabel,
+            string sourceTargetId = "")
         {
-            if (enemy == null || members == null || ContainsEnemy(enemy))
+            if (enemy == null || members == null)
                 return;
+
+            if (ContainsEnemy(enemy))
+            {
+                RememberRuntimeEnemySource(enemy, sourceTargetId);
+                return;
+            }
 
             string entityId = $"{TargetId}_{idLabel}_{enemy.GetInstanceID()}";
             members.Add(new GameplayTargetEntityMember(entityId, enemy.gameObject));
+            RememberRuntimeEnemySource(enemy, sourceTargetId);
             RefreshRuntimeState();
             RefreshRangeShape();
+        }
+
+        private void RememberRuntimeEnemySource(
+            global::EnemyHealthController enemy,
+            string sourceTargetId)
+        {
+            if (enemy == null || string.IsNullOrWhiteSpace(sourceTargetId))
+                return;
+
+            _sourceTargetIdsByRuntimeEnemy[enemy] = sourceTargetId.Trim();
         }
 
         // 补齐初始敌人成员 ID，运行时生成敌人会使用实例 ID 生成临时成员 ID
@@ -298,8 +352,31 @@ namespace Gameplay.Targets.Authoring
                 if (member == null)
                 {
                     _runtimeEnemies.RemoveAt(i);
+                    PruneRuntimeEnemySourceMap();
                 }
             }
+        }
+
+        private void PruneRuntimeEnemySourceMap()
+        {
+            if (_sourceTargetIdsByRuntimeEnemy.Count == 0)
+                return;
+
+            List<global::EnemyHealthController> staleEnemies = null;
+            foreach (KeyValuePair<global::EnemyHealthController, string> pair in _sourceTargetIdsByRuntimeEnemy)
+            {
+                if (pair.Key != null && ContainsEnemy(_runtimeEnemies, pair.Key))
+                    continue;
+
+                staleEnemies ??= new List<global::EnemyHealthController>();
+                staleEnemies.Add(pair.Key);
+            }
+
+            if (staleEnemies == null)
+                return;
+
+            for (int i = 0; i < staleEnemies.Count; i++)
+                _sourceTargetIdsByRuntimeEnemy.Remove(staleEnemies[i]);
         }
 
         private static bool TryGetAliveEnemy(

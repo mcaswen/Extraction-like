@@ -22,6 +22,7 @@ namespace Gameplay.MapGraph.View
 
         [Header("UI Roots")]
         [SerializeField] private RectTransform _overlayRoot;
+        [SerializeField] private Image _backgroundImage;
         [SerializeField] private RectTransform _edgesRoot;
         [SerializeField] private RectTransform _nodesRoot;
         [SerializeField] private RectTransform _agentsRoot;
@@ -32,10 +33,16 @@ namespace Gameplay.MapGraph.View
         [SerializeField] private MapGraphAgentView _agentViewPrefab;
 
         [Header("Layout")]
+        [SerializeField] private bool _createDefaultBackground;
+        [SerializeField] private Vector2 _defaultPanelSize = new Vector2(860f, 560f);
+        [SerializeField] private Color _backgroundColor = new Color(0.025f, 0.035f, 0.05f, 0.88f);
         [SerializeField] private Vector2 _mapScale = new Vector2(48f, 48f);
         [SerializeField] private Vector2 _mapOffset;
         [SerializeField] private float _edgeWidth = 4f;
         [SerializeField] private Color _edgeColor = new Color(0.38f, 0.48f, 0.58f, 0.58f);
+        [SerializeField] private float _nodeAgentClusterOffsetScale = 0.88f;
+        [SerializeField] private float _edgeAgentLaneSpacingScale = 0.72f;
+        [SerializeField] private float _fallbackAgentClusterRadius = 18f;
 
         [Header("Input")]
         [SerializeField] private bool _startVisible;
@@ -52,11 +59,34 @@ namespace Gameplay.MapGraph.View
         private readonly HashSet<string> _highlightedEdgeIds = new HashSet<string>();
         private readonly HashSet<string> _visibleAgentIds = new HashSet<string>();
         private readonly List<string> _staleAgentIds = new List<string>();
+        private readonly Dictionary<string, Vector2> _agentDisplayPositionsById =
+            new Dictionary<string, Vector2>();
+        private readonly Dictionary<string, List<MapGraphAgentRuntimeState>> _agentsByClusterKey =
+            new Dictionary<string, List<MapGraphAgentRuntimeState>>();
+        private readonly Dictionary<string, AgentClusterAnchor> _clusterAnchorsByKey =
+            new Dictionary<string, AgentClusterAnchor>();
+        private readonly HashSet<string> _loggedIconSpecMismatchNodeIds = new HashSet<string>();
 
         private CanvasGroup _canvasGroup;
         private MapGraphService _graphService;
         private bool _isInitialized;
         private bool _isVisible;
+        private bool _hasLoggedMissingUiReferences;
+
+        private enum AgentClusterLayoutType
+        {
+            Node,
+            Edge,
+            World
+        }
+
+        private struct AgentClusterAnchor
+        {
+            public Vector2 Center;
+            public float BaseRadius;
+            public Vector2 Direction;
+            public AgentClusterLayoutType LayoutType;
+        }
 
         private void Awake()
         {
@@ -106,6 +136,9 @@ namespace Gameplay.MapGraph.View
             if (_isInitialized)
                 return;
 
+            if (!HasRequiredUiReferences())
+                return;
+
             _graphService = new MapGraphService(_mapDefinition);
             if (!_graphService.IsValid)
                 return;
@@ -113,7 +146,13 @@ namespace Gameplay.MapGraph.View
             if (_projectionController == null)
                 _projectionController = GetComponent<AgentGraphProjectionController>();
             if (_projectionController == null)
-                _projectionController = gameObject.AddComponent<AgentGraphProjectionController>();
+            {
+                Debug.LogWarning(
+                    $"{nameof(MapGraphOverlayController)} on {name} is missing {nameof(AgentGraphProjectionController)}. " +
+                    "Use the generated UGUI overlay prefab instead of relying on runtime component construction.",
+                    this);
+                return;
+            }
 
             _projectionController.Initialize(_mapDefinition, _bindingAuthoring);
             BuildMapViews();
@@ -128,6 +167,24 @@ namespace Gameplay.MapGraph.View
             _nodeViewsById.Clear();
             _edgeViewsById.Clear();
             _agentViewsById.Clear();
+            _loggedIconSpecMismatchNodeIds.Clear();
+
+            IReadOnlyList<MapGraphNodeDefinition> nodes = _mapDefinition.Nodes;
+            for (int index = 0; index < nodes.Count; index++)
+            {
+                MapGraphNodeDefinition node = nodes[index];
+                if (node == null || string.IsNullOrWhiteSpace(node.NodeId))
+                    continue;
+
+                MapGraphNodeView nodeView = CreateNodeView(_nodesRoot);
+                if (nodeView == null)
+                    continue;
+
+                nodeView.RectTransform.anchoredPosition = ToAnchoredPosition(node.Position);
+                LogNodeIconSpecMismatchIfNeeded(node);
+                nodeView.Initialize(node, ResolveNodeColor(node.NodeKind), ResolveNodeIcon(node));
+                _nodeViewsById[node.NodeId] = nodeView;
+            }
 
             IReadOnlyList<MapGraphEdgeDefinition> edges = _mapDefinition.Edges;
             for (int index = 0; index < edges.Count; index++)
@@ -139,21 +196,18 @@ namespace Gameplay.MapGraph.View
                 Vector2 from = ToAnchoredPosition(_graphService.GetNodePosition(edge.FromNodeId));
                 Vector2 to = ToAnchoredPosition(_graphService.GetNodePosition(edge.ToNodeId));
                 MapGraphEdgeView edgeView = CreateEdgeView(_edgesRoot);
-                edgeView.Initialize(edge.EdgeId, from, to, _edgeWidth, _edgeColor);
-                _edgeViewsById[edge.EdgeId] = edgeView;
-            }
-
-            IReadOnlyList<MapGraphNodeDefinition> nodes = _mapDefinition.Nodes;
-            for (int index = 0; index < nodes.Count; index++)
-            {
-                MapGraphNodeDefinition node = nodes[index];
-                if (node == null || string.IsNullOrWhiteSpace(node.NodeId))
+                if (edgeView == null)
                     continue;
 
-                MapGraphNodeView nodeView = CreateNodeView(_nodesRoot);
-                nodeView.RectTransform.anchoredPosition = ToAnchoredPosition(node.Position);
-                nodeView.Initialize(node, ResolveNodeColor(node.NodeKind));
-                _nodeViewsById[node.NodeId] = nodeView;
+                edgeView.Initialize(
+                    edge.EdgeId,
+                    from,
+                    to,
+                    _edgeWidth,
+                    _edgeColor,
+                    GetNodeVisualRadius(edge.FromNodeId),
+                    GetNodeVisualRadius(edge.ToNodeId));
+                _edgeViewsById[edge.EdgeId] = edgeView;
             }
         }
 
@@ -251,6 +305,7 @@ namespace Gameplay.MapGraph.View
 
         private void RefreshAgentViews(IReadOnlyList<MapGraphAgentRuntimeState> agentStates)
         {
+            BuildAgentDisplayPositions(agentStates);
             _visibleAgentIds.Clear();
             for (int index = 0; index < agentStates.Count; index++)
             {
@@ -262,11 +317,19 @@ namespace Gameplay.MapGraph.View
                 if (!_agentViewsById.TryGetValue(state.AgentId, out MapGraphAgentView agentView))
                 {
                     agentView = CreateAgentView(_agentsRoot);
+                    if (agentView == null)
+                        continue;
+
                     agentView.Initialize(state.AgentId);
                     _agentViewsById[state.AgentId] = agentView;
                 }
 
-                agentView.Refresh(state, ToAnchoredPosition(state.GraphPosition));
+                Vector2 displayPosition = _agentDisplayPositionsById.TryGetValue(
+                    state.AgentId,
+                    out Vector2 resolvedPosition)
+                    ? resolvedPosition
+                    : ToAnchoredPosition(state.GraphPosition);
+                agentView.Refresh(state, displayPosition);
             }
 
             _staleAgentIds.Clear();
@@ -287,6 +350,165 @@ namespace Gameplay.MapGraph.View
             }
         }
 
+        private void BuildAgentDisplayPositions(IReadOnlyList<MapGraphAgentRuntimeState> agentStates)
+        {
+            _agentDisplayPositionsById.Clear();
+            _agentsByClusterKey.Clear();
+            _clusterAnchorsByKey.Clear();
+
+            for (int index = 0; index < agentStates.Count; index++)
+            {
+                MapGraphAgentRuntimeState state = agentStates[index];
+                if (state == null || string.IsNullOrWhiteSpace(state.AgentId))
+                    continue;
+
+                string clusterKey = BuildAgentClusterKey(state);
+                if (!_agentsByClusterKey.TryGetValue(clusterKey, out List<MapGraphAgentRuntimeState> clusteredAgents))
+                {
+                    clusteredAgents = new List<MapGraphAgentRuntimeState>();
+                    _agentsByClusterKey.Add(clusterKey, clusteredAgents);
+                    _clusterAnchorsByKey.Add(clusterKey, ResolveAgentClusterAnchor(state));
+                }
+
+                clusteredAgents.Add(state);
+            }
+
+            foreach (KeyValuePair<string, List<MapGraphAgentRuntimeState>> clusterPair in _agentsByClusterKey)
+            {
+                List<MapGraphAgentRuntimeState> clusteredAgents = clusterPair.Value;
+                clusteredAgents.Sort(CompareAgentClusterOrder);
+                AgentClusterAnchor clusterAnchor = _clusterAnchorsByKey[clusterPair.Key];
+
+                for (int index = 0; index < clusteredAgents.Count; index++)
+                {
+                    MapGraphAgentRuntimeState state = clusteredAgents[index];
+                    _agentDisplayPositionsById[state.AgentId] =
+                        clusterAnchor.Center + ResolveAgentClusterOffset(clusterAnchor, index, clusteredAgents.Count);
+                }
+            }
+        }
+
+        private static string BuildAgentClusterKey(MapGraphAgentRuntimeState state)
+        {
+            if (state.IsOnEdge && !string.IsNullOrWhiteSpace(state.CurrentEdgeId))
+                return $"edge_{state.CurrentEdgeId}_{state.CurrentEdgeProgress01:0.###}";
+
+            if (!string.IsNullOrWhiteSpace(state.CurrentNodeId))
+                return $"node_{state.CurrentNodeId}";
+
+            return $"world_{state.GraphPosition.x:0.###}_{state.GraphPosition.y:0.###}";
+        }
+
+        private AgentClusterAnchor ResolveAgentClusterAnchor(MapGraphAgentRuntimeState state)
+        {
+            if (state.IsOnEdge &&
+                !string.IsNullOrWhiteSpace(state.CurrentEdgeId) &&
+                _graphService.TryGetEdge(state.CurrentEdgeId, out MapGraphEdgeDefinition edgeDefinition))
+            {
+                Vector2 fromPosition = ToAnchoredPosition(_graphService.GetNodePosition(edgeDefinition.FromNodeId));
+                Vector2 toPosition = ToAnchoredPosition(_graphService.GetNodePosition(edgeDefinition.ToNodeId));
+                Vector2 direction = (toPosition - fromPosition).normalized;
+                if (direction.sqrMagnitude <= Mathf.Epsilon)
+                    direction = Vector2.right;
+
+                float averageNodeRadius =
+                    (GetNodeVisualRadius(edgeDefinition.FromNodeId) + GetNodeVisualRadius(edgeDefinition.ToNodeId)) * 0.5f;
+
+                return new AgentClusterAnchor
+                {
+                    Center = ToAnchoredPosition(
+                        _graphService.GetPositionOnEdge(edgeDefinition, state.CurrentEdgeProgress01)),
+                    BaseRadius = Mathf.Max(_fallbackAgentClusterRadius, averageNodeRadius),
+                    Direction = direction,
+                    LayoutType = AgentClusterLayoutType.Edge
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(state.CurrentNodeId) &&
+                _nodeViewsById.TryGetValue(state.CurrentNodeId, out MapGraphNodeView nodeView))
+            {
+                return new AgentClusterAnchor
+                {
+                    Center = nodeView.RectTransform.anchoredPosition,
+                    BaseRadius = GetNodeVisualRadius(state.CurrentNodeId),
+                    Direction = Vector2.up,
+                    LayoutType = AgentClusterLayoutType.Node
+                };
+            }
+
+            return new AgentClusterAnchor
+            {
+                Center = ToAnchoredPosition(state.GraphPosition),
+                BaseRadius = _fallbackAgentClusterRadius,
+                Direction = Vector2.up,
+                LayoutType = AgentClusterLayoutType.World
+            };
+        }
+
+        private Vector2 ResolveAgentClusterOffset(AgentClusterAnchor clusterAnchor, int index, int count)
+        {
+            if (count <= 1)
+                return Vector2.zero;
+
+            switch (clusterAnchor.LayoutType)
+            {
+                case AgentClusterLayoutType.Edge:
+                    return ResolveEdgeLaneOffset(clusterAnchor, index, count);
+                case AgentClusterLayoutType.Node:
+                    return ResolveNodeClusterOffset(clusterAnchor.BaseRadius * _nodeAgentClusterOffsetScale, index, count);
+                default:
+                    return ResolveNodeClusterOffset(_fallbackAgentClusterRadius, index, count);
+            }
+        }
+
+        private Vector2 ResolveEdgeLaneOffset(AgentClusterAnchor clusterAnchor, int index, int count)
+        {
+            Vector2 normal = new Vector2(-clusterAnchor.Direction.y, clusterAnchor.Direction.x).normalized;
+            if (normal.sqrMagnitude <= Mathf.Epsilon)
+                normal = Vector2.up;
+
+            float laneIndex = index - ((count - 1) * 0.5f);
+            float laneSpacing = clusterAnchor.BaseRadius * _edgeAgentLaneSpacingScale;
+            return normal * (laneIndex * laneSpacing);
+        }
+
+        private static Vector2 ResolveNodeClusterOffset(float radius, int index, int count)
+        {
+            switch (count)
+            {
+                case 2:
+                    return ResolvePolarOffset(index == 0 ? 180f : 0f, radius);
+                case 3:
+                    return ResolvePolarOffset(90f + (120f * index), radius);
+                case 4:
+                    return ResolvePolarOffset(135f - (90f * index), radius);
+                default:
+                    return ResolvePolarOffset(90f + ((360f * index) / count), radius);
+            }
+        }
+
+        private static Vector2 ResolvePolarOffset(float angleDegrees, float radius)
+        {
+            float angleRadians = angleDegrees * Mathf.Deg2Rad;
+            return new Vector2(Mathf.Cos(angleRadians) * radius, Mathf.Sin(angleRadians) * radius);
+        }
+
+        private static int CompareAgentClusterOrder(
+            MapGraphAgentRuntimeState left,
+            MapGraphAgentRuntimeState right)
+        {
+            if (ReferenceEquals(left, right))
+                return 0;
+
+            if (left == null)
+                return 1;
+
+            if (right == null)
+                return -1;
+
+            return string.CompareOrdinal(left.AgentId, right.AgentId);
+        }
+
         private void EnsureRootReferences()
         {
             if (_overlayRoot == null)
@@ -294,12 +516,51 @@ namespace Gameplay.MapGraph.View
 
             if (_canvasGroup == null)
                 _canvasGroup = _overlayRoot.GetComponent<CanvasGroup>();
-            if (_canvasGroup == null)
-                _canvasGroup = _overlayRoot.gameObject.AddComponent<CanvasGroup>();
 
+            EnsureDefaultPanelSize();
+            EnsureBackgroundImage();
             EnsureChildRoot(ref _edgesRoot, "EdgesRoot");
             EnsureChildRoot(ref _nodesRoot, "NodesRoot");
             EnsureChildRoot(ref _agentsRoot, "AgentsRoot");
+            ApplyRootSiblingOrder();
+        }
+
+        private void EnsureDefaultPanelSize()
+        {
+            if (_overlayRoot == null)
+                return;
+
+            if (_overlayRoot.anchorMin == _overlayRoot.anchorMax &&
+                _overlayRoot.sizeDelta == Vector2.zero)
+            {
+                _overlayRoot.sizeDelta = _defaultPanelSize;
+            }
+        }
+
+        private void EnsureBackgroundImage()
+        {
+            if (!_createDefaultBackground || _overlayRoot == null)
+                return;
+
+            if (_backgroundImage == null)
+            {
+                Transform existingBackground = _overlayRoot.Find("Background");
+                if (existingBackground != null)
+                    _backgroundImage = existingBackground.GetComponent<Image>();
+            }
+
+            if (_backgroundImage == null)
+                return;
+
+            RectTransform backgroundRect = _backgroundImage.GetComponent<RectTransform>();
+            backgroundRect.anchorMin = Vector2.zero;
+            backgroundRect.anchorMax = Vector2.one;
+            backgroundRect.pivot = new Vector2(0.5f, 0.5f);
+            backgroundRect.offsetMin = Vector2.zero;
+            backgroundRect.offsetMax = Vector2.zero;
+
+            _backgroundImage.color = _backgroundColor;
+            _backgroundImage.raycastTarget = true;
         }
 
         private void EnsureChildRoot(ref RectTransform root, string rootName)
@@ -307,67 +568,77 @@ namespace Gameplay.MapGraph.View
             if (root != null)
                 return;
 
+            if (_overlayRoot == null)
+                return;
+
             Transform existingRoot = _overlayRoot.Find(rootName);
             if (existingRoot != null)
-            {
                 root = existingRoot as RectTransform;
-                if (root != null)
-                    return;
-            }
+        }
 
-            GameObject rootObject = new GameObject(rootName, typeof(RectTransform));
-            rootObject.transform.SetParent(_overlayRoot, false);
-            root = rootObject.GetComponent<RectTransform>();
-            root.anchorMin = new Vector2(0.5f, 0.5f);
-            root.anchorMax = new Vector2(0.5f, 0.5f);
-            root.pivot = new Vector2(0.5f, 0.5f);
-            root.anchoredPosition = Vector2.zero;
-            root.sizeDelta = Vector2.zero;
+        private void ApplyRootSiblingOrder()
+        {
+            if (_backgroundImage != null)
+                _backgroundImage.transform.SetSiblingIndex(0);
+
+            if (_edgesRoot != null)
+                _edgesRoot.SetSiblingIndex(_backgroundImage != null ? 1 : 0);
+
+            if (_nodesRoot != null)
+                _nodesRoot.SetSiblingIndex(_backgroundImage != null ? 2 : 1);
+
+            if (_agentsRoot != null)
+                _agentsRoot.SetSiblingIndex(_backgroundImage != null ? 3 : 2);
         }
 
         private MapGraphNodeView CreateNodeView(RectTransform parent)
         {
-            if (_nodeViewPrefab != null)
-                return Instantiate(_nodeViewPrefab, parent);
+            if (_nodeViewPrefab == null || parent == null)
+                return null;
 
-            GameObject nodeObject = new GameObject(
-                "MapGraphNodeView",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(MapGraphNodeView));
-            nodeObject.transform.SetParent(parent, false);
-            return nodeObject.GetComponent<MapGraphNodeView>();
+            return Instantiate(_nodeViewPrefab, parent);
         }
 
         private MapGraphEdgeView CreateEdgeView(RectTransform parent)
         {
-            if (_edgeViewPrefab != null)
-                return Instantiate(_edgeViewPrefab, parent);
+            if (_edgeViewPrefab == null || parent == null)
+                return null;
 
-            GameObject edgeObject = new GameObject(
-                "MapGraphEdgeView",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(MapGraphEdgeView));
-            edgeObject.transform.SetParent(parent, false);
-            return edgeObject.GetComponent<MapGraphEdgeView>();
+            return Instantiate(_edgeViewPrefab, parent);
         }
 
         private MapGraphAgentView CreateAgentView(RectTransform parent)
         {
-            if (_agentViewPrefab != null)
-                return Instantiate(_agentViewPrefab, parent);
+            if (_agentViewPrefab == null || parent == null)
+                return null;
 
-            GameObject agentObject = new GameObject(
-                "MapGraphAgentView",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(MapGraphAgentView));
-            agentObject.transform.SetParent(parent, false);
-            return agentObject.GetComponent<MapGraphAgentView>();
+            return Instantiate(_agentViewPrefab, parent);
+        }
+
+        private bool HasRequiredUiReferences()
+        {
+            bool hasRequiredReferences =
+                _overlayRoot != null &&
+                _edgesRoot != null &&
+                _nodesRoot != null &&
+                _agentsRoot != null &&
+                _nodeViewPrefab != null &&
+                _edgeViewPrefab != null &&
+                _agentViewPrefab != null;
+
+            if (hasRequiredReferences)
+                return true;
+
+            if (!_hasLoggedMissingUiReferences)
+            {
+                Debug.LogWarning(
+                    $"{nameof(MapGraphOverlayController)} on {name} is missing UGUI prefab references. " +
+                    "Use Tools/Map Graph/Create UGUI Prefabs to generate the overlay and view prefabs.",
+                    this);
+                _hasLoggedMissingUiReferences = true;
+            }
+
+            return false;
         }
 
         private void SetVisible(bool isVisible)
@@ -393,6 +664,190 @@ namespace Gameplay.MapGraph.View
             return state.CurrentEdgeTargetProgress01 >= 0.5f
                 ? state.CurrentEdgeToNodeId
                 : state.CurrentEdgeFromNodeId;
+        }
+
+        private float GetNodeVisualRadius(string nodeId)
+        {
+            return _nodeViewsById.TryGetValue(nodeId, out MapGraphNodeView nodeView)
+                ? nodeView.GetVisualRadius()
+                : 20f;
+        }
+
+        private Sprite ResolveNodeIcon(MapGraphNodeDefinition node)
+        {
+            if (node == null)
+                return null;
+
+            MapGraphNodeIconSet iconSet = _mapDefinition != null ? _mapDefinition.NodeIconSet : null;
+            if (iconSet != null &&
+                TryResolveBoundNodeIconSpec(
+                    node,
+                    out MapGraphNodeIconKind boundIconKind,
+                    out MapGraphResourceTier boundResourceTier,
+                    out MapGraphDangerTier boundDangerTier))
+            {
+                Sprite boundIcon = iconSet.GetIcon(boundIconKind, boundResourceTier, boundDangerTier);
+                if (boundIcon != null)
+                    return boundIcon;
+            }
+
+            if (iconSet != null)
+            {
+                Sprite definitionIcon = iconSet.GetIcon(node.IconKind, node.ResourceTier, node.DangerTier);
+                if (definitionIcon != null)
+                    return definitionIcon;
+            }
+
+            return node.Icon;
+        }
+
+        private bool TryResolveBoundNodeIconSpec(
+            MapGraphNodeDefinition node,
+            out MapGraphNodeIconKind iconKind,
+            out MapGraphResourceTier resourceTier,
+            out MapGraphDangerTier dangerTier)
+        {
+            iconKind = node.IconKind;
+            resourceTier = node.ResourceTier;
+            dangerTier = node.DangerTier;
+
+            if (_bindingAuthoring == null ||
+                !_bindingAuthoring.TryResolveTargetForNodeId(
+                    node.NodeId,
+                    out GameplayTargetAuthoringBase target))
+            {
+                return false;
+            }
+
+            if (target is ResourceClusterAuthoring resourceCluster &&
+                resourceCluster.TryResolveResourceTier(out global::SceneResourceTier sceneResourceTier))
+            {
+                iconKind = MapGraphNodeIconKind.Resource;
+                resourceTier = MapSceneResourceTier(sceneResourceTier);
+                dangerTier = MapGraphDangerTier.None;
+                return true;
+            }
+
+            if (target is EnemySourceClusterAuthoring enemySourceCluster)
+            {
+                iconKind = MapSceneEnemySourceIconKind(enemySourceCluster.IconKind, node.IconKind);
+                resourceTier = MapGraphResourceTier.None;
+                dangerTier = MapSceneEnemyDangerTier(enemySourceCluster.DangerTier, node.DangerTier);
+                return true;
+            }
+
+            return false;
+        }
+
+        private void LogNodeIconSpecMismatchIfNeeded(MapGraphNodeDefinition node)
+        {
+            if (node == null ||
+                string.IsNullOrWhiteSpace(node.NodeId) ||
+                _loggedIconSpecMismatchNodeIds.Contains(node.NodeId) ||
+                !TryResolveBoundNodeIconSpec(
+                    node,
+                    out MapGraphNodeIconKind boundIconKind,
+                    out MapGraphResourceTier boundResourceTier,
+                    out MapGraphDangerTier boundDangerTier) ||
+                !HasNodeIconSpecMismatch(node, boundIconKind, boundResourceTier, boundDangerTier))
+            {
+                return;
+            }
+
+            string targetText = "bound scene target";
+            if (_bindingAuthoring != null &&
+                _bindingAuthoring.TryResolveTargetForNodeId(
+                    node.NodeId,
+                    out GameplayTargetAuthoringBase target) &&
+                target != null)
+            {
+                targetText = $"{target.DisplayName} ({target.TargetId})";
+            }
+
+            Debug.LogWarning(
+                $"Map graph node icon spec mismatch: node={node.NodeId}, target={targetText}, " +
+                $"definition=({node.IconKind}, {node.ResourceTier}, {node.DangerTier}), " +
+                $"bound=({boundIconKind}, {boundResourceTier}, {boundDangerTier}). " +
+                "Runtime icon uses the bound scene target spec.",
+                this);
+            _loggedIconSpecMismatchNodeIds.Add(node.NodeId);
+        }
+
+        private static bool HasNodeIconSpecMismatch(
+            MapGraphNodeDefinition node,
+            MapGraphNodeIconKind boundIconKind,
+            MapGraphResourceTier boundResourceTier,
+            MapGraphDangerTier boundDangerTier)
+        {
+            if (node.IconKind != MapGraphNodeIconKind.None &&
+                boundIconKind != MapGraphNodeIconKind.None &&
+                node.IconKind != boundIconKind)
+            {
+                return true;
+            }
+
+            if (node.ResourceTier != MapGraphResourceTier.None &&
+                boundResourceTier != MapGraphResourceTier.None &&
+                node.ResourceTier != boundResourceTier)
+            {
+                return true;
+            }
+
+            return node.DangerTier != MapGraphDangerTier.None &&
+                   boundDangerTier != MapGraphDangerTier.None &&
+                   node.DangerTier != boundDangerTier;
+        }
+
+        private static MapGraphResourceTier MapSceneResourceTier(global::SceneResourceTier resourceTier)
+        {
+            switch (resourceTier)
+            {
+                case global::SceneResourceTier.Low:
+                    return MapGraphResourceTier.Low;
+                case global::SceneResourceTier.Medium:
+                    return MapGraphResourceTier.Medium;
+                case global::SceneResourceTier.High:
+                    return MapGraphResourceTier.High;
+                default:
+                    return MapGraphResourceTier.None;
+            }
+        }
+
+        private static MapGraphNodeIconKind MapSceneEnemySourceIconKind(
+            SceneEnemySourceIconKind iconKind,
+            MapGraphNodeIconKind fallbackIconKind)
+        {
+            switch (iconKind)
+            {
+                case SceneEnemySourceIconKind.Enemy:
+                    return MapGraphNodeIconKind.Enemy;
+                case SceneEnemySourceIconKind.Boss:
+                    return MapGraphNodeIconKind.Boss;
+                default:
+                    if (fallbackIconKind == MapGraphNodeIconKind.Boss)
+                        return MapGraphNodeIconKind.Boss;
+
+                    return MapGraphNodeIconKind.Enemy;
+            }
+        }
+
+        private static MapGraphDangerTier MapSceneEnemyDangerTier(
+            SceneEnemyDangerTier dangerTier,
+            MapGraphDangerTier fallbackDangerTier)
+        {
+            switch (dangerTier)
+            {
+                case SceneEnemyDangerTier.Low:
+                    return MapGraphDangerTier.Low;
+                case SceneEnemyDangerTier.Medium:
+                    return MapGraphDangerTier.Medium;
+                case SceneEnemyDangerTier.High:
+                    return MapGraphDangerTier.High;
+                default:
+                    return fallbackDangerTier != MapGraphDangerTier.None
+                        ? fallbackDangerTier
+                        : MapGraphDangerTier.Low;
+            }
         }
 
         private static Color ResolveNodeColor(MapGraphNodeKind nodeKind)

@@ -4,6 +4,21 @@ using UnityEngine;
 
 namespace Gameplay.Targets.Authoring
 {
+    public enum SceneEnemySourceIconKind
+    {
+        Inherit = 0,
+        Enemy = 1,
+        Boss = 2
+    }
+
+    public enum SceneEnemyDangerTier
+    {
+        Inherit = 0,
+        Low = 1,
+        Medium = 2,
+        High = 3
+    }
+
     /// <summary>
     /// 敌人来源群目标配置
     /// 表达敌人可能出现的位置，并把出生点生成的敌人转交给对应活跃敌人群
@@ -11,6 +26,10 @@ namespace Gameplay.Targets.Authoring
     [DisallowMultipleComponent]
     public sealed class EnemySourceClusterAuthoring : GameplayTargetClusterAuthoringBase
     {
+        [Header("Board Game Icon Binding")]
+        [SerializeField] private SceneEnemySourceIconKind _iconKind = SceneEnemySourceIconKind.Inherit;
+        [SerializeField] private SceneEnemyDangerTier _dangerTier = SceneEnemyDangerTier.Inherit;
+
         [Header("Active Enemy Binding")]
         [SerializeField] private ActiveEnemyClusterAuthoring _activeEnemyCluster;
         [SerializeField] private bool _autoResolveActiveEnemyCluster = true;
@@ -24,6 +43,8 @@ namespace Gameplay.Targets.Authoring
 
         public ActiveEnemyClusterAuthoring ActiveEnemyCluster => ResolveActiveEnemyCluster();
         public IReadOnlyList<Transform> SpawnPoints => _spawnPoints;
+        public SceneEnemySourceIconKind IconKind => _iconKind;
+        public SceneEnemyDangerTier DangerTier => _dangerTier;
 
         /// <summary>
         /// 尝试将指定出生点生成的敌人注册到绑定的活跃敌人群
@@ -42,7 +63,7 @@ namespace Gameplay.Targets.Authoring
             if (activeCluster == null)
                 return false;
 
-            activeCluster.RegisterSpawnedEnemy(enemy);
+            activeCluster.RegisterSpawnedEnemy(enemy, TargetId);
             MarkTouched();
             RefreshRuntimeState();
             return true;
