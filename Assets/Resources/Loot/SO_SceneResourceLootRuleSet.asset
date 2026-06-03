@@ -1,0 +1,191 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 051cdd4a3d994402b9c573512c0d8c5c, type: 3}
+  m_Name: SO_SceneResourceLootRuleSet
+  m_EditorClassIdentifier:
+  _lootTable:
+  - ItemData: {fileID: 11400000, guid: 77be87d82f6cbc94291784928d91e6d6, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 6388c80b76012354d8945571cab34f49, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 48381017212b2874998e0928000349ed, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: ee5d960f089db7746b670a15e9a35b37, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 4772d9f94e2303348ab275c6bdb8da14, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 326b1a488f0b3f24eab4aeb26946babe, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: f54b67bef3171564ea793834215a84dd, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 100febfff941ae24a9771c1ed8636d13, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 3404f0a873c4f014080290e984402c7d, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: df3d45a0689b53640b10bf740b76ca04, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: c73c677d8ba98664fb95db3eea95a493, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: e517dceb8e1b6414c83579c264448006, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: dc4182279cd01f04b9a607aef20779e1, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: b3ceb5d5e4aa9bf49a604b08c48a8a14, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: dbad1abe11af2504b8f7f5e0e113a632, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: ac1d4be35a5b8414196607570998925f, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 74d3ee9df9a6623428ec176fb80da199, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 6dc78a1572172064b961ca97db525795, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 20c8b97ce0dfa3140958eeae1eda1a7b, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 07b1488029b7b34439e31b036be9492e, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 7b49453b6b7f96349ac8f98d3acdf6b7, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 9eda885f3821c2d4ca31499fb48fb1e5, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 005475cbe2aca2c4d938b523dad7a5c7, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 2e8dcfda56cf80d458d1809f7382b50a, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 76903cbc5346f8c49a23d496f53114b5, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 54870243d4e0c9546b7584f4621b52c4, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: e218444b032253a4099c37cd9ac5508e, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: ee9891b99c78b4a48ae8c9d14bdda94a, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 75a241905858cd64494b56fed6c0e569, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: f877427212aea674bb1d915158920a9e, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: ca57a572053f3d141a6658ebdc3dff2c, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 5e861f1246045cf48b8206e3adc6dad8, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 756e9dfaa1ab5db43a80fe3965ba53c9, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  - ItemData: {fileID: 11400000, guid: 72159f338e634fd4cbdd936c35fc51aa, type: 2}
+    Weight: 1
+    MinAmount: 1
+    MaxAmount: 1
+    SpawnChance: 1
+  _lowTierRollCount: {x: 1, y: 3}
+  _lowTierCommonUncommonRareWeights: {x: 45, y: 35, z: 20}
+  _mediumTierRollCount: {x: 2, y: 4}
+  _mediumTierCommonUncommonRareEpicWeights: {x: 10, y: 40, z: 35, w: 15}
+  _highTierRollCount: {x: 3, y: 5}
+  _highTierUncommonRareEpicLegendaryWeights: {x: 30, y: 30, z: 25, w: 15}

@@ -44,6 +44,10 @@ public enum SceneResourceStateType
 /// </summary>
 public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractable
 {
+    private const string DefaultResourceLootRuleSetResourcesPath = "Loot/SO_SceneResourceLootRuleSet";
+
+    private static SceneResourceLootRuleSet _defaultResourceLootRuleSet;
+
     [Header("Loot Box")]
     public string BoxName = "军用物资箱";
     public InventoryItemData FirstTimeLootItem;
@@ -61,6 +65,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     [Header("Board Game Resource Rules")]
     public bool UseBoardGameResourceRules;
+    public SceneResourceLootRuleSet ResourceLootRuleSet;
     public SceneResourceTier ResourceTier = SceneResourceTier.Low;
     public SceneResourceStateType ResourceState = SceneResourceStateType.Unsearched;
     public float LowTierSearchSeconds = 3f;
@@ -332,10 +337,11 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         List<ContainerItemSaveData> generatedLoot = new List<ContainerItemSaveData>();
         int rollCount = ResolveBoardGameRollCount();
+        IReadOnlyList<LootGenerationEntry> lootTable = ResolveBoardGameLootTable();
 
         for (int i = 0; i < rollCount; i++)
         {
-            LootGenerationEntry entry = RollBoardGameResourceEntry();
+            LootGenerationEntry entry = RollBoardGameResourceEntry(lootTable);
             if (entry == null || entry.ItemData == null)
             {
                 continue;
@@ -375,10 +381,20 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     // 根据权重和概率从掉落表里选出一次实际掉落项
     private LootGenerationEntry RollLootEntry()
     {
+        return RollLootEntry(LootTable);
+    }
+
+    private LootGenerationEntry RollLootEntry(IReadOnlyList<LootGenerationEntry> lootTable)
+    {
         List<LootGenerationEntry> candidates = new List<LootGenerationEntry>();
         int totalWeight = 0;
 
-        foreach (LootGenerationEntry entry in LootTable)
+        if (lootTable == null)
+        {
+            return null;
+        }
+
+        foreach (LootGenerationEntry entry in lootTable)
         {
             if (entry == null || entry.ItemData == null || entry.Weight <= 0)
             {
@@ -413,24 +429,33 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return candidates[candidates.Count - 1];
     }
 
-    // 先按资源等级抽稀有度，再从箱子当前 LootTable 里抽同稀有度的实际物品
-    private LootGenerationEntry RollBoardGameResourceEntry()
+    // 先按资源等级抽稀有度，再从资源点规则表里抽同稀有度的实际物品
+    private LootGenerationEntry RollBoardGameResourceEntry(IReadOnlyList<LootGenerationEntry> lootTable)
     {
-        if (LootTable == null || LootTable.Count <= 0)
+        if (lootTable == null || lootTable.Count <= 0)
         {
             return null;
         }
 
-        if (!TryRollBoardGameRarity(out ItemRarity rarity))
+        if (!TryRollBoardGameRarity(lootTable, out ItemRarity rarity))
         {
-            return RollLootEntry();
+            return RollLootEntry(lootTable);
         }
 
-        return RollLootEntryByRarity(rarity) ?? RollLootEntry();
+        return RollLootEntryByRarity(lootTable, rarity) ?? RollLootEntry(lootTable);
     }
 
-    private bool TryRollBoardGameRarity(out ItemRarity rarity)
+    private bool TryRollBoardGameRarity(IReadOnlyList<LootGenerationEntry> lootTable, out ItemRarity rarity)
     {
+        SceneResourceLootRuleSet ruleSet = ResolveResourceLootRuleSet();
+        if (ruleSet != null)
+        {
+            return ruleSet.TryRollRarity(
+                ResourceTier,
+                candidateRarity => HasLootEntryForRarity(lootTable, candidateRarity),
+                out rarity);
+        }
+
         rarity = ItemRarity.Common;
         float commonWeight = 0f;
         float uncommonWeight = 0f;
@@ -460,6 +485,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         }
 
         return TryPickAvailableRarity(
+            lootTable,
             commonWeight,
             uncommonWeight,
             rareWeight,
@@ -469,6 +495,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     }
 
     private bool TryPickAvailableRarity(
+        IReadOnlyList<LootGenerationEntry> lootTable,
         float commonWeight,
         float uncommonWeight,
         float rareWeight,
@@ -478,11 +505,11 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         rarity = ItemRarity.Common;
         float totalWeight = 0f;
-        totalWeight += HasLootEntryForRarity(ItemRarity.Common) ? Mathf.Max(0f, commonWeight) : 0f;
-        totalWeight += HasLootEntryForRarity(ItemRarity.Uncommon) ? Mathf.Max(0f, uncommonWeight) : 0f;
-        totalWeight += HasLootEntryForRarity(ItemRarity.Rare) ? Mathf.Max(0f, rareWeight) : 0f;
-        totalWeight += HasLootEntryForRarity(ItemRarity.Epic) ? Mathf.Max(0f, epicWeight) : 0f;
-        totalWeight += HasLootEntryForRarity(ItemRarity.Legendary) ? Mathf.Max(0f, legendaryWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(lootTable, ItemRarity.Common) ? Mathf.Max(0f, commonWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(lootTable, ItemRarity.Uncommon) ? Mathf.Max(0f, uncommonWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(lootTable, ItemRarity.Rare) ? Mathf.Max(0f, rareWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(lootTable, ItemRarity.Epic) ? Mathf.Max(0f, epicWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(lootTable, ItemRarity.Legendary) ? Mathf.Max(0f, legendaryWeight) : 0f;
 
         if (totalWeight <= Mathf.Epsilon)
         {
@@ -492,11 +519,11 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         float roll = Random.Range(0f, totalWeight);
         float cursor = 0f;
 
-        if (TryAdvanceRarityRoll(ItemRarity.Common, commonWeight, roll, ref cursor, out rarity) ||
-            TryAdvanceRarityRoll(ItemRarity.Uncommon, uncommonWeight, roll, ref cursor, out rarity) ||
-            TryAdvanceRarityRoll(ItemRarity.Rare, rareWeight, roll, ref cursor, out rarity) ||
-            TryAdvanceRarityRoll(ItemRarity.Epic, epicWeight, roll, ref cursor, out rarity) ||
-            TryAdvanceRarityRoll(ItemRarity.Legendary, legendaryWeight, roll, ref cursor, out rarity))
+        if (TryAdvanceRarityRoll(lootTable, ItemRarity.Common, commonWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(lootTable, ItemRarity.Uncommon, uncommonWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(lootTable, ItemRarity.Rare, rareWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(lootTable, ItemRarity.Epic, epicWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(lootTable, ItemRarity.Legendary, legendaryWeight, roll, ref cursor, out rarity))
         {
             return true;
         }
@@ -505,6 +532,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     }
 
     private bool TryAdvanceRarityRoll(
+        IReadOnlyList<LootGenerationEntry> lootTable,
         ItemRarity candidateRarity,
         float weight,
         float roll,
@@ -512,7 +540,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         out ItemRarity rarity)
     {
         rarity = ItemRarity.Common;
-        if (weight <= 0f || !HasLootEntryForRarity(candidateRarity))
+        if (weight <= 0f || !HasLootEntryForRarity(lootTable, candidateRarity))
         {
             return false;
         }
@@ -527,14 +555,14 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return true;
     }
 
-    private bool HasLootEntryForRarity(ItemRarity rarity)
+    private bool HasLootEntryForRarity(IReadOnlyList<LootGenerationEntry> lootTable, ItemRarity rarity)
     {
-        if (LootTable == null)
+        if (lootTable == null)
         {
             return false;
         }
 
-        foreach (LootGenerationEntry entry in LootTable)
+        foreach (LootGenerationEntry entry in lootTable)
         {
             if (entry != null &&
                 entry.ItemData != null &&
@@ -548,12 +576,17 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return false;
     }
 
-    private LootGenerationEntry RollLootEntryByRarity(ItemRarity rarity)
+    private LootGenerationEntry RollLootEntryByRarity(IReadOnlyList<LootGenerationEntry> lootTable, ItemRarity rarity)
     {
         List<LootGenerationEntry> candidates = new List<LootGenerationEntry>();
         int totalWeight = 0;
 
-        foreach (LootGenerationEntry entry in LootTable)
+        if (lootTable == null)
+        {
+            return null;
+        }
+
+        foreach (LootGenerationEntry entry in lootTable)
         {
             if (entry == null ||
                 entry.ItemData == null ||
@@ -588,6 +621,12 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     private int ResolveBoardGameRollCount()
     {
+        SceneResourceLootRuleSet ruleSet = ResolveResourceLootRuleSet();
+        if (ruleSet != null)
+        {
+            return ruleSet.ResolveRollCount(ResourceTier);
+        }
+
         switch (ResourceTier)
         {
             case SceneResourceTier.Low:
@@ -599,6 +638,32 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
             default:
                 return Random.Range(1, 4);
         }
+    }
+
+    private IReadOnlyList<LootGenerationEntry> ResolveBoardGameLootTable()
+    {
+        SceneResourceLootRuleSet ruleSet = ResolveResourceLootRuleSet();
+        if (ruleSet != null && ruleSet.HasLootTable)
+        {
+            return ruleSet.LootTable;
+        }
+
+        return LootTable;
+    }
+
+    private SceneResourceLootRuleSet ResolveResourceLootRuleSet()
+    {
+        if (ResourceLootRuleSet != null)
+        {
+            return ResourceLootRuleSet;
+        }
+
+        if (_defaultResourceLootRuleSet == null)
+        {
+            _defaultResourceLootRuleSet = Resources.Load<SceneResourceLootRuleSet>(DefaultResourceLootRuleSetResourcesPath);
+        }
+
+        return _defaultResourceLootRuleSet;
     }
 
     private float ResolveSearchDurationSeconds()
