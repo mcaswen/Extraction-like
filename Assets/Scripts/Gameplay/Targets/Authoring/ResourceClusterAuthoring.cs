@@ -172,7 +172,12 @@ namespace Gameplay.Targets.Authoring
                 return false;
 
             if (member.TryGetComponent(out global::LootBoxEntity lootBox))
+            {
+                if (lootBox.IsBoardGameResourcePoint)
+                    return lootBox.CanBeSearchedAsResourcePoint();
+
                 return lootBox.gameObject.activeInHierarchy && lootBox.GetSavedItems().Count > 0;
+            }
 
             if (member.TryGetComponent(out global::WorldLootItem worldItem))
             {
@@ -200,7 +205,22 @@ namespace Gameplay.Targets.Authoring
 
             if (member.TryGetComponent(out global::LootBoxEntity lootBox))
             {
-                if (!lootBox.gameObject.activeInHierarchy || lootBox.GetSavedItems().Count <= 0)
+                if (!lootBox.gameObject.activeInHierarchy)
+                {
+                    member.MarkCompleted();
+                    return;
+                }
+
+                if (lootBox.IsBoardGameResourcePoint)
+                {
+                    lootBox.RefreshResourcePointState();
+                    if (lootBox.IsResourcePointLooted)
+                        member.MarkCompleted();
+
+                    return;
+                }
+
+                if (lootBox.GetSavedItems().Count <= 0)
                     member.MarkCompleted();
 
                 return;

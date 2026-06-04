@@ -17,9 +17,10 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: pocket_watch
   ItemName: "\u6000\u8868"
-  ItemIcon: {fileID: 21300000, guid: d435d401cb743c946ae25d9d7c7c221c, type: 3}
+  ItemIcon: {fileID: 21300000, guid: e77dcbb66184456db816d3eb99bf49a2, type: 3}
   Type: 5
   Rarity: 3
+  EquipmentKind: 0
   Width: 1
   Height: 1
   IsStackable: 0
@@ -27,6 +28,7 @@ MonoBehaviour:
   WorldPrefab: {fileID: 2532920044034706817, guid: 5a0469864a4f6a24780472ef3788b589,
     type: 3}
   SellPrice: 400
+  CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1
   MagicUnlock: 0

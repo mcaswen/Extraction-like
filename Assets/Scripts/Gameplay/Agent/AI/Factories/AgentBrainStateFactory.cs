@@ -12,6 +12,10 @@ namespace Gameplay.Agent.AI.Factories
     /// </summary>
     public sealed class AgentBrainStateFactory
     {
+        /// <summary>
+        /// 创建 Agent Brain 根状态
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateRootState()
         {
             return new AgentBrainState(
@@ -19,6 +23,10 @@ namespace Gameplay.Agent.AI.Factories
                 "AgentRoot");
         }
 
+        /// <summary>
+        /// 创建 Raid 宏状态容器
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateRaidState()
         {
             return new AgentBrainState(
@@ -26,6 +34,10 @@ namespace Gameplay.Agent.AI.Factories
                 "Raid");
         }
 
+        /// <summary>
+        /// 创建探索状态
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateExploreState()
         {
             return new AgentBrainState(
@@ -34,6 +46,10 @@ namespace Gameplay.Agent.AI.Factories
                 BuildMaintainStateTree(AgentMacroStateId.Explore));
         }
 
+        /// <summary>
+        /// 创建战斗状态
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateCombatState()
         {
             return new AgentBrainState(
@@ -42,6 +58,22 @@ namespace Gameplay.Agent.AI.Factories
                 BuildCombatTree());
         }
 
+        /// <summary>
+        /// 创建敌人来源侦查状态
+        /// </summary>
+        /// <returns></returns>
+        public AgentBrainState CreateInvestigateEnemySourceState()
+        {
+            return new AgentBrainState(
+                AgentMacroStateId.InvestigateEnemySource,
+                "InvestigateEnemySource",
+                BuildInvestigateEnemySourceTree());
+        }
+
+        /// <summary>
+        /// 创建资源搜索状态
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateSearchResourceState()
         {
             return new AgentBrainState(
@@ -50,6 +82,11 @@ namespace Gameplay.Agent.AI.Factories
                 BuildSearchResourceTree(AgentMacroStateId.SearchResource));
         }
 
+        /// <summary>
+        /// 创建战利品交互状态
+        /// 当前复用资源搜索行为树
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateInteractLootState()
         {
             return new AgentBrainState(
@@ -58,6 +95,10 @@ namespace Gameplay.Agent.AI.Factories
                 BuildSearchResourceTree(AgentMacroStateId.InteractLoot));
         }
 
+        /// <summary>
+        /// 创建撤离状态
+        /// </summary>
+        /// <returns></returns>
         public AgentBrainState CreateExtractionState()
         {
             return new AgentBrainState(
@@ -94,6 +135,19 @@ namespace Gameplay.Agent.AI.Factories
                         AgentBlackboardKeys.AttackRange,
                         6f),
                     new EngageEnemyActionNode("Combat_EngageEnemy")));
+        }
+
+        private static BehaviorTreeType BuildInvestigateEnemySourceTree()
+        {
+            // 敌人来源点只负责靠近侦查，真正接战必须等活跃敌人群出现
+            return new BehaviorTreeType(
+                "InvestigateEnemySourceTree",
+                new MoveToTargetActionNode(
+                    "InvestigateEnemySource_MoveToSource",
+                    AgentDirectiveType.MoveTo,
+                    AgentTargetKind.EnemySource,
+                    AgentBlackboardKeys.MoveStoppingDistance,
+                    2f));
         }
 
         private static BehaviorTreeType BuildSearchResourceTree(AgentMacroStateId macroStateId)

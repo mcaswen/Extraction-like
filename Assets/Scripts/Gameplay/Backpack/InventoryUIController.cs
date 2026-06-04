@@ -11,6 +11,7 @@ public class InventoryUIController : MonoBehaviour
     [Header("View References")]
     public RectTransform ItemContainer;
     public Transform GridBackground;
+    public Sprite CellBackgroundSprite;
     public float CellSize = 50f;
     public float Spacing = 2f;
 
@@ -19,6 +20,14 @@ public class InventoryUIController : MonoBehaviour
 
     private Image _highlighterImage;
     private InventoryGridController _gridController;
+    private InventoryContainerRuntimeState _runtimeState;
+    private readonly Dictionary<InventoryItemRuntimeState, DraggableItemUI> _itemViewsByState =
+        new Dictionary<InventoryItemRuntimeState, DraggableItemUI>();
+
+    /// <summary>
+    /// 当前网格绑定的容器运行时数据源
+    /// </summary>
+    public InventoryContainerRuntimeState RuntimeState => EnsureRuntimeState();
 
     private void Awake()
     {
@@ -40,6 +49,61 @@ public class InventoryUIController : MonoBehaviour
         int cols = _gridController != null ? Mathf.Max(1, _gridController.Columns) : 1;
         int rows = _gridController != null ? Mathf.Max(1, _gridController.Rows) : 1;
         ConfigureGridLayerTransforms(GetItemActualSize(cols, rows));
+    }
+
+    public bool NeedsBackgroundCellRefresh()
+    {
+        if (GridBackground == null)
+        {
+            return false;
+        }
+
+        InventoryGridController gridController = GetGridController();
+        if (gridController == null)
+        {
+            return false;
+        }
+
+        int expectedCellCount = Mathf.Max(1, gridController.Columns) * Mathf.Max(1, gridController.Rows);
+        if (GridBackground.childCount != expectedCellCount)
+        {
+            return true;
+        }
+
+        if (CellBackgroundSprite == null)
+        {
+            return false;
+        }
+
+        foreach (Transform child in GridBackground)
+        {
+            Image image = child.GetComponent<Image>();
+            if (image == null || image.sprite != CellBackgroundSprite)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void RefreshBackgroundCellsFromCurrentConfig()
+    {
+        InventoryGridController gridController = GetGridController();
+        if (gridController == null)
+        {
+            return;
+        }
+
+        int cols = Mathf.Max(1, gridController.Columns);
+        int rows = Mathf.Max(1, gridController.Rows);
+
+        Vector2 gridSize = GetItemActualSize(cols, rows);
+        ResizeGrid(gridSize);
+        ConfigureGridLayerTransforms(gridSize);
+        RebuildBackgroundCells(cols, rows, gridController.BlockedCells);
+        ForceLayoutRefresh();
+        HideHighlight();
     }
 
     private void Start()
@@ -141,6 +205,7 @@ public class InventoryUIController : MonoBehaviour
 
         if (_highlighterImage != null)
         {
+            _highlighterImage.raycastTarget = false;
             _highlighterImage.color = isValid
                 ? new Color(0f, 1f, 0f, 0.35f)
                 : new Color(1f, 0f, 0f, 0.35f);
@@ -188,33 +253,37 @@ public class InventoryUIController : MonoBehaviour
     public void LoadFromRuntimeState(List<ContainerItemSaveData> saveDataList, List<ContainerCellStateSaveData> cellStates)
     {
         ClearUI();
+        BindRuntimeState(InventoryContainerRuntimeState.CreateFromSaveData(
+            CloneSaveDataList(saveDataList),
+            CloneCellStateList(cellStates)));
 
-        if (saveDataList != null)
+        List<InventoryContainerItemRuntimeState> itemsToRender = new List<InventoryContainerItemRuntimeState>(RuntimeState.Items);
+        List<InventoryItemRuntimeState> failedItems = new List<InventoryItemRuntimeState>();
+        foreach (InventoryContainerItemRuntimeState itemState in itemsToRender)
         {
-            foreach (ContainerItemSaveData data in saveDataList)
+            if (itemState?.ItemState?.ItemData == null)
             {
-                if (data?.ItemData == null)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                DraggableItemUI itemView = InventoryItemFactory.Instance.SpawnItemInGrid(
-                    data.ItemData,
-                    this,
-                    data.X,
-                    data.Y,
-                    data.Amount,
-                    data.IsRotated,
-                    CloneSaveDataList(data.InternalItems),
-                    CloneCellStateList(data.InternalCellStates));
-                if (itemView != null)
-                {
-                    itemView.ApplyContainerRuntimeState(data);
-                }
+            DraggableItemUI itemView = InventoryItemFactory.Instance.SpawnItemInGrid(
+                itemState.ItemState,
+                this,
+                itemState.GridPosition.x,
+                itemState.GridPosition.y,
+                itemState.IsRotated);
+            if (itemView == null)
+            {
+                failedItems.Add(itemState.ItemState);
             }
         }
 
-        GetGridController().ApplyRuntimeCellStates(CloneCellStateList(cellStates));
+        foreach (InventoryItemRuntimeState failedItem in failedItems)
+        {
+            RuntimeState.UnregisterItem(failedItem);
+        }
+
+        GetGridController().ApplyRuntimeCellStates(RuntimeState.CreateCellStateSnapshot());
     }
 
     /// <summary>
@@ -222,6 +291,11 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     public List<ContainerItemSaveData> ExtractSaveData()
     {
+        if (_runtimeState != null)
+        {
+            return _runtimeState.CreateItemSaveDataSnapshot();
+        }
+
         List<ContainerItemSaveData> saveDataList = new List<ContainerItemSaveData>();
         if (ItemContainer == null)
         {
@@ -250,7 +324,14 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     public List<ContainerCellStateSaveData> ExtractCellStateData()
     {
-        return GetGridController().ExtractRuntimeCellStates();
+        List<ContainerCellStateSaveData> cellStates = GetGridController().ExtractRuntimeCellStates();
+        if (_runtimeState != null)
+        {
+            _runtimeState.SetCellStates(cellStates);
+            return _runtimeState.CreateCellStateSnapshot();
+        }
+
+        return cellStates;
     }
 
     /// <summary>
@@ -281,7 +362,67 @@ public class InventoryUIController : MonoBehaviour
         }
 
         GetGridController().ClearDynamicCells();
+        _runtimeState?.Clear();
+        _itemViewsByState.Clear();
         HideHighlight();
+    }
+
+    /// <summary>
+    /// 绑定当前网格对应的容器运行时数据源
+    /// </summary>
+    /// <param name="runtimeState">容器运行时数据源</param>
+    public void BindRuntimeState(InventoryContainerRuntimeState runtimeState)
+    {
+        _runtimeState = runtimeState ?? new InventoryContainerRuntimeState();
+    }
+
+    /// <summary>
+    /// 记录物品在当前容器中的摆放状态
+    /// </summary>
+    /// <param name="itemView">物品视图</param>
+    /// <param name="gridPosition">物品所在格子坐标</param>
+    /// <param name="isRotated">物品是否旋转摆放</param>
+    public void RegisterItemPlacement(DraggableItemUI itemView, Vector2Int gridPosition, bool isRotated)
+    {
+        if (itemView == null)
+        {
+            return;
+        }
+
+        EnsureRuntimeState().RegisterItem(itemView.RuntimeState, gridPosition, isRotated);
+        _itemViewsByState[itemView.RuntimeState] = itemView;
+    }
+
+    /// <summary>
+    /// 从当前容器运行时数据源中移除物品
+    /// </summary>
+    /// <param name="itemView">要移除的物品视图</param>
+    public void UnregisterItem(DraggableItemUI itemView)
+    {
+        if (itemView == null)
+        {
+            return;
+        }
+
+        _runtimeState?.UnregisterItem(itemView.RuntimeState);
+        _itemViewsByState.Remove(itemView.RuntimeState);
+    }
+
+    /// <summary>
+    /// 根据物品运行时状态查找当前网格中的物品视图
+    /// </summary>
+    /// <param name="itemState">物品运行时状态</param>
+    /// <param name="itemView">找到的物品视图</param>
+    /// <returns>是否找到对应视图</returns>
+    public bool TryGetItemView(InventoryItemRuntimeState itemState, out DraggableItemUI itemView)
+    {
+        if (itemState == null)
+        {
+            itemView = null;
+            return false;
+        }
+
+        return _itemViewsByState.TryGetValue(itemState, out itemView) && itemView != null;
     }
 
     /// <summary>
@@ -338,8 +479,24 @@ public class InventoryUIController : MonoBehaviour
         }
 
         _highlighterImage = Highlighter.GetComponent<Image>();
+        if (_highlighterImage != null)
+        {
+            _highlighterImage.raycastTarget = false;
+        }
+
         Highlighter.gameObject.SetActive(false);
         ConfigureHighlighterTransform();
+    }
+
+    // 延迟创建容器运行时状态，兼容场景中尚未显式绑定数据源的旧网格
+    private InventoryContainerRuntimeState EnsureRuntimeState()
+    {
+        if (_runtimeState == null)
+        {
+            _runtimeState = new InventoryContainerRuntimeState();
+        }
+
+        return _runtimeState;
     }
 
     // 根据当前 blocked 配置刷新背景格显隐
@@ -461,7 +618,17 @@ public class InventoryUIController : MonoBehaviour
                 cell.transform.SetParent(GridBackground, false);
 
                 Image image = cell.GetComponent<Image>();
-                image.color = new Color(0.15f, 0.15f, 0.15f, 0.8f);
+                if (CellBackgroundSprite != null)
+                {
+                    image.sprite = CellBackgroundSprite;
+                    image.type = Image.Type.Sliced;
+                    image.color = Color.white;
+                }
+                else
+                {
+                    image.color = new Color(0.15f, 0.15f, 0.15f, 0.8f);
+                }
+
                 image.enabled = !blockedSet.Contains(new Vector2Int(x, y));
             }
         }
@@ -688,4 +855,7 @@ public static class InventoryAutoSortService
 
         return left.ItemData.Type.CompareTo(right.ItemData.Type);
     }
+
+
+
 }

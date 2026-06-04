@@ -25,7 +25,7 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 判断是否可以进入搜索资源状态
-        /// 条件：有资源目标 + 未死亡 + 没有可见敌人 + 不应该撤离 + 没有待处理的玩家指令
+        /// 条件：有资源目标 + 未死亡 + 没有可见敌人 + 不应该撤离
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -33,16 +33,32 @@ namespace Gameplay.Agent.AI.Factories
         {
             bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-            bool hasPendingDirective = GetBool(context, AgentBlackboardKeys.HasPendingDirective);
 
-            return !isDead && hasResourceTarget && !hasVisibleEnemy && !shouldExtract && !hasPendingDirective;
+            return !isDead && hasResourceTarget && !hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract;
+        }
+
+        /// <summary>
+        /// 判断是否可以进入敌人来源侦查状态
+        /// 条件：有敌人来源目标 + 没有可见敌人 + 不应该撤离 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanEnterInvestigateEnemySource(StateMachineContext context)
+        {
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+
+            return !isDead && hasEnemySourceTarget && !hasVisibleEnemy && !shouldExtract;
         }
 
         /// <summary>
         /// 判断是否可以进入交互/拾取状态
-        /// 条件：有可交互目标 + 未死亡 + 没有待处理的玩家指令
+        /// 条件：有可交互目标 + 未死亡
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -50,9 +66,8 @@ namespace Gameplay.Agent.AI.Factories
         {
             bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-            bool hasPendingDirective = GetBool(context, AgentBlackboardKeys.HasPendingDirective);
 
-            return !isDead && hasInteractableTarget && !hasPendingDirective;
+            return !isDead && hasInteractableTarget;
         }
 
         /// <summary>
@@ -70,20 +85,6 @@ namespace Gameplay.Agent.AI.Factories
         }
 
         /// <summary>
-        /// 判断是否可以进入玩家干预/指令状态 (最高优先级)
-        /// 条件：黑板上有待处理的指令 + 未死亡
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public bool CanEnterDirective(StateMachineContext context)
-        {
-            bool hasPendingDirective = GetBool(context, AgentBlackboardKeys.HasPendingDirective);
-            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-
-            return !isDead && hasPendingDirective;
-        }
-
-        /// <summary>
         /// 判断是否可以从战斗状态离开进入探索状态
         /// 条件：没有可见敌人 + 不应该撤离 + 未死亡
         /// </summary>
@@ -92,10 +93,27 @@ namespace Gameplay.Agent.AI.Factories
         public bool CanLeaveCombatToExplore(StateMachineContext context)
         {
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && !hasVisibleEnemy && !shouldExtract;
+            return !isDead && !hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract;
+        }
+
+        /// <summary>
+        /// 判断是否可以从敌人来源侦查状态离开进入探索状态
+        /// 条件：没有敌人来源目标 + 没有可见敌人 + 不应该撤离 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanLeaveInvestigateEnemySourceToExplore(StateMachineContext context)
+        {
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
+            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+
+            return !isDead && !hasEnemySourceTarget && !hasVisibleEnemy && !shouldExtract;
         }
 
         /// <summary>
@@ -154,9 +172,10 @@ namespace Gameplay.Agent.AI.Factories
         {
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
+            bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && !shouldExtract && !hasVisibleEnemy;
+            return !isDead && !shouldExtract && !hasVisibleEnemy && !hasEnemySourceTarget;
         }
 
         private static bool GetBool(StateMachineContext context, BlackboardKey key, bool defaultValue = false)

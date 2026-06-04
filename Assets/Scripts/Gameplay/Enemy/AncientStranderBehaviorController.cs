@@ -10,8 +10,11 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
 [RequireComponent(typeof(EnemyPatrolAwarenessController))]
-public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource
+public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver
 {
+    private const float DirectDamageForcedChaseDuration = 4f;
+    private const float DirectDamageDestinationSampleRadius = 4f;
+
     public enum EnemyState
     {
         Patrol,
@@ -83,16 +86,21 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
+    private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
     private float _meleeVisualTimer;
     private float _biteStrikeTimer;
     private float _biteTotalDamage;
+    private float _directDamageForcedChaseEndTime = -1f;
+    private Vector3 _directDamageFallbackPosition;
     private bool _isBiteStriking;
     private bool _hasAppliedBiteDamage;
+    private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
     private AncientStranderBiteHitbox _biteHitbox;
 
@@ -117,6 +125,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
+        _patrolAwareness?.ConfigurePreset(_awarenessPreset);
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         if (EnsureAgentReady())
@@ -149,6 +158,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         PatrolRadius = _config.Patrol.PatrolRadius;
         PatrolWaitTime = _config.Patrol.PatrolWaitTime;
         _patrolMode = _config.Patrol.PatrolMode;
+        _awarenessPreset = _config.Detection.AwarenessPreset;
         DetectionRange = _config.Detection.DetectionRange;
         ViewAngle = _config.Detection.ViewAngle;
         LineOfSightBlockMask = _config.Detection.LineOfSightBlockMask;
@@ -222,14 +232,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (CanSeePlayer())
         {
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                Mathf.Max(DetectionRange, 12f),
-                0.8f,
-                2.5f,
-                0.8f,
-                PlayerTransform);
+            ReportPlayerLastSeen(Mathf.Max(DetectionRange, 12f), 0.8f, 2.5f, 0.8f);
             CurrentState = EnemyState.Chase;
             return;
         }
@@ -257,18 +260,11 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void ChaseBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -290,23 +286,16 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         SetAgentStopped(false);
-        TrySetDestination(PlayerTransform.position);
+        TrySetChaseDestination();
     }
 
     private void MeleeAttackBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -329,19 +318,12 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void RangedBiteAttackBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             StopBiteStrike();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -389,16 +371,17 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
         foreach (Collider hit in hits)
         {
-            if (!hit.CompareTag("Player"))
+            if (!CombatDamageUtility.TryGetDamageReceiver(hit, out ICombatDamageReceiver damageReceiver))
             {
                 continue;
             }
 
-            PlayerHealthController playerHealth = hit.GetComponentInParent<PlayerHealthController>();
-            if (playerHealth != null)
-            {
-                totalDamage += playerHealth.TakeDamage(MeleeDamage);
-            }
+            totalDamage += CombatDamageUtility.ApplyDamageTo(
+                damageReceiver,
+                MeleeDamage,
+                hit.ClosestPoint(center),
+                hit.transform.position - transform.position,
+                gameObject);
         }
 
         EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Sweep", totalDamage);
@@ -414,15 +397,20 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         SetBiteHitboxEnabled(true);
     }
 
-    public void NotifyBiteHit(PlayerHealthController playerHealth)
+    public void NotifyBiteHit(ICombatDamageReceiver damageReceiver)
     {
-        if (!_isBiteStriking || _hasAppliedBiteDamage || playerHealth == null)
+        if (!_isBiteStriking || _hasAppliedBiteDamage || damageReceiver == null)
         {
             return;
         }
 
         _hasAppliedBiteDamage = true;
-        _biteTotalDamage += playerHealth.TakeDamage(BiteDamage);
+        _biteTotalDamage += CombatDamageUtility.ApplyDamageTo(
+            damageReceiver,
+            BiteDamage,
+            damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform.position : transform.position,
+            damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform.position - transform.position : transform.forward,
+            gameObject);
     }
 
     private void StopBiteStrike()
@@ -440,6 +428,27 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Bite", totalDamage);
         }
+    }
+
+    public void NotifyDirectDamage(EnemyDamageContext context)
+    {
+        if (!context.IsDirectDamage || context.Attacker == null)
+        {
+            return;
+        }
+
+        AssignCombatTarget(context.Attacker);
+        BeginDirectDamageForcedChase(context);
+
+        StopBiteStrike();
+        _waitTimer = 0f;
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        FacePlayerImmediately();
+
+        CurrentState = EnemyState.Chase;
+        SetAgentStopped(false);
+        TrySetChaseDestination();
     }
 
     private void EnsureLineRenderers()
@@ -620,6 +629,23 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         SetRandomPatrolDestination();
     }
 
+    private void ReportPlayerLastSeen(float radius, float strength, float duration, float uncertaintyRadius)
+    {
+        if (!_awarenessPreset.ShouldReportPlayerLastSeen() || PlayerTransform == null)
+        {
+            return;
+        }
+
+        EnemySuspicionStimulusBus.Raise(
+            EnemySuspicionStimulusType.PlayerLastSeen,
+            PlayerTransform.position,
+            radius,
+            strength,
+            duration,
+            uncertaintyRadius,
+            PlayerTransform);
+    }
+
     private void SetRandomPatrolDestination()
     {
         Vector3 randomDirection = Random.insideUnitSphere * PatrolRadius;
@@ -720,6 +746,82 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
     }
 
+    private bool TrySetChaseDestination()
+    {
+        if (PlayerTransform == null)
+        {
+            return false;
+        }
+
+        if (TrySetSampledDestination(PlayerTransform.position, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        if (_hasDirectDamageFallbackPosition &&
+            TrySetSampledDestination(_directDamageFallbackPosition, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        return TrySetDestination(PlayerTransform.position);
+    }
+
+    private bool TrySetSampledDestination(Vector3 position, float radius)
+    {
+        return NavMesh.SamplePosition(position, out NavMeshHit hit, Mathf.Max(0.1f, radius), NavMesh.AllAreas) &&
+               TrySetDestination(hit.position);
+    }
+
+    private void BeginDirectDamageForcedChase(EnemyDamageContext context)
+    {
+        _directDamageForcedChaseEndTime = Time.time + DirectDamageForcedChaseDuration;
+        _directDamageFallbackPosition = ResolveDirectDamageFallbackPosition(context);
+        _hasDirectDamageFallbackPosition = true;
+    }
+
+    private bool IsDirectDamageForcedChaseActive()
+    {
+        return Time.time < _directDamageForcedChaseEndTime;
+    }
+
+    private Vector3 ResolveDirectDamageFallbackPosition(EnemyDamageContext context)
+    {
+        if (context.SourcePosition.sqrMagnitude > 0.0001f)
+        {
+            return context.SourcePosition;
+        }
+
+        if (context.Attacker != null)
+        {
+            return context.Attacker.position;
+        }
+
+        if (context.HitPosition.sqrMagnitude > 0.0001f)
+        {
+            return context.HitPosition;
+        }
+
+        return transform.position;
+    }
+
+    private void FacePlayerImmediately()
+    {
+        if (PlayerTransform == null)
+        {
+            return;
+        }
+
+        Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
+        Vector3 direction = lookPosition - transform.position;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+    }
+
     private bool CanSeePlayer()
     {
         return EnemyVisionUtility.CanSeeTarget(
@@ -750,22 +852,60 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
             }
         }
 
-        if (PlayerTransform != null && _playerHealthController == null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
+        {
+            return true;
+        }
+
+        if (PlayerTransform != null &&
+            PlayerTransform.CompareTag("Player") &&
+            _playerHealthController == null)
         {
             _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
                 _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
             }
+
+            _combatDamageReceiver = _playerHealthController;
+            return _combatDamageReceiver != null;
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
+        if (PlayerHealthController.Instance != null)
         {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
+            return AssignCombatTarget(PlayerHealthController.Instance.transform);
         }
 
-        return PlayerTransform != null && _playerHealthController != null;
+        return false;
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        _playerHealthController = target.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
+        }
+
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
+            {
+                PlayerTransform = receiver.DamageRootTransform;
+            }
+
+            return true;
+        }
+
+        _combatDamageReceiver = _playerHealthController;
+        return _combatDamageReceiver != null;
     }
 
     private void OnDrawGizmosSelected()
@@ -843,12 +983,14 @@ public class AncientStranderBiteHitbox : MonoBehaviour
 
     private void NotifyOwner(Collider other)
     {
-        if (_owner == null || !other.CompareTag("Player"))
+        if (_owner == null)
         {
             return;
         }
 
-        PlayerHealthController playerHealth = other.GetComponentInParent<PlayerHealthController>();
-        _owner.NotifyBiteHit(playerHealth);
+        if (CombatDamageUtility.TryGetDamageReceiver(other, out ICombatDamageReceiver damageReceiver))
+        {
+            _owner.NotifyBiteHit(damageReceiver);
+        }
     }
 }

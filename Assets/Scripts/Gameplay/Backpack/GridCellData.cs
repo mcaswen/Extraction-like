@@ -1,13 +1,4 @@
 ﻿/// <summary>
-/// 背包运行时物品视图的最小抽象
-/// Model 层只依赖这个接口，避免直接耦合具体 UI 组件
-/// </summary>
-public interface IInventoryItemView
-{
-    InventoryItemData ItemData { get; }
-}
-
-/// <summary>
 /// 网格单元的运行时状态
 /// </summary>
 public enum GridState
@@ -40,7 +31,7 @@ public class GridCellData
 
     public GridState State = GridState.Empty;
 
-    public IInventoryItemView OccupyingItemView;
+    public InventoryItemRuntimeState OccupyingItemState;
 
     public bool IsItemRotated;
 
@@ -50,7 +41,7 @@ public class GridCellData
     public void Clear()
     {
         State = GridState.Empty;
-        OccupyingItemView = null;
+        OccupyingItemState = null;
         IsItemRotated = false;
     }
 }

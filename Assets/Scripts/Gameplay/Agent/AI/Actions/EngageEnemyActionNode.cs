@@ -15,6 +15,10 @@ namespace Gameplay.Agent.AI.Actions
     {
         private double _nextAttackTime;
 
+        /// <summary>
+        /// 创建敌人接战行为节点
+        /// </summary>
+        /// <param name="nodeName"></param>
         public EngageEnemyActionNode(string nodeName)
             : base(nodeName)
         {
@@ -70,7 +74,9 @@ namespace Gameplay.Agent.AI.Actions
             if (!TryShootEnemy(agent, enemyHealthController, attackDamage))
             {
                 // 子弹组件未配置时保留直接伤害兜底，避免 MVP 战斗链路被资产配置卡住
-                enemyHealthController.TakeDamage(attackDamage);
+                enemyHealthController.TakeDamage(
+                    attackDamage,
+                    CreateAgentDamageContext(agent, enemyHealthController));
             }
 
             _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, attackInterval);
@@ -91,6 +97,7 @@ namespace Gameplay.Agent.AI.Actions
             ClearPendingDirective(context);
         }
 
+        // 指令可以直接指向敌人，也可以指向活跃敌人群，节点只关心最终可攻击目标
         private bool TryResolveEnemyTarget(
             AgentDirectiveRequest directiveRequest,
             IAgentReadOnly agent,
@@ -98,7 +105,7 @@ namespace Gameplay.Agent.AI.Actions
         {
             if (TryGetTargetComponent(
                     directiveRequest.TargetRef,
-                    out EnemyClusterAuthoring enemyCluster))
+                    out ActiveEnemyClusterAuthoring enemyCluster))
             {
                 return enemyCluster.TryGetNearestAliveEnemy(agent.Position, out enemyHealthController);
             }
@@ -115,6 +122,24 @@ namespace Gameplay.Agent.AI.Actions
         {
             AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
             return shooter != null && shooter.TryShootAt(enemyHealthController, attackDamage);
+        }
+
+        private static global::EnemyDamageContext CreateAgentDamageContext(
+            IAgentReadOnly agent,
+            global::EnemyHealthController enemyHealthController)
+        {
+            Transform attacker = agent.CachedTransform;
+            Vector3 hitPosition = enemyHealthController != null
+                ? enemyHealthController.transform.position
+                : attacker.position;
+            Vector3 sourcePosition = attacker.position;
+            Vector3 incomingDirection = hitPosition - sourcePosition;
+            return global::EnemyDamageContext.FromAttacker(
+                attacker,
+                hitPosition,
+                sourcePosition,
+                incomingDirection,
+                global::EnemyDamageSourceType.Projectile);
         }
     }
 }

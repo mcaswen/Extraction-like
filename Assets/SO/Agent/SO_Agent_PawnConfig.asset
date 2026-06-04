@@ -20,6 +20,6 @@ MonoBehaviour:
   _targetDiscoveryRange: 30
   _targetDiscoveryInterval: 0.5
   _attackRange: 6
-  _attackDamage: 25
+  _attackDamage: 15
   _attackInterval: 0.65
   _lowHealthRecoveryThreshold: 0.35

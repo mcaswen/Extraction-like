@@ -8,26 +8,22 @@ using UnityEngine.UI;
 /// 负责拖拽交互与基础显示，不直接管理网格规则本身
 /// </summary>
 [RequireComponent(typeof(Image))]
-public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IInventoryItemView
+public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [Header("Ownership")]
     public InventoryUIController CurrentGrid;
 
     [Header("Item Data")]
-    public InventoryItemData ItemData;
     public bool IsDebugItem;
 
     [Header("Stack")]
-    public int CurrentAmount = 1;
     public Text AmountText;
-    public string RuntimeItemId;
     public bool AutoTickSearchProgress = true;
 
     public Vector2Int _originalGridIndex;
     public bool _originalIsRotated;
-    public List<ContainerItemSaveData> InternalItems = new List<ContainerItemSaveData>();
-    public List<ContainerCellStateSaveData> InternalCellStates = new List<ContainerCellStateSaveData>();
 
+    private InventoryItemRuntimeState _runtimeState = new InventoryItemRuntimeState();
     private InventoryUIController _lastHoveredGrid;
     private InventoryUIController _lastPreviewGrid;
     private Vector2Int _lastPreviewIndex;
@@ -40,10 +36,6 @@ public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHa
     private CanvasGroup _canvasGroup;
     private Image _itemImage;
     private Transform _originalParent;
-    private bool _requiresSearch;
-    private bool _isSearched = true;
-    private float _searchProgressSeconds;
-    private float _searchDurationSeconds;
     private RectTransform _searchOverlayRoot;
     private CanvasGroup _searchOverlayCanvasGroup;
     private Image _searchBackdropImage;
@@ -61,11 +53,36 @@ public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHa
 
     public static DraggableItemUI CurrentlyDraggedItem;
 
-    InventoryItemData IInventoryItemView.ItemData => ItemData;
-    public bool RequiresSearch => _requiresSearch;
-    public bool IsSearched => _isSearched;
-    public float SearchProgressSeconds => _searchProgressSeconds;
-    public float SearchDurationSeconds => _searchDurationSeconds;
+    public InventoryItemRuntimeState RuntimeState => _runtimeState;
+    public InventoryItemData ItemData
+    {
+        get => _runtimeState.ItemData;
+        set => _runtimeState.ItemData = value;
+    }
+    public int CurrentAmount
+    {
+        get => _runtimeState.Amount;
+        set => _runtimeState.Amount = value;
+    }
+    public string RuntimeItemId
+    {
+        get => _runtimeState.RuntimeItemId;
+        set => _runtimeState.RuntimeItemId = value;
+    }
+    public List<ContainerItemSaveData> InternalItems
+    {
+        get => _runtimeState.InternalItems;
+        set => _runtimeState.InternalItems = value;
+    }
+    public List<ContainerCellStateSaveData> InternalCellStates
+    {
+        get => _runtimeState.InternalCellStates;
+        set => _runtimeState.InternalCellStates = value;
+    }
+    public bool RequiresSearch => _runtimeState.RequiresSearch;
+    public bool IsSearched => _runtimeState.IsSearched;
+    public float SearchProgressSeconds => _runtimeState.SearchProgressSeconds;
+    public float SearchDurationSeconds => _runtimeState.SearchDurationSeconds;
 
     private void Awake()
     {

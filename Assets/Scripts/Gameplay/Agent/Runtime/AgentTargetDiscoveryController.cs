@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
@@ -9,8 +10,8 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// Agent MVP 目标发现系统
-    /// 按发现范围为每个已注册 Agent 选择一个最高优先级群目标，并写入现有命令接口
+    /// Agent 保底目标发现系统。
+    /// 当 AgentTargetDecisionController 未启用时，按固定优先级选择目标并投递给 Brain。
     /// </summary>
     public sealed class AgentTargetDiscoveryController : MonoBehaviour
     {
@@ -27,38 +28,24 @@ namespace Gameplay.Agent.Runtime
         private readonly Dictionary<AgentId, double> _nextScanTimeByAgentId =
             new Dictionary<AgentId, double>();
 
-        private readonly HashSet<int> _searchedResourceInstanceIds =
-            new HashSet<int>();
-
         public static AgentTargetDiscoveryController ActiveInstance => _activeInstance;
 
         public static AgentTargetDiscoveryController GetOrCreate()
         {
             if (_activeInstance != null)
+            {
                 return _activeInstance;
+            }
 
             _activeInstance = FindObjectOfType<AgentTargetDiscoveryController>();
             if (_activeInstance != null)
+            {
                 return _activeInstance;
+            }
 
             GameObject controllerObject = new GameObject("[AgentTargetDiscoveryController]");
             _activeInstance = controllerObject.AddComponent<AgentTargetDiscoveryController>();
             return _activeInstance;
-        }
-
-        public static void MarkResourceSearched(GameObject resourceObject)
-        {
-            if (_activeInstance == null || resourceObject == null)
-                return;
-
-            _activeInstance._searchedResourceInstanceIds.Add(resourceObject.GetInstanceID());
-        }
-
-        public static bool IsResourceMarkedSearched(GameObject resourceObject)
-        {
-            return _activeInstance != null &&
-                   resourceObject != null &&
-                   _activeInstance._searchedResourceInstanceIds.Contains(resourceObject.GetInstanceID());
         }
 
         private AgentRuntimeRegistry Registry
@@ -66,7 +53,9 @@ namespace Gameplay.Agent.Runtime
             get
             {
                 if (_registry == null)
+                {
                     _registry = AgentRuntimeRegistry.GetOrCreate();
+                }
 
                 return _registry;
             }
@@ -87,14 +76,18 @@ namespace Gameplay.Agent.Runtime
         private void OnDestroy()
         {
             if (_activeInstance == this)
+            {
                 _activeInstance = null;
+            }
         }
 
         private void Update()
         {
             AgentRuntimeRegistry registry = Registry;
             if (registry == null || registry.AgentCount <= 0)
+            {
                 return;
+            }
 
             registry.CopyHandlesTo(_agentBuffer);
             double timeSeconds = Time.timeAsDouble;
@@ -103,7 +96,9 @@ namespace Gameplay.Agent.Runtime
             {
                 AgentRuntimeHandle handle = _agentBuffer[i];
                 if (!ShouldScanAgent(handle, timeSeconds))
+                {
                     continue;
+                }
 
                 ScheduleNextScan(handle, timeSeconds);
                 RefreshAgentTarget(handle);
@@ -113,14 +108,20 @@ namespace Gameplay.Agent.Runtime
         private bool ShouldScanAgent(AgentRuntimeHandle handle, double timeSeconds)
         {
             if (!handle.IsValid || handle.ReadOnly == null || handle.CommandReceiver == null)
+            {
                 return false;
+            }
 
             AgentPawnRoot pawnRoot = handle.PawnRoot;
-            if (pawnRoot == null || !pawnRoot.EnableTargetDiscovery || pawnRoot.IsDead)
+            if (pawnRoot == null ||
+                !pawnRoot.EnableTargetDiscovery ||
+                pawnRoot.IsDead ||
+                HasActiveDecisionController(pawnRoot))
+            {
                 return false;
+            }
 
-            double nextScanTime;
-            return !_nextScanTimeByAgentId.TryGetValue(handle.AgentId, out nextScanTime) ||
+            return !_nextScanTimeByAgentId.TryGetValue(handle.AgentId, out double nextScanTime) ||
                    timeSeconds >= nextScanTime;
         }
 
@@ -130,6 +131,7 @@ namespace Gameplay.Agent.Runtime
             _nextScanTimeByAgentId[handle.AgentId] = timeSeconds + interval;
         }
 
+        // 旧 MVP 优先级：活跃敌人群 > 敌人来源群 > 资源群 > 撤离点群。
         private void RefreshAgentTarget(AgentRuntimeHandle handle)
         {
             IAgentReadOnly agent = handle.ReadOnly;
@@ -145,14 +147,23 @@ namespace Gameplay.Agent.Runtime
 
             GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
 
-            // 优先级由判断顺序表达：敌人群 > 资源群 > 撤离点群
             if (TryFindNearestEnemyCluster(
                     targetRegistry,
                     agent.Position,
                     rangeSqr,
-                    out EnemyClusterAuthoring enemyCluster))
+                    out ActiveEnemyClusterAuthoring enemyCluster))
             {
                 ApplyEnemyClusterTarget(handle, commandReceiver, enemyCluster);
+                return;
+            }
+
+            if (TryFindNearestEnemySourceCluster(
+                    targetRegistry,
+                    agent.Position,
+                    rangeSqr,
+                    out EnemySourceClusterAuthoring enemySourceCluster))
+            {
+                ApplyEnemySourceClusterTarget(handle, commandReceiver, enemySourceCluster);
                 return;
             }
 
@@ -176,19 +187,13 @@ namespace Gameplay.Agent.Runtime
             ClearTargetFacts(commandReceiver);
         }
 
-        /// <summary>
-        /// 将敌人群写入 Agent 指令
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="commandReceiver"></param>
-        /// <param name="enemyCluster"></param>
         private static void ApplyEnemyClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
-            EnemyClusterAuthoring enemyCluster)
+            ActiveEnemyClusterAuthoring enemyCluster)
         {
-            // 发现层只选择目标，具体攻击流程仍交给 Combat 行为树
             commandReceiver.SetVisibleEnemy(true);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
@@ -204,19 +209,35 @@ namespace Gameplay.Agent.Runtime
                 handle.AgentId));
         }
 
-        /// <summary>
-        /// 将资源群写入 Agent 指令
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="commandReceiver"></param>
-        /// <param name="resourceCluster"></param>
+        private static void ApplyEnemySourceClusterTarget(
+            AgentRuntimeHandle handle,
+            IAgentCommandReceiver commandReceiver,
+            EnemySourceClusterAuthoring enemySourceCluster)
+        {
+            commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(true);
+            commandReceiver.SetHasResourceTarget(false);
+            commandReceiver.SetHasInteractableTarget(false);
+            commandReceiver.SetShouldExtract(false);
+
+            string targetId = enemySourceCluster.TargetId;
+            commandReceiver.SubmitDirective(new AgentDirectiveRequest(
+                AgentDirectiveType.MoveTo,
+                AgentTargetRef.FromConcreteObject(
+                    AgentTargetKind.EnemySource,
+                    enemySourceCluster.gameObject,
+                    targetId),
+                targetId,
+                handle.AgentId));
+        }
+
         private static void ApplyResourceClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
             ResourceClusterAuthoring resourceCluster)
         {
-            // 资源点同时标记为可交互目标，兼容当前 SearchResource / InteractLoot 状态拆分
             commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(true);
             commandReceiver.SetHasInteractableTarget(true);
             commandReceiver.SetShouldExtract(false);
@@ -232,18 +253,13 @@ namespace Gameplay.Agent.Runtime
                 handle.AgentId));
         }
 
-        /// <summary>
-        /// 将撤离点群写入 Agent 指令
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="commandReceiver"></param>
-        /// <param name="extractionCluster"></param>
         private static void ApplyExtractionClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
             ExtractionClusterAuthoring extractionCluster)
         {
             commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(true);
@@ -262,25 +278,18 @@ namespace Gameplay.Agent.Runtime
         private static void ClearTargetFacts(IAgentCommandReceiver commandReceiver)
         {
             commandReceiver.SetVisibleEnemy(false);
+            commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
             commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
             commandReceiver.ClearDirective();
         }
 
-        /// <summary>
-        /// 在发现范围内寻找最近的可接战敌人群
-        /// </summary>
-        /// <param name="targetRegistry"></param>
-        /// <param name="agentPosition"></param>
-        /// <param name="rangeSqr"></param>
-        /// <param name="nearestEnemyCluster"></param>
-        /// <returns></returns>
         private bool TryFindNearestEnemyCluster(
             GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
             float rangeSqr,
-            out EnemyClusterAuthoring nearestEnemyCluster)
+            out ActiveEnemyClusterAuthoring nearestEnemyCluster)
         {
             nearestEnemyCluster = null;
             float nearestDistanceSqr = float.MaxValue;
@@ -288,7 +297,7 @@ namespace Gameplay.Agent.Runtime
 
             for (int i = 0; i < _clusterBuffer.Count; i++)
             {
-                if (!(_clusterBuffer[i] is EnemyClusterAuthoring enemyCluster) ||
+                if (!(_clusterBuffer[i] is ActiveEnemyClusterAuthoring enemyCluster) ||
                     enemyCluster.HasBeenCompleted ||
                     !enemyCluster.TryGetNearestAliveEnemy(agentPosition, out _))
                 {
@@ -297,7 +306,9 @@ namespace Gameplay.Agent.Runtime
 
                 float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemyCluster.CenterPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
+                {
                     continue;
+                }
 
                 nearestEnemyCluster = enemyCluster;
                 nearestDistanceSqr = distanceSqr;
@@ -306,14 +317,38 @@ namespace Gameplay.Agent.Runtime
             return nearestEnemyCluster != null;
         }
 
-        /// <summary>
-        /// 在发现范围内寻找最近的未完成资源群
-        /// </summary>
-        /// <param name="targetRegistry"></param>
-        /// <param name="agentPosition"></param>
-        /// <param name="rangeSqr"></param>
-        /// <param name="nearestResourceCluster"></param>
-        /// <returns></returns>
+        private bool TryFindNearestEnemySourceCluster(
+            GameplayTargetRegistry targetRegistry,
+            Vector3 agentPosition,
+            float rangeSqr,
+            out EnemySourceClusterAuthoring nearestEnemySourceCluster)
+        {
+            nearestEnemySourceCluster = null;
+            float nearestDistanceSqr = float.MaxValue;
+            targetRegistry.CopyClustersTo(_clusterBuffer);
+
+            for (int i = 0; i < _clusterBuffer.Count; i++)
+            {
+                if (!(_clusterBuffer[i] is EnemySourceClusterAuthoring enemySourceCluster) ||
+                    enemySourceCluster.HasBeenCompleted ||
+                    !enemySourceCluster.TryGetNearestSpawnPoint(agentPosition, out _))
+                {
+                    continue;
+                }
+
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemySourceCluster.CenterPosition);
+                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
+                {
+                    continue;
+                }
+
+                nearestEnemySourceCluster = enemySourceCluster;
+                nearestDistanceSqr = distanceSqr;
+            }
+
+            return nearestEnemySourceCluster != null;
+        }
+
         private bool TryFindNearestResourceCluster(
             GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
@@ -335,7 +370,9 @@ namespace Gameplay.Agent.Runtime
 
                 float distanceSqr = GetPlanarDistanceSqr(agentPosition, resourceCluster.CenterPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
+                {
                     continue;
+                }
 
                 nearestResourceCluster = resourceCluster;
                 nearestDistanceSqr = distanceSqr;
@@ -344,13 +381,6 @@ namespace Gameplay.Agent.Runtime
             return nearestResourceCluster != null;
         }
 
-        /// <summary>
-        /// 当前资源群仍可处理时，继续保持该目标
-        /// </summary>
-        /// <param name="agent"></param>
-        /// <param name="rangeSqr"></param>
-        /// <param name="resourceCluster"></param>
-        /// <returns></returns>
         private static bool TryKeepCurrentResourceClusterTarget(
             IAgentReadOnly agent,
             float rangeSqr,
@@ -358,7 +388,9 @@ namespace Gameplay.Agent.Runtime
         {
             resourceCluster = null;
             if (agent == null || agent.Blackboard == null)
+            {
                 return false;
+            }
 
             if (!agent.Blackboard.TryGetValue(
                     AgentBlackboardKeys.PendingDirectiveRequest,
@@ -392,14 +424,6 @@ namespace Gameplay.Agent.Runtime
             return true;
         }
 
-        /// <summary>
-        /// 在发现范围内寻找最近的可用撤离点群
-        /// </summary>
-        /// <param name="targetRegistry"></param>
-        /// <param name="agentPosition"></param>
-        /// <param name="rangeSqr"></param>
-        /// <param name="nearestExtractionCluster"></param>
-        /// <returns></returns>
         private bool TryFindNearestExtractionCluster(
             GameplayTargetRegistry targetRegistry,
             Vector3 agentPosition,
@@ -421,7 +445,9 @@ namespace Gameplay.Agent.Runtime
 
                 float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionCluster.CenterPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
+                {
                     continue;
+                }
 
                 nearestExtractionCluster = extractionCluster;
                 nearestDistanceSqr = distanceSqr;
@@ -430,13 +456,19 @@ namespace Gameplay.Agent.Runtime
             return nearestExtractionCluster != null;
         }
 
+        private static bool HasActiveDecisionController(AgentPawnRoot pawnRoot)
+        {
+            AgentTargetDecisionController decisionController =
+                pawnRoot != null ? pawnRoot.GetComponent<AgentTargetDecisionController>() : null;
+
+            return decisionController != null && decisionController.IsDecisionModuleActive;
+        }
+
         private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)
         {
-            // 目标发现只关心水平距离，避免地形高度差影响优先级
             float deltaX = from.x - to.x;
             float deltaZ = from.z - to.z;
             return deltaX * deltaX + deltaZ * deltaZ;
         }
-
     }
 }

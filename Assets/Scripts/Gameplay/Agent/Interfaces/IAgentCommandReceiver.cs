@@ -23,6 +23,12 @@ namespace Gameplay.Agent.Interfaces
         void SetVisibleEnemy(bool hasVisibleEnemy);
 
         /// <summary>
+        /// 设置Agent当前是否有可侦查的敌人来源点
+        /// </summary>
+        /// <param name="hasEnemySourceTarget"></param>
+        void SetHasEnemySourceTarget(bool hasEnemySourceTarget);
+
+        /// <summary>
         /// 设置Agent当前是否有可搜索的资源点
         /// </summary>
         /// <param name="hasResourceTarget"></param>

@@ -53,6 +53,7 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
     private float _stateTimer;
     private float _nextSearchLookTime;
     private bool _hasReturnDestination;
+    private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
 
     public EnemyPatrolAwarenessState State => _state;
     public bool IsInAwarenessState => _state != EnemyPatrolAwarenessState.Patrol;
@@ -67,6 +68,15 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
 
     public Transform VisionTransform => _lookController != null ? _lookController.VisionTransform : transform;
 
+    public void ConfigurePreset(EnemyAwarenessPreset awarenessPreset)
+    {
+        _awarenessPreset = awarenessPreset;
+        if (!_awarenessPreset.UsesPatrolAwareness())
+        {
+            ResetAwareness();
+        }
+    }
+
     public void TickPassivePatrol(bool isWaiting)
     {
         TickPassivePatrol(isWaiting, null, -1f);
@@ -75,6 +85,12 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
     public void TickPassivePatrol(bool isWaiting, Transform waitLookTarget, float waitScanArcOverride)
     {
         EnsureReferences();
+        if (!_awarenessPreset.UsesPatrolAwareness())
+        {
+            _lookController.TickPatrolLook(isWaiting, waitLookTarget, waitScanArcOverride);
+            return;
+        }
+
         if (_state == EnemyPatrolAwarenessState.Patrol)
         {
             if (TryConsumeSuspicion())
@@ -92,6 +108,11 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         System.Action onReturnToPatrol)
     {
         EnsureReferences();
+        if (!_awarenessPreset.UsesPatrolAwareness())
+        {
+            return false;
+        }
+
         if (_state == EnemyPatrolAwarenessState.Patrol)
         {
             return false;
@@ -149,6 +170,11 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         }
 
         float strength = record.Strength;
+        if (!_awarenessPreset.AllowsSuspicionRecord(record))
+        {
+            return false;
+        }
+
         if (strength < _lookOnlyThreshold)
         {
             return false;

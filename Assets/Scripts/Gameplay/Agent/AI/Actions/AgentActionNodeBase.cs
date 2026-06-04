@@ -15,11 +15,21 @@ namespace Gameplay.Agent.AI.Actions
     /// </summary>
     public abstract class AgentActionNodeBase : ActionNode
     {
+        /// <summary>
+        /// 创建 Agent 行为节点基类
+        /// </summary>
+        /// <param name="nodeName"></param>
         protected AgentActionNodeBase(string nodeName)
             : base(nodeName)
         {
         }
 
+        /// <summary>
+        /// 从行为树上下文中取得当前 Agent 只读接口
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="agent"></param>
+        /// <returns></returns>
         protected bool TryGetAgent(BehaviorTreeContext context, out IAgentReadOnly agent)
         {
             // UserContext 由 AgentBrainController 注入，节点不反查场景对象
@@ -27,6 +37,14 @@ namespace Gameplay.Agent.AI.Actions
             return agent != null && agent.CachedTransform != null && !agent.IsDead;
         }
 
+        /// <summary>
+        /// 从黑板中读取指定类型的待处理指令
+        /// 类型不匹配时不消费指令，避免节点误处理其他目标
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="directiveType"></param>
+        /// <param name="directiveRequest"></param>
+        /// <returns></returns>
         protected bool TryGetDirective(
             BehaviorTreeContext context,
             AgentDirectiveType directiveType,
@@ -43,6 +61,13 @@ namespace Gameplay.Agent.AI.Actions
             return directiveRequest.DirectiveType == directiveType;
         }
 
+        /// <summary>
+        /// 将 AgentTargetRef 解析为可移动的世界坐标
+        /// 具体对象优先使用实时 Transform，抽象点使用保存的位置
+        /// </summary>
+        /// <param name="targetRef"></param>
+        /// <param name="targetPosition"></param>
+        /// <returns></returns>
         protected bool TryResolveTargetPosition(AgentTargetRef targetRef, out Vector3 targetPosition)
         {
             if (!targetRef.IsValid)
@@ -132,6 +157,14 @@ namespace Gameplay.Agent.AI.Actions
             return true;
         }
 
+        /// <summary>
+        /// 从目标引用中查找指定组件
+        /// 会兼容组件挂在父级或子级表现物体上的情况
+        /// </summary>
+        /// <typeparam name="TComponent"></typeparam>
+        /// <param name="targetRef"></param>
+        /// <param name="component"></param>
+        /// <returns></returns>
         protected bool TryGetTargetComponent<TComponent>(
             AgentTargetRef targetRef,
             out TComponent component)
@@ -157,6 +190,13 @@ namespace Gameplay.Agent.AI.Actions
             return component != null;
         }
 
+        /// <summary>
+        /// 从黑板读取 float 配置值，不存在时使用默认值
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         protected float GetFloat(
             BehaviorTreeContext context,
             BlackboardKey key,
@@ -165,6 +205,13 @@ namespace Gameplay.Agent.AI.Actions
             return context.Blackboard.TryGetValue(key, out float value) ? value : defaultValue;
         }
 
+        /// <summary>
+        /// 向黑板写入当前节点产生的事实
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         protected void SetFact<TValue>(
             BehaviorTreeContext context,
             BlackboardKey key,
@@ -173,6 +220,10 @@ namespace Gameplay.Agent.AI.Actions
             context.Blackboard.SetValue(key, value, context.TimeSeconds);
         }
 
+        /// <summary>
+        /// 清理当前黑板中的待处理指令
+        /// </summary>
+        /// <param name="context"></param>
         protected void ClearPendingDirective(BehaviorTreeContext context)
         {
             // 行为完成后同时清标记和值，避免状态机继续吃旧指令
@@ -186,6 +237,16 @@ namespace Gameplay.Agent.AI.Actions
                 context.TimeSeconds);
         }
 
+        /// <summary>
+        /// 驱动 Agent 靠近目标位置
+        /// 优先使用 NavMesh，导航不可用时退回直线移动兜底
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <param name="targetPosition"></param>
+        /// <param name="stoppingDistance"></param>
+        /// <param name="moveSpeed"></param>
+        /// <param name="deltaTime"></param>
+        /// <returns></returns>
         protected bool MoveAgentTowards(
             IAgentReadOnly agent,
             Vector3 targetPosition,
@@ -402,6 +463,11 @@ namespace Gameplay.Agent.AI.Actions
             return deltaX * deltaX + deltaZ * deltaZ;
         }
 
+        /// <summary>
+        /// 构造缺失指定指令时的失败结果
+        /// </summary>
+        /// <param name="directiveType"></param>
+        /// <returns></returns>
         protected BehaviorNodeResult FailMissingDirective(AgentDirectiveType directiveType)
         {
             return Fail(

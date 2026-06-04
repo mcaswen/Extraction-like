@@ -21,6 +21,10 @@ namespace Gameplay.Agent.AI.Actions
         private bool _hasReachedInteractionRange;
         private bool _hasObservedInventoryOpen;
 
+        /// <summary>
+        /// 创建资源搜索行为节点
+        /// </summary>
+        /// <param name="nodeName"></param>
         public SearchResourceActionNode(string nodeName)
             : base(nodeName)
         {
@@ -56,6 +60,14 @@ namespace Gameplay.Agent.AI.Actions
             return SearchResourceObject(context, agent, directiveRequest.TargetObject, true);
         }
 
+        /// <summary>
+        /// 搜索抽象资源点
+        /// 当前只负责移动到点位，具体资源逻辑留给后续 Adapter
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="agent"></param>
+        /// <param name="directiveRequest"></param>
+        /// <returns></returns>
         private BehaviorNodeResult SearchAbstractResourcePoint(
             BehaviorTreeContext context,
             IAgentReadOnly agent,
@@ -81,6 +93,14 @@ namespace Gameplay.Agent.AI.Actions
             return Succeed();
         }
 
+        /// <summary>
+        /// 搜索资源群
+        /// 先到达群中心，再逐个处理群内未完成资源
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="agent"></param>
+        /// <param name="resourceCluster"></param>
+        /// <returns></returns>
         private BehaviorNodeResult SearchResourceCluster(
             BehaviorTreeContext context,
             IAgentReadOnly agent,
@@ -129,6 +149,15 @@ namespace Gameplay.Agent.AI.Actions
             return Running();
         }
 
+        /// <summary>
+        /// 搜索单个具体资源对象
+        /// 会根据对象类型分发到箱子或地面物品处理逻辑
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="agent"></param>
+        /// <param name="resourceObject"></param>
+        /// <param name="clearDirectiveOnComplete"></param>
+        /// <returns></returns>
         private BehaviorNodeResult SearchResourceObject(
             BehaviorTreeContext context,
             IAgentReadOnly agent,
@@ -198,13 +227,31 @@ namespace Gameplay.Agent.AI.Actions
             ResetSearchState();
         }
 
+        /// <summary>
+        /// 搜索箱子资源
+        /// 有内容时等待玩家通过背包确认，空箱直接标记完成
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="lootBox"></param>
+        /// <param name="clearDirectiveOnComplete"></param>
+        /// <returns></returns>
         private BehaviorNodeResult SearchLootBox(
             BehaviorTreeContext context,
             global::LootBoxEntity lootBox,
             bool clearDirectiveOnComplete)
         {
             lootBox.PrecalculateLootIfNeeded();
-            if (AgentTargetDiscoveryController.IsResourceMarkedSearched(lootBox.gameObject))
+            if (lootBox.IsBoardGameResourcePoint)
+            {
+                lootBox.RefreshResourcePointState();
+                if (lootBox.IsResourcePointLooted)
+                {
+                    AgentSearchedResourceRegistry.MarkSearched(lootBox.gameObject);
+                    CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
+                    return Succeed();
+                }
+            }
+            else if (AgentSearchedResourceRegistry.IsSearched(lootBox.gameObject))
             {
                 CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -214,6 +261,8 @@ namespace Gameplay.Agent.AI.Actions
             if (savedItems.Count <= 0)
             {
                 // 空箱也算搜索完成，避免 Agent 卡在无收益资源点
+                lootBox.MarkResourcePointLooted();
+                AgentSearchedResourceRegistry.MarkSearched(lootBox.gameObject);
                 CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
@@ -221,12 +270,20 @@ namespace Gameplay.Agent.AI.Actions
             return WaitForPlayerInventoryClose(context, lootBox.gameObject, clearDirectiveOnComplete);
         }
 
+        /// <summary>
+        /// 搜索地面掉落资源
+        /// 无效或数量为空时会直接标记为已处理
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="worldItem"></param>
+        /// <param name="clearDirectiveOnComplete"></param>
+        /// <returns></returns>
         private BehaviorNodeResult SearchWorldLootItem(
             BehaviorTreeContext context,
             global::WorldLootItem worldItem,
             bool clearDirectiveOnComplete)
         {
-            if (AgentTargetDiscoveryController.IsResourceMarkedSearched(worldItem.gameObject))
+            if (AgentSearchedResourceRegistry.IsSearched(worldItem.gameObject))
             {
                 CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -235,7 +292,7 @@ namespace Gameplay.Agent.AI.Actions
             if (worldItem.ItemData == null || worldItem.CurrentAmount <= 0)
             {
                 // 无效地面物品不再保留为搜索目标，避免 Agent 被空对象卡住
-                AgentTargetDiscoveryController.MarkResourceSearched(worldItem.gameObject);
+                AgentSearchedResourceRegistry.MarkSearched(worldItem.gameObject);
                 CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
             }
@@ -282,6 +339,14 @@ namespace Gameplay.Agent.AI.Actions
             return directiveRequest.TargetRef.ToString();
         }
 
+        /// <summary>
+        /// 等待玩家打开并关闭背包后完成资源搜索
+        /// 用玩家确认动作代替 Agent 自动拾取，避免直接改背包数据
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="resourceObject"></param>
+        /// <param name="clearDirectiveOnComplete"></param>
+        /// <returns></returns>
         private BehaviorNodeResult WaitForPlayerInventoryClose(
             BehaviorTreeContext context,
             GameObject resourceObject,
@@ -312,8 +377,25 @@ namespace Gameplay.Agent.AI.Actions
             if (!_hasObservedInventoryOpen)
                 return Running();
 
+            if (resourceObject.TryGetComponent(out global::LootBoxEntity lootBox) &&
+                lootBox.IsBoardGameResourcePoint)
+            {
+                lootBox.RefreshResourcePointState();
+                if (lootBox.IsResourcePointLooted)
+                {
+                    AgentSearchedResourceRegistry.MarkSearched(resourceObject);
+                    CompleteConcreteResourceSearch(context, resourceObject, clearDirectiveOnComplete);
+                    return Succeed();
+                }
+
+                // 桌游资源点规则下，箱子仍有剩余 loot 就保持未完成，等待玩家再次打开处理。
+                ResetWaitState();
+                GameplayTargetRegistry.GetOrCreate().NotifyResourceTouched(resourceObject);
+                return Running();
+            }
+
             // 玩家打开过背包并关闭后，MVP 视为该资源点处理完毕
-            AgentTargetDiscoveryController.MarkResourceSearched(resourceObject);
+            AgentSearchedResourceRegistry.MarkSearched(resourceObject);
             CompleteConcreteResourceSearch(context, resourceObject, clearDirectiveOnComplete);
             return Succeed();
         }

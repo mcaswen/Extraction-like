@@ -22,6 +22,8 @@ public class BulletController : MonoBehaviour
     public float SlowDurationSeconds = 0f;
     public float FreezeDurationSeconds = 0f;
     public float FrozenFireBonusMultiplier = 2f;
+    public Transform SourceTransform;
+    public bool ReportImpactStimulus = true;
 
     private Rigidbody _rigidbody;
 
@@ -86,9 +88,9 @@ public class BulletController : MonoBehaviour
         EnemyHealthController enemyHealthController = other.GetComponentInParent<EnemyHealthController>();
         if (enemyHealthController != null)
         {
-            ApplyElementalDamage(enemyHealthController);
+            ApplyElementalDamage(enemyHealthController, other);
         }
-        else
+        else if (ReportImpactStimulus)
         {
             EnemySuspicionStimulusBus.ReportProjectileImpact(transform.position, transform);
         }
@@ -134,7 +136,7 @@ public class BulletController : MonoBehaviour
         }
     }
 
-    private void ApplyElementalDamage(EnemyHealthController enemyHealthController)
+    private void ApplyElementalDamage(EnemyHealthController enemyHealthController, Collider hitCollider)
     {
         if (enemyHealthController == null)
         {
@@ -161,7 +163,19 @@ public class BulletController : MonoBehaviour
             hunterBoss?.NotifyFrozenForceFieldBrokenByFire();
         }
 
-        enemyHealthController.TakeDamage(finalDamage);
+        Vector3 hitPosition = hitCollider != null
+            ? hitCollider.ClosestPoint(transform.position)
+            : enemyHealthController.transform.position;
+        Vector3 sourcePosition = SourceTransform != null ? SourceTransform.position : transform.position;
+        Vector3 incomingDirection = hitPosition - sourcePosition;
+        EnemyDamageContext damageContext = EnemyDamageContext.FromAttacker(
+            ResolveDamageSource(),
+            hitPosition,
+            sourcePosition,
+            incomingDirection,
+            EnemyDamageSourceType.Projectile);
+
+        enemyHealthController.TakeDamage(finalDamage, damageContext);
 
         if (AttackElement == AttackElementType.Ice)
         {
@@ -175,5 +189,39 @@ public class BulletController : MonoBehaviour
                 statusEffectController.ApplyFreeze(FreezeDurationSeconds);
             }
         }
+    }
+
+    private Transform ResolveDamageSource()
+    {
+        if (TryResolvePlayerRoot(SourceTransform, out Transform playerRoot))
+        {
+            return playerRoot;
+        }
+
+        return SourceTransform;
+    }
+
+    private static bool TryResolvePlayerRoot(Transform source, out Transform playerRoot)
+    {
+        playerRoot = null;
+        if (source == null)
+        {
+            return false;
+        }
+
+        PlayerHealthController playerHealth = source.GetComponentInParent<PlayerHealthController>();
+        if (playerHealth != null)
+        {
+            playerRoot = playerHealth.transform;
+            return true;
+        }
+
+        if (source.CompareTag("Player"))
+        {
+            playerRoot = source;
+            return true;
+        }
+
+        return false;
     }
 }

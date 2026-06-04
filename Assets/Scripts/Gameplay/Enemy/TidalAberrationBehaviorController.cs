@@ -10,8 +10,11 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
 [RequireComponent(typeof(EnemyPatrolAwarenessController))]
-public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSource
+public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver
 {
+    private const float DirectDamageForcedChaseDuration = 4f;
+    private const float DirectDamageDestinationSampleRadius = 4f;
+
     public enum EnemyState
     {
         Patrol,
@@ -93,8 +96,10 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
     private PlayerShootingController _playerShootingController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
+    private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
@@ -102,8 +107,11 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private float _rangedVisualTimer;
     private float _electricTickTimer;
     private float _meleeTotalDamage;
+    private float _directDamageForcedChaseEndTime = -1f;
+    private Vector3 _directDamageFallbackPosition;
     private bool _isMeleeLatched;
     private bool _isRangedCasting;
+    private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
 
     public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
@@ -127,6 +135,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
+        _patrolAwareness?.ConfigurePreset(_awarenessPreset);
         _startingPosition = transform.position;
         CurrentState = EnemyState.Patrol;
         float effectiveMeleeRange = GetEffectiveMeleeRange();
@@ -158,6 +167,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         PatrolRadius = _config.Patrol.PatrolRadius;
         PatrolWaitTime = _config.Patrol.PatrolWaitTime;
         _patrolMode = _config.Patrol.PatrolMode;
+        _awarenessPreset = _config.Detection.AwarenessPreset;
         DetectionRange = _config.Detection.DetectionRange;
         ViewAngle = _config.Detection.ViewAngle;
         LineOfSightBlockMask = _config.Detection.LineOfSightBlockMask;
@@ -233,14 +243,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (CanSeePlayer())
         {
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                Mathf.Max(DetectionRange, 12f),
-                0.8f,
-                2.5f,
-                0.8f,
-                PlayerTransform);
+            ReportPlayerLastSeen(Mathf.Max(DetectionRange, 12f), 0.8f, 2.5f, 0.8f);
             CurrentState = EnemyState.Chase;
             return;
         }
@@ -270,18 +273,11 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         float effectiveMeleeRange = GetEffectiveMeleeRange();
 
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -303,26 +299,19 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         SetAgentStopped(false);
-        TrySetDestination(PlayerTransform.position);
+        TrySetChaseDestination();
     }
 
     private void MeleeAttackBehavior(float distanceToPlayer)
     {
         float effectiveMeleeRange = GetEffectiveMeleeRange();
 
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             StopMeleeAttack();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -353,10 +342,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             while (_electricTickTimer >= electricTickInterval)
             {
                 _electricTickTimer -= electricTickInterval;
-                if (_playerHealthController != null)
-                {
-                    _meleeTotalDamage += _playerHealthController.TakeDamage(ElectricTickDamagePerSecond * electricTickInterval);
-                }
+                _meleeTotalDamage += CombatDamageUtility.ApplyDamageTo(
+                    _combatDamageReceiver,
+                    ElectricTickDamagePerSecond * electricTickInterval,
+                    PlayerTransform != null ? PlayerTransform.position : transform.position,
+                    PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+                    gameObject);
             }
 
             if (_meleeVisualTimer >= MeleeLatchDuration)
@@ -377,19 +368,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         float effectiveMeleeRange = GetEffectiveMeleeRange();
 
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             StopRangedAttack();
             CurrentState = EnemyState.Patrol;
             SetAgentStopped(false);
-            EnemySuspicionStimulusBus.Raise(
-                EnemySuspicionStimulusType.PlayerLastSeen,
-                PlayerTransform.position,
-                DetectionRange,
-                0.78f,
-                3f,
-                1.6f,
-                PlayerTransform);
+            ReportPlayerLastSeen(DetectionRange, 0.78f, 3f, 1.6f);
             ResetPatrolDestination();
             return;
         }
@@ -437,10 +421,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _meleeTotalDamage = 0f;
         _isMeleeLatched = true;
 
-        if (_playerHealthController != null)
-        {
-            _meleeTotalDamage += _playerHealthController.TakeDamage(MeleeContactDamage);
-        }
+        _meleeTotalDamage += CombatDamageUtility.ApplyDamageTo(
+            _combatDamageReceiver,
+            MeleeContactDamage,
+            PlayerTransform != null ? PlayerTransform.position : transform.position,
+            PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+            gameObject);
 
         if (_playerShootingController != null)
         {
@@ -476,13 +462,15 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, WaterJetMaxDistance))
         {
-            if (hit.collider.CompareTag("Player"))
+            if (CombatDamageUtility.TryGetDamageReceiver(hit.collider, out ICombatDamageReceiver damageReceiver))
             {
                 float totalDamage = 0f;
-                if (_playerHealthController != null)
-                {
-                    totalDamage = _playerHealthController.TakeDamage(WaterJetDamage);
-                }
+                totalDamage = CombatDamageUtility.ApplyDamageTo(
+                    damageReceiver,
+                    WaterJetDamage,
+                    hit.point,
+                    direction,
+                    gameObject);
 
                 if (_playerMovementController != null)
                 {
@@ -502,6 +490,28 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         _isRangedCasting = false;
         _rangedVisualTimer = 0f;
+    }
+
+    public void NotifyDirectDamage(EnemyDamageContext context)
+    {
+        if (!context.IsDirectDamage || context.Attacker == null)
+        {
+            return;
+        }
+
+        AssignCombatTarget(context.Attacker);
+        BeginDirectDamageForcedChase(context);
+
+        StopMeleeAttack();
+        StopRangedAttack();
+        _waitTimer = 0f;
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        FacePlayerImmediately();
+
+        CurrentState = EnemyState.Chase;
+        SetAgentStopped(false);
+        TrySetChaseDestination();
     }
 
     private void EnsureLineRenderers()
@@ -641,6 +651,23 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         SetRandomPatrolDestination();
     }
 
+    private void ReportPlayerLastSeen(float radius, float strength, float duration, float uncertaintyRadius)
+    {
+        if (!_awarenessPreset.ShouldReportPlayerLastSeen() || PlayerTransform == null)
+        {
+            return;
+        }
+
+        EnemySuspicionStimulusBus.Raise(
+            EnemySuspicionStimulusType.PlayerLastSeen,
+            PlayerTransform.position,
+            radius,
+            strength,
+            duration,
+            uncertaintyRadius,
+            PlayerTransform);
+    }
+
     private void SetRandomPatrolDestination()
     {
         Vector3 randomDirection = Random.insideUnitSphere * PatrolRadius;
@@ -741,6 +768,82 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         return EnsureAgentReady() && _navMeshAgent.SetDestination(destination);
     }
 
+    private bool TrySetChaseDestination()
+    {
+        if (PlayerTransform == null)
+        {
+            return false;
+        }
+
+        if (TrySetSampledDestination(PlayerTransform.position, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        if (_hasDirectDamageFallbackPosition &&
+            TrySetSampledDestination(_directDamageFallbackPosition, DirectDamageDestinationSampleRadius))
+        {
+            return true;
+        }
+
+        return TrySetDestination(PlayerTransform.position);
+    }
+
+    private bool TrySetSampledDestination(Vector3 position, float radius)
+    {
+        return NavMesh.SamplePosition(position, out NavMeshHit hit, Mathf.Max(0.1f, radius), NavMesh.AllAreas) &&
+               TrySetDestination(hit.position);
+    }
+
+    private void BeginDirectDamageForcedChase(EnemyDamageContext context)
+    {
+        _directDamageForcedChaseEndTime = Time.time + DirectDamageForcedChaseDuration;
+        _directDamageFallbackPosition = ResolveDirectDamageFallbackPosition(context);
+        _hasDirectDamageFallbackPosition = true;
+    }
+
+    private bool IsDirectDamageForcedChaseActive()
+    {
+        return Time.time < _directDamageForcedChaseEndTime;
+    }
+
+    private Vector3 ResolveDirectDamageFallbackPosition(EnemyDamageContext context)
+    {
+        if (context.SourcePosition.sqrMagnitude > 0.0001f)
+        {
+            return context.SourcePosition;
+        }
+
+        if (context.Attacker != null)
+        {
+            return context.Attacker.position;
+        }
+
+        if (context.HitPosition.sqrMagnitude > 0.0001f)
+        {
+            return context.HitPosition;
+        }
+
+        return transform.position;
+    }
+
+    private void FacePlayerImmediately()
+    {
+        if (PlayerTransform == null)
+        {
+            return;
+        }
+
+        Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
+        Vector3 direction = lookPosition - transform.position;
+        if (direction.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+    }
+
     private bool CanSeePlayer()
     {
         return EnemyVisionUtility.CanSeeTarget(
@@ -771,45 +874,72 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             }
         }
 
-        if (PlayerTransform != null)
+        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
         {
+            return true;
+        }
+
+        if (PlayerTransform != null &&
+            PlayerTransform.CompareTag("Player") &&
+            _playerHealthController == null)
+        {
+            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
-                _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-                if (_playerHealthController == null)
-                {
-                    _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
-                }
+                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
             }
 
-            if (_playerMovementController == null)
+            _combatDamageReceiver = _playerHealthController;
+            return _combatDamageReceiver != null;
+        }
+
+        if (PlayerHealthController.Instance != null)
+        {
+            return AssignCombatTarget(PlayerHealthController.Instance.transform);
+        }
+
+        return false;
+    }
+
+    private bool AssignCombatTarget(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerTransform = target;
+        _playerHealthController = target.GetComponent<PlayerHealthController>();
+        if (_playerHealthController == null)
+        {
+            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
+        }
+
+        _playerMovementController = target.GetComponent<PlayerMovementController>();
+        if (_playerMovementController == null)
+        {
+            _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
+        }
+
+        _playerShootingController = target.GetComponent<PlayerShootingController>();
+        if (_playerShootingController == null)
+        {
+            _playerShootingController = target.GetComponentInParent<PlayerShootingController>();
+        }
+
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
             {
-                _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
+                PlayerTransform = receiver.DamageRootTransform;
             }
 
-            if (_playerShootingController == null)
-            {
-                _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
-            }
+            return true;
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
-        {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
-        }
-
-        if (_playerMovementController == null && PlayerTransform != null)
-        {
-            _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-        }
-
-        if (_playerShootingController == null && PlayerTransform != null)
-        {
-            _playerShootingController = PlayerTransform.GetComponent<PlayerShootingController>();
-        }
-
-        return PlayerTransform != null && _playerHealthController != null;
+        _combatDamageReceiver = _playerHealthController;
+        return _combatDamageReceiver != null;
     }
 
     private void OnDrawGizmosSelected()

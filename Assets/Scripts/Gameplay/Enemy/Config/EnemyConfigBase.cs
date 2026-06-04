@@ -78,6 +78,39 @@ public enum EnemyPatrolMode
     FixedRoute
 }
 
+public enum EnemyAwarenessPreset
+{
+    SimpleVisionOnly,
+    VisionWithSearch,
+    FullSuspicion
+}
+
+public static class EnemyAwarenessPresetUtility
+{
+    public static bool UsesPatrolAwareness(this EnemyAwarenessPreset preset)
+    {
+        return preset != EnemyAwarenessPreset.SimpleVisionOnly;
+    }
+
+    public static bool ShouldReportPlayerLastSeen(this EnemyAwarenessPreset preset)
+    {
+        return preset != EnemyAwarenessPreset.SimpleVisionOnly;
+    }
+
+    public static bool AllowsSuspicionRecord(this EnemyAwarenessPreset preset, EnemySuspicionRecord record)
+    {
+        switch (preset)
+        {
+            case EnemyAwarenessPreset.SimpleVisionOnly:
+                return false;
+            case EnemyAwarenessPreset.VisionWithSearch:
+                return record.Type == EnemySuspicionStimulusType.PlayerLastSeen;
+            default:
+                return true;
+        }
+    }
+}
+
 [Serializable]
 public sealed class EnemyPatrolSettings
 {
@@ -104,6 +137,9 @@ public sealed class EnemyPatrolSettings
 [Serializable]
 public sealed class EnemyDetectionSettings
 {
+    [SerializeField, Tooltip("High-level patrol awareness behavior exposed to designers.")]
+    private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
+
     [SerializeField, Min(0.1f), Tooltip("View range at which this enemy can start chasing or attacking the player.")]
     private float _detectionRange = 15f;
 
@@ -125,6 +161,7 @@ public sealed class EnemyDetectionSettings
     [SerializeField, Min(0.1f), Tooltip("Distance at which this enemy stops engaging and returns to patrol.")]
     private float _loseRange = 20f;
 
+    public EnemyAwarenessPreset AwarenessPreset => _awarenessPreset;
     public float DetectionRange => _detectionRange;
     public float ViewAngle => _viewAngle;
     public LayerMask LineOfSightBlockMask => _lineOfSightBlockMask;

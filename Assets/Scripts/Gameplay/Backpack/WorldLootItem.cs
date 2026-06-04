@@ -67,7 +67,6 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         }
 
         Debug.Log($"Picked up {ItemData.ItemName}.");
-        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyResourceCompleted(gameObject);
         Destroy(gameObject);
     }
 
@@ -106,7 +105,6 @@ public class WorldLootItem : MonoBehaviour, IInteractable, ISecondaryInteractabl
         }
 
         Debug.Log($"Equipped {ItemData.ItemName}.");
-        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyResourceCompleted(gameObject);
         Destroy(gameObject);
     }
 

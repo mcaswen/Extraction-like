@@ -26,13 +26,22 @@ namespace Gameplay.Agent.Core
 
         private readonly HierarchicalStateMachine _stateMachine;
 
+        /// <summary>
+        /// Agent Brain 的共享黑板
+        /// </summary>
         public BehaviorBlackboard Blackboard => _blackboard;
 
+        /// <summary>
+        /// 当前 Brain 宏状态 ID
+        /// </summary>
         public AgentMacroStateId CurrentMacroStateId =>
             _blackboard.GetValueOrDefault<AgentMacroStateId>(
                 AgentBlackboardKeys.CurrentMacroStateId,
                 AgentMacroStateId.None);
 
+        /// <summary>
+        /// 当前 Brain 宏状态名称
+        /// </summary>
         public string CurrentMacroStateName => CurrentMacroStateId.ToString();
 
         /// <summary>

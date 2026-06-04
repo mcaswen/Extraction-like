@@ -6,10 +6,10 @@ const workbook = await SpreadsheetFile.importXlsx(input);
 
 const table = await workbook.inspect({
   kind: "table",
-  range: "LootItems!A1:R17",
+  range: "LootItems!A1:S30",
   include: "values,formulas",
-  tableMaxRows: 17,
-  tableMaxCols: 18,
+  tableMaxRows: 30,
+  tableMaxCols: 19,
 });
 console.log(table.ndjson);
 
@@ -21,5 +21,5 @@ const errors = await workbook.inspect({
 });
 console.log(errors.ndjson);
 
-await workbook.render({ sheetName: "LootItems", range: "A1:R18", scale: 1 });
-console.log("Rendered LootItems!A1:R18 successfully.");
+await workbook.render({ sheetName: "LootItems", range: "A1:S30", scale: 1 });
+console.log("Rendered LootItems!A1:S30 successfully.");

@@ -3,6 +3,175 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
+public enum EnemyDamageSourceType
+{
+    Unknown,
+    Projectile,
+    Magic,
+    Melee,
+    Environment
+}
+
+public readonly struct EnemyDamageContext
+{
+    public readonly Transform Attacker;
+    public readonly Vector3 HitPosition;
+    public readonly Vector3 SourcePosition;
+    public readonly Vector3 IncomingDirection;
+    public readonly bool IsDirectDamage;
+    public readonly bool IsDirectPlayerDamage;
+    public readonly EnemyDamageSourceType SourceType;
+
+    public EnemyDamageContext(
+        Transform attacker,
+        Vector3 hitPosition,
+        Vector3 sourcePosition,
+        Vector3 incomingDirection,
+        bool isDirectDamage,
+        bool isDirectPlayerDamage,
+        EnemyDamageSourceType sourceType)
+    {
+        Attacker = attacker;
+        HitPosition = hitPosition;
+        SourcePosition = sourcePosition;
+        IncomingDirection = incomingDirection.sqrMagnitude > 0.0001f
+            ? incomingDirection.normalized
+            : Vector3.zero;
+        IsDirectDamage = isDirectDamage;
+        IsDirectPlayerDamage = isDirectPlayerDamage;
+        SourceType = sourceType;
+    }
+
+    public static EnemyDamageContext Empty => new EnemyDamageContext(
+        null,
+        Vector3.zero,
+        Vector3.zero,
+        Vector3.zero,
+        false,
+        false,
+        EnemyDamageSourceType.Unknown);
+
+    public static EnemyDamageContext FromAttacker(
+        Transform attacker,
+        Vector3 hitPosition,
+        Vector3 sourcePosition,
+        Vector3 incomingDirection,
+        EnemyDamageSourceType sourceType)
+    {
+        return new EnemyDamageContext(
+            attacker,
+            hitPosition,
+            sourcePosition,
+            incomingDirection,
+            attacker != null,
+            attacker != null && attacker.GetComponentInParent<PlayerHealthController>() != null,
+            sourceType);
+    }
+
+    public static EnemyDamageContext FromPlayer(
+        Transform playerTransform,
+        Vector3 hitPosition,
+        Vector3 sourcePosition,
+        Vector3 incomingDirection,
+        EnemyDamageSourceType sourceType)
+    {
+        return new EnemyDamageContext(
+            playerTransform,
+            hitPosition,
+            sourcePosition,
+            incomingDirection,
+            playerTransform != null,
+            playerTransform != null,
+            sourceType);
+    }
+}
+
+public interface IEnemyDirectDamageReceiver
+{
+    void NotifyDirectDamage(EnemyDamageContext context);
+}
+
+public interface ICombatDamageReceiver
+{
+    Transform DamageRootTransform { get; }
+    bool IsCombatDamageReceiverAlive { get; }
+    float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source);
+}
+
+public static class CombatDamageUtility
+{
+    public static bool TryGetDamageReceiver(Component component, out ICombatDamageReceiver receiver)
+    {
+        receiver = null;
+        if (component == null)
+        {
+            return false;
+        }
+
+        MonoBehaviour[] behaviours = component.GetComponentsInParent<MonoBehaviour>();
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is ICombatDamageReceiver candidate &&
+                candidate.IsCombatDamageReceiverAlive)
+            {
+                receiver = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static bool TryGetDamageReceiver(Transform target, out ICombatDamageReceiver receiver)
+    {
+        receiver = null;
+        if (target == null)
+        {
+            return false;
+        }
+
+        MonoBehaviour[] behaviours = target.GetComponentsInParent<MonoBehaviour>();
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is ICombatDamageReceiver candidate &&
+                candidate.IsCombatDamageReceiverAlive)
+            {
+                receiver = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static float ApplyDamageTo(
+        Transform target,
+        float damage,
+        Vector3 hitPoint,
+        Vector3 hitDirection,
+        GameObject source)
+    {
+        return TryGetDamageReceiver(target, out ICombatDamageReceiver receiver)
+            ? ApplyDamageTo(receiver, damage, hitPoint, hitDirection, source)
+            : 0f;
+    }
+
+    public static float ApplyDamageTo(
+        ICombatDamageReceiver receiver,
+        float damage,
+        Vector3 hitPoint,
+        Vector3 hitDirection,
+        GameObject source)
+    {
+        if (receiver == null || !receiver.IsCombatDamageReceiverAlive)
+        {
+            return 0f;
+        }
+
+        return receiver.TakeCombatDamage(damage, hitPoint, hitDirection, source);
+    }
+}
+
 /// <summary>
 /// 敌人生命控制器。
 /// 负责受伤、血条刷新、死亡和死亡掉落容器生成。
@@ -24,16 +193,30 @@ public class EnemyHealthController : MonoBehaviour
     private float _currentShield;
     private float _damageTakenMultiplier = 1f;
     private bool _hasDied;
+    private bool _hasInitializedHealth;
     private EnemyDeathLootSettings _deathLootSettings;
+
+    /// <summary>
+    /// 敌人当前是否仍可作为战斗目标
+    /// </summary>
+    public bool IsAlive
+    {
+        get
+        {
+            InitializeHealthIfNeeded();
+            return enabled && gameObject.activeInHierarchy && !_hasDied && _currentHealth > 0f;
+        }
+    }
+
+    private void Awake()
+    {
+        InitializeHealthIfNeeded();
+    }
 
     private void Start()
     {
         WhiteboxCharacterVisualUtility.ApplyCharacterWhite(gameObject);
-        if (_config != null)
-        {
-            ApplyConfigIfAssigned();
-        }
-        _currentHealth = MaxHealth;
+        InitializeHealthIfNeeded();
         UpdateHealthBar();
     }
 
@@ -51,6 +234,7 @@ public class EnemyHealthController : MonoBehaviour
         if (!_hasDied)
         {
             _currentHealth = MaxHealth;
+            _hasInitializedHealth = true;
             UpdateHealthBar();
         }
     }
@@ -73,6 +257,11 @@ public class EnemyHealthController : MonoBehaviour
     /// </summary>
     public void TakeDamage(float damageAmount)
     {
+        TakeDamage(damageAmount, EnemyDamageContext.Empty);
+    }
+
+    public void TakeDamage(float damageAmount, EnemyDamageContext context)
+    {
         if (_hasDied)
         {
             return;
@@ -89,14 +278,14 @@ public class EnemyHealthController : MonoBehaviour
         if (remainingDamage <= 0f)
         {
             UpdateHealthBar();
-            EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
+            NotifyDamageReaction(context);
             return;
         }
 
         _currentHealth -= remainingDamage;
         _currentHealth = Mathf.Clamp(_currentHealth, 0f, MaxHealth);
         UpdateHealthBar();
-        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, null);
+        NotifyDamageReaction(context);
 
         if (_currentHealth <= 0f)
         {
@@ -104,11 +293,28 @@ public class EnemyHealthController : MonoBehaviour
         }
     }
 
+    private void NotifyDamageReaction(EnemyDamageContext context)
+    {
+        if (context.IsDirectDamage && context.Attacker != null)
+        {
+            IEnemyDirectDamageReceiver[] receivers = GetComponents<IEnemyDirectDamageReceiver>();
+            for (int i = 0; i < receivers.Length; i++)
+            {
+                receivers[i]?.NotifyDirectDamage(context);
+            }
+
+            return;
+        }
+
+        EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, transform);
+    }
+
     /// <summary>
     /// 获取当前血量比例。
     /// </summary>
     public float GetCurrentHealthRatio()
     {
+        InitializeHealthIfNeeded();
         if (MaxHealth <= 0f)
         {
             return 0f;
@@ -133,6 +339,23 @@ public class EnemyHealthController : MonoBehaviour
     public void SetDamageTakenMultiplier(float multiplier)
     {
         _damageTakenMultiplier = Mathf.Max(0f, multiplier);
+    }
+
+    // 目标系统可能早于 Start 查询敌人状态，因此血量初始化需要可重入
+    private void InitializeHealthIfNeeded()
+    {
+        if (_hasInitializedHealth || _hasDied)
+        {
+            return;
+        }
+
+        if (_config != null)
+        {
+            ApplyConfigIfAssigned();
+        }
+
+        _currentHealth = MaxHealth;
+        _hasInitializedHealth = true;
     }
 
     private void UpdateHealthBar()

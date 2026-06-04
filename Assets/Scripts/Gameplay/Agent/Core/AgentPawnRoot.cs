@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.SO;
@@ -14,7 +15,7 @@ namespace Gameplay.Agent.Core
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter))]
-    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver
+    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver
     {
         private const int RangeGizmoSegmentCount = 64;
         private static readonly Color TargetDiscoveryRangeGizmoColor = new Color(0.1f, 0.65f, 1f, 0.85f);
@@ -38,26 +39,87 @@ namespace Gameplay.Agent.Core
         private AgentBrainController _brainController;
         private AgentInterventionController _interventionController;
 
+        /// <summary>
+        /// Agent 的强类型运行时 ID
+        /// </summary>
         public AgentId AgentId => _runtimeAgentId;
+
+        /// <summary>
+        /// Agent 的字符串运行时 ID
+        /// </summary>
         public string AgentIdValue => _runtimeAgentId.Value;
+
+        /// <summary>
+        /// 当前 Pawn 的缓存 Transform
+        /// </summary>
         public Transform CachedTransform => transform;
+
+        /// <summary>
+        /// 当前 Pawn 使用的 NavMeshAgent
+        /// </summary>
         public NavMeshAgent NavMeshAgent => _navMeshAgent;
+
+        /// <summary>
+        /// 当前世界坐标
+        /// </summary>
         public Vector3 Position => transform.position;
+
+        /// <summary>
+        /// 当前世界朝向
+        /// </summary>
         public Vector3 Forward => transform.forward;
 
+        /// <summary>
+        /// 当前 Brain 宏状态 ID
+        /// </summary>
         public AgentMacroStateId CurrentMacroStateId =>
             _brainController != null ? _brainController.CurrentMacroStateId : AgentMacroStateId.None;
 
+        /// <summary>
+        /// 当前 Brain 宏状态名称
+        /// </summary>
         public string CurrentMacroStateName => CurrentMacroStateId.ToString();
 
+        /// <summary>
+        /// 当前生命值
+        /// </summary>
         public int CurrentHealth => _currentHealth;
+
+        /// <summary>
+        /// 最大生命值
+        /// </summary>
         public int MaxHealth => _pawnConfig != null ? _pawnConfig.MaxHealth : 0;
+
+        /// <summary>
+        /// 当前生命比例
+        /// </summary>
         public float HealthRatio => MaxHealth <= 0 ? 0f : (float)_currentHealth / MaxHealth;
+
+        /// <summary>
+        /// 当前 Pawn 是否死亡
+        /// </summary>
         public bool IsDead => _currentHealth <= 0;
+        public Transform DamageRootTransform => transform;
+        public bool IsCombatDamageReceiverAlive => !IsDead;
+
+        /// <summary>
+        /// 是否启用目标发现
+        /// </summary>
         public bool EnableTargetDiscovery => _pawnConfig != null && _pawnConfig.EnableTargetDiscovery;
+
+        /// <summary>
+        /// 目标发现半径
+        /// </summary>
         public float TargetDiscoveryRange => _pawnConfig != null ? _pawnConfig.TargetDiscoveryRange : 0f;
+
+        /// <summary>
+        /// 目标发现扫描间隔
+        /// </summary>
         public float TargetDiscoveryInterval => _pawnConfig != null ? _pawnConfig.TargetDiscoveryInterval : 0.5f;
 
+        /// <summary>
+        /// Brain 使用的运行时黑板
+        /// </summary>
         public BehaviorBlackboard Blackboard =>
             _brainController != null ? _brainController.Blackboard : null;
 
@@ -182,6 +244,19 @@ namespace Gameplay.Agent.Core
             SyncBodyFactsToBlackboard(Time.timeAsDouble);
         }
 
+        public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
+        {
+            if (IsDead || damage <= 0f)
+                return 0f;
+
+            int previousHealth = _currentHealth;
+            ApplyDamage(new DamageRequest(
+                Mathf.RoundToInt(damage),
+                hitPoint,
+                hitDirection));
+            return Mathf.Max(0, previousHealth - _currentHealth);
+        }
+
         /// <summary>
         /// 设置Agent是否感知到敌人
         /// </summary>
@@ -191,6 +266,18 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(
                 AgentBlackboardKeys.HasVisibleEnemy,
                 hasVisibleEnemy,
+                Time.timeAsDouble);
+        }
+
+        /// <summary>
+        /// 设置Agent当前是否有可侦查的敌人来源点
+        /// </summary>
+        /// <param name="hasEnemySourceTarget"></param>
+        public void SetHasEnemySourceTarget(bool hasEnemySourceTarget)
+        {
+            _brainController.SetFact(
+                AgentBlackboardKeys.HasEnemySourceTarget,
+                hasEnemySourceTarget,
                 Time.timeAsDouble);
         }
 
@@ -271,7 +358,9 @@ namespace Gameplay.Agent.Core
             AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
             _isRegistered = registry.Register(this);
             if (_isRegistered)
+            {
                 AgentTargetDiscoveryController.GetOrCreate();
+            }
         }
 
         private void UnregisterFromRuntime()
@@ -294,6 +383,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, 1f, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasResourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);
@@ -305,6 +395,16 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AttackDamage, _pawnConfig.AttackDamage, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackInterval, _pawnConfig.AttackInterval, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasPendingDirective, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionModuleEnabled, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionTargetId, string.Empty, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionTargetKind, AgentDecisionTargetKind.None, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionScore, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionRisk, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionCandidateCount, 0, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionRiskEnemyCount, 0, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, _pawnConfig.AttackDamage, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionReason, string.Empty, timeSeconds);
         }
 
         // 将 Pawn 身体层事实同步给 Brain

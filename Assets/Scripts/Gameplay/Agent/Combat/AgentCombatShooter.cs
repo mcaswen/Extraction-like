@@ -53,6 +53,7 @@ namespace Gameplay.Agent.Combat
             return true;
         }
 
+        // 优先使用配置挂点，缺失时用本地偏移保证运行时仍能发射
         private Vector3 ResolveFirePosition()
         {
             if (_firePoint != null)
@@ -116,6 +117,7 @@ namespace Gameplay.Agent.Combat
             bulletController.LifeTime = Mathf.Max(0.1f, _bulletLifeTime);
             bulletController.BulletColor = _bulletColor;
             bulletController.AttackElement = _attackElement;
+            bulletController.SourceTransform = transform;
 
             Rigidbody rigidbodyComponent = bulletObject.GetComponent<Rigidbody>();
             if (rigidbodyComponent == null)
@@ -125,6 +127,7 @@ namespace Gameplay.Agent.Combat
             rigidbodyComponent.velocity = fireDirection * bulletController.MoveSpeed;
         }
 
+        // 子弹忽略发射者碰撞，避免近距离生成时立即命中自己
         private void IgnoreShooterCollisions(GameObject bulletObject)
         {
             Collider[] bulletColliders = bulletObject.GetComponentsInChildren<Collider>();

@@ -12,6 +12,10 @@ namespace Gameplay.Agent.Core
     {
         private readonly BehaviorBlackboard _blackboard;
 
+        /// <summary>
+        /// 创建 Agent 干预层控制器
+        /// </summary>
+        /// <param name="blackboard"></param>
         public AgentInterventionController(BehaviorBlackboard blackboard)
         {
             _blackboard = blackboard;

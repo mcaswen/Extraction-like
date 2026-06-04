@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 /// <summary>
 /// 玩家交互扫描器
@@ -10,8 +7,6 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
-    private const bool EnableInteractionDebug = true;
-
     [Header("Interaction")]
     public float InteractionRadius = 3f;
     public LayerMask InteractableLayer;
@@ -37,15 +32,6 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
-        if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
-        {
-            if (FloatingPromptUI != null)
-            {
-                FloatingPromptUI.gameObject.SetActive(false);
-            }
-            return;
-        }
-
         ScanForInteractables();
         UpdateFloatingUI();
         HandleInteractionInput();
@@ -136,30 +122,14 @@ public class PlayerInteraction : MonoBehaviour
     // 统一处理主交互键和副交互键输入
     private void HandleInteractionInput()
     {
-        if (IsPrimaryInteractPressed() && _closestInteractable != null)
+        if (Input.GetKeyDown(KeyCode.F) && _closestInteractable != null)
         {
-            LogDebug($"F received. Interactable={_closestInteractable.GetType().Name} Target={(_closestTransform != null ? _closestTransform.name : "null")}");
-            EnemySuspicionStimulusBus.ReportLootInteraction(
-                _closestTransform != null ? _closestTransform.position : transform.position,
-                transform);
             _closestInteractable.Interact();
         }
-        else if (IsPrimaryInteractPressed())
-        {
-            LogDebug("F received, but no interactable was found.");
-        }
 
-        if (IsSecondaryInteractPressed() && _closestSecondaryInteractable != null)
+        if (Input.GetKeyDown(KeyCode.E) && _closestSecondaryInteractable != null)
         {
-            LogDebug($"E received. Secondary={_closestSecondaryInteractable.GetType().Name} Target={(_closestTransform != null ? _closestTransform.name : "null")}");
-            EnemySuspicionStimulusBus.ReportLootInteraction(
-                _closestTransform != null ? _closestTransform.position : transform.position,
-                transform);
             _closestSecondaryInteractable.SecondaryInteract();
-        }
-        else if (IsSecondaryInteractPressed())
-        {
-            LogDebug("E received, but no secondary interactable was found.");
         }
     }
 
@@ -204,51 +174,5 @@ public class PlayerInteraction : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, InteractionRadius);
-    }
-
-    private static bool IsPrimaryInteractPressed()
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            return true;
-        }
-
-#if ENABLE_INPUT_SYSTEM
-        Keyboard keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.fKey.wasPressedThisFrame)
-        {
-            return true;
-        }
-#endif
-
-        return false;
-    }
-
-    private static bool IsSecondaryInteractPressed()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            return true;
-        }
-
-#if ENABLE_INPUT_SYSTEM
-        Keyboard keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
-        {
-            return true;
-        }
-#endif
-
-        return false;
-    }
-
-    private static void LogDebug(string message)
-    {
-        if (!EnableInteractionDebug)
-        {
-            return;
-        }
-
-        Debug.Log($"[InteractionDebug] {message}");
     }
 }

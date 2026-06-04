@@ -1,43 +1,85 @@
 using System;
 using System.Collections.Generic;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 using UnityEngine.AI;
 
 public sealed class EnemySpawnPoint : MonoBehaviour
 {
-    [SerializeField]
-    private bool _spawnOnStart = true;
+    private static readonly float SpawnRadius = 0f;
+    private const float NavMeshSampleRadius = 3f;
+    private static readonly bool RandomizeYaw = true;
+    private static readonly Vector3 PositionOffset = Vector3.zero;
+    private static readonly Vector3 RotationOffset = Vector3.zero;
+    private const EnemyPatrolRouteStartMode RouteStartMode = EnemyPatrolRouteStartMode.Closest;
 
     [SerializeField]
-    private Transform _spawnParent;
-
-    [SerializeField, Min(0f)]
-    private float _spawnRadius = 0f;
-
-    [SerializeField, Min(0.1f)]
-    private float _spawnNavMeshSampleRadius = 3f;
+    private GameObject _enemyPrefab;
 
     [SerializeField]
-    private bool _randomizeYaw = true;
+    private EnemyPatrolRoute _patrolRoute;
 
-    [SerializeField]
+    [SerializeField, HideInInspector]
     private List<EnemySpawnEntry> _entries = new List<EnemySpawnEntry>();
 
-    [Header("Gizmos")]
-    [SerializeField]
-    private bool _drawGizmos = true;
+    private GameObject _spawnedEnemy;
+    private bool _hasSpawned;
 
-    [SerializeField]
-    private Color _gizmoColor = new Color(1f, 0.55f, 0.2f, 1f);
+    public GameObject EnemyPrefab => _enemyPrefab;
+    public EnemyPatrolRoute PatrolRoute => _patrolRoute;
+    public bool HasSpawned => _hasSpawned;
 
-    public IReadOnlyList<EnemySpawnEntry> Entries => _entries;
+    private void Awake()
+    {
+        MigrateLegacyEntryIfNeeded();
+    }
 
     private void Start()
     {
-        if (_spawnOnStart)
+        Spawn();
+    }
+
+    [ContextMenu("Spawn")]
+    public GameObject Spawn()
+    {
+        if (!Application.isPlaying)
         {
-            SpawnAll();
+            Debug.LogWarning($"[{name}] Spawn only runs in Play Mode.", this);
+            return null;
         }
+
+        if (_hasSpawned)
+        {
+            return _spawnedEnemy;
+        }
+
+        _hasSpawned = true;
+
+        if (_enemyPrefab == null)
+        {
+            return null;
+        }
+
+        Vector3 position = ResolveSpawnPosition();
+        Quaternion rotation = ResolveSpawnRotation();
+        GameObject enemy = Instantiate(_enemyPrefab, position, rotation);
+        enemy.name = BuildSpawnedName();
+        _spawnedEnemy = enemy;
+
+        EnemyPatrolRouteFollower follower = enemy.GetComponent<EnemyPatrolRouteFollower>();
+        if (follower == null)
+        {
+            follower = enemy.AddComponent<EnemyPatrolRouteFollower>();
+        }
+
+        follower.AssignRoute(
+            _patrolRoute,
+            RouteStartMode,
+            0,
+            NavMeshSampleRadius);
+
+        RegisterSpawnedEnemyTarget(enemy);
+        return enemy;
     }
 
     [ContextMenu("Spawn All")]
@@ -49,12 +91,90 @@ public sealed class EnemySpawnPoint : MonoBehaviour
             return;
         }
 
-        if (_entries == null)
+        Spawn();
+    }
+
+    [Obsolete("EnemySpawnPoint now spawns one configured enemy per round. Use Spawn() instead.")]
+    public GameObject Spawn(EnemySpawnEntry entry, int sequenceIndex)
+    {
+        return Spawn();
+    }
+
+    public void CollectChildRoutes()
+    {
+        if (_patrolRoute != null)
         {
             return;
         }
 
-        int sequence = 0;
+        EnemyPatrolRoute[] routes = GetComponentsInChildren<EnemyPatrolRoute>(true);
+        if (routes != null && routes.Length > 0)
+        {
+            _patrolRoute = routes[0];
+        }
+    }
+
+    private Vector3 ResolveSpawnPosition()
+    {
+        Vector3 localOffset = PositionOffset;
+        if (SpawnRadius > 0f)
+        {
+            Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * SpawnRadius;
+            localOffset += new Vector3(randomCircle.x, 0f, randomCircle.y);
+        }
+
+        Vector3 desired = transform.TransformPoint(localOffset);
+        if (NavMesh.SamplePosition(desired, out NavMeshHit hit, NavMeshSampleRadius, NavMesh.AllAreas))
+        {
+            return hit.position;
+        }
+
+        Debug.LogWarning($"[{name}] Could not sample spawn position on NavMesh. Using raw spawn position.", this);
+        return desired;
+    }
+
+    private Quaternion ResolveSpawnRotation()
+    {
+        Quaternion baseRotation = transform.rotation * Quaternion.Euler(RotationOffset);
+        if (!RandomizeYaw)
+        {
+            return baseRotation;
+        }
+
+        return Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f) * baseRotation;
+    }
+
+    private string BuildSpawnedName()
+    {
+        return _enemyPrefab != null ? $"{_enemyPrefab.name}_00" : "Enemy_00";
+    }
+
+    // Spawn points declare source ownership; spawned active enemies are handed to the target registry.
+    private void RegisterSpawnedEnemyTarget(GameObject enemy)
+    {
+        if (enemy == null)
+            return;
+
+        EnemyHealthController enemyHealth = enemy.GetComponent<EnemyHealthController>();
+        if (enemyHealth == null)
+            enemyHealth = enemy.GetComponentInChildren<EnemyHealthController>(true);
+
+        if (enemyHealth != null)
+            GameplayTargetRegistry.GetOrCreate().TryRegisterSpawnedEnemy(transform, enemyHealth);
+    }
+
+    private void OnValidate()
+    {
+        MigrateLegacyEntryIfNeeded();
+    }
+
+    private void MigrateLegacyEntryIfNeeded()
+    {
+        if (_enemyPrefab != null || _entries == null)
+        {
+            return;
+        }
+
         for (int i = 0; i < _entries.Count; i++)
         {
             EnemySpawnEntry entry = _entries[i];
@@ -63,108 +183,15 @@ public sealed class EnemySpawnPoint : MonoBehaviour
                 continue;
             }
 
-            int count = Mathf.Max(0, entry.SpawnCount);
-            for (int j = 0; j < count; j++)
-            {
-                Spawn(entry, sequence);
-                sequence++;
-            }
+            _enemyPrefab = entry.EnemyPrefab;
+            _patrolRoute = entry.PatrolRoute;
+            break;
         }
-    }
-
-    public GameObject Spawn(EnemySpawnEntry entry, int sequenceIndex)
-    {
-        if (entry == null || entry.EnemyPrefab == null)
-        {
-            return null;
-        }
-
-        Vector3 position = ResolveSpawnPosition(entry, sequenceIndex);
-        Quaternion rotation = ResolveSpawnRotation(entry);
-        Transform parent = _spawnParent != null ? _spawnParent : null;
-        GameObject enemy = Instantiate(entry.EnemyPrefab, position, rotation, parent);
-        enemy.name = entry.BuildSpawnedName(sequenceIndex);
-
-        EnemyPatrolRouteFollower follower = enemy.GetComponent<EnemyPatrolRouteFollower>();
-        if (follower == null)
-        {
-            follower = enemy.AddComponent<EnemyPatrolRouteFollower>();
-        }
-
-        follower.AssignRoute(
-            entry.PatrolRoute,
-            entry.RouteStartMode,
-            sequenceIndex,
-            entry.NavMeshSampleRadius > 0f ? entry.NavMeshSampleRadius : _spawnNavMeshSampleRadius);
-
-        return enemy;
-    }
-
-    public void CollectChildRoutes()
-    {
-        EnemyPatrolRoute[] routes = GetComponentsInChildren<EnemyPatrolRoute>(true);
-        if (routes == null || routes.Length == 0)
-        {
-            return;
-        }
-
-        _entries ??= new List<EnemySpawnEntry>();
-        for (int i = 0; i < _entries.Count; i++)
-        {
-            EnemySpawnEntry entry = _entries[i];
-            if (entry != null && entry.PatrolRoute == null)
-            {
-                entry.SetPatrolRoute(routes[Mathf.Min(i, routes.Length - 1)]);
-            }
-        }
-    }
-
-    private Vector3 ResolveSpawnPosition(EnemySpawnEntry entry, int sequenceIndex)
-    {
-        Vector3 localOffset = entry.PositionOffset;
-        if (_spawnRadius > 0f || entry.SpawnRadius > 0f)
-        {
-            float radius = entry.SpawnRadius > 0f ? entry.SpawnRadius : _spawnRadius;
-            Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * radius;
-            localOffset += new Vector3(randomCircle.x, 0f, randomCircle.y);
-        }
-
-        Vector3 desired = transform.TransformPoint(localOffset);
-        float sampleRadius = entry.NavMeshSampleRadius > 0f ? entry.NavMeshSampleRadius : _spawnNavMeshSampleRadius;
-        if (NavMesh.SamplePosition(desired, out NavMeshHit hit, Mathf.Max(0.1f, sampleRadius), NavMesh.AllAreas))
-        {
-            return hit.position;
-        }
-
-        Debug.LogWarning($"[{name}] Could not sample spawn position for '{entry.Label}' on NavMesh. Using raw spawn position.", this);
-        return desired;
-    }
-
-    private Quaternion ResolveSpawnRotation(EnemySpawnEntry entry)
-    {
-        Quaternion baseRotation = transform.rotation * Quaternion.Euler(entry.RotationOffset);
-        bool shouldRandomizeYaw = entry.OverrideRandomizeYaw ? entry.RandomizeYaw : _randomizeYaw;
-        if (!shouldRandomizeYaw)
-        {
-            return baseRotation;
-        }
-
-        return Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f) * baseRotation;
-    }
-
-    private void OnValidate()
-    {
-        _entries ??= new List<EnemySpawnEntry>();
-        _spawnRadius = Mathf.Max(0f, _spawnRadius);
-        _spawnNavMeshSampleRadius = Mathf.Max(0.1f, _spawnNavMeshSampleRadius);
     }
 
     private void OnDrawGizmos()
     {
-        if (_drawGizmos)
-        {
-            DrawGizmos(false);
-        }
+        DrawGizmos(false);
     }
 
     private void OnDrawGizmosSelected()
@@ -174,15 +201,9 @@ public sealed class EnemySpawnPoint : MonoBehaviour
 
     private void DrawGizmos(bool selected)
     {
-        Color color = _gizmoColor;
-        color.a = selected ? 1f : 0.45f;
+        Color color = new Color(1f, 0.55f, 0.2f, selected ? 1f : 0.45f);
         Gizmos.color = color;
         Gizmos.DrawSphere(transform.position, selected ? 0.32f : 0.22f);
-
-        if (_spawnRadius > 0f)
-        {
-            Gizmos.DrawWireSphere(transform.position, _spawnRadius);
-        }
 
         Vector3 forward = transform.forward;
         Gizmos.DrawLine(transform.position, transform.position + forward * 1.25f);

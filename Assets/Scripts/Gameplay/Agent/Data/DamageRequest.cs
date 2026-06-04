@@ -8,10 +8,27 @@ namespace Gameplay.Agent.Data
     /// </summary>
     public readonly struct DamageRequest
     {
+        /// <summary>
+        /// 伤害数值
+        /// </summary>
         public int DamageAmount { get; }
+
+        /// <summary>
+        /// 命中世界坐标
+        /// </summary>
         public Vector3 HitPoint { get; }
+
+        /// <summary>
+        /// 命中方向
+        /// </summary>
         public Vector3 HitDirection { get; }
 
+        /// <summary>
+        /// 创建 Agent 受伤请求
+        /// </summary>
+        /// <param name="damageAmount"></param>
+        /// <param name="hitPoint"></param>
+        /// <param name="hitDirection"></param>
         public DamageRequest(int damageAmount, Vector3 hitPoint, Vector3 hitDirection)
         {
             DamageAmount = damageAmount;

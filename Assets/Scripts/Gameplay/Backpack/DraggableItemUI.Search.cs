@@ -6,21 +6,20 @@ public partial class DraggableItemUI
     // 搜索未完成或揭示动画仍在播放时，物品应保持不可交互
     private bool CanInteractWithItem()
     {
-        return (!_requiresSearch || _isSearched) && !_isRevealAnimating;
+        return _runtimeState.CanInteract && !_isRevealAnimating;
     }
 
     // 自动推进搜索进度，并在完成时切换到揭示动画阶段
     private void TickSearchProgress()
     {
-        if (!_requiresSearch || _isSearched || !gameObject.activeInHierarchy)
+        if (!RequiresSearch || IsSearched || !gameObject.activeInHierarchy)
         {
             return;
         }
 
-        _searchProgressSeconds = Mathf.Min(_searchProgressSeconds + Time.unscaledDeltaTime, _searchDurationSeconds);
-        if (_searchProgressSeconds >= _searchDurationSeconds)
+        bool completed = _runtimeState.AdvanceSearchProgress(Time.unscaledDeltaTime);
+        if (completed)
         {
-            _isSearched = true;
             _isRevealAnimating = true;
             _revealAnimationTimer = 0f;
             UpdateAmountText();
@@ -180,7 +179,7 @@ public partial class DraggableItemUI
     {
         EnsureSearchOverlay();
 
-        bool showOverlay = _requiresSearch && !_isSearched;
+        bool showOverlay = RequiresSearch && !IsSearched;
         bool showReveal = _isRevealAnimating;
         if (_searchOverlayRoot != null)
         {
@@ -197,9 +196,9 @@ public partial class DraggableItemUI
             return;
         }
 
-        float normalizedProgress = _searchDurationSeconds <= 0f
+        float normalizedProgress = SearchDurationSeconds <= 0f
             ? 1f
-            : Mathf.Clamp01(_searchProgressSeconds / _searchDurationSeconds);
+            : Mathf.Clamp01(SearchProgressSeconds / SearchDurationSeconds);
         float revealNormalized = _isRevealAnimating
             ? Mathf.Clamp01(_revealAnimationTimer / RevealAnimationDuration)
             : 0f;

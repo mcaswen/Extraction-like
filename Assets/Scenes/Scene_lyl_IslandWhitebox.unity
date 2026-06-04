@@ -30523,6 +30523,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 248252122}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &249063405 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7132443590908258311, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c695a12a4321cbc4aa0dbda5a2d03d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!21 &249833566
 Material:
   serializedVersion: 8
@@ -61406,6 +61418,18 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &524981331 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5706930578458179768, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c695a12a4321cbc4aa0dbda5a2d03d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &527691476
 GameObject:
   m_ObjectHideFlags: 0
@@ -66718,6 +66742,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 569888071}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &570555046 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3091931874543559650, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c695a12a4321cbc4aa0dbda5a2d03d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &571172391
 GameObject:
   m_ObjectHideFlags: 0
@@ -96824,18 +96860,6 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &838511624 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6386871290061556358, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
-    type: 3}
-  m_PrefabInstance: {fileID: 1464816305}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f87fc634ff8f6441a97338e574c93ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!21 &841178959
 Material:
   serializedVersion: 8
@@ -108031,12 +108055,20 @@ MonoBehaviour:
   _waypoints:
   - _point: {fileID: 98479597}
     _waitTimeOverride: 3
+    _lookTarget: {fileID: 0}
+    _waitScanArcOverride: -1
   - _point: {fileID: 472042320}
     _waitTimeOverride: -1
+    _lookTarget: {fileID: 0}
+    _waitScanArcOverride: -1
   - _point: {fileID: 1199922254}
     _waitTimeOverride: -1
+    _lookTarget: {fileID: 0}
+    _waitScanArcOverride: -1
   - _point: {fileID: 1187175755}
     _waitTimeOverride: 2
+    _lookTarget: {fileID: 0}
+    _waitScanArcOverride: -1
   _defaultNavMeshSampleRadius: 2
   _drawGizmos: 1
   _gizmoColor: {r: 0.25, g: 0.75, b: 1, a: 1}
@@ -134731,6 +134763,18 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &1174110847 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8988462060792786341, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c695a12a4321cbc4aa0dbda5a2d03d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1175405398
 GameObject:
   m_ObjectHideFlags: 0
@@ -184517,9 +184561,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RigSlot: {fileID: 1236072301}
   BackpackSlot: {fileID: 740280942}
+  HeadSlot: {fileID: 1744995518}
+  BodySlot: {fileID: 1174110847}
+  FaceSlot: {fileID: 249063405}
+  HeadphoneSlot: {fileID: 2094485609}
+  TotemSlotA: {fileID: 570555046}
+  TotemSlotB: {fileID: 524981331}
+  DefaultBackpackItem: {fileID: 11400000, guid: 6388c80b76012354d8945571cab34f49,
+    type: 2}
   InventoryPanel: {fileID: 1514012575}
   PocketGrid: {fileID: 1954428097}
-  TacticalRigGrid: {fileID: 838511624}
+  TacticalRigGrid: {fileID: 1981060023}
   BackpackGrid: {fileID: 2094775261}
   LootChestGrid: {fileID: 1454468368}
 --- !u!4 &1602670012
@@ -201896,6 +201948,18 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &1744995518 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1368068285287031627, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c695a12a4321cbc4aa0dbda5a2d03d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1745588382
 GameObject:
   m_ObjectHideFlags: 0
@@ -231598,6 +231662,18 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &1981060023 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 708573841619759276, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f87fc634ff8f6441a97338e574c93ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!21 &1981757524
 Material:
   serializedVersion: 8
@@ -245429,6 +245505,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2094019792}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2094485609 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1100976302163278933, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1464816305}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c695a12a4321cbc4aa0dbda5a2d03d7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2094531680
 GameObject:
   m_ObjectHideFlags: 0

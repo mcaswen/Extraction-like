@@ -17,14 +17,33 @@ public class LootGenerationEntry
 }
 
 /// <summary>
+/// 场景资源箱对应桌游资源点的资源等级
+/// </summary>
+public enum SceneResourceTier
+{
+    Low,
+    Medium,
+    High
+}
+
+/// <summary>
+/// 场景资源箱的桌游式搜索状态
+/// </summary>
+public enum SceneResourceStateType
+{
+    Unsearched,
+    Searching,
+    PartiallySearched,
+    SearchCompleted,
+    Looted
+}
+
+/// <summary>
 /// 场景中的可交互容器实体
 /// 支持在生成时预计算战利品列表，并提前完成二维装箱
 /// </summary>
 public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractable
 {
-    private const bool EnableLootBoxDebug = true;
-    private static readonly Color ChestWhite = new Color(0.96f, 0.96f, 0.98f, 1f);
-
     [Header("Loot Box")]
     public string BoxName = "军用物资箱";
     public InventoryItemData FirstTimeLootItem;
@@ -37,7 +56,16 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     public bool PrecalculateLootOnSpawn = true;
     public int MinLootRollCount = 3;
     public int MaxLootRollCount = 8;
+    public bool GenerateEachLootTableEntryOnce;
     public List<LootGenerationEntry> LootTable = new List<LootGenerationEntry>();
+
+    [Header("Board Game Resource Rules")]
+    public bool UseBoardGameResourceRules;
+    public SceneResourceTier ResourceTier = SceneResourceTier.Low;
+    public SceneResourceStateType ResourceState = SceneResourceStateType.Unsearched;
+    public float LowTierSearchSeconds = 3f;
+    public float MediumTierSearchSeconds = 5f;
+    public float HighTierSearchSeconds = 7f;
 
     [SerializeField]
     private List<ContainerItemSaveData> _savedItems = new List<ContainerItemSaveData>();
@@ -48,10 +76,12 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     private bool _isFirstTimeOpen = true;
     private bool _hasPrecalculatedLoot;
 
+    public bool IsBoardGameResourcePoint => UseBoardGameResourceRules;
+    public bool IsResourcePointLooted => UseBoardGameResourceRules && ResourceState == SceneResourceStateType.Looted;
+    public float SearchRequiredSeconds => ResolveSearchDurationSeconds();
+
     private void Awake()
     {
-        WhiteboxCharacterVisualUtility.ApplySolidColor(gameObject, ChestWhite);
-
         if (PrecalculateLootOnSpawn)
         {
             PrecalculateLootIfNeeded();
@@ -92,6 +122,16 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// <returns>展示给玩家的交互文案</returns>
     public string GetPromptText()
     {
+        if (UseBoardGameResourceRules)
+        {
+            RefreshResourcePointState();
+        }
+
+        if (IsResourcePointLooted)
+        {
+            return $"[F] 已搜刮 {BoxName}";
+        }
+
         return HasUnsearchedItems()
             ? $"[F] 搜索 {BoxName}"
             : $"[F] 打开 {BoxName}";
@@ -102,13 +142,19 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// </summary>
     public void Interact()
     {
-        if (InventoryScreenController.Instance == null || InventoryScreenController.Instance.IsInventoryOpen)
+        if (UseBoardGameResourceRules)
         {
-            LogDebug($"Interact blocked. InventoryController={(InventoryScreenController.Instance != null)} IsInventoryOpen={(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)}");
+            RefreshResourcePointState();
+        }
+
+        if (InventoryScreenController.Instance == null ||
+            InventoryScreenController.Instance.IsInventoryOpen ||
+            IsResourcePointLooted)
+        {
             return;
         }
 
-        LogDebug("Interact accepted. Opening loot box UI.");
+        MarkResourceSearchStarted();
         InventoryScreenController.Instance.OpenLootBox(this);
     }
 
@@ -150,7 +196,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         _savedCellStates = CloneCellStateList(cellStates);
         _hasPrecalculatedLoot = true;
         _isFirstTimeOpen = false;
-        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyResourceCompleted(gameObject);
+        RefreshResourceStateFromSavedItems();
         Debug.Log($"[{BoxName}] Saved {_savedItems.Count} items.");
     }
 
@@ -193,11 +239,60 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         _savedCellStates = new List<ContainerCellStateSaveData>();
         _hasPrecalculatedLoot = true;
         _isFirstTimeOpen = false;
+        RefreshResourceStateFromSavedItems();
+    }
+
+    /// <summary>
+    /// 查询该资源箱是否仍可作为资源点被搜索或打开
+    /// </summary>
+    /// <returns>是否仍有待处理资源</returns>
+    public bool CanBeSearchedAsResourcePoint()
+    {
+        if (!gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        PrecalculateLootIfNeeded();
+
+        if (!UseBoardGameResourceRules)
+        {
+            return _savedItems.Count > 0;
+        }
+
+        return ResourceState != SceneResourceStateType.Looted && _savedItems.Count > 0;
+    }
+
+    /// <summary>
+    /// 刷新资源点状态；供目标系统在背包关闭后同步箱子是否已经被清空
+    /// </summary>
+    public void RefreshResourcePointState()
+    {
+        PrecalculateLootIfNeeded();
+        RefreshResourceStateFromSavedItems();
+    }
+
+    /// <summary>
+    /// 将资源点强制标为已搜刮
+    /// </summary>
+    public void MarkResourcePointLooted()
+    {
+        if (!UseBoardGameResourceRules)
+        {
+            return;
+        }
+
+        ResourceState = SceneResourceStateType.Looted;
     }
 
     // 生成本次容器应包含的战利品候选列表
     private List<ContainerItemSaveData> GenerateLootCandidates()
     {
+        if (UseBoardGameResourceRules)
+        {
+            return GenerateBoardGameResourceLootCandidates();
+        }
+
         List<ContainerItemSaveData> generatedLoot = new List<ContainerItemSaveData>();
 
         if (_isFirstTimeOpen && FirstTimeLootItem != null)
@@ -207,6 +302,12 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
         if (LootTable != null && LootTable.Count > 0)
         {
+            if (GenerateEachLootTableEntryOnce)
+            {
+                AddEachLootTableEntryOnce(generatedLoot);
+                return generatedLoot;
+            }
+
             int rollCount = Random.Range(MinLootRollCount, MaxLootRollCount + 1);
             for (int i = 0; i < rollCount; i++)
             {
@@ -224,6 +325,51 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         }
 
         return generatedLoot;
+    }
+
+    // 按旧桌游资源点规则生成箱内候选物资：不同资源等级使用不同 roll 数和稀有度权重
+    private List<ContainerItemSaveData> GenerateBoardGameResourceLootCandidates()
+    {
+        List<ContainerItemSaveData> generatedLoot = new List<ContainerItemSaveData>();
+        int rollCount = ResolveBoardGameRollCount();
+
+        for (int i = 0; i < rollCount; i++)
+        {
+            LootGenerationEntry entry = RollBoardGameResourceEntry();
+            if (entry == null || entry.ItemData == null)
+            {
+                continue;
+            }
+
+            int amount = entry.ItemData.IsStackable
+                ? Random.Range(Mathf.Max(1, entry.MinAmount), Mathf.Max(entry.MinAmount, entry.MaxAmount) + 1)
+                : 1;
+            generatedLoot.Add(CreateGeneratedLoot(entry.ItemData, amount));
+        }
+
+        return generatedLoot;
+    }
+
+    // Adds every configured entry once for deterministic test boxes.
+    private void AddEachLootTableEntryOnce(List<ContainerItemSaveData> generatedLoot)
+    {
+        foreach (LootGenerationEntry entry in LootTable)
+        {
+            if (entry == null || entry.ItemData == null || entry.Weight <= 0)
+            {
+                continue;
+            }
+
+            if (Random.value > entry.SpawnChance)
+            {
+                continue;
+            }
+
+            int amount = entry.ItemData.IsStackable
+                ? Random.Range(Mathf.Max(1, entry.MinAmount), Mathf.Max(entry.MinAmount, entry.MaxAmount) + 1)
+                : 1;
+            generatedLoot.Add(CreateGeneratedLoot(entry.ItemData, amount));
+        }
     }
 
     // 根据权重和概率从掉落表里选出一次实际掉落项
@@ -267,6 +413,209 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return candidates[candidates.Count - 1];
     }
 
+    // 先按资源等级抽稀有度，再从箱子当前 LootTable 里抽同稀有度的实际物品
+    private LootGenerationEntry RollBoardGameResourceEntry()
+    {
+        if (LootTable == null || LootTable.Count <= 0)
+        {
+            return null;
+        }
+
+        if (!TryRollBoardGameRarity(out ItemRarity rarity))
+        {
+            return RollLootEntry();
+        }
+
+        return RollLootEntryByRarity(rarity) ?? RollLootEntry();
+    }
+
+    private bool TryRollBoardGameRarity(out ItemRarity rarity)
+    {
+        rarity = ItemRarity.Common;
+        float commonWeight = 0f;
+        float uncommonWeight = 0f;
+        float rareWeight = 0f;
+        float epicWeight = 0f;
+        float legendaryWeight = 0f;
+
+        switch (ResourceTier)
+        {
+            case SceneResourceTier.Low:
+                commonWeight = 45f;
+                uncommonWeight = 35f;
+                rareWeight = 20f;
+                break;
+            case SceneResourceTier.Medium:
+                commonWeight = 10f;
+                uncommonWeight = 40f;
+                rareWeight = 35f;
+                epicWeight = 15f;
+                break;
+            case SceneResourceTier.High:
+                uncommonWeight = 30f;
+                rareWeight = 30f;
+                epicWeight = 25f;
+                legendaryWeight = 15f;
+                break;
+        }
+
+        return TryPickAvailableRarity(
+            commonWeight,
+            uncommonWeight,
+            rareWeight,
+            epicWeight,
+            legendaryWeight,
+            out rarity);
+    }
+
+    private bool TryPickAvailableRarity(
+        float commonWeight,
+        float uncommonWeight,
+        float rareWeight,
+        float epicWeight,
+        float legendaryWeight,
+        out ItemRarity rarity)
+    {
+        rarity = ItemRarity.Common;
+        float totalWeight = 0f;
+        totalWeight += HasLootEntryForRarity(ItemRarity.Common) ? Mathf.Max(0f, commonWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(ItemRarity.Uncommon) ? Mathf.Max(0f, uncommonWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(ItemRarity.Rare) ? Mathf.Max(0f, rareWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(ItemRarity.Epic) ? Mathf.Max(0f, epicWeight) : 0f;
+        totalWeight += HasLootEntryForRarity(ItemRarity.Legendary) ? Mathf.Max(0f, legendaryWeight) : 0f;
+
+        if (totalWeight <= Mathf.Epsilon)
+        {
+            return false;
+        }
+
+        float roll = Random.Range(0f, totalWeight);
+        float cursor = 0f;
+
+        if (TryAdvanceRarityRoll(ItemRarity.Common, commonWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(ItemRarity.Uncommon, uncommonWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(ItemRarity.Rare, rareWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(ItemRarity.Epic, epicWeight, roll, ref cursor, out rarity) ||
+            TryAdvanceRarityRoll(ItemRarity.Legendary, legendaryWeight, roll, ref cursor, out rarity))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryAdvanceRarityRoll(
+        ItemRarity candidateRarity,
+        float weight,
+        float roll,
+        ref float cursor,
+        out ItemRarity rarity)
+    {
+        rarity = ItemRarity.Common;
+        if (weight <= 0f || !HasLootEntryForRarity(candidateRarity))
+        {
+            return false;
+        }
+
+        cursor += weight;
+        if (roll > cursor)
+        {
+            return false;
+        }
+
+        rarity = candidateRarity;
+        return true;
+    }
+
+    private bool HasLootEntryForRarity(ItemRarity rarity)
+    {
+        if (LootTable == null)
+        {
+            return false;
+        }
+
+        foreach (LootGenerationEntry entry in LootTable)
+        {
+            if (entry != null &&
+                entry.ItemData != null &&
+                entry.Weight > 0 &&
+                entry.ItemData.Rarity == rarity)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private LootGenerationEntry RollLootEntryByRarity(ItemRarity rarity)
+    {
+        List<LootGenerationEntry> candidates = new List<LootGenerationEntry>();
+        int totalWeight = 0;
+
+        foreach (LootGenerationEntry entry in LootTable)
+        {
+            if (entry == null ||
+                entry.ItemData == null ||
+                entry.Weight <= 0 ||
+                entry.ItemData.Rarity != rarity)
+            {
+                continue;
+            }
+
+            candidates.Add(entry);
+            totalWeight += entry.Weight;
+        }
+
+        if (candidates.Count == 0 || totalWeight <= 0)
+        {
+            return null;
+        }
+
+        int randomWeight = Random.Range(0, totalWeight);
+        int currentWeight = 0;
+        foreach (LootGenerationEntry entry in candidates)
+        {
+            currentWeight += entry.Weight;
+            if (randomWeight < currentWeight)
+            {
+                return entry;
+            }
+        }
+
+        return candidates[candidates.Count - 1];
+    }
+
+    private int ResolveBoardGameRollCount()
+    {
+        switch (ResourceTier)
+        {
+            case SceneResourceTier.Low:
+                return Random.Range(1, 4);
+            case SceneResourceTier.Medium:
+                return Random.Range(2, 5);
+            case SceneResourceTier.High:
+                return Random.Range(3, 6);
+            default:
+                return Random.Range(1, 4);
+        }
+    }
+
+    private float ResolveSearchDurationSeconds()
+    {
+        switch (ResourceTier)
+        {
+            case SceneResourceTier.Low:
+                return Mathf.Max(0.1f, LowTierSearchSeconds);
+            case SceneResourceTier.Medium:
+                return Mathf.Max(0.1f, MediumTierSearchSeconds);
+            case SceneResourceTier.High:
+                return Mathf.Max(0.1f, HighTierSearchSeconds);
+            default:
+                return Mathf.Max(0.1f, LowTierSearchSeconds);
+        }
+    }
+
     // 把配置项转换为可直接进入容器的运行时快照，并附带搜索状态
     private static ContainerItemSaveData CreateGeneratedLoot(InventoryItemData itemData, int amount)
     {
@@ -304,14 +653,57 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         return false;
     }
 
-    private void LogDebug(string message)
+    private void MarkResourceSearchStarted()
     {
-        if (!EnableLootBoxDebug)
+        if (!UseBoardGameResourceRules || ResourceState == SceneResourceStateType.Looted)
         {
             return;
         }
 
-        Debug.Log($"[LootBoxDebug:{BoxName}] {message}");
+        ResourceState = HasUnsearchedItems()
+            ? SceneResourceStateType.Searching
+            : SceneResourceStateType.SearchCompleted;
+    }
+
+    private void RefreshResourceStateFromSavedItems()
+    {
+        if (!UseBoardGameResourceRules)
+        {
+            return;
+        }
+
+        if (_savedItems == null || _savedItems.Count <= 0)
+        {
+            ResourceState = SceneResourceStateType.Looted;
+            return;
+        }
+
+        bool hasUnsearchedItem = false;
+        bool hasSearchProgress = false;
+
+        foreach (ContainerItemSaveData item in _savedItems)
+        {
+            if (item == null || !item.RequiresSearch || item.IsSearched)
+            {
+                continue;
+            }
+
+            hasUnsearchedItem = true;
+            if (item.SearchProgressSeconds > 0f)
+            {
+                hasSearchProgress = true;
+            }
+        }
+
+        if (!hasUnsearchedItem)
+        {
+            ResourceState = SceneResourceStateType.SearchCompleted;
+            return;
+        }
+
+        ResourceState = hasSearchProgress
+            ? SceneResourceStateType.PartiallySearched
+            : SceneResourceStateType.Unsearched;
     }
 
     // 深拷贝物品快照列表，防止外部直接改写容器内部缓存

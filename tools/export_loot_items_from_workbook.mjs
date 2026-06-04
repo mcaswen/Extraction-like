@@ -25,7 +25,14 @@ function cleanCell(value) {
 
 function toTsv(rows) {
   return rows
-    .map((row) => row.map((value) => cleanCell(value)).join("\t"))
+    .map((row) => {
+      const cleaned = row.map((value) => cleanCell(value));
+      while (cleaned.length > 0 && cleaned[cleaned.length - 1] === "") {
+        cleaned.pop();
+      }
+
+      return cleaned.join("\t");
+    })
     .join("\r\n");
 }
 
@@ -33,22 +40,22 @@ const input = await FileBlob.load(workbookPath);
 const workbook = await SpreadsheetFile.importXlsx(input);
 const sheet = workbook.worksheets.getItem(sheetName);
 
-const rarityRange = sheet.getRange(`D${dataStartRow}:D${maxRows}`);
+const rarityRange = sheet.getRange(`E${dataStartRow}:E${maxRows}`);
 rarityRange.conditionalFormats.deleteAll();
 for (const [rarity, color] of Object.entries(rarityColors)) {
-  rarityRange.conditionalFormats.addCustom(`=$D${dataStartRow}="${rarity}"`, {
+  rarityRange.conditionalFormats.addCustom(`=$E${dataStartRow}="${rarity}"`, {
     fill: color,
     font: { color: "#111827", bold: true },
   });
 }
 
-for (const column of ["I", "J", "K"]) {
+for (const column of ["J", "K", "L"]) {
   const range = sheet.getRange(`${column}${dataStartRow}:${column}${maxRows}`);
   range.clear({ applyTo: "contents" });
   range.dataValidation = null;
 }
 
-const rawValues = sheet.getRange(`A1:R${maxRows}`).values;
+const rawValues = sheet.getRange(`A1:S${maxRows}`).values;
 const headers = rawValues[0].map(cleanCell);
 const dataRows = rawValues
   .slice(dataStartRow - 1)
@@ -59,10 +66,11 @@ const dataRows = rawValues
       normalized.push("");
     }
 
-    if (cleanCell(normalized[2]).toLowerCase() === "other") {
-      normalized[8] = "";
+    const typeText = cleanCell(normalized[2]).toLowerCase();
+    if (typeText === "other" || typeText === "equipment") {
       normalized[9] = "";
       normalized[10] = "";
+      normalized[11] = "";
     }
 
     return normalized;

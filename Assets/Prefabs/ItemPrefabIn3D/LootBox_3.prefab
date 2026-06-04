@@ -143,4 +143,10 @@ MonoBehaviour:
     MinAmount: 1
     MaxAmount: 1
     SpawnChance: 1
+  UseBoardGameResourceRules: 1
+  ResourceTier: 2
+  ResourceState: 0
+  LowTierSearchSeconds: 3
+  MediumTierSearchSeconds: 5
+  HighTierSearchSeconds: 7
   _savedCellStates: []

@@ -15,6 +15,7 @@ public class InventoryGridController : MonoBehaviour
     public List<Vector2Int> BlockedCells = new List<Vector2Int>();
 
     private readonly InventoryGridModel _model = new InventoryGridModel();
+    private InventoryUIController _ownerView;
 
     public GridCellData[,] _grid => _model.Cells;
 
@@ -99,7 +100,8 @@ public class InventoryGridController : MonoBehaviour
     {
         InitializeGridIfNeeded();
         GetItemFootprint(itemUI, isRotated, out int width, out int height);
-        _model.PlaceItem(itemUI, startX, startY, width, height, isRotated);
+        _model.PlaceItem(itemUI.RuntimeState, startX, startY, width, height, isRotated);
+        GetOwnerView()?.RegisterItemPlacement(itemUI, new Vector2Int(startX, startY), isRotated);
     }
 
     /// <summary>
@@ -114,6 +116,7 @@ public class InventoryGridController : MonoBehaviour
         InitializeGridIfNeeded();
         GetItemFootprint(itemUI, isRotated, out int width, out int height);
         _model.RemoveItem(startX, startY, width, height);
+        GetOwnerView()?.UnregisterItem(itemUI);
     }
 
     /// <summary>
@@ -129,9 +132,10 @@ public class InventoryGridController : MonoBehaviour
         InitializeGridIfNeeded();
 
         HashSet<DraggableItemUI> foundItems = new HashSet<DraggableItemUI>();
-        foreach (IInventoryItemView itemView in _model.GetItemsInArea(startX, startY, width, height))
+        InventoryUIController ownerView = GetOwnerView();
+        foreach (InventoryItemRuntimeState itemState in _model.GetItemsInArea(startX, startY, width, height))
         {
-            if (itemView is DraggableItemUI itemUI)
+            if (ownerView != null && ownerView.TryGetItemView(itemState, out DraggableItemUI itemUI))
             {
                 foundItems.Add(itemUI);
             }
@@ -175,6 +179,17 @@ public class InventoryGridController : MonoBehaviour
     {
         width = isRotated ? itemUI.ItemData.Height : itemUI.ItemData.Width;
         height = isRotated ? itemUI.ItemData.Width : itemUI.ItemData.Height;
+    }
+
+    // 查找当前网格所属的视图控制器，用于同步容器运行时数据源
+    private InventoryUIController GetOwnerView()
+    {
+        if (_ownerView == null)
+        {
+            _ownerView = GetComponent<InventoryUIController>();
+        }
+
+        return _ownerView;
     }
 }
 
@@ -312,7 +327,7 @@ public sealed class InventoryGridModel
             }
 
             cell.State = cellState.State;
-            cell.OccupyingItemView = null;
+            cell.OccupyingItemState = null;
             cell.IsItemRotated = false;
         }
     }
@@ -357,15 +372,15 @@ public sealed class InventoryGridModel
     }
 
     /// <summary>
-    /// 把指定视图写入矩形区域占用状态
+    /// 把指定物品状态写入矩形区域占用状态
     /// </summary>
-    /// <param name="itemView">要记录到格子中的物品视图</param>
+    /// <param name="itemState">要记录到格子中的物品状态</param>
     /// <param name="startX">起始横坐标</param>
     /// <param name="startY">起始纵坐标</param>
     /// <param name="width">占格宽度</param>
     /// <param name="height">占格高度</param>
     /// <param name="isRotated">是否处于旋转放置状态</param>
-    public void PlaceItem(IInventoryItemView itemView, int startX, int startY, int width, int height, bool isRotated)
+    public void PlaceItem(InventoryItemRuntimeState itemState, int startX, int startY, int width, int height, bool isRotated)
     {
         if (_cells == null)
         {
@@ -377,7 +392,7 @@ public sealed class InventoryGridModel
             for (int y = startY; y < startY + height; y++)
             {
                 _cells[x, y].State = GridState.OccupiedItem;
-                _cells[x, y].OccupyingItemView = itemView;
+                _cells[x, y].OccupyingItemState = itemState;
                 _cells[x, y].IsItemRotated = isRotated;
             }
         }
@@ -415,16 +430,16 @@ public sealed class InventoryGridModel
     }
 
     /// <summary>
-    /// 收集指定区域内所有命中的物品视图
+    /// 收集指定区域内所有命中的物品运行时状态
     /// </summary>
     /// <param name="startX">起始横坐标</param>
     /// <param name="startY">起始纵坐标</param>
     /// <param name="width">查询宽度</param>
     /// <param name="height">查询高度</param>
-    /// <returns>命中的物品视图集合</returns>
-    public HashSet<IInventoryItemView> GetItemsInArea(int startX, int startY, int width, int height)
+    /// <returns>命中的物品运行时状态集合</returns>
+    public HashSet<InventoryItemRuntimeState> GetItemsInArea(int startX, int startY, int width, int height)
     {
-        HashSet<IInventoryItemView> foundItems = new HashSet<IInventoryItemView>();
+        HashSet<InventoryItemRuntimeState> foundItems = new HashSet<InventoryItemRuntimeState>();
         if (_cells == null)
         {
             return foundItems;
@@ -439,9 +454,9 @@ public sealed class InventoryGridModel
         {
             for (int y = minY; y < maxY; y++)
             {
-                if (_cells[x, y].State == GridState.OccupiedItem && _cells[x, y].OccupyingItemView != null)
+                if (_cells[x, y].State == GridState.OccupiedItem && _cells[x, y].OccupyingItemState != null)
                 {
-                    foundItems.Add(_cells[x, y].OccupyingItemView);
+                    foundItems.Add(_cells[x, y].OccupyingItemState);
                 }
             }
         }
@@ -543,7 +558,7 @@ public sealed class InventoryGridModel
             }
 
             _cells[blockedCell.x, blockedCell.y].State = GridState.Blocked;
-            _cells[blockedCell.x, blockedCell.y].OccupyingItemView = null;
+            _cells[blockedCell.x, blockedCell.y].OccupyingItemState = null;
             _cells[blockedCell.x, blockedCell.y].IsItemRotated = false;
         }
     }

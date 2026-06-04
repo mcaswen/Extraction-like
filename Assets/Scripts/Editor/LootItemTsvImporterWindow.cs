@@ -214,6 +214,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
             "ItemID",
             "ItemName",
             "Type",
+            "EquipmentKind",
             "Rarity",
             "Width",
             "Height",
@@ -273,6 +274,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
                 ItemId = GetCell(cells, headerIndexes, "ItemID").Trim(),
                 ItemName = GetCell(cells, headerIndexes, "ItemName").Trim(),
                 TypeText = GetCell(cells, headerIndexes, "Type").Trim(),
+                EquipmentKindText = GetCell(cells, headerIndexes, "EquipmentKind").Trim(),
                 RarityText = GetCell(cells, headerIndexes, "Rarity").Trim(),
                 WidthText = GetCell(cells, headerIndexes, "Width").Trim(),
                 HeightText = GetCell(cells, headerIndexes, "Height").Trim(),
@@ -285,6 +287,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
                 SearchDurationOverrideText = GetCell(cells, headerIndexes, "SearchDurationOverride").Trim(),
                 MagicUnlockText = GetCell(cells, headerIndexes, "MagicUnlock").Trim(),
                 RunePatternPointsText = GetCell(cells, headerIndexes, "RunePatternPoints").Trim(),
+                CarryWeightText = GetOptionalCell(cells, headerIndexes, "CarryWeight", "1").Trim(),
                 SellPriceText = GetCell(cells, headerIndexes, "SellPrice").Trim(),
                 Notes = GetCell(cells, headerIndexes, "Notes").Trim()
             };
@@ -333,7 +336,12 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
 
         if (!TryParseItemType(row.TypeText, out row.Type))
         {
-            report.Errors.Add($"Row {row.RowNumber}: Type must be Bag/Rig/Other or 背包/胸挂/其他.");
+            report.Errors.Add($"Row {row.RowNumber}: Type must be Bag/Rig/Equipment/Other or 背包/胸挂/装备/其他.");
+        }
+
+        if (!TryParseEquipmentKind(row.EquipmentKindText, out row.EquipmentKind))
+        {
+            report.Errors.Add($"Row {row.RowNumber}: Invalid EquipmentKind '{row.EquipmentKindText}'.");
         }
 
         if (!Enum.TryParse(row.RarityText, ignoreCase: true, out row.Rarity))
@@ -366,6 +374,24 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
             report.Errors.Add($"Row {row.RowNumber}: MaxStack must be 1 when IsStackable is No.");
         }
 
+        bool isEquipment = row.Type == ItemType.Equipment;
+        if (isEquipment)
+        {
+            if (row.EquipmentKind == EquipmentSlotKind.None)
+            {
+                report.Errors.Add($"Row {row.RowNumber}: EquipmentKind is required when Type is Equipment.");
+            }
+        }
+        else
+        {
+            if (row.EquipmentKind != EquipmentSlotKind.None)
+            {
+                report.Errors.Add($"Row {row.RowNumber}: EquipmentKind must be None or blank when Type is not Equipment.");
+            }
+
+            row.EquipmentKind = EquipmentSlotKind.None;
+        }
+
         bool isContainer = row.Type == ItemType.Bag || row.Type == ItemType.Rig;
         if (isContainer)
         {
@@ -383,7 +409,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         {
             if (!string.IsNullOrWhiteSpace(row.ContainerColumnsText) || !string.IsNullOrWhiteSpace(row.ContainerRowsText))
             {
-                report.Errors.Add($"Row {row.RowNumber}: ContainerColumns and ContainerRows must be blank when Type is Other.");
+                report.Errors.Add($"Row {row.RowNumber}: ContainerColumns and ContainerRows must be blank unless Type is Bag or Rig.");
             }
 
             row.ContainerColumns = 0;
@@ -420,6 +446,12 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
             report.Errors.Add($"Row {row.RowNumber}: RunePatternPoints must be at least 1.");
         }
 
+        if (!float.TryParse(row.CarryWeightText, NumberStyles.Float, CultureInfo.InvariantCulture, out row.CarryWeight) ||
+            row.CarryWeight < 0f)
+        {
+            report.Errors.Add($"Row {row.RowNumber}: CarryWeight must be a non-negative number.");
+        }
+
         if (!TryParseWhole(row.SellPriceText, out row.SellPrice) || row.SellPrice < 0)
         {
             report.Errors.Add($"Row {row.RowNumber}: SellPrice must be a non-negative whole number.");
@@ -454,6 +486,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         itemData.ItemID = row.ItemId;
         itemData.ItemName = row.ItemName;
         itemData.Type = row.Type;
+        itemData.EquipmentKind = row.EquipmentKind;
         itemData.Rarity = row.Rarity;
         itemData.Width = row.Width;
         itemData.Height = row.Height;
@@ -466,6 +499,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         itemData.SearchDurationOverride = row.SearchDurationOverride;
         itemData.MagicUnlock = row.MagicUnlock;
         itemData.RunePatternPoints = row.RunePatternPoints;
+        itemData.CarryWeight = row.CarryWeight;
         itemData.SellPrice = row.SellPrice;
 
         if (!hadNonDefaultIcon && defaultIcon != null)
@@ -702,6 +736,13 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
             return true;
         }
 
+        if (string.Equals(normalized, "Equipment", StringComparison.OrdinalIgnoreCase) ||
+            normalized == "装备")
+        {
+            type = ItemType.Equipment;
+            return true;
+        }
+
         if (string.Equals(normalized, "Other", StringComparison.OrdinalIgnoreCase) ||
             normalized == "其他")
         {
@@ -711,6 +752,18 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
 
         type = ItemType.Junk;
         return false;
+    }
+
+    private static bool TryParseEquipmentKind(string value, out EquipmentSlotKind kind)
+    {
+        string normalized = (value ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            kind = EquipmentSlotKind.None;
+            return true;
+        }
+
+        return Enum.TryParse(normalized, ignoreCase: true, out kind);
     }
 
     private static bool TryParseBoolean(string value, out bool result)
@@ -761,7 +814,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
 
         if (!isContainer)
         {
-            error = "BlockedCells must be blank when Type is Other.";
+            error = "BlockedCells must be blank unless Type is Bag or Rig.";
             return false;
         }
 
@@ -855,6 +908,21 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         }
 
         return cells[index];
+    }
+
+    private static string GetOptionalCell(
+        List<string> cells,
+        Dictionary<string, int> headerIndexes,
+        string header,
+        string defaultValue)
+    {
+        if (!headerIndexes.ContainsKey(header))
+        {
+            return defaultValue;
+        }
+
+        string value = GetCell(cells, headerIndexes, header);
+        return string.IsNullOrWhiteSpace(value) ? defaultValue : value;
     }
 
     private static void EnsureAssetFolder(string assetFolder)
@@ -971,6 +1039,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public string ItemId;
         public string ItemName;
         public string TypeText;
+        public string EquipmentKindText;
         public string RarityText;
         public string WidthText;
         public string HeightText;
@@ -983,9 +1052,11 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public string SearchDurationOverrideText;
         public string MagicUnlockText;
         public string RunePatternPointsText;
+        public string CarryWeightText;
         public string SellPriceText;
         public string Notes;
         public ItemType Type;
+        public EquipmentSlotKind EquipmentKind;
         public ItemRarity Rarity;
         public int Width;
         public int Height;
@@ -998,6 +1069,7 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public float SearchDurationOverride;
         public MagicUnlockType MagicUnlock;
         public int RunePatternPoints;
+        public float CarryWeight = 1f;
         public int SellPrice;
     }
 
