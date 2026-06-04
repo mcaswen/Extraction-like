@@ -25,7 +25,7 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 判断是否可以进入搜索资源状态
-        /// 条件：有资源目标 + 未死亡 + 没有可见敌人 + 不应该撤离
+        /// 条件：有资源目标 + 未死亡 + 没有可见敌人 + 不应该撤离 + 没有待处理的玩家指令
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -35,13 +35,14 @@ namespace Gameplay.Agent.AI.Factories
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+            bool hasPendingDirective = GetBool(context, AgentBlackboardKeys.HasPendingDirective);
 
-            return !isDead && hasResourceTarget && !hasVisibleEnemy && !shouldExtract;
+            return !isDead && hasResourceTarget && !hasVisibleEnemy && !shouldExtract && !hasPendingDirective;
         }
 
         /// <summary>
         /// 判断是否可以进入交互/拾取状态
-        /// 条件：有可交互目标 + 未死亡
+        /// 条件：有可交互目标 + 未死亡 + 没有待处理的玩家指令
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -49,8 +50,9 @@ namespace Gameplay.Agent.AI.Factories
         {
             bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+            bool hasPendingDirective = GetBool(context, AgentBlackboardKeys.HasPendingDirective);
 
-            return !isDead && hasInteractableTarget;
+            return !isDead && hasInteractableTarget && !hasPendingDirective;
         }
 
         /// <summary>
@@ -65,6 +67,20 @@ namespace Gameplay.Agent.AI.Factories
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && shouldExtract;
+        }
+
+        /// <summary>
+        /// 判断是否可以进入玩家干预/指令状态 (最高优先级)
+        /// 条件：黑板上有待处理的指令 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanEnterDirective(StateMachineContext context)
+        {
+            bool hasPendingDirective = GetBool(context, AgentBlackboardKeys.HasPendingDirective);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+
+            return !isDead && hasPendingDirective;
         }
 
         /// <summary>

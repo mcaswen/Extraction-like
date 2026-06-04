@@ -181,7 +181,7 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
 
         Text label = labelObject.GetComponent<Text>();
         label.text = $"{_toggleLabel} [{_toggleKey}]";
-        label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         label.fontSize = 15;
         label.alignment = TextAnchor.MiddleLeft;
         label.color = new Color(0.92f, 0.98f, 1f, 0.96f);
