@@ -26,6 +26,9 @@ namespace Gameplay.Targets.Authoring
         [SerializeField] private float _rangeLineWidth = 0.18f;
         [SerializeField] private LineRenderer _rangeLineRenderer;
 
+        [Header("Collider Range Override")]
+        [SerializeField] private GameObject _rangeColliderTarget;
+
         [Header("Ground Projection")]
         [SerializeField] private float _groundProbeHeight = 20f;
         [SerializeField] private float _groundProbeDistance = 80f;
@@ -194,6 +197,9 @@ namespace Gameplay.Targets.Authoring
         // 根据子群位置生成区域轮廓，并将结果投射到地面
         private void BuildRangeShape()
         {
+            if (TryBuildColliderRangeShape())
+                return;
+
             CollectSourcePoints();
 
             GameplayTargetShapeUtility.BuildSmoothRange(
@@ -206,9 +212,75 @@ namespace Gameplay.Targets.Authoring
                 _rangePoints,
                 out _cachedCenterPosition);
 
+            ProjectRangeShapeToGround(transform);
+            _hasCachedShape = true;
+        }
+
+        // 如果配置了 Collider 来源，Zone 直接使用它的水平外轮廓作为范围
+        private bool TryBuildColliderRangeShape()
+        {
+            Collider rangeCollider = ResolveRangeCollider();
+            if (rangeCollider == null)
+                return false;
+
+            _rangePoints.Clear();
+            if (rangeCollider is BoxCollider boxCollider)
+            {
+                BuildBoxColliderRangeShape(boxCollider);
+            }
+            else if (!TryBuildBoundsRangeShape(rangeCollider.bounds))
+            {
+                return false;
+            }
+
+            ProjectRangeShapeToGround(rangeCollider.transform);
+            _hasCachedShape = true;
+            return true;
+        }
+
+        private Collider ResolveRangeCollider()
+        {
+            if (_rangeColliderTarget == null)
+                return null;
+
+            if (_rangeColliderTarget.TryGetComponent(out Collider directCollider))
+                return directCollider;
+
+            return _rangeColliderTarget.GetComponentInChildren<Collider>(true);
+        }
+
+        private void BuildBoxColliderRangeShape(BoxCollider boxCollider)
+        {
+            Vector3 halfSize = boxCollider.size * 0.5f;
+            Transform colliderTransform = boxCollider.transform;
+            Vector3 localCenter = boxCollider.center;
+
+            _rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(-halfSize.x, 0f, -halfSize.z)));
+            _rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(-halfSize.x, 0f, halfSize.z)));
+            _rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(halfSize.x, 0f, halfSize.z)));
+            _rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(halfSize.x, 0f, -halfSize.z)));
+            _cachedCenterPosition = colliderTransform.TransformPoint(localCenter);
+        }
+
+        private bool TryBuildBoundsRangeShape(Bounds bounds)
+        {
+            if (bounds.size.x <= Mathf.Epsilon || bounds.size.z <= Mathf.Epsilon)
+                return false;
+
+            float y = bounds.center.y;
+            _rangePoints.Add(new Vector3(bounds.min.x, y, bounds.min.z));
+            _rangePoints.Add(new Vector3(bounds.min.x, y, bounds.max.z));
+            _rangePoints.Add(new Vector3(bounds.max.x, y, bounds.max.z));
+            _rangePoints.Add(new Vector3(bounds.max.x, y, bounds.min.z));
+            _cachedCenterPosition = bounds.center;
+            return true;
+        }
+
+        private void ProjectRangeShapeToGround(Transform groundProjectionOwner)
+        {
             _cachedCenterPosition = GameplayTargetShapeUtility.ProjectPointToGround(
                 _cachedCenterPosition,
-                transform,
+                groundProjectionOwner,
                 _groundProbeHeight,
                 _groundProbeDistance,
                 _minGroundNormalY);
@@ -218,15 +290,13 @@ namespace Gameplay.Targets.Authoring
             {
                 Vector3 point = GameplayTargetShapeUtility.ProjectPointToGround(
                     _rangePoints[i],
-                    transform,
+                    groundProjectionOwner,
                     _groundProbeHeight,
                     _groundProbeDistance,
                     _minGroundNormalY);
                 point.y += _rangeHeightOffset;
                 _rangePoints[i] = point;
             }
-
-            _hasCachedShape = true;
         }
 
         // 如果配置了 LineRenderer，则把区域轮廓同步到场景表现
