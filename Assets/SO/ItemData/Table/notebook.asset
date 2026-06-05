@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: equip_head_green
+  m_Name: notebook
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: equip_head_green
-  ItemName: "\u7EFF\u8272\u5934\u90E8\u88C5\u5907"
-  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
-  Type: 6
-  Rarity: 1
-  EquipmentKind: 1
-  Width: 2
-  Height: 2
+  ItemID: notebook
+  ItemName: "\u7B14\u8BB0"
+  ItemIcon: {fileID: 21300000, guid: 43109b9f98b2d6c41a133d4bf649c9b1, type: 3}
+  Type: 5
+  Rarity: 0
+  EquipmentKind: 0
+  Width: 1
+  Height: 1
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 3768007744566279994, guid: 556dc843b8083074a8723a78777c811a,
+  WorldPrefab: {fileID: 5683991833725172366, guid: 714a83f3bcaccf0469f8cf6c1dee1d0e,
     type: 3}
-  SellPrice: 100
+  SellPrice: 20
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

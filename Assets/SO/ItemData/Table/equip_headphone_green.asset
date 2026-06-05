@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: equip_body_blue
+  m_Name: equip_headphone_green
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: equip_body_blue
-  ItemName: "\u84DD\u8272\u8EAB\u4F53\u88C5\u5907"
-  ItemIcon: {fileID: 21300000, guid: 93a4b9187d3948f1a7e13cb1e95a62b4, type: 3}
+  ItemID: equip_headphone_green
+  ItemName: "\u7EFF\u8272\u8033\u673A"
+  ItemIcon: {fileID: 21300000, guid: 6755dfba002ce1d489e24efa64c9c900, type: 3}
   Type: 6
-  Rarity: 2
-  EquipmentKind: 2
+  Rarity: 1
+  EquipmentKind: 4
   Width: 2
-  Height: 3
+  Height: 1
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 8262942463367712726, guid: 8ec29e941cd8b214dac36aa067e29e85,
+  WorldPrefab: {fileID: 2738294803032287159, guid: 6135a2a4c3195c0449656641c61b7a90,
     type: 3}
-  SellPrice: 300
+  SellPrice: 100
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: equip_body_gold
+  m_Name: equip_body_green
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: equip_body_gold
-  ItemName: "\u91D1\u8272\u8EAB\u4F53\u88C5\u5907"
-  ItemIcon: {fileID: 21300000, guid: fd8a9e8d5a764afcb42f92681d7e31aa, type: 3}
+  ItemID: equip_body_green
+  ItemName: "\u7EFF\u8272\u8EAB\u4F53\u88C5\u5907"
+  ItemIcon: {fileID: 21300000, guid: cb230c35216860d46913575ad38a727a, type: 3}
   Type: 6
-  Rarity: 4
+  Rarity: 1
   EquipmentKind: 2
   Width: 2
   Height: 3
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 5488092810499407419, guid: 58fcd63543321734c81a579d4d1612d9,
+  WorldPrefab: {fileID: 3133649885724455237, guid: 218d5b7aa8b8f5846b44352f691fd9b4,
     type: 3}
-  SellPrice: 800
+  SellPrice: 100
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

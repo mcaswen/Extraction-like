@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: pocket_watch
+  m_Name: lesser_organic_fiber
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: pocket_watch
-  ItemName: "\u6000\u8868"
-  ItemIcon: {fileID: 21300000, guid: e77dcbb66184456db816d3eb99bf49a2, type: 3}
+  ItemID: lesser_organic_fiber
+  ItemName: "\u6B21\u7EA7\u6709\u673A\u7EA4\u7EF4"
+  ItemIcon: {fileID: 21300000, guid: bf0edec0b537f334a82c5a8b3a628356, type: 3}
   Type: 5
-  Rarity: 3
+  Rarity: 1
   EquipmentKind: 0
-  Width: 1
-  Height: 1
+  Width: 2
+  Height: 2
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 2532920044034706817, guid: 5a0469864a4f6a24780472ef3788b589,
+  WorldPrefab: {fileID: 2332406392429481475, guid: 677149a408e29b947b7bf65822489594,
     type: 3}
-  SellPrice: 400
+  SellPrice: 80
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

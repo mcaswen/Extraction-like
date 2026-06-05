@@ -10,7 +10,7 @@ using UnityEngine;
 public sealed class LootItemTsvImporterWindow : EditorWindow
 {
     private const string DefaultTsvPath = "Assets/Config/Loot/LootItems.tsv";
-    private const string ItemDataFolder = "Assets/SO/ItemData";
+    private const string ItemDataFolder = "Assets/SO/ItemData/Table";
     private const string WorldPrefabFolder = "Assets/Prefabs/ItemPrefabIn3D";
     private const string GeneratedArtFolder = "Assets/Art/Generated/Loot";
     private const string DefaultIconPath = GeneratedArtFolder + "/DefaultLootIcon.png";

@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: graphics_card
+  m_Name: uphone_phone
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: graphics_card
-  ItemName: "\u663E\u793A\u5361"
-  ItemIcon: {fileID: 21300000, guid: fd8a9e8d5a764afcb42f92681d7e31aa, type: 3}
+  ItemID: uphone_phone
+  ItemName: "uphone\u624B\u673A"
+  ItemIcon: {fileID: 21300000, guid: 31c75b67592dc2048aedede58e988881, type: 3}
   Type: 5
-  Rarity: 4
+  Rarity: 1
   EquipmentKind: 0
   Width: 1
   Height: 2
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 3130428077022011517, guid: 3700d9651e6e63f4da35c1c39a7da165,
+  WorldPrefab: {fileID: 3724057506591405500, guid: 6017bf85379209e4996ae57db636436c,
     type: 3}
-  SellPrice: 1500
+  SellPrice: 60
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

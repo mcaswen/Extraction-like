@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: organic_fiber
+  m_Name: equip_body_gold
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: organic_fiber
-  ItemName: "\u6709\u673A\u7EA4\u7EF4"
-  ItemIcon: {fileID: 21300000, guid: a4f2db1f9f5f47dca96be7d8af6f0c11, type: 3}
-  Type: 5
-  Rarity: 0
-  EquipmentKind: 0
+  ItemID: equip_body_gold
+  ItemName: "\u91D1\u8272\u8EAB\u4F53\u88C5\u5907"
+  ItemIcon: {fileID: 21300000, guid: 84bce7926d5765a40998c3dfec7de15e, type: 3}
+  Type: 6
+  Rarity: 4
+  EquipmentKind: 2
   Width: 2
-  Height: 2
+  Height: 3
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 372559211172123505, guid: b2797afb861d1ba42864335bb073733f,
+  WorldPrefab: {fileID: 5488092810499407419, guid: 58fcd63543321734c81a579d4d1612d9,
     type: 3}
-  SellPrice: 30
+  SellPrice: 800
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: equip_face_green
+  m_Name: military_radio
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: equip_face_green
-  ItemName: "\u7EFF\u8272\u9762\u90E8\u88C5\u5907"
-  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
-  Type: 6
+  ItemID: military_radio
+  ItemName: "\u519B\u7528\u5BF9\u8BB2\u673A"
+  ItemIcon: {fileID: 21300000, guid: 125c5e780a65aa243a6b04dd5ffa5792, type: 3}
+  Type: 5
   Rarity: 1
-  EquipmentKind: 3
+  EquipmentKind: 0
   Width: 1
-  Height: 1
+  Height: 2
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 7455280548881560647, guid: 03785a7df243db64a85b1fbededc0ce3,
+  WorldPrefab: {fileID: 169933293194638305, guid: 93cb04afd352c0841968c350810dde57,
     type: 3}
-  SellPrice: 100
+  SellPrice: 40
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1

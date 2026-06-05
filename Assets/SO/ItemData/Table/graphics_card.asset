@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
-  m_Name: military_radio
+  m_Name: graphics_card
   m_EditorClassIdentifier: 
   ContainerColumns: 0
   ContainerRows: 0
   BlockedCells: []
-  ItemID: military_radio
-  ItemName: "\u519B\u7528\u5BF9\u8BB2\u673A"
-  ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
+  ItemID: graphics_card
+  ItemName: "\u663E\u793A\u5361"
+  ItemIcon: {fileID: 21300000, guid: 9f250538683e08643a192f7f3dcdca87, type: 3}
   Type: 5
-  Rarity: 1
+  Rarity: 4
   EquipmentKind: 0
   Width: 1
   Height: 2
   IsStackable: 0
   MaxStack: 1
-  WorldPrefab: {fileID: 169933293194638305, guid: 93cb04afd352c0841968c350810dde57,
+  WorldPrefab: {fileID: 3130428077022011517, guid: 3700d9651e6e63f4da35c1c39a7da165,
     type: 3}
-  SellPrice: 40
+  SellPrice: 1500
   CarryWeight: 1
   RequiresSearchInLootContainer: 1
   SearchDurationOverride: -1
