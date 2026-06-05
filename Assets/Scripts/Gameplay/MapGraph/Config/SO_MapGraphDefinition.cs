@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Gameplay.MapGraph.Config
 {
@@ -58,9 +62,77 @@ namespace Gameplay.MapGraph.Config
             _startNodeId = NormalizeId(_startNodeId);
         }
 
+        [ContextMenu("Apply MVP Graph Preset")]
+        public void ApplyMvpGraphPresetToAsset()
+        {
+            Dictionary<string, MapGraphNodeDefinition> existingNodesById =
+                new Dictionary<string, MapGraphNodeDefinition>(StringComparer.Ordinal);
+
+            if (_nodes != null)
+            {
+                foreach (MapGraphNodeDefinition node in _nodes)
+                {
+                    if (node != null &&
+                        !string.IsNullOrWhiteSpace(node.NodeId) &&
+                        !existingNodesById.ContainsKey(node.NodeId))
+                    {
+                        existingNodesById.Add(node.NodeId, node);
+                    }
+                }
+            }
+
+            List<MapGraphNodeDefinition> presetNodes = new List<MapGraphNodeDefinition>();
+            foreach (MvpMapGraphNodePresetDefinition presetNode in MvpMapGraphPresetConfig.CreateNodePresets())
+            {
+                Vector2 position = presetNode.DefaultPosition;
+                Sprite icon = null;
+                existingNodesById.TryGetValue(presetNode.NodeId, out MapGraphNodeDefinition existingNode);
+                if (existingNode != null)
+                {
+                    position = existingNode.Position;
+                    icon = existingNode.Icon;
+                }
+
+                if (_nodeIconSet != null)
+                {
+                    Sprite iconSetSprite = _nodeIconSet.GetIcon(
+                        presetNode.IconKind,
+                        presetNode.ResourceTier,
+                        presetNode.DangerTier);
+                    if (iconSetSprite != null)
+                        icon = iconSetSprite;
+                }
+
+                presetNodes.Add(new MapGraphNodeDefinition(
+                    presetNode.NodeId,
+                    presetNode.NodeKind,
+                    position,
+                    presetNode.NodeId,
+                    presetNode.Description,
+                    icon,
+                    presetNode.IconKind,
+                    presetNode.ResourceTier,
+                    presetNode.DangerTier));
+            }
+
+            _mapId = MvpMapGraphPresetConfig.MapId;
+            _displayName = MvpMapGraphPresetConfig.DisplayName;
+            _startNodeId = MvpMapGraphPresetConfig.StartNodeId;
+            _nodes = presetNodes;
+            _edges = MvpMapGraphPresetConfig.CreateEdgePresets();
+            MarkDirty();
+        }
+
         private static string NormalizeId(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+        }
+
+        private void MarkDirty()
+        {
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(this);
+#endif
         }
     }
 }
