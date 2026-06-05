@@ -452,7 +452,6 @@ public class EnemyHealthController : MonoBehaviour
             return;
         }
 
-        // 没有明确攻击者的伤害退回为声音/冲击刺激，让巡逻感知系统自行判断。
         EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, transform);
     }
 
@@ -557,16 +556,6 @@ public class EnemyHealthController : MonoBehaviour
 
         GameObject lootContainerObject = Instantiate(_deathLootSettings.DeathLootContainerPrefab, spawnPosition, spawnRotation);
         WhiteboxCharacterVisualUtility.ApplySolidColor(lootContainerObject, new Color(0.96f, 0.96f, 0.98f, 1f));
-        LootBoxEntity lootBox = lootContainerObject.GetComponent<LootBoxEntity>();
-        if (lootBox == null)
-        {
-            lootBox = lootContainerObject.GetComponentInChildren<LootBoxEntity>();
-        }
-
-        if (lootBox != null)
-        {
-            lootBox.PrecalculateLootIfNeeded();
-        }
     }
 }
 
