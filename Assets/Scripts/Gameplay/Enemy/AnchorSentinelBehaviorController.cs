@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public class AnchorSentinelBehaviorController : MonoBehaviour
 {
+    /// <summary>
+    /// 锚点守卫的主行为状态。
+    /// </summary>
     public enum SentinelState
     {
         Dormant,
@@ -16,6 +19,9 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         Disabled
     }
 
+    /// <summary>
+    /// 当前守卫状态。
+    /// </summary>
     public SentinelState CurrentState = SentinelState.Dormant;
 
     [Header("Config")]
@@ -23,45 +29,125 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     private AnchorSentinelConfig _config;
 
     [Header("References")]
+    /// <summary>
+    /// 当前玩家目标。
+    /// </summary>
     public Transform PlayerTransform;
+
+    /// <summary>
+    /// 光束发射起点。
+    /// </summary>
     public Transform EyeOrigin;
+
+    /// <summary>
+    /// 锁定阶段的预警光束。
+    /// </summary>
     public LineRenderer LockBeamRenderer;
+
+    /// <summary>
+    /// 开火阶段的伤害光束。
+    /// </summary>
     public LineRenderer FiringBeamRenderer;
+
+    /// <summary>
+    /// 符文弱点数组，顺序可作为谜题顺序。
+    /// </summary>
     public AnchorSentinelRuneWeakpoint[] RuneWeakpoints;
 
+    /// <summary>
+    /// 启动时是否初始化符文弱点。
+    /// </summary>
     [HideInInspector]
     public bool AutoInitializeRunes = true;
+
+    /// <summary>
+    /// 未配置符文时是否自动生成默认符文。
+    /// </summary>
     [HideInInspector]
     public bool AutoSpawnDefaultRunes = true;
+
+    /// <summary>
+    /// 自动生成的默认符文数量。
+    /// </summary>
     [HideInInspector]
     public int DefaultRuneCount = 3;
+
+    /// <summary>
+    /// 默认符文生成半径。
+    /// </summary>
     [HideInInspector]
     public float DefaultRuneRadius = 1.8f;
+
+    /// <summary>
+    /// 默认符文生成高度。
+    /// </summary>
     [HideInInspector]
     public float DefaultRuneHeight = 1.25f;
+
+    /// <summary>
+    /// 默认符文本地缩放。
+    /// </summary>
     [HideInInspector]
     public Vector3 DefaultRuneScale = new Vector3(0.35f, 0.35f, 0.35f);
+
+    /// <summary>
+    /// 是否使用数组顺序作为符文谜题顺序。
+    /// </summary>
     [HideInInspector]
     public bool UseArrayOrderAsPuzzleSequence = true;
+
+    /// <summary>
+    /// 错误命中符文时是否立即激活守卫。
+    /// </summary>
     [HideInInspector]
     public bool WrongRuneImmediatelyActivates = true;
 
+    /// <summary>
+    /// 守卫检测玩家并保持激活的距离。
+    /// </summary>
     [HideInInspector]
     public float DetectionRange = 16f;
+
+    /// <summary>
+    /// 锁定阶段持续时间。
+    /// </summary>
     [HideInInspector]
     public float LockDuration = 1.1f;
+
+    /// <summary>
+    /// 光束开火持续时间。
+    /// </summary>
     [HideInInspector]
     public float FiringDuration = 0.55f;
+
+    /// <summary>
+    /// 光束攻击冷却时间。
+    /// </summary>
     [HideInInspector]
     public float CooldownDuration = 1.5f;
+
+    /// <summary>
+    /// 激活后自动恢复休眠的时间，0 表示不按时间恢复。
+    /// </summary>
     [HideInInspector]
     public float ActiveRecoveryDuration = 0f;
+
+    /// <summary>
+    /// 光束每秒伤害。
+    /// </summary>
     [HideInInspector]
     public float BeamDamagePerSecond = 22f;
+
+    /// <summary>
+    /// 光束伤害结算间隔。
+    /// </summary>
     [HideInInspector]
     public float BeamTickInterval = 0.12f;
 
     [Header("Death Loot References")]
+    /// <summary>
+    /// 守卫解除后战利品容器生成点。
+    /// </summary>
     public Transform DeathLootSpawnPoint;
 
     private PlayerHealthController _playerHealthController;
@@ -165,6 +251,10 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         UpdateBeamVisuals();
     }
 
+    /// <summary>
+    /// 接收符文弱点命中事件，并按顺序推进或触发守卫。
+    /// </summary>
+    /// <param name="runeWeakpoint">被命中的符文弱点。</param>
     public void NotifyRuneHit(AnchorSentinelRuneWeakpoint runeWeakpoint)
     {
         if (CurrentState == SentinelState.Disabled || runeWeakpoint == null)
@@ -179,6 +269,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
         if (runeWeakpoint.RuneOrderIndex == _expectedRuneIndex)
         {
+            // 命中正确符文后推进期待索引，所有符文解开时守卫直接失效。
             runeWeakpoint.MarkSolved();
             _expectedRuneIndex++;
             if (_expectedRuneIndex >= RuneWeakpoints.Length)
@@ -215,6 +306,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         _stateTimer += Time.deltaTime;
         if (_stateTimer >= LockDuration)
         {
+            // 锁定结束后进入真正伤害阶段，并重置本次光束的 tick 和日志累计。
             CurrentState = SentinelState.Firing;
             _stateTimer = 0f;
             _beamTickTimer = 0f;
@@ -234,6 +326,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         _stateTimer += Time.deltaTime;
         _beamTickTimer += Time.deltaTime;
 
+        // 使用 while 追赶 tick，避免帧率波动时漏掉光束持续伤害。
         while (_beamTickTimer >= BeamTickInterval)
         {
             _beamTickTimer -= BeamTickInterval;
@@ -262,6 +355,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         _stateTimer += Time.deltaTime;
         if (_stateTimer >= Mathf.Max(FiringDuration, CooldownDuration))
         {
+            // CooldownDuration 表示两次光束开始时间的间隔，因此从 FiringDuration 后继续补足剩余冷却。
             CurrentState = SentinelState.Locking;
             _stateTimer = LockDuration;
         }
@@ -421,6 +515,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
             return;
         }
 
+        // 白模默认符文围绕守卫生成，方便没有美术/关卡配置时也能测试谜题流程。
         int runeCount = Mathf.Max(1, DefaultRuneCount);
         RuneWeakpoints = new AnchorSentinelRuneWeakpoint[runeCount];
 
@@ -494,6 +589,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
         if (LockBeamRenderer != null)
         {
+            // 锁定光束更细并带轻微脉冲，只作为预警线。
             bool showLock = CurrentState == SentinelState.Locking;
             LockBeamRenderer.enabled = showLock;
             if (showLock)
@@ -507,6 +603,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
         if (FiringBeamRenderer != null)
         {
+            // 开火光束更粗，宽度脉冲强化正在造成伤害的反馈。
             bool showBeam = CurrentState == SentinelState.Firing;
             FiringBeamRenderer.enabled = showBeam;
             if (showBeam)

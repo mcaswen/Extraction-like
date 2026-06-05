@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary>
+/// 敌人看向意图的来源，用于决定转向速度和优先级语义。
+/// </summary>
 public enum EnemyLookIntentSource
 {
     PathForward,
@@ -11,6 +14,10 @@ public enum EnemyLookIntentSource
     Combat
 }
 
+/// <summary>
+/// 敌人视野朝向控制器。
+/// 负责独立 VisionPivot 的巡逻扫描、怀疑看向、调查看向和战斗锁定。
+/// </summary>
 public sealed class EnemyLookController : MonoBehaviour
 {
     [Header("Rig")]
@@ -66,9 +73,24 @@ public sealed class EnemyLookController : MonoBehaviour
     private float _externalTurnSpeed;
     private bool _hasExternalIntent;
 
+    /// <summary>
+    /// 当前用于视野检测的节点，缺省时回退到敌人根节点。
+    /// </summary>
     public Transform VisionTransform => _visionPivot != null ? _visionPivot : transform;
+
+    /// <summary>
+    /// 当前视野节点在水平面上的朝向。
+    /// </summary>
     public Vector3 CurrentPlanarDirection => _currentLookDirection.sqrMagnitude > 0.0001f ? _currentLookDirection.normalized : transform.forward;
+
+    /// <summary>
+    /// 当前外部看向意图的目标位置。
+    /// </summary>
     public Vector3 CurrentExternalLookPosition => _externalLookPosition;
+
+    /// <summary>
+    /// 是否存在尚未过期的外部看向意图。
+    /// </summary>
     public bool HasExternalIntent => _hasExternalIntent && Time.time <= _externalIntentExpireTime;
 
     private void Awake()
@@ -85,11 +107,21 @@ public sealed class EnemyLookController : MonoBehaviour
         EnsureVisionPivot();
     }
 
+    /// <summary>
+    /// 驱动敌人在普通巡逻状态下的视野扫描。
+    /// </summary>
+    /// <param name="isWaiting">敌人是否正在巡逻点等待。</param>
     public void TickPatrolLook(bool isWaiting)
     {
         TickPatrolLook(isWaiting, null, -1f);
     }
 
+    /// <summary>
+    /// 驱动敌人巡逻看向，并允许路点覆盖等待注视目标和扫描角度。
+    /// </summary>
+    /// <param name="isWaiting">敌人是否正在巡逻点等待。</param>
+    /// <param name="waitLookTarget">等待时优先注视的目标。</param>
+    /// <param name="waitScanArcOverride">等待扫描角度覆盖值。</param>
     public void TickPatrolLook(bool isWaiting, Transform waitLookTarget, float waitScanArcOverride)
     {
         EnsureVisionPivot();
@@ -105,6 +137,7 @@ public sealed class EnemyLookController : MonoBehaviour
             return;
         }
 
+        // 移动时以路径方向为主、随机扫描为辅；等待时加大扫描权重。
         Vector3 baseDirection = ResolvePathDirection();
         float scanArc = isWaiting
             ? (waitScanArcOverride >= 0f ? waitScanArcOverride : _waitScanArc)
@@ -123,6 +156,13 @@ public sealed class EnemyLookController : MonoBehaviour
         TurnVisionTowardsDirection(desiredDirection, _patrolTurnSpeed);
     }
 
+    /// <summary>
+    /// 设置一个临时外部看向意图，短时间覆盖巡逻扫描。
+    /// </summary>
+    /// <param name="worldPosition">需要看向的世界坐标。</param>
+    /// <param name="source">看向意图来源。</param>
+    /// <param name="duration">持续时间，小于等于 0 时使用默认值。</param>
+    /// <param name="turnSpeed">转向速度，小于等于 0 时按来源自动解析。</param>
     public void LookAtPosition(
         Vector3 worldPosition,
         EnemyLookIntentSource source = EnemyLookIntentSource.Suspicion,
@@ -136,6 +176,10 @@ public sealed class EnemyLookController : MonoBehaviour
         _hasExternalIntent = true;
     }
 
+    /// <summary>
+    /// 短时间看向玩家，用于战斗状态或直接受击反应。
+    /// </summary>
+    /// <param name="playerTransform">玩家或当前战斗目标。</param>
     public void LookAtPlayer(Transform playerTransform)
     {
         if (playerTransform == null)
@@ -146,11 +190,18 @@ public sealed class EnemyLookController : MonoBehaviour
         LookAtPosition(playerTransform.position, EnemyLookIntentSource.Combat, 0.25f, _combatTurnSpeed);
     }
 
+    /// <summary>
+    /// 清除当前外部看向意图，恢复巡逻扫描控制。
+    /// </summary>
     public void ClearExternalIntent()
     {
         _hasExternalIntent = false;
     }
 
+    /// <summary>
+    /// 将敌人身体朝向逐步贴近当前视野朝向。
+    /// </summary>
+    /// <param name="turnSpeed">身体转向速度。</param>
     public void SnapBodyTowardsVision(float turnSpeed)
     {
         Vector3 direction = CurrentPlanarDirection;
@@ -213,6 +264,7 @@ public sealed class EnemyLookController : MonoBehaviour
         float yaw;
         if (isWaiting)
         {
+            // 等待时从固定槽位中抽样，形成左右张望的节奏，而不是完全随机抖动。
             int slot = Random.Range(0, 5);
             switch (slot)
             {

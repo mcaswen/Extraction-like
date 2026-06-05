@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// Basic ranged enemy behaviour with patrol, chase and ranged attack.
+/// 基础远程敌人行为控制器。
+/// 负责巡逻、发现目标、追击、远程射击和直接受击反击。
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyLookController))]
@@ -13,6 +14,9 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
 
+    /// <summary>
+    /// 基础远程敌人的主行为状态。
+    /// </summary>
     public enum EnemyState
     {
         Patrol,
@@ -20,6 +24,9 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
         Attack
     }
 
+    /// <summary>
+    /// 当前主行为状态。
+    /// </summary>
     public EnemyState CurrentState;
 
     [Header("Config")]
@@ -27,36 +34,99 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
     private RangedEnemyConfig _config;
 
     [Header("References")]
+    /// <summary>
+    /// 当前战斗目标，通常是玩家，也可能是 Agent。
+    /// </summary>
     public Transform PlayerTransform;
+
+    /// <summary>
+    /// 子弹生成位置和朝向。
+    /// </summary>
     public Transform FirePoint;
 
+    /// <summary>
+    /// 远程敌人发射的子弹预制体。
+    /// </summary>
     [HideInInspector] public GameObject EnemyBulletPrefab;
+
+    /// <summary>
+    /// 子弹飞行速度。
+    /// </summary>
     [HideInInspector] public float BulletMoveSpeed = 15f;
+
+    /// <summary>
+    /// 子弹命中伤害。
+    /// </summary>
     [HideInInspector] public float BulletDamage = 15f;
+
+    /// <summary>
+    /// 子弹自动销毁前的存活时间。
+    /// </summary>
     [HideInInspector] public float BulletLifeTime = 3f;
 
+    /// <summary>
+    /// 随机巡逻半径。
+    /// </summary>
     [HideInInspector]
     public float PatrolRadius = 10f;
+
+    /// <summary>
+    /// 到达巡逻点后的等待时间。
+    /// </summary>
     [HideInInspector]
     public float PatrolWaitTime = 2f;
 
+    /// <summary>
+    /// 发现目标的视野距离。
+    /// </summary>
     [HideInInspector]
     public float DetectionRange = 15f;
+
+    /// <summary>
+    /// 发现目标的水平视野角度。
+    /// </summary>
     [HideInInspector]
     public float ViewAngle = 360f;
+
+    /// <summary>
+    /// 视线检测阻挡层。
+    /// </summary>
     [HideInInspector]
     public LayerMask LineOfSightBlockMask = 1;
+
+    /// <summary>
+    /// 视野可视化贴地层。
+    /// </summary>
     [HideInInspector]
     public LayerMask GroundMask = 1;
+
+    /// <summary>
+    /// 敌人眼睛高度。
+    /// </summary>
     [HideInInspector]
     public float EyeHeight = 1.2f;
+
+    /// <summary>
+    /// 目标检测高度。
+    /// </summary>
     [HideInInspector]
     public float TargetHeight = 1f;
+
+    /// <summary>
+    /// 目标超过该距离后脱战。
+    /// </summary>
     [HideInInspector]
     public float LoseRange = 20f;
 
+    /// <summary>
+    /// 远程射击距离。
+    /// </summary>
     [HideInInspector]
     public float AttackRange = 10f;
+
+    /// <summary>
+    /// 射击间隔。
+    /// </summary>
     [HideInInspector]
     public float AttackInterval = 2f;
 
@@ -74,6 +144,9 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
 
+    /// <summary>
+    /// 视野检测使用的节点。
+    /// </summary>
     public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
     Transform IEnemyVisionSource.PlayerTransform => PlayerTransform;
     float IEnemyVisionSource.DetectionRange => DetectionRange;
@@ -82,7 +155,14 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
     LayerMask IEnemyVisionSource.GroundMask => GroundMask;
     float IEnemyVisionSource.EyeHeight => EyeHeight;
     float IEnemyVisionSource.TargetHeight => TargetHeight;
+    /// <summary>
+    /// 仅在巡逻或巡逻感知状态下显示视野扇形。
+    /// </summary>
     public bool ShouldShowVision => CurrentState == EnemyState.Patrol || (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState);
+
+    /// <summary>
+    /// 当前视野系统是否判定能看到目标。
+    /// </summary>
     public bool CanSeePlayerForVision => CanSeePlayer();
 
     private void Start()
@@ -152,6 +232,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
         }
 
         float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
+        // 主状态机只负责大阶段切换，巡逻中的怀疑/调查/搜索交给 EnemyPatrolAwarenessController。
         switch (CurrentState)
         {
             case EnemyState.Patrol:
@@ -168,6 +249,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
 
     private void PatrolBehavior(float distanceToPlayer)
     {
+        // 如果巡逻感知正在处理怀疑事件，本帧不再推进普通巡逻。
         if (_patrolAwareness != null &&
             _patrolAwareness.TickAwareness(
                 CanSeePlayer,
@@ -207,6 +289,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
 
     private void ChaseBehavior(float distanceToPlayer)
     {
+        // 直接受击后的短时间强制追击可以避免远距离命中后立刻被 LoseRange 拉回巡逻。
         if (distanceToPlayer > LoseRange && !IsDirectDamageForcedChaseActive())
         {
             CurrentState = EnemyState.Patrol;
@@ -255,6 +338,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
             return;
         }
 
+        // 子弹携带 SourceEnemy，命中后能在日志和伤害来源中追溯到发射者。
         GameObject bulletObject = Instantiate(EnemyBulletPrefab, FirePoint.position, FirePoint.rotation);
         EnemyBulletController bullet = bulletObject.GetComponent<EnemyBulletController>();
         if (bullet != null)
@@ -267,6 +351,10 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
         }
     }
 
+    /// <summary>
+    /// 直接受击时锁定攻击者，清理巡逻感知并进入追击。
+    /// </summary>
+    /// <param name="context">本次受击上下文。</param>
     public void NotifyDirectDamage(EnemyDamageContext context)
     {
         if (!context.IsDirectDamage || context.Attacker == null)

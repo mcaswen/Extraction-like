@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
+/// <summary>
+/// 敌人受到伤害的来源类型。
+/// </summary>
 public enum EnemyDamageSourceType
 {
     Unknown,
@@ -12,16 +15,57 @@ public enum EnemyDamageSourceType
     Environment
 }
 
+/// <summary>
+/// 敌人受击上下文。
+/// 用于区分直接攻击者、命中点、攻击方向以及是否由玩家直接造成。
+/// </summary>
 public readonly struct EnemyDamageContext
 {
+    /// <summary>
+    /// 造成伤害的攻击者。
+    /// </summary>
     public readonly Transform Attacker;
+
+    /// <summary>
+    /// 本次伤害命中的世界坐标。
+    /// </summary>
     public readonly Vector3 HitPosition;
+
+    /// <summary>
+    /// 攻击来源的世界坐标。
+    /// </summary>
     public readonly Vector3 SourcePosition;
+
+    /// <summary>
+    /// 从来源指向命中点的归一化方向。
+    /// </summary>
     public readonly Vector3 IncomingDirection;
+
+    /// <summary>
+    /// 本次伤害是否携带明确攻击者。
+    /// </summary>
     public readonly bool IsDirectDamage;
+
+    /// <summary>
+    /// 本次直接伤害是否来自玩家。
+    /// </summary>
     public readonly bool IsDirectPlayerDamage;
+
+    /// <summary>
+    /// 伤害来源类型。
+    /// </summary>
     public readonly EnemyDamageSourceType SourceType;
 
+    /// <summary>
+    /// 创建一份敌人受击上下文。
+    /// </summary>
+    /// <param name="attacker">攻击者。</param>
+    /// <param name="hitPosition">命中位置。</param>
+    /// <param name="sourcePosition">攻击来源位置。</param>
+    /// <param name="incomingDirection">攻击方向。</param>
+    /// <param name="isDirectDamage">是否为直接伤害。</param>
+    /// <param name="isDirectPlayerDamage">是否为玩家直接伤害。</param>
+    /// <param name="sourceType">伤害来源类型。</param>
     public EnemyDamageContext(
         Transform attacker,
         Vector3 hitPosition,
@@ -42,6 +86,9 @@ public readonly struct EnemyDamageContext
         SourceType = sourceType;
     }
 
+    /// <summary>
+    /// 空受击上下文，用于兼容没有攻击者信息的旧伤害调用。
+    /// </summary>
     public static EnemyDamageContext Empty => new EnemyDamageContext(
         null,
         Vector3.zero,
@@ -51,6 +98,15 @@ public readonly struct EnemyDamageContext
         false,
         EnemyDamageSourceType.Unknown);
 
+    /// <summary>
+    /// 根据任意攻击者创建直接伤害上下文。
+    /// </summary>
+    /// <param name="attacker">攻击者 Transform。</param>
+    /// <param name="hitPosition">命中位置。</param>
+    /// <param name="sourcePosition">攻击来源位置。</param>
+    /// <param name="incomingDirection">攻击方向。</param>
+    /// <param name="sourceType">伤害来源类型。</param>
+    /// <returns>构造好的受击上下文。</returns>
     public static EnemyDamageContext FromAttacker(
         Transform attacker,
         Vector3 hitPosition,
@@ -68,6 +124,15 @@ public readonly struct EnemyDamageContext
             sourceType);
     }
 
+    /// <summary>
+    /// 根据玩家 Transform 创建玩家直接伤害上下文。
+    /// </summary>
+    /// <param name="playerTransform">玩家 Transform。</param>
+    /// <param name="hitPosition">命中位置。</param>
+    /// <param name="sourcePosition">攻击来源位置。</param>
+    /// <param name="incomingDirection">攻击方向。</param>
+    /// <param name="sourceType">伤害来源类型。</param>
+    /// <returns>构造好的玩家受击上下文。</returns>
     public static EnemyDamageContext FromPlayer(
         Transform playerTransform,
         Vector3 hitPosition,
@@ -86,20 +151,57 @@ public readonly struct EnemyDamageContext
     }
 }
 
+/// <summary>
+/// 接收敌人直接受击反应的接口。
+/// 敌人行为控制器实现它后，可以在被明确攻击者命中时立刻追击。
+/// </summary>
 public interface IEnemyDirectDamageReceiver
 {
+    /// <summary>
+    /// 通知组件该敌人收到了带攻击者上下文的直接伤害。
+    /// </summary>
+    /// <param name="context">本次受击上下文。</param>
     void NotifyDirectDamage(EnemyDamageContext context);
 }
 
+/// <summary>
+/// 可被战斗系统伤害的通用目标接口。
+/// 玩家和 Agent 均可通过该接口接收敌人攻击。
+/// </summary>
 public interface ICombatDamageReceiver
 {
+    /// <summary>
+    /// 目标的战斗根节点。
+    /// </summary>
     Transform DamageRootTransform { get; }
+
+    /// <summary>
+    /// 当前目标是否仍可接受战斗伤害。
+    /// </summary>
     bool IsCombatDamageReceiverAlive { get; }
+
+    /// <summary>
+    /// 对目标造成战斗伤害，并返回实际扣除的生命值。
+    /// </summary>
+    /// <param name="damage">原始伤害值。</param>
+    /// <param name="hitPoint">命中位置。</param>
+    /// <param name="hitDirection">命中方向。</param>
+    /// <param name="source">伤害来源对象。</param>
+    /// <returns>实际造成的伤害。</returns>
     float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source);
 }
 
+/// <summary>
+/// 战斗伤害接收者查找和应用工具。
+/// </summary>
 public static class CombatDamageUtility
 {
+    /// <summary>
+    /// 从指定组件及其父节点上查找仍然存活的战斗伤害接收者。
+    /// </summary>
+    /// <param name="component">命中的组件。</param>
+    /// <param name="receiver">成功时返回伤害接收者。</param>
+    /// <returns>找到可用接收者时返回 true。</returns>
     public static bool TryGetDamageReceiver(Component component, out ICombatDamageReceiver receiver)
     {
         receiver = null;
@@ -122,6 +224,12 @@ public static class CombatDamageUtility
         return false;
     }
 
+    /// <summary>
+    /// 从指定 Transform 及其父节点上查找仍然存活的战斗伤害接收者。
+    /// </summary>
+    /// <param name="target">命中的 Transform。</param>
+    /// <param name="receiver">成功时返回伤害接收者。</param>
+    /// <returns>找到可用接收者时返回 true。</returns>
     public static bool TryGetDamageReceiver(Transform target, out ICombatDamageReceiver receiver)
     {
         receiver = null;
@@ -144,6 +252,15 @@ public static class CombatDamageUtility
         return false;
     }
 
+    /// <summary>
+    /// 对指定 Transform 所属的战斗目标造成伤害。
+    /// </summary>
+    /// <param name="target">目标 Transform。</param>
+    /// <param name="damage">伤害值。</param>
+    /// <param name="hitPoint">命中位置。</param>
+    /// <param name="hitDirection">命中方向。</param>
+    /// <param name="source">伤害来源对象。</param>
+    /// <returns>实际造成的伤害。</returns>
     public static float ApplyDamageTo(
         Transform target,
         float damage,
@@ -156,6 +273,15 @@ public static class CombatDamageUtility
             : 0f;
     }
 
+    /// <summary>
+    /// 对指定战斗伤害接收者造成伤害。
+    /// </summary>
+    /// <param name="receiver">伤害接收者。</param>
+    /// <param name="damage">伤害值。</param>
+    /// <param name="hitPoint">命中位置。</param>
+    /// <param name="hitDirection">命中方向。</param>
+    /// <param name="source">伤害来源对象。</param>
+    /// <returns>实际造成的伤害。</returns>
     public static float ApplyDamageTo(
         ICombatDamageReceiver receiver,
         float damage,
@@ -174,19 +300,28 @@ public static class CombatDamageUtility
 
 /// <summary>
 /// 敌人生命控制器。
-/// 负责受伤、血条刷新、死亡和死亡掉落容器生成。
+/// 负责受伤、护盾、血条刷新、死亡和死亡掉落容器生成。
 /// </summary>
 public class EnemyHealthController : MonoBehaviour
 {
     [SerializeField, HideInInspector]
     private EnemyHealthConfigBase _config;
 
+    /// <summary>
+    /// 敌人最大生命值，运行时会由敌人配置覆盖。
+    /// </summary>
     [HideInInspector] public float MaxHealth = 100f;
 
     [Header("Health UI")]
+    /// <summary>
+    /// 世界空间血条填充图。
+    /// </summary>
     public Image HealthFillImage;
 
     [Header("References")]
+    /// <summary>
+    /// 死亡掉落容器生成点，未配置时使用敌人位置加配置偏移。
+    /// </summary>
     public Transform DeathLootSpawnPoint;
 
     private float _currentHealth;
@@ -197,7 +332,7 @@ public class EnemyHealthController : MonoBehaviour
     private EnemyDeathLootSettings _deathLootSettings;
 
     /// <summary>
-    /// 敌人当前是否仍可作为战斗目标
+    /// 敌人当前是否仍可作为战斗目标。
     /// </summary>
     public bool IsAlive
     {
@@ -220,6 +355,10 @@ public class EnemyHealthController : MonoBehaviour
         UpdateHealthBar();
     }
 
+    /// <summary>
+    /// 应用敌人生命配置，并重置当前生命。
+    /// </summary>
+    /// <param name="config">敌人生命配置。</param>
     public void ApplyConfig(EnemyHealthConfigBase config)
     {
         if (config == null)
@@ -255,11 +394,17 @@ public class EnemyHealthController : MonoBehaviour
     /// <summary>
     /// 对敌人造成伤害。
     /// </summary>
+    /// <param name="damageAmount">伤害值。</param>
     public void TakeDamage(float damageAmount)
     {
         TakeDamage(damageAmount, EnemyDamageContext.Empty);
     }
 
+    /// <summary>
+    /// 对敌人造成带受击上下文的伤害。
+    /// </summary>
+    /// <param name="damageAmount">伤害值。</param>
+    /// <param name="context">受击上下文。</param>
     public void TakeDamage(float damageAmount, EnemyDamageContext context)
     {
         if (_hasDied)
@@ -297,6 +442,7 @@ public class EnemyHealthController : MonoBehaviour
     {
         if (context.IsDirectDamage && context.Attacker != null)
         {
+            // 直接伤害只通知本敌人本地反击，不走全局怀疑总线，避免误拉附近敌人。
             IEnemyDirectDamageReceiver[] receivers = GetComponents<IEnemyDirectDamageReceiver>();
             for (int i = 0; i < receivers.Length; i++)
             {
@@ -306,12 +452,14 @@ public class EnemyHealthController : MonoBehaviour
             return;
         }
 
+        // 没有明确攻击者的伤害退回为声音/冲击刺激，让巡逻感知系统自行判断。
         EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, transform);
     }
 
     /// <summary>
     /// 获取当前血量比例。
     /// </summary>
+    /// <returns>当前生命值与最大生命值的比例。</returns>
     public float GetCurrentHealthRatio()
     {
         InitializeHealthIfNeeded();
@@ -323,6 +471,10 @@ public class EnemyHealthController : MonoBehaviour
         return _currentHealth / MaxHealth;
     }
 
+    /// <summary>
+    /// 为敌人增加临时护盾。
+    /// </summary>
+    /// <param name="shieldAmount">新增护盾量。</param>
     public void AddShield(float shieldAmount)
     {
         if (_hasDied || shieldAmount <= 0f)
@@ -334,14 +486,21 @@ public class EnemyHealthController : MonoBehaviour
         UpdateHealthBar();
     }
 
+    /// <summary>
+    /// 当前剩余护盾值。
+    /// </summary>
     public float CurrentShield => _currentShield;
 
+    /// <summary>
+    /// 设置敌人受到伤害时的倍率。
+    /// </summary>
+    /// <param name="multiplier">伤害倍率。</param>
     public void SetDamageTakenMultiplier(float multiplier)
     {
         _damageTakenMultiplier = Mathf.Max(0f, multiplier);
     }
 
-    // 目标系统可能早于 Start 查询敌人状态，因此血量初始化需要可重入
+    // 目标系统可能早于 Start 查询敌人状态，因此血量初始化需要可重入。
     private void InitializeHealthIfNeeded()
     {
         if (_hasInitializedHealth || _hasDied)
@@ -412,14 +571,26 @@ public class EnemyHealthController : MonoBehaviour
 }
 
 /// <summary>
-/// Runtime status effects for enemies: freeze, slow and magic seal.
+/// 敌人运行时状态效果控制器。
+/// 负责冰冻、减速和魔法封印，以及对应的移动/脚本禁用和染色反馈。
 /// </summary>
 [DisallowMultipleComponent]
 public class EnemyStatusEffectController : MonoBehaviour
 {
     [Header("Visual")]
+    /// <summary>
+    /// 冰冻状态使用的染色颜色。
+    /// </summary>
     public Color FrozenTintColor = new Color(0.58f, 0.86f, 1f, 1f);
+
+    /// <summary>
+    /// 魔法封印状态使用的染色颜色。
+    /// </summary>
     public Color SealedTintColor = new Color(0.95f, 0.62f, 1f, 1f);
+
+    /// <summary>
+    /// 状态染色强度。
+    /// </summary>
     public float TintStrength = 0.55f;
 
     private float _freezeDurationRemaining;
@@ -436,8 +607,19 @@ public class EnemyStatusEffectController : MonoBehaviour
     private readonly List<MonoBehaviour> _trackedBehaviorScripts = new List<MonoBehaviour>();
     private readonly Dictionary<MonoBehaviour, bool> _defaultScriptState = new Dictionary<MonoBehaviour, bool>();
 
+    /// <summary>
+    /// 敌人当前是否处于冰冻状态。
+    /// </summary>
     public bool IsFrozen => _freezeDurationRemaining > 0f;
+
+    /// <summary>
+    /// 敌人当前是否处于魔法封印状态。
+    /// </summary>
     public bool IsMagicSealed => _magicSealDurationRemaining > 0f;
+
+    /// <summary>
+    /// 当前有效移动速度倍率，没有减速时返回 1。
+    /// </summary>
     public float SlowMultiplier => _slowDurationRemaining > 0f ? _slowMultiplier : 1f;
 
     private void Awake()
@@ -472,6 +654,10 @@ public class EnemyStatusEffectController : MonoBehaviour
         UpdateVisual();
     }
 
+    /// <summary>
+    /// 对敌人施加或刷新冰冻。
+    /// </summary>
+    /// <param name="durationSeconds">冰冻持续时间。</param>
     public void ApplyFreeze(float durationSeconds)
     {
         if (durationSeconds <= 0f)
@@ -482,6 +668,11 @@ public class EnemyStatusEffectController : MonoBehaviour
         _freezeDurationRemaining = Mathf.Max(_freezeDurationRemaining, durationSeconds);
     }
 
+    /// <summary>
+    /// 对敌人施加或刷新减速。
+    /// </summary>
+    /// <param name="slowMultiplier">移动速度倍率。</param>
+    /// <param name="durationSeconds">减速持续时间。</param>
     public void ApplySlow(float slowMultiplier, float durationSeconds)
     {
         if (durationSeconds <= 0f)
@@ -493,6 +684,10 @@ public class EnemyStatusEffectController : MonoBehaviour
         _slowMultiplier = Mathf.Clamp(slowMultiplier, 0.1f, 1f);
     }
 
+    /// <summary>
+    /// 对敌人施加或刷新魔法封印。
+    /// </summary>
+    /// <param name="durationSeconds">封印持续时间。</param>
     public void ApplyMagicSeal(float durationSeconds)
     {
         if (durationSeconds <= 0f)
@@ -503,11 +698,17 @@ public class EnemyStatusEffectController : MonoBehaviour
         _magicSealDurationRemaining = Mathf.Max(_magicSealDurationRemaining, durationSeconds);
     }
 
+    /// <summary>
+    /// 立即解除冰冻状态。
+    /// </summary>
     public void BreakFreeze()
     {
         _freezeDurationRemaining = 0f;
     }
 
+    /// <summary>
+    /// 立即解除减速状态。
+    /// </summary>
     public void BreakSlow()
     {
         _slowDurationRemaining = 0f;
@@ -575,6 +776,7 @@ public class EnemyStatusEffectController : MonoBehaviour
             bool shouldBlockBySeal = IsMagicSealed && IsMagicSensitiveScript(script);
             bool shouldEnable = defaultEnabled && !shouldBlockByFreeze && !shouldBlockBySeal;
 
+            // 冰冻会暂停大多数行为控制器；魔法封印只暂停依赖技能的敌人脚本。
             if (script.enabled != shouldEnable)
             {
                 script.enabled = shouldEnable;

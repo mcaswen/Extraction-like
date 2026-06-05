@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 敌人视野可视化运行时安装器。
+/// 周期性扫描场景中实现视野接口的敌人，并为其补齐视野扇形显示组件。
+/// </summary>
 public sealed class EnemyVisionRuntimeInstaller : MonoBehaviour
 {
     [SerializeField]
@@ -50,6 +54,7 @@ public sealed class EnemyVisionRuntimeInstaller : MonoBehaviour
                 continue;
             }
 
+            // 优先把可视化挂在 VisionPivot 下，保证扇形朝向和实际检测方向一致。
             Transform sourceTransform = visionSource.VisionTransform;
             if (sourceTransform == null)
             {

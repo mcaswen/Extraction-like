@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public class HunterBossBehaviorController : MonoBehaviour
 {
+    /// <summary>
+    /// 追猎者 Boss 的主行为状态。
+    /// </summary>
     public enum BossState
     {
         Idle,
@@ -17,6 +20,9 @@ public class HunterBossBehaviorController : MonoBehaviour
         Cooldown
     }
 
+    /// <summary>
+    /// 当前 Boss 主行为状态。
+    /// </summary>
     public BossState CurrentState;
 
     [Header("Config")]
@@ -24,11 +30,34 @@ public class HunterBossBehaviorController : MonoBehaviour
     private HunterBossConfig _config;
 
     [Header("References")]
+    /// <summary>
+    /// 当前玩家目标。
+    /// </summary>
     public Transform PlayerTransform;
+
+    /// <summary>
+    /// 近战挥锚范围检测中心。
+    /// </summary>
     public Transform MeleeOrigin;
+
+    /// <summary>
+    /// 船锚投射物生成点。
+    /// </summary>
     public Transform ProjectileOrigin;
+
+    /// <summary>
+    /// 怒吼和掩体检测的起点。
+    /// </summary>
     public Transform EyeOrigin;
+
+    /// <summary>
+    /// 近战挥锚的线渲染器。
+    /// </summary>
     public LineRenderer MeleeSwingRenderer;
+
+    /// <summary>
+    /// 怒吼声波的线渲染器。
+    /// </summary>
     public LineRenderer RoarWaveRenderer;
 
     [HideInInspector]
@@ -127,7 +156,14 @@ public class HunterBossBehaviorController : MonoBehaviour
     private Renderer[] _cachedRenderers;
     private Color[] _originalRendererColors;
 
+    /// <summary>
+    /// Boss 怒吼后的防御力场是否处于激活状态。
+    /// </summary>
     public bool IsForceFieldActive => _isForceFieldActive;
+
+    /// <summary>
+    /// 防御力场是否被冰系效果冻结。
+    /// </summary>
     public bool IsForceFieldFrozen => _isForceFieldFrozen;
 
     private void Start()
@@ -285,6 +321,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
             if (_meleeHitCounter >= VortexTriggerMeleeCount && distanceToPlayer <= VortexTriggerDistance)
             {
+                // 近战命中累计到阈值后切入漩涡 + 抛锚连招。
                 _meleeHitCounter = 0;
                 CurrentState = BossState.VortexAttack;
                 _vortexTimer = 0f;
@@ -311,6 +348,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         if (_activeVortexField != null && _vortexTimer >= VortexChargeDuration)
         {
+            // 蓄力完成后漩涡才真正定身玩家，给玩家留出离开范围的窗口。
             _activeVortexField.Arm();
         }
 
@@ -319,6 +357,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             _vortexAnchorThrowTimer += Time.deltaTime;
             if (_vortexAnchorThrowTimer >= VortexImmobilizeDuration)
             {
+                // 漩涡控制结束后抛出船锚，再清理场地效果并进入冷却。
                 _meleeHitCounter = 0;
                 ThrowAnchorProjectile();
                 ClearVortexField();
@@ -366,6 +405,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private bool PerformMeleeAttack()
     {
+        // 追猎者近战只检测玩家，命中后累计漩涡触发次数。
         bool didHitPlayer = false;
         _meleeVisualTimer = MeleeVisualDuration;
         float totalDamage = 0f;
@@ -399,6 +439,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void SpawnOrMoveVortexField()
     {
+        // 漩涡以 Boss 位置为中心，已有实例时复用并移动，避免重复生成多个控制区。
         Vector3 vortexPosition = transform.position;
         vortexPosition.y = 0.02f;
 
@@ -471,6 +512,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         _hasTriggeredRageRoar = true;
         _isForceFieldActive = true;
         _isForceFieldFrozen = false;
+        // 怒吼触发时补护盾并降低实际受伤倍率，形成一次低血防御阶段。
         if (_healthController != null)
         {
             _healthController.AddShield(_healthController.MaxHealth * RageShieldMaxHealthRatio);
@@ -495,6 +537,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         if (IsPlayerProtectedByCover())
         {
+            // 掩体不会完全免疫怒吼，但会把伤害压到很低，并仍然施加震慑。
             totalDamage = _playerHealthController.TakeDamage(RoarDamage * 0.1f);
             ApplyTrembleToPlayer();
             EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
@@ -721,6 +764,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         if (_statusEffectController.IsFrozen || _statusEffectController.SlowMultiplier < 1f)
         {
+            // 冰系状态不直接冻结 Boss，而是冻结力场并让移动按专用倍率减速。
             _isForceFieldFrozen = true;
         }
 
@@ -731,6 +775,9 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 火系攻击打破已冻结力场时调用，清除力场冻结和减速。
+    /// </summary>
     public void NotifyFrozenForceFieldBrokenByFire()
     {
         if (!_isForceFieldActive)

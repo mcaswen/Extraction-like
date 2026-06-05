@@ -13,6 +13,12 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
     private float _width;
     private float _height;
 
+    /// <summary>
+    /// 初始化触手命中盒归属和横截面尺寸。
+    /// </summary>
+    /// <param name="owner">拥有该触手命中盒的现代搁浅者。</param>
+    /// <param name="width">命中盒宽度。</param>
+    /// <param name="height">命中盒高度。</param>
     public void Initialize(ModernStranderBehaviorController owner, float width, float height)
     {
         _owner = owner;
@@ -24,6 +30,11 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
         SkillEffectLayerUtility.ApplyToRoot(gameObject);
     }
 
+    /// <summary>
+    /// 根据触手起点和目标点更新命中盒的位置、旋转和长度。
+    /// </summary>
+    /// <param name="origin">触手起点。</param>
+    /// <param name="target">触手目标点。</param>
     public void UpdateHitboxTransform(Vector3 origin, Vector3 target)
     {
         if (_boxCollider == null)
@@ -39,6 +50,7 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
             return;
         }
 
+        // BoxCollider 的本地 Z 轴作为触手长度，因此节点放在起点和终点中点。
         transform.position = origin + delta * 0.5f;
         transform.rotation = Quaternion.LookRotation(delta.normalized, Vector3.up);
         _boxCollider.size = new Vector3(_width, _height, distance);
@@ -86,6 +98,14 @@ public class CorrosiveSlimePuddle : MonoBehaviour
     private float _corrosionDuration;
     private float _tickInterval;
 
+    /// <summary>
+    /// 配置腐蚀黏液池的范围、寿命和腐蚀伤害参数。
+    /// </summary>
+    /// <param name="radius">触发半径。</param>
+    /// <param name="lifeTime">黏液池寿命。</param>
+    /// <param name="damagePerSecond">每秒腐蚀伤害。</param>
+    /// <param name="corrosionDuration">腐蚀状态持续时间。</param>
+    /// <param name="tickInterval">腐蚀结算间隔。</param>
     public void Configure(float radius, float lifeTime, float damagePerSecond, float corrosionDuration, float tickInterval)
     {
         _radius = Mathf.Max(0.2f, radius);

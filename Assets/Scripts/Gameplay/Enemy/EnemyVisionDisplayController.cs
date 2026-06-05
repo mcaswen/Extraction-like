@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 敌人视野显示开关控制器。
+/// 提供全局可见性状态、快捷键切换和运行时 UI Toggle 绑定。
+/// </summary>
 public sealed class EnemyVisionDisplayController : MonoBehaviour
 {
     private static EnemyVisionDisplayController _instance;
@@ -17,6 +21,9 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
     private Toggle _runtimeToggle;
     private bool _isUpdatingToggle;
 
+    /// <summary>
+    /// 视野显示控制器单例；场景中不存在时会运行时创建。
+    /// </summary>
     public static EnemyVisionDisplayController Instance
     {
         get
@@ -36,6 +43,9 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 当前敌人视野扇形是否全局可见。
+    /// </summary>
     public static bool IsVisionVisible => Instance._showEnemyVision;
 
     private void Awake()
@@ -66,6 +76,10 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 设置敌人视野扇形的全局可见状态。
+    /// </summary>
+    /// <param name="isVisible">是否显示敌人视野。</param>
     public void SetVisionVisible(bool isVisible)
     {
         if (_showEnemyVision == isVisible)
@@ -78,11 +92,18 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
         SyncToggleState();
     }
 
+    /// <summary>
+    /// 切换敌人视野扇形的全局可见状态。
+    /// </summary>
     public void ToggleVisionVisible()
     {
         SetVisionVisible(!_showEnemyVision);
     }
 
+    /// <summary>
+    /// 将外部 UI Toggle 绑定到敌人视野显示开关。
+    /// </summary>
+    /// <param name="toggle">用于控制视野显示的 Toggle。</param>
     public void BindToggle(Toggle toggle)
     {
         if (toggle == null)
@@ -117,6 +138,7 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
 
         if (canvas == null)
         {
+            // 没有设计器配置的 UI 时，创建一个轻量运行时开关方便测试视野。
             GameObject canvasObject = new GameObject(
                 "EnemyVisionCanvas",
                 typeof(RectTransform),

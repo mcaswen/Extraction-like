@@ -2,10 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Player health, death and status effect controller.
+/// 玩家生命、死亡和腐蚀状态控制器。
+/// 同时实现通用战斗受击接口，供敌人技能统一结算伤害。
 /// </summary>
 public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
 {
+    /// <summary>
+    /// 当前场景中的玩家生命控制器单例。
+    /// </summary>
     public static PlayerHealthController Instance { get; private set; }
 
     [Header("Core Stats")]
@@ -18,9 +22,24 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
     [Range(0.05f, 1f)]
     public float MinimumDamageTakenMultiplier = 0.2f;
 
+    /// <summary>
+    /// 玩家当前生命值。
+    /// </summary>
     public float CurrentHealth { get; private set; }
+
+    /// <summary>
+    /// 玩家是否已经死亡。
+    /// </summary>
     public bool IsDead { get; private set; }
+
+    /// <summary>
+    /// 通用战斗受击接口使用的玩家根节点。
+    /// </summary>
     public Transform DamageRootTransform => transform;
+
+    /// <summary>
+    /// 玩家是否仍可接收战斗伤害。
+    /// </summary>
     public bool IsCombatDamageReceiverAlive => !IsDead;
 
     [Header("Status Effect")]
@@ -108,10 +127,10 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
     }
 
     /// <summary>
-    /// Apply direct damage to the player and return the actual health loss
+    /// 对玩家造成直接伤害，并返回实际扣除的生命值。
     /// </summary>
-    /// <param name="damage"></param>
-    /// <returns></returns>
+    /// <param name="damage">原始伤害值。</param>
+    /// <returns>实际生命损失。</returns>
     public float TakeDamage(float damage)
     {
         if (Instance != null && Instance != this)
@@ -139,14 +158,25 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
         return actualDamage;
     }
 
+    /// <summary>
+    /// 通用战斗受击接口入口。
+    /// </summary>
+    /// <param name="damage">原始伤害值。</param>
+    /// <param name="hitPoint">命中位置。</param>
+    /// <param name="hitDirection">命中方向。</param>
+    /// <param name="source">伤害来源对象。</param>
+    /// <returns>实际生命损失。</returns>
     public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
     {
         return TakeDamage(damage);
     }
 
     /// <summary>
-    /// Apply or refresh corrosion damage-over-time.
+    /// 施加或刷新腐蚀持续伤害。
     /// </summary>
+    /// <param name="damagePerSecond">每秒腐蚀伤害。</param>
+    /// <param name="duration">腐蚀持续时间。</param>
+    /// <param name="tickInterval">腐蚀结算间隔。</param>
     public void ApplyCorrosion(float damagePerSecond, float duration, float tickInterval = 0.25f)
     {
         if (Instance != null && Instance != this)
@@ -167,11 +197,20 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
         UpdateCorrosionVisual();
     }
 
+    /// <summary>
+    /// 玩家当前是否处于腐蚀状态。
+    /// </summary>
+    /// <returns>腐蚀仍在持续时返回 true。</returns>
     public bool IsCorroded()
     {
         return _corrosionDurationRemaining > 0f;
     }
 
+    /// <summary>
+    /// 应用符文等级带来的防御和最大生命加成。
+    /// </summary>
+    /// <param name="defenseMultiplier">防御倍率。</param>
+    /// <param name="maxHealthMultiplier">最大生命倍率。</param>
     public void ApplyCombatEnhancement(float defenseMultiplier, float maxHealthMultiplier)
     {
         if (Instance != null && Instance != this)

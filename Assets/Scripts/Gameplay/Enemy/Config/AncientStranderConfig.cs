@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 古代搁浅者的鱼骨横扫和远程撕咬配置。
+/// </summary>
 [CreateAssetMenu(fileName = "SO_Enemy_AncientStrander", menuName = "Enemies/Ancient Strander Config")]
 public sealed class AncientStranderConfig : EnemyPatrolConfigBase
 {
@@ -41,19 +44,69 @@ public sealed class AncientStranderConfig : EnemyPatrolConfigBase
     [SerializeField, Min(0f), Tooltip("Damage dealt by the bite hitbox.")]
     private float _biteDamage = 15f;
 
+    /// <summary>
+    /// 鱼骨横扫可启动的距离。
+    /// </summary>
     public float MeleeAttackRange => _meleeAttackRange;
+
+    /// <summary>
+    /// 两次鱼骨横扫之间的间隔。
+    /// </summary>
     public float MeleeAttackInterval => _meleeAttackInterval;
+
+    /// <summary>
+    /// 鱼骨横扫的范围检测半径。
+    /// </summary>
     public float MeleeAttackRadius => _meleeAttackRadius;
+
+    /// <summary>
+    /// 鱼骨横扫命中伤害。
+    /// </summary>
     public float MeleeDamage => _meleeDamage;
+
+    /// <summary>
+    /// 鱼骨横扫可视效果的持续时间。
+    /// </summary>
     public float MeleeVisualDuration => _meleeVisualDuration;
+
+    /// <summary>
+    /// 允许使用远程撕咬的最小距离。
+    /// </summary>
     public float MinimumRangedDistance => _minimumRangedDistance;
+
+    /// <summary>
+    /// 远程撕咬可启动的最大距离。
+    /// </summary>
     public float RangedAttackRange => _rangedAttackRange;
+
+    /// <summary>
+    /// 两次远程撕咬之间的间隔。
+    /// </summary>
     public float RangedAttackInterval => _rangedAttackInterval;
+
+    /// <summary>
+    /// 撕咬命中盒保持激活的时间。
+    /// </summary>
     public float BiteStrikeDuration => _biteStrikeDuration;
+
+    /// <summary>
+    /// 撕咬命中盒的宽度。
+    /// </summary>
     public float BiteHitboxWidth => _biteHitboxWidth;
+
+    /// <summary>
+    /// 撕咬命中盒的高度。
+    /// </summary>
     public float BiteHitboxHeight => _biteHitboxHeight;
+
+    /// <summary>
+    /// 撕咬命中造成的伤害。
+    /// </summary>
     public float BiteDamage => _biteDamage;
 
+    /// <summary>
+    /// 校验鱼骨横扫和撕咬技能参数。
+    /// </summary>
     protected override void OnValidate()
     {
         base.OnValidate();

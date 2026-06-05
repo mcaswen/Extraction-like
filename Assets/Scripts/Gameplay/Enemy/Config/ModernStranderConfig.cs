@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 现代搁浅者的触手、腐蚀和黏液池技能配置。
+/// </summary>
 [CreateAssetMenu(fileName = "SO_Enemy_ModernStrander", menuName = "Enemies/Modern Strander Config")]
 public sealed class ModernStranderConfig : EnemyPatrolConfigBase
 {
@@ -53,23 +56,89 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     [SerializeField, Min(0.05f), Tooltip("Corrosion tick interval applied by the corrosive puddle.")]
     private float _puddleTickInterval = 0.25f;
 
+    /// <summary>
+    /// 触手攻击可启动的距离。
+    /// </summary>
     public float AttackRange => _attackRange;
+
+    /// <summary>
+    /// 两次触手攻击之间的最短间隔。
+    /// </summary>
     public float AttackInterval => _attackInterval;
+
+    /// <summary>
+    /// 触手命中盒或吸附状态可持续的最长时间。
+    /// </summary>
     public float TentacleLatchDuration => _tentacleLatchDuration;
+
+    /// <summary>
+    /// 动态触手命中盒的宽度。
+    /// </summary>
     public float TentacleHitboxWidth => _tentacleHitboxWidth;
+
+    /// <summary>
+    /// 动态触手命中盒的高度。
+    /// </summary>
     public float TentacleHitboxHeight => _tentacleHitboxHeight;
+
+    /// <summary>
+    /// 触手吸附玩家时施加的拉拽强度。
+    /// </summary>
     public float LatchPullStrength => _latchPullStrength;
+
+    /// <summary>
+    /// 触手吸附期间施加的腐蚀每秒伤害。
+    /// </summary>
     public float CorrosionDamagePerSecond => _corrosionDamagePerSecond;
+
+    /// <summary>
+    /// 触手吸附命中后附加腐蚀状态的持续时间。
+    /// </summary>
     public float CorrosionDuration => _corrosionDuration;
+
+    /// <summary>
+    /// 腐蚀伤害的结算间隔。
+    /// </summary>
     public float CorrosionTickInterval => _corrosionTickInterval;
+
+    /// <summary>
+    /// 触手首次接触目标时造成的即时伤害。
+    /// </summary>
     public float InitialContactDamage => _initialContactDamage;
+
+    /// <summary>
+    /// 触手成功吸附后生成的腐蚀黏液池预制体。
+    /// </summary>
     public GameObject CorrosivePuddlePrefab => _corrosivePuddlePrefab;
+
+    /// <summary>
+    /// 腐蚀黏液池的存活时间。
+    /// </summary>
     public float PuddleLifetime => _puddleLifetime;
+
+    /// <summary>
+    /// 腐蚀黏液池触发器半径。
+    /// </summary>
     public float PuddleRadius => _puddleRadius;
+
+    /// <summary>
+    /// 腐蚀黏液池每秒造成的伤害。
+    /// </summary>
     public float PuddleDamagePerSecond => _puddleDamagePerSecond;
+
+    /// <summary>
+    /// 黏液池施加腐蚀状态的持续时间。
+    /// </summary>
     public float PuddleCorrosionDuration => _puddleCorrosionDuration;
+
+    /// <summary>
+    /// 黏液池腐蚀伤害的结算间隔。
+    /// </summary>
     public float PuddleTickInterval => _puddleTickInterval;
 
+    /// <summary>
+    /// 校验现代搁浅者技能参数，确保运行时生成命中盒和黏液池时有合法尺寸。
+    /// </summary>
     protected override void OnValidate()
     {
         base.OnValidate();

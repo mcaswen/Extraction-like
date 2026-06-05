@@ -274,3 +274,9 @@ Non-contradictions verified:
 - `IEnemyDirectDamageReceiver.NotifyDirectDamage` now receives direct Agent/player damage, and all five patrol enemy controllers assign the direct attacker as their combat target, clear awareness, face the target, unstop navigation, and enter Chase.
 - `ICombatDamageReceiver` lets enemy attacks damage both `PlayerHealthController` and `AgentPawnRoot`. Player-only effects such as silence, pull, corrosion tint, and movement knockback still apply only when the target has the matching player component.
 - Source-less damage now reports `EnemyDamaged` with the damaged enemy transform as source, preventing the damaged enemy from treating its own no-source damage as an external patrol suspicion event.
+
+## 2026-06-05 Enemy Script Commenting Findings
+
+- `Assets/Scripts/Core` uses Chinese XML documentation comments for public classes, public methods, and important public members. It also uses short `//` comments near private logic blocks where the control flow is non-obvious.
+- Enemy runtime scripts are concentrated under `Assets/Scripts/Gameplay/Enemy`, with supporting config classes in `Assets/Scripts/Gameplay/Enemy/Config`.
+- The current task should be comment-only: do not change enemy behavior, serialized field names, prefab references, or public API signatures.

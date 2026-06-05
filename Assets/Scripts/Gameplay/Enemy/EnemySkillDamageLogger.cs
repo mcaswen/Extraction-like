@@ -1,18 +1,18 @@
 using UnityEngine;
 
 /// <summary>
-/// Prints one damage summary when an enemy skill finishes
+/// 敌人技能结算日志工具，用于在技能结束时输出一次总伤害摘要。
 /// </summary>
 public static class EnemySkillDamageLogger
 {
     private const bool EnableSkillDamageLogs = true;
 
     /// <summary>
-    /// Prints the total damage caused by a completed enemy skill
+    /// 输出一个敌人技能完成后的总伤害。
     /// </summary>
-    /// <param name="source"></param>
-    /// <param name="skillName"></param>
-    /// <param name="totalDamage"></param>
+    /// <param name="source">技能来源对象。</param>
+    /// <param name="skillName">技能名称。</param>
+    /// <param name="totalDamage">本次技能累计造成的伤害。</param>
     public static void LogSkillDamage(Object source, string skillName, float totalDamage)
     {
         if (!EnableSkillDamageLogs)

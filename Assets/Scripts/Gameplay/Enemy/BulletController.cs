@@ -3,9 +3,13 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家子弹控制器。
+/// 负责飞行、命中判定、元素效果和直接伤害上下文传递。
 /// </summary>
 public class BulletController : MonoBehaviour
 {
+    /// <summary>
+    /// 玩家子弹携带的元素类型。
+    /// </summary>
     public enum AttackElementType
     {
         Physical,
@@ -13,16 +17,59 @@ public class BulletController : MonoBehaviour
         Ice
     }
 
+    /// <summary>
+    /// 子弹飞行速度。
+    /// </summary>
     public float MoveSpeed = 20f;
+
+    /// <summary>
+    /// 子弹基础伤害。
+    /// </summary>
     public float Damage = 25f;
+
+    /// <summary>
+    /// 子弹自动销毁前的存活时间。
+    /// </summary>
     public float LifeTime = 3f;
+
+    /// <summary>
+    /// 子弹运行时材质颜色。
+    /// </summary>
     public Color BulletColor = new Color(0.98f, 0.98f, 1f, 1f);
+
+    /// <summary>
+    /// 子弹当前携带的元素类型。
+    /// </summary>
     public AttackElementType AttackElement = AttackElementType.Fire;
+
+    /// <summary>
+    /// 冰元素减速倍率。
+    /// </summary>
     public float SlowMultiplier = 1f;
+
+    /// <summary>
+    /// 冰元素减速持续时间。
+    /// </summary>
     public float SlowDurationSeconds = 0f;
+
+    /// <summary>
+    /// 冰元素冰冻持续时间。
+    /// </summary>
     public float FreezeDurationSeconds = 0f;
+
+    /// <summary>
+    /// 火元素命中冰冻目标时的伤害倍率。
+    /// </summary>
     public float FrozenFireBonusMultiplier = 2f;
+
+    /// <summary>
+    /// 子弹来源，用于让被命中的敌人追击正确攻击者。
+    /// </summary>
     public Transform SourceTransform;
+
+    /// <summary>
+    /// 子弹未命中敌人时是否报告投射物命中刺激。
+    /// </summary>
     public bool ReportImpactStimulus = true;
 
     private Rigidbody _rigidbody;
@@ -77,6 +124,7 @@ public class BulletController : MonoBehaviour
             return;
         }
 
+        // 玩家子弹先处理锚点守卫符文，避免符文命中被普通敌人血量逻辑吞掉。
         AnchorSentinelRuneWeakpoint runeWeakpoint = other.GetComponentInParent<AnchorSentinelRuneWeakpoint>();
         if (runeWeakpoint != null)
         {
@@ -154,6 +202,7 @@ public class BulletController : MonoBehaviour
         bool canBreakFrozenForceField = hunterBoss != null && hunterBoss.IsForceFieldFrozen;
         if (AttackElement == AttackElementType.Fire && (statusEffectController.IsFrozen || canBreakFrozenForceField))
         {
+            // 火元素命中冰冻目标或冰冻力场时会增伤，并解除对应冻结状态。
             float fireBonusMultiplier = hunterBoss != null
                 ? Mathf.Max(FrozenFireBonusMultiplier, hunterBoss.ForceFieldFireDamageMultiplier)
                 : FrozenFireBonusMultiplier;
@@ -168,6 +217,7 @@ public class BulletController : MonoBehaviour
             : enemyHealthController.transform.position;
         Vector3 sourcePosition = SourceTransform != null ? SourceTransform.position : transform.position;
         Vector3 incomingDirection = hitPosition - sourcePosition;
+        // 这里携带攻击者上下文，保证被玩家或 Agent 命中的巡逻敌人能直接反击来源。
         EnemyDamageContext damageContext = EnemyDamageContext.FromAttacker(
             ResolveDamageSource(),
             hitPosition,
@@ -179,6 +229,7 @@ public class BulletController : MonoBehaviour
 
         if (AttackElement == AttackElementType.Ice)
         {
+            // 冰元素伤害完成后再施加状态，避免状态禁用脚本影响本次受击结算。
             if (SlowDurationSeconds > 0f)
             {
                 statusEffectController.ApplySlow(SlowMultiplier, SlowDurationSeconds);

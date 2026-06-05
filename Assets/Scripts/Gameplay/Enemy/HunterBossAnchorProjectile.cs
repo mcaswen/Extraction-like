@@ -3,14 +3,34 @@ using UnityEngine;
 
 /// <summary>
 /// 追猎者抛出的船锚投射物。
+/// 命中玩家后造成伤害和击退，并在命中或寿命结束时销毁。
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class HunterBossAnchorProjectile : MonoBehaviour
 {
+    /// <summary>
+    /// 投射物自动销毁前的存活时间。
+    /// </summary>
     public float LifeTime = 4f;
+
+    /// <summary>
+    /// 投射物命中伤害。
+    /// </summary>
     public float Damage = 16f;
+
+    /// <summary>
+    /// 投射物命中时施加给玩家的击退强度。
+    /// </summary>
     public float KnockbackStrength = 5.5f;
+
+    /// <summary>
+    /// 发射该投射物的 Boss 对象。
+    /// </summary>
     public GameObject SourceEnemy;
+
+    /// <summary>
+    /// 日志中显示的技能名称。
+    /// </summary>
     public string SkillName = "Anchor Throw";
 
     private Rigidbody _rigidbody;
@@ -30,6 +50,10 @@ public class HunterBossAnchorProjectile : MonoBehaviour
         Destroy(gameObject, LifeTime);
     }
 
+    /// <summary>
+    /// 以指定速度发射船锚投射物。
+    /// </summary>
+    /// <param name="velocity">投射物初速度。</param>
     public void Launch(Vector3 velocity)
     {
         if (_rigidbody == null)
@@ -118,6 +142,13 @@ public class HunterBossVortexField : MonoBehaviour
     private float _immobilizeDuration;
     private bool _isArmed;
 
+    /// <summary>
+    /// 配置漩涡范围、寿命、定身时间和初始武装状态。
+    /// </summary>
+    /// <param name="radius">漩涡半径。</param>
+    /// <param name="lifeTime">漩涡寿命。</param>
+    /// <param name="immobilizeDuration">定身持续时间。</param>
+    /// <param name="armedImmediately">是否创建后立刻生效。</param>
     public void Configure(float radius, float lifeTime, float immobilizeDuration, bool armedImmediately)
     {
         _radius = Mathf.Max(0.2f, radius);
@@ -131,6 +162,9 @@ public class HunterBossVortexField : MonoBehaviour
         Destroy(gameObject, _lifeTime);
     }
 
+    /// <summary>
+    /// 武装漩涡，使玩家停留在范围内时会被定身。
+    /// </summary>
     public void Arm()
     {
         _isArmed = true;

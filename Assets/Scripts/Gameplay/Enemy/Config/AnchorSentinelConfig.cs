@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 锚点守卫的符文谜题和光束攻击配置。
+/// </summary>
 [CreateAssetMenu(fileName = "SO_Enemy_AnchorSentinel", menuName = "Enemies/Anchor Sentinel Config")]
 public sealed class AnchorSentinelConfig : EnemyHealthConfigBase
 {
@@ -50,22 +53,84 @@ public sealed class AnchorSentinelConfig : EnemyHealthConfigBase
     [SerializeField, Min(0.05f), Tooltip("Damage tick interval while the beam is firing.")]
     private float _beamTickInterval = 0.12f;
 
+    /// <summary>
+    /// 启动时是否初始化已配置的符文弱点。
+    /// </summary>
     public bool AutoInitializeRunes => _autoInitializeRunes;
+
+    /// <summary>
+    /// 未配置符文时是否自动生成默认符文。
+    /// </summary>
     public bool AutoSpawnDefaultRunes => _autoSpawnDefaultRunes;
+
+    /// <summary>
+    /// 自动生成默认符文的数量。
+    /// </summary>
     public int DefaultRuneCount => _defaultRuneCount;
+
+    /// <summary>
+    /// 默认符文围绕守卫生成的半径。
+    /// </summary>
     public float DefaultRuneRadius => _defaultRuneRadius;
+
+    /// <summary>
+    /// 默认符文的生成高度。
+    /// </summary>
     public float DefaultRuneHeight => _defaultRuneHeight;
+
+    /// <summary>
+    /// 默认符文的本地缩放。
+    /// </summary>
     public Vector3 DefaultRuneScale => _defaultRuneScale;
+
+    /// <summary>
+    /// 是否将符文数组顺序作为谜题命中顺序。
+    /// </summary>
     public bool UseArrayOrderAsPuzzleSequence => _useArrayOrderAsPuzzleSequence;
+
+    /// <summary>
+    /// 命中错误符文时是否立即激活守卫。
+    /// </summary>
     public bool WrongRuneImmediatelyActivates => _wrongRuneImmediatelyActivates;
+
+    /// <summary>
+    /// 守卫检测并攻击玩家的距离。
+    /// </summary>
     public float DetectionRange => _detectionRange;
+
+    /// <summary>
+    /// 守卫激活后到第一道光束开火前的锁定时间。
+    /// </summary>
     public float LockDuration => _lockDuration;
+
+    /// <summary>
+    /// 光束持续造成伤害的时间。
+    /// </summary>
     public float FiringDuration => _firingDuration;
+
+    /// <summary>
+    /// 两次光束开火起点之间的间隔。
+    /// </summary>
     public float CooldownDuration => _cooldownDuration;
+
+    /// <summary>
+    /// 守卫激活后自动恢复休眠的时间，0 表示不按时间恢复。
+    /// </summary>
     public float ActiveRecoveryDuration => _activeRecoveryDuration;
+
+    /// <summary>
+    /// 光束每秒造成的伤害。
+    /// </summary>
     public float BeamDamagePerSecond => _beamDamagePerSecond;
+
+    /// <summary>
+    /// 光束伤害的结算间隔。
+    /// </summary>
     public float BeamTickInterval => _beamTickInterval;
 
+    /// <summary>
+    /// 校验符文谜题和光束攻击参数。
+    /// </summary>
     protected override void OnValidate()
     {
         base.OnValidate();

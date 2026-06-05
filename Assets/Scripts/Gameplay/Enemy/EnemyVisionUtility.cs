@@ -1,9 +1,23 @@
 using UnityEngine;
 
+/// <summary>
+/// 敌人视野检测工具，封装距离、水平角度和遮挡射线判断。
+/// </summary>
 public static class EnemyVisionUtility
 {
     private const float FullViewAngleThreshold = 359.9f;
 
+    /// <summary>
+    /// 判断观察者是否能在给定视野参数下看到目标。
+    /// </summary>
+    /// <param name="viewer">观察者节点。</param>
+    /// <param name="target">被观察目标。</param>
+    /// <param name="viewRange">视野距离。</param>
+    /// <param name="viewAngle">水平视野角度。</param>
+    /// <param name="lineOfSightBlockMask">阻挡视线的层。</param>
+    /// <param name="eyeHeight">观察者视线起点高度。</param>
+    /// <param name="targetHeight">目标视线采样高度。</param>
+    /// <returns>目标在距离、角度和无遮挡条件内时返回 true。</returns>
     public static bool CanSeeTarget(
         Transform viewer,
         Transform target,
@@ -31,6 +45,13 @@ public static class EnemyVisionUtility
         return HasLineOfSight(viewer, target, lineOfSightBlockMask, eyeHeight, targetHeight);
     }
 
+    /// <summary>
+    /// 判断目标是否处于水平视距内。
+    /// </summary>
+    /// <param name="viewerPosition">观察者位置。</param>
+    /// <param name="targetPosition">目标位置。</param>
+    /// <param name="viewRange">视野距离。</param>
+    /// <returns>目标水平距离不超过视野距离时返回 true。</returns>
     public static bool IsTargetInHorizontalRange(Vector3 viewerPosition, Vector3 targetPosition, float viewRange)
     {
         Vector3 toTarget = targetPosition - viewerPosition;
@@ -39,6 +60,13 @@ public static class EnemyVisionUtility
         return toTarget.sqrMagnitude <= effectiveRange * effectiveRange;
     }
 
+    /// <summary>
+    /// 判断目标是否处于观察者水平视野夹角内。
+    /// </summary>
+    /// <param name="viewer">观察者节点。</param>
+    /// <param name="targetPosition">目标位置。</param>
+    /// <param name="viewAngle">水平视野角度。</param>
+    /// <returns>目标落在视野夹角内时返回 true。</returns>
     public static bool IsTargetInHorizontalAngle(Transform viewer, Vector3 targetPosition, float viewAngle)
     {
         if (viewer == null)
@@ -70,6 +98,15 @@ public static class EnemyVisionUtility
         return angleToTarget <= effectiveAngle * 0.5f;
     }
 
+    /// <summary>
+    /// 判断观察者和目标之间是否没有被指定层遮挡。
+    /// </summary>
+    /// <param name="viewer">观察者节点。</param>
+    /// <param name="target">目标节点。</param>
+    /// <param name="lineOfSightBlockMask">阻挡视线的层。</param>
+    /// <param name="eyeHeight">观察者视线起点高度。</param>
+    /// <param name="targetHeight">目标视线采样高度。</param>
+    /// <returns>射线路径没有有效遮挡物时返回 true。</returns>
     public static bool HasLineOfSight(
         Transform viewer,
         Transform target,
@@ -103,6 +140,7 @@ public static class EnemyVisionUtility
             return true;
         }
 
+        // RaycastAll 不保证顺序，先按距离排序才能稳定跳过自身和目标碰撞体。
         System.Array.Sort(hits, CompareHitDistance);
         for (int i = 0; i < hits.Length; i++)
         {
@@ -120,6 +158,12 @@ public static class EnemyVisionUtility
         return true;
     }
 
+    /// <summary>
+    /// 获取观察者视线起点。
+    /// </summary>
+    /// <param name="viewer">观察者节点。</param>
+    /// <param name="eyeHeight">相对观察者根节点的高度。</param>
+    /// <returns>视线起点世界坐标。</returns>
     public static Vector3 GetEyePosition(Transform viewer, float eyeHeight)
     {
         return viewer != null
@@ -127,6 +171,12 @@ public static class EnemyVisionUtility
             : Vector3.zero;
     }
 
+    /// <summary>
+    /// 获取目标视线采样点。
+    /// </summary>
+    /// <param name="target">目标节点。</param>
+    /// <param name="targetHeight">相对目标根节点的高度。</param>
+    /// <returns>目标采样点世界坐标。</returns>
     public static Vector3 GetTargetPosition(Transform target, float targetHeight)
     {
         return target != null
@@ -134,6 +184,16 @@ public static class EnemyVisionUtility
             : Vector3.zero;
     }
 
+    /// <summary>
+    /// 在 Scene 视图中绘制敌人视野调试辅助线。
+    /// </summary>
+    /// <param name="viewer">观察者节点。</param>
+    /// <param name="target">可选目标节点。</param>
+    /// <param name="viewRange">视野距离。</param>
+    /// <param name="viewAngle">水平视野角度。</param>
+    /// <param name="eyeHeight">观察者视线起点高度。</param>
+    /// <param name="targetHeight">目标视线采样高度。</param>
+    /// <param name="color">绘制颜色。</param>
     public static void DrawVisionGizmos(
         Transform viewer,
         Transform target,

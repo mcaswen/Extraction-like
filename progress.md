@@ -422,3 +422,14 @@ Implementation steps for this restart:
 - Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success, 0 errors, with 9 existing warnings.
 - Ran `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
 - Ran static scans confirming no `NotifyDirectPlayerDamage` remains and Agent combat now passes source context.
+
+## 2026-06-05 Enemy Script Chinese Comments
+
+- Restored planning context and started Phase 24 for adding Chinese comments to enemy script logic.
+- Confirmed the requested style from `Assets/Scripts/Core`: public APIs use XML comments, while private complex branches get ordinary `//` comments.
+- Initial scope is the enemy runtime folder `Assets/Scripts/Gameplay/Enemy` plus enemy config scripts under its `Config` subfolder; editor-only enemy tools will be reviewed after runtime coverage is complete.
+- Added Chinese XML comments across enemy runtime/config/player-support scripts under `Assets/Scripts/Gameplay/Enemy`, including patrol AI, suspicion/vision helpers, health/damage context, spawn points, bullets, boss/special enemies, and config assets.
+- Added ordinary Chinese comments to the more complex private behavior branches, especially direct-damage chase reactions, suspicion escalation, attack timing, rune/beam/vortex logic, and hitbox setup.
+- Ran a static scan for public/protected methods in `Assets/Scripts/Gameplay/Enemy` and confirmed they have XML documentation comments.
+- Ran `git diff --check`: no whitespace errors; only repository CRLF normalization warnings.
+- Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success, 0 errors, with 9 existing unrelated warnings.

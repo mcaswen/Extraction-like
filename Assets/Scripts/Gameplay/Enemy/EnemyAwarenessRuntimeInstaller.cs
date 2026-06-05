@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 敌人感知组件运行时安装器。
+/// 用于给实现视野接口的敌人自动补齐看向、听觉和巡逻感知组件。
+/// </summary>
 public sealed class EnemyAwarenessRuntimeInstaller : MonoBehaviour
 {
     [SerializeField, Min(0.25f)]
@@ -38,6 +42,10 @@ public sealed class EnemyAwarenessRuntimeInstaller : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 确保指定敌人对象拥有巡逻感知所需的运行时组件。
+    /// </summary>
+    /// <param name="enemyObject">需要安装感知组件的敌人对象。</param>
     public static void EnsureAwarenessComponents(GameObject enemyObject)
     {
         if (enemyObject == null)

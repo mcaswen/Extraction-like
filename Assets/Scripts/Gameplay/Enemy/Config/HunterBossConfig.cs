@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 追猎者 Boss 的移动、近战、漩涡抛锚、怒吼和力场配置。
+/// </summary>
 [CreateAssetMenu(fileName = "SO_Enemy_HunterBoss", menuName = "Enemies/Hunter Boss Config")]
 public sealed class HunterBossConfig : EnemyHealthConfigBase
 {
@@ -116,43 +119,189 @@ public sealed class HunterBossConfig : EnemyHealthConfigBase
     [SerializeField, Min(0f), Tooltip("Seconds tremble debuff lasts after roar hit.")]
     private float _trembleDuration = 3f;
 
+    /// <summary>
+    /// Boss 开始追击玩家的距离。
+    /// </summary>
     public float DetectionRange => _detectionRange;
+
+    /// <summary>
+    /// Boss 放弃追击并停止战斗检查的距离。
+    /// </summary>
     public float LoseRange => _loseRange;
+
+    /// <summary>
+    /// Boss 追击时使用的移动速度。
+    /// </summary>
     public float ChaseSpeed => _chaseSpeed;
+
+    /// <summary>
+    /// 近战挥锚可启动的距离。
+    /// </summary>
     public float MeleeAttackRange => _meleeAttackRange;
+
+    /// <summary>
+    /// 两次近战挥锚之间的间隔。
+    /// </summary>
     public float MeleeAttackInterval => _meleeAttackInterval;
+
+    /// <summary>
+    /// 近战挥锚的范围检测半径。
+    /// </summary>
     public float MeleeAttackRadius => _meleeAttackRadius;
+
+    /// <summary>
+    /// 近战挥锚命中的伤害。
+    /// </summary>
     public float MeleeDamage => _meleeDamage;
+
+    /// <summary>
+    /// 近战挥锚命中时施加的击退强度。
+    /// </summary>
     public float MeleeKnockbackStrength => _meleeKnockbackStrength;
+
+    /// <summary>
+    /// 近战挥锚可视效果持续时间。
+    /// </summary>
     public float MeleeVisualDuration => _meleeVisualDuration;
+
+    /// <summary>
+    /// 漩涡结束后抛出的船锚投射物预制体。
+    /// </summary>
     public GameObject AnchorProjectilePrefab => _anchorProjectilePrefab;
+
+    /// <summary>
+    /// 漩涡力场预制体，未配置时运行时会创建默认效果。
+    /// </summary>
     public GameObject VortexFieldPrefab => _vortexFieldPrefab;
+
+    /// <summary>
+    /// Boss 可选择漩涡攻击的距离。
+    /// </summary>
     public float VortexTriggerDistance => _vortexTriggerDistance;
+
+    /// <summary>
+    /// 触发漩涡攻击前需要累计的近战命中次数。
+    /// </summary>
     public int VortexTriggerMeleeCount => _vortexTriggerMeleeCount;
+
+    /// <summary>
+    /// 漩涡力场半径。
+    /// </summary>
     public float VortexRadius => _vortexRadius;
+
+    /// <summary>
+    /// 漩涡蓄力到抛锚前的等待时间。
+    /// </summary>
     public float VortexChargeDuration => _vortexChargeDuration;
+
+    /// <summary>
+    /// 漩涡武装后对玩家施加的定身时间。
+    /// </summary>
     public float VortexImmobilizeDuration => _vortexImmobilizeDuration;
+
+    /// <summary>
+    /// 船锚投射物飞行速度。
+    /// </summary>
     public float AnchorThrowSpeed => _anchorThrowSpeed;
+
+    /// <summary>
+    /// 船锚投射物命中伤害。
+    /// </summary>
     public float AnchorThrowDamage => _anchorThrowDamage;
+
+    /// <summary>
+    /// 船锚投射物命中击退强度。
+    /// </summary>
     public float AnchorThrowKnockback => _anchorThrowKnockback;
+
+    /// <summary>
+    /// 船锚投射物自动销毁前的存活时间。
+    /// </summary>
     public float AnchorProjectileLifeTime => _anchorProjectileLifeTime;
+
+    /// <summary>
+    /// 抛锚结束后的冷却时间。
+    /// </summary>
     public float AnchorThrowCooldown => _anchorThrowCooldown;
+
+    /// <summary>
+    /// 怒吼阶段触发的生命值比例阈值。
+    /// </summary>
     public float RageThreshold => _rageThreshold;
+
+    /// <summary>
+    /// 怒吼蓄力时间。
+    /// </summary>
     public float RoarChargeDuration => _roarChargeDuration;
+
+    /// <summary>
+    /// 怒吼结束后的冷却时间。
+    /// </summary>
     public float RoarCooldown => _roarCooldown;
+
+    /// <summary>
+    /// 怒吼影响的最大距离。
+    /// </summary>
     public float RoarRange => _roarRange;
+
+    /// <summary>
+    /// 怒吼影响的正前方扇形角度。
+    /// </summary>
     public float RoarAngle => _roarAngle;
+
+    /// <summary>
+    /// 玩家未被掩体保护时受到的怒吼伤害。
+    /// </summary>
     public float RoarDamage => _roarDamage;
+
+    /// <summary>
+    /// 怒吼遮挡检测使用的掩体层。
+    /// </summary>
     public LayerMask CoverMask => _coverMask;
+
+    /// <summary>
+    /// 怒吼掩体检测时采样玩家高度。
+    /// </summary>
     public float CoverCheckHeight => _coverCheckHeight;
+
+    /// <summary>
+    /// 怒吼触发时按最大生命值比例获得的护盾量。
+    /// </summary>
     public float RageShieldMaxHealthRatio => _rageShieldMaxHealthRatio;
+
+    /// <summary>
+    /// 力场激活期间受到伤害的防御倍率。
+    /// </summary>
     public float ForceFieldDefenseMultiplier => _forceFieldDefenseMultiplier;
+
+    /// <summary>
+    /// 力场被冰系冻结时 Boss 的移动速度倍率。
+    /// </summary>
     public float ForceFieldFrozenMoveSpeedMultiplier => _forceFieldFrozenMoveSpeedMultiplier;
+
+    /// <summary>
+    /// 火系打破冻结力场时的伤害倍率。
+    /// </summary>
     public float ForceFieldFireDamageMultiplier => _forceFieldFireDamageMultiplier;
+
+    /// <summary>
+    /// 怒吼震慑给玩家施加的移动速度倍率。
+    /// </summary>
     public float TrembleMoveSpeedMultiplier => _trembleMoveSpeedMultiplier;
+
+    /// <summary>
+    /// 怒吼震慑给玩家施加的攻击倍率。
+    /// </summary>
     public float TrembleAttackMultiplier => _trembleAttackMultiplier;
+
+    /// <summary>
+    /// 怒吼震慑持续时间。
+    /// </summary>
     public float TrembleDuration => _trembleDuration;
 
+    /// <summary>
+    /// 校验 Boss 全部技能参数，保证状态机读取时数值一致。
+    /// </summary>
     protected override void OnValidate()
     {
         base.OnValidate();

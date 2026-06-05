@@ -15,6 +15,9 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
 
+    /// <summary>
+    /// 古代搁浅者的主行为状态。
+    /// </summary>
     public enum EnemyState
     {
         Patrol,
@@ -23,6 +26,9 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         RangedBiteAttack
     }
 
+    /// <summary>
+    /// 当前主行为状态。
+    /// </summary>
     public EnemyState CurrentState;
 
     [Header("Config")]
@@ -30,10 +36,29 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private AncientStranderConfig _config;
 
     [Header("References")]
+    /// <summary>
+    /// 当前战斗目标，通常是玩家，也可能是 Agent。
+    /// </summary>
     public Transform PlayerTransform;
+
+    /// <summary>
+    /// 近战鱼骨横扫起点。
+    /// </summary>
     public Transform MeleeOrigin;
+
+    /// <summary>
+    /// 远程鱼骨撕咬起点。
+    /// </summary>
     public Transform BiteOrigin;
+
+    /// <summary>
+    /// 鱼骨横扫线渲染器。
+    /// </summary>
     public LineRenderer MeleeSwingRenderer;
+
+    /// <summary>
+    /// 鱼骨撕咬线渲染器。
+    /// </summary>
     public LineRenderer FishboneBiteRenderer;
 
     [HideInInspector]
@@ -104,6 +129,9 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool _hasWarnedMissingFixedRoute;
     private AncientStranderBiteHitbox _biteHitbox;
 
+    /// <summary>
+    /// 视野检测使用的节点。
+    /// </summary>
     public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
     Transform IEnemyVisionSource.PlayerTransform => PlayerTransform;
     float IEnemyVisionSource.DetectionRange => DetectionRange;
@@ -112,7 +140,14 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     LayerMask IEnemyVisionSource.GroundMask => GroundMask;
     float IEnemyVisionSource.EyeHeight => EyeHeight;
     float IEnemyVisionSource.TargetHeight => TargetHeight;
+    /// <summary>
+    /// 仅在巡逻或巡逻感知状态下显示视野扇形。
+    /// </summary>
     public bool ShouldShowVision => CurrentState == EnemyState.Patrol || (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState);
+
+    /// <summary>
+    /// 当前视野系统是否判定能看到目标。
+    /// </summary>
     public bool CanSeePlayerForVision => CanSeePlayer();
 
     private void Start()
@@ -365,6 +400,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void PerformMeleeAttack()
     {
+        // 横扫用 OverlapSphere 结算范围伤害，可同时命中玩家或多个 Agent 目标。
         _meleeVisualTimer = MeleeVisualDuration;
         float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.2f;
@@ -389,6 +425,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void BeginBiteStrike()
     {
+        // 撕咬使用动态命中盒连接起点和目标位置，模拟鱼骨延伸出去咬合。
         _rangedAttackTimer = 0f;
         _biteStrikeTimer = 0f;
         _biteTotalDamage = 0f;
@@ -397,6 +434,10 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         SetBiteHitboxEnabled(true);
     }
 
+    /// <summary>
+    /// 鱼骨撕咬命中盒命中目标时回调古代搁浅者。
+    /// </summary>
+    /// <param name="damageReceiver">命中的战斗伤害接收者。</param>
     public void NotifyBiteHit(ICombatDamageReceiver damageReceiver)
     {
         if (!_isBiteStriking || _hasAppliedBiteDamage || damageReceiver == null)
@@ -430,6 +471,10 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
     }
 
+    /// <summary>
+    /// 直接受击时锁定攻击者，清理巡逻感知并进入追击。
+    /// </summary>
+    /// <param name="context">本次受击上下文。</param>
     public void NotifyDirectDamage(EnemyDamageContext context)
     {
         if (!context.IsDirectDamage || context.Attacker == null)
@@ -940,6 +985,12 @@ public class AncientStranderBiteHitbox : MonoBehaviour
     private float _width;
     private float _height;
 
+    /// <summary>
+    /// 初始化撕咬命中盒归属和横截面尺寸。
+    /// </summary>
+    /// <param name="owner">拥有该命中盒的古代搁浅者。</param>
+    /// <param name="width">命中盒宽度。</param>
+    /// <param name="height">命中盒高度。</param>
     public void Initialize(AncientStranderBehaviorController owner, float width, float height)
     {
         _owner = owner;
@@ -950,6 +1001,11 @@ public class AncientStranderBiteHitbox : MonoBehaviour
         _boxCollider.isTrigger = true;
     }
 
+    /// <summary>
+    /// 根据鱼骨起点和目标点更新命中盒的位置、旋转和长度。
+    /// </summary>
+    /// <param name="origin">鱼骨起点。</param>
+    /// <param name="target">鱼骨目标点。</param>
     public void UpdateHitboxTransform(Vector3 origin, Vector3 target)
     {
         if (_boxCollider == null)
@@ -965,6 +1021,7 @@ public class AncientStranderBiteHitbox : MonoBehaviour
             return;
         }
 
+        // BoxCollider 的本地 Z 轴作为鱼骨长度，因此节点放在起点和终点中点。
         transform.position = origin + delta * 0.5f;
         transform.rotation = Quaternion.LookRotation(delta.normalized, Vector3.up);
         _boxCollider.size = new Vector3(_width, _height, distance);

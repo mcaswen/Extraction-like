@@ -15,6 +15,9 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
 
+    /// <summary>
+    /// 潮汐畸变体的主行为状态。
+    /// </summary>
     public enum EnemyState
     {
         Patrol,
@@ -23,6 +26,9 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         RangedAttack
     }
 
+    /// <summary>
+    /// 当前主行为状态。
+    /// </summary>
     public EnemyState CurrentState;
 
     [Header("Config")]
@@ -30,10 +36,29 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private TidalAberrationConfig _config;
 
     [Header("References")]
+    /// <summary>
+    /// 当前战斗目标，通常是玩家，也可能是 Agent。
+    /// </summary>
     public Transform PlayerTransform;
+
+    /// <summary>
+    /// 近战电击触须的起点。
+    /// </summary>
     public Transform MeleeOrigin;
+
+    /// <summary>
+    /// 远程水柱的起点。
+    /// </summary>
     public Transform RangedOrigin;
+
+    /// <summary>
+    /// 近战电击触须的线渲染器。
+    /// </summary>
     public LineRenderer ElectricTentacleRenderer;
+
+    /// <summary>
+    /// 远程高压水柱的线渲染器。
+    /// </summary>
     public LineRenderer WaterJetRenderer;
 
     [HideInInspector]
@@ -114,6 +139,9 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
 
+    /// <summary>
+    /// 视野检测使用的节点。
+    /// </summary>
     public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
     Transform IEnemyVisionSource.PlayerTransform => PlayerTransform;
     float IEnemyVisionSource.DetectionRange => DetectionRange;
@@ -122,7 +150,14 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     LayerMask IEnemyVisionSource.GroundMask => GroundMask;
     float IEnemyVisionSource.EyeHeight => EyeHeight;
     float IEnemyVisionSource.TargetHeight => TargetHeight;
+    /// <summary>
+    /// 仅在巡逻或巡逻感知状态下显示视野扇形。
+    /// </summary>
     public bool ShouldShowVision => CurrentState == EnemyState.Patrol || (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState);
+
+    /// <summary>
+    /// 当前视野系统是否判定能看到目标。
+    /// </summary>
     public bool CanSeePlayerForVision => CanSeePlayer();
 
     private void Start()
@@ -336,6 +371,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (_isMeleeLatched)
         {
+            // 电击吸附期间按 tick 造成持续伤害，帧率波动时用 while 追赶结算。
             _meleeVisualTimer += Time.deltaTime;
             _electricTickTimer += Time.deltaTime;
             float electricTickInterval = Mathf.Max(0.05f, ElectricTickInterval);
@@ -398,6 +434,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (_isRangedCasting)
         {
+            // 水柱视觉很短，持续结束后回到追击，由冷却计时决定下一次远程攻击。
             _rangedVisualTimer += Time.deltaTime;
             if (_rangedVisualTimer >= WaterJetDuration)
             {
@@ -415,6 +452,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void PerformMeleeAttack()
     {
+        // 近战电击先造成一次接触伤害，再进入持续电击和沉默阶段。
         _meleeAttackTimer = 0f;
         _meleeVisualTimer = 0f;
         _electricTickTimer = 0f;
@@ -452,6 +490,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void PerformRangedAttack()
     {
+        // 远程水柱用射线命中，先裁到第一个有效战斗目标，再施加伤害、击退和短暂减速。
         _rangedAttackTimer = 0f;
         _rangedVisualTimer = 0f;
         _isRangedCasting = true;
@@ -492,6 +531,10 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _rangedVisualTimer = 0f;
     }
 
+    /// <summary>
+    /// 直接受击时锁定攻击者，清理巡逻感知并进入追击。
+    /// </summary>
+    /// <param name="context">本次受击上下文。</param>
     public void NotifyDirectDamage(EnemyDamageContext context)
     {
         if (!context.IsDirectDamage || context.Attacker == null)

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 敌人怀疑刺激传感器。
+/// 根据距离、遮挡和强度过滤全局刺激，并缓存当前最值得处理的一条记录。
+/// </summary>
 public sealed class EnemySuspicionSensor : MonoBehaviour
 {
     [Header("Hearing")]
@@ -25,7 +29,14 @@ public sealed class EnemySuspicionSensor : MonoBehaviour
     private bool _hasRecord;
     private float _lastAcceptedTime = -999f;
 
+    /// <summary>
+    /// 当前是否存在尚未过期的怀疑记录。
+    /// </summary>
     public bool HasActiveRecord => _hasRecord && Time.time <= _strongestRecord.ExpireTime;
+
+    /// <summary>
+    /// 当前缓存的最高优先级怀疑记录。
+    /// </summary>
     public EnemySuspicionRecord StrongestRecord => _strongestRecord;
 
     private void OnEnable()
@@ -38,6 +49,11 @@ public sealed class EnemySuspicionSensor : MonoBehaviour
         EnemySuspicionStimulusBus.StimulusRaised -= HandleStimulusRaised;
     }
 
+    /// <summary>
+    /// 尝试取出当前怀疑记录，取出后会清空传感器缓存。
+    /// </summary>
+    /// <param name="record">成功时返回被消费的怀疑记录。</param>
+    /// <returns>存在有效记录时返回 true。</returns>
     public bool TryConsumeRecord(out EnemySuspicionRecord record)
     {
         record = default;
@@ -52,6 +68,9 @@ public sealed class EnemySuspicionSensor : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 清空当前缓存的怀疑记录。
+    /// </summary>
     public void Clear()
     {
         _hasRecord = false;
@@ -64,6 +83,7 @@ public sealed class EnemySuspicionSensor : MonoBehaviour
             return;
         }
 
+        // 先按水平距离和听觉倍率过滤，避免远处刺激进入更贵的遮挡检测。
         Vector3 toStimulus = stimulus.Position - transform.position;
         toStimulus.y = 0f;
         float distance = toStimulus.magnitude;
@@ -78,6 +98,7 @@ public sealed class EnemySuspicionSensor : MonoBehaviour
             return;
         }
 
+        // 遮挡会削弱刺激强度，但不会让刺激绝对无效，便于隔墙声音仍能引导调查。
         float distanceFactor = 1f - Mathf.Clamp01(distance / effectiveRadius);
         float strength = stimulus.Strength * Mathf.Lerp(0.35f, 1f, distanceFactor);
         if (IsOccluded(stimulus.Position))
@@ -90,6 +111,7 @@ public sealed class EnemySuspicionSensor : MonoBehaviour
             return;
         }
 
+        // 强度越低，敌人估算的位置越不准确，从而形成巡逻搜索的随机性。
         Vector3 estimatedPosition = ApplyUncertainty(stimulus.Position, stimulus.UncertaintyRadius, strength);
         EnemySuspicionRecord record = new EnemySuspicionRecord(
             stimulus.Type,

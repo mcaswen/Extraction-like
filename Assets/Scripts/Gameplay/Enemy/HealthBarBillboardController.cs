@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Keeps world-space health bars facing the active camera.
+/// 世界空间血条朝向控制器，让血条始终面向当前主摄像机。
 /// </summary>
 public class HealthBarBillboardController : MonoBehaviour
 {

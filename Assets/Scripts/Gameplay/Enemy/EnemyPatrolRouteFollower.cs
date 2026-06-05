@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 固定巡逻路线的起始路点选择方式。
+/// </summary>
 public enum EnemyPatrolRouteStartMode
 {
     Closest,
@@ -8,6 +11,10 @@ public enum EnemyPatrolRouteStartMode
     SequenceOffset
 }
 
+/// <summary>
+/// 固定巡逻路线跟随器。
+/// 保存当前路点索引，并为敌人控制器提供下一个可导航目标点。
+/// </summary>
 public sealed class EnemyPatrolRouteFollower : MonoBehaviour
 {
     [SerializeField]
@@ -30,12 +37,38 @@ public sealed class EnemyPatrolRouteFollower : MonoBehaviour
     private bool _hasInitialized;
     private bool _hasWarnedInvalidRoute;
 
+    /// <summary>
+    /// 当前使用的固定巡逻路线。
+    /// </summary>
     public EnemyPatrolRoute Route => _route;
+
+    /// <summary>
+    /// 是否已绑定巡逻路线。
+    /// </summary>
     public bool HasRoute => _route != null;
+
+    /// <summary>
+    /// 当前路点的等待时间覆盖值。
+    /// </summary>
     public float CurrentWaitTimeOverride => _currentWaitTimeOverride;
+
+    /// <summary>
+    /// 当前路点等待时的注视目标。
+    /// </summary>
     public Transform CurrentLookTarget => _currentLookTarget;
+
+    /// <summary>
+    /// 当前路点等待时的扫描角度覆盖值。
+    /// </summary>
     public float CurrentWaitScanArcOverride => _currentWaitScanArcOverride;
 
+    /// <summary>
+    /// 运行时绑定新的固定巡逻路线并重置路线状态。
+    /// </summary>
+    /// <param name="route">巡逻路线。</param>
+    /// <param name="startMode">起始路点选择方式。</param>
+    /// <param name="sequenceOffset">顺序偏移起点。</param>
+    /// <param name="navMeshSampleRadius">NavMesh 采样半径。</param>
     public void AssignRoute(
         EnemyPatrolRoute route,
         EnemyPatrolRouteStartMode startMode,
@@ -55,11 +88,21 @@ public sealed class EnemyPatrolRouteFollower : MonoBehaviour
         _hasWarnedInvalidRoute = false;
     }
 
+    /// <summary>
+    /// 判断当前路线是否至少有两个可导航路点。
+    /// </summary>
+    /// <returns>路线可用于固定巡逻时返回 true。</returns>
     public bool HasUsableRoute()
     {
         return _route != null && _route.CountSampledWaypoints(GetSampleRadius()) >= 2;
     }
 
+    /// <summary>
+    /// 根据起始模式选择初始巡逻目标。
+    /// </summary>
+    /// <param name="currentPosition">敌人当前位置。</param>
+    /// <param name="destination">成功时返回初始目标位置。</param>
+    /// <returns>成功选择初始目标时返回 true。</returns>
     public bool TrySetInitialDestination(Vector3 currentPosition, out Vector3 destination)
     {
         destination = default;
@@ -75,6 +118,12 @@ public sealed class EnemyPatrolRouteFollower : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 将当前目标设置为距离敌人最近的路线点。
+    /// </summary>
+    /// <param name="currentPosition">敌人当前位置。</param>
+    /// <param name="destination">成功时返回最近目标位置。</param>
+    /// <returns>成功找到最近路点时返回 true。</returns>
     public bool TrySetNearestDestination(Vector3 currentPosition, out Vector3 destination)
     {
         destination = default;
@@ -96,6 +145,12 @@ public sealed class EnemyPatrolRouteFollower : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 沿路线推进到下一个可导航目标点。
+    /// </summary>
+    /// <param name="currentPosition">敌人当前位置。</param>
+    /// <param name="destination">成功时返回下一个目标位置。</param>
+    /// <returns>成功推进到下一个路点时返回 true。</returns>
     public bool TryAdvanceToNextDestination(Vector3 currentPosition, out Vector3 destination)
     {
         destination = default;
@@ -133,17 +188,32 @@ public sealed class EnemyPatrolRouteFollower : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// 获取当前路点等待时间，没有覆盖值时返回默认等待时间。
+    /// </summary>
+    /// <param name="defaultWaitTime">敌人配置中的默认等待时间。</param>
+    /// <returns>当前路点实际等待时间。</returns>
     public float GetCurrentWaitTime(float defaultWaitTime)
     {
         return _currentWaitTimeOverride >= 0f ? _currentWaitTimeOverride : defaultWaitTime;
     }
 
+    /// <summary>
+    /// 尝试获取当前路点等待时的注视目标。
+    /// </summary>
+    /// <param name="lookTarget">成功时返回注视目标。</param>
+    /// <returns>当前路点配置了注视目标时返回 true。</returns>
     public bool TryGetCurrentLookTarget(out Transform lookTarget)
     {
         lookTarget = _currentLookTarget;
         return lookTarget != null;
     }
 
+    /// <summary>
+    /// 获取当前路点等待扫描角度，没有覆盖值时返回默认扫描角度。
+    /// </summary>
+    /// <param name="defaultScanArc">敌人默认等待扫描角度。</param>
+    /// <returns>当前路点实际等待扫描角度。</returns>
     public float GetCurrentWaitScanArc(float defaultScanArc)
     {
         return _currentWaitScanArcOverride >= 0f ? _currentWaitScanArcOverride : defaultScanArc;
@@ -196,6 +266,7 @@ public sealed class EnemyPatrolRouteFollower : MonoBehaviour
     {
         if (_route != null && _route.RouteMode == EnemyPatrolRouteMode.PingPong)
         {
+            // PingPong 在两端反向，避免从末尾直接跳回起点造成敌人瞬移式转向。
             if (waypointCount <= 1)
             {
                 return currentIndex;

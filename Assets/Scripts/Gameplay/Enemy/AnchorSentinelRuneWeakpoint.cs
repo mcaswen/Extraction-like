@@ -7,7 +7,14 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class AnchorSentinelRuneWeakpoint : MonoBehaviour
 {
+    /// <summary>
+    /// 该符文在谜题命中序列中的顺序。
+    /// </summary>
     public int RuneOrderIndex;
+
+    /// <summary>
+    /// 用于表现符文状态颜色的渲染器。
+    /// </summary>
     public Renderer RuneRenderer;
 
     private AnchorSentinelBehaviorController _owner;
@@ -19,6 +26,11 @@ public class AnchorSentinelRuneWeakpoint : MonoBehaviour
         hitCollider.isTrigger = true;
     }
 
+    /// <summary>
+    /// 初始化符文弱点归属、顺序和默认可命中状态。
+    /// </summary>
+    /// <param name="owner">拥有该符文的锚点守卫。</param>
+    /// <param name="runeOrderIndex">谜题顺序索引。</param>
     public void Initialize(AnchorSentinelBehaviorController owner, int runeOrderIndex)
     {
         _owner = owner;
@@ -38,6 +50,9 @@ public class AnchorSentinelRuneWeakpoint : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 通知锚点守卫该符文被命中。
+    /// </summary>
     public void NotifyHit()
     {
         if (_isDisabled || _owner == null)
@@ -48,6 +63,9 @@ public class AnchorSentinelRuneWeakpoint : MonoBehaviour
         _owner.NotifyRuneHit(this);
     }
 
+    /// <summary>
+    /// 将符文标记为已解开，并关闭碰撞。
+    /// </summary>
     public void MarkSolved()
     {
         _isDisabled = true;
@@ -59,11 +77,17 @@ public class AnchorSentinelRuneWeakpoint : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 将符文标记为命中错误状态。
+    /// </summary>
     public void MarkFailed()
     {
         SetRuneColor(new Color(1f, 0.35f, 0.18f, 1f));
     }
 
+    /// <summary>
+    /// 将符文标记为警戒状态。
+    /// </summary>
     public void MarkAlert()
     {
         if (!_isDisabled)
@@ -72,6 +96,9 @@ public class AnchorSentinelRuneWeakpoint : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 将符文重置回休眠可命中状态。
+    /// </summary>
     public void ResetToDormant()
     {
         _isDisabled = false;

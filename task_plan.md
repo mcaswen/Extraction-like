@@ -48,6 +48,7 @@ Out of scope:
 | 21. Enemy direct-hit combat response | Done | Player direct damage carries attacker context; hit patrol enemy locks player and enters chase without alerting nearby enemies | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 | 22. Enemy direct-hit long-range chase fix | Done | Directly hit patrol enemies get a short forced chase window and sampled NavMesh chase destination before normal lose-range leash resumes | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 | 23. Enemy direct attacker retaliation | Done | Direct Agent/player damage carries an attacker; patrol enemies chase and attack the direct attacker instead of stopping in patrol awareness | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
+| 24. Enemy script Chinese comments | Done | Added Chinese XML comments for public enemy APIs and concise normal comments for complex private enemy logic, following `Assets/Scripts/Core` style | Public/protected method comment scan, `git diff --check`, and `dotnet build Assembly-CSharp.csproj` pass |
 
 ## TSV Columns
 

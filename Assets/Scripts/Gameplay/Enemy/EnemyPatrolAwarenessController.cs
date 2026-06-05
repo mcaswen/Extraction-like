@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+/// <summary>
+/// 敌人在巡逻阶段的感知子状态。
+/// </summary>
 public enum EnemyPatrolAwarenessState
 {
     Patrol,
@@ -11,6 +14,10 @@ public enum EnemyPatrolAwarenessState
 
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
+/// <summary>
+/// 敌人巡逻感知控制器。
+/// 将听觉刺激升级为怀疑、调查和搜索行为，并在重新看到目标时交还给主战斗状态机。
+/// </summary>
 public sealed class EnemyPatrolAwarenessController : MonoBehaviour
 {
     [Header("Thresholds")]
@@ -55,8 +62,19 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
     private bool _hasReturnDestination;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
 
+    /// <summary>
+    /// 当前巡逻感知状态。
+    /// </summary>
     public EnemyPatrolAwarenessState State => _state;
+
+    /// <summary>
+    /// 敌人是否正在执行怀疑、调查或搜索行为。
+    /// </summary>
     public bool IsInAwarenessState => _state != EnemyPatrolAwarenessState.Patrol;
+
+    /// <summary>
+    /// 当前调查或搜索的目标位置。
+    /// </summary>
     public Vector3 InvestigatePosition => _investigatePosition;
 
     private void Awake()
@@ -66,8 +84,15 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
     }
 
+    /// <summary>
+    /// 当前感知系统使用的视野节点。
+    /// </summary>
     public Transform VisionTransform => _lookController != null ? _lookController.VisionTransform : transform;
 
+    /// <summary>
+    /// 设置巡逻感知预设；禁用巡逻感知时会立刻回到普通巡逻。
+    /// </summary>
+    /// <param name="awarenessPreset">感知预设。</param>
     public void ConfigurePreset(EnemyAwarenessPreset awarenessPreset)
     {
         _awarenessPreset = awarenessPreset;
@@ -77,11 +102,21 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 普通巡逻帧更新入口，只驱动视野扫描和新刺激消费。
+    /// </summary>
+    /// <param name="isWaiting">敌人是否正在巡逻点等待。</param>
     public void TickPassivePatrol(bool isWaiting)
     {
         TickPassivePatrol(isWaiting, null, -1f);
     }
 
+    /// <summary>
+    /// 普通巡逻帧更新入口，并传入当前路点的等待注视覆盖。
+    /// </summary>
+    /// <param name="isWaiting">敌人是否正在巡逻点等待。</param>
+    /// <param name="waitLookTarget">等待时优先注视的目标。</param>
+    /// <param name="waitScanArcOverride">等待扫描角度覆盖值。</param>
     public void TickPassivePatrol(bool isWaiting, Transform waitLookTarget, float waitScanArcOverride)
     {
         EnsureReferences();
@@ -102,6 +137,13 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 驱动怀疑、调查或搜索状态，并在看见目标或回到巡逻时回调主控制器。
+    /// </summary>
+    /// <param name="canSeeTarget">主控制器提供的目标可见性判断。</param>
+    /// <param name="onTargetSeen">重新看到目标时执行的回调。</param>
+    /// <param name="onReturnToPatrol">感知流程结束并回巡逻时执行的回调。</param>
+    /// <returns>当前帧由感知状态接管时返回 true。</returns>
     public bool TickAwareness(
         System.Func<bool> canSeeTarget,
         System.Action onTargetSeen,
@@ -146,6 +188,9 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 重置巡逻感知状态，清理记录并恢复普通巡逻。
+    /// </summary>
     public void ResetAwareness()
     {
         EnsureReferences();
@@ -156,6 +201,11 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         _lookController?.ClearExternalIntent();
     }
 
+    /// <summary>
+    /// 获取进入调查前的原始巡逻目的地。
+    /// </summary>
+    /// <param name="destination">成功时返回原本的巡逻目的地。</param>
+    /// <returns>存在可返回目的地时返回 true。</returns>
     public bool TryGetReturnDestination(out Vector3 destination)
     {
         destination = _returnDestination;
@@ -183,6 +233,7 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         _activeRecord = record;
         _investigatePosition = record.EstimatedPosition;
 
+        // 根据刺激强度决定只看一眼、原地警觉，还是移动到估算位置调查。
         if (strength >= _investigateThreshold)
         {
             EnterInvestigate(record);
@@ -213,6 +264,7 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         _stateTimer = 0f;
         _investigatePosition = record.EstimatedPosition;
         _lookController.LookAtPosition(_investigatePosition, EnemyLookIntentSource.Investigate, 1.3f);
+        // 调查完成后尽量回到原巡逻目的地，避免固定路线被怀疑事件打断后丢失节奏。
         _hasReturnDestination = TryCaptureAgentDestination(out _returnDestination);
 
         if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
@@ -264,6 +316,7 @@ public sealed class EnemyPatrolAwarenessController : MonoBehaviour
         _stateTimer += Time.deltaTime;
         if (Time.time >= _nextSearchLookTime)
         {
+            // 搜索状态围绕调查点随机看向数个方向，模拟短时间搜寻而不移动。
             Vector3 direction = Quaternion.Euler(0f, Random.Range(-_searchScanArc * 0.5f, _searchScanArc * 0.5f), 0f) * transform.forward;
             Vector3 lookPosition = _investigatePosition + direction.normalized * Random.Range(1.5f, _searchSampleRadius);
             _lookController.LookAtPosition(lookPosition, EnemyLookIntentSource.Investigate, _searchLookInterval + 0.2f);

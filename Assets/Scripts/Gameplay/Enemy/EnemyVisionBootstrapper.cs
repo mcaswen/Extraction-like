@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// 敌人视野运行时引导器。
+/// 场景加载后确保视野显示和感知安装器存在。
+/// </summary>
 public static class EnemyVisionBootstrapper
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

@@ -15,6 +15,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
 
+    /// <summary>
+    /// 现代搁浅者的主行为状态。
+    /// </summary>
     public enum EnemyState
     {
         Patrol,
@@ -22,6 +25,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         Attack
     }
 
+    /// <summary>
+    /// 当前主行为状态。
+    /// </summary>
     public EnemyState CurrentState;
 
     [Header("Config")]
@@ -29,8 +35,19 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private ModernStranderConfig _config;
 
     [Header("References")]
+    /// <summary>
+    /// 当前战斗目标，通常是玩家，也可能是 Agent。
+    /// </summary>
     public Transform PlayerTransform;
+
+    /// <summary>
+    /// 触手攻击的起点。
+    /// </summary>
     public Transform TentacleOrigin;
+
+    /// <summary>
+    /// 触手攻击的线渲染器。
+    /// </summary>
     public LineRenderer TentacleRenderer;
 
     [HideInInspector]
@@ -110,6 +127,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private bool _hasWarnedMissingFixedRoute;
     private ModernStranderTentacleHitbox _tentacleHitbox;
 
+    /// <summary>
+    /// 视野检测使用的节点。
+    /// </summary>
     public Transform VisionTransform => _patrolAwareness != null ? _patrolAwareness.VisionTransform : transform;
     Transform IEnemyVisionSource.PlayerTransform => PlayerTransform;
     float IEnemyVisionSource.DetectionRange => DetectionRange;
@@ -118,7 +138,14 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     LayerMask IEnemyVisionSource.GroundMask => GroundMask;
     float IEnemyVisionSource.EyeHeight => EyeHeight;
     float IEnemyVisionSource.TargetHeight => TargetHeight;
+    /// <summary>
+    /// 仅在巡逻或巡逻感知状态下显示视野扇形。
+    /// </summary>
     public bool ShouldShowVision => CurrentState == EnemyState.Patrol || (_patrolAwareness != null && _patrolAwareness.IsInAwarenessState);
+
+    /// <summary>
+    /// 当前视野系统是否判定能看到目标。
+    /// </summary>
     public bool CanSeePlayerForVision => CanSeePlayer();
 
     private void Start()
@@ -222,8 +249,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         bool hadActiveTentacle = _isTentacleStriking || _isTentacleLatched;
         float totalDamage = _tentacleTotalDamage;
 
-        // Space-hourglass magic seal can disable this behaviour mid-attack.
-        // Ensure any active tentacle latch/hitbox stops immediately.
+        // 魔法封印可能在触手攻击中途禁用技能，因此这里立即停止命中盒和吸附状态。
         _isTentacleStriking = false;
         _isTentacleLatched = false;
         _latchTimer = 0f;
@@ -332,6 +358,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         if (_isTentacleLatched)
         {
+            // 吸附阶段持续造成腐蚀伤害，并把玩家向触手起点方向拉拽。
             _latchTimer += Time.deltaTime;
 
             if (_combatDamageReceiver != null && _playerHealthController == null)
@@ -368,6 +395,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         if (_isTentacleStriking)
         {
+            // 触手已伸出但尚未命中时，只维持短暂命中窗口。
             _latchTimer += Time.deltaTime;
             if (_latchTimer >= TentacleLatchDuration)
             {
@@ -385,6 +413,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
     private void BeginTentacleStrike()
     {
+        // 每次触手攻击从“伸出命中盒”开始，首次命中后才切换为吸附。
         _attackTimer = 0f;
         _latchTimer = 0f;
         _tentacleTotalDamage = 0f;
@@ -412,6 +441,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         if (hadLatchedPlayer)
         {
+            // 只有成功吸附过目标才在目标脚下留下腐蚀黏液池。
             SpawnCorrosivePuddle(puddlePosition);
         }
 
@@ -421,6 +451,10 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
     }
 
+    /// <summary>
+    /// 直接受击时锁定攻击者，清理巡逻感知并进入追击。
+    /// </summary>
+    /// <param name="context">本次受击上下文。</param>
     public void NotifyDirectDamage(EnemyDamageContext context)
     {
         if (!context.IsDirectDamage || context.Attacker == null)
@@ -442,6 +476,11 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         TrySetChaseDestination();
     }
 
+    /// <summary>
+    /// 触手命中盒命中可受击目标时回调现代搁浅者。
+    /// </summary>
+    /// <param name="damageReceiver">命中的战斗伤害接收者。</param>
+    /// <param name="playerMovementController">命中玩家时的移动控制器。</param>
     public void NotifyTentacleHit(ICombatDamageReceiver damageReceiver, PlayerMovementController playerMovementController)
     {
         if (!_isTentacleStriking || damageReceiver == null)
@@ -461,6 +500,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
 
         _hasAppliedInitialLatchDamage = true;
+        // 首次命中只结算一次即时伤害，后续持续伤害由吸附阶段处理。
         _tentacleTotalDamage += CombatDamageUtility.ApplyDamageTo(
             _combatDamageReceiver,
             InitialContactDamage,

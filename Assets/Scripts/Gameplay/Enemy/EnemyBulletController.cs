@@ -1,17 +1,38 @@
 using Gameplay.SkillEffect;
 using UnityEngine;
+
 /// <summary>
-/// 敌人子弹控制器
+/// 敌人子弹控制器。
+/// 负责飞行、命中通用战斗目标并输出技能伤害日志。
 /// </summary>
 public class EnemyBulletController : MonoBehaviour
 {
-    public float MoveSpeed = 15f; // 敌人的子弹可以稍微慢一点，给玩家走位躲避的空间
-    public float Damage = 15f;//伤害
-    public float LifeTime = 3f;//存在时间
+    /// <summary>
+    /// 子弹飞行速度，通常略慢于玩家子弹以留出走位空间。
+    /// </summary>
+    public float MoveSpeed = 15f;
+
+    /// <summary>
+    /// 子弹命中造成的伤害。
+    /// </summary>
+    public float Damage = 15f;
+
+    /// <summary>
+    /// 子弹自动销毁前的存活时间。
+    /// </summary>
+    public float LifeTime = 3f;
+
+    /// <summary>
+    /// 发射该子弹的敌人对象。
+    /// </summary>
     public GameObject SourceEnemy;
+
+    /// <summary>
+    /// 日志中显示的技能名称。
+    /// </summary>
     public string SkillName = "Ranged Shot";
 
-    private Rigidbody _rigidbody;//刚体组件
+    private Rigidbody _rigidbody;
 
     private void Awake()
     {
@@ -20,15 +41,16 @@ public class EnemyBulletController : MonoBehaviour
 
     private void Start()
     {
-        _rigidbody = GetComponent<Rigidbody>();//实例化刚体
-        _rigidbody.velocity = transform.forward * MoveSpeed;//经典方向×速度  表示指定某个方向的速度    可以用velocity表示  也可以用Vector3来接受
+        _rigidbody = GetComponent<Rigidbody>();
+        _rigidbody.velocity = transform.forward * MoveSpeed;
 
-        Destroy(gameObject, LifeTime);//计时消除子弹实例
+        Destroy(gameObject, LifeTime);
     }
+
     /// <summary>
-    /// 触发trigger调用方法
+    /// 子弹触发碰撞时结算伤害并销毁。
     /// </summary>
-    /// <param name="other"></param>other表示的撞击到的物体
+    /// <param name="other">命中的碰撞体。</param>
     private void OnTriggerEnter(Collider other)
     {
         if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
@@ -36,13 +58,13 @@ public class EnemyBulletController : MonoBehaviour
             return;
         }
 
-        // 如果碰到了敌人自己（或者其他敌人），直接忽略！防止痛击我的队友
+        // 敌人子弹忽略敌人阵营，避免远程敌人互相误伤。
         if (other.CompareTag("Enemy"))
         {
             return;
         }
 
-        // 检查是不是打中了玩家
+        // 通过通用战斗受击接口兼容玩家和 Agent 目标。
         ICombatDamageReceiver damageReceiver = null;
         CombatDamageUtility.TryGetDamageReceiver(other, out damageReceiver);
         if (damageReceiver == null && other.CompareTag("Player"))
@@ -62,7 +84,6 @@ public class EnemyBulletController : MonoBehaviour
         float totalDamage = 0f;
         if (damageReceiver != null)
         {
-            // 打中玩家，玩家扣血
             Vector3 hitPoint = other.ClosestPoint(transform.position);
             Vector3 hitDirection = hitPoint - transform.position;
             totalDamage = damageReceiver.TakeCombatDamage(
@@ -74,7 +95,7 @@ public class EnemyBulletController : MonoBehaviour
 
         EnemySkillDamageLogger.LogSkillDamage(SourceEnemy != null ? SourceEnemy : gameObject, SkillName, totalDamage);
 
-        // 碰到任何东西（除了敌人自己）都销毁子弹
+        // 碰到任何非敌人对象后销毁，避免子弹穿透环境或目标。
         Destroy(gameObject);
     }
 }

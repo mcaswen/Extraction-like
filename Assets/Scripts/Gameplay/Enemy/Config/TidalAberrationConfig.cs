@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 潮汐畸变体的近战电击和远程水柱技能配置。
+/// </summary>
 [CreateAssetMenu(fileName = "SO_Enemy_TidalAberration", menuName = "Enemies/Tidal Aberration Config")]
 public sealed class TidalAberrationConfig : EnemyPatrolConfigBase
 {
@@ -53,23 +56,89 @@ public sealed class TidalAberrationConfig : EnemyPatrolConfigBase
     [SerializeField, Min(0.1f), Tooltip("Raycast distance used by water jet.")]
     private float _waterJetMaxDistance = 10f;
 
+    /// <summary>
+    /// 近战电击可启动的距离。
+    /// </summary>
     public float MeleeAttackRange => _meleeAttackRange;
+
+    /// <summary>
+    /// 两次近战电击之间的间隔。
+    /// </summary>
     public float MeleeAttackInterval => _meleeAttackInterval;
+
+    /// <summary>
+    /// 电击吸附状态的持续时间。
+    /// </summary>
     public float MeleeLatchDuration => _meleeLatchDuration;
+
+    /// <summary>
+    /// 近战接触造成的即时伤害。
+    /// </summary>
     public float MeleeContactDamage => _meleeContactDamage;
+
+    /// <summary>
+    /// 电击命中后让玩家无法施法的时间。
+    /// </summary>
     public float SilenceDuration => _silenceDuration;
+
+    /// <summary>
+    /// 电击吸附期间每秒造成的伤害。
+    /// </summary>
     public float ElectricTickDamagePerSecond => _electricTickDamagePerSecond;
+
+    /// <summary>
+    /// 电击吸附伤害的结算间隔。
+    /// </summary>
     public float ElectricTickInterval => _electricTickInterval;
+
+    /// <summary>
+    /// 允许使用远程水柱的最小距离。
+    /// </summary>
     public float MinimumRangedDistance => _minimumRangedDistance;
+
+    /// <summary>
+    /// 远程水柱可命中的最大距离。
+    /// </summary>
     public float RangedAttackRange => _rangedAttackRange;
+
+    /// <summary>
+    /// 两次水柱攻击之间的间隔。
+    /// </summary>
     public float RangedAttackInterval => _rangedAttackInterval;
+
+    /// <summary>
+    /// 水柱射线和视觉效果的持续时间。
+    /// </summary>
     public float WaterJetDuration => _waterJetDuration;
+
+    /// <summary>
+    /// 水柱命中时造成的伤害。
+    /// </summary>
     public float WaterJetDamage => _waterJetDamage;
+
+    /// <summary>
+    /// 水柱命中时施加的击退强度。
+    /// </summary>
     public float WaterJetKnockbackStrength => _waterJetKnockbackStrength;
+
+    /// <summary>
+    /// 水柱击退后施加给玩家的移动速度倍率。
+    /// </summary>
     public float KnockbackMoveSpeedMultiplier => _knockbackMoveSpeedMultiplier;
+
+    /// <summary>
+    /// 水柱击退后的减速持续时间。
+    /// </summary>
     public float KnockbackSlowDuration => _knockbackSlowDuration;
+
+    /// <summary>
+    /// 水柱射线检测的最大距离。
+    /// </summary>
     public float WaterJetMaxDistance => _waterJetMaxDistance;
 
+    /// <summary>
+    /// 校验潮汐畸变体的近战和远程攻击参数。
+    /// </summary>
     protected override void OnValidate()
     {
         base.OnValidate();

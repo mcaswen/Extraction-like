@@ -6,10 +6,29 @@ using UnityEngine;
 /// </summary>
 public class PlayerMovementController : MonoBehaviour
 {
+    /// <summary>
+    /// 玩家基础移动速度。
+    /// </summary>
     public float MoveSpeed = 6f;
+
+    /// <summary>
+    /// 外部拉拽速度衰减系数。
+    /// </summary>
     public float ExternalPullDamping = 14f;
+
+    /// <summary>
+    /// 外部击退速度衰减系数。
+    /// </summary>
     public float ExternalImpulseDamping = 10f;
+
+    /// <summary>
+    /// 定身状态染色颜色。
+    /// </summary>
     public Color ImmobilizeTintColor = new Color(0.42f, 0.72f, 1f, 1f);
+
+    /// <summary>
+    /// 定身状态染色强度。
+    /// </summary>
     public float ImmobilizeTintStrength = 0.5f;
 
     private Rigidbody _playerRigidbody;
@@ -61,6 +80,7 @@ public class PlayerMovementController : MonoBehaviour
         _playerRigidbody.MovePosition(_playerRigidbody.position + finalVelocity * Time.fixedDeltaTime);
         if (movement.sqrMagnitude > 0.01f && Time.time >= _nextFootstepStimulusTime)
         {
+            // 玩家移动会周期性产生脚步刺激，供敌人巡逻感知系统调查。
             EnemySuspicionStimulusBus.ReportFootstep(transform.position, transform);
             _nextFootstepStimulusTime = Time.time + 0.65f;
         }
@@ -102,6 +122,8 @@ public class PlayerMovementController : MonoBehaviour
     /// <summary>
     /// 施加一股朝目标点的轻微拉拽力。
     /// </summary>
+    /// <param name="targetPosition">拉拽目标点。</param>
+    /// <param name="pullStrength">拉拽强度。</param>
     public void ApplyExternalPull(Vector3 targetPosition, float pullStrength)
     {
         Vector3 direction = targetPosition - transform.position;
@@ -117,6 +139,8 @@ public class PlayerMovementController : MonoBehaviour
     /// <summary>
     /// 施加一个瞬时击退/推力。
     /// </summary>
+    /// <param name="direction">推力方向。</param>
+    /// <param name="strength">推力强度。</param>
     public void ApplyExternalImpulse(Vector3 direction, float strength)
     {
         Vector3 planarDirection = direction;
@@ -132,6 +156,7 @@ public class PlayerMovementController : MonoBehaviour
     /// <summary>
     /// 施加短时间定身。
     /// </summary>
+    /// <param name="duration">定身持续时间。</param>
     public void ApplyImmobilize(float duration)
     {
         if (duration <= 0f)
@@ -143,11 +168,20 @@ public class PlayerMovementController : MonoBehaviour
         UpdateImmobilizeVisual();
     }
 
+    /// <summary>
+    /// 玩家当前是否处于定身状态。
+    /// </summary>
+    /// <returns>定身仍在持续时返回 true。</returns>
     public bool IsImmobilized()
     {
         return _immobilizeDurationRemaining > 0f;
     }
 
+    /// <summary>
+    /// 应用移动速度增益倍率。
+    /// </summary>
+    /// <param name="multiplier">速度倍率。</param>
+    /// <param name="duration">持续时间。</param>
     public void ApplyMoveSpeedMultiplier(float multiplier, float duration)
     {
         if (duration <= 0f || multiplier <= 0f)
@@ -159,6 +193,11 @@ public class PlayerMovementController : MonoBehaviour
         _speedBoostMultiplier = Mathf.Max(_speedBoostMultiplier, multiplier);
     }
 
+    /// <summary>
+    /// 应用移动速度减益倍率。
+    /// </summary>
+    /// <param name="multiplier">速度倍率。</param>
+    /// <param name="duration">持续时间。</param>
     public void ApplyMoveSpeedDebuff(float multiplier, float duration)
     {
         if (duration <= 0f || multiplier <= 0f)

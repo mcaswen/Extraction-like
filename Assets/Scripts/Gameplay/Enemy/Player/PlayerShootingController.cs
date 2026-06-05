@@ -3,7 +3,8 @@ using Gameplay.SkillEffect;
 using UnityEngine;
 
 /// <summary>
-/// Player ranged combat + magic abilities + unlock progression.
+/// 玩家远程攻击、魔法技能和解锁进度控制器。
+/// 敌人的沉默、怒吼震慑和玩家攻击上下文都通过这里接入。
 /// </summary>
 public class PlayerShootingController : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class PlayerShootingController : MonoBehaviour
         IceCone
     }
 
+    /// <summary>
+    /// 当前场景中的玩家射击控制器单例。
+    /// </summary>
     public static PlayerShootingController Instance { get; private set; }
 
     public Transform FirePoint;
@@ -289,6 +293,10 @@ public class PlayerShootingController : MonoBehaviour
         GUI.Label(new Rect(hintRect.x + 10f, hintRect.y + 6f, hintRect.width - 20f, 20f), _latestUnlockMessage);
     }
 
+    /// <summary>
+    /// 根据道具数据尝试解锁对应魔法能力。
+    /// </summary>
+    /// <param name="itemData">被使用或拾取的道具数据。</param>
     public void TryUnlockFromItem(InventoryItemData itemData)
     {
         if (itemData == null)
@@ -310,6 +318,13 @@ public class PlayerShootingController : MonoBehaviour
         TryUnlockMagic(unlockType, Mathf.Max(1, itemData.RunePatternPoints), itemData.ItemName);
     }
 
+    /// <summary>
+    /// 尝试解锁指定魔法能力或提升符文等级。
+    /// </summary>
+    /// <param name="unlockType">解锁类型。</param>
+    /// <param name="runePatternPoints">符文点数。</param>
+    /// <param name="sourceName">来源名称，用于提示。</param>
+    /// <returns>成功产生新解锁或符文成长时返回 true。</returns>
     public bool TryUnlockMagic(MagicUnlockType unlockType, int runePatternPoints = 1, string sourceName = null)
     {
         if (unlockType == MagicUnlockType.None)
@@ -367,8 +382,9 @@ public class PlayerShootingController : MonoBehaviour
     }
 
     /// <summary>
-    /// Applies silence effect during which shooting and magic skills are unavailable.
+    /// 施加沉默效果，沉默期间无法射击或释放魔法。
     /// </summary>
+    /// <param name="duration">沉默持续时间。</param>
     public void ApplySilence(float duration)
     {
         if (duration <= 0f)
@@ -380,6 +396,10 @@ public class PlayerShootingController : MonoBehaviour
         UpdateSilenceVisual();
     }
 
+    /// <summary>
+    /// 玩家当前是否处于沉默状态。
+    /// </summary>
+    /// <returns>沉默仍在持续时返回 true。</returns>
     public bool IsSilenced()
     {
         return _silenceDurationRemaining > 0f;
@@ -1490,6 +1510,11 @@ public class PlayerShootingController : MonoBehaviour
             (_attackDebuffDurationRemaining > 0f ? _attackDebuffMultiplier : 1f);
     }
 
+    /// <summary>
+    /// 施加攻击倍率降低效果，供敌人技能临时削弱玩家输出。
+    /// </summary>
+    /// <param name="multiplier">攻击倍率，范围会限制在 0.1 到 1 之间。</param>
+    /// <param name="duration">削弱持续时间。</param>
     public void ApplyAttackMultiplierDebuff(float multiplier, float duration)
     {
         if (duration <= 0f || multiplier <= 0f)

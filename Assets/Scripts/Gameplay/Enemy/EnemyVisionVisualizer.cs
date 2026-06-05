@@ -2,6 +2,10 @@ using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
+/// <summary>
+/// 敌人视野扇形可视化组件。
+/// 根据敌人的视野数据动态生成贴地 Mesh，并在看到玩家时切换警戒颜色。
+/// </summary>
 public sealed class EnemyVisionVisualizer : MonoBehaviour
 {
     [SerializeField, Min(1f)]
@@ -101,6 +105,14 @@ public sealed class EnemyVisionVisualizer : MonoBehaviour
         RebuildVisionMesh();
     }
 
+    /// <summary>
+    /// 配置视野可视化使用的材质、地面层、显示距离和刷新频率。
+    /// </summary>
+    /// <param name="visionMaterial">可选视野材质。</param>
+    /// <param name="groundMask">地面投影层。</param>
+    /// <param name="displayDistance">距离玩家多远以内才显示扇形。</param>
+    /// <param name="rayCount">扇形边界采样射线数量。</param>
+    /// <param name="updateInterval">Mesh 重建间隔。</param>
     public void Configure(
         Material visionMaterial,
         LayerMask groundMask,
@@ -157,6 +169,7 @@ public sealed class EnemyVisionVisualizer : MonoBehaviour
             ? 360f / segmentCount
             : viewAngle / segmentCount;
 
+        // 以 VisionPivot 为中心按角度采样，遇到遮挡就把扇形边缘截断到命中点。
         for (int i = 0; i <= segmentCount; i++)
         {
             float angle = startAngle + step * i;
@@ -225,6 +238,7 @@ public sealed class EnemyVisionVisualizer : MonoBehaviour
             ? _visionSource.GroundMask
             : _groundMask;
 
+        // 视野 Mesh 贴近地表绘制，避免在起伏地形上漂浮或穿地过多。
         if (Physics.Raycast(
                 rayOrigin,
                 Vector3.down,
