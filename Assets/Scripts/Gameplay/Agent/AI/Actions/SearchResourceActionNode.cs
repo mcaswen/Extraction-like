@@ -240,7 +240,7 @@ namespace Gameplay.Agent.AI.Actions
             global::LootBoxEntity lootBox,
             bool clearDirectiveOnComplete)
         {
-            lootBox.PrecalculateLootIfNeeded();
+            lootBox.EnsureLootGeneratedIfNeeded();
             if (lootBox.IsBoardGameResourcePoint)
             {
                 lootBox.RefreshResourcePointState();

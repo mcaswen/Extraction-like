@@ -40,24 +40,26 @@ public enum SceneResourceStateType
 
 /// <summary>
 /// 场景中的可交互容器实体
-/// 支持在生成时预计算战利品列表，并提前完成二维装箱
+/// 统一在第一次读取时懒生成战利品列表，并完成二维装箱
 /// </summary>
 public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractable
 {
+    private const string DefaultBoxName = "军用物资箱";
+    private const int DefaultContainerColumns = 6;
+    private const int DefaultContainerRows = 6;
     private const string DefaultResourceLootRuleSetResourcesPath = "Loot/SO_SceneResourceLootRuleSet";
 
     private static SceneResourceLootRuleSet _defaultResourceLootRuleSet;
 
     [Header("Loot Box")]
-    public string BoxName = "军用物资箱";
+    public string BoxName = DefaultBoxName;
     public InventoryItemData FirstTimeLootItem;
     public int FirstTimeLootAmount = 30;
-    public int ContainerColumns = 6;
-    public int ContainerRows = 6;
+    public int ContainerColumns = DefaultContainerColumns;
+    public int ContainerRows = DefaultContainerRows;
     public List<Vector2Int> BlockedCells = new List<Vector2Int>();
 
-    [Header("Pre-Calculated Spawning")]
-    public bool PrecalculateLootOnSpawn = true;
+    [Header("Lazy Loot Generation")]
     public int MinLootRollCount = 3;
     public int MaxLootRollCount = 8;
     public bool GenerateEachLootTableEntryOnce;
@@ -79,18 +81,40 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     private List<ContainerCellStateSaveData> _savedCellStates = new List<ContainerCellStateSaveData>();
 
     private bool _isFirstTimeOpen = true;
-    private bool _hasPrecalculatedLoot;
+    private bool _hasGeneratedLoot;
 
     public bool IsBoardGameResourcePoint => UseBoardGameResourceRules;
     public bool IsResourcePointLooted => UseBoardGameResourceRules && ResourceState == SceneResourceStateType.Looted;
     public float SearchRequiredSeconds => ResolveSearchDurationSeconds();
 
-    private void Awake()
+    private string ResolvedBoxName => string.IsNullOrWhiteSpace(BoxName) ? DefaultBoxName : BoxName.Trim();
+    private int ResolvedContainerColumns => ContainerColumns > 0 ? ContainerColumns : DefaultContainerColumns;
+    private int ResolvedContainerRows => ContainerRows > 0 ? ContainerRows : DefaultContainerRows;
+
+    private void Reset()
     {
-        if (PrecalculateLootOnSpawn)
-        {
-            PrecalculateLootIfNeeded();
-        }
+#if UNITY_EDITOR
+        ApplyDefaultConfiguration();
+#endif
+    }
+
+    private void OnValidate()
+    {
+        ApplyDefaultConfiguration();
+    }
+
+    private void ApplyDefaultConfiguration()
+    {
+        if (string.IsNullOrWhiteSpace(BoxName))
+            BoxName = DefaultBoxName;
+
+        if (ContainerColumns <= 0)
+            ContainerColumns = DefaultContainerColumns;
+
+        if (ContainerRows <= 0)
+            ContainerRows = DefaultContainerRows;
+
+        BlockedCells ??= new List<Vector2Int>();
     }
 
     /// <summary>
@@ -99,7 +123,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// <returns>当前容器名称</returns>
     public string GetContainerName()
     {
-        return BoxName;
+        return ResolvedBoxName;
     }
 
     /// <summary>
@@ -108,7 +132,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// <returns>容器中的物品快照副本</returns>
     public List<ContainerItemSaveData> GetSavedItems()
     {
-        PrecalculateLootIfNeeded();
+        EnsureLootGeneratedIfNeeded();
         return CloneSaveDataList(_savedItems);
     }
 
@@ -134,12 +158,12 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
         if (IsResourcePointLooted)
         {
-            return $"[F] 已搜刮 {BoxName}";
+            return $"[F] 已搜刮 {ResolvedBoxName}";
         }
 
         return HasUnsearchedItems()
-            ? $"[F] 搜索 {BoxName}"
-            : $"[F] 打开 {BoxName}";
+            ? $"[F] 搜索 {ResolvedBoxName}"
+            : $"[F] 打开 {ResolvedBoxName}";
     }
 
     /// <summary>
@@ -170,14 +194,14 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         return new InventoryScreenSessionContext
         {
-            DisplayName = BoxName,
-            ExternalContainerName = BoxName,
-            ExternalColumns = ContainerColumns,
-            ExternalRows = ContainerRows,
+            DisplayName = ResolvedBoxName,
+            ExternalContainerName = ResolvedBoxName,
+            ExternalColumns = ResolvedContainerColumns,
+            ExternalRows = ResolvedContainerRows,
             ExternalBlockedCells = GetBlockedCells(),
             ExternalItems = GetSavedItems(),
             ExternalCellStates = GetSavedCellStates(),
-            BeforeOpen = PrecalculateLootIfNeeded,
+            BeforeOpen = EnsureLootGeneratedIfNeeded,
             OnClose = result =>
             {
                 if (result == null)
@@ -199,10 +223,10 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         _savedItems = CloneSaveDataList(items);
         _savedCellStates = CloneCellStateList(cellStates);
-        _hasPrecalculatedLoot = true;
+        _hasGeneratedLoot = true;
         _isFirstTimeOpen = false;
         RefreshResourceStateFromSavedItems();
-        Debug.Log($"[{BoxName}] Saved {_savedItems.Count} items.");
+        Debug.Log($"[{ResolvedBoxName}] Saved {_savedItems.Count} items.");
     }
 
     /// <summary>
@@ -211,7 +235,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// <returns>容器中的格子状态快照副本</returns>
     public List<ContainerCellStateSaveData> GetSavedCellStates()
     {
-        PrecalculateLootIfNeeded();
+        EnsureLootGeneratedIfNeeded();
         return CloneCellStateList(_savedCellStates);
     }
 
@@ -225,24 +249,24 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     }
 
     /// <summary>
-    /// 如有需要则预生成战利品并完成一次自动装箱
+    /// 如有需要则懒生成战利品并完成一次自动装箱
     /// 只会执行一次，后续读取都复用缓存结果
     /// </summary>
-    public void PrecalculateLootIfNeeded()
+    public void EnsureLootGeneratedIfNeeded()
     {
-        if (_hasPrecalculatedLoot)
+        if (_hasGeneratedLoot)
         {
             return;
         }
 
         List<ContainerItemSaveData> rolledLoot = GenerateLootCandidates();
         _savedItems = InventoryAutoSortService.BuildPackedLayout(
-            ContainerColumns,
-            ContainerRows,
-            BlockedCells,
+            ResolvedContainerColumns,
+            ResolvedContainerRows,
+            GetBlockedCells(),
             rolledLoot);
         _savedCellStates = new List<ContainerCellStateSaveData>();
-        _hasPrecalculatedLoot = true;
+        _hasGeneratedLoot = true;
         _isFirstTimeOpen = false;
         RefreshResourceStateFromSavedItems();
     }
@@ -258,7 +282,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
             return false;
         }
 
-        PrecalculateLootIfNeeded();
+        EnsureLootGeneratedIfNeeded();
 
         if (!UseBoardGameResourceRules)
         {
@@ -273,7 +297,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// </summary>
     public void RefreshResourcePointState()
     {
-        PrecalculateLootIfNeeded();
+        EnsureLootGeneratedIfNeeded();
         RefreshResourceStateFromSavedItems();
     }
 
@@ -706,7 +730,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     // 判断当前容器内是否仍有未搜索完成的物品，用于切换“搜索/打开”提示文案
     private bool HasUnsearchedItems()
     {
-        PrecalculateLootIfNeeded();
+        EnsureLootGeneratedIfNeeded();
         foreach (ContainerItemSaveData item in _savedItems)
         {
             if (item != null && item.RequiresSearch && !item.IsSearched)

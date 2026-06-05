@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: cfe821f75edf484e90c073d62d838d22, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -124,9 +124,9 @@ MonoBehaviour:
   ContainerColumns: 7
   ContainerRows: 7
   BlockedCells: []
-  PrecalculateLootOnSpawn: 1
   MinLootRollCount: 3
   MaxLootRollCount: 8
+  GenerateEachLootTableEntryOnce: 0
   LootTable:
   - ItemData: {fileID: 11400000, guid: 77be87d82f6cbc94291784928d91e6d6, type: 2}
     Weight: 50
@@ -144,6 +144,7 @@ MonoBehaviour:
     MaxAmount: 1
     SpawnChance: 0.2
   UseBoardGameResourceRules: 1
+  ResourceLootRuleSet: {fileID: 0}
   ResourceTier: 1
   ResourceState: 0
   LowTierSearchSeconds: 3
