@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: cfe821f75edf484e90c073d62d838d22, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -104,7 +104,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5481182176124435508
 MonoBehaviour:
@@ -159,7 +159,8 @@ MonoBehaviour:
     MaxAmount: 1
     SpawnChance: 1
   UseBoardGameResourceRules: 1
-  ResourceLootRuleSet: {fileID: 0}
+  ResourceLootRuleSet: {fileID: 11400000, guid: 2a4bc0a03d1d4c12bf1eaae8d0bf2988,
+    type: 2}
   ResourceTier: 0
   ResourceState: 0
   LowTierSearchSeconds: 3

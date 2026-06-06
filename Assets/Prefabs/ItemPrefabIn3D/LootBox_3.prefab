@@ -124,9 +124,9 @@ MonoBehaviour:
   ContainerColumns: 9
   ContainerRows: 9
   BlockedCells: []
-  PrecalculateLootOnSpawn: 1
   MinLootRollCount: 3
   MaxLootRollCount: 8
+  GenerateEachLootTableEntryOnce: 0
   LootTable:
   - ItemData: {fileID: 11400000, guid: 77be87d82f6cbc94291784928d91e6d6, type: 2}
     Weight: 50
@@ -144,6 +144,8 @@ MonoBehaviour:
     MaxAmount: 1
     SpawnChance: 1
   UseBoardGameResourceRules: 1
+  ResourceLootRuleSet: {fileID: 11400000, guid: 2a4bc0a03d1d4c12bf1eaae8d0bf2988,
+    type: 2}
   ResourceTier: 2
   ResourceState: 0
   LowTierSearchSeconds: 3

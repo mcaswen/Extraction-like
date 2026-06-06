@@ -68,6 +68,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     [Header("Board Game Resource Rules")]
     public bool UseBoardGameResourceRules;
     public SceneResourceLootRuleSet ResourceLootRuleSet;
+    [HideInInspector]
     public SceneResourceTier ResourceTier = SceneResourceTier.Low;
     public SceneResourceStateType ResourceState = SceneResourceStateType.Unsearched;
     public float LowTierSearchSeconds = 3f;
@@ -314,6 +315,17 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         ResourceState = SceneResourceStateType.Looted;
     }
 
+    /// <summary>
+    /// 由资源群写入当前箱子的 fallback 等级
+    /// 实际等级仍优先读取所属 ResourceClusterAuthoring
+    /// </summary>
+    /// <param name="resourceTier"></param>
+    public void ApplyResourceClusterTier(SceneResourceTier resourceTier)
+    {
+        UseBoardGameResourceRules = true;
+        ResourceTier = resourceTier;
+    }
+
     // 生成本次容器应包含的战利品候选列表
     private List<ContainerItemSaveData> GenerateLootCandidates()
     {
@@ -471,11 +483,12 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     private bool TryRollBoardGameRarity(IReadOnlyList<LootGenerationEntry> lootTable, out ItemRarity rarity)
     {
+        SceneResourceTier effectiveResourceTier = ResolveEffectiveResourceTier();
         SceneResourceLootRuleSet ruleSet = ResolveResourceLootRuleSet();
         if (ruleSet != null)
         {
             return ruleSet.TryRollRarity(
-                ResourceTier,
+                effectiveResourceTier,
                 candidateRarity => HasLootEntryForRarity(lootTable, candidateRarity),
                 out rarity);
         }
@@ -487,7 +500,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         float epicWeight = 0f;
         float legendaryWeight = 0f;
 
-        switch (ResourceTier)
+        switch (effectiveResourceTier)
         {
             case SceneResourceTier.Low:
                 commonWeight = 45f;
@@ -645,13 +658,14 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     private int ResolveBoardGameRollCount()
     {
+        SceneResourceTier effectiveResourceTier = ResolveEffectiveResourceTier();
         SceneResourceLootRuleSet ruleSet = ResolveResourceLootRuleSet();
         if (ruleSet != null)
         {
-            return ruleSet.ResolveRollCount(ResourceTier);
+            return ruleSet.ResolveRollCount(effectiveResourceTier);
         }
 
-        switch (ResourceTier)
+        switch (effectiveResourceTier)
         {
             case SceneResourceTier.Low:
                 return Random.Range(1, 4);
@@ -692,7 +706,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     private float ResolveSearchDurationSeconds()
     {
-        switch (ResourceTier)
+        switch (ResolveEffectiveResourceTier())
         {
             case SceneResourceTier.Low:
                 return Mathf.Max(0.1f, LowTierSearchSeconds);
@@ -703,6 +717,21 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
             default:
                 return Mathf.Max(0.1f, LowTierSearchSeconds);
         }
+    }
+
+    private SceneResourceTier ResolveEffectiveResourceTier()
+    {
+        Gameplay.Targets.Runtime.GameplayTargetRegistry registry =
+            Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance;
+        if (registry != null &&
+            registry.TryFindResourceClusterByEntity(
+                gameObject,
+                out Gameplay.Targets.Authoring.ResourceClusterAuthoring resourceCluster))
+        {
+            return resourceCluster.ResourceTier;
+        }
+
+        return ResourceTier;
     }
 
     // 把配置项转换为可直接进入容器的运行时快照，并附带搜索状态

@@ -11,6 +11,9 @@ namespace Gameplay.Targets.Authoring
     [DisallowMultipleComponent]
     public sealed class ResourceClusterAuthoring : GameplayTargetClusterAuthoringBase
     {
+        [Header("Resource Tier")]
+        [SerializeField] private global::SceneResourceTier _resourceTier = global::SceneResourceTier.Low;
+
         [Header("Resource Members")]
         [SerializeField] private List<GameplayTargetEntityMember> _resourceMembers =
             new List<GameplayTargetEntityMember>();
@@ -18,36 +21,33 @@ namespace Gameplay.Targets.Authoring
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
 
+        public global::SceneResourceTier ResourceTier => _resourceTier;
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
 
         /// <summary>
-        /// 按群内桌游资源箱推断资源等级
-        /// 多个资源箱混在同一群时取最高等级
+        /// 获取资源群配置的实际资源等级
+        /// 群内资源箱不再单独决定等级
         /// </summary>
         /// <param name="resourceTier"></param>
         /// <returns></returns>
         public bool TryResolveResourceTier(out global::SceneResourceTier resourceTier)
         {
-            bool hasTier = false;
-            resourceTier = global::SceneResourceTier.Low;
+            resourceTier = _resourceTier;
+            return true;
+        }
 
-            for (int i = 0; i < _resourceMembers.Count; i++)
-            {
-                GameplayTargetEntityMember member = _resourceMembers[i];
-                if (member == null || !member.TryGetComponent(out global::LootBoxEntity lootBox))
-                    continue;
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            _resourceMembers ??= new List<GameplayTargetEntityMember>();
+            ApplyResourceTierToMembers();
+        }
 
-                if (!lootBox.IsBoardGameResourcePoint)
-                    continue;
-
-                if (!hasTier || (int)lootBox.ResourceTier > (int)resourceTier)
-                {
-                    resourceTier = lootBox.ResourceTier;
-                    hasTier = true;
-                }
-            }
-
-            return hasTier;
+        protected override void OnEnable()
+        {
+            _resourceMembers ??= new List<GameplayTargetEntityMember>();
+            ApplyResourceTierToMembers();
+            base.OnEnable();
         }
 
         /// <summary>
@@ -176,6 +176,20 @@ namespace Gameplay.Targets.Authoring
             for (int i = 0; i < _resourceMembers.Count; i++)
             {
                 _resourceMembers[i]?.EnsureEntityId(TargetId, i);
+            }
+        }
+
+        // 群等级是资源点的唯一配置来源，运行时把它同步到箱子 fallback 字段
+        private void ApplyResourceTierToMembers()
+        {
+            if (_resourceMembers == null)
+                return;
+
+            for (int i = 0; i < _resourceMembers.Count; i++)
+            {
+                GameplayTargetEntityMember member = _resourceMembers[i];
+                if (member != null && member.TryGetComponent(out global::LootBoxEntity lootBox))
+                    lootBox.ApplyResourceClusterTier(_resourceTier);
             }
         }
 
