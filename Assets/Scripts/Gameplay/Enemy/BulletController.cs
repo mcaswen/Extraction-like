@@ -77,6 +77,7 @@ public class BulletController : MonoBehaviour
     private void Awake()
     {
         SkillEffectLayerUtility.ApplyToRoot(gameObject);
+        EnsureTriggerColliders();
     }
 
     private void Start()
@@ -114,11 +115,6 @@ public class BulletController : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Player"))
-        {
-            return;
-        }
-
         if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
         {
             return;
@@ -126,6 +122,13 @@ public class BulletController : MonoBehaviour
 
         // 玩家子弹先处理锚点守卫符文，避免符文命中被普通敌人血量逻辑吞掉。
         AnchorSentinelRuneWeakpoint runeWeakpoint = other.GetComponentInParent<AnchorSentinelRuneWeakpoint>();
+        EnemyHealthController enemyHealthController = other.GetComponentInParent<EnemyHealthController>();
+        bool hitEnemyTarget = runeWeakpoint != null || enemyHealthController != null || IsEnemyCollider(other);
+        if (!hitEnemyTarget)
+        {
+            return;
+        }
+
         if (runeWeakpoint != null)
         {
             runeWeakpoint.NotifyHit();
@@ -133,17 +136,29 @@ public class BulletController : MonoBehaviour
             return;
         }
 
-        EnemyHealthController enemyHealthController = other.GetComponentInParent<EnemyHealthController>();
         if (enemyHealthController != null)
         {
             ApplyElementalDamage(enemyHealthController, other);
         }
-        else if (ReportImpactStimulus)
-        {
-            EnemySuspicionStimulusBus.ReportProjectileImpact(transform.position, transform);
-        }
 
         Destroy(gameObject);
+    }
+
+    private void EnsureTriggerColliders()
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider bulletCollider = colliders[i];
+            if (bulletCollider != null)
+                bulletCollider.isTrigger = true;
+        }
+    }
+
+    private static bool IsEnemyCollider(Collider other)
+    {
+        return other.CompareTag("Enemy") ||
+               other.GetComponentInParent<EnemyHealthController>() != null;
     }
 
     private void ApplyBulletColor()

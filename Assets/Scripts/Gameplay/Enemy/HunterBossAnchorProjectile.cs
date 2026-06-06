@@ -47,6 +47,7 @@ public class HunterBossAnchorProjectile : MonoBehaviour
         _rigidbody.useGravity = false;
         _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         EnsureCollider();
+        EnsureTriggerColliders();
         Destroy(gameObject, LifeTime);
     }
 
@@ -82,12 +83,15 @@ public class HunterBossAnchorProjectile : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Enemy"))
+        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
         {
             return;
         }
 
-        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
+        if (!TryResolvePlayerTarget(
+                other,
+                out PlayerHealthController playerHealth,
+                out PlayerMovementController playerMovement))
         {
             return;
         }
@@ -95,20 +99,15 @@ public class HunterBossAnchorProjectile : MonoBehaviour
         _hasHitTarget = true;
         float totalDamage = 0f;
 
-        if (other.CompareTag("Player"))
+        if (playerHealth != null)
         {
-            PlayerHealthController playerHealth = other.GetComponentInParent<PlayerHealthController>();
-            PlayerMovementController playerMovement = other.GetComponentInParent<PlayerMovementController>();
-            if (playerHealth != null)
-            {
-                totalDamage = playerHealth.TakeDamage(Damage);
-            }
+            totalDamage = playerHealth.TakeDamage(Damage);
+        }
 
-            if (playerMovement != null)
-            {
-                Vector3 pushDirection = other.transform.position - transform.position;
-                playerMovement.ApplyExternalImpulse(pushDirection, KnockbackStrength);
-            }
+        if (playerMovement != null)
+        {
+            Vector3 pushDirection = other.transform.position - transform.position;
+            playerMovement.ApplyExternalImpulse(pushDirection, KnockbackStrength);
         }
 
         EnemySkillDamageLogger.LogSkillDamage(SourceEnemy != null ? SourceEnemy : gameObject, SkillName, totalDamage);
@@ -126,6 +125,39 @@ public class HunterBossAnchorProjectile : MonoBehaviour
         }
 
         projectileCollider.isTrigger = true;
+    }
+
+    private void EnsureTriggerColliders()
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider projectileCollider = colliders[i];
+            if (projectileCollider != null)
+                projectileCollider.isTrigger = true;
+        }
+    }
+
+    private static bool TryResolvePlayerTarget(
+        Collider other,
+        out PlayerHealthController playerHealth,
+        out PlayerMovementController playerMovement)
+    {
+        playerHealth = other.GetComponentInParent<PlayerHealthController>();
+        playerMovement = other.GetComponentInParent<PlayerMovementController>();
+        if (playerHealth != null || playerMovement != null)
+            return true;
+
+        Transform playerRoot = other.transform.root;
+        if (playerRoot == null || !playerRoot.CompareTag("Player"))
+            return false;
+
+        playerHealth = playerRoot.GetComponent<PlayerHealthController>();
+        if (playerHealth == null)
+            playerHealth = playerRoot.gameObject.AddComponent<PlayerHealthController>();
+
+        playerMovement = playerRoot.GetComponent<PlayerMovementController>();
+        return true;
     }
 }
 
