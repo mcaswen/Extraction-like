@@ -17,6 +17,7 @@ namespace Gameplay.Agent.AI.Actions
     {
         internal const float NavMeshDestinationRefreshInterval = 0.1f;
         internal const float NavMeshTargetSampleRadius = 4f;
+        private const float NavMeshStopFromMaxSpeedDuration = 0.5f;
 
         private float _lastNavMeshDestinationSetTime = -999f;
         private bool _hasLastNavMeshDestination;
@@ -174,12 +175,13 @@ namespace Gameplay.Agent.AI.Actions
         protected bool TryResolveResourceNavigationTargetPosition(
             AgentTargetRef targetRef,
             Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
             out Vector3 targetPosition)
         {
             GameObject targetObject = targetRef.TargetObject;
             if (targetObject != null &&
                 targetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
-                resourceCluster.TryGetNearestIncompleteResource(agentPosition, out GameObject resourceObject) &&
+                resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, navMeshAgent, out GameObject resourceObject) &&
                 resourceObject != null)
             {
                 AgentTargetRef resourceTargetRef = AgentTargetRef.FromConcreteObject(
@@ -430,7 +432,11 @@ namespace Gameplay.Agent.AI.Actions
             float stoppingDistance,
             float moveSpeed)
         {
-            navMeshAgent.speed = Mathf.Max(0f, moveSpeed);
+            float speed = Mathf.Max(0f, moveSpeed);
+            navMeshAgent.speed = speed;
+            navMeshAgent.acceleration = Mathf.Max(
+                navMeshAgent.acceleration,
+                speed / NavMeshStopFromMaxSpeedDuration);
             navMeshAgent.stoppingDistance = Mathf.Max(0f, stoppingDistance);
         }
 

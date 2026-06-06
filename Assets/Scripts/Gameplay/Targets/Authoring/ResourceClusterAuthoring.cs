@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Gameplay.Targets.Data;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Gameplay.Targets.Authoring
 {
@@ -20,6 +21,7 @@ namespace Gameplay.Targets.Authoring
 
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
+        private const float NavMeshResourceSampleRadius = 4f;
 
         public global::SceneResourceTier ResourceTier => _resourceTier;
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
@@ -95,6 +97,68 @@ namespace Gameplay.Targets.Authoring
                     continue;
 
                 resourceObject = member.EntityObject;
+                nearestDistanceSqr = distanceSqr;
+            }
+
+            return resourceObject != null;
+        }
+
+        /// <summary>
+        /// 获取离 Agent 最近且 NavMesh 完整可达的未完成资源对象
+        /// 避免 Agent 反复追踪只有 partial path 的箱子而卡在原地
+        /// </summary>
+        /// <param name="agentPosition"></param>
+        /// <param name="navMeshAgent"></param>
+        /// <param name="resourceObject"></param>
+        /// <returns></returns>
+        public bool TryGetNearestReachableIncompleteResource(
+            Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
+            out GameObject resourceObject)
+        {
+            RefreshRuntimeState();
+            resourceObject = null;
+
+            if (!TryResolveNavMeshStartPosition(agentPosition, navMeshAgent, out Vector3 startPosition, out int areaMask))
+                return TryGetNearestIncompleteResource(agentPosition, out resourceObject);
+
+            NavMeshPath path = new NavMeshPath();
+            float nearestPathLength = float.MaxValue;
+            float nearestDistanceSqr = float.MaxValue;
+
+            for (int i = 0; i < _resourceMembers.Count; i++)
+            {
+                GameplayTargetEntityMember member = _resourceMembers[i];
+                if (!IsMemberAvailableForSearch(member))
+                    continue;
+
+                if (!NavMesh.SamplePosition(
+                        member.Position,
+                        out NavMeshHit targetHit,
+                        NavMeshResourceSampleRadius,
+                        areaMask))
+                {
+                    continue;
+                }
+
+                bool calculated = NavMesh.CalculatePath(
+                    startPosition,
+                    targetHit.position,
+                    areaMask,
+                    path);
+                if (!calculated || path.status != NavMeshPathStatus.PathComplete)
+                    continue;
+
+                float pathLength = CalculatePathLength(path);
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, member.Position);
+                if (pathLength > nearestPathLength ||
+                    (Mathf.Approximately(pathLength, nearestPathLength) && distanceSqr >= nearestDistanceSqr))
+                {
+                    continue;
+                }
+
+                resourceObject = member.EntityObject;
+                nearestPathLength = pathLength;
                 nearestDistanceSqr = distanceSqr;
             }
 
@@ -231,6 +295,52 @@ namespace Gameplay.Targets.Authoring
             }
 
             return false;
+        }
+
+        private static bool TryResolveNavMeshStartPosition(
+            Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
+            out Vector3 startPosition,
+            out int areaMask)
+        {
+            startPosition = default;
+            areaMask = NavMesh.AllAreas;
+
+            if (navMeshAgent == null || !navMeshAgent.enabled)
+                return false;
+
+            areaMask = navMeshAgent.areaMask;
+            if (navMeshAgent.isOnNavMesh)
+            {
+                startPosition = navMeshAgent.nextPosition;
+                return true;
+            }
+
+            if (NavMesh.SamplePosition(
+                    agentPosition,
+                    out NavMeshHit startHit,
+                    NavMeshResourceSampleRadius,
+                    areaMask))
+            {
+                startPosition = startHit.position;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static float CalculatePathLength(NavMeshPath path)
+        {
+            if (path == null || path.corners == null || path.corners.Length < 2)
+                return 0f;
+
+            float length = 0f;
+            for (int i = 1; i < path.corners.Length; i++)
+            {
+                length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+            }
+
+            return length;
         }
 
         // 根据资源对象当前状态回填成员完成状态

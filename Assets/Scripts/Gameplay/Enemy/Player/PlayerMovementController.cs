@@ -7,18 +7,20 @@ using UnityEngine.AI;
 /// </summary>
 public class PlayerMovementController : MonoBehaviour
 {
+    private const float StopFromMaxSpeedDuration = 0.5f;
+
     /// <summary>
     /// 玩家基础移动速度。
     /// </summary>
     public float MoveSpeed = 6f;
 
     /// <summary>
-    /// 外部拉拽速度衰减系数。
+    /// 外部拉拽速度衰减速率。
     /// </summary>
     public float ExternalPullDamping = 14f;
 
     /// <summary>
-    /// 外部击退速度衰减系数。
+    /// 外部击退速度衰减速率。
     /// </summary>
     public float ExternalImpulseDamping = 10f;
 
@@ -95,9 +97,7 @@ public class PlayerMovementController : MonoBehaviour
             horizontal = 0f;
             vertical = 0f;
         }
-        float effectiveMoveSpeed = MoveSpeed *
-            (_speedBoostDurationRemaining > 0f ? _speedBoostMultiplier : 1f) *
-            (_speedDebuffDurationRemaining > 0f ? _speedDebuffMultiplier : 1f);
+        float effectiveMoveSpeed = GetEffectiveMoveSpeed();
         Vector3 movement = new Vector3(horizontal, 0f, vertical).normalized * effectiveMoveSpeed;
         Vector3 finalVelocity = movement + _externalPullVelocity + _externalImpulseVelocity;
         _playerRigidbody.MovePosition(_playerRigidbody.position + finalVelocity * Time.fixedDeltaTime);
@@ -112,8 +112,13 @@ public class PlayerMovementController : MonoBehaviour
 
     private void TickMovementStateTimers()
     {
-        _externalPullVelocity = Vector3.Lerp(_externalPullVelocity, Vector3.zero, ExternalPullDamping * Time.fixedDeltaTime);
-        _externalImpulseVelocity = Vector3.Lerp(_externalImpulseVelocity, Vector3.zero, ExternalImpulseDamping * Time.fixedDeltaTime);
+        float stopDeceleration = GetEffectiveMoveSpeed() / StopFromMaxSpeedDuration;
+        _externalPullVelocity = DecayVelocity(
+            _externalPullVelocity,
+            Mathf.Max(ExternalPullDamping, stopDeceleration));
+        _externalImpulseVelocity = DecayVelocity(
+            _externalImpulseVelocity,
+            Mathf.Max(ExternalImpulseDamping, stopDeceleration));
         _immobilizeDurationRemaining = Mathf.Max(0f, _immobilizeDurationRemaining - Time.fixedDeltaTime);
         _speedBoostDurationRemaining = Mathf.Max(0f, _speedBoostDurationRemaining - Time.unscaledDeltaTime);
         if (_speedBoostDurationRemaining <= 0f)
@@ -126,6 +131,21 @@ public class PlayerMovementController : MonoBehaviour
         {
             _speedDebuffMultiplier = 1f;
         }
+    }
+
+    private float GetEffectiveMoveSpeed()
+    {
+        return MoveSpeed *
+            (_speedBoostDurationRemaining > 0f ? _speedBoostMultiplier : 1f) *
+            (_speedDebuffDurationRemaining > 0f ? _speedDebuffMultiplier : 1f);
+    }
+
+    private static Vector3 DecayVelocity(Vector3 velocity, float deceleration)
+    {
+        return Vector3.MoveTowards(
+            velocity,
+            Vector3.zero,
+            Mathf.Max(0f, deceleration) * Time.fixedDeltaTime);
     }
 
     private bool IsNavMeshAgentControllingMovement()

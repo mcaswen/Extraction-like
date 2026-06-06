@@ -199,6 +199,7 @@ namespace Gameplay.Agent.Runtime
             if (TryResolveNavigationTarget(
                     targetRef,
                     pawn.Position,
+                    pawn.NavMeshAgent,
                     out GameObject resolvedObject,
                     out Vector3 resolvedPosition,
                     out string resolvedReason))
@@ -331,6 +332,7 @@ namespace Gameplay.Agent.Runtime
         private static bool TryResolveNavigationTarget(
             AgentTargetRef targetRef,
             Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
             out GameObject resolvedObject,
             out Vector3 resolvedPosition,
             out string reason)
@@ -344,11 +346,11 @@ namespace Gameplay.Agent.Runtime
             if (targetRef.Kind == AgentTargetKind.Resource &&
                 targetRef.TargetObject != null &&
                 targetRef.TargetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
-                resourceCluster.TryGetNearestIncompleteResource(agentPosition, out GameObject resourceObject) &&
+                resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, navMeshAgent, out GameObject resourceObject) &&
                 resourceObject != null)
             {
                 resolvedObject = resourceObject;
-                reason = $"nearestResourceInCluster({resourceCluster.TargetId})";
+                reason = $"nearestReachableResourceInCluster({resourceCluster.TargetId})";
                 return TryResolveInteractionTargetPosition(
                     resourceObject,
                     agentPosition,

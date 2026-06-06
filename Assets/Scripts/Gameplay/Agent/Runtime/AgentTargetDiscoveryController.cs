@@ -169,7 +169,7 @@ namespace Gameplay.Agent.Runtime
             }
 
             if (TryKeepCurrentResourceClusterTarget(agent, rangeSqr, out ResourceClusterAuthoring resourceCluster) ||
-                TryFindNearestResourceCluster(targetRegistry, agent.Position, rangeSqr, out resourceCluster))
+                TryFindNearestResourceCluster(targetRegistry, agent, rangeSqr, out resourceCluster))
             {
                 ApplyResourceClusterTarget(handle, commandReceiver, resourceCluster);
                 return;
@@ -372,19 +372,20 @@ namespace Gameplay.Agent.Runtime
 
         private bool TryFindNearestResourceCluster(
             GameplayTargetRegistry targetRegistry,
-            Vector3 agentPosition,
+            IAgentReadOnly agent,
             float rangeSqr,
             out ResourceClusterAuthoring nearestResourceCluster)
         {
             nearestResourceCluster = null;
             float nearestDistanceSqr = float.MaxValue;
+            Vector3 agentPosition = agent.Position;
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
             for (int i = 0; i < _clusterBuffer.Count; i++)
             {
                 if (!(_clusterBuffer[i] is ResourceClusterAuthoring resourceCluster) ||
                     resourceCluster.HasBeenCompleted ||
-                    !resourceCluster.TryGetNearestIncompleteResource(agentPosition, out _))
+                    !resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, agent.NavMeshAgent, out _))
                 {
                     continue;
                 }
@@ -429,7 +430,7 @@ namespace Gameplay.Agent.Runtime
             if (directiveRequest.TargetObject == null ||
                 !directiveRequest.TargetObject.TryGetComponent(out resourceCluster) ||
                 resourceCluster.HasBeenCompleted ||
-                !resourceCluster.TryGetNearestIncompleteResource(agent.Position, out _))
+                !resourceCluster.TryGetNearestReachableIncompleteResource(agent.Position, agent.NavMeshAgent, out _))
             {
                 resourceCluster = null;
                 return false;

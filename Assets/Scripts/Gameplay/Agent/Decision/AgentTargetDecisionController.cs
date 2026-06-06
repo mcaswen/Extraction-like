@@ -182,7 +182,7 @@ namespace Gameplay.Agent.Decision
 
                 if (cluster is ResourceClusterAuthoring resourceCluster)
                 {
-                    TryAddResourceDecisionCandidate(resourceCluster, agent.Position, rangeSqr, currentTargetId);
+                    TryAddResourceDecisionCandidate(resourceCluster, agent, rangeSqr, currentTargetId);
                     continue;
                 }
 
@@ -249,11 +249,12 @@ namespace Gameplay.Agent.Decision
 
         private void TryAddResourceDecisionCandidate(
             ResourceClusterAuthoring resourceCluster,
-            Vector3 agentPosition,
+            IAgentReadOnly agent,
             float rangeSqr,
             string currentTargetId)
         {
-            if (!resourceCluster.TryGetNearestIncompleteResource(agentPosition, out _))
+            Vector3 agentPosition = agent.Position;
+            if (!resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, agent.NavMeshAgent, out _))
                 return;
 
             float distanceSqr = GetPlanarDistanceSqr(agentPosition, resourceCluster.CenterPosition);
