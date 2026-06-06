@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 519013913415436236}
   - component: {fileID: 2115695412165550860}
   m_Layer: 0
-  m_Name: Pfb_Enemy_AnchorSentinel
+  m_Name: Pfb_Enemy_Common_AnchorSentinel
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
