@@ -327,6 +327,8 @@ public class EnemyHealthController : MonoBehaviour
     private float _currentHealth;
     private float _currentShield;
     private float _damageTakenMultiplier = 1f;
+    private float _baseMaxHealth = 100f;
+    private float _maxHealthMultiplier = 1f;
     private bool _hasDied;
     private bool _hasInitializedHealth;
     private EnemyDeathLootSettings _deathLootSettings;
@@ -387,8 +389,34 @@ public class EnemyHealthController : MonoBehaviour
             return;
         }
 
-        MaxHealth = _config.MaxHealth;
+        _baseMaxHealth = Mathf.Max(1f, _config.MaxHealth);
+        MaxHealth = ResolveScaledMaxHealth();
         _deathLootSettings = _config.DeathLoot;
+    }
+
+    /// <summary>
+    /// 应用敌人来源群等级带来的最大生命倍率
+    /// 该倍率会保留到敌人自身配置写入之后
+    /// </summary>
+    /// <param name="multiplier"></param>
+    public void ApplyMaxHealthMultiplier(float multiplier)
+    {
+        float previousMaxHealth = Mathf.Max(1f, MaxHealth);
+        float previousHealthRatio = _hasInitializedHealth && !_hasDied
+            ? Mathf.Clamp01(_currentHealth / previousMaxHealth)
+            : 1f;
+
+        _maxHealthMultiplier = Mathf.Max(0.01f, multiplier);
+        if (_config != null)
+            ApplyConfigIfAssigned();
+        else
+            MaxHealth = ResolveScaledMaxHealth();
+
+        if (_hasInitializedHealth && !_hasDied)
+        {
+            _currentHealth = Mathf.Clamp(MaxHealth * previousHealthRatio, 0f, MaxHealth);
+            UpdateHealthBar();
+        }
     }
 
     /// <summary>
@@ -507,13 +535,23 @@ public class EnemyHealthController : MonoBehaviour
             return;
         }
 
+        _baseMaxHealth = Mathf.Max(1f, MaxHealth);
         if (_config != null)
         {
             ApplyConfigIfAssigned();
         }
+        else
+        {
+            MaxHealth = ResolveScaledMaxHealth();
+        }
 
         _currentHealth = MaxHealth;
         _hasInitializedHealth = true;
+    }
+
+    private float ResolveScaledMaxHealth()
+    {
+        return Mathf.Max(1f, _baseMaxHealth * Mathf.Max(0.01f, _maxHealthMultiplier));
     }
 
     private void UpdateHealthBar()

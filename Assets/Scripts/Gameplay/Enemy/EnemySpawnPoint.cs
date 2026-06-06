@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
 using UnityEngine.AI;
@@ -74,15 +75,16 @@ public sealed class EnemySpawnPoint : MonoBehaviour
 
         _hasSpawned = true;
 
-        if (_enemyPrefab == null)
+        GameObject enemyPrefab = ResolveEnemyPrefab();
+        if (enemyPrefab == null)
         {
             return null;
         }
 
         Vector3 position = ResolveSpawnPosition();
         Quaternion rotation = ResolveSpawnRotation();
-        GameObject enemy = Instantiate(_enemyPrefab, position, rotation);
-        enemy.name = BuildSpawnedName();
+        GameObject enemy = Instantiate(enemyPrefab, position, rotation);
+        enemy.name = BuildSpawnedName(enemyPrefab);
         _spawnedEnemy = enemy;
 
         EnemyPatrolRouteFollower follower = enemy.GetComponent<EnemyPatrolRouteFollower>();
@@ -175,9 +177,21 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         return Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f) * baseRotation;
     }
 
-    private string BuildSpawnedName()
+    private GameObject ResolveEnemyPrefab()
     {
-        return _enemyPrefab != null ? $"{_enemyPrefab.name}_00" : "Enemy_00";
+        EnemySourceClusterAuthoring sourceCluster = GetComponentInParent<EnemySourceClusterAuthoring>();
+        if (sourceCluster != null &&
+            sourceCluster.TryResolveEnemyPrefabForSpawnPoint(transform, out GameObject clusterEnemyPrefab))
+        {
+            return clusterEnemyPrefab;
+        }
+
+        return _enemyPrefab;
+    }
+
+    private string BuildSpawnedName(GameObject enemyPrefab)
+    {
+        return enemyPrefab != null ? $"{enemyPrefab.name}_00" : "Enemy_00";
     }
 
     // 刷新点声明敌人来源；生成出的活动敌人会交给目标注册表追踪。
