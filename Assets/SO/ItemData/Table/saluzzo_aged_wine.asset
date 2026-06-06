@@ -17,7 +17,7 @@ MonoBehaviour:
   BlockedCells: []
   ItemID: saluzzo_aged_wine
   ItemName: "\u8428\u5362\u4F50\u9187\u917F"
-  ItemIcon: {fileID: 21300000, guid: fd8a9e8d5a764afcb42f92681d7e31aa, type: 3}
+  ItemIcon: {fileID: 21300000, guid: 18c5d16c8b434d04cab6f182f58d6c22, type: 3}
   Type: 5
   Rarity: 4
   EquipmentKind: 0
