@@ -5,7 +5,7 @@ using UnityEngine;
 /// 锚点守卫白模行为。
 /// 玩家需按顺序摧毁符文弱点，否则守卫会激活并发射能量光束。
 /// </summary>
-public class AnchorSentinelBehaviorController : MonoBehaviour
+public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRuleReceiver
 {
     /// <summary>
     /// 锚点守卫的主行为状态。
@@ -158,6 +158,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     private int _expectedRuneIndex;
     private bool _hasDroppedLoot;
     private bool _isBeamFiring;
+    private bool _canSpawnDeathLoot = true;
 
     private void Start()
     {
@@ -390,10 +391,20 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// 应用敌人来源群规则中的死亡掉落开关。
+    /// </summary>
+    /// <param name="canSpawnDeathLoot">允许死亡掉落时为 true。</param>
+    public void SetCanSpawnDeathLoot(bool canSpawnDeathLoot)
+    {
+        _canSpawnDeathLoot = canSpawnDeathLoot;
+    }
+
     private void SpawnDeathLootContainer()
     {
         EnemyDeathLootSettings deathLoot = _config != null ? _config.DeathLoot : null;
         if (_hasDroppedLoot ||
+            !_canSpawnDeathLoot ||
             deathLoot == null ||
             !deathLoot.SpawnLootContainerOnDeath ||
             deathLoot.DeathLootContainerPrefab == null)

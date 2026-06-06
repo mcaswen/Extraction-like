@@ -86,6 +86,7 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         GameObject enemy = Instantiate(enemyPrefab, position, rotation);
         enemy.name = BuildSpawnedName(enemyPrefab);
         _spawnedEnemy = enemy;
+        ApplySourceClusterRules(enemy);
 
         EnemyPatrolRouteFollower follower = enemy.GetComponent<EnemyPatrolRouteFollower>();
         if (follower == null)
@@ -192,6 +193,13 @@ public sealed class EnemySpawnPoint : MonoBehaviour
     private string BuildSpawnedName(GameObject enemyPrefab)
     {
         return enemyPrefab != null ? $"{enemyPrefab.name}_00" : "Enemy_00";
+    }
+
+    private void ApplySourceClusterRules(GameObject enemy)
+    {
+        EnemySourceClusterAuthoring sourceCluster = GetComponentInParent<EnemySourceClusterAuthoring>();
+        if (sourceCluster != null)
+            sourceCluster.ApplyEnemyTierRules(enemy);
     }
 
     // 刷新点声明敌人来源；生成出的活动敌人会交给目标注册表追踪。

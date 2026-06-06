@@ -299,10 +299,22 @@ public static class CombatDamageUtility
 }
 
 /// <summary>
+/// 可接收敌人来源群死亡掉落规则的运行时组件。
+/// </summary>
+public interface IEnemyDeathLootRuleReceiver
+{
+    /// <summary>
+    /// 设置当前敌人死亡时是否允许生成战利品。
+    /// </summary>
+    /// <param name="canSpawnDeathLoot">允许死亡掉落时为 true。</param>
+    void SetCanSpawnDeathLoot(bool canSpawnDeathLoot);
+}
+
+/// <summary>
 /// 敌人生命控制器。
 /// 负责受伤、护盾、血条刷新、死亡和死亡掉落容器生成。
 /// </summary>
-public class EnemyHealthController : MonoBehaviour
+public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
 {
     [SerializeField, HideInInspector]
     private EnemyHealthConfigBase _config;
@@ -331,6 +343,7 @@ public class EnemyHealthController : MonoBehaviour
     private float _maxHealthMultiplier = 1f;
     private bool _hasDied;
     private bool _hasInitializedHealth;
+    private bool _canSpawnDeathLoot = true;
     private EnemyDeathLootSettings _deathLootSettings;
 
     /// <summary>
@@ -417,6 +430,15 @@ public class EnemyHealthController : MonoBehaviour
             _currentHealth = Mathf.Clamp(MaxHealth * previousHealthRatio, 0f, MaxHealth);
             UpdateHealthBar();
         }
+    }
+
+    /// <summary>
+    /// 应用敌人来源群规则中的死亡掉落开关。
+    /// </summary>
+    /// <param name="canSpawnDeathLoot">允许死亡掉落时为 true。</param>
+    public void SetCanSpawnDeathLoot(bool canSpawnDeathLoot)
+    {
+        _canSpawnDeathLoot = canSpawnDeathLoot;
     }
 
     /// <summary>
@@ -579,6 +601,7 @@ public class EnemyHealthController : MonoBehaviour
     private void SpawnDeathLootContainer()
     {
         if (_deathLootSettings == null ||
+            !_canSpawnDeathLoot ||
             !_deathLootSettings.SpawnLootContainerOnDeath ||
             _deathLootSettings.DeathLootContainerPrefab == null)
         {

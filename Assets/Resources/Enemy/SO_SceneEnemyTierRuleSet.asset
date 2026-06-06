@@ -11,11 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3c3f9417a73450ea9f9e37f81d57f21, type: 3}
   m_Name: SO_SceneEnemyTierRuleSet
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   _tierRules:
   - _dangerTier: 1
     _maxHealthMultiplier: 1
+    _spawnDeathLoot: 0
   - _dangerTier: 2
     _maxHealthMultiplier: 1.2
+    _spawnDeathLoot: 0
   - _dangerTier: 3
     _maxHealthMultiplier: 1.4
+    _spawnDeathLoot: 0

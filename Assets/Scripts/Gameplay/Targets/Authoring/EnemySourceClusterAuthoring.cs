@@ -40,6 +40,7 @@ namespace Gameplay.Targets.Authoring
         [Header("Active Enemy Binding")]
         [SerializeField] private ActiveEnemyClusterAuthoring _activeEnemyCluster;
         [SerializeField] private bool _autoResolveActiveEnemyCluster = true;
+        [SerializeField] private bool _autoCreateActiveEnemyCluster = true;
 
         [Header("Enemy Prefab Pool")]
         [SerializeField] private List<GameObject> _enemyPrefabs = new List<GameObject>();
@@ -52,7 +53,7 @@ namespace Gameplay.Targets.Authoring
         protected override string IdPrefix => "EnemySourceCluster";
         protected override bool RefreshStateEveryFrame => true;
 
-        public ActiveEnemyClusterAuthoring ActiveEnemyCluster => ResolveActiveEnemyCluster();
+        public ActiveEnemyClusterAuthoring ActiveEnemyCluster => ResolveActiveEnemyCluster(Application.isPlaying);
         public IReadOnlyList<GameObject> EnemyPrefabs => _enemyPrefabs;
         public IReadOnlyList<Transform> SpawnPoints => _spawnPoints;
         public SceneEnemySourceIconKind IconKind => _iconKind;
@@ -113,15 +114,45 @@ namespace Gameplay.Targets.Authoring
             if (!ContainsSpawnPoint(spawnPoint) || enemy == null)
                 return false;
 
-            ActiveEnemyClusterAuthoring activeCluster = ResolveActiveEnemyCluster();
+            ActiveEnemyClusterAuthoring activeCluster = ResolveActiveEnemyCluster(Application.isPlaying);
             if (activeCluster == null)
                 return false;
 
-            ApplyEnemyTierRules(enemy);
+            ApplyEnemyTierRules(enemy.gameObject);
             activeCluster.RegisterSpawnedEnemy(enemy, TargetId);
             MarkTouched();
             RefreshRuntimeState();
             return true;
+        }
+
+        /// <summary>
+        /// 将当前敌人来源群的等级规则应用到生成出来的敌人对象。
+        /// </summary>
+        /// <param name="enemyObject"></param>
+        public void ApplyEnemyTierRules(GameObject enemyObject)
+        {
+            if (enemyObject == null)
+                return;
+
+            global::SceneEnemyTierRuleSet ruleSet = ResolveEnemyTierRuleSet();
+            float maxHealthMultiplier = ruleSet != null
+                ? ruleSet.ResolveMaxHealthMultiplier(DangerTier)
+                : ResolveFallbackMaxHealthMultiplier(DangerTier);
+            bool spawnDeathLoot = ruleSet == null || ruleSet.ResolveSpawnDeathLoot(DangerTier);
+
+            global::EnemyHealthController[] healthControllers =
+                enemyObject.GetComponentsInChildren<global::EnemyHealthController>(true);
+            for (int i = 0; i < healthControllers.Length; i++)
+            {
+                healthControllers[i]?.ApplyMaxHealthMultiplier(maxHealthMultiplier);
+            }
+
+            MonoBehaviour[] behaviours = enemyObject.GetComponentsInChildren<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is global::IEnemyDeathLootRuleReceiver deathLootRuleReceiver)
+                    deathLootRuleReceiver.SetCanSpawnDeathLoot(spawnDeathLoot);
+            }
         }
 
         /// <summary>
@@ -179,15 +210,16 @@ namespace Gameplay.Targets.Authoring
             base.OnValidate();
             NormalizeDangerTier();
             EnsureEnemySourceLists(true);
-            ResolveActiveEnemyCluster();
+            ResolveActiveEnemyCluster(false);
         }
 
         protected override void OnEnable()
         {
             NormalizeDangerTier();
             EnsureEnemySourceLists(true);
+            ResolveActiveEnemyCluster(Application.isPlaying);
             base.OnEnable();
-            ResolveActiveEnemyCluster();
+            ResolveActiveEnemyCluster(Application.isPlaying);
         }
 
         protected override void CollectMemberPositions(List<Vector3> memberPositions)
@@ -205,7 +237,7 @@ namespace Gameplay.Targets.Authoring
 
         protected override void RefreshRuntimeState()
         {
-            ActiveEnemyClusterAuthoring activeCluster = ResolveActiveEnemyCluster();
+            ActiveEnemyClusterAuthoring activeCluster = ResolveActiveEnemyCluster(Application.isPlaying);
             bool hasSource = HasAnySpawnPoint();
             bool hasTouchedEnemy = activeCluster != null && activeCluster.HasBeenTouched;
             bool hasCompletedActiveCluster =
@@ -216,7 +248,7 @@ namespace Gameplay.Targets.Authoring
             SetAggregatedState(HasBeenTouched || hasTouchedEnemy, hasSource && hasCompletedActiveCluster);
         }
 
-        private ActiveEnemyClusterAuthoring ResolveActiveEnemyCluster()
+        private ActiveEnemyClusterAuthoring ResolveActiveEnemyCluster(bool createIfMissing)
         {
             if (_activeEnemyCluster != null || !_autoResolveActiveEnemyCluster)
                 return _activeEnemyCluster;
@@ -227,19 +259,35 @@ namespace Gameplay.Targets.Authoring
                 return _activeEnemyCluster;
             }
 
-            _activeEnemyCluster = GetComponentInParent<ActiveEnemyClusterAuthoring>();
+            _activeEnemyCluster = FindOwnedActiveEnemyClusterInChildren();
             if (_activeEnemyCluster != null)
                 return _activeEnemyCluster;
 
-            if (transform.parent != null)
+            if (createIfMissing && _autoCreateActiveEnemyCluster)
+                _activeEnemyCluster = CreateOwnedActiveEnemyCluster();
+
+            return _activeEnemyCluster;
+        }
+
+        private ActiveEnemyClusterAuthoring FindOwnedActiveEnemyClusterInChildren()
+        {
+            ActiveEnemyClusterAuthoring[] childClusters =
+                GetComponentsInChildren<ActiveEnemyClusterAuthoring>(true);
+            for (int i = 0; i < childClusters.Length; i++)
             {
-                _activeEnemyCluster = transform.parent.GetComponentInChildren<ActiveEnemyClusterAuthoring>(true);
-                if (_activeEnemyCluster != null)
-                    return _activeEnemyCluster;
+                ActiveEnemyClusterAuthoring childCluster = childClusters[i];
+                if (childCluster != null && IsOwnedChildActiveEnemyCluster(childCluster.transform))
+                    return childCluster;
             }
 
-            _activeEnemyCluster = GetComponentInChildren<ActiveEnemyClusterAuthoring>(true);
-            return _activeEnemyCluster;
+            return null;
+        }
+
+        private ActiveEnemyClusterAuthoring CreateOwnedActiveEnemyCluster()
+        {
+            GameObject activeClusterObject = new GameObject($"{name}_ActiveEnemyCluster");
+            activeClusterObject.transform.SetParent(transform, false);
+            return activeClusterObject.AddComponent<ActiveEnemyClusterAuthoring>();
         }
 
         private bool HasAnySpawnPoint()
@@ -347,16 +395,18 @@ namespace Gameplay.Targets.Authoring
             return false;
         }
 
-        private void ApplyEnemyTierRules(global::EnemyHealthController enemy)
+        private bool IsOwnedChildActiveEnemyCluster(Transform activeEnemyCluster)
         {
-            if (enemy == null)
-                return;
+            Transform current = activeEnemyCluster;
+            while (current != null)
+            {
+                if (current.TryGetComponent(out EnemySourceClusterAuthoring sourceCluster))
+                    return sourceCluster == this;
 
-            global::SceneEnemyTierRuleSet ruleSet = ResolveEnemyTierRuleSet();
-            float maxHealthMultiplier = ruleSet != null
-                ? ruleSet.ResolveMaxHealthMultiplier(DangerTier)
-                : ResolveFallbackMaxHealthMultiplier(DangerTier);
-            enemy.ApplyMaxHealthMultiplier(maxHealthMultiplier);
+                current = current.parent;
+            }
+
+            return false;
         }
 
         private global::SceneEnemyTierRuleSet ResolveEnemyTierRuleSet()

@@ -128,6 +128,12 @@ namespace Gameplay.Targets.Authoring
             _targetId = $"{IdPrefix}_{Guid.NewGuid():N}";
         }
 
+        // Prefab 群目标实例可能继承同一个序列化 ID，运行时遇到冲突时为实例补一个新 ID
+        internal void RegenerateTargetIdForDuplicate()
+        {
+            _targetId = $"{IdPrefix}_{Guid.NewGuid():N}";
+        }
+
         // 兼容旧序列化数据中状态字段为空的情况
         protected void EnsureState()
         {

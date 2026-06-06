@@ -51,15 +51,8 @@ namespace Gameplay.Targets.Runtime
             if (target == null || string.IsNullOrWhiteSpace(target.TargetId))
                 return;
 
-            if (_targetsById.TryGetValue(target.TargetId, out GameplayTargetAuthoringBase existingTarget) &&
-                existingTarget != null &&
-                existingTarget != target)
-            {
-                Debug.LogWarning(
-                    $"Duplicate gameplay target id [{target.TargetId}] between [{existingTarget.name}] and [{target.name}]",
-                    target);
+            if (!EnsureUniqueTargetId(target))
                 return;
-            }
 
             _targetsById[target.TargetId] = target;
 
@@ -71,6 +64,43 @@ namespace Gameplay.Targets.Runtime
                 AddUnique(_clusters, cluster);
                 ValidateClusterBinding(cluster);
             }
+        }
+
+        private bool EnsureUniqueTargetId(GameplayTargetAuthoringBase target)
+        {
+            const int MaxRegenerationAttempts = 8;
+
+            for (int attempt = 0; attempt < MaxRegenerationAttempts; attempt++)
+            {
+                if (!_targetsById.TryGetValue(
+                        target.TargetId,
+                        out GameplayTargetAuthoringBase existingTarget) ||
+                    existingTarget == null ||
+                    existingTarget == target)
+                {
+                    return true;
+                }
+
+                string duplicateTargetId = target.TargetId;
+                if (!Application.isPlaying)
+                {
+                    Debug.LogWarning(
+                        $"Duplicate gameplay target id [{duplicateTargetId}] between [{existingTarget.name}] and [{target.name}]",
+                        target);
+                    return false;
+                }
+
+                target.RegenerateTargetIdForDuplicate();
+                Debug.LogWarning(
+                    $"Duplicate gameplay target id [{duplicateTargetId}] between [{existingTarget.name}] and [{target.name}]. " +
+                    $"Regenerated runtime id [{target.TargetId}] for [{target.name}]",
+                    target);
+            }
+
+            Debug.LogWarning(
+                $"Failed to generate unique gameplay target id for [{target.name}] after {MaxRegenerationAttempts} attempts",
+                target);
+            return false;
         }
 
         /// <summary>
