@@ -220,6 +220,7 @@ namespace Gameplay.Targets.Authoring
             ResolveActiveEnemyCluster(Application.isPlaying);
             base.OnEnable();
             ResolveActiveEnemyCluster(Application.isPlaying);
+            HideRuntimeSourceRenderers();
         }
 
         protected override void CollectMemberPositions(List<Vector3> memberPositions)
@@ -287,7 +288,24 @@ namespace Gameplay.Targets.Authoring
         {
             GameObject activeClusterObject = new GameObject($"{name}_ActiveEnemyCluster");
             activeClusterObject.transform.SetParent(transform, false);
-            return activeClusterObject.AddComponent<ActiveEnemyClusterAuthoring>();
+            ActiveEnemyClusterAuthoring activeCluster =
+                activeClusterObject.AddComponent<ActiveEnemyClusterAuthoring>();
+            activeCluster.AttachRangeLineRendererFromSource(this, ConfiguredRangeLineRenderer);
+            return activeCluster;
+        }
+
+        private void HideRuntimeSourceRenderers()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            LineRenderer lineRenderer = ConfiguredRangeLineRenderer;
+            if (lineRenderer != null)
+                lineRenderer.enabled = false;
+
+            MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+                meshRenderer.enabled = false;
         }
 
         private bool HasAnySpawnPoint()

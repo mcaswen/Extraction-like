@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2262586777720224499}
   - component: {fileID: 7516123833800071897}
   - component: {fileID: 3233236453141996006}
+  - component: {fileID: 1083466778606681623}
   m_Layer: 0
   m_Name: EnemySourceCluster
   m_TagString: Untagged
@@ -113,7 +114,7 @@ MonoBehaviour:
   _drawGizmos: 1
   _rangeColor: {r: 0.15, g: 0.85, b: 0.65, a: 0.9}
   _rangeLineWidth: 0.08
-  _rangeLineRenderer: {fileID: 0}
+  _rangeLineRenderer: {fileID: 1083466778606681623}
   _groundProbeHeight: 20
   _groundProbeDistance: 80
   _minGroundNormalY: 0.35
@@ -122,6 +123,7 @@ MonoBehaviour:
   _enemyTierRuleSet: {fileID: 11400000, guid: e16d65d728c24e50b1f4985bce2f7c44, type: 2}
   _activeEnemyCluster: {fileID: 0}
   _autoResolveActiveEnemyCluster: 1
+  _autoCreateActiveEnemyCluster: 1
   _enemyPrefabs:
   - {fileID: 0}
   - {fileID: 0}
@@ -129,6 +131,142 @@ MonoBehaviour:
   _spawnPoints:
   - {fileID: 3361243343571921938}
   - {fileID: 1204096565515215364}
+--- !u!120 &1083466778606681623
+LineRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1535480028882878263}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 0
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Positions:
+  - {x: -152.16492, y: 0.225, z: -112.477936}
+  - {x: -152.54405, y: 0.225, z: -111.79155}
+  - {x: -152.782, y: 0.225, z: -111.044395}
+  - {x: -152.86961, y: 0.225, z: -110.26517}
+  - {x: -152.80353, y: 0.225, z: -109.48382}
+  - {x: -152.58627, y: 0.225, z: -108.73038}
+  - {x: -152.2262, y: 0.225, z: -108.0338}
+  - {x: -151.73715, y: 0.225, z: -107.42085}
+  - {x: -151.13792, y: 0.225, z: -106.915085}
+  - {x: -150.45154, y: 0.225, z: -106.53595}
+  - {x: -149.70438, y: 0.225, z: -106.298}
+  - {x: -148.92516, y: 0.225, z: -106.21039}
+  - {x: -148.1438, y: 0.225, z: -106.27648}
+  - {x: -147.39037, y: 0.225, z: -106.49373}
+  - {x: -146.69379, y: 0.225, z: -106.8538}
+  - {x: -146.08084, y: 0.225, z: -107.34285}
+  - {x: -145.57507, y: 0.225, z: -107.94208}
+  - {x: -139.21507, y: 0.225, z: -117.182076}
+  - {x: -138.83594, y: 0.225, z: -117.868454}
+  - {x: -138.59799, y: 0.225, z: -118.61562}
+  - {x: -138.51038, y: -0.9060002, z: -119.394844}
+  - {x: -138.57646, y: -0.9060002, z: -120.17619}
+  - {x: -138.79372, y: -0.9060002, z: -120.929634}
+  - {x: -139.1538, y: -0.9060002, z: -121.62621}
+  - {x: -139.64284, y: -0.9060002, z: -122.23916}
+  - {x: -140.24207, y: -0.9060002, z: -122.74493}
+  - {x: -140.92845, y: -0.9060002, z: -123.12406}
+  - {x: -141.67561, y: -0.9060002, z: -123.362015}
+  - {x: -142.45483, y: -0.9060002, z: -123.44962}
+  - {x: -143.23619, y: -0.9060002, z: -123.38353}
+  - {x: -143.98962, y: -0.9060002, z: -123.16628}
+  - {x: -144.6862, y: -0.9060002, z: -122.80621}
+  - {x: -145.29915, y: -0.9060002, z: -122.31716}
+  - {x: -145.80492, y: 8.55, z: -121.71793}
+  m_Parameters:
+    serializedVersion: 3
+    widthMultiplier: 0.08
+    widthCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 0.14901961, g: 0.8509804, b: 0.6509804, a: 0.9019608}
+      key1: {r: 0.14901961, g: 0.8509804, b: 0.6509804, a: 0.9019608}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    numCornerVertices: 0
+    numCapVertices: 0
+    alignment: 0
+    textureMode: 0
+    textureScale: {x: 1, y: 1}
+    shadowBias: 0.5
+    generateLightingData: 0
+  m_MaskInteraction: 0
+  m_UseWorldSpace: 1
+  m_Loop: 1
+  m_ApplyActiveColorSpace: 1
 --- !u!1001 &4159089341641377678
 PrefabInstance:
   m_ObjectHideFlags: 0

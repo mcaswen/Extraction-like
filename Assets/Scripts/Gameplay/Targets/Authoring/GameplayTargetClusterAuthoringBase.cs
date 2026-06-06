@@ -43,6 +43,17 @@ namespace Gameplay.Targets.Authoring
 
         protected virtual bool RefreshStateEveryFrame => false;
         protected virtual bool RefreshRangeEveryFrame => false;
+        protected virtual bool HideRangeWhenCompleted => false;
+        protected LineRenderer ConfiguredRangeLineRenderer
+        {
+            get
+            {
+                if (_rangeLineRenderer == null)
+                    _rangeLineRenderer = GetComponent<LineRenderer>();
+
+                return _rangeLineRenderer;
+            }
+        }
 
         protected override void OnValidate()
         {
@@ -82,6 +93,12 @@ namespace Gameplay.Targets.Authoring
         /// </summary>
         public void RefreshRangeShape()
         {
+            if (HideRangeWhenCompleted && HasBeenCompleted)
+            {
+                ClearRangeLineRenderer();
+                return;
+            }
+
             BuildRangeShape();
             ApplyRangeLineRenderer();
         }
@@ -95,8 +112,7 @@ namespace Gameplay.Targets.Authoring
             if (_rangeLineRenderer == null)
                 _rangeLineRenderer = gameObject.AddComponent<LineRenderer>();
 
-            _rangeLineRenderer.loop = true;
-            _rangeLineRenderer.useWorldSpace = true;
+            ConfigureRangeLineRenderer(_rangeLineRenderer);
 
             RefreshRangeShape();
         }
@@ -104,6 +120,30 @@ namespace Gameplay.Targets.Authoring
         protected abstract void CollectMemberPositions(List<Vector3> memberPositions);
 
         protected abstract void RefreshRuntimeState();
+
+        /// <summary>
+        /// 按另一个群目标的范围显示配置创建当前群的 LineRenderer
+        /// 用于运行时生成的群目标复用来源群的显示风格
+        /// </summary>
+        /// <param name="sourceCluster"></param>
+        /// <param name="templateRenderer"></param>
+        protected void AttachRangeLineRendererFromTemplate(
+            GameplayTargetClusterAuthoringBase sourceCluster,
+            LineRenderer templateRenderer)
+        {
+            if (sourceCluster != null)
+                CopyRangeDisplaySettingsFrom(sourceCluster);
+
+            if (_rangeLineRenderer == null)
+                _rangeLineRenderer = GetComponent<LineRenderer>();
+
+            if (_rangeLineRenderer == null)
+                _rangeLineRenderer = gameObject.AddComponent<LineRenderer>();
+
+            CopyLineRendererSettings(templateRenderer, _rangeLineRenderer);
+            ConfigureRangeLineRenderer(_rangeLineRenderer);
+            RefreshRangeShape();
+        }
 
         // 子类完成聚合计算后统一写回目标状态
         protected void SetAggregatedState(bool hasBeenTouched, bool hasBeenCompleted)
@@ -178,8 +218,7 @@ namespace Gameplay.Targets.Authoring
             if (_rangeLineRenderer == null)
                 return;
 
-            _rangeLineRenderer.useWorldSpace = true;
-            _rangeLineRenderer.loop = true;
+            ConfigureRangeLineRenderer(_rangeLineRenderer);
             _rangeLineRenderer.startColor = _rangeColor;
             _rangeLineRenderer.endColor = _rangeColor;
             _rangeLineRenderer.widthMultiplier = Mathf.Max(0.01f, _rangeLineWidth);
@@ -188,6 +227,56 @@ namespace Gameplay.Targets.Authoring
             {
                 _rangeLineRenderer.SetPosition(i, _rangePoints[i]);
             }
+        }
+
+        private void ClearRangeLineRenderer()
+        {
+            if (_rangeLineRenderer == null)
+                return;
+
+            _rangeLineRenderer.positionCount = 0;
+        }
+
+        private void CopyRangeDisplaySettingsFrom(GameplayTargetClusterAuthoringBase sourceCluster)
+        {
+            _rangePadding = sourceCluster._rangePadding;
+            _fallbackRadius = sourceCluster._fallbackRadius;
+            _circleSegments = sourceCluster._circleSegments;
+            _smoothSegmentsPerEdge = sourceCluster._smoothSegmentsPerEdge;
+            _rangeHeightOffset = sourceCluster._rangeHeightOffset;
+            _drawGizmos = sourceCluster._drawGizmos;
+            _rangeColor = sourceCluster._rangeColor;
+            _rangeLineWidth = sourceCluster._rangeLineWidth;
+            _groundProbeHeight = sourceCluster._groundProbeHeight;
+            _groundProbeDistance = sourceCluster._groundProbeDistance;
+            _minGroundNormalY = sourceCluster._minGroundNormalY;
+        }
+
+        private static void CopyLineRendererSettings(LineRenderer templateRenderer, LineRenderer targetRenderer)
+        {
+            if (templateRenderer == null || targetRenderer == null)
+                return;
+
+            targetRenderer.sharedMaterial = templateRenderer.sharedMaterial;
+            targetRenderer.widthCurve = templateRenderer.widthCurve;
+            targetRenderer.colorGradient = templateRenderer.colorGradient;
+            targetRenderer.numCornerVertices = templateRenderer.numCornerVertices;
+            targetRenderer.numCapVertices = templateRenderer.numCapVertices;
+            targetRenderer.alignment = templateRenderer.alignment;
+            targetRenderer.textureMode = templateRenderer.textureMode;
+            targetRenderer.shadowCastingMode = templateRenderer.shadowCastingMode;
+            targetRenderer.receiveShadows = templateRenderer.receiveShadows;
+            targetRenderer.sortingLayerID = templateRenderer.sortingLayerID;
+            targetRenderer.sortingOrder = templateRenderer.sortingOrder;
+        }
+
+        private static void ConfigureRangeLineRenderer(LineRenderer lineRenderer)
+        {
+            if (lineRenderer == null)
+                return;
+
+            lineRenderer.loop = true;
+            lineRenderer.useWorldSpace = true;
         }
 
         // Gizmo 绘制直接复用运行时范围生成逻辑，保证编辑器预览和运行时表现一致

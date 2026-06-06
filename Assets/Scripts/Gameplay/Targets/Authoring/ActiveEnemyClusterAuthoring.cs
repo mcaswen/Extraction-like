@@ -25,9 +25,22 @@ namespace Gameplay.Targets.Authoring
         protected override string IdPrefix => "ActiveEnemyCluster";
         protected override bool RefreshStateEveryFrame => true;
         protected override bool RefreshRangeEveryFrame => true;
+        protected override bool HideRangeWhenCompleted => true;
 
         public IReadOnlyList<GameplayTargetEntityMember> InitialEnemies => _initialEnemies;
         public bool HasRegisteredEnemy => CountRegisteredEnemies() > 0;
+
+        /// <summary>
+        /// 复用敌人来源群的范围显示配置，为运行时生成的活跃敌人群创建独立 LineRenderer
+        /// </summary>
+        /// <param name="sourceCluster"></param>
+        /// <param name="sourceLineRenderer"></param>
+        public void AttachRangeLineRendererFromSource(
+            GameplayTargetClusterAuthoringBase sourceCluster,
+            LineRenderer sourceLineRenderer)
+        {
+            AttachRangeLineRendererFromTemplate(sourceCluster, sourceLineRenderer);
+        }
 
         protected override void OnValidate()
         {
