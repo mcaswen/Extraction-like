@@ -5,6 +5,11 @@ using UnityEngine.UI;
 
 public partial class DraggableItemUI
 {
+    private const float RarityBackgroundAlpha = 0.62f;
+    private const float ItemIconInsetRatio = 0.03f;
+    private const float ItemIconAxisStretchPerAspect = 0.12f;
+    private const float ItemIconMaxAxisStretch = 1.18f;
+
     /// <summary>
     /// 绑定物品运行时状态
     /// </summary>
@@ -29,10 +34,7 @@ public partial class DraggableItemUI
         _originalIsRotated = isRotated;
         _currentPreviewIsRotated = isRotated;
 
-        if (data != null && data.ItemIcon != null)
-        {
-            _itemImage.sprite = data.ItemIcon;
-        }
+        ApplyItemVisual(data);
 
         UpdateVisualSize(isRotated);
         if (CurrentGrid != null)
@@ -59,6 +61,7 @@ public partial class DraggableItemUI
         _isRevealAnimating = false;
         _revealAnimationTimer = 0f;
 
+        ApplyItemVisual(ItemData);
         UpdateAmountText();
         UpdateSearchVisualState();
     }
@@ -283,9 +286,9 @@ public partial class DraggableItemUI
             _rectTransform = GetComponent<RectTransform>();
         }
 
-        if (_itemImage == null)
+        if (_itemBackgroundImage == null)
         {
-            _itemImage = GetComponent<Image>();
+            _itemBackgroundImage = GetComponent<Image>();
         }
 
         if (_canvasGroup == null)
@@ -301,7 +304,117 @@ public partial class DraggableItemUI
         _rectTransform.anchorMax = new Vector2(0f, 1f);
         _rectTransform.pivot = new Vector2(0f, 1f);
 
+        EnsureItemVisualLayers();
         EnsureSearchOverlay();
+    }
+
+    // 物品根节点负责接收射线和显示稀有度底色，图标单独放在子 Image 上避免被底色染色
+    private void EnsureItemVisualLayers()
+    {
+        if (_defaultItemBackgroundSprite == null)
+        {
+            Texture2D whiteTexture = Texture2D.whiteTexture;
+            _defaultItemBackgroundSprite = Sprite.Create(
+                whiteTexture,
+                new Rect(0f, 0f, whiteTexture.width, whiteTexture.height),
+                new Vector2(0.5f, 0.5f));
+        }
+
+        if (_itemBackgroundImage != null)
+        {
+            _itemBackgroundImage.sprite = _defaultItemBackgroundSprite;
+            _itemBackgroundImage.type = Image.Type.Simple;
+            _itemBackgroundImage.raycastTarget = true;
+        }
+
+        if (_itemImage == null)
+        {
+            Transform iconTransform = transform.Find("ItemIcon");
+            if (iconTransform == null)
+            {
+                GameObject iconObject = new GameObject(
+                    "ItemIcon",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                iconTransform = iconObject.transform;
+                iconTransform.SetParent(transform, false);
+            }
+
+            _itemImage = iconTransform.GetComponent<Image>();
+            if (_itemImage == null)
+                _itemImage = iconTransform.gameObject.AddComponent<Image>();
+        }
+
+        RectTransform iconRect = _itemImage.rectTransform;
+        iconRect.anchorMin = new Vector2(ItemIconInsetRatio, ItemIconInsetRatio);
+        iconRect.anchorMax = new Vector2(1f - ItemIconInsetRatio, 1f - ItemIconInsetRatio);
+        iconRect.offsetMin = Vector2.zero;
+        iconRect.offsetMax = Vector2.zero;
+
+        _itemImage.preserveAspect = true;
+        _itemImage.raycastTarget = false;
+
+        if (AmountText != null)
+            AmountText.transform.SetAsLastSibling();
+    }
+
+    // 按物品稀有度刷新底色和图标；底色保持不透明，图标保持原始颜色
+    private void ApplyItemVisual(InventoryItemData data)
+    {
+        EnsureComponents();
+
+        if (_itemBackgroundImage != null)
+            _itemBackgroundImage.color = ResolveRarityBackgroundColor(data != null ? data.Rarity : ItemRarity.Common);
+
+        if (_itemImage == null)
+            return;
+
+        _itemImage.sprite = data != null ? data.ItemIcon : null;
+        _itemImage.enabled = _itemImage.sprite != null;
+        _itemImage.color = Color.white;
+    }
+
+    // 按物品当前显示格子的宽高比轻微拉伸图标，避免长条物品图标缩得过小
+    private void UpdateItemIconStretch(int width, int height)
+    {
+        if (_itemImage == null || width <= 0 || height <= 0)
+        {
+            return;
+        }
+
+        float stretchX = 1f;
+        float stretchY = 1f;
+        float displayAspect = width / (float)height;
+
+        if (displayAspect > 1f)
+        {
+            stretchX = Mathf.Min(ItemIconMaxAxisStretch, 1f + (displayAspect - 1f) * ItemIconAxisStretchPerAspect);
+        }
+        else if (displayAspect < 1f)
+        {
+            stretchY = Mathf.Min(ItemIconMaxAxisStretch, 1f + (1f / displayAspect - 1f) * ItemIconAxisStretchPerAspect);
+        }
+
+        _itemImage.rectTransform.localScale = new Vector3(stretchX, stretchY, 1f);
+    }
+
+    private static Color ResolveRarityBackgroundColor(ItemRarity rarity)
+    {
+        switch (rarity)
+        {
+            case ItemRarity.Uncommon:
+                return new Color(0.12f, 0.42f, 0.92f, RarityBackgroundAlpha);
+            case ItemRarity.Rare:
+                return new Color(0.55f, 0.24f, 0.86f, RarityBackgroundAlpha);
+            case ItemRarity.Epic:
+                return new Color(0.96f, 0.68f, 0.12f, RarityBackgroundAlpha);
+            case ItemRarity.Legendary:
+                return new Color(0.86f, 0.14f, 0.12f, RarityBackgroundAlpha);
+            case ItemRarity.Common:
+            default:
+                return new Color(0.18f, 0.64f, 0.28f, RarityBackgroundAlpha);
+        }
     }
 
     // 深拷贝容器中的物品快照，避免不同运行时对象共享同一份列表引用

@@ -139,16 +139,7 @@ public class InventoryItemFactory : MonoBehaviour
             InventoryItemRuntimeState.Create(itemData, amount, internalItems, internalCellStates),
             null);
 
-        Image image = itemView.GetComponent<Image>();
-        if (image != null && itemData.ItemIcon != null)
-        {
-            image.sprite = itemData.ItemIcon;
-        }
-
-        itemView.UpdateAmountText();
-        itemView.GetComponent<RectTransform>().sizeDelta = new Vector2(
-            itemData.Width * 50 + (itemData.Width - 1) * 2,
-            itemData.Height * 50 + (itemData.Height - 1) * 2);
+        itemView.InitializeItem(itemData, Vector2Int.zero, false);
 
         return itemView;
     }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public partial class DraggableItemUI
 {
@@ -16,9 +17,20 @@ public partial class DraggableItemUI
         }
 
         EnsureComponents();
+        DestroyDragPlaceholder();
+        _isDragActive = false;
+        _activeDragLayer = null;
         CurrentlyDraggedItem = this;
         SplitUIController.Instance?.CloseWindow();
         _originalParent = transform.parent;
+
+        if (!TryGetDragLayer(out _activeDragLayer))
+        {
+            CurrentlyDraggedItem = null;
+            return;
+        }
+
+        CreateDragPlaceholder();
 
         if (TryDetachFromEquipmentSlot(out bool blockedByLockedSlot))
         {
@@ -26,6 +38,8 @@ public partial class DraggableItemUI
         }
         else if (blockedByLockedSlot)
         {
+            DestroyDragPlaceholder();
+            _activeDragLayer = null;
             CurrentlyDraggedItem = null;
             return;
         }
@@ -34,7 +48,8 @@ public partial class DraggableItemUI
             CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
         }
 
-        PrepareDragVisual(eventData);
+        PrepareDragVisual(eventData, _activeDragLayer);
+        _isDragActive = true;
     }
 
     /// <summary>
@@ -43,16 +58,26 @@ public partial class DraggableItemUI
     /// <param name="eventData">当前指针事件</param>
     public void OnDrag(PointerEventData eventData)
     {
+        if (!_isDragActive || CurrentlyDraggedItem != this)
+        {
+            return;
+        }
+
         UpdateHighlightPreview(eventData);
         UpdateDraggedVisual(eventData);
     }
 
     /// <summary>
-    /// 结束拖拽时，按装备槽 网格 世界丢弃的优先级结算落点
+    /// 结束拖拽时，按装备槽 网格的优先级结算落点
     /// </summary>
     /// <param name="eventData">当前指针事件</param>
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!_isDragActive || CurrentlyDraggedItem != this)
+        {
+            return;
+        }
+
         EquipmentSlotUI targetSlot = GetHoveredEquipmentSlot(eventData);
         InventoryUIController targetGrid = targetSlot == null ? GetHoveredGrid(eventData) : null;
         bool hasCachedPreviewPlacement = targetGrid != null && _hasPreviewPlacement && _lastPreviewGrid == targetGrid;
@@ -69,7 +94,7 @@ public partial class DraggableItemUI
 
         if (targetGrid == null)
         {
-            DropToWorld();
+            BounceBack();
             return;
         }
 
@@ -139,18 +164,100 @@ public partial class DraggableItemUI
         return true;
     }
 
-    // 将物品提升到全局拖拽层，并把锚点移动到鼠标附近
-    private void PrepareDragVisual(PointerEventData eventData)
+    private bool TryGetDragLayer(out RectTransform dragLayer)
     {
-        RectTransform dragLayer = InventoryItemFactory.Instance != null
+        dragLayer = InventoryItemFactory.Instance != null
             ? InventoryItemFactory.Instance.GlobalDragLayer as RectTransform
             : null;
+        if (dragLayer != null)
+        {
+            return true;
+        }
 
-        if (dragLayer == null)
+        Canvas ownerCanvas = GetComponentInParent<Canvas>();
+        if (ownerCanvas != null && ownerCanvas.transform is RectTransform canvasRect)
+        {
+            dragLayer = canvasRect;
+            return true;
+        }
+
+        dragLayer = _originalParent as RectTransform;
+        return dragLayer != null;
+    }
+
+    private void CreateDragPlaceholder()
+    {
+        DestroyDragPlaceholder();
+
+        RectTransform sourceRect = _rectTransform;
+        RectTransform parentRect = _originalParent as RectTransform;
+        if (sourceRect == null || parentRect == null)
         {
             return;
         }
 
+        _dragPlaceholder = new GameObject(
+            $"{name}_DragPlaceholder",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image));
+
+        RectTransform placeholderRect = _dragPlaceholder.GetComponent<RectTransform>();
+        placeholderRect.SetParent(_originalParent, false);
+        placeholderRect.SetSiblingIndex(transform.GetSiblingIndex());
+        placeholderRect.anchorMin = sourceRect.anchorMin;
+        placeholderRect.anchorMax = sourceRect.anchorMax;
+        placeholderRect.pivot = sourceRect.pivot;
+        placeholderRect.sizeDelta = sourceRect.sizeDelta;
+        placeholderRect.anchoredPosition = sourceRect.anchoredPosition;
+        placeholderRect.localScale = Vector3.one;
+        placeholderRect.localRotation = Quaternion.identity;
+
+        Image placeholderBackground = _dragPlaceholder.GetComponent<Image>();
+        placeholderBackground.sprite = _itemBackgroundImage != null ? _itemBackgroundImage.sprite : null;
+        placeholderBackground.type = Image.Type.Simple;
+        placeholderBackground.color = new Color(0.28f, 0.28f, 0.28f, 0.38f);
+        placeholderBackground.raycastTarget = false;
+
+        if (_itemImage == null || _itemImage.sprite == null)
+        {
+            return;
+        }
+
+        GameObject iconObject = new GameObject(
+            "Icon",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image));
+        RectTransform iconRect = iconObject.GetComponent<RectTransform>();
+        iconRect.SetParent(placeholderRect, false);
+        iconRect.anchorMin = _itemImage.rectTransform.anchorMin;
+        iconRect.anchorMax = _itemImage.rectTransform.anchorMax;
+        iconRect.offsetMin = _itemImage.rectTransform.offsetMin;
+        iconRect.offsetMax = _itemImage.rectTransform.offsetMax;
+        iconRect.localScale = _itemImage.rectTransform.localScale;
+
+        Image iconImage = iconObject.GetComponent<Image>();
+        iconImage.sprite = _itemImage.sprite;
+        iconImage.preserveAspect = _itemImage.preserveAspect;
+        iconImage.color = new Color(0.55f, 0.55f, 0.55f, 0.36f);
+        iconImage.raycastTarget = false;
+    }
+
+    private void DestroyDragPlaceholder()
+    {
+        if (_dragPlaceholder == null)
+        {
+            return;
+        }
+
+        Destroy(_dragPlaceholder);
+        _dragPlaceholder = null;
+    }
+
+    // 将物品提升到全局拖拽层，并把锚点移动到鼠标附近
+    private void PrepareDragVisual(PointerEventData eventData, RectTransform dragLayer)
+    {
         transform.SetParent(dragLayer, true);
         transform.SetAsLastSibling();
 
@@ -165,9 +272,7 @@ public partial class DraggableItemUI
     // 让拖拽中的物品持续跟随鼠标移动
     private void UpdateDraggedVisual(PointerEventData eventData)
     {
-        RectTransform dragLayer = InventoryItemFactory.Instance != null
-            ? InventoryItemFactory.Instance.GlobalDragLayer as RectTransform
-            : null;
+        RectTransform dragLayer = _activeDragLayer;
 
         if (dragLayer == null)
         {
@@ -429,6 +534,7 @@ public partial class DraggableItemUI
         }
 
         _rectTransform.localEulerAngles = Vector3.zero;
+        UpdateItemIconStretch(width, height);
         ResizeSearchOverlay();
     }
 
@@ -445,32 +551,12 @@ public partial class DraggableItemUI
         _visualDragOffset = -centerWorldOffset;
     }
 
-    // 没有有效 UI 落点时，把物品实例化回场景世界中
-    private void DropToWorld()
-    {
-        if (ItemData == null || ItemData.WorldPrefab == null)
-        {
-            BounceBack();
-            return;
-        }
-
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        Vector3 spawnPosition = player != null
-            ? player.transform.position + player.transform.forward * 1.5f + Vector3.up
-            : Vector3.zero;
-
-        GameObject droppedObject = Instantiate(ItemData.WorldPrefab, spawnPosition, Quaternion.identity);
-        droppedObject.GetComponent<WorldLootItem>()?.InitializeDrop(
-            ItemData,
-            CurrentAmount,
-            CloneSaveDataList(InternalItems),
-            CloneCellStateList(InternalCellStates));
-        Destroy(gameObject);
-    }
-
     // 收尾拖拽视觉状态，并清除高亮与缓存预览数据
     private void RestoreDragVisualState()
     {
+        DestroyDragPlaceholder();
+        _isDragActive = false;
+        _activeDragLayer = null;
         _canvasGroup.alpha = 1f;
         _canvasGroup.blocksRaycasts = true;
 

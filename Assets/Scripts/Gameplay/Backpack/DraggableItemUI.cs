@@ -31,9 +31,13 @@ public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHa
     private int _lastPreviewHeight;
     private bool _hasPreviewPlacement;
     private bool _currentPreviewIsRotated;
+    private bool _isDragActive;
     private Vector3 _visualDragOffset;
+    private RectTransform _activeDragLayer;
+    private GameObject _dragPlaceholder;
     private RectTransform _rectTransform;
     private CanvasGroup _canvasGroup;
+    private Image _itemBackgroundImage;
     private Image _itemImage;
     private Transform _originalParent;
     private RectTransform _searchOverlayRoot;
@@ -49,6 +53,7 @@ public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHa
     private float _revealAnimationTimer;
 
     private static Sprite _defaultSearchSprite;
+    private static Sprite _defaultItemBackgroundSprite;
     private const float RevealAnimationDuration = 0.32f;
 
     public static DraggableItemUI CurrentlyDraggedItem;

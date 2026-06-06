@@ -386,10 +386,14 @@ public class InventoryScreenController : MonoBehaviour
             return false;
         }
 
+        if (slot.AcceptedEquipmentKind == EquipmentSlotKind.None && slot.HasEquippedItem)
+        {
+            return false;
+        }
+
         slot.InitializeRuntimeState(false);
         slot.SyncEquippedItemRuntimeDataFromGrid();
 
-        InventoryItemRuntimeState oldItemState = slot.EquippedItemState;
         DraggableItemUI oldItem = slot.ReleaseEquippedItem();
         if (oldItem == null)
         {
@@ -414,11 +418,9 @@ public class InventoryScreenController : MonoBehaviour
             return true;
         }
 
-        DropItemViewToWorld(
-            oldItem,
-            CloneSaveDataList(oldItemState?.InternalItems),
-            CloneCellStateList(oldItemState?.InternalCellStates));
-        return true;
+        slot.ReleaseEquippedItem();
+        slot.TryEquip(oldItem);
+        return false;
     }
 
     private bool TryMoveReleasedEquipmentToBackpack(DraggableItemUI oldItem)
@@ -829,7 +831,7 @@ public class InventoryScreenController : MonoBehaviour
         return true;
     }
 
-    // 统一处理世界容器的拾取入口，按类型分发到对应装备或替换逻辑
+    // 统一处理世界容器的拾取入口
     private bool TryHandleContainerPickup(WorldLootItem worldItem, EquipmentSlotUI slot)
     {
         if (slot == null)
@@ -846,138 +848,7 @@ public class InventoryScreenController : MonoBehaviour
                 CloneCellStateList(worldItem.InternalCellStates));
         }
 
-        if (worldItem.ItemData.Type == ItemType.Rig)
-        {
-            return TrySwapRig(worldItem, slot);
-        }
-
-        if (worldItem.ItemData.Type == ItemType.Bag)
-        {
-            return TrySwapBackpack(worldItem, slot);
-        }
-
         return false;
-    }
-
-    // 胸挂替换只做装备交换，不迁移内部内容
-    private bool TrySwapRig(WorldLootItem worldItem, EquipmentSlotUI slot)
-    {
-        slot.InitializeRuntimeState(false);
-        slot.SyncEquippedItemRuntimeDataFromGrid();
-
-        DraggableItemUI oldItem = slot.EquippedItem;
-        InventoryItemRuntimeState oldItemState = slot.EquippedItemState;
-        if (oldItem == null || oldItemState == null)
-        {
-            return false;
-        }
-
-        DraggableItemUI newItem = CreateWorldContainerView(
-            worldItem,
-            CloneSaveDataList(worldItem.InternalItems),
-            CloneCellStateList(worldItem.InternalCellStates));
-        if (newItem == null)
-        {
-            return false;
-        }
-
-        DraggableItemUI releasedItem = slot.ReleaseEquippedItem();
-        if (releasedItem != oldItem)
-        {
-            oldItem = releasedItem;
-        }
-        if (!slot.TryEquip(newItem))
-        {
-            Destroy(newItem.gameObject);
-            slot.TryEquip(oldItem);
-            return false;
-        }
-
-        DropItemViewToWorld(
-            oldItem,
-            CloneSaveDataList(oldItemState.InternalItems),
-            CloneCellStateList(oldItemState.InternalCellStates));
-        return true;
-    }
-
-    // 背包替换会优先尝试把旧包内容重排进新包，失败后再做普通交换
-    private bool TrySwapBackpack(WorldLootItem worldItem, EquipmentSlotUI slot)
-    {
-        slot.InitializeRuntimeState(false);
-        slot.SyncEquippedItemRuntimeDataFromGrid();
-
-        DraggableItemUI oldItem = slot.EquippedItem;
-        InventoryItemRuntimeState oldItemState = slot.EquippedItemState;
-        if (oldItem == null || oldItemState == null)
-        {
-            return false;
-        }
-
-        bool shouldTransferOldContents = TryBuildReplacementBagLayout(
-            oldItemState,
-            worldItem,
-            out List<ContainerItemSaveData> transferredLayout);
-
-        List<ContainerItemSaveData> newBagItems = shouldTransferOldContents
-            ? transferredLayout
-            : CloneSaveDataList(worldItem.InternalItems);
-        List<ContainerCellStateSaveData> newBagCellStates = shouldTransferOldContents
-            ? new List<ContainerCellStateSaveData>()
-            : CloneCellStateList(worldItem.InternalCellStates);
-
-        DraggableItemUI newItem = CreateWorldContainerView(worldItem, newBagItems, newBagCellStates);
-        if (newItem == null)
-        {
-            return false;
-        }
-
-        DraggableItemUI releasedItem = slot.ReleaseEquippedItem();
-        if (releasedItem != oldItem)
-        {
-            oldItem = releasedItem;
-        }
-        if (!slot.TryEquip(newItem))
-        {
-            Destroy(newItem.gameObject);
-            slot.TryEquip(oldItem);
-            return false;
-        }
-
-        DropItemViewToWorld(
-            oldItem,
-            shouldTransferOldContents ? new List<ContainerItemSaveData>() : CloneSaveDataList(oldItemState.InternalItems),
-            shouldTransferOldContents ? new List<ContainerCellStateSaveData>() : CloneCellStateList(oldItemState.InternalCellStates));
-        return true;
-    }
-
-    // 当新包容量更大时，尝试把新包原内容和旧包内容合并重排成一套布局
-    private static bool TryBuildReplacementBagLayout(
-        InventoryItemRuntimeState oldBagState,
-        WorldLootItem newBagWorldItem,
-        out List<ContainerItemSaveData> sortedLayout)
-    {
-        sortedLayout = new List<ContainerItemSaveData>();
-        if (oldBagState == null || oldBagState.ItemData == null || newBagWorldItem == null || newBagWorldItem.ItemData == null)
-        {
-            return false;
-        }
-
-        int oldCapacity = GetContainerCapacity(oldBagState.ItemData);
-        int newCapacity = GetContainerCapacity(newBagWorldItem.ItemData);
-        if (newCapacity <= oldCapacity)
-        {
-            return false;
-        }
-
-        List<ContainerItemSaveData> combinedItems = CloneSaveDataList(newBagWorldItem.InternalItems);
-        combinedItems.AddRange(CloneSaveDataList(oldBagState.InternalItems));
-
-        return InventoryAutoSortService.TryBuildSortedLayout(
-            newBagWorldItem.ItemData.ContainerColumns,
-            newBagWorldItem.ItemData.ContainerRows,
-            newBagWorldItem.ItemData.BlockedCells,
-            combinedItems,
-            out sortedLayout);
     }
 
     // 为世界容器创建临时 UI 物品，并尝试直接装备到指定槽位
@@ -1018,55 +889,6 @@ public class InventoryScreenController : MonoBehaviour
             worldItem.CurrentAmount,
             internalItems,
             internalCellStates);
-    }
-
-    // 将卸下来的容器重新生成到场景里，并保留它当前的内部状态
-    private static void DropItemViewToWorld(
-        DraggableItemUI itemView,
-        List<ContainerItemSaveData> internalItems,
-        List<ContainerCellStateSaveData> internalCellStates)
-    {
-        if (itemView == null || itemView.ItemData == null)
-        {
-            return;
-        }
-
-        if (itemView.ItemData.WorldPrefab != null)
-        {
-            Vector3 spawnPosition = GetWorldDropPosition();
-            GameObject droppedObject = Instantiate(itemView.ItemData.WorldPrefab, spawnPosition, Quaternion.identity);
-            droppedObject.GetComponent<WorldLootItem>()?.InitializeDrop(
-                itemView.ItemData,
-                itemView.CurrentAmount,
-                CloneSaveDataList(internalItems),
-                CloneCellStateList(internalCellStates));
-        }
-
-        Destroy(itemView.gameObject);
-    }
-
-    // 掉落物默认生成在玩家前方，避免直接压在角色脚下
-    private static Vector3 GetWorldDropPosition()
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            return player.transform.position + player.transform.forward * 1.5f + Vector3.up;
-        }
-
-        return Vector3.zero;
-    }
-
-    // 以总格数减去 blocked cell 的方式估算容器容量
-    private static int GetContainerCapacity(InventoryItemData itemData)
-    {
-        if (itemData == null)
-        {
-            return 0;
-        }
-
-        int blockedCount = itemData.BlockedCells != null ? itemData.BlockedCells.Count : 0;
-        return Mathf.Max(0, itemData.ContainerColumns * itemData.ContainerRows - blockedCount);
     }
 
     // 世界容器入格时，需要补充校验非空容器不能直接塞入背包内容格
