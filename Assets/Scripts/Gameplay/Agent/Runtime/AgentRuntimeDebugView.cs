@@ -1,4 +1,5 @@
 using Core.BehaviorTree.Blackboard;
+using Gameplay.Agent.AI.Actions;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Decision;
@@ -69,13 +70,24 @@ namespace Gameplay.Agent.Runtime
         [SerializeField] private bool _isOnNavMesh;
         [SerializeField] private bool _pathPending;
         [SerializeField] private bool _hasPath;
+        [SerializeField] private NavMeshPathStatus _pathStatus;
         [SerializeField] private bool _isStopped;
         [SerializeField] private Vector3 _destination;
         [SerializeField] private float _remainingDistance;
+        [SerializeField] private bool _hasReliableRemainingDistance;
         [SerializeField] private float _stoppingDistance;
         [SerializeField] private float _speed;
         [SerializeField] private Vector3 _velocity;
         [SerializeField] private float _velocityMagnitude;
+
+        [Header("移动控制判定")]
+        [SerializeField] private float _setDestinationIntervalSeconds;
+        [SerializeField] private bool _navMeshControlsMovement;
+        [SerializeField] private string _movementControlSummary;
+        [SerializeField] private bool _hasRigidbody;
+        [SerializeField] private bool _rigidbodyUseGravity;
+        [SerializeField] private bool _rigidbodyIsKinematic;
+        [SerializeField] private bool _movementControllerNavMeshDrivingRigidbody;
 
         [Header("调试")]
         [SerializeField] private string _status;
@@ -143,6 +155,7 @@ namespace Gameplay.Agent.Runtime
 
             RefreshBlackboardSnapshot();
             RefreshNavMeshSnapshot(_agent.NavMeshAgent);
+            RefreshMovementControlSnapshot(_agent.NavMeshAgent);
 
             _status = _agent.Blackboard != null ? "运行中" : "等待运行时 Blackboard 初始化";
             _lastRefreshTime = Application.isPlaying ? Time.time : 0f;
@@ -273,9 +286,11 @@ namespace Gameplay.Agent.Runtime
             {
                 _pathPending = false;
                 _hasPath = false;
+                _pathStatus = NavMeshPathStatus.PathInvalid;
                 _isStopped = false;
                 _destination = default;
                 _remainingDistance = 0f;
+                _hasReliableRemainingDistance = false;
                 _velocity = default;
                 _velocityMagnitude = 0f;
                 return;
@@ -284,10 +299,48 @@ namespace Gameplay.Agent.Runtime
             _isStopped = navMeshAgent.isStopped;
             _pathPending = navMeshAgent.pathPending;
             _hasPath = navMeshAgent.hasPath;
+            _pathStatus = navMeshAgent.pathStatus;
             _destination = navMeshAgent.destination;
             _remainingDistance = navMeshAgent.remainingDistance;
+            _hasReliableRemainingDistance =
+                !_pathPending &&
+                _hasPath &&
+                _pathStatus == NavMeshPathStatus.PathComplete &&
+                !float.IsNaN(_remainingDistance) &&
+                !float.IsInfinity(_remainingDistance);
             _velocity = navMeshAgent.velocity;
             _velocityMagnitude = _velocity.magnitude;
+        }
+
+        private void RefreshMovementControlSnapshot(NavMeshAgent navMeshAgent)
+        {
+            _setDestinationIntervalSeconds = AgentActionNodeBase.NavMeshDestinationRefreshInterval;
+
+            bool hasAgent = navMeshAgent != null;
+            bool agentEnabled = hasAgent && navMeshAgent.enabled;
+            bool isOnNavMesh = agentEnabled && navMeshAgent.isOnNavMesh;
+            bool pathPending = isOnNavMesh && navMeshAgent.pathPending;
+            bool hasPath = isOnNavMesh && navMeshAgent.hasPath;
+            bool agentNotStopped = isOnNavMesh && !navMeshAgent.isStopped;
+            _navMeshControlsMovement =
+                hasAgent &&
+                agentEnabled &&
+                isOnNavMesh &&
+                (pathPending || hasPath || agentNotStopped);
+
+            Rigidbody attachedRigidbody = GetComponent<Rigidbody>();
+            _hasRigidbody = attachedRigidbody != null;
+            _rigidbodyUseGravity = attachedRigidbody != null && attachedRigidbody.useGravity;
+            _rigidbodyIsKinematic = attachedRigidbody != null && attachedRigidbody.isKinematic;
+
+            global::PlayerMovementController movementController =
+                GetComponent<global::PlayerMovementController>();
+            _movementControllerNavMeshDrivingRigidbody =
+                movementController != null && movementController.IsNavMeshDrivingRigidbody;
+
+            _movementControlSummary =
+                $"agent(enabled={agentEnabled}, onMesh={isOnNavMesh}, pending={pathPending}, path={hasPath}, notStopped={agentNotStopped}) " +
+                $"rb(kinematic={_rigidbodyIsKinematic}, gravity={_rigidbodyUseGravity}) controllerDriving={_movementControllerNavMeshDrivingRigidbody}";
         }
 
         private void ClearSnapshot(string status)
@@ -301,6 +354,7 @@ namespace Gameplay.Agent.Runtime
             _isDead = false;
             ClearBlackboardSnapshot();
             ClearNavMeshSnapshot();
+            ClearMovementControlSnapshot();
             _status = status;
             _lastRefreshTime = Application.isPlaying ? Time.time : 0f;
         }
@@ -348,13 +402,26 @@ namespace Gameplay.Agent.Runtime
             _isOnNavMesh = false;
             _pathPending = false;
             _hasPath = false;
+            _pathStatus = NavMeshPathStatus.PathInvalid;
             _isStopped = false;
             _destination = default;
             _remainingDistance = 0f;
+            _hasReliableRemainingDistance = false;
             _stoppingDistance = 0f;
             _speed = 0f;
             _velocity = default;
             _velocityMagnitude = 0f;
+        }
+
+        private void ClearMovementControlSnapshot()
+        {
+            _setDestinationIntervalSeconds = AgentActionNodeBase.NavMeshDestinationRefreshInterval;
+            _navMeshControlsMovement = false;
+            _movementControlSummary = string.Empty;
+            _hasRigidbody = false;
+            _rigidbodyUseGravity = false;
+            _rigidbodyIsKinematic = false;
+            _movementControllerNavMeshDrivingRigidbody = false;
         }
     }
 }

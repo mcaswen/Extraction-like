@@ -68,7 +68,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 30.44, y: 1, z: -29.97}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3217197453321804268}
@@ -191,8 +191,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -206,8 +206,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c6bdd599d08ddb48b8f276bd45e464e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   InteractionRadius: 3
   InteractableLayer:
     serializedVersion: 2
@@ -225,8 +225,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7a064f35f7040d7b9d352c5e602b376, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   _firePoint: {fileID: 3217197453321804268}
   _bulletPrefab: {fileID: 6621331782827505674, guid: afbf79f519237ce4498e2c5e3751aa09,
     type: 3}
@@ -287,9 +287,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c1b7f2a5d4e4b0e9c2f8147a6d3c521, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  _enableDecisionModule: 1
-  _decisionConfig: {fileID: 11400000, guid: e28f3c6aa7344eec91db7a68148c3fd2,
-    type: 2}
+  _enableDecisionModule: 0
+  _decisionConfig: {fileID: 11400000, guid: e28f3c6aa7344eec91db7a68148c3fd2, type: 2}
   _pawnRoot: {fileID: 2898261118407030116}
 --- !u!114 &7110605897752205501
 MonoBehaviour:
@@ -314,10 +313,22 @@ MonoBehaviour:
   _isDead: 0
   _needRecovery: 0
   _hasVisibleEnemy: 0
+  _hasEnemySourceTarget: 0
   _hasResourceTarget: 0
   _hasInteractableTarget: 0
   _shouldExtract: 0
   _hasPendingDirective: 0
+  _decisionModuleEnabled: 0
+  _decisionSummary:
+  _decisionTargetKind: 0
+  _decisionTargetId:
+  _decisionScore: 0
+  _decisionRisk: 0
+  _decisionCandidateCount: 0
+  _decisionRiskEnemyCount: 0
+  _decisionAttack: 0
+  _decisionDefense: 0
+  _decisionReason:
   _directiveType: 0
   _targetKind: 0
   _targetBindingType: 0

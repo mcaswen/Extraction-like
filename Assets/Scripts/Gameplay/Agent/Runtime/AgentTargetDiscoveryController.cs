@@ -243,7 +243,7 @@ namespace Gameplay.Agent.Runtime
             commandReceiver.SetVisibleEnemy(false);
             commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(true);
-            commandReceiver.SetHasInteractableTarget(true);
+            commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
 
             string targetId = resourceCluster.TargetId;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Rigidbody))]
 /// <summary>
@@ -32,6 +33,7 @@ public class PlayerMovementController : MonoBehaviour
     public float ImmobilizeTintStrength = 0.5f;
 
     private Rigidbody _playerRigidbody;
+    private NavMeshAgent _navMeshAgent;
     private Camera _mainCamera;
     private Vector3 _externalPullVelocity;
     private Vector3 _externalImpulseVelocity;
@@ -43,12 +45,25 @@ public class PlayerMovementController : MonoBehaviour
     private float _nextFootstepStimulusTime;
     private Renderer[] _cachedRenderers;
     private Color[] _originalColors;
+    private bool _originalUseGravity;
+    private bool _originalIsKinematic;
+    private bool _hasOriginalRigidbodySettings;
+    private bool _isNavMeshDrivingRigidbody;
+
+    public bool IsNavMeshDrivingRigidbody => _isNavMeshDrivingRigidbody;
 
     private void Start()
     {
         _playerRigidbody = GetComponent<Rigidbody>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
         _mainCamera = Camera.main;
+        CacheRigidbodySettings();
         CacheRendererColors();
+    }
+
+    private void OnDisable()
+    {
+        SetNavMeshDrivingRigidbody(false);
     }
 
     private void FixedUpdate()
@@ -59,6 +74,14 @@ public class PlayerMovementController : MonoBehaviour
         }
 
         TickImmobilizeVisual();
+        if (IsNavMeshAgentControllingMovement())
+        {
+            SetNavMeshDrivingRigidbody(true);
+            TickMovementStateTimers();
+            return;
+        }
+
+        SetNavMeshDrivingRigidbody(false);
         Move();
         Aim();
     }
@@ -84,6 +107,11 @@ public class PlayerMovementController : MonoBehaviour
             EnemySuspicionStimulusBus.ReportFootstep(transform.position, transform);
             _nextFootstepStimulusTime = Time.time + 0.65f;
         }
+        TickMovementStateTimers();
+    }
+
+    private void TickMovementStateTimers()
+    {
         _externalPullVelocity = Vector3.Lerp(_externalPullVelocity, Vector3.zero, ExternalPullDamping * Time.fixedDeltaTime);
         _externalImpulseVelocity = Vector3.Lerp(_externalImpulseVelocity, Vector3.zero, ExternalImpulseDamping * Time.fixedDeltaTime);
         _immobilizeDurationRemaining = Mathf.Max(0f, _immobilizeDurationRemaining - Time.fixedDeltaTime);
@@ -98,6 +126,45 @@ public class PlayerMovementController : MonoBehaviour
         {
             _speedDebuffMultiplier = 1f;
         }
+    }
+
+    private bool IsNavMeshAgentControllingMovement()
+    {
+        return _navMeshAgent != null &&
+               _navMeshAgent.enabled &&
+               _navMeshAgent.isOnNavMesh &&
+               (_navMeshAgent.pathPending || _navMeshAgent.hasPath || !_navMeshAgent.isStopped);
+    }
+
+    private void CacheRigidbodySettings()
+    {
+        if (_playerRigidbody == null || _hasOriginalRigidbodySettings)
+            return;
+
+        _originalUseGravity = _playerRigidbody.useGravity;
+        _originalIsKinematic = _playerRigidbody.isKinematic;
+        _hasOriginalRigidbodySettings = true;
+    }
+
+    private void SetNavMeshDrivingRigidbody(bool isNavMeshDriving)
+    {
+        if (_playerRigidbody == null || _isNavMeshDrivingRigidbody == isNavMeshDriving)
+            return;
+
+        _isNavMeshDrivingRigidbody = isNavMeshDriving;
+        if (isNavMeshDriving)
+        {
+            CacheRigidbodySettings();
+            _playerRigidbody.useGravity = false;
+            _playerRigidbody.isKinematic = true;
+            return;
+        }
+
+        if (!_hasOriginalRigidbodySettings)
+            return;
+
+        _playerRigidbody.useGravity = _originalUseGravity;
+        _playerRigidbody.isKinematic = _originalIsKinematic;
     }
 
     private void Aim()

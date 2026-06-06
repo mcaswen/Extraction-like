@@ -15,6 +15,12 @@ namespace Gameplay.Agent.AI.Actions
     /// </summary>
     public abstract class AgentActionNodeBase : ActionNode
     {
+        internal const float NavMeshDestinationRefreshInterval = 0.1f;
+        internal const float NavMeshTargetSampleRadius = 4f;
+
+        private float _lastNavMeshDestinationSetTime = -999f;
+        private bool _hasLastNavMeshDestination;
+
         /// <summary>
         /// 创建 Agent 行为节点基类
         /// </summary>
@@ -158,6 +164,42 @@ namespace Gameplay.Agent.AI.Actions
         }
 
         /// <summary>
+        /// 解析资源目标的实际停靠点
+        /// 资源群不再使用群中心，直接选群内离 Agent 最近的未完成资源。
+        /// </summary>
+        /// <param name="targetRef"></param>
+        /// <param name="agentPosition"></param>
+        /// <param name="targetPosition"></param>
+        /// <returns></returns>
+        protected bool TryResolveResourceNavigationTargetPosition(
+            AgentTargetRef targetRef,
+            Vector3 agentPosition,
+            out Vector3 targetPosition)
+        {
+            GameObject targetObject = targetRef.TargetObject;
+            if (targetObject != null &&
+                targetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
+                resourceCluster.TryGetNearestIncompleteResource(agentPosition, out GameObject resourceObject) &&
+                resourceObject != null)
+            {
+                AgentTargetRef resourceTargetRef = AgentTargetRef.FromConcreteObject(
+                    AgentTargetKind.Resource,
+                    resourceObject,
+                    resourceObject.name);
+
+                return TryResolveInteractionTargetPosition(
+                    resourceTargetRef,
+                    agentPosition,
+                    out targetPosition);
+            }
+
+            return TryResolveInteractionTargetPosition(
+                targetRef,
+                agentPosition,
+                out targetPosition);
+        }
+
+        /// <summary>
         /// 从目标引用中查找指定组件
         /// 会兼容组件挂在父级或子级表现物体上的情况
         /// </summary>
@@ -280,9 +322,10 @@ namespace Gameplay.Agent.AI.Actions
         protected void StopAgentMovement(IAgentReadOnly agent)
         {
             StopNavMeshAgent(agent?.NavMeshAgent);
+            ResetNavMeshDestinationCache();
         }
 
-        private static bool TryMoveAgentWithNavMesh(
+        private bool TryMoveAgentWithNavMesh(
             IAgentReadOnly agent,
             Vector3 targetPosition,
             float stoppingDistance,
@@ -300,14 +343,18 @@ namespace Gameplay.Agent.AI.Actions
 
             ConfigureNavMeshAgent(navMeshAgent, stoppingDistance, moveSpeed);
 
-            if (!TrySampleNavMeshTarget(targetPosition, stoppingDistance, out Vector3 sampledTargetPosition))
+            if (!TrySampleNavMeshTarget(
+                    navMeshAgent,
+                    targetPosition,
+                    stoppingDistance,
+                    out Vector3 sampledTargetPosition))
             {
                 global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
                 StopNavMeshAgent(navMeshAgent);
                 return true;
             }
 
-            if (IsWithinPlanarStoppingDistance(
+            if (IsWithinWorldStoppingDistance(
                     agent.CachedTransform.position,
                     sampledTargetPosition,
                     stoppingDistance))
@@ -318,17 +365,44 @@ namespace Gameplay.Agent.AI.Actions
             }
 
             navMeshAgent.isStopped = false;
-            if (!navMeshAgent.SetDestination(sampledTargetPosition))
+            if (ShouldRefreshNavMeshDestination())
             {
-                global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
+                if (!navMeshAgent.SetDestination(sampledTargetPosition))
+                {
+                    global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
+                    return true;
+                }
+
+                _lastNavMeshDestinationSetTime = Time.time;
+                _hasLastNavMeshDestination = true;
                 return true;
             }
 
-            hasReached = HasReachedNavMeshDestination(navMeshAgent, stoppingDistance);
+            hasReached = HasReachedNavMeshDestination(
+                navMeshAgent,
+                sampledTargetPosition,
+                stoppingDistance);
             if (hasReached)
+            {
                 StopNavMeshAgent(navMeshAgent);
+                ResetNavMeshDestinationCache();
+            }
 
             return true;
+        }
+
+        private bool ShouldRefreshNavMeshDestination()
+        {
+            if (!_hasLastNavMeshDestination)
+                return true;
+
+            return Time.time - _lastNavMeshDestinationSetTime >= NavMeshDestinationRefreshInterval;
+        }
+
+        private void ResetNavMeshDestinationCache()
+        {
+            _hasLastNavMeshDestination = false;
+            _lastNavMeshDestinationSetTime = -999f;
         }
 
         private static bool EnsureNavMeshAgentReady(
@@ -361,12 +435,21 @@ namespace Gameplay.Agent.AI.Actions
         }
 
         private static bool TrySampleNavMeshTarget(
+            NavMeshAgent navMeshAgent,
             Vector3 targetPosition,
             float stoppingDistance,
             out Vector3 sampledTargetPosition)
         {
-            float sampleRadius = Mathf.Max(2f, stoppingDistance);
-            if (NavMesh.SamplePosition(targetPosition, out NavMeshHit hit, sampleRadius, NavMesh.AllAreas))
+            float sampleRadius = Mathf.Max(
+                NavMeshTargetSampleRadius,
+                stoppingDistance,
+                navMeshAgent.height,
+                navMeshAgent.radius * 4f);
+            if (NavMesh.SamplePosition(
+                    targetPosition,
+                    out NavMeshHit hit,
+                    sampleRadius,
+                    navMeshAgent.areaMask))
             {
                 sampledTargetPosition = hit.position;
                 return true;
@@ -378,6 +461,7 @@ namespace Gameplay.Agent.AI.Actions
 
         private static bool HasReachedNavMeshDestination(
             NavMeshAgent navMeshAgent,
+            Vector3 sampledTargetPosition,
             float stoppingDistance)
         {
             if (navMeshAgent.pathPending)
@@ -387,7 +471,23 @@ namespace Gameplay.Agent.AI.Actions
                 navMeshAgent.stoppingDistance,
                 stoppingDistance);
 
-            return navMeshAgent.remainingDistance <= effectiveStoppingDistance;
+            if (navMeshAgent.hasPath)
+            {
+                if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete)
+                    return false;
+
+                float remainingDistance = navMeshAgent.remainingDistance;
+                if (!float.IsNaN(remainingDistance) &&
+                    !float.IsInfinity(remainingDistance))
+                {
+                    return remainingDistance <= effectiveStoppingDistance;
+                }
+            }
+
+            return IsWithinWorldStoppingDistance(
+                navMeshAgent.transform.position,
+                sampledTargetPosition,
+                effectiveStoppingDistance);
         }
 
         private static void StopNavMeshAgent(NavMeshAgent navMeshAgent)
@@ -452,6 +552,16 @@ namespace Gameplay.Agent.AI.Actions
                 currentPosition.y,
                 targetPosition.z);
             Vector3 offset = planarTargetPosition - currentPosition;
+            float stoppingDistanceSqr = Mathf.Max(0f, stoppingDistance) * Mathf.Max(0f, stoppingDistance);
+            return offset.sqrMagnitude <= stoppingDistanceSqr;
+        }
+
+        private static bool IsWithinWorldStoppingDistance(
+            Vector3 currentPosition,
+            Vector3 targetPosition,
+            float stoppingDistance)
+        {
+            Vector3 offset = targetPosition - currentPosition;
             float stoppingDistanceSqr = Mathf.Max(0f, stoppingDistance) * Mathf.Max(0f, stoppingDistance);
             return offset.sqrMagnitude <= stoppingDistanceSqr;
         }

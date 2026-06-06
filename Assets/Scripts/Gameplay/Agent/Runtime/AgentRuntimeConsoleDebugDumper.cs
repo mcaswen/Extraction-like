@@ -1,0 +1,538 @@
+using System.Collections.Generic;
+using System.Text;
+using Core.BehaviorTree.Blackboard;
+using Gameplay.Agent.AI.Actions;
+using Gameplay.Agent.Core;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Decision;
+using Gameplay.Targets.Authoring;
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace Gameplay.Agent.Runtime
+{
+    /// <summary>
+    /// 运行时 Agent 控制台快照。
+    /// 按 I 一次性打印目标、状态、NavMesh 和移动控制信息，便于排查卡点。
+    /// </summary>
+    public sealed class AgentRuntimeConsoleDebugDumper : MonoBehaviour
+    {
+        private static AgentRuntimeConsoleDebugDumper _activeInstance;
+
+        [SerializeField] private KeyCode _dumpKey = KeyCode.I;
+        [SerializeField, Min(0.1f)] private float _navMeshSampleRadius =
+            AgentActionNodeBase.NavMeshTargetSampleRadius;
+
+        private readonly List<AgentRuntimeHandle> _agentBuffer = new List<AgentRuntimeHandle>();
+        private readonly StringBuilder _builder = new StringBuilder(8192);
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetRuntimeState()
+        {
+            _activeInstance = null;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void EnsureRuntimeDumper()
+        {
+            if (_activeInstance != null)
+                return;
+
+            _activeInstance = Object.FindObjectOfType<AgentRuntimeConsoleDebugDumper>();
+            if (_activeInstance != null)
+                return;
+
+            GameObject dumperObject = new GameObject("[AgentRuntimeConsoleDebugDumper]");
+            _activeInstance = dumperObject.AddComponent<AgentRuntimeConsoleDebugDumper>();
+        }
+
+        private void Awake()
+        {
+            if (_activeInstance != null && _activeInstance != this)
+            {
+                enabled = false;
+                return;
+            }
+
+            _activeInstance = this;
+        }
+
+        private void OnDestroy()
+        {
+            if (_activeInstance == this)
+                _activeInstance = null;
+        }
+
+        private void Update()
+        {
+            if (_dumpKey == KeyCode.None || !Input.GetKeyDown(_dumpKey))
+                return;
+
+            DumpAllAgents();
+        }
+
+        [ContextMenu("Dump All Agents")]
+        public void DumpAllAgents()
+        {
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
+            registry.CopyHandlesTo(_agentBuffer);
+
+            _builder.Clear();
+            _builder.AppendLine($"[AgentDebugDump] time={Time.time:0.000} agents={_agentBuffer.Count}");
+
+            if (_agentBuffer.Count <= 0)
+            {
+                _builder.AppendLine("没有注册中的 Agent。");
+                Debug.Log(_builder.ToString(), this);
+                return;
+            }
+
+            for (int i = 0; i < _agentBuffer.Count; i++)
+            {
+                AppendAgentSnapshot(_agentBuffer[i], i + 1, _agentBuffer.Count);
+            }
+
+            Debug.Log(_builder.ToString(), this);
+        }
+
+        private void AppendAgentSnapshot(AgentRuntimeHandle handle, int index, int total)
+        {
+            if (!handle.IsValid || handle.PawnRoot == null)
+            {
+                _builder.AppendLine($"--- Agent {index}/{total}: invalid handle");
+                return;
+            }
+
+            AgentPawnRoot pawn = handle.PawnRoot;
+            BehaviorBlackboard blackboard = pawn.Blackboard;
+            Vector3 position = pawn.Position;
+
+            _builder.AppendLine($"--- Agent {index}/{total}: {pawn.name}");
+            _builder.AppendLine(
+                $"id={pawn.AgentIdValue} state={pawn.CurrentMacroStateId}/{ResolveStateName(pawn, blackboard)} " +
+                $"health={pawn.CurrentHealth}/{pawn.MaxHealth} dead={pawn.IsDead}");
+            _builder.AppendLine(
+                $"position={FormatVector(position)} forward={FormatVector(pawn.Forward)} " +
+                $"targetDiscovery(enabled={pawn.EnableTargetDiscovery}, range={pawn.TargetDiscoveryRange:0.###}, interval={pawn.TargetDiscoveryInterval:0.###})");
+
+            AppendBlackboardFacts(blackboard);
+            AppendDecisionSnapshot(blackboard);
+            AppendDirectiveSnapshot(blackboard, pawn);
+            AppendNavMeshSnapshot(pawn);
+            AppendMovementSnapshot(pawn);
+        }
+
+        private void AppendBlackboardFacts(BehaviorBlackboard blackboard)
+        {
+            if (blackboard == null)
+            {
+                _builder.AppendLine("facts: blackboard=null");
+                return;
+            }
+
+            _builder.AppendLine(
+                "facts: " +
+                $"visibleEnemy={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasVisibleEnemy, false)} " +
+                $"enemySource={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasEnemySourceTarget, false)} " +
+                $"resource={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasResourceTarget, false)} " +
+                $"interactable={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasInteractableTarget, false)} " +
+                $"extract={GetBlackboardValue(blackboard, AgentBlackboardKeys.ShouldExtract, false)} " +
+                $"pendingDirective={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasPendingDirective, false)} " +
+                $"needRecovery={GetBlackboardValue(blackboard, AgentBlackboardKeys.NeedRecovery, false)}");
+        }
+
+        private void AppendDecisionSnapshot(BehaviorBlackboard blackboard)
+        {
+            if (blackboard == null)
+                return;
+
+            bool enabledDecision = GetBlackboardValue(
+                blackboard,
+                AgentBlackboardKeys.DecisionModuleEnabled,
+                false);
+            AgentDecisionTargetKind targetKind = GetBlackboardValue(
+                blackboard,
+                AgentBlackboardKeys.DecisionTargetKind,
+                AgentDecisionTargetKind.None);
+
+            _builder.AppendLine(
+                "decision: " +
+                $"enabled={enabledDecision} kind={targetKind} " +
+                $"targetId={GetBlackboardValue(blackboard, AgentBlackboardKeys.DecisionTargetId, string.Empty)} " +
+                $"score={GetBlackboardValue(blackboard, AgentBlackboardKeys.DecisionScore, 0f):0.###} " +
+                $"risk={GetBlackboardValue(blackboard, AgentBlackboardKeys.DecisionRisk, 0f):0.###} " +
+                $"candidates={GetBlackboardValue(blackboard, AgentBlackboardKeys.DecisionCandidateCount, 0)} " +
+                $"riskEnemies={GetBlackboardValue(blackboard, AgentBlackboardKeys.DecisionRiskEnemyCount, 0)} " +
+                $"reason={GetBlackboardValue(blackboard, AgentBlackboardKeys.DecisionReason, string.Empty)}");
+        }
+
+        private void AppendDirectiveSnapshot(BehaviorBlackboard blackboard, AgentPawnRoot pawn)
+        {
+            if (blackboard == null ||
+                !blackboard.TryGetValue(
+                    AgentBlackboardKeys.PendingDirectiveRequest,
+                    out AgentDirectiveRequest directive))
+            {
+                _builder.AppendLine("directive: none");
+                return;
+            }
+
+            AgentTargetRef targetRef = directive.TargetRef;
+            GameObject targetObject = targetRef.TargetObject;
+            Vector3 targetPosition = targetRef.HasTargetPosition ? targetRef.TargetPosition : default;
+
+            _builder.AppendLine(
+                "directive: " +
+                $"type={directive.DirectiveType} target={targetRef.Kind}/{targetRef.BindingType} " +
+                $"id={targetRef.TargetId} object={FormatObject(targetObject)} " +
+                $"refPos={FormatVector(targetPosition)} hasRefPos={targetRef.HasTargetPosition} " +
+                $"payload={directive.PayloadId} command={directive.CommandId} priority={directive.Priority}");
+
+            if (targetRef.HasTargetPosition)
+            {
+                _builder.AppendLine(
+                    "directiveDistance: " +
+                    $"world={Vector3.Distance(pawn.Position, targetPosition):0.###} " +
+                    $"planar={GetPlanarDistance(pawn.Position, targetPosition):0.###}");
+            }
+
+            if (TryResolveNavigationTarget(
+                    targetRef,
+                    pawn.Position,
+                    out GameObject resolvedObject,
+                    out Vector3 resolvedPosition,
+                    out string resolvedReason))
+            {
+                _builder.AppendLine(
+                    "resolvedMoveTarget: " +
+                    $"reason={resolvedReason} object={FormatObject(resolvedObject)} " +
+                    $"pos={FormatVector(resolvedPosition)} " +
+                    $"world={Vector3.Distance(pawn.Position, resolvedPosition):0.###} " +
+                    $"planar={GetPlanarDistance(pawn.Position, resolvedPosition):0.###}");
+
+                AppendCalculatedPathSnapshot(pawn, resolvedPosition);
+            }
+            else
+            {
+                _builder.AppendLine("resolvedMoveTarget: unavailable");
+            }
+        }
+
+        private void AppendNavMeshSnapshot(AgentPawnRoot pawn)
+        {
+            NavMeshAgent agent = pawn.NavMeshAgent;
+            if (agent == null)
+            {
+                _builder.AppendLine("nav: agent=null");
+                return;
+            }
+
+            bool enabledAgent = agent.enabled;
+            bool isOnNavMesh = enabledAgent && agent.isOnNavMesh;
+            _builder.Append(
+                "nav: " +
+                $"enabled={enabledAgent} onMesh={isOnNavMesh} stopped=");
+
+            if (!isOnNavMesh)
+            {
+                _builder.AppendLine("n/a");
+                return;
+            }
+
+            float remainingDistance = agent.remainingDistance;
+            bool reliableRemaining =
+                !agent.pathPending &&
+                agent.hasPath &&
+                agent.pathStatus == NavMeshPathStatus.PathComplete &&
+                !float.IsNaN(remainingDistance) &&
+                !float.IsInfinity(remainingDistance);
+
+            _builder.AppendLine(
+                $"{agent.isStopped} pending={agent.pathPending} hasPath={agent.hasPath} " +
+                $"status={agent.pathStatus} dest={FormatVector(agent.destination)} " +
+                $"remaining={FormatFloat(remainingDistance)} reliableRemaining={reliableRemaining} " +
+                $"stopping={agent.stoppingDistance:0.###} speed={agent.speed:0.###} " +
+                $"velocity={FormatVector(agent.velocity)} desired={FormatVector(agent.desiredVelocity)} " +
+                $"steeringTarget={FormatVector(agent.steeringTarget)}");
+
+            AppendPathCorners("navPath", agent.path);
+        }
+
+        private void AppendCalculatedPathSnapshot(AgentPawnRoot pawn, Vector3 targetPosition)
+        {
+            NavMeshAgent agent = pawn.NavMeshAgent;
+            if (agent == null || !agent.enabled || !agent.isOnNavMesh)
+                return;
+
+            bool sampledStart = NavMesh.SamplePosition(
+                pawn.Position,
+                out NavMeshHit startHit,
+                _navMeshSampleRadius,
+                agent.areaMask);
+            bool sampledTarget = NavMesh.SamplePosition(
+                targetPosition,
+                out NavMeshHit targetHit,
+                _navMeshSampleRadius,
+                agent.areaMask);
+
+            _builder.Append(
+                "calcPathToResolved: " +
+                $"sampleRadius={_navMeshSampleRadius:0.###} " +
+                $"startSampled={sampledStart}");
+
+            if (sampledStart)
+                _builder.Append($" start={FormatVector(startHit.position)} startDelta={Vector3.Distance(pawn.Position, startHit.position):0.###}");
+
+            _builder.Append($" targetSampled={sampledTarget}");
+            if (sampledTarget)
+                _builder.Append($" target={FormatVector(targetHit.position)} targetDelta={Vector3.Distance(targetPosition, targetHit.position):0.###}");
+
+            if (!sampledStart || !sampledTarget)
+            {
+                _builder.AppendLine();
+                return;
+            }
+
+            NavMeshPath path = new NavMeshPath();
+            bool calculated = NavMesh.CalculatePath(
+                startHit.position,
+                targetHit.position,
+                agent.areaMask,
+                path);
+
+            _builder.AppendLine(
+                $" calculated={calculated} status={path.status} " +
+                $"length={CalculatePathLength(path):0.###} corners={path.corners.Length}");
+            AppendPathCorners("calcPathCorners", path);
+        }
+
+        private void AppendMovementSnapshot(AgentPawnRoot pawn)
+        {
+            Rigidbody body = pawn.GetComponent<Rigidbody>();
+            global::PlayerMovementController movementController =
+                pawn.GetComponent<global::PlayerMovementController>();
+
+            _builder.Append(
+                "movement: " +
+                $"rigidbody={(body != null)}");
+
+            if (body != null)
+            {
+                _builder.Append(
+                    $" kinematic={body.isKinematic} gravity={body.useGravity} " +
+                    $"rbVelocity={FormatVector(body.velocity)}");
+            }
+
+            _builder.AppendLine(
+                $" playerController={(movementController != null)} " +
+                $"navMeshDrivingRb={(movementController != null && movementController.IsNavMeshDrivingRigidbody)}");
+        }
+
+        private static bool TryResolveNavigationTarget(
+            AgentTargetRef targetRef,
+            Vector3 agentPosition,
+            out GameObject resolvedObject,
+            out Vector3 resolvedPosition,
+            out string reason)
+        {
+            resolvedObject = targetRef.TargetObject;
+            reason = "direct";
+
+            if (!TryResolveTargetPosition(targetRef, out resolvedPosition))
+                return false;
+
+            if (targetRef.Kind == AgentTargetKind.Resource &&
+                targetRef.TargetObject != null &&
+                targetRef.TargetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
+                resourceCluster.TryGetNearestIncompleteResource(agentPosition, out GameObject resourceObject) &&
+                resourceObject != null)
+            {
+                resolvedObject = resourceObject;
+                reason = $"nearestResourceInCluster({resourceCluster.TargetId})";
+                return TryResolveInteractionTargetPosition(
+                    resourceObject,
+                    agentPosition,
+                    out resolvedPosition);
+            }
+
+            if (resolvedObject != null &&
+                resolvedObject.GetComponent<GameplayTargetClusterAuthoringBase>() == null)
+            {
+                reason = "targetColliderClosestPoint";
+                return TryResolveInteractionTargetPosition(
+                    resolvedObject,
+                    agentPosition,
+                    out resolvedPosition);
+            }
+
+            return true;
+        }
+
+        private static bool TryResolveTargetPosition(AgentTargetRef targetRef, out Vector3 targetPosition)
+        {
+            if (!targetRef.IsValid)
+            {
+                targetPosition = default;
+                return false;
+            }
+
+            GameObject targetObject = targetRef.TargetObject;
+            if (targetObject != null)
+            {
+                if (targetObject.TryGetComponent(
+                        out GameplayTargetClusterAuthoringBase clusterTarget))
+                {
+                    targetPosition = clusterTarget.CenterPosition;
+                    return true;
+                }
+
+                targetPosition = targetObject.transform.position;
+                return true;
+            }
+
+            if (targetRef.HasTargetPosition)
+            {
+                targetPosition = targetRef.TargetPosition;
+                return true;
+            }
+
+            targetPosition = default;
+            return false;
+        }
+
+        private static bool TryResolveInteractionTargetPosition(
+            GameObject targetObject,
+            Vector3 agentPosition,
+            out Vector3 targetPosition)
+        {
+            targetPosition = targetObject != null ? targetObject.transform.position : default;
+            if (targetObject == null)
+                return false;
+
+            Collider[] colliders = targetObject.GetComponentsInChildren<Collider>();
+            if (colliders == null || colliders.Length <= 0)
+                return true;
+
+            bool hasClosestPoint = false;
+            Vector3 closestPoint = targetPosition;
+            float closestDistanceSqr = float.MaxValue;
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider targetCollider = colliders[i];
+                if (targetCollider == null ||
+                    !targetCollider.enabled ||
+                    !targetCollider.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                Vector3 candidatePoint = targetCollider.ClosestPoint(agentPosition);
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, candidatePoint);
+                if (distanceSqr >= closestDistanceSqr)
+                    continue;
+
+                hasClosestPoint = true;
+                closestPoint = candidatePoint;
+                closestDistanceSqr = distanceSqr;
+            }
+
+            if (hasClosestPoint)
+                targetPosition = closestPoint;
+
+            return true;
+        }
+
+        private void AppendPathCorners(string label, NavMeshPath path)
+        {
+            if (path == null || path.corners == null || path.corners.Length <= 0)
+            {
+                _builder.AppendLine($"{label}: corners=0");
+                return;
+            }
+
+            _builder.Append(
+                $"{label}: length={CalculatePathLength(path):0.###} corners={path.corners.Length}");
+
+            int cornerCount = Mathf.Min(path.corners.Length, 6);
+            for (int i = 0; i < cornerCount; i++)
+            {
+                _builder.Append($" c{i}={FormatVector(path.corners[i])}");
+            }
+
+            if (path.corners.Length > cornerCount)
+                _builder.Append(" ...");
+
+            _builder.AppendLine();
+        }
+
+        private static T GetBlackboardValue<T>(
+            BehaviorBlackboard blackboard,
+            BlackboardKey key,
+            T defaultValue)
+        {
+            return blackboard != null && blackboard.TryGetValue(key, out T value)
+                ? value
+                : defaultValue;
+        }
+
+        private static string ResolveStateName(
+            AgentPawnRoot pawn,
+            BehaviorBlackboard blackboard)
+        {
+            if (blackboard != null &&
+                blackboard.TryGetValue(
+                    AgentBlackboardKeys.CurrentMacroStateName,
+                    out string stateName) &&
+                !string.IsNullOrWhiteSpace(stateName))
+            {
+                return stateName;
+            }
+
+            return pawn.CurrentMacroStateName;
+        }
+
+        private static float CalculatePathLength(NavMeshPath path)
+        {
+            if (path == null || path.corners == null || path.corners.Length < 2)
+                return 0f;
+
+            float length = 0f;
+            for (int i = 1; i < path.corners.Length; i++)
+            {
+                length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+            }
+
+            return length;
+        }
+
+        private static float GetPlanarDistance(Vector3 from, Vector3 to)
+        {
+            return Mathf.Sqrt(GetPlanarDistanceSqr(from, to));
+        }
+
+        private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)
+        {
+            float deltaX = from.x - to.x;
+            float deltaZ = from.z - to.z;
+            return deltaX * deltaX + deltaZ * deltaZ;
+        }
+
+        private static string FormatObject(GameObject targetObject)
+        {
+            return targetObject != null ? targetObject.name : "null";
+        }
+
+        private static string FormatVector(Vector3 value)
+        {
+            return $"({value.x:0.###}, {value.y:0.###}, {value.z:0.###})";
+        }
+
+        private static string FormatFloat(float value)
+        {
+            return float.IsInfinity(value) || float.IsNaN(value)
+                ? value.ToString()
+                : value.ToString("0.###");
+        }
+    }
+}

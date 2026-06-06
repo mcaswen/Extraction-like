@@ -17,7 +17,6 @@ namespace Gameplay.Agent.AI.Actions
         private GameObject _waitingResourceObject;
         private GameObject _activeConcreteResourceObject;
         private string _activeResourceTargetId;
-        private bool _hasReachedClusterCenter;
         private bool _hasReachedInteractionRange;
         private bool _hasObservedInventoryOpen;
 
@@ -95,7 +94,7 @@ namespace Gameplay.Agent.AI.Actions
 
         /// <summary>
         /// 搜索资源群
-        /// 先到达群中心，再逐个处理群内未完成资源
+        /// 直接选群内最近的未完成资源作为寻路目标，避免卡在抽象群中心
         /// </summary>
         /// <param name="context"></param>
         /// <param name="agent"></param>
@@ -106,22 +105,6 @@ namespace Gameplay.Agent.AI.Actions
             IAgentReadOnly agent,
             ResourceClusterAuthoring resourceCluster)
         {
-            float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
-            float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
-
-            if (!_hasReachedClusterCenter &&
-                !MoveAgentTowards(
-                    agent,
-                    resourceCluster.CenterPosition,
-                    interactionDistance,
-                    moveSpeed,
-                    context.DeltaTime))
-            {
-                return Running();
-            }
-
-            _hasReachedClusterCenter = true;
-
             if (!resourceCluster.TryGetNearestIncompleteResource(agent.Position, out GameObject resourceObject))
             {
                 CompleteResourceSearch(context);
@@ -326,7 +309,6 @@ namespace Gameplay.Agent.AI.Actions
             // 目标切换时清掉上一资源的等待/到达缓存，避免直接沿用旧资源的停靠状态
             _activeResourceTargetId = targetId;
             _activeConcreteResourceObject = null;
-            _hasReachedClusterCenter = false;
             _hasReachedInteractionRange = false;
             ResetWaitState();
         }
@@ -410,7 +392,6 @@ namespace Gameplay.Agent.AI.Actions
         {
             _activeResourceTargetId = string.Empty;
             _activeConcreteResourceObject = null;
-            _hasReachedClusterCenter = false;
             _hasReachedInteractionRange = false;
             ResetWaitState();
         }

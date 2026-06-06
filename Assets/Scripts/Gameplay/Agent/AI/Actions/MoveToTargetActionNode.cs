@@ -56,7 +56,7 @@ namespace Gameplay.Agent.AI.Actions
 
             UnityEngine.Vector3 targetPosition;
             bool resolvedTargetPosition = _targetKind == AgentTargetKind.Resource
-                ? TryResolveInteractionTargetPosition(targetRef, agent.Position, out targetPosition)
+                ? TryResolveResourceNavigationTargetPosition(targetRef, agent.Position, out targetPosition)
                 : TryResolveTargetPosition(targetRef, out targetPosition);
 
             if (!resolvedTargetPosition)
