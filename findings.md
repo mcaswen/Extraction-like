@@ -241,6 +241,16 @@ Non-contradictions verified:
 - The loot TSV/template remains the source of truth and now combines the restored original normal loot economics/footprints with the approved equipment-slot placeholder rows.
 - The backpack prefab rebuild tool is now menu-driven only; it no longer runs automatically from a Temp flag during editor domain reload.
 
+## 2026-06-07 Backpack UI Asset Integration Planning
+
+- The requested `Sprites/UI` directory does not exist at the workspace root. The matching Unity asset paths are `Assets/Art/Sprites/UI` and `Assets/Art/Sprites/UI design/Bag`.
+- `Assets/Art/Sprites/UI design/Bag` contains the most directly named backpack UI art: `Jpg_Background.PNG`, `Jpg_Backpack.PNG`, `Jpg_Bag.PNG`, `Jpg_Equipment.PNG`, `Jpg_SlotFrame.PNG`, `Jpg_Value.PNG`, and five rarity frame sprites.
+- `Assets/Art/Sprites/UI/Backpack_background` and `Assets/Art/Sprites/UI/Backpack_Slot` contain earlier/generated cut names such as `IMG_0607.PNG` and `IMG_0590.PNG`; these overlap with the named Bag design art but are less self-documenting.
+- Current backpack runtime is script-driven through `InventoryScreenController`, `InventoryUIController`, `InventoryItemFactory`, `EquipmentSlotUI`, and `DraggableItemUI`.
+- The shared authored UI prefab is `Assets/Prefabs/Canvas.prefab`. The current backpack contract is six visible typed equipment slots, a fixed 5x6 `BackpackGrid`, and a dynamic right-side `LootChestGrid`.
+- UI slot art enters the system in three places: `InventoryUIController.CellBackgroundSprite` for grid cell backgrounds, each equipment slot root `Image.sprite` for equipment frames, and the draggable item prefab/root `Image.sprite` or item data `ItemIcon` for item visuals.
+- The named `Jpg_SlotFrame.PNG` asset is already imported as a UI Sprite and is referenced by some equipment slot `Image` components in `Canvas.prefab`.
+
 ## 2026-06-01 Enemy Patrol Hit-Reaction Diagnosis
 
 - Player bullet damage currently reaches enemies through `BulletController.ApplyElementalDamage`, then calls `EnemyHealthController.TakeDamage(finalDamage)` with no attacker, instigator, hit point, or incoming direction.

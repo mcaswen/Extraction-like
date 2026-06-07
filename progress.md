@@ -47,6 +47,16 @@
 | `EBUSY` writing `Assets/Config/Loot/LootItems_Template.xlsx` | Ran `node tools/build_loot_items_template.mjs` | Rechecked the file lock after finding WPS processes; the lock cleared and a second generation run succeeded. |
 | `insufficient permission for adding an object to repository database .git/objects` | Ran `git update-index --refresh` to clear a stale status entry | Did not retry privileged git mutation; content diff showed no BoardGame logic changes, and later status/diff checks were used for verification. |
 
+## 2026-06-07 Backpack UI Asset Integration Planning
+
+- Restored planning context and inspected the UI sprite folders relevant to the backpack request.
+- Confirmed the root `Sprites/UI` path does not exist; the actual project folders are `Assets/Art/Sprites/UI` and `Assets/Art/Sprites/UI design/Bag`.
+- Measured representative Bag UI assets: `Jpg_Background.PNG` is 677x1033, `Jpg_Backpack.PNG` is a 745x652 6x5 precomposed grid, `Jpg_Equipment.PNG` is a 761x158 six-slot strip, and `Jpg_SlotFrame.PNG` is a 180x180 slot frame.
+- Confirmed current backpack runtime uses `InventoryScreenController`, `InventoryUIController`, `InventoryItemFactory`, `EquipmentSlotUI`, and `DraggableItemUI`.
+- Parsed `Assets/Prefabs/Canvas.prefab` and found `BackpackGrid` is configured as 5 columns by 6 rows, while the prefab still contains legacy `RigSlot`, `BackpackSlot`, `PocketGrid`, and `TacticalRigPanel` nodes.
+- Found the prefab's `InventoryScreenController` still has empty references for the six typed equipment slot fields and `InventoryItemFactory.GlobalDragLayer`, so these must be configured before relying on the UI art hookup.
+- Confirmed item icon assets are already assigned on most `InventoryItemData` assets under `Assets/SO/ItemData/Table`; several gold equipment icons are imported as default texture rather than Sprite and need import setting correction before they can be assigned.
+
 ## 2026-05-29 Fixed Backpack UI Redesign
 
 - Restored planning context and captured the clarified scope: no visible/effective rig system in the backpack UI, no backpack item expansion, fixed 5x6 player backpack grid, and 6 functional non-expanding equipment slots.
