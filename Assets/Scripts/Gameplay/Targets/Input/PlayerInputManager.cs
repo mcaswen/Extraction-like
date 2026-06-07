@@ -1,44 +1,92 @@
+using Gameplay.Agent.Data;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Input;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
-public class PlayerInputManager : MonoBehaviour
+/// <summary>
+/// Thin mouse input entry point for issuing commands to agents by clicking visible target clusters.
+/// </summary>
+public sealed class PlayerInputManager : MonoBehaviour
 {
-    [Header("设置检测层级")]
-    public LayerMask targetLayerMask; // 目标圈的Layer (TargetArea)
-    public LayerMask groundLayerMask; // 地面的Layer (Ground)
+    [Header("Camera")]
+    [SerializeField] private Camera _targetCamera;
 
-    [Header("当前操纵的AI")]
-    public AIIntentController activeAI;
+    [Header("Target Filtering")]
+    [FormerlySerializedAs("targetLayerMask")]
+    [SerializeField] private LayerMask _clusterLayerMask = ~0;
+    [SerializeField] private bool _useClusterLayerMask;
+    [SerializeField] private bool _ignoreCompletedClusters = true;
 
-    void Update()
+    [Header("Agent")]
+    [SerializeField] private string _targetAgentId;
+
+    [Header("Debug")]
+    [SerializeField] private bool _logClicks;
+
+    private readonly VisibleTargetClusterPicker _clusterPicker =
+        new VisibleTargetClusterPicker();
+
+    private readonly AgentTargetCommandDispatcher _commandDispatcher =
+        new AgentTargetCommandDispatcher();
+
+    private Camera TargetCamera
     {
-        if (Input.GetMouseButtonDown(0))
+        get
         {
-            ProcessPlayerClick();
+            if (_targetCamera == null)
+                _targetCamera = Camera.main;
+
+            return _targetCamera;
         }
     }
 
-    private void ProcessPlayerClick()
+    private void Update()
     {
-        if (activeAI == null) return;
+        if (!Input.GetMouseButtonDown(0))
+            return;
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+        if (IsPointerBlockedByUi())
+            return;
 
-        // 优先检测是否点中了目标群 (Cluster) 或 区域 (Zone)
-        if (Physics.Raycast(ray, out hit, 100f, targetLayerMask))
+        TryHandleClick(Input.mousePosition);
+    }
+
+    private void TryHandleClick(Vector2 screenPosition)
+    {
+        Camera camera = TargetCamera;
+        if (camera == null)
+            return;
+
+        TargetClusterPickOptions pickOptions = new TargetClusterPickOptions(
+            _clusterLayerMask,
+            _useClusterLayerMask,
+            _ignoreCompletedClusters);
+
+        if (!_clusterPicker.TryPick(
+                camera,
+                screenPosition,
+                pickOptions,
+                out GameplayTargetClusterAuthoringBase cluster))
         {
-            TargetCluster clickedCluster = hit.collider.GetComponent<TargetCluster>();
-            if (clickedCluster != null && !clickedCluster.isCompleted)
-            {
-                activeAI.CommandToCluster(clickedCluster);
-                return;
-            }
+            return;
         }
 
-        // 如果没有点中目标，则检测是否点中了普通地面进行 Point-and-Click 寻路
-        if (Physics.Raycast(ray, out hit, 100f, groundLayerMask))
+        if (!_commandDispatcher.TrySubmitClusterCommand(
+                cluster,
+                _targetAgentId,
+                out AgentDirectiveRequest directiveRequest))
         {
-            activeAI.CommandToMovePoint(hit.point);
+            return;
         }
+
+        if (_logClicks)
+            Debug.Log($"[TargetInput] Clicked {cluster.TargetKind} cluster [{cluster.name}] -> {directiveRequest.DirectiveType}", cluster);
+    }
+
+    private static bool IsPointerBlockedByUi()
+    {
+        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
     }
 }
