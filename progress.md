@@ -443,3 +443,12 @@ Implementation steps for this restart:
 - Ran a static scan for public/protected methods in `Assets/Scripts/Gameplay/Enemy` and confirmed they have XML documentation comments.
 - Ran `git diff --check`: no whitespace errors; only repository CRLF normalization warnings.
 - Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success, 0 errors, with 9 existing unrelated warnings.
+
+## 2026-06-07 Enemy Animator Override Controller Cleanup
+
+- User asked why the recovered enemy animation state machines were regular controllers instead of the previously recommended override-controller structure, then asked to convert them.
+- Kept `Assets/Art/Animation Controllers/Enemy/AC_Enemy_Base.controller` as the single shared state machine with `Speed` and `Attack` parameters plus `Idle`, `Move`, and `Attack` states.
+- Replaced the five duplicated enemy-specific `.controller` assets with five `AnimatorOverrideController` assets: `AOC_Enemy_BasicMelee`, `AOC_Enemy_Ranged`, `AOC_Enemy_ModernStrander`, `AOC_Enemy_TidalAberration`, and `AOC_Enemy_AncientStrander`.
+- Preserved the previous enemy-specific controller GUIDs on the new override-controller `.meta` files where possible, so future/manual references have a better chance of staying stable.
+- Override mapping: BasicMelee uses Zombie idle/walk/attack clips; Ranged uses Skeleton idle/walk/attack clips; ModernStrander, TidalAberration, and AncientStrander currently override to the generic Idle/Run/Attack clips.
+- Staged only `Assets/Art/Animation Controllers/Enemy.meta` and the new Enemy animation controller assets. Existing unrelated `Assets/Prefabs/Canvas.prefab` and `.codex-backups/` remain untouched.
