@@ -108,10 +108,16 @@ namespace Gameplay.Agent.AI.Actions
             if (!resourceCluster.TryGetNearestReachableIncompleteResource(
                     agent.Position,
                     agent.NavMeshAgent,
-                    out GameObject resourceObject))
+                    out GameObject resourceObject,
+                    out Vector3 resourceNavigationPosition))
             {
-                CompleteResourceSearch(context);
-                return Succeed();
+                if (resourceCluster.HasBeenCompleted)
+                {
+                    CompleteResourceSearch(context);
+                    return Succeed();
+                }
+
+                return Running();
             }
 
             if (_activeConcreteResourceObject != resourceObject)
@@ -121,7 +127,13 @@ namespace Gameplay.Agent.AI.Actions
                 ResetWaitState();
             }
 
-            BehaviorNodeResult result = SearchResourceObject(context, agent, resourceObject, false);
+            BehaviorNodeResult result = SearchResourceObject(
+                context,
+                agent,
+                resourceObject,
+                false,
+                resourceNavigationPosition,
+                true);
             if (result.Status != BehaviorNodeStatus.Success)
                 return result;
 
@@ -150,6 +162,23 @@ namespace Gameplay.Agent.AI.Actions
             GameObject resourceObject,
             bool clearDirectiveOnComplete)
         {
+            return SearchResourceObject(
+                context,
+                agent,
+                resourceObject,
+                clearDirectiveOnComplete,
+                default,
+                false);
+        }
+
+        private BehaviorNodeResult SearchResourceObject(
+            BehaviorTreeContext context,
+            IAgentReadOnly agent,
+            GameObject resourceObject,
+            bool clearDirectiveOnComplete,
+            Vector3 navigationTargetPosition,
+            bool hasNavigationTargetPosition)
+        {
             if (resourceObject == null)
             {
                 if (clearDirectiveOnComplete)
@@ -163,10 +192,15 @@ namespace Gameplay.Agent.AI.Actions
                 resourceObject,
                 resourceObject.name);
 
-            if (!TryResolveInteractionTargetPosition(
-                    resourceTargetRef,
-                    agent.Position,
-                    out Vector3 targetPosition))
+            Vector3 targetPosition;
+            bool resolvedTargetPosition = hasNavigationTargetPosition ||
+                                          TryResolveInteractionTargetPosition(
+                                              resourceTargetRef,
+                                              agent.Position,
+                                              out navigationTargetPosition);
+            targetPosition = navigationTargetPosition;
+
+            if (!resolvedTargetPosition)
             {
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Resource target position is invalid");
             }

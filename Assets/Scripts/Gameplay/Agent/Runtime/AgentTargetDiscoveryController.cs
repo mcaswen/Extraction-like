@@ -121,6 +121,11 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
+            if (AgentManualDirectiveLock.ShouldHoldManualDirective(handle.ReadOnly))
+            {
+                return false;
+            }
+
             return !_nextScanTimeByAgentId.TryGetValue(handle.AgentId, out double nextScanTime) ||
                    timeSeconds >= nextScanTime;
         }
@@ -138,6 +143,9 @@ namespace Gameplay.Agent.Runtime
             IAgentCommandReceiver commandReceiver = handle.CommandReceiver;
             float range = Mathf.Max(0f, handle.PawnRoot.TargetDiscoveryRange);
             float rangeSqr = range * range;
+
+            if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent))
+                return;
 
             if (range <= 0f)
             {

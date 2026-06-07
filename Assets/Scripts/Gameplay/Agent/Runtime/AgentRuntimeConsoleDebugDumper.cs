@@ -346,15 +346,17 @@ namespace Gameplay.Agent.Runtime
             if (targetRef.Kind == AgentTargetKind.Resource &&
                 targetRef.TargetObject != null &&
                 targetRef.TargetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
-                resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, navMeshAgent, out GameObject resourceObject) &&
+                resourceCluster.TryGetNearestReachableIncompleteResource(
+                    agentPosition,
+                    navMeshAgent,
+                    out GameObject resourceObject,
+                    out Vector3 resourceNavigationPosition) &&
                 resourceObject != null)
             {
                 resolvedObject = resourceObject;
                 reason = $"nearestReachableResourceInCluster({resourceCluster.TargetId})";
-                return TryResolveInteractionTargetPosition(
-                    resourceObject,
-                    agentPosition,
-                    out resolvedPosition);
+                resolvedPosition = resourceNavigationPosition;
+                return true;
             }
 
             if (resolvedObject != null &&

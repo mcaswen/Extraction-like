@@ -180,19 +180,21 @@ namespace Gameplay.Agent.AI.Actions
         {
             GameObject targetObject = targetRef.TargetObject;
             if (targetObject != null &&
-                targetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
-                resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, navMeshAgent, out GameObject resourceObject) &&
-                resourceObject != null)
+                targetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster))
             {
-                AgentTargetRef resourceTargetRef = AgentTargetRef.FromConcreteObject(
-                    AgentTargetKind.Resource,
-                    resourceObject,
-                    resourceObject.name);
+                if (resourceCluster.TryGetNearestReachableIncompleteResource(
+                        agentPosition,
+                        navMeshAgent,
+                        out GameObject resourceObject,
+                        out Vector3 resourceNavigationPosition) &&
+                    resourceObject != null)
+                {
+                    targetPosition = resourceNavigationPosition;
+                    return true;
+                }
 
-                return TryResolveInteractionTargetPosition(
-                    resourceTargetRef,
-                    agentPosition,
-                    out targetPosition);
+                targetPosition = default;
+                return false;
             }
 
             return TryResolveInteractionTargetPosition(
@@ -369,7 +371,17 @@ namespace Gameplay.Agent.AI.Actions
             navMeshAgent.isStopped = false;
             if (ShouldRefreshNavMeshDestination())
             {
-                if (!navMeshAgent.SetDestination(sampledTargetPosition))
+                if (!TryCalculateCompleteNavMeshPath(
+                        navMeshAgent,
+                        sampledTargetPosition,
+                        out NavMeshPath path))
+                {
+                    global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
+                    StopNavMeshAgent(navMeshAgent);
+                    return true;
+                }
+
+                if (!navMeshAgent.SetPath(path))
                 {
                     global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
                     return true;
@@ -463,6 +475,19 @@ namespace Gameplay.Agent.AI.Actions
 
             sampledTargetPosition = default;
             return false;
+        }
+
+        private static bool TryCalculateCompleteNavMeshPath(
+            NavMeshAgent navMeshAgent,
+            Vector3 sampledTargetPosition,
+            out NavMeshPath path)
+        {
+            path = new NavMeshPath();
+            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
+                return false;
+
+            return navMeshAgent.CalculatePath(sampledTargetPosition, path) &&
+                   path.status == NavMeshPathStatus.PathComplete;
         }
 
         private static bool HasReachedNavMeshDestination(

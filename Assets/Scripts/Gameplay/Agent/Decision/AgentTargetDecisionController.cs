@@ -96,6 +96,12 @@ namespace Gameplay.Agent.Decision
             IAgentReadOnly agent = _pawnRoot;
             IAgentCommandReceiver commandReceiver = _pawnRoot;
 
+            if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent))
+            {
+                WriteDecisionDisabled(agent, "手动目标指令锁定中");
+                return;
+            }
+
             if (!_enableDecisionModule || _decisionConfig == null)
             {
                 WriteDecisionDisabled(agent, "决策组件未启用或缺少 AgentDecisionConfig");

@@ -22,6 +22,10 @@ namespace Gameplay.Targets.Authoring
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
         private const float NavMeshResourceSampleRadius = 4f;
+        private const float ResourceApproachPadding = 1.25f;
+        private const int ResourceApproachDirectionCount = 16;
+
+        private readonly List<Vector3> _navigationCandidateBuffer = new List<Vector3>();
 
         public global::SceneResourceTier ResourceTier => _resourceTier;
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
@@ -116,11 +120,40 @@ namespace Gameplay.Targets.Authoring
             NavMeshAgent navMeshAgent,
             out GameObject resourceObject)
         {
+            return TryGetNearestReachableIncompleteResource(
+                agentPosition,
+                navMeshAgent,
+                out resourceObject,
+                out _);
+        }
+
+        /// <summary>
+        /// 获取离 Agent 最近且 NavMesh 完整可达的未完成资源对象和实际可站立导航点。
+        /// 资源 pivot 或箱体中心可能不在可站立面上，斜坡/平台场景需要围绕碰撞体找入口点。
+        /// </summary>
+        /// <param name="agentPosition"></param>
+        /// <param name="navMeshAgent"></param>
+        /// <param name="resourceObject"></param>
+        /// <param name="navigationPosition"></param>
+        /// <returns></returns>
+        public bool TryGetNearestReachableIncompleteResource(
+            Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
+            out GameObject resourceObject,
+            out Vector3 navigationPosition)
+        {
             RefreshRuntimeState();
             resourceObject = null;
+            navigationPosition = default;
 
             if (!TryResolveNavMeshStartPosition(agentPosition, navMeshAgent, out Vector3 startPosition, out int areaMask))
-                return TryGetNearestIncompleteResource(agentPosition, out resourceObject);
+            {
+                if (!TryGetNearestIncompleteResource(agentPosition, out resourceObject))
+                    return false;
+
+                navigationPosition = resourceObject != null ? resourceObject.transform.position : default;
+                return resourceObject != null;
+            }
 
             NavMeshPath path = new NavMeshPath();
             float nearestPathLength = float.MaxValue;
@@ -132,24 +165,19 @@ namespace Gameplay.Targets.Authoring
                 if (!IsMemberAvailableForSearch(member))
                     continue;
 
-                if (!NavMesh.SamplePosition(
+                if (!TryFindReachableResourceNavigationPosition(
+                        member.EntityObject,
                         member.Position,
-                        out NavMeshHit targetHit,
-                        NavMeshResourceSampleRadius,
-                        areaMask))
+                        agentPosition,
+                        startPosition,
+                        areaMask,
+                        path,
+                        out Vector3 candidateNavigationPosition,
+                        out float pathLength))
                 {
                     continue;
                 }
 
-                bool calculated = NavMesh.CalculatePath(
-                    startPosition,
-                    targetHit.position,
-                    areaMask,
-                    path);
-                if (!calculated || path.status != NavMeshPathStatus.PathComplete)
-                    continue;
-
-                float pathLength = CalculatePathLength(path);
                 float distanceSqr = GetPlanarDistanceSqr(agentPosition, member.Position);
                 if (pathLength > nearestPathLength ||
                     (Mathf.Approximately(pathLength, nearestPathLength) && distanceSqr >= nearestDistanceSqr))
@@ -158,6 +186,7 @@ namespace Gameplay.Targets.Authoring
                 }
 
                 resourceObject = member.EntityObject;
+                navigationPosition = candidateNavigationPosition;
                 nearestPathLength = pathLength;
                 nearestDistanceSqr = distanceSqr;
             }
@@ -327,6 +356,153 @@ namespace Gameplay.Targets.Authoring
             }
 
             return false;
+        }
+
+        private bool TryFindReachableResourceNavigationPosition(
+            GameObject resourceObject,
+            Vector3 fallbackPosition,
+            Vector3 agentPosition,
+            Vector3 startPosition,
+            int areaMask,
+            NavMeshPath path,
+            out Vector3 navigationPosition,
+            out float pathLength)
+        {
+            navigationPosition = default;
+            pathLength = float.MaxValue;
+
+            FillResourceNavigationCandidates(
+                resourceObject,
+                fallbackPosition,
+                agentPosition,
+                _navigationCandidateBuffer);
+
+            bool foundReachablePosition = false;
+            for (int i = 0; i < _navigationCandidateBuffer.Count; i++)
+            {
+                if (!TryCalculateCompletePathToCandidate(
+                        _navigationCandidateBuffer[i],
+                        startPosition,
+                        areaMask,
+                        path,
+                        out Vector3 candidateNavigationPosition,
+                        out float candidatePathLength))
+                {
+                    continue;
+                }
+
+                if (candidatePathLength >= pathLength)
+                    continue;
+
+                navigationPosition = candidateNavigationPosition;
+                pathLength = candidatePathLength;
+                foundReachablePosition = true;
+            }
+
+            return foundReachablePosition;
+        }
+
+        private static void FillResourceNavigationCandidates(
+            GameObject resourceObject,
+            Vector3 fallbackPosition,
+            Vector3 agentPosition,
+            List<Vector3> candidates)
+        {
+            candidates.Clear();
+            AddUniqueCandidate(candidates, fallbackPosition);
+
+            if (resourceObject == null)
+                return;
+
+            Collider[] colliders = resourceObject.GetComponentsInChildren<Collider>();
+            Bounds combinedBounds = default;
+            bool hasBounds = false;
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider resourceCollider = colliders[i];
+                if (resourceCollider == null ||
+                    !resourceCollider.enabled ||
+                    !resourceCollider.gameObject.activeInHierarchy ||
+                    resourceCollider.isTrigger)
+                {
+                    continue;
+                }
+
+                AddUniqueCandidate(candidates, resourceCollider.ClosestPoint(agentPosition));
+                if (!hasBounds)
+                {
+                    combinedBounds = resourceCollider.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    combinedBounds.Encapsulate(resourceCollider.bounds);
+                }
+            }
+
+            Vector3 center = hasBounds ? combinedBounds.center : resourceObject.transform.position;
+            AddUniqueCandidate(candidates, center);
+
+            float approachRadius = hasBounds
+                ? Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.z) + ResourceApproachPadding
+                : ResourceApproachPadding;
+            approachRadius = Mathf.Max(ResourceApproachPadding, approachRadius);
+
+            for (int i = 0; i < ResourceApproachDirectionCount; i++)
+            {
+                float angle = Mathf.PI * 2f * i / ResourceApproachDirectionCount;
+                Vector3 offset = new Vector3(
+                    Mathf.Cos(angle) * approachRadius,
+                    0f,
+                    Mathf.Sin(angle) * approachRadius);
+                AddUniqueCandidate(candidates, center + offset);
+            }
+        }
+
+        private static void AddUniqueCandidate(List<Vector3> candidates, Vector3 candidate)
+        {
+            const float DuplicateCandidateDistanceSqr = 0.04f;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                if ((candidates[i] - candidate).sqrMagnitude <= DuplicateCandidateDistanceSqr)
+                    return;
+            }
+
+            candidates.Add(candidate);
+        }
+
+        private static bool TryCalculateCompletePathToCandidate(
+            Vector3 candidatePosition,
+            Vector3 startPosition,
+            int areaMask,
+            NavMeshPath path,
+            out Vector3 navigationPosition,
+            out float pathLength)
+        {
+            navigationPosition = default;
+            pathLength = float.MaxValue;
+
+            if (!NavMesh.SamplePosition(
+                    candidatePosition,
+                    out NavMeshHit targetHit,
+                    NavMeshResourceSampleRadius,
+                    areaMask))
+            {
+                return false;
+            }
+
+            bool calculated = NavMesh.CalculatePath(
+                startPosition,
+                targetHit.position,
+                areaMask,
+                path);
+            if (!calculated || path.status != NavMeshPathStatus.PathComplete)
+                return false;
+
+            navigationPosition = targetHit.position;
+            pathLength = CalculatePathLength(path);
+            return true;
         }
 
         private static float CalculatePathLength(NavMeshPath path)
