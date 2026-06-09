@@ -49,6 +49,7 @@ Out of scope:
 | 22. Enemy direct-hit long-range chase fix | Done | Directly hit patrol enemies get a short forced chase window and sampled NavMesh chase destination before normal lose-range leash resumes | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 | 23. Enemy direct attacker retaliation | Done | Direct Agent/player damage carries an attacker; patrol enemies chase and attack the direct attacker instead of stopping in patrol awareness | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 | 24. Enemy script Chinese comments | Done | Added Chinese XML comments for public enemy APIs and concise normal comments for complex private enemy logic, following `Assets/Scripts/Core` style | Public/protected method comment scan, `git diff --check`, and `dotnet build Assembly-CSharp.csproj` pass |
+| 25. Backpack UI asset integration review | Done | Inspected current UI sprite assets, backpack prefab hooks, runtime scripts, draggable item prefab, and scene binding differences | Findings recorded; implementation/configuration plan prepared for the user |
 
 ## TSV Columns
 

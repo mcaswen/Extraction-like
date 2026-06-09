@@ -452,3 +452,19 @@ Implementation steps for this restart:
 - Preserved the previous enemy-specific controller GUIDs on the new override-controller `.meta` files where possible, so future/manual references have a better chance of staying stable.
 - Override mapping: BasicMelee uses Zombie idle/walk/attack clips; Ranged uses Skeleton idle/walk/attack clips; ModernStrander, TidalAberration, and AncientStrander currently override to the generic Idle/Run/Attack clips.
 - Staged only `Assets/Art/Animation Controllers/Enemy.meta` and the new Enemy animation controller assets. Existing unrelated `Assets/Prefabs/Canvas.prefab` and `.codex-backups/` remain untouched.
+
+## 2026-06-08 Enemy Art/Prefab Integration Review
+
+- User asked whether the enemy art models in `Assets/Art/Models/Characters` should be added to the existing enemy pawn prefabs, and requested a detailed mapping/check before making changes.
+- Performed a read-only scan of character FBX assets, enemy pawn prefabs, enemy SO configs, animation override controllers, and runtime enemy animation usage.
+- Confirmed enemy pawn prefabs are still whitebox primitives with no serialized Animator components/controller references, and enemy behavior scripts do not yet drive the `Speed`/`Attack` Animator parameters.
+- Wrote the main findings and integration cautions to `findings.md`.
+- No prefab, code, model, animation, or SO assets were modified in this review.
+## 2026-06-08 Backpack UI Asset Integration Plan Review
+
+- Started a read-only review for integrating the current Sprites/UI backpack art into the existing backpack system.
+- Restored planning context first because the backpack/equipment slot UI has prior implementation decisions: six typed equipment slots, hidden locked default backpack slot, fixed 5x6 `BackpackGrid`, and dynamic `LootChestGrid`.
+- Next steps are to inspect the current sprite assets, prefab bindings, and runtime scripts before proposing Unity configuration steps.
+- Inspected `Assets/Art/Sprites/UI design/Bag`, `Assets/Art/Sprites/UI/Backpack_background`, `Assets/Art/Sprites/UI/Backpack_Slot`, `Canvas.prefab`, `Prefab.prefab`, key backpack scripts, and scene controller bindings.
+- Recorded findings in `findings.md` and marked Phase 25 done in `task_plan.md`.
+- No gameplay scripts, prefabs, scenes, or art assets were changed during this review beyond planning notes.

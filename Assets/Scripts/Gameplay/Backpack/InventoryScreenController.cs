@@ -10,6 +10,11 @@ public class InventoryScreenController : MonoBehaviour
 {
     public static InventoryScreenController Instance { get; private set; }
 
+    private const float LootPanelHorizontalPadding = 24f;
+    private const float LootPanelVerticalPadding = 20f;
+    private const float LootHeaderHeight = 56f;
+    private const float LootHeaderGap = 10f;
+
 
     public bool IsInventoryOpen { get; private set; }
 
@@ -35,6 +40,7 @@ public class InventoryScreenController : MonoBehaviour
 
     [Header("Panels")]
     public GameObject InventoryPanel;
+    public GameObject LootChestPanel;
     public InventoryUIController PocketGrid;
     public InventoryUIController TacticalRigGrid;
     public InventoryUIController BackpackGrid;
@@ -117,7 +123,7 @@ public class InventoryScreenController : MonoBehaviour
 
         if (LootChestGrid != null)
         {
-            LootChestGrid.gameObject.SetActive(false);
+            SetLootUiVisible(false);
         }
 
         RestoreStandardPlayerInventoryUiState();
@@ -492,7 +498,7 @@ public class InventoryScreenController : MonoBehaviour
             InventoryScreenSessionResult sessionResult = BuildSessionResult(sessionContext);
 
             LootChestGrid.ClearUI();
-            LootChestGrid.gameObject.SetActive(false);
+            SetLootUiVisible(false);
 
             if (sessionContext != null && sessionContext.UseCustomPlayerInventory && PocketGrid != null)
             {
@@ -568,7 +574,7 @@ public class InventoryScreenController : MonoBehaviour
             LootChestGrid.LoadFromRuntimeState(
                 CloneSaveDataList(sessionContext.ExternalItems),
                 CloneCellStateList(sessionContext.ExternalCellStates));
-            LootChestGrid.transform.SetAsLastSibling();
+            LayoutLootPanelAroundGrid();
         }
     }
 
@@ -619,8 +625,145 @@ public class InventoryScreenController : MonoBehaviour
 
         if (LootChestGrid != null)
         {
-            LootChestGrid.gameObject.SetActive(HasActiveExternalContainer);
+            SetLootUiVisible(HasActiveExternalContainer);
+            if (HasActiveExternalContainer)
+            {
+                LayoutLootPanelAroundGrid();
+            }
         }
+    }
+
+    private void SetLootUiVisible(bool visible)
+    {
+        GameObject lootPanelRoot = ResolveLootPanelRoot();
+        if (lootPanelRoot != null)
+        {
+            lootPanelRoot.SetActive(visible);
+        }
+
+        if (LootChestGrid != null && (lootPanelRoot == null || lootPanelRoot == LootChestGrid.gameObject))
+        {
+            LootChestGrid.gameObject.SetActive(visible);
+        }
+    }
+
+    private void LayoutLootPanelAroundGrid()
+    {
+        if (LootChestGrid == null)
+        {
+            return;
+        }
+
+        GameObject lootPanelRoot = ResolveLootPanelRoot();
+        if (lootPanelRoot == null || lootPanelRoot == LootChestGrid.gameObject)
+        {
+            return;
+        }
+
+        RectTransform gridRect = LootChestGrid.GetComponent<RectTransform>();
+        RectTransform panelRect = lootPanelRoot.GetComponent<RectTransform>();
+        if (gridRect == null || panelRect == null)
+        {
+            return;
+        }
+
+        Vector2 gridSize = gridRect.sizeDelta;
+        if (gridSize.x <= 0f || gridSize.y <= 0f)
+        {
+            InventoryGridController gridController = LootChestGrid.GetGridController();
+            if (gridController == null)
+            {
+                return;
+            }
+
+            gridSize = LootChestGrid.GetItemActualSize(
+                Mathf.Max(1, gridController.Columns),
+                Mathf.Max(1, gridController.Rows));
+        }
+
+        Vector2 panelSize = new Vector2(
+            gridSize.x + LootPanelHorizontalPadding * 2f,
+            LootPanelVerticalPadding * 2f + LootHeaderHeight + LootHeaderGap + gridSize.y);
+        panelRect.sizeDelta = panelSize;
+
+        float centeredGridPanelY =
+            LootPanelVerticalPadding + LootHeaderHeight + LootHeaderGap + gridSize.y * 0.5f
+            - panelSize.y * (1f - panelRect.pivot.y);
+        panelRect.anchoredPosition = new Vector2(panelRect.anchoredPosition.x, centeredGridPanelY);
+
+        RectTransform headerRow = FindChildRectTransform(lootPanelRoot.transform, "LootHeaderRow");
+        if (headerRow != null)
+        {
+            headerRow.anchorMin = new Vector2(0f, 1f);
+            headerRow.anchorMax = new Vector2(1f, 1f);
+            headerRow.pivot = new Vector2(0.5f, 1f);
+            headerRow.anchoredPosition = new Vector2(0f, -LootPanelVerticalPadding);
+            headerRow.sizeDelta = new Vector2(-LootPanelHorizontalPadding * 2f, LootHeaderHeight);
+        }
+
+        RectTransform gridContainer = FindChildRectTransform(lootPanelRoot.transform, "LootGridContainer");
+        RectTransform gridParent = gridContainer != null ? gridContainer : gridRect.parent as RectTransform;
+        if (gridParent != null && gridParent != panelRect)
+        {
+            gridParent.anchorMin = new Vector2(0.5f, 1f);
+            gridParent.anchorMax = new Vector2(0.5f, 1f);
+            gridParent.pivot = new Vector2(0.5f, 1f);
+            gridParent.anchoredPosition = new Vector2(
+                0f,
+                -(LootPanelVerticalPadding + LootHeaderHeight + LootHeaderGap));
+            gridParent.sizeDelta = gridSize;
+        }
+
+        gridRect.anchorMin = new Vector2(0.5f, 1f);
+        gridRect.anchorMax = new Vector2(0.5f, 1f);
+        gridRect.pivot = new Vector2(0.5f, 1f);
+        gridRect.anchoredPosition = Vector2.zero;
+    }
+
+    private GameObject ResolveLootPanelRoot()
+    {
+        if (LootChestPanel != null)
+        {
+            return LootChestPanel;
+        }
+
+        if (LootChestGrid == null)
+        {
+            return null;
+        }
+
+        Transform current = LootChestGrid.transform.parent;
+        while (current != null)
+        {
+            if (current.name == "LootSearchPanel")
+            {
+                LootChestPanel = current.gameObject;
+                return LootChestPanel;
+            }
+
+            current = current.parent;
+        }
+
+        LootChestPanel = LootChestGrid.gameObject;
+        return LootChestPanel;
+    }
+
+    private static RectTransform FindChildRectTransform(Transform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        foreach (RectTransform child in root.GetComponentsInChildren<RectTransform>(true))
+        {
+            if (child.name == childName)
+            {
+                return child;
+            }
+        }
+
+        return null;
     }
 
     // 自定义会话期间隐藏主玩法专属的装备槽和联动格，保留一个扁平玩家格子即可
