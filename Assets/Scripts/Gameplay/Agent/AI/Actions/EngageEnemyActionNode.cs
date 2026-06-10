@@ -1,4 +1,5 @@
 using Core.BehaviorTree.Runtime;
+using Gameplay.Agent.Animation;
 using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
@@ -69,6 +70,7 @@ namespace Gameplay.Agent.AI.Actions
 
             if (TryCastReadySkill(agent, enemyHealthController, context.TimeSeconds, out float actionLockSeconds))
             {
+                NotifyAttackAnimation(agent, actionLockSeconds);
                 _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, actionLockSeconds);
                 if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
                 {
@@ -92,6 +94,7 @@ namespace Gameplay.Agent.AI.Actions
                     CreateAgentDamageContext(agent, enemyHealthController));
             }
 
+            NotifyAttackAnimation(agent, attackInterval);
             _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, attackInterval);
 
             if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
@@ -147,6 +150,14 @@ namespace Gameplay.Agent.AI.Actions
             AgentCombatController combatController = agent.CachedTransform.GetComponent<AgentCombatController>();
             return combatController != null &&
                    combatController.TryCastReadySkill(enemyHealthController, timeSeconds, out actionLockSeconds);
+        }
+
+        private static void NotifyAttackAnimation(IAgentReadOnly agent, float suggestedDurationSeconds)
+        {
+            AgentPawnAnimationController animationController =
+                agent.CachedTransform.GetComponent<AgentPawnAnimationController>();
+            if (animationController != null)
+                animationController.NotifyAttack(suggestedDurationSeconds);
         }
 
         private static global::EnemyDamageContext CreateAgentDamageContext(
