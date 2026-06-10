@@ -19,6 +19,7 @@ MonoBehaviour:
   _enableTargetDiscovery: 1
   _targetDiscoveryRange: 70
   _targetDiscoveryInterval: 0.5
+  _combatStyleConfig: {fileID: 11400000, guid: 67172581330eb4a7a8870e96b9f29a07, type: 2}
   _attackRange: 10
   _attackDamage: 15
   _attackInterval: 0.65

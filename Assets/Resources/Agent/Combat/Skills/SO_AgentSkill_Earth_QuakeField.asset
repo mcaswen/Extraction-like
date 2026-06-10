@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e496ee4bb330465eaff58cfc4f0894b, type: 3}
+  m_Name: SO_AgentSkill_Earth_QuakeField
+  m_EditorClassIdentifier: 
+  _skillId: earth_quake_field
+  _displayName: "\u64BC\u52A8"
+  _element: 3
+  _cooldownSeconds: 15
+  _damagePerSecond:
+    _source: 1
+    _multiplier: 0.5
+  _radius: 4
+  _durationSeconds: 5
+  _tickInterval: 1
+  _statusEffect:
+    _applySlow: 0
+    _slowMultiplier: 0
+    _slowDurationSeconds: 0
+    _applyFreeze: 0
+    _freezeDurationSeconds: 0
+  _visualPrefab: {fileID: 7921184577803744465, guid: 63ba2bf2e0daf4cf388647c897a2c792,
+    type: 3}
+  _indicatorColor: {r: 0.55, g: 0.39, b: 0.23, a: 0.55}

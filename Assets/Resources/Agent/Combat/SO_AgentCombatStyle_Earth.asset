@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d7f8b26471c4889827f1506d87705e, type: 3}
+  m_Name: SO_AgentCombatStyle_Earth
+  m_EditorClassIdentifier: 
+  _styleId: earth
+  _displayName: "\u571F"
+  _element: 3
+  _weaponType: 2
+  _normalAttackRange: 2.4
+  _normalAttackInterval: 0.8
+  _normalAttackDamage:
+    _source: 1
+    _multiplier: 0.9
+  _skills:
+  - {fileID: 11400000, guid: 140a31c8e703c42029a7459363348807, type: 2}
+  - {fileID: 11400000, guid: e877f9276013149b58b637deb17ff39d, type: 2}

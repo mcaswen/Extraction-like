@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb1e6006cd21047c2a5405e381a28a6d, type: 3}
+  m_Name: SO_AgentSkill_Ice_Winterfall
+  m_EditorClassIdentifier: 
+  _skillId: ice_winterfall
+  _displayName: "\u51DB\u51AC"
+  _element: 2
+  _cooldownSeconds: 12
+  _damage:
+    _source: 0
+    _multiplier: 3
+  _radius: 4
+  _statusEffect:
+    _applySlow: 0
+    _slowMultiplier: 0
+    _slowDurationSeconds: 0
+    _applyFreeze: 0
+    _freezeDurationSeconds: 0
+  _visualPrefab: {fileID: 1798591453215192443, guid: 6b8d22038580f4d06acdc83f74d193ef,
+    type: 3}
+  _indicatorColor: {r: 0.72, g: 0.95, b: 1, a: 0.5}
+  _indicatorDuration: 0.65

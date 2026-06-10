@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d7f8b26471c4889827f1506d87705e, type: 3}
+  m_Name: SO_AgentCombatStyle_Ice
+  m_EditorClassIdentifier: 
+  _styleId: ice
+  _displayName: "\u51B0"
+  _element: 2
+  _weaponType: 1
+  _normalAttackRange: 8
+  _normalAttackInterval: 0.65
+  _normalAttackDamage:
+    _source: 0
+    _multiplier: 1
+  _skills:
+  - {fileID: 11400000, guid: 660bb36e18373488f891dc9c5f87233b, type: 2}
+  - {fileID: 11400000, guid: 8faf7cb4dac904a7293e8276823b5fb4, type: 2}
