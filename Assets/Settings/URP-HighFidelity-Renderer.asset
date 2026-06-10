@@ -1,5 +1,51 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8662119690988926777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0398efcc0df428899c161e10e63ea0f, type: 3}
+  m_Name: ToonSobelOutlineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    enabled: 1
+    renderPassEvent: 550
+    shader: {fileID: 4800000, guid: 3f3013200c0449a9bdae96dbebf67d56, type: 3}
+    outlineColor: {r: 0.02, g: 0.018, b: 0.016, a: 1}
+    intensity: 1
+    depthThreshold: 0.01
+    normalThreshold: 0.25
+    depthWeight: 1
+    normalWeight: 1
+    thickness: 1.37
+    includeSceneView: 0
+--- !u!114 &-5339479532663120341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aa632d6f3ca4815936385c6f9c7c76e, type: 3}
+  m_Name: ToonGlobalOutlineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    enabled: 1
+    renderPassEvent: 300
+    layerMask:
+      m_Bits: 4294967295
+    renderQueue: 0
+    globalThicknessScale: 1
+    includeSceneView: 1
 --- !u!114 &-1878332245247344467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20,7 +66,7 @@ MonoBehaviour:
     Source: 1
     NormalSamples: 1
     Intensity: 0.5
-    DirectLightingStrength: 0.25
+    DirectLightingStrength: 0.88
     Radius: 0.25
     Samples: 0
     BlurQuality: 0
@@ -69,7 +115,9 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -1878332245247344467}
   - {fileID: -1563938233099520444}
-  m_RendererFeatureMap: adc0de57c6d2eee54476738d76c64bea
+  - {fileID: -5339479532663120341}
+  - {fileID: -8662119690988926777}
+  m_RendererFeatureMap: adc0de57c6d2eee54476738d76c64bea2b5e25a2a75be6b5c748b0f008f8c987
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
