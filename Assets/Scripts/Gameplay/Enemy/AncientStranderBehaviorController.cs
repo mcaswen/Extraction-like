@@ -108,6 +108,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     public float BiteDamage = 15f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
@@ -118,6 +119,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
+    private float _nextRangedAttackTime;
     private float _meleeVisualTimer;
     private float _biteStrikeTimer;
     private float _biteTotalDamage;
@@ -128,6 +130,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
     private AncientStranderBiteHitbox _biteHitbox;
+    private readonly System.Collections.Generic.HashSet<Transform> _meleeDamagedRoots = new System.Collections.Generic.HashSet<Transform>();
 
     /// <summary>
     /// 视野检测使用的节点。
@@ -167,6 +170,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             _navMeshAgent.stoppingDistance = Mathf.Max(0.2f, MeleeAttackRange * 0.85f);
         }
+        _animatorDriver = new EnemyAnimatorDriver(this);
         ApplyHealthConfig();
         EnsurePlayerReferences();
         InitializePatrolRoute();
@@ -252,6 +256,12 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         UpdateMeleeVisual();
         UpdateBiteVisual();
         UpdateBiteHitbox();
+        UpdateAnimatorSpeed();
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     private void PatrolBehavior(float distanceToPlayer)
@@ -315,7 +325,6 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         if (distanceToPlayer >= MinimumRangedDistance && distanceToPlayer <= RangedAttackRange)
         {
             CurrentState = EnemyState.RangedBiteAttack;
-            _rangedAttackTimer = RangedAttackInterval;
             SetAgentStopped(true);
             return;
         }
@@ -392,7 +401,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         _rangedAttackTimer += Time.deltaTime;
-        if (_rangedAttackTimer >= RangedAttackInterval)
+        if (Time.time >= _nextRangedAttackTime)
         {
             BeginBiteStrike();
         }
@@ -400,11 +409,13 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void PerformMeleeAttack()
     {
+        _animatorDriver?.TriggerAttack();
         // 横扫用 OverlapSphere 结算范围伤害，可同时命中玩家或多个 Agent 目标。
         _meleeVisualTimer = MeleeVisualDuration;
         float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.2f;
-        Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
+        _meleeDamagedRoots.Clear();
+        Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius, ~0, QueryTriggerInteraction.Collide);
         foreach (Collider hit in hits)
         {
             if (!CombatDamageUtility.TryGetDamageReceiver(hit, out ICombatDamageReceiver damageReceiver))
@@ -412,23 +423,52 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
                 continue;
             }
 
-            totalDamage += CombatDamageUtility.ApplyDamageTo(
+            totalDamage += ApplyMeleeDamageOnce(
                 damageReceiver,
-                MeleeDamage,
                 hit.ClosestPoint(center),
-                hit.transform.position - transform.position,
-                gameObject);
+                hit.transform.position - transform.position);
+        }
+
+        if (totalDamage <= 0f &&
+            _combatDamageReceiver != null &&
+            PlayerTransform != null &&
+            Vector3.Distance(transform.position, PlayerTransform.position) <= MeleeAttackRange + MeleeAttackRadius)
+        {
+            totalDamage += ApplyMeleeDamageOnce(
+                _combatDamageReceiver,
+                PlayerTransform.position,
+                PlayerTransform.position - transform.position);
         }
 
         EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Sweep", totalDamage);
     }
 
+    private float ApplyMeleeDamageOnce(ICombatDamageReceiver damageReceiver, Vector3 hitPoint, Vector3 hitDirection)
+    {
+        Transform damageRoot = damageReceiver != null && damageReceiver.DamageRootTransform != null
+            ? damageReceiver.DamageRootTransform
+            : null;
+        if (damageRoot != null && !_meleeDamagedRoots.Add(damageRoot))
+        {
+            return 0f;
+        }
+
+        return CombatDamageUtility.ApplyDamageTo(
+            damageReceiver,
+            MeleeDamage,
+            hitPoint,
+            hitDirection,
+            gameObject);
+    }
+
     private void BeginBiteStrike()
     {
+        _animatorDriver?.TriggerAttack();
         // 撕咬使用动态命中盒连接起点和目标位置，模拟鱼骨延伸出去咬合。
         _rangedAttackTimer = 0f;
         _biteStrikeTimer = 0f;
         _biteTotalDamage = 0f;
+        _nextRangedAttackTime = Time.time + Mathf.Max(0.05f, RangedAttackInterval);
         _isBiteStriking = true;
         _hasAppliedBiteDamage = false;
         SetBiteHitboxEnabled(true);
@@ -469,6 +509,11 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             EnemySkillDamageLogger.LogSkillDamage(this, "Fishbone Bite", totalDamage);
         }
+    }
+
+    private void UpdateAnimatorSpeed()
+    {
+        _animatorDriver?.SetSpeedFromAgent(_navMeshAgent);
     }
 
     /// <summary>
@@ -1026,6 +1071,7 @@ public class AncientStranderBiteHitbox : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(delta.normalized, Vector3.up);
         _boxCollider.size = new Vector3(_width, _height, distance);
         _boxCollider.center = Vector3.zero;
+        CheckCurrentOverlaps();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -1048,6 +1094,26 @@ public class AncientStranderBiteHitbox : MonoBehaviour
         if (CombatDamageUtility.TryGetDamageReceiver(other, out ICombatDamageReceiver damageReceiver))
         {
             _owner.NotifyBiteHit(damageReceiver);
+        }
+    }
+
+    private void CheckCurrentOverlaps()
+    {
+        if (_boxCollider == null || !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        Vector3 halfExtents = Vector3.Scale(_boxCollider.size, transform.lossyScale) * 0.5f;
+        Collider[] overlaps = Physics.OverlapBox(
+            transform.TransformPoint(_boxCollider.center),
+            halfExtents,
+            transform.rotation,
+            ~0,
+            QueryTriggerInteraction.Collide);
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            NotifyOwner(overlaps[i]);
         }
     }
 }

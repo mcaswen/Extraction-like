@@ -81,7 +81,7 @@ public sealed class EnemySpawnPoint : MonoBehaviour
             return null;
         }
 
-        Vector3 position = ResolveSpawnPosition();
+        Vector3 position = ResolveSpawnPosition(enemyPrefab);
         Quaternion rotation = ResolveSpawnRotation();
         GameObject enemy = Instantiate(enemyPrefab, position, rotation);
         enemy.name = BuildSpawnedName(enemyPrefab);
@@ -148,7 +148,7 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         }
     }
 
-    private Vector3 ResolveSpawnPosition()
+    private Vector3 ResolveSpawnPosition(GameObject enemyPrefab)
     {
         Vector3 localOffset = PositionOffset;
         if (SpawnRadius > 0f)
@@ -160,11 +160,11 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         Vector3 desired = transform.TransformPoint(localOffset);
         if (NavMesh.SamplePosition(desired, out NavMeshHit hit, NavMeshSampleRadius, NavMesh.AllAreas))
         {
-            return hit.position;
+            return EnemyGroundingUtility.ApplyRootGroundOffset(enemyPrefab, hit.position);
         }
 
         Debug.LogWarning($"[{name}] Could not sample spawn position on NavMesh. Using raw spawn position.", this);
-        return desired;
+        return EnemyGroundingUtility.ApplyRootGroundOffset(enemyPrefab, desired);
     }
 
     private Quaternion ResolveSpawnRotation()
@@ -381,5 +381,86 @@ public sealed class EnemySpawnEntry
         }
 
         return _enemyPrefab != null ? $"{_enemyPrefab.name}_{sequenceIndex:00}" : $"Enemy_{sequenceIndex:00}";
+    }
+}
+
+public static class EnemyGroundingUtility
+{
+    public const float DefaultEnemyRootGroundOffset = 1f;
+
+    public static Vector3 ApplyRootGroundOffset(GameObject prefab, Vector3 groundPosition)
+    {
+        float rootGroundOffset = ResolveRootGroundOffset(prefab, DefaultEnemyRootGroundOffset);
+        return groundPosition + Vector3.up * rootGroundOffset;
+    }
+
+    public static Vector3 ReplaceHeightOffsetWithRootGroundOffset(
+        GameObject prefab,
+        Vector3 position,
+        float currentHeightOffset)
+    {
+        float rootGroundOffset = ResolveRootGroundOffset(prefab, Mathf.Max(DefaultEnemyRootGroundOffset, currentHeightOffset));
+        return new Vector3(
+            position.x,
+            position.y - currentHeightOffset + rootGroundOffset,
+            position.z);
+    }
+
+    public static float ResolveRootGroundOffset(GameObject prefab, float fallbackOffset)
+    {
+        if (prefab == null)
+        {
+            return Mathf.Max(0f, fallbackOffset);
+        }
+
+        Collider rootCollider = prefab.GetComponent<Collider>();
+        if (rootCollider != null && !rootCollider.isTrigger)
+        {
+            if (TryResolveColliderBottomOffset(rootCollider, prefab.transform, out float colliderOffset))
+            {
+                return Mathf.Max(0f, colliderOffset);
+            }
+        }
+
+        NavMeshAgent agent = prefab.GetComponent<NavMeshAgent>();
+        if (agent != null && agent.baseOffset > 0.01f)
+        {
+            return agent.baseOffset;
+        }
+
+        return Mathf.Max(0f, fallbackOffset);
+    }
+
+    private static bool TryResolveColliderBottomOffset(Collider collider, Transform root, out float offset)
+    {
+        offset = 0f;
+        if (collider == null || root == null)
+        {
+            return false;
+        }
+
+        float rootScaleY = Mathf.Max(0.0001f, Mathf.Abs(root.lossyScale.y));
+        if (collider is CapsuleCollider capsuleCollider)
+        {
+            float localBottom = capsuleCollider.center.y - capsuleCollider.height * 0.5f;
+            offset = -localBottom * rootScaleY;
+            return true;
+        }
+
+        if (collider is BoxCollider boxCollider)
+        {
+            float localBottom = boxCollider.center.y - boxCollider.size.y * 0.5f;
+            offset = -localBottom * rootScaleY;
+            return true;
+        }
+
+        if (collider is SphereCollider sphereCollider)
+        {
+            float localBottom = sphereCollider.center.y - sphereCollider.radius;
+            offset = -localBottom * rootScaleY;
+            return true;
+        }
+
+        return false;
     }
 }

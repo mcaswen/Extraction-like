@@ -502,3 +502,43 @@ Implementation steps for this restart:
 - Confirmed the generated asset references `IMG_0582`, `IMG_0584`, `IMG_0586`, and `IMG_0587` by GUID, and stores an avatar crop rect so the large transparent source image displays as a readable HUD portrait.
 - Ran sequential `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal` and `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: both succeeded. The runtime build still reports existing unrelated warnings from obsolete board-game/post-effect/debug scripts.
 - Ran targeted `git diff --check` on HUD scripts and generated assets: no whitespace errors; only the repository CRLF normalization warning for `PlayerStatusHudController.cs`.
+
+## 2026-06-10 Enemy Animator Avatar Configuration
+
+- Restored planning context and scanned current character FBX import settings, standalone Avatar assets, enemy prefab Animator components, and enemy override controllers.
+- Confirmed only two new standalone Avatar assets are present: Zombie and Skeleton. Guardian/Mud/Tracer do not have standalone Avatar assets in the scanned folders, so their model-imported Avatar references must be used if configured now.
+- Found `TidalAberration` has no `Visual` Animator, `AnchorSentinel` has no controller/avatar on its `Visual` Animator, and `AncientStrander` has duplicate root plus `Visual` Animator components.
+- Confirmed runtime enemy scripts do not yet drive Animator parameters; that remains a required follow-up after prefab Avatar/controller binding.
+- Configured the five art-integrated enemy prefabs with model-root Animators, assigned their enemy override controllers, disabled root motion, and kept culling in Always Animate mode.
+- Assigned uploaded Avatar assets where valid: `ModernStrander` -> Zombie Avatar, `AncientStrander` -> Skeleton Avatar.
+- Left `TidalAberration`, `AnchorSentinel`, and `HunterBoss` with empty Avatar references because Mud/Guardian/Tracer have no valid standalone Avatar and cannot currently generate valid Humanoid Avatars.
+- Created `AOC_Enemy_AnchorSentinel.overrideController` and filled `AOC_Enemy_HunterBoss.overrideController` with explicit base clip mappings so their controllers are no longer empty.
+- Removed the temporary editor configurator after use and cleaned unrelated Unity-generated meta noise from the workspace.
+
+- Fixed tester-reported enemy damage/cooldown issues: shared combat damage lookup now resolves player health across root/child collider layouts; Tidal Aberration and Ancient Strander ranged attacks use absolute next-cast timestamps so state changes cannot reset cooldown; Modern Strander tentacle and Ancient Strander bite hitboxes actively overlap-check after resizing; Ancient Strander melee has a combat-target fallback and per-root dedupe; Anchor Sentinel applies its health config and beam damage through the common combat receiver. dotnet build Assembly-CSharp.csproj --no-restore passed with only existing warnings.
+
+- Unity Hub default path was absent; actual Unity executable is C:\Program Files\Unity 2022.3.62f2c1\Editor\Unity.exe. dotnet build Assembly-CSharp-Editor.csproj --no-restore currently fails because the generated editor csproj still references missing Assets/Scripts/Editor/EnemyAnimatorAvatarConfigurator.cs, which is unrelated to this runtime enemy bug fix.
+
+## 2026-06-10 Enemy Animator Runtime Driver
+
+- Implemented the first two programmer-side animation hookup tasks: runtime `Speed` driving and `Attack` trigger synchronization with existing enemy attack logic.
+- Added a small `EnemyAnimatorDriver` helper that finds the enemy model Animator under the prefab and writes only the existing `Speed` and `Attack` parameters.
+- Connected `Speed` to `NavMeshAgent.velocity.magnitude` for basic melee, ranged, Modern Strander, Tidal Aberration, and Ancient Strander.
+- Connected Hunter Boss speed to its existing chase state because it does not use a `NavMeshAgent`; Anchor Sentinel stays at zero speed because it is currently stationary.
+- Triggered `Attack` at existing attack entry/execution points: basic melee hit, ranged shot, Modern tentacle strike, Tidal melee/water jet, Ancient melee/bite, Hunter Boss melee/anchor throw/roar, and Anchor Sentinel beam firing.
+- Kept the scope limited to animator parameter driving. No gameplay timings, damage calculations, cooldowns, target selection, or state-machine behavior were intentionally changed for this task.
+- Verified `AC_Enemy_Base.controller` parameter types: `Speed` is float and `Attack` is trigger.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 errors, with existing unrelated warnings.
+- Ran targeted `git diff --check`: no whitespace errors, only repository CRLF normalization warnings for touched C# files.
+
+## 2026-06-11 Enemy Humanoid Animation Stabilization
+
+- Fixed `EnemyAnimatorDriver.PrimeAnimator` so a Generic rigged Animator with an empty Avatar no longer throws `NullReferenceException` when checking Avatar validity.
+- Removed the noisy no-Avatar warning path and downgraded the expected static fallback message for non-rigged enemies such as Anchor Sentinel from warning to normal diagnostic log.
+- Moved humanoid visual ground alignment to run after Animator `Rebind`, `Play("Idle")`, and `Update(0f)`, and removed the earlier pre-Animator ground alignment calls from Modern Strander and Ancient Strander.
+- Added foot/toe-bone-aware ground alignment so humanoid-style rigs are not grounded by cloak or stretched renderer bounds when the real feet are visibly floating.
+- Added `LateUpdate` calls to every controller using `EnemyAnimatorDriver` so Generic root bone X/Z stabilization runs after Animator sampling.
+- Updated Zombie and Skeleton Idle/Walk/Attack `.anim` clip settings to keep original X/Z position and blend X/Z loop position where applicable.
+- Verified Modern/Ancient prefab overrides are root-model transforms and Animator/controller settings only, not left-foot or leg-bone overrides.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 errors, with existing unrelated warnings from legacy PostEffects/BoardGame/debug scripts.

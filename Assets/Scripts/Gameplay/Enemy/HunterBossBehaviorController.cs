@@ -138,6 +138,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     public float TrembleDuration = 3f;
 
     private EnemyHealthController _healthController;
+    private EnemyAnimatorDriver _animatorDriver;
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
     private float _meleeTimer;
@@ -174,6 +175,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         _healthController = GetComponent<EnemyHealthController>();
+        _animatorDriver = new EnemyAnimatorDriver(this);
         if (_healthController != null)
         {
             _healthController.ApplyConfig(_config);
@@ -272,6 +274,12 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         UpdateBossVisuals();
+        UpdateAnimatorSpeed();
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     private void TickIdle(float distanceToPlayer)
@@ -405,6 +413,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private bool PerformMeleeAttack()
     {
+        _animatorDriver?.TriggerAttack();
         // 追猎者近战只检测玩家，命中后累计漩涡触发次数。
         bool didHitPlayer = false;
         _meleeVisualTimer = MeleeVisualDuration;
@@ -475,6 +484,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             return;
         }
 
+        _animatorDriver?.TriggerAttack();
         Vector3 direction = (PlayerTransform.position + Vector3.up * 0.8f) - ProjectileOrigin.position;
         direction.Normalize();
 
@@ -520,6 +530,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         CurrentState = BossState.RoarAttack;
+        _animatorDriver?.TriggerAttack();
         _roarTimer = 0f;
         _vortexAnchorThrowTimer = 0f;
         _meleeHitCounter = 0;
@@ -617,6 +628,12 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         float speedMultiplier = _isForceFieldFrozen ? ForceFieldFrozenMoveSpeedMultiplier : 1f;
         transform.position += direction.normalized * ChaseSpeed * speedMultiplier * Time.deltaTime;
+    }
+
+    private void UpdateAnimatorSpeed()
+    {
+        float speed = CurrentState == BossState.Chase ? ChaseSpeed : 0f;
+        _animatorDriver?.SetSpeed(speed);
     }
 
     private void LookAtPlayer()

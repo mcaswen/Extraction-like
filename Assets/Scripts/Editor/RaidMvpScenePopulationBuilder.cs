@@ -398,6 +398,11 @@ public static class RaidMvpScenePopulationBuilder
                 continue;
             }
 
+            position = EnemyGroundingUtility.ReplaceHeightOffsetWithRootGroundOffset(
+                entry.Prefab,
+                position,
+                profile.SpawnHeightOffset);
+
             GameObject spawnedObject = InstantiatePrefab(entry.Prefab, parent);
             spawnedObject.name = string.IsNullOrWhiteSpace(entry.Label) ? entry.Prefab.name : entry.Label;
             spawnedObject.transform.position = position + entry.PositionOffset;

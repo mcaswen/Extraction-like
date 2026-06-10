@@ -105,6 +105,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     public float PuddleTickInterval = 0.25f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
@@ -163,6 +164,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         CurrentState = EnemyState.Patrol;
         ApplyHealthConfig();
         EnsureAgentReady();
+        _animatorDriver = new EnemyAnimatorDriver(this);
         EnsurePlayerReferences();
         InitializePatrolRoute();
 
@@ -242,6 +244,12 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         UpdateTentacleVisual();
         UpdateTentacleHitbox();
+        UpdateAnimatorSpeed();
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     private void OnDisable()
@@ -414,6 +422,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private void BeginTentacleStrike()
     {
         // 每次触手攻击从“伸出命中盒”开始，首次命中后才切换为吸附。
+        _animatorDriver?.TriggerAttack();
         _attackTimer = 0f;
         _latchTimer = 0f;
         _tentacleTotalDamage = 0f;
@@ -422,6 +431,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         _hasAppliedInitialLatchDamage = false;
         _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(true);
+        TryLatchCurrentCombatTarget();
     }
 
     private void StopTentacleAttack()
@@ -521,6 +531,24 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             _hasAddedTentacleCorrosionDamage = true;
             _tentacleTotalDamage += CorrosionDamagePerSecond * CorrosionDuration;
         }
+    }
+
+    private void TryLatchCurrentCombatTarget()
+    {
+        if (!_isTentacleStriking ||
+            _combatDamageReceiver == null ||
+            PlayerTransform == null ||
+            Vector3.Distance(transform.position, PlayerTransform.position) > AttackRange + 0.75f)
+        {
+            return;
+        }
+
+        NotifyTentacleHit(_combatDamageReceiver, _playerMovementController);
+    }
+
+    private void UpdateAnimatorSpeed()
+    {
+        _animatorDriver?.SetSpeedFromAgent(_navMeshAgent);
     }
 
     private void EnsureTentacleRenderer()

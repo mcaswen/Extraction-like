@@ -151,6 +151,8 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
     public Transform DeathLootSpawnPoint;
 
     private PlayerHealthController _playerHealthController;
+    private EnemyAnimatorDriver _animatorDriver;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private float _stateTimer;
     private float _beamTickTimer;
     private float _beamTotalDamage;
@@ -168,6 +170,8 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
         }
 
         EnsurePlayerReferences();
+        _animatorDriver = new EnemyAnimatorDriver(this);
+        ApplyHealthConfig();
 
         EnsureRuneWeakpointsExist();
         EnsureBeamRenderers();
@@ -200,6 +204,15 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
         BeamDamagePerSecond = _config.BeamDamagePerSecond;
         BeamTickInterval = _config.BeamTickInterval;
         return true;
+    }
+
+    private void ApplyHealthConfig()
+    {
+        EnemyHealthController healthController = GetComponent<EnemyHealthController>();
+        if (healthController != null)
+        {
+            healthController.ApplyConfig(_config);
+        }
     }
 
     private void Update()
@@ -250,6 +263,12 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
         }
 
         UpdateBeamVisuals();
+        _animatorDriver?.SetSpeed(0f);
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     /// <summary>
@@ -313,6 +332,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
             _beamTickTimer = 0f;
             _beamTotalDamage = 0f;
             _isBeamFiring = true;
+            _animatorDriver?.TriggerAttack();
         }
     }
 
@@ -331,10 +351,14 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
         while (_beamTickTimer >= BeamTickInterval)
         {
             _beamTickTimer -= BeamTickInterval;
-            if (_playerHealthController != null)
-            {
-                _beamTotalDamage += _playerHealthController.TakeDamage(BeamDamagePerSecond * BeamTickInterval);
-            }
+            Vector3 origin = EyeOrigin != null ? EyeOrigin.position : transform.position + Vector3.up * 1.8f;
+            Vector3 hitPoint = PlayerTransform != null ? PlayerTransform.position + Vector3.up * 0.9f : origin;
+            _beamTotalDamage += CombatDamageUtility.ApplyDamageTo(
+                _combatDamageReceiver,
+                BeamDamagePerSecond * BeamTickInterval,
+                hitPoint,
+                hitPoint - origin,
+                gameObject);
         }
 
         if (_stateTimer >= FiringDuration)
@@ -652,7 +676,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
             _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
             if (_playerHealthController == null)
             {
-                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
+                _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
             }
         }
 
@@ -662,6 +686,25 @@ public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyDeathLootRu
             PlayerTransform = _playerHealthController.transform;
         }
 
-        return PlayerTransform != null && _playerHealthController != null;
+        if (PlayerTransform != null &&
+            CombatDamageUtility.TryGetDamageReceiver(PlayerTransform, out ICombatDamageReceiver receiver))
+        {
+            _combatDamageReceiver = receiver;
+            if (receiver.DamageRootTransform != null)
+            {
+                PlayerTransform = receiver.DamageRootTransform;
+            }
+
+            _playerHealthController = receiver as PlayerHealthController ?? _playerHealthController;
+        }
+
+        if (_combatDamageReceiver == null && _playerHealthController != null)
+        {
+            _combatDamageReceiver = _playerHealthController;
+        }
+
+        return PlayerTransform != null &&
+               _combatDamageReceiver != null &&
+               _combatDamageReceiver.IsCombatDamageReceiverAlive;
     }
 }

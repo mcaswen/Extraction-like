@@ -55,6 +55,7 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(delta.normalized, Vector3.up);
         _boxCollider.size = new Vector3(_width, _height, distance);
         _boxCollider.center = Vector3.zero;
+        CheckCurrentOverlaps();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -81,6 +82,26 @@ public class ModernStranderTentacleHitbox : MonoBehaviour
 
         PlayerMovementController playerMovement = other.GetComponentInParent<PlayerMovementController>();
         _owner.NotifyTentacleHit(damageReceiver, playerMovement);
+    }
+
+    private void CheckCurrentOverlaps()
+    {
+        if (_boxCollider == null || !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        Vector3 halfExtents = Vector3.Scale(_boxCollider.size, transform.lossyScale) * 0.5f;
+        Collider[] overlaps = Physics.OverlapBox(
+            transform.TransformPoint(_boxCollider.center),
+            halfExtents,
+            transform.rotation,
+            ~0,
+            QueryTriggerInteraction.Collide);
+        for (int i = 0; i < overlaps.Length; i++)
+        {
+            NotifyOwner(overlaps[i]);
+        }
     }
 }
 

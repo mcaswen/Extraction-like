@@ -131,6 +131,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
     public float AttackInterval = 2f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private ICombatDamageReceiver _combatDamageReceiver;
@@ -173,6 +174,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
         }
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        _animatorDriver = new EnemyAnimatorDriver(this);
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _patrolAwareness?.ConfigurePreset(_awarenessPreset);
@@ -245,6 +247,13 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
                 AttackBehavior(distanceToPlayer);
                 break;
         }
+
+        UpdateAnimatorSpeed();
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     private void PatrolBehavior(float distanceToPlayer)
@@ -338,6 +347,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
             return;
         }
 
+        _animatorDriver?.TriggerAttack();
         // 子弹携带 SourceEnemy，命中后能在日志和伤害来源中追溯到发射者。
         GameObject bulletObject = Instantiate(EnemyBulletPrefab, FirePoint.position, FirePoint.rotation);
         EnemyBulletController bullet = bulletObject.GetComponent<EnemyBulletController>();
@@ -349,6 +359,11 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
             bullet.SourceEnemy = gameObject;
             bullet.SkillName = "Ranged Shot";
         }
+    }
+
+    private void UpdateAnimatorSpeed()
+    {
+        _animatorDriver?.SetSpeedFromAgent(_navMeshAgent);
     }
 
     /// <summary>

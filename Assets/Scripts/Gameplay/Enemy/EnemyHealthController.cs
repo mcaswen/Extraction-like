@@ -210,18 +210,17 @@ public static class CombatDamageUtility
             return false;
         }
 
-        MonoBehaviour[] behaviours = component.GetComponentsInParent<MonoBehaviour>();
-        for (int i = 0; i < behaviours.Length; i++)
+        if (TryGetPlayerHealthReceiver(component.transform, out receiver))
         {
-            if (behaviours[i] is ICombatDamageReceiver candidate &&
-                candidate.IsCombatDamageReceiverAlive)
-            {
-                receiver = candidate;
-                return true;
-            }
+            return true;
         }
 
-        return false;
+        if (TryFindDamageReceiver(component.GetComponentsInParent<MonoBehaviour>(), out receiver))
+        {
+            return true;
+        }
+
+        return TryFindDamageReceiver(component.GetComponentsInChildren<MonoBehaviour>(), out receiver);
     }
 
     /// <summary>
@@ -238,7 +237,27 @@ public static class CombatDamageUtility
             return false;
         }
 
-        MonoBehaviour[] behaviours = target.GetComponentsInParent<MonoBehaviour>();
+        if (TryGetPlayerHealthReceiver(target, out receiver))
+        {
+            return true;
+        }
+
+        if (TryFindDamageReceiver(target.GetComponentsInParent<MonoBehaviour>(), out receiver))
+        {
+            return true;
+        }
+
+        return TryFindDamageReceiver(target.GetComponentsInChildren<MonoBehaviour>(), out receiver);
+    }
+
+    private static bool TryFindDamageReceiver(MonoBehaviour[] behaviours, out ICombatDamageReceiver receiver)
+    {
+        receiver = null;
+        if (behaviours == null)
+        {
+            return false;
+        }
+
         for (int i = 0; i < behaviours.Length; i++)
         {
             if (behaviours[i] is ICombatDamageReceiver candidate &&
@@ -250,6 +269,37 @@ public static class CombatDamageUtility
         }
 
         return false;
+    }
+
+    private static bool TryGetPlayerHealthReceiver(Transform target, out ICombatDamageReceiver receiver)
+    {
+        receiver = null;
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlayerHealthController playerHealth = target.GetComponentInParent<PlayerHealthController>();
+        if (playerHealth == null)
+        {
+            Transform root = target.root;
+            if (root != null && root.CompareTag("Player"))
+            {
+                playerHealth = root.GetComponent<PlayerHealthController>();
+                if (playerHealth == null)
+                {
+                    playerHealth = root.GetComponentInChildren<PlayerHealthController>();
+                }
+            }
+        }
+
+        if (playerHealth == null || !playerHealth.IsCombatDamageReceiverAlive)
+        {
+            return false;
+        }
+
+        receiver = playerHealth;
+        return true;
     }
 
     /// <summary>

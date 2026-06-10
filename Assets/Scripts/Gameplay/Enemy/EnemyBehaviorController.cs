@@ -112,6 +112,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
     public float AttackInterval = 1.5f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
@@ -155,6 +156,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         }
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        _animatorDriver = new EnemyAnimatorDriver(this);
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _patrolAwareness?.ConfigurePreset(_awarenessPreset);
@@ -224,6 +226,13 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
                 AttackBehavior(distanceToPlayer);
                 break;
         }
+
+        UpdateAnimatorSpeed();
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     private void PatrolBehavior(float distanceToPlayer)
@@ -305,6 +314,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
         _attackTimer += Time.deltaTime;
         if (_attackTimer >= AttackInterval)
         {
+            _animatorDriver?.TriggerAttack();
             // 通过通用战斗接口结算伤害，保证玩家和 Agent 都能被近战攻击命中。
             float totalDamage = 0f;
             Vector3 hitDirection = PlayerTransform.position - transform.position;
@@ -318,6 +328,11 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
             EnemySkillDamageLogger.LogSkillDamage(this, "Basic Melee Attack", totalDamage);
             _attackTimer = 0f;
         }
+    }
+
+    private void UpdateAnimatorSpeed()
+    {
+        _animatorDriver?.SetSpeedFromAgent(_navMeshAgent);
     }
 
     /// <summary>

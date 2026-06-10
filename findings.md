@@ -337,3 +337,36 @@ Non-contradictions verified:
 - `Assets/Resources/HUD/PlayerStatusHudSpriteSet.asset` is the runtime bridge for these sprites. It lets the dynamic HUD load the configured art without modifying the already-dirty shared `Canvas.prefab`.
 - `IMG_0582.PNG` is 1454x1454 but its visible portrait occupies only about 371x398 pixels near the center. The SpriteSet stores a larger square crop rect `(489, 497, 478, 478)` so the runtime HUD portrait is readable at small size without editing the source PNG.
 - `IMG_0587.PNG` is 745x96 with no sprite border, so the HUD uses it as a simple progress-bar frame while the actual fill remains a runtime `Image.Type.Filled` rectangle inside the frame padding.
+
+## 2026-06-10 Enemy Animator Avatar Configuration Findings
+
+- Newly visible standalone Avatar assets are under `Assets/Art/Animations/Avator`: `Zombie Idle (1)Avatar.asset` and `Ske IdleAvatar.asset`.
+- Character model import settings differ by enemy: `Zombie.fbx` and `Skeleton.fbx` are Humanoid (`animationType: 3`, `avatarSetup: 1`), while `Guardian.fbx`, `Mud.fbx`, and `Tracer.fbx` are Generic (`animationType: 2`, `avatarSetup: 0`).
+- The five art-integrated enemy prefabs contain model instances under a direct `Visual` child, and now have a single Animator on the model instance root with `Apply Root Motion` disabled.
+- `ModernStrander` uses `AOC_Enemy_ModernStrander` plus the uploaded `Zombie Idle (1)Avatar.asset`.
+- `AncientStrander` uses `AOC_Enemy_AncientStrander` plus the uploaded `Ske IdleAvatar.asset`; the duplicate root/visual Animator setup has been normalized to one model Animator.
+- `TidalAberration`, `AnchorSentinel`, and `HunterBoss` have their Animator controllers assigned, but their Avatar references remain empty because `Mud.fbx`, `Guardian.fbx`, and `Tracer.fbx` are Generic and no matching standalone Avatar assets were present.
+- `AOC_Enemy_AnchorSentinel.overrideController` was created using the shared base enemy controller. `AOC_Enemy_HunterBoss.overrideController` and the new Anchor override currently map to the base Idle/Run/Attack clips as identity overrides until dedicated clips are supplied.
+- A Humanoid Avatar generation attempt for `Mud.fbx`, `Guardian.fbx`, and `Tracer.fbx` failed because Unity could not find a valid required Hips bone, so the importer settings should remain Generic unless art re-exports those rigs with valid Humanoid mapping.
+- No gameplay enemy script currently drives Animator parameters such as `Speed` and `Attack`, so prefab Animator configuration alone will not make AI movement/attack states animate beyond default controller playback.
+
+- Enemy bugfix root causes found: Tidal Aberration Water Jet and Ancient Strander ranged bite could bypass cooldown by re-entering their ranged states because those transitions reset attack timers to the configured interval. Several enemy hit paths were too dependent on trigger callbacks or parent-only combat receiver lookup, so player collider/root layouts could make attacks appear to hit without resolving PlayerHealthController. Anchor Sentinel attack config was applied, but its EnemyHealthController prefab/config path was not synchronized, so health tuning could be ignored by systems reading the health component directly.
+
+## 2026-06-10 Enemy Animator Runtime Driver Findings
+
+- `AC_Enemy_Base.controller` exposes `Speed` as a float parameter and `Attack` as a trigger parameter, so runtime code can safely drive movement blend and attack transitions without changing the animator state machine.
+- The patrol enemy controllers that use `NavMeshAgent` can derive animation speed from the current agent velocity: basic melee, ranged, Modern Strander, Tidal Aberration, and Ancient Strander.
+- Hunter Boss moves through manual transform interpolation rather than a `NavMeshAgent`, so its animator speed needs to come from the existing boss chase state instead of agent velocity.
+- Anchor Sentinel is stationary in the current combat design, so its animator speed should stay at zero and only its beam firing entry should trigger the attack animation.
+- Attack animation triggers were added only at existing attack execution points. No attack timing, damage values, cooldowns, target selection, or state transitions needed to change for the requested animator hookup.
+
+## 2026-06-11 Enemy Humanoid Animation Stabilization Findings
+
+- The Modern Strander runtime `NullReferenceException` came from checking `animator.avatar.isValid` after the no-Avatar branch had already accepted a Generic rig with visible bones. The driver now only checks `isValid` when an Avatar object actually exists.
+- Modern Strander and Ancient Strander currently use rigged Generic model instances from `Zombie Idle (1).fbx` and `Ske Idle.fbx`, with Animator Avatar intentionally empty so the extracted Generic `.anim` transform curves can drive the same bone hierarchy.
+- The active Zombie/Skeleton Idle/Walk/Attack `.anim` clips all contain `mixamorig:Hips` position curves. These curves can pull the animated mesh back toward the clip origin during loop boundaries or state transitions unless X/Z motion is stabilized.
+- The runtime driver now stabilizes the animated root bone X/Z in `LateUpdate`, after Animator sampling, for all enemy controllers that use `EnemyAnimatorDriver`.
+- The six active humanoid clips now keep original X/Z position in their clip settings. This complements the runtime root-bone stabilization and reduces loop/transition snapping.
+- Initial visual ground alignment now runs after Animator priming and first-frame sampling. This avoids aligning against the bind pose and then having the first animation frame move the mesh away from the ground.
+- Ground alignment now prefers foot/toe bones when a humanoid-style foot hierarchy is available and the renderer bottom is suspiciously lower. This prevents cloak, stretched mesh, or trailing geometry from becoming the grounding reference while the actual feet float.
+- The current Modern Strander prefab has only root-level FBX instance transform overrides for scale, position, rotation, controller, culling, and root motion. It no longer has prefab overrides on specific left-leg or foot bones; if the left foot still pulls after this fix, the remaining cause is inside the source FBX mesh skinning/bone weights or the authored animation pose.

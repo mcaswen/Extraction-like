@@ -116,6 +116,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     public float WaterJetMaxDistance = 10f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
@@ -128,6 +129,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private float _waitTimer;
     private float _meleeAttackTimer;
     private float _rangedAttackTimer;
+    private float _nextRangedAttackTime;
     private float _meleeVisualTimer;
     private float _rangedVisualTimer;
     private float _electricTickTimer;
@@ -168,6 +170,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        _animatorDriver = new EnemyAnimatorDriver(this);
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _patrolAwareness?.ConfigurePreset(_awarenessPreset);
@@ -263,6 +266,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         UpdateAttackVisuals();
+        UpdateAnimatorSpeed();
+    }
+
+    private void LateUpdate()
+    {
+        _animatorDriver?.LateUpdate();
     }
 
     private void PatrolBehavior(float distanceToPlayer)
@@ -328,7 +337,6 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         if (distanceToPlayer >= MinimumRangedDistance && distanceToPlayer <= RangedAttackRange)
         {
             CurrentState = EnemyState.RangedAttack;
-            _rangedAttackTimer = RangedAttackInterval;
             SetAgentStopped(true);
             return;
         }
@@ -363,7 +371,6 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             StopMeleeAttack();
             CurrentState = EnemyState.RangedAttack;
-            _rangedAttackTimer = RangedAttackInterval;
             return;
         }
 
@@ -444,7 +451,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         _rangedAttackTimer += Time.deltaTime;
-        if (_rangedAttackTimer >= RangedAttackInterval)
+        if (Time.time >= _nextRangedAttackTime)
         {
             PerformRangedAttack();
         }
@@ -453,6 +460,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private void PerformMeleeAttack()
     {
         // 近战电击先造成一次接触伤害，再进入持续电击和沉默阶段。
+        _animatorDriver?.TriggerAttack();
         _meleeAttackTimer = 0f;
         _meleeVisualTimer = 0f;
         _electricTickTimer = 0f;
@@ -491,8 +499,10 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private void PerformRangedAttack()
     {
         // 远程水柱用射线命中，先裁到第一个有效战斗目标，再施加伤害、击退和短暂减速。
+        _animatorDriver?.TriggerAttack();
         _rangedAttackTimer = 0f;
         _rangedVisualTimer = 0f;
+        _nextRangedAttackTime = Time.time + Mathf.Max(0.05f, RangedAttackInterval);
         _isRangedCasting = true;
 
         Vector3 origin = RangedOrigin != null ? RangedOrigin.position : transform.position + Vector3.up * 1.2f;
@@ -529,6 +539,11 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         _isRangedCasting = false;
         _rangedVisualTimer = 0f;
+    }
+
+    private void UpdateAnimatorSpeed()
+    {
+        _animatorDriver?.SetSpeedFromAgent(_navMeshAgent);
     }
 
     /// <summary>

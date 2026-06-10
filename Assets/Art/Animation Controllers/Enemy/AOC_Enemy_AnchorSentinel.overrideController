@@ -6,7 +6,7 @@ AnimatorOverrideController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AOC_Enemy_HunterBoss
+  m_Name: AOC_Enemy_AnchorSentinel
   m_Controller: {fileID: 9100000, guid: da6c3c82b508e3cb26479e360be9ba45, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 7400000, guid: 4c6a9ddeeb450c740a80aede638c8fce, type: 2}
