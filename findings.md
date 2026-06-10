@@ -318,3 +318,22 @@ Non-contradictions verified:
 - The five `S_ItemIcon_Rarity_*.png` sprites are not used by runtime `DraggableItemUI` as rarity frames. Some test/container item data assets currently use them as `ItemIcon`, but the draggable item background still comes from `ResolveRarityBackgroundColor`.
 - Scene binding differs by scene. `Scene_lyl_IslandWhitebox.unity` has the six equipment slots, `DefaultBackpackItem`, `BackpackGrid`, `LootChestGrid`, `DraggableItemPrefab`, and `GlobalDragLayer` bound. `Scene_lyl.unity` and `Scene_ZL/Scenel_Zl_IslandWhitebox.unity` have grid/factory references but their serialized `InventoryScreenController` snippets do not include the newer six equipment slot/default backpack fields. Several MVP/test scenes have `DraggableItemPrefab` and `GlobalDragLayer` set to null.
 - There is no current `BackpackUiPrefabRedesignTool` or equivalent editor rebuild script in `Assets/Scripts/Editor`; UI art integration should therefore be done through prefab/scene Inspector configuration or a new dedicated editor tool if repeatability is required.
+
+## 2026-06-10 Enemy Chase Indicator Findings
+
+- The requested chase icon asset is `Assets/Art/Sprites/UI/Attack_range_Enemy_lock-on_indicator_Boss_symbol/IMG_0583.PNG`, imported as a UI Sprite with GUID `23d7599f50b28934ca3444e8d7f1dac1`.
+- The requested persistent Boss icon asset is `Assets/Art/Sprites/UI/Attack_range_Enemy_lock-on_indicator_Boss_symbol/IMG_0606.PNG`, imported as a UI Sprite with GUID `7f350447a8954624084a07f13242a32f`.
+- Chase-capable enemy pawn prefabs are `Enemy.prefab`, `Pfb_Enemy_RangedEnemy.prefab`, `Pfb_Enemy_Common_ModernStrander.prefab`, `Pfb_Enemy_Common_TidalAberration.prefab`, `Pfb_Enemy_Common_AncientStrander.prefab`, and `Pfb_Enemy_HunterBoss.prefab`.
+- `Pfb_Enemy_Common_AnchorSentinel.prefab` and `HunterBossAnchorProjectile .prefab` were skipped by the binder because they do not expose one of the supported Chase state components.
+- `EnemyChaseIndicatorController` creates a world-space UI Image at runtime, uses collider/renderer bounds to keep the icon above the enemy, faces `Camera.main`, and supports `ChaseOnly` or `Always` visibility modes.
+- `Pfb_Enemy_HunterBoss.prefab` now has two indicator components: `ChaseOnly` with `IMG_0583` and `Always` with `IMG_0606` using a separate `BossIndicatorCanvas`, so the Boss marker remains visible and the chase prompt can still appear separately.
+- Saving the basic melee and ranged prefabs through Unity also serialized their missing `[RequireComponent]` awareness dependencies (`EnemyLookController`, `EnemySuspicionSensor`, and `EnemyPatrolAwarenessController`), matching the components that were previously installed at runtime.
+
+## 2026-06-10 Player HUD Icon Findings
+
+- The requested HUD art lives under `Assets/Art/Sprites/UI/Main_character, progress_bar, status_bar`: `IMG_0582.PNG`, `IMG_0584.PNG`, `IMG_0586.PNG`, and `IMG_0587.PNG`.
+- Sprite GUIDs are `IMG_0582` = `09b6358d73c12234999e0fc89fe1ce29`, `IMG_0584` = `acfe167cc8d0839469caf455d79f02b9`, `IMG_0586` = `e52b4701264234d49bcfaa58079a4e1d`, and `IMG_0587` = `8dbd55724764ce04ea03c5d5de593bd2`.
+- `PlayerStatusHudController` is not authored in a scene or prefab; it is created dynamically by `RaidFlowController.Start` and `PlayerHealthController.Start`. Because of that, serialized Inspector sprite references alone would be brittle for the current HUD.
+- `Assets/Resources/HUD/PlayerStatusHudSpriteSet.asset` is the runtime bridge for these sprites. It lets the dynamic HUD load the configured art without modifying the already-dirty shared `Canvas.prefab`.
+- `IMG_0582.PNG` is 1454x1454 but its visible portrait occupies only about 371x398 pixels near the center. The SpriteSet stores a larger square crop rect `(489, 497, 478, 478)` so the runtime HUD portrait is readable at small size without editing the source PNG.
+- `IMG_0587.PNG` is 745x96 with no sprite border, so the HUD uses it as a simple progress-bar frame while the actual fill remains a runtime `Image.Type.Filled` rectangle inside the frame padding.

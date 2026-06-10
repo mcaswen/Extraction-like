@@ -46,6 +46,10 @@ GameObject:
   - component: {fileID: 6754884225139306750}
   - component: {fileID: 2892718523338342865}
   - component: {fileID: 2202209105108567084}
+  - component: {fileID: 6382851963924180991}
+  - component: {fileID: 555284948572565161}
+  - component: {fileID: 5416931010090448854}
+  - component: {fileID: 3824852516999228938}
   m_Layer: 0
   m_Name: Pfb_Enemy_RangedEnemy
   m_TagString: Enemy
@@ -205,9 +209,106 @@ MonoBehaviour:
   PatrolRadius: 10
   PatrolWaitTime: 2
   DetectionRange: 15
+  ViewAngle: 360
+  LineOfSightBlockMask:
+    serializedVersion: 2
+    m_Bits: 1
+  GroundMask:
+    serializedVersion: 2
+    m_Bits: 1
+  EyeHeight: 1.2
+  TargetHeight: 1
   LoseRange: 20
   AttackRange: 10
   AttackInterval: 2
+--- !u!114 &6382851963924180991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3520514966002194346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad3a8a5b48a244b38f7cb0e0275baea7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _visionPivot: {fileID: 0}
+  _pivotHeight: 1.15
+  _movingScanArc: 52
+  _movingScanIntervalMin: 0.75
+  _movingScanIntervalMax: 1.7
+  _movingForwardBias: 0.62
+  _waitScanArc: 115
+  _waitScanIntervalMin: 0.45
+  _waitScanIntervalMax: 1.15
+  _patrolTurnSpeed: 185
+  _alertTurnSpeed: 310
+  _combatTurnSpeed: 540
+  _externalIntentDuration: 0.8
+--- !u!114 &555284948572565161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3520514966002194346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b9cd71b79fa4ff8b1c12a821b7969b2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _hearingMultiplier: 1
+  _minimumAcceptedStrength: 0.18
+  _stimulusCooldown: 0.25
+  _occlusionMask:
+    serializedVersion: 2
+    m_Bits: 1
+  _occludedStrengthMultiplier: 0.65
+  _earHeight: 1.1
+--- !u!114 &5416931010090448854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3520514966002194346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3753b857e6c7493fb84996d296da80f2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _lookOnlyThreshold: 0.25
+  _suspiciousThreshold: 0.45
+  _investigateThreshold: 0.72
+  _suspiciousLookDuration: 2.4
+  _searchDuration: 4.2
+  _searchLookInterval: 0.85
+  _investigateArriveDistance: 1.2
+  _searchScanArc: 145
+  _searchSampleRadius: 2.8
+--- !u!114 &3824852516999228938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3520514966002194346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b588e277b9164ffea73ebb798eabe58c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _indicatorSprite: {fileID: 21300000, guid: 23d7599f50b28934ca3444e8d7f1dac1, type: 3}
+  _visibilityMode: 0
+  _canvasObjectName: ChaseIndicatorCanvas
+  _imageObjectName: ChaseIndicatorImage
+  _size: {x: 56, y: 56}
+  _worldScale: 0.01
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _sortingOrder: 10
+  _fallbackLocalOffset: {x: 0, y: 2.1, z: 0}
+  _boundsVerticalPadding: 1.05
 --- !u!1 &5033386574653602101
 GameObject:
   m_ObjectHideFlags: 0

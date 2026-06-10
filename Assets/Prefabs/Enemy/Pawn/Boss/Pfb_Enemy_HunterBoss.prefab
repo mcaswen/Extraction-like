@@ -122,6 +122,8 @@ GameObject:
   - component: {fileID: 581179345390849825}
   - component: {fileID: 3028265292951797234}
   - component: {fileID: 6812733411681420742}
+  - component: {fileID: 5308064938308394723}
+  - component: {fileID: 6891447774368601347}
   m_Layer: 0
   m_Name: Pfb_Enemy_HunterBoss
   m_TagString: Enemy
@@ -346,6 +348,50 @@ MonoBehaviour:
   TrembleMoveSpeedMultiplier: 0.8
   TrembleAttackMultiplier: 0.8
   TrembleDuration: 3
+--- !u!114 &5308064938308394723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4482442279097001780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b588e277b9164ffea73ebb798eabe58c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _indicatorSprite: {fileID: 21300000, guid: 23d7599f50b28934ca3444e8d7f1dac1, type: 3}
+  _visibilityMode: 0
+  _canvasObjectName: ChaseIndicatorCanvas
+  _imageObjectName: ChaseIndicatorImage
+  _size: {x: 56, y: 56}
+  _worldScale: 0.01
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _sortingOrder: 10
+  _fallbackLocalOffset: {x: 0, y: 2.1, z: 0}
+  _boundsVerticalPadding: 1.05
+--- !u!114 &6891447774368601347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4482442279097001780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b588e277b9164ffea73ebb798eabe58c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _indicatorSprite: {fileID: 21300000, guid: 7f350447a8954624084a07f13242a32f, type: 3}
+  _visibilityMode: 1
+  _canvasObjectName: BossIndicatorCanvas
+  _imageObjectName: BossIndicatorImage
+  _size: {x: 64, y: 64}
+  _worldScale: 0.01
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _sortingOrder: 11
+  _fallbackLocalOffset: {x: 0, y: 2.85, z: 0}
+  _boundsVerticalPadding: 1.65
 --- !u!1 &5170584164047842558
 GameObject:
   m_ObjectHideFlags: 0

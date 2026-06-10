@@ -22,6 +22,7 @@ public partial class DraggableItemUI
         _activeDragLayer = null;
         CurrentlyDraggedItem = this;
         SplitUIController.Instance?.CloseWindow();
+        InventoryItemInfoPanelController.Instance?.Hide();
         _originalParent = transform.parent;
 
         if (!TryGetDragLayer(out _activeDragLayer))
@@ -574,6 +575,8 @@ public partial class DraggableItemUI
     // 通过主控制器寻找快捷转移目标，并直接执行网格内搬运
     private void ExecuteQuickTransfer()
     {
+        InventoryItemInfoPanelController.Instance?.Hide();
+
         if (CurrentGrid == null || ItemData == null || InventoryScreenController.Instance == null)
         {
             return;

@@ -158,10 +158,7 @@ public partial class DraggableItemUI
             return;
         }
 
-        if (ItemData != null && ItemData.IsStackable && CurrentAmount > 1)
-        {
-            SplitUIController.Instance?.OpenSplitWindow(this);
-        }
+        InventoryItemInfoPanelController.Instance?.Show(this, eventData);
     }
 
     /// <summary>

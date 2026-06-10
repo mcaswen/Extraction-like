@@ -468,3 +468,37 @@ Implementation steps for this restart:
 - Inspected `Assets/Art/Sprites/UI design/Bag`, `Assets/Art/Sprites/UI/Backpack_background`, `Assets/Art/Sprites/UI/Backpack_Slot`, `Canvas.prefab`, `Prefab.prefab`, key backpack scripts, and scene controller bindings.
 - Recorded findings in `findings.md` and marked Phase 25 done in `task_plan.md`.
 - No gameplay scripts, prefabs, scenes, or art assets were changed during this review beyond planning notes.
+
+## 2026-06-10 Enemy Chase Indicator Icon
+
+- User asked for enemies to show `IMG_0583` above their heads when they enter the state of chasing the protagonist.
+- Added `EnemyChaseIndicatorController`, a reusable runtime component that creates a world-space Canvas/Image, binds `IMG_0583`, tracks supported enemy behavior state components, follows enemy bounds, faces the main camera, and only shows during `Chase`.
+- Added `EnemyChaseIndicatorPrefabBinder` at `Tools/Enemy/Bind Chase Indicators` and ran it through Unity 2022.3.62f2c1 batchmode.
+- Unity binder log `Logs/EnemyChaseIndicatorBind2.log` reports `Bound chase indicators on 6 enemy prefab(s); skipped 2 prefab(s).`
+- Static prefab scan confirmed the new component GUID and `IMG_0583` sprite GUID are present on `Enemy.prefab`, `Pfb_Enemy_RangedEnemy.prefab`, `Pfb_Enemy_Common_ModernStrander.prefab`, `Pfb_Enemy_Common_TidalAberration.prefab`, `Pfb_Enemy_Common_AncientStrander.prefab`, and `Pfb_Enemy_HunterBoss.prefab`.
+- Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success with existing unrelated warnings.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran targeted `git diff --check` on the new scripts and touched enemy prefabs: no whitespace errors after cleaning Unity-added empty-field spaces.
+
+## 2026-06-10 Enemy Boss Persistent Indicator
+
+- User asked to also show `IMG_0606` persistently above the Boss head.
+- Extended `EnemyChaseIndicatorController` with `IndicatorVisibilityMode.ChaseOnly` and `IndicatorVisibilityMode.Always`, plus configurable canvas/image names and sorting order so multiple indicators can coexist on the same enemy.
+- Updated `EnemyChaseIndicatorPrefabBinder` to bind `IMG_0606` only to `Assets/Prefabs/Enemy/Pawn/Boss/Pfb_Enemy_HunterBoss.prefab` as an `Always` indicator using `BossIndicatorCanvas`.
+- Unity binder log `Logs/EnemyBossIndicatorBind2.log` reports `Bound chase indicators on 6 enemy prefab(s), boss indicators on 1 prefab(s); skipped 2 prefab(s).`
+- Static prefab scan confirmed `IMG_0606` appears only on `Pfb_Enemy_HunterBoss.prefab`, where the Boss has 2 indicator components: one chase-only `IMG_0583` and one always-on `IMG_0606`.
+- Ran `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran targeted `git diff --check` on the touched indicator scripts and enemy prefabs: no whitespace errors after cleaning Unity-added empty-field spaces.
+
+## 2026-06-10 Player HUD Icon Refresh
+
+- User asked to optimize the player HUD with `IMG_0582` as the current character avatar, `IMG_0584` as the health icon, `IMG_0586` as the carry-load icon, and `IMG_0587` as the progress bar art.
+- Confirmed `PlayerStatusHudController` is created dynamically from `RaidFlowController` and `PlayerHealthController`, so direct prefab-only sprite references would not reliably reach the runtime HUD.
+- Added `PlayerStatusHudSpriteSet`, loaded from `Resources.Load<PlayerStatusHudSpriteSet>("HUD/PlayerStatusHudSpriteSet")`, so the dynamic HUD can resolve the four UI sprites in player builds.
+- Reworked `PlayerStatusHudController` to lay out a cropped avatar on the left, two icon-led status rows on the right, and progress bars using `IMG_0587` as the bar frame with filled health/carry values.
+- Added `PlayerStatusHudSpriteSetBuilder` at `Tools/Raid/Rebuild Player Status HUD Sprite Set` and ran it through Unity 2022.3.62f2c1 batchmode.
+- Unity builder log `Logs/PlayerStatusHudSpriteSetBuild.log` reports `Rebuilt player status HUD sprite set at Assets/Resources/HUD/PlayerStatusHudSpriteSet.asset`.
+- Confirmed the generated asset references `IMG_0582`, `IMG_0584`, `IMG_0586`, and `IMG_0587` by GUID, and stores an avatar crop rect so the large transparent source image displays as a readable HUD portrait.
+- Ran sequential `dotnet build Assembly-CSharp.csproj /nologo /verbosity:minimal` and `dotnet build Assembly-CSharp-Editor.csproj /nologo /verbosity:minimal`: both succeeded. The runtime build still reports existing unrelated warnings from obsolete board-game/post-effect/debug scripts.
+- Ran targeted `git diff --check` on HUD scripts and generated assets: no whitespace errors; only the repository CRLF normalization warning for `PlayerStatusHudController.cs`.

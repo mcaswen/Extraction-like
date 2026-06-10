@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 6430719191157049665}
   - component: {fileID: 8280988361049338695}
   - component: {fileID: 5426604159678936457}
+  - component: {fileID: 6806992553042967280}
   m_Layer: 0
   m_Name: Pfb_Enemy_Common_AncientStrander
   m_TagString: Enemy
@@ -297,6 +298,28 @@ MonoBehaviour:
   _investigateArriveDistance: 1.2
   _searchScanArc: 145
   _searchSampleRadius: 2.8
+--- !u!114 &6806992553042967280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2442436483139533611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b588e277b9164ffea73ebb798eabe58c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _indicatorSprite: {fileID: 21300000, guid: 23d7599f50b28934ca3444e8d7f1dac1, type: 3}
+  _visibilityMode: 0
+  _canvasObjectName: ChaseIndicatorCanvas
+  _imageObjectName: ChaseIndicatorImage
+  _size: {x: 56, y: 56}
+  _worldScale: 0.01
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _sortingOrder: 10
+  _fallbackLocalOffset: {x: 0, y: 2.1, z: 0}
+  _boundsVerticalPadding: 1.05
 --- !u!1 &4056487400865432842
 GameObject:
   m_ObjectHideFlags: 0

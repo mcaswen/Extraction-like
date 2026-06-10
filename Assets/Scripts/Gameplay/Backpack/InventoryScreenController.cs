@@ -164,6 +164,7 @@ public class InventoryScreenController : MonoBehaviour
 
         sessionContext.BeforeOpen?.Invoke();
         _activeSessionContext = sessionContext;
+        InventoryItemInfoPanelController.Instance?.Hide();
         PrepareSessionForDisplay(sessionContext);
 
         if (!wasInventoryOpen)
@@ -483,6 +484,8 @@ public class InventoryScreenController : MonoBehaviour
         {
             InventoryPanel.SetActive(false);
         }
+
+        InventoryItemInfoPanelController.Instance?.Hide();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

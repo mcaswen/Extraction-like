@@ -50,6 +50,8 @@ Out of scope:
 | 23. Enemy direct attacker retaliation | Done | Direct Agent/player damage carries an attacker; patrol enemies chase and attack the direct attacker instead of stopping in patrol awareness | Static scans, `dotnet build Assembly-CSharp.csproj`, and `dotnet build Assembly-CSharp-Editor.csproj` pass |
 | 24. Enemy script Chinese comments | Done | Added Chinese XML comments for public enemy APIs and concise normal comments for complex private enemy logic, following `Assets/Scripts/Core` style | Public/protected method comment scan, `git diff --check`, and `dotnet build Assembly-CSharp.csproj` pass |
 | 25. Backpack UI asset integration review | Done | Inspected current UI sprite assets, backpack prefab hooks, runtime scripts, draggable item prefab, and scene binding differences | Findings recorded; implementation/configuration plan prepared for the user |
+| 26. Enemy chase and boss indicator icons | Done | Added IMG_0583 chase indicator support and IMG_0606 persistent Boss indicator support | Runtime/editor dotnet builds pass; Unity binder logged 6 chase prefabs, 1 boss prefab, and 2 skipped prefabs; static prefab scan confirms the bindings |
+| 27. Player HUD icon refresh | Done | Added IMG_0582 avatar, IMG_0584 health icon, IMG_0586 carry icon, and IMG_0587 progress bar support to the runtime player HUD | Runtime/editor dotnet builds pass; Unity SpriteSet builder generated `Assets/Resources/HUD/PlayerStatusHudSpriteSet.asset` with the four sprite references |
 
 ## TSV Columns
 

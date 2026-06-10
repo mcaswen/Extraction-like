@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350eb0b9093f40fca8c009a974bebb00, type: 3}
+  m_Name: PlayerStatusHudSpriteSet
+  m_EditorClassIdentifier: 
+  _avatarIcon: {fileID: 21300000, guid: 09b6358d73c12234999e0fc89fe1ce29, type: 3}
+  _healthIcon: {fileID: 21300000, guid: acfe167cc8d0839469caf455d79f02b9, type: 3}
+  _carryIcon: {fileID: 21300000, guid: e52b4701264234d49bcfaa58079a4e1d, type: 3}
+  _progressBar: {fileID: 21300000, guid: 8dbd55724764ce04ea03c5d5de593bd2, type: 3}
+  _avatarCropRect:
+    serializedVersion: 2
+    x: 489
+    y: 497
+    width: 478
+    height: 478
