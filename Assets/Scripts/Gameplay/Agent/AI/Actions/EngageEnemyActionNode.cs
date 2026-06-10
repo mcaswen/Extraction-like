@@ -67,6 +67,19 @@ namespace Gameplay.Agent.AI.Actions
             if (context.TimeSeconds < _nextAttackTime)
                 return Running();
 
+            if (TryCastReadySkill(agent, enemyHealthController, context.TimeSeconds, out float actionLockSeconds))
+            {
+                _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, actionLockSeconds);
+                if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
+                {
+                    GameplayTargetRegistry.GetOrCreate().NotifyEnemyDefeated(enemyHealthController);
+                    CompleteCombat(context);
+                    return Succeed();
+                }
+
+                return Running();
+            }
+
             // 攻击参数从黑板读取，便于按 Agent 类型替换配置
             float attackDamage = GetFloat(context, AgentBlackboardKeys.AttackDamage, 25f);
             float attackInterval = GetFloat(context, AgentBlackboardKeys.AttackInterval, 0.65f);
@@ -122,6 +135,18 @@ namespace Gameplay.Agent.AI.Actions
         {
             AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
             return shooter != null && shooter.TryShootAt(enemyHealthController, attackDamage);
+        }
+
+        private static bool TryCastReadySkill(
+            IAgentReadOnly agent,
+            global::EnemyHealthController enemyHealthController,
+            double timeSeconds,
+            out float actionLockSeconds)
+        {
+            actionLockSeconds = 0f;
+            AgentCombatController combatController = agent.CachedTransform.GetComponent<AgentCombatController>();
+            return combatController != null &&
+                   combatController.TryCastReadySkill(enemyHealthController, timeSeconds, out actionLockSeconds);
         }
 
         private static global::EnemyDamageContext CreateAgentDamageContext(

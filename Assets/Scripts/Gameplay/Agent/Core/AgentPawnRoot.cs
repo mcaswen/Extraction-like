@@ -14,7 +14,7 @@ namespace Gameplay.Agent.Core
     /// Agent实体总入口
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
-    [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter))]
+    [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter), typeof(AgentCombatController))]
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver
     {
         private const int RangeGizmoSegmentCount = 64;
@@ -27,6 +27,7 @@ namespace Gameplay.Agent.Core
 
         [Header("Components")]
         [SerializeField] private NavMeshAgent _navMeshAgent;
+        [SerializeField] private AgentCombatController _combatController;
 
         [Header("Editor Gizmos")]
         [SerializeField] private bool _showRangeGizmos = true;
@@ -220,7 +221,14 @@ namespace Gameplay.Agent.Core
                 return false;
             }
 
-            _currentHealth = _pawnConfig.MaxHealth;
+            if (_combatController != null)
+            {
+                _combatController.ApplyConfig(
+                    _pawnConfig.CombatStyleConfig,
+                    _pawnConfig.CreateCombatRuntimeStats());
+            }
+
+            _currentHealth = MaxHealth;
 
             _brainController = new AgentBrainController(this);
             _interventionController = new AgentInterventionController(_brainController.Blackboard);
@@ -348,6 +356,9 @@ namespace Gameplay.Agent.Core
         {
             if (_navMeshAgent == null)
                 _navMeshAgent = GetComponent<NavMeshAgent>();
+
+            if (_combatController == null)
+                _combatController = GetComponent<AgentCombatController>();
         }
 
         private void RegisterWithRuntime()
@@ -403,7 +414,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.DecisionCandidateCount, 0, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionRiskEnemyCount, 0, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, _pawnConfig.AttackDamage, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, 0f, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, _pawnConfig.Defense, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionReason, string.Empty, timeSeconds);
         }
 

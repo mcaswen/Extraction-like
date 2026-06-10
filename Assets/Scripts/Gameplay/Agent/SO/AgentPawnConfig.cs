@@ -1,4 +1,5 @@
 using UnityEngine;
+using Gameplay.Agent.Combat;
 
 namespace Gameplay.Agent.SO
 {
@@ -13,6 +14,7 @@ namespace Gameplay.Agent.SO
     {
         [Header("基础属性")]
         [SerializeField] private int _maxHealth = 100;
+        [SerializeField, Min(0f)] private float _defense = 100f;
 
         [Header("行动参数")]
         [SerializeField] private float _moveSpeed = 4f;
@@ -25,6 +27,7 @@ namespace Gameplay.Agent.SO
         [SerializeField] private float _targetDiscoveryInterval = 0.5f;
 
         [Header("战斗参数")]
+        [SerializeField] private AgentCombatStyleConfig _combatStyleConfig;
         [SerializeField] private float _attackRange = 6f;
         [SerializeField] private float _attackDamage = 25f;
         [SerializeField] private float _attackInterval = 0.65f;
@@ -36,6 +39,16 @@ namespace Gameplay.Agent.SO
         /// Agent 最大生命值
         /// </summary>
         public int MaxHealth => _maxHealth;
+
+        /// <summary>
+        /// Agent 攻击基础值
+        /// </summary>
+        public float Attack => _attackDamage;
+
+        /// <summary>
+        /// Agent 防御基础值
+        /// </summary>
+        public float Defense => Mathf.Max(0f, _defense);
 
         /// <summary>
         /// Agent 默认移动速度
@@ -68,23 +81,35 @@ namespace Gameplay.Agent.SO
         public float TargetDiscoveryInterval => _targetDiscoveryInterval;
 
         /// <summary>
+        /// Agent 战斗流派配置
+        /// </summary>
+        public AgentCombatStyleConfig CombatStyleConfig => _combatStyleConfig;
+
+        /// <summary>
         /// 攻击有效距离
         /// </summary>
-        public float AttackRange => _attackRange;
+        public float AttackRange => _combatStyleConfig != null ? _combatStyleConfig.NormalAttackRange : _attackRange;
 
         /// <summary>
         /// 单次攻击伤害
         /// </summary>
-        public float AttackDamage => _attackDamage;
+        public float AttackDamage => _combatStyleConfig != null
+            ? _combatStyleConfig.CalculateNormalAttackDamage(CreateCombatRuntimeStats())
+            : _attackDamage;
 
         /// <summary>
         /// 攻击间隔
         /// </summary>
-        public float AttackInterval => _attackInterval;
+        public float AttackInterval => _combatStyleConfig != null ? _combatStyleConfig.NormalAttackInterval : _attackInterval;
 
         /// <summary>
         /// 进入恢复需求的生命比例阈值
         /// </summary>
         public float LowHealthRecoveryThreshold => _lowHealthRecoveryThreshold;
+
+        public AgentCombatRuntimeStats CreateCombatRuntimeStats()
+        {
+            return new AgentCombatRuntimeStats(MaxHealth, Attack, Defense);
+        }
     }
 }

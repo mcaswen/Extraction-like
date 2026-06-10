@@ -22,6 +22,7 @@ namespace Gameplay.Agent.Combat
         [SerializeField] private Color _bulletColor = new Color(1f, 0.62f, 0.24f, 1f);
         [SerializeField] private global::BulletController.AttackElementType _attackElement =
             global::BulletController.AttackElementType.Fire;
+        private AgentCombatProjectileStatus _projectileStatus = AgentCombatProjectileStatus.None;
 
         /// <summary>
         /// 尝试向目标敌人发射一颗子弹
@@ -51,6 +52,14 @@ namespace Gameplay.Agent.Combat
             ConfigureBulletObject(bulletObject, fireDirection.normalized, damage);
             IgnoreShooterCollisions(bulletObject);
             return true;
+        }
+
+        public void ConfigureProjectileElement(
+            AgentCombatElementType element,
+            AgentCombatProjectileStatus projectileStatus)
+        {
+            _attackElement = ConvertElementType(element);
+            _projectileStatus = projectileStatus;
         }
 
         // 优先使用配置挂点，缺失时用本地偏移保证运行时仍能发射
@@ -117,6 +126,9 @@ namespace Gameplay.Agent.Combat
             bulletController.LifeTime = Mathf.Max(0.1f, _bulletLifeTime);
             bulletController.BulletColor = _bulletColor;
             bulletController.AttackElement = _attackElement;
+            bulletController.SlowMultiplier = _projectileStatus.SlowMultiplier;
+            bulletController.SlowDurationSeconds = _projectileStatus.SlowDurationSeconds;
+            bulletController.FreezeDurationSeconds = _projectileStatus.FreezeDurationSeconds;
             bulletController.SourceTransform = transform;
 
             Rigidbody rigidbodyComponent = bulletObject.GetComponent<Rigidbody>();
@@ -157,6 +169,19 @@ namespace Gameplay.Agent.Combat
                 return targetCollider.bounds.center;
 
             return targetEnemy.transform.position + Vector3.up;
+        }
+
+        private static global::BulletController.AttackElementType ConvertElementType(AgentCombatElementType element)
+        {
+            switch (element)
+            {
+                case AgentCombatElementType.Fire:
+                    return global::BulletController.AttackElementType.Fire;
+                case AgentCombatElementType.Ice:
+                    return global::BulletController.AttackElementType.Ice;
+                default:
+                    return global::BulletController.AttackElementType.Physical;
+            }
         }
     }
 }
