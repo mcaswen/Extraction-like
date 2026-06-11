@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Gameplay.Agent.Combat
 {
+    /// <summary>
+    /// Agent 持续区域伤害运行时实体
+    /// 在固定区域内按 tick 对敌人造成伤害并附加状态
+    /// </summary>
     public sealed class AgentCombatAreaDamageOverTime : MonoBehaviour
     {
         private readonly HashSet<global::EnemyHealthController> _targets =
@@ -19,6 +23,18 @@ namespace Gameplay.Agent.Combat
         private float _tickTimer;
         private AgentCombatStatusEffectDefinition _statusEffect;
 
+        /// <summary>
+        /// 初始化持续伤害区域的施法者、范围、伤害和视觉表现
+        /// </summary>
+        /// <param name="casterTransform"></param>
+        /// <param name="enemyLayerMask"></param>
+        /// <param name="radius"></param>
+        /// <param name="damagePerSecond"></param>
+        /// <param name="durationSeconds"></param>
+        /// <param name="tickInterval"></param>
+        /// <param name="statusEffect"></param>
+        /// <param name="visualPrefab"></param>
+        /// <param name="indicatorColor"></param>
         public void Initialize(
             Transform casterTransform,
             LayerMask enemyLayerMask,
@@ -45,6 +61,7 @@ namespace Gameplay.Agent.Combat
 
         private void Update()
         {
+            // 生命周期到期后销毁整块区域，避免残留 tick
             _elapsedSeconds += Time.deltaTime;
             if (_elapsedSeconds > _durationSeconds)
             {
@@ -57,17 +74,20 @@ namespace Gameplay.Agent.Combat
                 return;
 
             _tickTimer = _tickInterval;
+            // tick 间隔到达后重新收集范围内敌人并结算本轮伤害
             ApplyTickDamage();
         }
 
         private void ApplyTickDamage()
         {
+            // 每轮 tick 重新收集目标，适配敌人进出区域的情况
             AgentCombatSkillUtility.CollectEnemiesInSphere(
                 transform.position,
                 _radius,
                 _enemyLayerMask,
                 _targets);
 
+            // DOT 本身没有独立属性，伤害上下文仅保留施法者和本次 tick 时长
             AgentCombatSkillContext context = new AgentCombatSkillContext(
                 _casterTransform,
                 null,
@@ -95,6 +115,7 @@ namespace Gameplay.Agent.Combat
         {
             if (visualPrefab != null)
             {
+                // 有配置视觉时直接挂到区域根节点，跟随区域生命周期销毁
                 GameObject visualObject = Instantiate(visualPrefab, transform);
                 visualObject.transform.localPosition = Vector3.zero;
                 visualObject.transform.localRotation = Quaternion.identity;
@@ -102,6 +123,7 @@ namespace Gameplay.Agent.Combat
                 return;
             }
 
+            // 未配置视觉时生成最小圆柱指示器，保证技能在白盒场景中仍可见
             GameObject indicatorObject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             indicatorObject.name = "AgentAreaDamageOverTimeIndicator";
             indicatorObject.transform.SetParent(transform, false);

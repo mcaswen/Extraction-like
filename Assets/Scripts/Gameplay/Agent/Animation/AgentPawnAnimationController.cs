@@ -5,9 +5,8 @@ using UnityEngine.AI;
 namespace Gameplay.Agent.Animation
 {
     /// <summary>
-    /// Bridges Agent runtime body facts into the character Animator.
-    /// Movement is written into the controller's blend-tree threshold space.
-    /// Attack is reported as an Animator trigger and blended through the configured combat layer.
+    /// Agent 动画控制桥接器
+    /// 负责把运行时移动速度和攻击事件写入 Animator 参数与战斗层
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class AgentPawnAnimationController : MonoBehaviour
@@ -102,6 +101,7 @@ namespace Gameplay.Agent.Animation
             bool isMoving = worldSpeed > _stationarySpeedThreshold;
             bool isAttacking = Time.time < _attackUntilTime;
 
+            // 移动参数允许动画控制器缺省，避免不同 Animator 复用时硬依赖全部参数
             SetOptionalFloat(_speedParameterHash, blendTreeSpeed, _speedDampSeconds);
             SetOptionalFloat(_worldSpeedParameterHash, worldSpeed, _speedDampSeconds);
             SetOptionalBool(_isMovingParameterHash, isMoving);
@@ -109,6 +109,10 @@ namespace Gameplay.Agent.Animation
             UpdateCombatLayerWeight(isAttacking);
         }
 
+        /// <summary>
+        /// 通知动画层播放一次攻击表现
+        /// </summary>
+        /// <param name="suggestedDurationSeconds"></param>
         public void NotifyAttack(float suggestedDurationSeconds)
         {
             if (!HasPlayableAnimator())
@@ -129,6 +133,7 @@ namespace Gameplay.Agent.Animation
         {
             Vector3 velocity = Vector3.zero;
 
+            // NavMeshAgent 正在驱动时优先使用它的实时速度或期望速度
             if (_navMeshAgent != null && _navMeshAgent.enabled)
             {
                 velocity = _navMeshAgent.velocity;
@@ -141,6 +146,7 @@ namespace Gameplay.Agent.Animation
 
             if (speed <= _stationarySpeedThreshold && Time.deltaTime > 0f)
             {
+                // Rigidbody 或 Transform 被外部驱动时，使用帧间位移作为兜底速度
                 Vector3 frameDelta = transform.position - _previousPosition;
                 frameDelta.y = 0f;
                 speed = Mathf.Max(speed, frameDelta.magnitude / Time.deltaTime);
@@ -199,6 +205,7 @@ namespace Gameplay.Agent.Animation
             if (!HasPlayableAnimator())
                 return;
 
+            // 缓存 Animator 参数类型，让写入前能检查参数是否存在且类型正确
             AnimatorControllerParameter[] parameters = _animator.parameters;
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -219,6 +226,7 @@ namespace Gameplay.Agent.Animation
             if (_combatLayerIndex < 0)
                 return;
 
+            // 战斗层默认隐藏，真正攻击时再淡入并切到攻击状态
             _animator.SetLayerWeight(_combatLayerIndex, 0f);
             TryResolveStateHash(
                 _combatLayerIndex,
@@ -254,6 +262,7 @@ namespace Gameplay.Agent.Animation
             if (_combatLayerIndex < 0)
                 return;
 
+            // 攻击窗口内淡入战斗层，攻击结束后按配置淡出回移动层
             float targetWeight = isAttacking ? 1f : 0f;
             float fadeSeconds = isAttacking ? _attackLayerFadeInSeconds : _attackLayerFadeOutSeconds;
 
@@ -306,6 +315,7 @@ namespace Gameplay.Agent.Animation
             if (!HasPlayableAnimator() || layerIndex < 0 || string.IsNullOrEmpty(stateName))
                 return false;
 
+            // 先尝试短状态名，兼容 Animator 层内唯一状态
             int shortNameHash = Animator.StringToHash(stateName);
             if (_animator.HasState(layerIndex, shortNameHash))
             {
@@ -315,6 +325,7 @@ namespace Gameplay.Agent.Animation
 
             if (!string.IsNullOrEmpty(layerName))
             {
+                // 再尝试 Layer.State 全路径，兼容同名状态或 Unity 的完整路径哈希
                 int fullPathHash = Animator.StringToHash($"{layerName}.{stateName}");
                 if (_animator.HasState(layerIndex, fullPathHash))
                 {

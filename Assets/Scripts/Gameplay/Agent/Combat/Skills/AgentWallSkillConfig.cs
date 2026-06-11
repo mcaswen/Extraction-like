@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace Gameplay.Agent.Combat
 {
+    /// <summary>
+    /// Agent 土墙技能配置
+    /// 定义墙体尺寸、持续时间和生成位置
+    /// </summary>
     [CreateAssetMenu(
         fileName = "SO_Agent_WallSkill",
         menuName = "SO/Agent/Combat/Skills/Wall")]
@@ -19,19 +23,55 @@ namespace Gameplay.Agent.Combat
         [SerializeField] private GameObject _wallPrefab;
         [SerializeField] private Color _wallColor = new Color(0.46f, 0.36f, 0.28f, 1f);
 
+        /// <summary>
+        /// 墙体长度
+        /// </summary>
         public float Length => Mathf.Max(0.1f, _length);
+
+        /// <summary>
+        /// 墙体厚度
+        /// </summary>
         public float Width => Mathf.Max(0.1f, _width);
+
+        /// <summary>
+        /// 墙体高度
+        /// </summary>
         public float Height => Mathf.Max(0.1f, _height);
+
+        /// <summary>
+        /// 墙体中心相对施法者前方的距离
+        /// </summary>
         public float ForwardDistance => Mathf.Max(0f, _forwardDistance);
+
+        /// <summary>
+        /// 墙体持续时间
+        /// </summary>
         public float DurationSeconds => Mathf.Max(0.05f, _durationSeconds);
+
+        /// <summary>
+        /// 可选墙体预制体
+        /// </summary>
         public GameObject WallPrefab => _wallPrefab;
+
+        /// <summary>
+        /// 默认墙体颜色
+        /// </summary>
         public Color WallColor => _wallColor;
 
+        /// <summary>
+        /// 根据运行时属性计算生成冲击伤害
+        /// </summary>
+        /// <param name="stats"></param>
+        /// <returns></returns>
         public float CalculateDamage(AgentCombatRuntimeStats stats)
         {
             return _damage.Evaluate(stats);
         }
 
+        /// <summary>
+        /// 创建该配置对应的运行时技能实例
+        /// </summary>
+        /// <returns></returns>
         public override AgentCombatSkillBase CreateRuntimeSkill()
         {
             return new AgentWallSkill(this);
@@ -48,6 +88,10 @@ namespace Gameplay.Agent.Combat
         }
     }
 
+    /// <summary>
+    /// Agent 土墙技能运行时逻辑
+    /// 负责生成临时墙体并对生成范围内敌人造成冲击伤害
+    /// </summary>
     public sealed class AgentWallSkill : AgentCombatSkillBase
     {
         private static readonly Collider[] HitBuffer = new Collider[64];
@@ -56,6 +100,10 @@ namespace Gameplay.Agent.Combat
         private readonly HashSet<global::EnemyHealthController> _targets =
             new HashSet<global::EnemyHealthController>();
 
+        /// <summary>
+        /// 创建土墙技能实例
+        /// </summary>
+        /// <param name="config"></param>
         public AgentWallSkill(AgentWallSkillConfig config)
             : base(config)
         {
@@ -79,9 +127,11 @@ namespace Gameplay.Agent.Combat
         {
             Vector3 forward = context.Forward;
             Quaternion rotation = Quaternion.LookRotation(forward, Vector3.up);
+            // 墙体中心抬高半个高度，使底部落在地面附近
             Vector3 center = context.Position + forward * _config.ForwardDistance + Vector3.up * (_config.Height * 0.5f);
             Vector3 size = new Vector3(_config.Length, _config.Height, _config.Width);
 
+            // 有预制体时使用美术资产，否则生成最小 Cube 兜底
             GameObject wallObject = _config.WallPrefab != null
                 ? Object.Instantiate(_config.WallPrefab)
                 : GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -101,6 +151,7 @@ namespace Gameplay.Agent.Combat
             AgentCombatSkillUtility.ApplyColor(wallObject, _config.WallColor);
             Object.Destroy(wallObject, _config.DurationSeconds);
 
+            // 墙体生成瞬间对重叠敌人结算一次冲击伤害
             ApplyImpactDamage(context, center, rotation, size);
             return true;
         }
@@ -112,6 +163,7 @@ namespace Gameplay.Agent.Combat
             Vector3 size)
         {
             _targets.Clear();
+            // 使用墙体同尺寸盒体查询，保证伤害范围与实际墙体体积一致
             int hitCount = Physics.OverlapBoxNonAlloc(
                 center,
                 size * 0.5f,

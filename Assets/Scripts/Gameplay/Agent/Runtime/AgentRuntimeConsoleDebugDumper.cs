@@ -71,6 +71,9 @@ namespace Gameplay.Agent.Runtime
             DumpAllAgents();
         }
 
+        /// <summary>
+        /// 打印当前所有已注册 Agent 的运行时目标、黑板、NavMesh 和移动控制快照
+        /// </summary>
         [ContextMenu("Dump All Agents")]
         public void DumpAllAgents()
         {
@@ -181,6 +184,7 @@ namespace Gameplay.Agent.Runtime
             GameObject targetObject = targetRef.TargetObject;
             Vector3 targetPosition = targetRef.HasTargetPosition ? targetRef.TargetPosition : default;
 
+            // 先打印黑板中保存的原始指令目标，保留手动点击或决策模块的输入信息
             _builder.AppendLine(
                 "directive: " +
                 $"type={directive.DirectiveType} target={targetRef.Kind}/{targetRef.BindingType} " +
@@ -196,6 +200,7 @@ namespace Gameplay.Agent.Runtime
                     $"planar={GetPlanarDistance(pawn.Position, targetPosition):0.###}");
             }
 
+            // 再解析行为节点实际会追踪的实例目标，例如资源群内的具体箱子
             if (TryResolveNavigationTarget(
                     targetRef,
                     pawn.Position,
@@ -219,6 +224,7 @@ namespace Gameplay.Agent.Runtime
                 _builder.AppendLine("resolvedMoveTarget: unavailable");
             }
 
+            // 资源群没有解析出具体资源时，追加成员级可达性明细
             if (debugResourceCluster != null && resolvedReason == "direct")
             {
                 debugResourceCluster.AppendNavigationDebugSnapshot(
@@ -274,6 +280,7 @@ namespace Gameplay.Agent.Runtime
             if (agent == null || !agent.enabled || !agent.isOnNavMesh)
                 return;
 
+            // 目标位置先投到 NavMesh；起点交给 NavMeshAgent 自己处理，避免角色高度偏移影响调试结果
             bool sampledTarget = NavMesh.SamplePosition(
                 targetPosition,
                 out NavMeshHit targetHit,
@@ -298,6 +305,7 @@ namespace Gameplay.Agent.Runtime
             }
 
             NavMeshPath path = new NavMeshPath();
+            // 这里故意使用实例 CalculatePath，与实际移动侧的起点语义保持一致
             bool calculated = agent.CalculatePath(targetHit.position, path);
 
             _builder.AppendLine(
@@ -341,9 +349,11 @@ namespace Gameplay.Agent.Runtime
             resolvedObject = targetRef.TargetObject;
             reason = "direct";
 
+            // 所有目标先解析为可展示的基础世界点；资源群稍后会尝试解析到具体成员
             if (!TryResolveTargetPosition(targetRef, out resolvedPosition))
                 return false;
 
+            // 资源群目标优先展开成当前具体可达资源成员
             if (targetRef.Kind == AgentTargetKind.Resource &&
                 targetRef.TargetObject != null &&
                 targetRef.TargetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster))
@@ -363,6 +373,7 @@ namespace Gameplay.Agent.Runtime
                 }
             }
 
+            // 非群目标使用碰撞体最近点，方便观察真实交互停靠点而不是对象 pivot
             if (resolvedObject != null &&
                 resolvedObject.GetComponent<GameplayTargetClusterAuthoringBase>() == null)
             {

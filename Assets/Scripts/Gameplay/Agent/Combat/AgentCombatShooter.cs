@@ -35,6 +35,7 @@ namespace Gameplay.Agent.Combat
             if (targetEnemy == null)
                 return false;
 
+            // 先朝向目标并计算水平弹道，避免子弹因高度差向地面或空中偏移
             Vector3 aimPosition = ResolveAimPosition(targetEnemy);
             FaceTarget(aimPosition);
 
@@ -49,11 +50,17 @@ namespace Gameplay.Agent.Combat
             if (bulletObject == null)
                 return false;
 
+            // 再写入 BulletController 参数，并忽略发射者自身碰撞
             ConfigureBulletObject(bulletObject, fireDirection.normalized, damage);
             IgnoreShooterCollisions(bulletObject);
             return true;
         }
 
+        /// <summary>
+        /// 配置普通攻击子弹的元素类型和附加状态
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="projectileStatus"></param>
         public void ConfigureProjectileElement(
             AgentCombatElementType element,
             AgentCombatProjectileStatus projectileStatus)

@@ -21,6 +21,9 @@ namespace Gameplay.Targets.Authoring
         private List<GameplayTargetEntityMember> _resourceMembers =
             new List<GameplayTargetEntityMember>();
 
+        /// <summary>
+        /// 当前群目标在目标系统中的类型
+        /// </summary>
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
         private const float NavMeshResourceSampleRadius = 4f;
@@ -30,9 +33,22 @@ namespace Gameplay.Targets.Authoring
 
         private readonly List<Vector3> _navigationCandidateBuffer = new List<Vector3>();
 
+        /// <summary>
+        /// 当前资源群统一使用的资源等级
+        /// </summary>
         public global::SceneResourceTier ResourceTier => _resourceTier;
+
+        /// <summary>
+        /// 当前资源群内配置的具体资源成员
+        /// </summary>
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
 
+        /// <summary>
+        /// 向调试日志追加资源群内每个成员的可搜索状态和 NavMesh 可达性快照
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="agentPosition"></param>
+        /// <param name="navMeshAgent"></param>
         public void AppendNavigationDebugSnapshot(
             StringBuilder builder,
             Vector3 agentPosition,
@@ -387,6 +403,7 @@ namespace Gameplay.Targets.Authoring
                 return;
             }
 
+            // 先记录资源状态，区分资源本身不可搜和后续 NavMesh 不可达
             bool available = IsMemberAvailableForSearch(member);
             builder.Append(
                 $"resourceMember[{memberIndex}]: " +
@@ -399,6 +416,7 @@ namespace Gameplay.Targets.Authoring
             if (!available || member.EntityObject == null)
                 return;
 
+            // 围绕该资源实体生成候选停靠点，逐个检查采样和路径结果
             FillResourceNavigationCandidates(
                 member.EntityObject,
                 member.Position,
@@ -420,6 +438,7 @@ namespace Gameplay.Targets.Authoring
             for (int candidateIndex = 0; candidateIndex < _navigationCandidateBuffer.Count; candidateIndex++)
             {
                 Vector3 candidatePosition = _navigationCandidateBuffer[candidateIndex];
+                // 候选点需要先吸附到当前 Agent 可用的 NavMesh 区域
                 if (!NavMesh.SamplePosition(
                         candidatePosition,
                         out NavMeshHit targetHit,
@@ -431,6 +450,7 @@ namespace Gameplay.Targets.Authoring
 
                 sampledCount++;
                 float verticalDelta = Mathf.Abs(targetHit.position.y - candidatePosition.y);
+                // 避免大半径采样把目标吸到楼下/隔层的 NavMesh
                 if (verticalDelta > NavMeshResourceMaxVerticalDelta)
                 {
                     verticalRejectedCount++;
@@ -450,6 +470,7 @@ namespace Gameplay.Targets.Authoring
                 if (!calculated)
                     calculateFailedCount++;
 
+                // 完整路径用于实际选择资源目标，记录最短完整路径作为对照
                 if (path.status == NavMeshPathStatus.PathComplete)
                 {
                     completeCount++;
@@ -463,6 +484,7 @@ namespace Gameplay.Targets.Authoring
                     continue;
                 }
 
+                // Partial 路径不直接用于搜索，但记录离目标最近的终点用于判断 NavMesh 断点
                 if (path.status == NavMeshPathStatus.PathPartial)
                 {
                     partialCount++;
@@ -581,6 +603,7 @@ namespace Gameplay.Targets.Authoring
             navigationPosition = default;
             pathLength = float.MaxValue;
 
+            // 资源对象的 pivot 通常不在可站立面上，先围绕碰撞体生成一组可尝试停靠点
             FillResourceNavigationCandidates(
                 resourceObject,
                 fallbackPosition,
@@ -590,6 +613,7 @@ namespace Gameplay.Targets.Authoring
             bool foundReachablePosition = false;
             for (int i = 0; i < _navigationCandidateBuffer.Count; i++)
             {
+                // 只接受 PathComplete，避免 Agent 追向无法最终到达的 partial 终点
                 if (!TryCalculateCompletePathToCandidate(
                         _navigationCandidateBuffer[i],
                         navMeshAgent,
@@ -605,6 +629,7 @@ namespace Gameplay.Targets.Authoring
                 if (candidatePathLength >= pathLength)
                     continue;
 
+                // 同一个资源可能有多个可达边缘点，保留路径最短的停靠点
                 navigationPosition = candidateNavigationPosition;
                 pathLength = candidatePathLength;
                 foundReachablePosition = true;
@@ -626,6 +651,7 @@ namespace Gameplay.Targets.Authoring
                 return;
             }
 
+            // 先收集所有有效实体碰撞体，并用离 Agent 最近的碰撞体点作为候选
             Collider[] colliders = resourceObject.GetComponentsInChildren<Collider>();
             Bounds combinedBounds = default;
             bool hasBounds = false;
@@ -655,6 +681,7 @@ namespace Gameplay.Targets.Authoring
                 }
             }
 
+            // 再补充成员配置点、包围盒中心，以及包围盒外圈采样点
             Vector3 center = hasBounds ? combinedBounds.center : resourceObject.transform.position;
             float candidateBaseY = hasBounds ? combinedBounds.min.y : fallbackPosition.y;
             AddUniqueCandidate(candidates, WithY(fallbackPosition, candidateBaseY));
@@ -706,6 +733,7 @@ namespace Gameplay.Targets.Authoring
             navigationPosition = default;
             pathLength = float.MaxValue;
 
+            // 候选点只描述资源附近的空间位置，实际目标必须投到 NavMesh 上
             if (!NavMesh.SamplePosition(
                     candidatePosition,
                     out NavMeshHit targetHit,
@@ -718,6 +746,7 @@ namespace Gameplay.Targets.Authoring
             if (Mathf.Abs(targetHit.position.y - candidatePosition.y) > NavMeshResourceMaxVerticalDelta)
                 return false;
 
+            // Agent 自身在 NavMesh 上时优先使用实例路径计算，避免 transform 高度偏移污染起点
             bool calculated =
                 navMeshAgent != null &&
                 navMeshAgent.enabled &&
@@ -731,6 +760,7 @@ namespace Gameplay.Targets.Authoring
             if (!calculated || path.status != NavMeshPathStatus.PathComplete)
                 return false;
 
+            // 返回可实际 SetPath 的 NavMesh 点和完整路径长度，供外层做最近目标选择
             navigationPosition = targetHit.position;
             pathLength = CalculatePathLength(path);
             return true;
@@ -756,6 +786,7 @@ namespace Gameplay.Targets.Authoring
             if (member == null || member.HasBeenCompleted)
                 return;
 
+            // 运行时丢失的资源对象视为已处理，避免群目标永远无法完成
             if (member.EntityObject == null)
             {
                 if (Application.isPlaying)
@@ -766,6 +797,7 @@ namespace Gameplay.Targets.Authoring
 
             if (member.TryGetComponent(out global::LootBoxEntity lootBox))
             {
+                // 箱子被禁用、桌游资源点已搜刮、或普通箱子为空时都不再作为搜索候选
                 if (!lootBox.gameObject.activeInHierarchy)
                 {
                     member.MarkCompleted();
@@ -789,6 +821,7 @@ namespace Gameplay.Targets.Authoring
 
             if (member.TryGetComponent(out global::WorldLootItem worldItem))
             {
+                // 地面掉落失效或数量归零后，资源成员同步完成
                 if (!worldItem.gameObject.activeInHierarchy ||
                     worldItem.ItemData == null ||
                     worldItem.CurrentAmount <= 0)

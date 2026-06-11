@@ -190,6 +190,7 @@ namespace Gameplay.Agent.Runtime
                 return;
             }
 
+            // 黑板事实区只反映当前状态机输入，不主动推导目标
             _needRecovery = GetBlackboardValue(AgentBlackboardKeys.NeedRecovery, false);
             _hasVisibleEnemy = GetBlackboardValue(AgentBlackboardKeys.HasVisibleEnemy, false);
             _hasEnemySourceTarget = GetBlackboardValue(AgentBlackboardKeys.HasEnemySourceTarget, false);
@@ -211,6 +212,7 @@ namespace Gameplay.Agent.Runtime
             _decisionReason = GetBlackboardValue(AgentBlackboardKeys.DecisionReason, string.Empty);
             _decisionSummary = BuildDecisionSummary();
 
+            // 指令区保留原始目标引用，同时额外解析行为节点实际使用的具体目标
             if (_agent.Blackboard.TryGetValue(
                     AgentBlackboardKeys.PendingDirectiveRequest,
                     out AgentDirectiveRequest directiveRequest))
@@ -284,6 +286,7 @@ namespace Gameplay.Agent.Runtime
         {
             ClearConcreteTargetSnapshot();
 
+            // 具体目标可能来自群目标展开，解析失败时保持空值，避免误导 Inspector
             if (TryResolveConcreteTarget(
                     directiveRequest,
                     out AgentTargetKind concreteTargetKind,
@@ -317,6 +320,7 @@ namespace Gameplay.Agent.Runtime
             AgentTargetRef targetRef = directiveRequest.TargetRef;
             if (directiveRequest.DirectiveType == AgentDirectiveType.Engage)
             {
+                // 接战指令如果指向敌人群，Inspector 展示当前真正会攻击的存活敌人实例
                 if (TryGetTargetComponent(targetRef, out ActiveEnemyClusterAuthoring enemyCluster))
                 {
                     if (!enemyCluster.TryGetNearestAliveEnemy(_agent.Position, out global::EnemyHealthController enemy))
@@ -327,6 +331,7 @@ namespace Gameplay.Agent.Runtime
                     return true;
                 }
 
+                // 直接敌人目标无需展开，保持原实例引用
                 if (TryGetTargetComponent(targetRef, out global::EnemyHealthController directEnemy))
                 {
                     concreteTargetKind = AgentTargetKind.Enemy;
@@ -338,6 +343,7 @@ namespace Gameplay.Agent.Runtime
             if (directiveRequest.DirectiveType == AgentDirectiveType.Search &&
                 targetRef.Kind == AgentTargetKind.Resource)
             {
+                // 搜索资源群时展示当前可达的具体箱子/掉落物，以及实际 NavMesh 停靠点
                 if (TryGetTargetComponent(targetRef, out ResourceClusterAuthoring resourceCluster))
                 {
                     if (!resourceCluster.TryGetNearestReachableIncompleteResource(
@@ -354,6 +360,7 @@ namespace Gameplay.Agent.Runtime
                     return concreteTargetObject != null;
                 }
 
+                // 直接资源目标通常来自手动点击具体资源对象
                 if (targetRef.TargetObject != null)
                 {
                     concreteTargetKind = AgentTargetKind.Resource;
@@ -420,6 +427,7 @@ namespace Gameplay.Agent.Runtime
             _stoppingDistance = navMeshAgent.stoppingDistance;
             _isOnNavMesh = navMeshAgent.enabled && navMeshAgent.isOnNavMesh;
 
+            // Unity 的 NavMeshAgent 属性在未上 NavMesh 时部分访问会抛异常，先统一清空
             if (!_isOnNavMesh)
             {
                 _pathPending = false;
@@ -454,6 +462,7 @@ namespace Gameplay.Agent.Runtime
         {
             _setDestinationIntervalSeconds = AgentActionNodeBase.NavMeshDestinationRefreshInterval;
 
+            // 通过 NavMeshAgent、Rigidbody 和移动控制器三方状态判断当前是谁在驱动位移
             bool hasAgent = navMeshAgent != null;
             bool agentEnabled = hasAgent && navMeshAgent.enabled;
             bool isOnNavMesh = agentEnabled && navMeshAgent.isOnNavMesh;
