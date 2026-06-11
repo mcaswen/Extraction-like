@@ -27,7 +27,7 @@ namespace Gameplay.Targets.Authoring
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
         private const float NavMeshResourceSampleRadius = 4f;
-        private const float NavMeshResourceMaxVerticalDelta = 4f;
+        private const float NavMeshResourceMaxVerticalDelta = 1f;
         private const float ResourceApproachPadding = 1f;
         private const int ResourceApproachDirectionCount = 16;
 
