@@ -359,7 +359,7 @@ namespace Gameplay.Agent.AI.Actions
             }
 
             if (IsWithinWorldStoppingDistance(
-                    agent.CachedTransform.position,
+                    GetNavMeshCurrentPosition(navMeshAgent, agent.CachedTransform.position),
                     sampledTargetPosition,
                     stoppingDistance))
             {
@@ -516,9 +516,19 @@ namespace Gameplay.Agent.AI.Actions
             }
 
             return IsWithinWorldStoppingDistance(
-                navMeshAgent.transform.position,
+                GetNavMeshCurrentPosition(navMeshAgent, navMeshAgent.transform.position),
                 sampledTargetPosition,
                 effectiveStoppingDistance);
+        }
+
+        private static Vector3 GetNavMeshCurrentPosition(
+            NavMeshAgent navMeshAgent,
+            Vector3 fallbackPosition)
+        {
+            if (navMeshAgent != null && navMeshAgent.enabled && navMeshAgent.isOnNavMesh)
+                return navMeshAgent.nextPosition;
+
+            return fallbackPosition;
         }
 
         private static void StopNavMeshAgent(NavMeshAgent navMeshAgent)

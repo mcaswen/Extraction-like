@@ -200,6 +200,7 @@ namespace Gameplay.Agent.Runtime
                     targetRef,
                     pawn.Position,
                     pawn.NavMeshAgent,
+                    out ResourceClusterAuthoring debugResourceCluster,
                     out GameObject resolvedObject,
                     out Vector3 resolvedPosition,
                     out string resolvedReason))
@@ -216,6 +217,14 @@ namespace Gameplay.Agent.Runtime
             else
             {
                 _builder.AppendLine("resolvedMoveTarget: unavailable");
+            }
+
+            if (debugResourceCluster != null && resolvedReason == "direct")
+            {
+                debugResourceCluster.AppendNavigationDebugSnapshot(
+                    _builder,
+                    pawn.Position,
+                    pawn.NavMeshAgent);
             }
         }
 
@@ -265,41 +274,31 @@ namespace Gameplay.Agent.Runtime
             if (agent == null || !agent.enabled || !agent.isOnNavMesh)
                 return;
 
-            bool sampledStart = NavMesh.SamplePosition(
-                pawn.Position,
-                out NavMeshHit startHit,
-                _navMeshSampleRadius,
-                agent.areaMask);
             bool sampledTarget = NavMesh.SamplePosition(
                 targetPosition,
                 out NavMeshHit targetHit,
                 _navMeshSampleRadius,
                 agent.areaMask);
+            Vector3 startSourcePosition = agent.nextPosition;
 
             _builder.Append(
                 "calcPathToResolved: " +
                 $"sampleRadius={_navMeshSampleRadius:0.###} " +
-                $"startSampled={sampledStart}");
-
-            if (sampledStart)
-                _builder.Append($" start={FormatVector(startHit.position)} startDelta={Vector3.Distance(pawn.Position, startHit.position):0.###}");
-
-            _builder.Append($" targetSampled={sampledTarget}");
+                $"startSource=navMeshAgent.CalculatePath " +
+                $"nextPosition={FormatVector(startSourcePosition)} " +
+                $"transformToStart={Vector3.Distance(pawn.Position, startSourcePosition):0.###} " +
+                $"targetSampled={sampledTarget}");
             if (sampledTarget)
                 _builder.Append($" target={FormatVector(targetHit.position)} targetDelta={Vector3.Distance(targetPosition, targetHit.position):0.###}");
 
-            if (!sampledStart || !sampledTarget)
+            if (!sampledTarget)
             {
                 _builder.AppendLine();
                 return;
             }
 
             NavMeshPath path = new NavMeshPath();
-            bool calculated = NavMesh.CalculatePath(
-                startHit.position,
-                targetHit.position,
-                agent.areaMask,
-                path);
+            bool calculated = agent.CalculatePath(targetHit.position, path);
 
             _builder.AppendLine(
                 $" calculated={calculated} status={path.status} " +
@@ -333,10 +332,12 @@ namespace Gameplay.Agent.Runtime
             AgentTargetRef targetRef,
             Vector3 agentPosition,
             NavMeshAgent navMeshAgent,
+            out ResourceClusterAuthoring debugResourceCluster,
             out GameObject resolvedObject,
             out Vector3 resolvedPosition,
             out string reason)
         {
+            debugResourceCluster = null;
             resolvedObject = targetRef.TargetObject;
             reason = "direct";
 
@@ -345,18 +346,21 @@ namespace Gameplay.Agent.Runtime
 
             if (targetRef.Kind == AgentTargetKind.Resource &&
                 targetRef.TargetObject != null &&
-                targetRef.TargetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster) &&
-                resourceCluster.TryGetNearestReachableIncompleteResource(
-                    agentPosition,
-                    navMeshAgent,
-                    out GameObject resourceObject,
-                    out Vector3 resourceNavigationPosition) &&
-                resourceObject != null)
+                targetRef.TargetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster))
             {
-                resolvedObject = resourceObject;
-                reason = $"nearestReachableResourceInCluster({resourceCluster.TargetId})";
-                resolvedPosition = resourceNavigationPosition;
-                return true;
+                debugResourceCluster = resourceCluster;
+                if (resourceCluster.TryGetNearestReachableIncompleteResource(
+                        agentPosition,
+                        navMeshAgent,
+                        out GameObject resourceObject,
+                        out Vector3 resourceNavigationPosition) &&
+                    resourceObject != null)
+                {
+                    resolvedObject = resourceObject;
+                    reason = $"nearestReachableResourceInCluster({resourceCluster.TargetId})";
+                    resolvedPosition = resourceNavigationPosition;
+                    return true;
+                }
             }
 
             if (resolvedObject != null &&

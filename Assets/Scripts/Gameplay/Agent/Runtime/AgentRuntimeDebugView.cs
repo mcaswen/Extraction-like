@@ -3,6 +3,7 @@ using Gameplay.Agent.AI.Actions;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Decision;
+using Gameplay.Targets.Authoring;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -64,6 +65,16 @@ namespace Gameplay.Agent.Runtime
         [SerializeField] private string _payloadId;
         [SerializeField] private string _commandId;
         [SerializeField] private int _priority;
+
+        [Header("当前具体实例目标")]
+        [SerializeField] private AgentTargetKind _concreteTargetKind;
+        [SerializeField] private GameObject _concreteTargetObject;
+        [SerializeField] private string _concreteTargetName;
+        [SerializeField] private int _concreteTargetInstanceId;
+        [SerializeField] private Vector3 _concreteTargetPosition;
+        [SerializeField] private bool _hasConcreteNavigationPosition;
+        [SerializeField] private Vector3 _concreteNavigationPosition;
+        [SerializeField] private string _concreteTargetSummary;
 
         [Header("导航状态")]
         [SerializeField] private bool _hasNavMeshAgent;
@@ -266,6 +277,133 @@ namespace Gameplay.Agent.Runtime
             _payloadId = directiveRequest.PayloadId;
             _commandId = directiveRequest.CommandId;
             _priority = directiveRequest.Priority;
+            ApplyConcreteTargetSnapshot(directiveRequest);
+        }
+
+        private void ApplyConcreteTargetSnapshot(AgentDirectiveRequest directiveRequest)
+        {
+            ClearConcreteTargetSnapshot();
+
+            if (TryResolveConcreteTarget(
+                    directiveRequest,
+                    out AgentTargetKind concreteTargetKind,
+                    out GameObject concreteTargetObject,
+                    out Vector3 navigationPosition,
+                    out bool hasNavigationPosition))
+            {
+                _concreteTargetKind = concreteTargetKind;
+                _concreteTargetObject = concreteTargetObject;
+                _concreteTargetName = concreteTargetObject != null ? concreteTargetObject.name : string.Empty;
+                _concreteTargetInstanceId = concreteTargetObject != null ? concreteTargetObject.GetInstanceID() : 0;
+                _concreteTargetPosition = concreteTargetObject != null ? concreteTargetObject.transform.position : default;
+                _hasConcreteNavigationPosition = hasNavigationPosition;
+                _concreteNavigationPosition = hasNavigationPosition ? navigationPosition : default;
+                _concreteTargetSummary = BuildConcreteTargetSummary();
+            }
+        }
+
+        private bool TryResolveConcreteTarget(
+            AgentDirectiveRequest directiveRequest,
+            out AgentTargetKind concreteTargetKind,
+            out GameObject concreteTargetObject,
+            out Vector3 navigationPosition,
+            out bool hasNavigationPosition)
+        {
+            concreteTargetKind = AgentTargetKind.None;
+            concreteTargetObject = null;
+            navigationPosition = default;
+            hasNavigationPosition = false;
+
+            AgentTargetRef targetRef = directiveRequest.TargetRef;
+            if (directiveRequest.DirectiveType == AgentDirectiveType.Engage)
+            {
+                if (TryGetTargetComponent(targetRef, out ActiveEnemyClusterAuthoring enemyCluster))
+                {
+                    if (!enemyCluster.TryGetNearestAliveEnemy(_agent.Position, out global::EnemyHealthController enemy))
+                        return false;
+
+                    concreteTargetKind = AgentTargetKind.Enemy;
+                    concreteTargetObject = enemy.gameObject;
+                    return true;
+                }
+
+                if (TryGetTargetComponent(targetRef, out global::EnemyHealthController directEnemy))
+                {
+                    concreteTargetKind = AgentTargetKind.Enemy;
+                    concreteTargetObject = directEnemy.gameObject;
+                    return true;
+                }
+            }
+
+            if (directiveRequest.DirectiveType == AgentDirectiveType.Search &&
+                targetRef.Kind == AgentTargetKind.Resource)
+            {
+                if (TryGetTargetComponent(targetRef, out ResourceClusterAuthoring resourceCluster))
+                {
+                    if (!resourceCluster.TryGetNearestReachableIncompleteResource(
+                            _agent.Position,
+                            _agent.NavMeshAgent,
+                            out concreteTargetObject,
+                            out navigationPosition))
+                    {
+                        return false;
+                    }
+
+                    concreteTargetKind = AgentTargetKind.Resource;
+                    hasNavigationPosition = true;
+                    return concreteTargetObject != null;
+                }
+
+                if (targetRef.TargetObject != null)
+                {
+                    concreteTargetKind = AgentTargetKind.Resource;
+                    concreteTargetObject = targetRef.TargetObject;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string BuildConcreteTargetSummary()
+        {
+            if (_concreteTargetObject == null)
+                return string.Empty;
+
+            string navigationText = _hasConcreteNavigationPosition
+                ? $" nav={FormatVector3(_concreteNavigationPosition)}"
+                : string.Empty;
+            return $"{_concreteTargetKind} {_concreteTargetName} " +
+                   $"#{_concreteTargetInstanceId} pos={FormatVector3(_concreteTargetPosition)}{navigationText}";
+        }
+
+        private static string FormatVector3(Vector3 value)
+        {
+            return $"({value.x:0.##}, {value.y:0.##}, {value.z:0.##})";
+        }
+
+        private static bool TryGetTargetComponent<TComponent>(
+            AgentTargetRef targetRef,
+            out TComponent component)
+            where TComponent : Component
+        {
+            GameObject targetObject = targetRef.TargetObject;
+            if (targetObject == null)
+            {
+                component = null;
+                return false;
+            }
+
+            component = targetObject.GetComponent<TComponent>();
+            if (component != null)
+                return true;
+
+            component = targetObject.GetComponentInParent<TComponent>();
+            if (component != null)
+                return true;
+
+            component = targetObject.GetComponentInChildren<TComponent>();
+            return component != null;
         }
 
         // NavMeshAgent 的部分属性需要先确认 isOnNavMesh，避免编辑态或离开导航面时抛异常
@@ -395,6 +533,19 @@ namespace Gameplay.Agent.Runtime
             _payloadId = string.Empty;
             _commandId = string.Empty;
             _priority = 0;
+            ClearConcreteTargetSnapshot();
+        }
+
+        private void ClearConcreteTargetSnapshot()
+        {
+            _concreteTargetKind = AgentTargetKind.None;
+            _concreteTargetObject = null;
+            _concreteTargetName = string.Empty;
+            _concreteTargetInstanceId = 0;
+            _concreteTargetPosition = default;
+            _hasConcreteNavigationPosition = false;
+            _concreteNavigationPosition = default;
+            _concreteTargetSummary = string.Empty;
         }
 
         private void ClearNavMeshSnapshot()

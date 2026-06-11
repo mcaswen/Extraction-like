@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxHealth: 100
   _defense: 100
-  _moveSpeed: 8
+  _moveSpeed: 12
   _moveStoppingDistance: 0.25
   _interactionDistance: 1.5
   _enableTargetDiscovery: 1

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using Gameplay.Targets.Data;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,19 +17,62 @@ namespace Gameplay.Targets.Authoring
         [SerializeField] private global::SceneResourceTier _resourceTier = global::SceneResourceTier.Low;
 
         [Header("Resource Members")]
-        [SerializeField] private List<GameplayTargetEntityMember> _resourceMembers =
+        [SerializeField]
+        private List<GameplayTargetEntityMember> _resourceMembers =
             new List<GameplayTargetEntityMember>();
 
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
         private const float NavMeshResourceSampleRadius = 4f;
-        private const float ResourceApproachPadding = 1.25f;
+        private const float NavMeshResourceMaxVerticalDelta = 4f;
+        private const float ResourceApproachPadding = 1f;
         private const int ResourceApproachDirectionCount = 16;
 
         private readonly List<Vector3> _navigationCandidateBuffer = new List<Vector3>();
 
         public global::SceneResourceTier ResourceTier => _resourceTier;
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
+
+        public void AppendNavigationDebugSnapshot(
+            StringBuilder builder,
+            Vector3 agentPosition,
+            NavMeshAgent navMeshAgent)
+        {
+            if (builder == null)
+                return;
+
+            RefreshRuntimeState();
+            builder.AppendLine(
+                $"resourceClusterDebug: id={TargetId} completed={HasBeenCompleted} members={_resourceMembers.Count}");
+
+            if (!TryResolveNavMeshStartPosition(agentPosition, navMeshAgent, out Vector3 startPosition, out int areaMask))
+            {
+                builder.AppendLine(
+                    "resourceClusterDebugStart: failed " +
+                    $"agentPosition={FormatDebugVector(agentPosition)} navAgent={(navMeshAgent != null)}");
+                return;
+            }
+
+            builder.AppendLine(
+                "resourceClusterDebugStart: " +
+                $"start={FormatDebugVector(startPosition)} agentPosition={FormatDebugVector(agentPosition)} " +
+                $"areaMask={areaMask}");
+
+            NavMeshPath path = new NavMeshPath();
+            for (int i = 0; i < _resourceMembers.Count; i++)
+            {
+                GameplayTargetEntityMember member = _resourceMembers[i];
+                AppendMemberNavigationDebugSnapshot(
+                    builder,
+                    i,
+                    member,
+                    agentPosition,
+                    navMeshAgent,
+                    startPosition,
+                    areaMask,
+                    path);
+            }
+        }
 
         /// <summary>
         /// 获取资源群配置的实际资源等级
@@ -169,6 +213,7 @@ namespace Gameplay.Targets.Authoring
                         member.EntityObject,
                         member.Position,
                         agentPosition,
+                        navMeshAgent,
                         startPosition,
                         areaMask,
                         path,
@@ -326,6 +371,170 @@ namespace Gameplay.Targets.Authoring
             return false;
         }
 
+        private void AppendMemberNavigationDebugSnapshot(
+            StringBuilder builder,
+            int memberIndex,
+            GameplayTargetEntityMember member,
+            Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
+            Vector3 startPosition,
+            int areaMask,
+            NavMeshPath path)
+        {
+            if (member == null)
+            {
+                builder.AppendLine($"resourceMember[{memberIndex}]: null");
+                return;
+            }
+
+            bool available = IsMemberAvailableForSearch(member);
+            builder.Append(
+                $"resourceMember[{memberIndex}]: " +
+                $"id={member.EntityId} object={FormatDebugObject(member.EntityObject)} " +
+                $"touched={member.HasBeenTouched} completed={member.HasBeenCompleted} " +
+                $"available={available} pos={FormatDebugVector(member.Position)}");
+            AppendResourceComponentDebug(builder, member);
+            builder.AppendLine();
+
+            if (!available || member.EntityObject == null)
+                return;
+
+            FillResourceNavigationCandidates(
+                member.EntityObject,
+                member.Position,
+                agentPosition,
+                _navigationCandidateBuffer);
+
+            int sampledCount = 0;
+            int verticalRejectedCount = 0;
+            int completeCount = 0;
+            int partialCount = 0;
+            int invalidCount = 0;
+            int calculateFailedCount = 0;
+            float bestCompleteLength = float.MaxValue;
+            float bestPartialDistanceToTarget = float.MaxValue;
+            Vector3 bestCompletePosition = default;
+            Vector3 bestPartialEndPosition = default;
+            Vector3 bestPartialTargetPosition = default;
+
+            for (int candidateIndex = 0; candidateIndex < _navigationCandidateBuffer.Count; candidateIndex++)
+            {
+                Vector3 candidatePosition = _navigationCandidateBuffer[candidateIndex];
+                if (!NavMesh.SamplePosition(
+                        candidatePosition,
+                        out NavMeshHit targetHit,
+                        NavMeshResourceSampleRadius,
+                        areaMask))
+                {
+                    continue;
+                }
+
+                sampledCount++;
+                float verticalDelta = Mathf.Abs(targetHit.position.y - candidatePosition.y);
+                if (verticalDelta > NavMeshResourceMaxVerticalDelta)
+                {
+                    verticalRejectedCount++;
+                    continue;
+                }
+
+                bool calculated =
+                    navMeshAgent != null &&
+                    navMeshAgent.enabled &&
+                    navMeshAgent.isOnNavMesh
+                        ? navMeshAgent.CalculatePath(targetHit.position, path)
+                        : NavMesh.CalculatePath(
+                            startPosition,
+                            targetHit.position,
+                            areaMask,
+                            path);
+                if (!calculated)
+                    calculateFailedCount++;
+
+                if (path.status == NavMeshPathStatus.PathComplete)
+                {
+                    completeCount++;
+                    float pathLength = CalculatePathLength(path);
+                    if (pathLength < bestCompleteLength)
+                    {
+                        bestCompleteLength = pathLength;
+                        bestCompletePosition = targetHit.position;
+                    }
+
+                    continue;
+                }
+
+                if (path.status == NavMeshPathStatus.PathPartial)
+                {
+                    partialCount++;
+                    Vector3 partialEndPosition = GetPathEndPosition(path, startPosition);
+                    float distanceToTarget = Vector3.Distance(partialEndPosition, targetHit.position);
+                    if (distanceToTarget < bestPartialDistanceToTarget)
+                    {
+                        bestPartialDistanceToTarget = distanceToTarget;
+                        bestPartialEndPosition = partialEndPosition;
+                        bestPartialTargetPosition = targetHit.position;
+                    }
+
+                    continue;
+                }
+
+                invalidCount++;
+            }
+
+            builder.Append(
+                $"resourceMemberCandidates[{memberIndex}]: " +
+                $"count={_navigationCandidateBuffer.Count} sampled={sampledCount} " +
+                $"verticalRejected={verticalRejectedCount} complete={completeCount} " +
+                $"partial={partialCount} invalid={invalidCount} calculateFailed={calculateFailedCount}");
+            if (completeCount > 0)
+            {
+                builder.Append(
+                    $" bestComplete={FormatDebugVector(bestCompletePosition)} " +
+                    $"bestCompleteLength={bestCompleteLength:0.###}");
+            }
+
+            if (partialCount > 0)
+            {
+                builder.Append(
+                    $" bestPartialEnd={FormatDebugVector(bestPartialEndPosition)} " +
+                    $"bestPartialTarget={FormatDebugVector(bestPartialTargetPosition)} " +
+                    $"bestPartialEndToTarget={bestPartialDistanceToTarget:0.###}");
+            }
+
+            builder.AppendLine();
+        }
+
+        private static void AppendResourceComponentDebug(
+            StringBuilder builder,
+            GameplayTargetEntityMember member)
+        {
+            if (member.TryGetComponent(out global::LootBoxEntity lootBox))
+            {
+                builder.Append(
+                    $" lootBox(active={lootBox.gameObject.activeInHierarchy}, " +
+                    $"board={lootBox.IsBoardGameResourcePoint}, " +
+                    $"state={lootBox.ResourceState}, " +
+                    $"items={lootBox.GetSavedItems().Count}, " +
+                    $"searchable={lootBox.CanBeSearchedAsResourcePoint()})");
+                return;
+            }
+
+            if (member.TryGetComponent(out global::WorldLootItem worldItem))
+            {
+                builder.Append(
+                    $" worldItem(active={worldItem.gameObject.activeInHierarchy}, " +
+                    $"item={(worldItem.ItemData != null)}, amount={worldItem.CurrentAmount})");
+            }
+        }
+
+        private static Vector3 GetPathEndPosition(NavMeshPath path, Vector3 fallbackPosition)
+        {
+            if (path == null || path.corners == null || path.corners.Length <= 0)
+                return fallbackPosition;
+
+            return path.corners[path.corners.Length - 1];
+        }
+
         private static bool TryResolveNavMeshStartPosition(
             Vector3 agentPosition,
             NavMeshAgent navMeshAgent,
@@ -362,6 +571,7 @@ namespace Gameplay.Targets.Authoring
             GameObject resourceObject,
             Vector3 fallbackPosition,
             Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
             Vector3 startPosition,
             int areaMask,
             NavMeshPath path,
@@ -382,6 +592,7 @@ namespace Gameplay.Targets.Authoring
             {
                 if (!TryCalculateCompletePathToCandidate(
                         _navigationCandidateBuffer[i],
+                        navMeshAgent,
                         startPosition,
                         areaMask,
                         path,
@@ -409,10 +620,11 @@ namespace Gameplay.Targets.Authoring
             List<Vector3> candidates)
         {
             candidates.Clear();
-            AddUniqueCandidate(candidates, fallbackPosition);
-
             if (resourceObject == null)
+            {
+                AddUniqueCandidate(candidates, fallbackPosition);
                 return;
+            }
 
             Collider[] colliders = resourceObject.GetComponentsInChildren<Collider>();
             Bounds combinedBounds = default;
@@ -429,7 +641,9 @@ namespace Gameplay.Targets.Authoring
                     continue;
                 }
 
-                AddUniqueCandidate(candidates, resourceCollider.ClosestPoint(agentPosition));
+                AddUniqueCandidate(
+                    candidates,
+                    WithY(resourceCollider.ClosestPoint(agentPosition), resourceCollider.bounds.min.y));
                 if (!hasBounds)
                 {
                     combinedBounds = resourceCollider.bounds;
@@ -442,7 +656,9 @@ namespace Gameplay.Targets.Authoring
             }
 
             Vector3 center = hasBounds ? combinedBounds.center : resourceObject.transform.position;
-            AddUniqueCandidate(candidates, center);
+            float candidateBaseY = hasBounds ? combinedBounds.min.y : fallbackPosition.y;
+            AddUniqueCandidate(candidates, WithY(fallbackPosition, candidateBaseY));
+            AddUniqueCandidate(candidates, WithY(center, candidateBaseY));
 
             float approachRadius = hasBounds
                 ? Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.z) + ResourceApproachPadding
@@ -456,8 +672,14 @@ namespace Gameplay.Targets.Authoring
                     Mathf.Cos(angle) * approachRadius,
                     0f,
                     Mathf.Sin(angle) * approachRadius);
-                AddUniqueCandidate(candidates, center + offset);
+                AddUniqueCandidate(candidates, WithY(center + offset, candidateBaseY));
             }
+        }
+
+        private static Vector3 WithY(Vector3 value, float y)
+        {
+            value.y = y;
+            return value;
         }
 
         private static void AddUniqueCandidate(List<Vector3> candidates, Vector3 candidate)
@@ -474,6 +696,7 @@ namespace Gameplay.Targets.Authoring
 
         private static bool TryCalculateCompletePathToCandidate(
             Vector3 candidatePosition,
+            NavMeshAgent navMeshAgent,
             Vector3 startPosition,
             int areaMask,
             NavMeshPath path,
@@ -492,11 +715,19 @@ namespace Gameplay.Targets.Authoring
                 return false;
             }
 
-            bool calculated = NavMesh.CalculatePath(
-                startPosition,
-                targetHit.position,
-                areaMask,
-                path);
+            if (Mathf.Abs(targetHit.position.y - candidatePosition.y) > NavMeshResourceMaxVerticalDelta)
+                return false;
+
+            bool calculated =
+                navMeshAgent != null &&
+                navMeshAgent.enabled &&
+                navMeshAgent.isOnNavMesh
+                    ? navMeshAgent.CalculatePath(targetHit.position, path)
+                    : NavMesh.CalculatePath(
+                        startPosition,
+                        targetHit.position,
+                        areaMask,
+                        path);
             if (!calculated || path.status != NavMeshPathStatus.PathComplete)
                 return false;
 
@@ -572,6 +803,16 @@ namespace Gameplay.Targets.Authoring
             float deltaX = from.x - to.x;
             float deltaZ = from.z - to.z;
             return deltaX * deltaX + deltaZ * deltaZ;
+        }
+
+        private static string FormatDebugObject(Object targetObject)
+        {
+            return targetObject != null ? targetObject.name : "null";
+        }
+
+        private static string FormatDebugVector(Vector3 value)
+        {
+            return $"({value.x:0.###}, {value.y:0.###}, {value.z:0.###})";
         }
     }
 }
