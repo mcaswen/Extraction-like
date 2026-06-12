@@ -129,6 +129,7 @@ public sealed class EnemyConfigEditor : Editor
     {
         DrawSectionHeader("Tentacle Skill");
         DrawProperty("_attackRange", "Tentacle Range");
+        DrawProperty("_directDamageCounterAttackRange", "Direct Hit Counter Range");
         DrawProperty("_attackInterval", "Tentacle Cooldown");
         DrawProperty("_tentacleLatchDuration", "Latch Duration");
         DrawProperty("_corrosionDamagePerSecond", "Corrosion DPS");
@@ -166,9 +167,6 @@ public sealed class EnemyConfigEditor : Editor
 
     private void DrawAnchorSentinelSection()
     {
-        DrawSectionHeader("Rune Puzzle");
-        DrawProperty("_wrongRuneImmediatelyActivates", "Wrong Rune Activates");
-
         DrawSectionHeader("Beam Attack");
         DrawProperty("_detectionRange", "Detection Range");
         DrawProperty("_lockDuration", "Lock Duration");
@@ -265,6 +263,7 @@ public sealed class EnemyConfigEditor : Editor
                        propertyName == "_bulletLifeTime";
             case ModernStranderConfig:
                 return propertyName == "_attackRange" ||
+                       propertyName == "_directDamageCounterAttackRange" ||
                        propertyName == "_attackInterval" ||
                        propertyName == "_tentacleLatchDuration" ||
                        propertyName == "_corrosionDamagePerSecond" ||
@@ -287,8 +286,7 @@ public sealed class EnemyConfigEditor : Editor
                        propertyName == "_waterJetKnockbackStrength" ||
                        propertyName == "_rangedAttackInterval";
             case AnchorSentinelConfig:
-                return propertyName == "_wrongRuneImmediatelyActivates" ||
-                       propertyName == "_detectionRange" ||
+                return propertyName == "_detectionRange" ||
                        propertyName == "_lockDuration" ||
                        propertyName == "_firingDuration" ||
                        propertyName == "_cooldownDuration" ||

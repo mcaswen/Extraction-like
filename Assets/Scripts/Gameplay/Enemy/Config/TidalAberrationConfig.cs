@@ -30,31 +30,31 @@ public sealed class TidalAberrationConfig : EnemyPatrolConfigBase
 
     [Header("Ranged Water Jet")]
     [SerializeField, Min(0.1f), Tooltip("Minimum distance required before the enemy uses water jet.")]
-    private float _minimumRangedDistance = 4.5f;
+    private float _minimumRangedDistance = 4.2f;
 
     [SerializeField, Min(0.1f), Tooltip("Maximum distance at which water jet can be used.")]
-    private float _rangedAttackRange = 9f;
+    private float _rangedAttackRange = 13f;
 
     [SerializeField, Min(0.05f), Tooltip("Seconds between water jet attacks.")]
-    private float _rangedAttackInterval = 8f;
+    private float _rangedAttackInterval = 3f;
 
     [SerializeField, Min(0.05f), Tooltip("Seconds the water jet visual/cast remains active.")]
-    private float _waterJetDuration = 0.18f;
+    private float _waterJetDuration = 0.65f;
 
     [SerializeField, Min(0f), Tooltip("Damage dealt when water jet hits the player.")]
     private float _waterJetDamage = 14f;
 
     [SerializeField, Min(0f), Tooltip("Impulse strength applied when water jet hits the player.")]
-    private float _waterJetKnockbackStrength = 5.2f;
+    private float _waterJetKnockbackStrength = 10f;
 
     [SerializeField, Range(0.1f, 1f), Tooltip("Move speed multiplier applied to the player after water jet knockback.")]
     private float _knockbackMoveSpeedMultiplier = 0.5f;
 
     [SerializeField, Min(0f), Tooltip("Seconds the knockback slow debuff lasts after water jet hit.")]
-    private float _knockbackSlowDuration = 1f;
+    private float _knockbackSlowDuration = 1.5f;
 
     [SerializeField, Min(0.1f), Tooltip("Raycast distance used by water jet.")]
-    private float _waterJetMaxDistance = 10f;
+    private float _waterJetMaxDistance = 14f;
 
     /// <summary>
     /// 近战电击可启动的距离。

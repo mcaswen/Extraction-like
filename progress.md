@@ -542,3 +542,223 @@ Implementation steps for this restart:
 - Verified Modern/Ancient prefab overrides are root-model transforms and Animator/controller settings only, not left-foot or leg-bone overrides.
 - Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
 - Ran `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 errors, with existing unrelated warnings from legacy PostEffects/BoardGame/debug scripts.
+
+## 2026-06-11 HUD Canvas Scaling Adaptation
+
+- Added `AdaptiveCanvasScaler` for screen-space HUD canvases so UI keeps a 1920x1080 reference layout, matches width/height evenly, and clamps runtime scale to at least 0.75.
+- Attached the adaptive scaler to `Assets/Prefabs/Canvas.prefab` and changed its default `CanvasScaler` match value from width-only to 0.5.
+- Routed runtime-created player status HUD, raid minimap, and enemy vision toggle canvases through the same adaptive scaler helper.
+- Verified `dotnet build Assembly-CSharp.csproj --no-restore` passes with 0 warnings and 0 errors.
+- Restyled the player status HUD bars to match the reference: slim dark-gray tracks, left-aligned value labels, green HP fill, yellow/carry warning fill, and marker icons that follow the filled amount.
+- Split each player status row into a dedicated value line above a dedicated progress-bar line, matching the reference proportions more closely.
+
+## 2026-06-11 Enemy ClipUpdate Art Refresh
+
+- Pulled the remote `origin/dev` update containing the artist's `Assets/Art/Animations/ClipUpdate` assets.
+- Replaced BasicMelee and ModernStrander visuals with the new ClipUpdate Zombie FBX and remapped their override controllers to `ZombieIdleNew`, `ZombieWalkNew`, and `ZombieAttackNew`.
+- Replaced AnchorSentinel visuals with the new ClipUpdate Robot FBX and remapped its override controller to `RobotIdle`, `RobotWalk`, and `RobotAttack`.
+- Set the new Idle/Walk clips to loop and keep original root position, while keeping Attack clips non-looping to match the existing enemy animator flow.
+- Left the new VFX C# scripts under `Assets/Art/VFX` unattached to prefabs because they include their own target search, attack cadence, and damage behavior; binding them directly would risk duplicate gameplay damage.
+- Verified `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Verified `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `git diff --check`: no whitespace errors after cleaning Unity-generated empty-field spaces.
+
+## 2026-06-12 Tidal Aberration Water Jet Test Setup
+
+- User reported QA feedback that Tidal Aberration's `Water Jet` skill has no knockback.
+- Scope for this pass: diagnose the likely reason and create a dedicated enemy test area in `Assets/Scenes/Scene_lyl_test.unity`, placing only one Tidal Aberration there first.
+- Important constraint: do not rush into gameplay logic changes; avoid touching Water Jet code until the test scene setup and root-cause inspection are complete.
+- First Unity batch attempt with the temporary scene-builder script failed before execution because the script missed `using UnityEngine.AI;` for `NavMeshCollectGeometry`. This was a tool-script compile error, not a gameplay code error.
+- A subsequent verification showed the scene-builder class was removed before Unity found it, so no scene changes were saved on that attempt. Recreating the temporary builder and rerunning Unity.
+- Unity successfully created `EnemyFunctionTestArea` in `Scene_lyl_test` with a dedicated 24x24 ground, boundary cubes, runtime-built NavMesh surface, `PlayerStandHere_WaterJetRange_7m` marker, and one `Test_TidalAberration_WaterJet` prefab instance.
+- Removed the temporary editor scene-builder script after the scene was saved.
+- Verified `Scene_lyl_test` contains `EnemyFunctionTestArea`, `NavigationSurface_RuntimeBuilt`, `Test_TidalAberration_WaterJet`, and `PlayerStandHere_WaterJetRange_7m`.
+- Ran Unity batch refresh/compile after deleting the temporary editor script. `Logs/EnemyFunctionTestAreaCleanupCompile.log` reports `LogAssemblyErrors (0ms)` and `Tundra build success`.
+- Marked Phase 29 done. No Water Jet gameplay script or enemy prefab logic was modified in this pass.
+
+## 2026-06-12 Enemy Function Test Area Expansion
+
+- User said the dedicated enemy test field is too small and asked to put/configure the character in the test field.
+- Scope for this pass: enlarge the existing `EnemyFunctionTestArea`, move/configure the existing scene player prefab instance into it, keep one active Player target, and preserve the Tidal Aberration-only enemy test setup.
+- Expanded `EnemyFunctionTestArea` in `Assets/Scenes/Scene_lyl_test.unity` from the original 24x24 setup to a 60x60 ground with matching boundary colliders.
+- Moved the existing scene `Player` prefab instance under `EnemyFunctionTestArea/Actors` and placed it at the Water Jet test lane marker, about 7m in front of `Test_TidalAberration_WaterJet`.
+- Reassigned the Tidal Aberration test instance's player target to the moved player and kept the scene camera follow target bound to the same player transform.
+- Disabled the player's scene-instance `NavMeshAgent` override only in this test scene so `PlayerMovementController.ApplyExternalImpulse()` can visibly drive Water Jet knockback during testing.
+- Removed the temporary editor expander script after saving the scene.
+- Ran Unity 2022.3.62f2c1 batch compile/refresh after cleanup. `Logs/EnemyFunctionTestAreaExpandCleanupCompile.log` reports `LogAssemblyErrors (0ms)` and `Tundra build success`.
+
+## 2026-06-12 Scene Test Area Revert
+
+- User asked to revert to the original version without the dedicated test field.
+- Restored `Assets/Scenes/Scene_lyl_test.unity` to the repository version before the `EnemyFunctionTestArea` scene setup.
+- Verified the scene no longer contains `EnemyFunctionTestArea`, `Ground_EnemyFunctionTest`, `NavigationSurface_RuntimeBuilt`, `Test_TidalAberration_WaterJet`, `PlayerStandHere_WaterJetRange_7m`, or `MarkerVisual_NoCollider`.
+- The existing scene `Player` prefab instance is no longer parented under the removed test area and the test-only NavMeshAgent disable override was removed with the scene revert.
+- No Water Jet gameplay code, enemy prefab logic, or player prefab asset was changed by the revert.
+
+## 2026-06-12 Tidal Aberration Water Jet Existence Check
+
+- User asked why Water Jet knockback cannot be seen in scene testing and whether the skill exists.
+- Confirmed `TidalAberrationBehaviorController` has a `RangedAttack` state and `PerformRangedAttack()` calls `PlayerMovementController.ApplyExternalImpulse(direction, WaterJetKnockbackStrength)` plus `ApplyMoveSpeedDebuff`.
+- Confirmed `SO_Enemy_TidalAberration.asset` configures `_waterJetKnockbackStrength: 5.2`, `_knockbackMoveSpeedMultiplier: 0.5`, `_knockbackSlowDuration: 1`, `_minimumRangedDistance: 5`, `_rangedAttackRange: 9`, `_rangedAttackInterval: 8`, and `_waterJetDuration: 0.18`.
+- Confirmed `Pfb_Enemy_Common_TidalAberration.prefab` has `TidalAberrationBehaviorController`, references the Tidal config asset, and has valid melee/ranged origin references. `WaterJetRenderer` is intentionally null in the prefab because the behavior creates it at runtime.
+- Confirmed current `Scene_lyl_test` still contains a normal `TidalAberration` prefab instance under `ActiveEnemyCluster_A`; it is not the reverted dedicated test-area instance.
+- Current scene placement puts `Player` about 11.2m from the scene Tidal Aberration at startup, outside the 9m Water Jet range. Water Jet only starts while the target is approximately 5m to 9m away; closer range switches to melee.
+- The player prefab has an enabled same-root `NavMeshAgent`. When it is enabled/on-navmesh and considered active, `PlayerMovementController.FixedUpdate()` returns before applying rigidbody movement, so a received external impulse can be decayed without producing visible displacement.
+- No gameplay code or scene placement was modified during this check.
+
+## 2026-06-12 Tidal Aberration Water Jet Visible Test Tuning
+
+- User asked to modify the related effects so Water Jet is obvious enough to see during testing.
+- Updated `TidalAberrationBehaviorController` so Water Jet uses a `SphereCastAll` radius of `0.65`, ignores the enemy's own colliders, and resolves the hit target's `PlayerMovementController` from the actual damage root/collider before applying knockback.
+- Made the runtime Water Jet line renderer thicker, brighter, and pulsing so the effect remains visually clear while active.
+- Updated Tidal Aberration defaults/config for testing visibility: detection range `16`, view angle `360`, ranged window `4.2m-13m`, cooldown `3s`, visible duration `0.65s`, knockback strength `10`, slow duration `1.5s`, and raycast distance `14m`.
+- Synchronized the Tidal pawn prefab serialized values with the ScriptableObject so Inspector/debug views show the same test-friendly numbers.
+- Updated `PlayerMovementController.ApplyExternalImpulse()` so external knockback briefly overrides same-root `NavMeshAgent` control, clears the current path, and lets the rigidbody movement branch visibly move the player.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran targeted `git diff --check`: no whitespace errors; only existing line-ending warnings.
+- Ran Unity 2022.3.62f2c1 batch refresh twice because the first log requested an additional Tundra run. The second log reports `LogAssemblyErrors (0ms)` and no C# compiler errors were found.
+
+## 2026-06-12 Tidal Aberration Runtime No-Knockback Diagnosis
+
+- User asked why the player is still not knocked back by Tidal Aberration after pressing Play.
+- Checked the current `Scene_lyl_test` serialized positions. `TidalAberration` is under `ActiveEnemyCluster_A` inside `Zone_A`; with parent offsets, its world position is approximately `(7.90, 1.00, -36.78)`.
+- The current scene `Player` position is `(37.72, 1.00, -39.07)`, about `29.9m` from Tidal Aberration.
+- Tidal's runtime detection range is `16m`, and Water Jet only triggers from `4.2m` to `13m`. At `29.9m`, the enemy remains outside detection/attack range, so `RangedAttack` and Water Jet never start.
+- No code or scene changes were made during this diagnosis.
+
+## 2026-06-12 Tidal Aberration Scene Player Placement
+
+- User asked me to make the scene placement change.
+- Moved the existing root-level `Player` instance in `Scene_lyl_test` from `(37.72, 1.00, -39.07)` to `(7.90, 1.00, -44.78)`.
+- This puts Player about `8m` from the existing scene `TidalAberration`, inside the Water Jet range window of `4.2m-13m`.
+- Did not recreate `EnemyFunctionTestArea`, did not duplicate Player, and did not change enemy/player prefab assets in this placement step.
+
+## 2026-06-12 Tidal Aberration Opening Water Jet Bugfix
+
+- User reported that pressing Play still did not visibly release Water Jet before the protagonist killed Tidal Aberration.
+- Added an opening Water Jet path in `TidalAberrationBehaviorController`: if Player starts inside the ranged window, the enemy queues `RangedAttack`, stops its NavMeshAgent, faces Player, and fires Water Jet on the first Update.
+- Reused `IsInRangedAttackWindow()` in chase/ranged behavior so the opening cast and normal ranged transitions use the same distance rules.
+- Fixed Water Jet hit selection so sphere casts skip non-combat colliders and non-current-target combat receivers instead of selecting the closest environment collider and then failing with 0 damage.
+- Added a fallback that applies the hit to the current `PlayerTransform` combat receiver when the sweep does not return a valid receiver, so scene collision quirks no longer suppress the knockback test.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran Unity batch refresh in `Logs/TidalWaterJetOpeningFixCompile2.log`: no C# errors found, `LogAssemblyErrors (0ms)`.
+
+## 2026-06-12 Tidal Aberration No Visible Knockback Audit
+
+- User reported that even after the previous changes, there is still no visible character knockback, and asked for a self-audit plus a full explanation of the current logic.
+- Checked Unity Editor logs. `Editor.log` repeatedly contains `[EnemySkillDamage] TidalAberration finished Water Jet, total damage: 14` with the stack `TryFireOpeningWaterJet -> PerformRangedAttack`, proving Water Jet is currently firing and dealing damage.
+- Checked `Assets/Prefabs/PlayerPrefab/Agent.prefab` and `Scene_lyl_test` Player prefab instance. The prefab has `PlayerHealthController`, `Rigidbody`, `NavMeshAgent`, `AgentPawnRoot`, `AgentCombatShooter`, `AgentCombatController`, and debug/animation components, but no `PlayerMovementController` script GUID.
+- Checked the scene prefab instance block for the current `Player`. It has `m_AddedComponents: []`, so the scene instance does not add `PlayerMovementController` either.
+- Root cause for the missing visible knockback: `TidalAberrationBehaviorController.ResolveMovementController()` only resolves `PlayerMovementController`; because the current Player/Agent does not have one, `hitMovementController` is null and `ApplyExternalImpulse()` is skipped.
+- No gameplay code or prefab was modified during this audit beyond updating the planning records.
+
+## 2026-06-12 Agent External Movement Receiver Migration
+
+- User confirmed that the old player displacement functions lived in `PlayerMovementController`, but the player later moved to automatic Agent movement, so those external movement functions were likely not migrated.
+- Added `IExternalMovementReceiver` for external knockback/slow effects without coupling enemy skills to the old manual input controller.
+- Made `PlayerMovementController` implement `IExternalMovementReceiver` so older/manual player setups keep working.
+- Made `AgentPawnRoot` implement `IExternalMovementReceiver`. It now accepts external impulse, temporarily stops/resets the NavMeshAgent path, applies displacement through `NavMeshAgent.Move()` when on navmesh, decays the impulse over time, and applies temporary speed debuffs through the Agent blackboard `MoveSpeed`.
+- Updated `TidalAberrationBehaviorController` so Water Jet resolves `IExternalMovementReceiver` from the hit damage root/collider instead of requiring `PlayerMovementController`.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran Unity batch refresh twice. Final log `Logs/TidalWaterJetAgentImpulseCompile2.log` reports `Tundra build success` and `LogAssemblyErrors (0ms)`.
+
+## 2026-06-12 Modern Strander No-Damage Audit
+
+- User reported designer feedback that Modern Strander does not deal any damage to the player and asked for careful investigation plus a detailed explanation before changes.
+- Inspected `ModernStranderBehaviorController`, `ModernStranderTentacleHitbox`, `ModernStranderConfig`, `PlayerHealthController`, `CombatDamageUtility`, the ModernStrander prefab/config asset, the current Agent player prefab, `Scene_lyl_test`, and recent Unity Editor logs.
+- Found that the current scene's `ModernStrander` prefab instance is present under `ActiveEnemyCluster_A` but has a scene override `m_IsActive: 0`, so it cannot run behavior, chase, attack, damage, or skill logging.
+- Found no recent Unity log entries for `ModernStrander finished Corrosive Tentacle`; only Tidal Aberration skill-damage logs were present.
+- Confirmed the code-level damage path exists and should damage the current Agent player when the enemy is active and latches, because `CombatDamageUtility` resolves the root `PlayerHealthController`.
+- Did not modify gameplay code, prefabs, or scene content during this audit.
+
+## 2026-06-12 Modern Strander Active Scene Re-Audit
+
+- User asked to re-check the Modern Strander damage issue.
+- Re-read the current `Scene_lyl_test`, ModernStrander skill/controller code, hitbox code, config asset, player prefab/config, enemy vision helper, and recent Editor logs.
+- Found that the current scene state has changed: ModernStrander is now active.
+- Recomputed the current ModernStrander/player placement and found the player starts about 8.36m away, outside ModernStrander's 3.2m attack range and behind its narrow initial vision cone.
+- Compared this against the player Agent's 10m attack range and found the player can shoot first from outside ModernStrander's melee range.
+- No gameplay code, prefabs, or scene content were changed during this re-audit.
+
+## 2026-06-12 Modern Strander Direct-Hit Counter Fix
+
+- User asked to solve the Modern Strander no-damage issue using the proposed approach.
+- Added a configurable direct-hit counter range to `ModernStranderConfig`, exposed it in `EnemyConfigEditor`, and serialized `_directDamageCounterAttackRange: 10.5` into `SO_Enemy_ModernStrander.asset`.
+- Updated `ModernStranderBehaviorController` so direct player damage can immediately trigger a counter tentacle when the player is inside counter range and line of sight.
+- Removed the old direct-damage interruption behavior that stopped any active tentacle on every player hit, preventing rapid auto-fire from canceling the enemy's own skill.
+- Migrated ModernStrander latch pull to `IExternalMovementReceiver` and added `ApplyExternalPull(...)` support to `AgentPawnRoot`, so the current automatic Agent player can be pulled during latch.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran Unity 2022.3.62f2c1 batch compile in `Logs/ModernStranderCounterFixCompile.log`; log reports `Tundra build success` and no C# compiler errors.
+
+## 2026-06-12 Modern Strander Pull Tuning
+
+- User reported that the added pull effect launches the player too hard and asked to tune the value down.
+- Reduced ModernStrander `LatchPullStrength` defaults from `3.4` to `0.18` in both behavior/config scripts.
+- Reduced the live `SO_Enemy_ModernStrander.asset` `_latchPullStrength` from `0.5` to `0.18`.
+- User asked for the pull to be slightly stronger after body-push was fixed.
+- Increased ModernStrander `LatchPullStrength` from `0.18` to `0.24` in the behavior default, config default, and live SO asset.
+- User requested the final pull value be set to `0.20`.
+- Adjusted ModernStrander `LatchPullStrength` from `0.24` to `0.20` in the behavior default, config default, and live SO asset.
+
+## 2026-06-12 Modern Strander Body Push Fix
+
+- User clarified that the issue looks like the enemy pushes the character while playing walk animation.
+- Checked ModernStrander and Player prefab collider/NavMeshAgent/Animator settings.
+- Found root motion is disabled, while both bodies have non-trigger root capsule colliders and zero NavMeshAgent stopping distance.
+- Started a targeted fix to prevent ModernStrander body collision from pushing the Player while preserving tentacle hit detection.
+- Updated `ModernStranderBehaviorController` so chase uses a nearby stand-off destination instead of the Player center.
+- Added runtime body-collider collision ignoring between ModernStrander and the current Player body collider.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+
+## 2026-06-12 Ancient Strander Cooldown Investigation
+
+- User reported designer feedback that Ancient Strander attacks have no cooldown.
+- Inspected `AncientStranderBehaviorController`, `AncientStranderConfig`, `SO_Enemy_AncientStrander.asset`, and nearby enemy cooldown implementations.
+- Confirmed the Ancient Strander config asset has valid non-zero melee and ranged cooldowns.
+- Found the melee cooldown can be bypassed when repeated direct player damage forces the state machine back through `Chase`, because entering `MeleeAttack` refills the melee timer to the full interval.
+- Replaced Ancient Strander's melee state-local timer with an absolute `_nextMeleeAttackTime` guard.
+- Removed the `MeleeAttackInterval` timer refill when entering `MeleeAttack` from chase or ranged bite.
+- Set `_nextMeleeAttackTime` only when `PerformMeleeAttack()` actually fires.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+
+## 2026-06-12 Anchor Sentinel Health And Damage Investigation
+
+- User reported two designer bugs: Anchor Sentinel health tuning has no effect, and Anchor Sentinel cannot damage the player.
+- Began inspecting `AnchorSentinelBehaviorController`, `AnchorSentinelConfig`, `SO_Enemy_AnchorSentinel.asset`, `Pfb_Enemy_Common_AnchorSentinel.prefab`, `EnemyHealthController`, and the current `Scene_lyl_test` instance.
+- Confirmed the prefab and health component both reference `SO_Enemy_AnchorSentinel.asset`, and the scene instance is active with no scene override on health or beam damage values.
+- Found the current behavior uses two separate completion paths: rune puzzle completion disables the sentinel directly, while `EnemyHealthController` handles normal HP death. That means max-health tuning does not affect rune-based disabling.
+- Found no recent `Energy Beam` damage logs, and the sentinel only auto-detects range when `WrongRuneImmediatelyActivates` is false; with the current config true, it normally fires only after a wrong rune hit.
+- Updated `BulletController` so hits on `AnchorSentinelRuneWeakpoint` also apply normal damage to the owning `EnemyHealthController`.
+- Updated `AnchorSentinelBehaviorController` so completing the rune sequence only disables the sentinel if its HP is already depleted; otherwise the rune puzzle resets and the sentinel activates.
+- Updated `AnchorSentinelBehaviorController.TickDormantState()` so the sentinel activates on player proximity inside `DetectionRange` instead of requiring the current config to disable wrong-rune activation.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+
+## 2026-06-12 Anchor Sentinel Standard Enemy Conversion
+
+- User requested removing the Anchor Sentinel rune puzzle entirely.
+- Goal: delete the three cube rune weakpoints, make player attacks damage the sentinel body directly, and make the sentinel attack through player detection without requiring wrong-rune activation.
+- Started removing rune-specific behavior/config/prefab data.
+- Replaced `AnchorSentinelBehaviorController` with a standard enemy flow: load config, apply health config, detect player by range, face the player, fire the beam through `CombatDamageUtility`, and let `EnemyHealthController` own death/loot.
+- Simplified `AnchorSentinelConfig` and `SO_Enemy_AnchorSentinel.asset` to health/death-loot plus beam attack values only.
+- Removed Anchor Sentinel rune puzzle fields from the custom config editor and migration tool.
+- Removed the rune-specific branch from `BulletController`, so direct hits now go through the normal `EnemyHealthController` damage path.
+- Removed the three cube rune child objects and obsolete rune serialized fields from `Pfb_Enemy_Common_AnchorSentinel.prefab`.
+- Deleted `AnchorSentinelRuneWeakpoint.cs` and `.meta`, and removed the script from `Assembly-CSharp.csproj`.
+- Ran targeted scans for old Anchor Sentinel rune symbols and prefab cube names; no remaining matches were found in the converted files.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+
+## 2026-06-12 Player Defense Damage Mitigation Fix
+
+- User reported the last known bug: player defense in the settings appears to have no effect.
+- Began auditing player stat config, player health, automatic Agent pawn health, combat damage receiver resolution, and enemy damage call sites.
+- Found `SO_Agent_PawnConfig.asset` contains `_defense: 100`, and `AgentPawnRoot` writes that value into decision blackboard facts, but incoming enemy damage currently resolves to `PlayerHealthController` first.
+- Found `PlayerHealthController.TakeDamage()` only uses rune-pattern defense multiplier and does not read Agent pawn defense, so changing the Agent player defense setting does not affect the visible player health bar.
+- Added shared defense mitigation helpers to `CombatDamageUtility`.
+- Added `AgentPawnRoot.Defense` and routed both `AgentPawnRoot.TakeCombatDamage(...)` and command-style `ApplyDamage(...)` through the same mitigation path.
+- Updated `PlayerHealthController.TakeDamage(...)` to combine same-object Agent pawn defense with the existing rune defense multiplier and minimum damage-taken floor.
+- Confirmed direct Hunter Boss calls to `PlayerHealthController.TakeDamage(...)` also inherit the fix because the mitigation is inside `TakeDamage(...)`.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran formula spot-check: raw 20 damage at defense 0/50/100/300/400 resolves to 20/13.33/10/5/4 with the current 0.2 minimum multiplier.

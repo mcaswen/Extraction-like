@@ -120,19 +120,10 @@ public class BulletController : MonoBehaviour
             return;
         }
 
-        // 玩家子弹先处理锚点守卫符文，避免符文命中被普通敌人血量逻辑吞掉。
-        AnchorSentinelRuneWeakpoint runeWeakpoint = other.GetComponentInParent<AnchorSentinelRuneWeakpoint>();
         EnemyHealthController enemyHealthController = other.GetComponentInParent<EnemyHealthController>();
-        bool hitEnemyTarget = runeWeakpoint != null || enemyHealthController != null || IsEnemyCollider(other);
+        bool hitEnemyTarget = enemyHealthController != null || IsEnemyCollider(other);
         if (!hitEnemyTarget)
         {
-            return;
-        }
-
-        if (runeWeakpoint != null)
-        {
-            runeWeakpoint.NotifyHit();
-            Destroy(gameObject);
             return;
         }
 

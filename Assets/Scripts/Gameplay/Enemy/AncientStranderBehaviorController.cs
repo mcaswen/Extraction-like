@@ -117,7 +117,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
     private float _waitTimer;
-    private float _meleeAttackTimer;
+    private float _nextMeleeAttackTime;
     private float _rangedAttackTimer;
     private float _nextRangedAttackTime;
     private float _meleeVisualTimer;
@@ -317,7 +317,6 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         if (distanceToPlayer <= MeleeAttackRange)
         {
             CurrentState = EnemyState.MeleeAttack;
-            _meleeAttackTimer = MeleeAttackInterval;
             SetAgentStopped(true);
             return;
         }
@@ -352,10 +351,8 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         LookAtPlayer();
-        _meleeAttackTimer += Time.deltaTime;
-        if (_meleeAttackTimer >= MeleeAttackInterval)
+        if (Time.time >= _nextMeleeAttackTime)
         {
-            _meleeAttackTimer = 0f;
             PerformMeleeAttack();
         }
     }
@@ -376,7 +373,6 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             StopBiteStrike();
             CurrentState = EnemyState.MeleeAttack;
-            _meleeAttackTimer = MeleeAttackInterval;
             return;
         }
 
@@ -410,6 +406,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private void PerformMeleeAttack()
     {
         _animatorDriver?.TriggerAttack();
+        _nextMeleeAttackTime = Time.time + Mathf.Max(0.05f, MeleeAttackInterval);
         // 横扫用 OverlapSphere 结算范围伤害，可同时命中玩家或多个 Agent 目标。
         _meleeVisualTimer = MeleeVisualDuration;
         float totalDamage = 0f;

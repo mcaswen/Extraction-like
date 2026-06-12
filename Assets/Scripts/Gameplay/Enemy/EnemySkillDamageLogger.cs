@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public static class EnemySkillDamageLogger
 {
-    private const bool EnableSkillDamageLogs = true;
+    private static readonly bool EnableSkillDamageLogs = true;
 
     /// <summary>
     /// 输出一个敌人技能完成后的总伤害。

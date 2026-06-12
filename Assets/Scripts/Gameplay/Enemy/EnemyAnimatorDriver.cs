@@ -63,7 +63,7 @@ public sealed class EnemyAnimatorDriver
     public void SetSpeed(float speed)
     {
         _currentSpeed = Mathf.Max(0f, speed);
-        if (_animator == null)
+        if (!HasPlayableAnimator())
         {
             TickGroundAlignment();
             TickStaticFallback();
@@ -88,7 +88,7 @@ public sealed class EnemyAnimatorDriver
 
     public void TriggerAttack()
     {
-        if (_animator == null)
+        if (!HasPlayableAnimator())
         {
             _staticAttackTimer = StaticAttackDuration;
             return;
@@ -219,6 +219,11 @@ public sealed class EnemyAnimatorDriver
         localPosition.x = _animatedRootBaseLocalPosition.x;
         localPosition.z = _animatedRootBaseLocalPosition.z;
         _animatedRootBone.localPosition = localPosition;
+    }
+
+    private bool HasPlayableAnimator()
+    {
+        return _animator != null && _animator.runtimeAnimatorController != null;
     }
 
     private static Transform ResolveAnimatedRootBone(Animator animator)

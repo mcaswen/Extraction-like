@@ -10,6 +10,9 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     [SerializeField, Min(0.1f), Tooltip("Distance at which the tentacle attack can start.")]
     private float _attackRange = 3.2f;
 
+    [SerializeField, Min(0.1f), Tooltip("Maximum distance for the immediate tentacle counterattack after taking direct player damage.")]
+    private float _directDamageCounterAttackRange = 10.5f;
+
     [SerializeField, Min(0.05f), Tooltip("Seconds between tentacle attacks.")]
     private float _attackInterval = 5f;
 
@@ -23,7 +26,7 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     private float _tentacleHitboxHeight = 0.55f;
 
     [SerializeField, Min(0f), Tooltip("Pull strength applied to the player during a latch.")]
-    private float _latchPullStrength = 3.4f;
+    private float _latchPullStrength = 0.20f;
 
     [SerializeField, Min(0f), Tooltip("Corrosion damage per second applied during a latch.")]
     private float _corrosionDamagePerSecond = 10f;
@@ -60,6 +63,8 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     /// 触手攻击可启动的距离。
     /// </summary>
     public float AttackRange => _attackRange;
+
+    public float DirectDamageCounterAttackRange => _directDamageCounterAttackRange;
 
     /// <summary>
     /// 两次触手攻击之间的最短间隔。
@@ -143,6 +148,7 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     {
         base.OnValidate();
         _attackRange = Mathf.Max(0.1f, _attackRange);
+        _directDamageCounterAttackRange = Mathf.Max(_attackRange, _directDamageCounterAttackRange);
         _attackInterval = Mathf.Max(0.05f, _attackInterval);
         _tentacleLatchDuration = Mathf.Max(0.05f, _tentacleLatchDuration);
         _tentacleHitboxWidth = Mathf.Max(0.1f, _tentacleHitboxWidth);

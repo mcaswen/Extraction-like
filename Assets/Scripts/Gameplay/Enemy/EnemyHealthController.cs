@@ -196,6 +196,23 @@ public interface ICombatDamageReceiver
 /// </summary>
 public static class CombatDamageUtility
 {
+    public static float CalculateDefenseDamageMultiplier(float defense, float minimumMultiplier = 0f)
+    {
+        float safeDefense = Mathf.Max(0f, defense);
+        float defenseMultiplier = 100f / (100f + safeDefense);
+        return Mathf.Max(Mathf.Max(0f, minimumMultiplier), defenseMultiplier);
+    }
+
+    public static float CalculateDamageTakenMultiplier(
+        float defense,
+        float additionalMultiplier,
+        float minimumMultiplier = 0f)
+    {
+        float defenseMultiplier = CalculateDefenseDamageMultiplier(defense, 0f);
+        float safeAdditionalMultiplier = Mathf.Max(0f, additionalMultiplier);
+        return Mathf.Max(Mathf.Max(0f, minimumMultiplier), defenseMultiplier * safeAdditionalMultiplier);
+    }
+
     /// <summary>
     /// 从指定组件及其父节点上查找仍然存活的战斗伤害接收者。
     /// </summary>

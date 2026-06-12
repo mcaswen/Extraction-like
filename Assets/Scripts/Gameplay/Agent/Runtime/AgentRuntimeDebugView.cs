@@ -339,6 +339,7 @@ namespace Gameplay.Agent.Runtime
                 movementController != null && movementController.IsNavMeshDrivingRigidbody;
 
             _movementControlSummary =
+                $"setDestInterval={_setDestinationIntervalSeconds:0.##}s " +
                 $"agent(enabled={agentEnabled}, onMesh={isOnNavMesh}, pending={pathPending}, path={hasPath}, notStopped={agentNotStopped}) " +
                 $"rb(kinematic={_rigidbodyIsKinematic}, gravity={_rigidbodyUseGravity}) controllerDriving={_movementControllerNavMeshDrivingRigidbody}";
         }

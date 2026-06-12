@@ -21,24 +21,30 @@ public sealed class PlayerStatusHudController : MonoBehaviour
     [SerializeField] private Sprite _progressBarSprite;
     [SerializeField] private Rect _avatarCropRect;
 
-    public Vector2 AnchorPosition = new Vector2(28f, -28f);
-    public Vector2 AvatarSize = new Vector2(84f, 84f);
-    public Vector2 StatusIconSize = new Vector2(28f, 28f);
-    public Vector2 BarSize = new Vector2(280f, 24f);
-    public Vector2 BarFillPadding = new Vector2(7f, 5f);
-    public float BarSpacing = 10f;
-    public float AvatarBarGap = 12f;
-    public float IconBarGap = 8f;
-    public float BarsTopInset = 10f;
+    public Vector2 AnchorPosition = new Vector2(32f, -32f);
+    public Vector2 AvatarSize = new Vector2(108f, 108f);
+    public Vector2 StatusIconSize = new Vector2(24f, 24f);
+    public Vector2 BarSize = new Vector2(380f, 24f);
+    public Vector2 BarFillPadding = Vector2.zero;
+    public float BarSpacing = 8f;
+    public float AvatarBarGap = 16f;
+    public float IconBarGap = 0f;
+    public float BarsTopInset = 8f;
+    public float ValueBarGap = 2f;
+    public float ValueRowHeight = 14f;
 
-    public Color PanelColor = new Color(0.08f, 0.09f, 0.1f, 0.72f);
-    public Color HealthFillColor = new Color(0.86f, 0.18f, 0.18f, 1f);
+    public Color PanelColor = new Color(0.18f, 0.18f, 0.18f, 0.92f);
+    public Color HealthFillColor = new Color(0.36f, 0.78f, 0.48f, 1f);
     public Color CarryFillColor = new Color(0.95f, 0.7f, 0.22f, 1f);
     public Color CarryWarningFillColor = new Color(0.96f, 0.48f, 0.18f, 1f);
     public Color CarryOverloadFillColor = new Color(0.92f, 0.22f, 0.2f, 1f);
+    public Color ValueTextColor = new Color(0.94f, 0.94f, 0.94f, 1f);
+    public int ValueTextFontSize = 11;
 
     private Canvas _canvas;
     private RectTransform _root;
+    private RectTransform _healthMarkerRect;
+    private RectTransform _carryMarkerRect;
     private Image _healthFillImage;
     private Image _carryFillImage;
     private Text _healthText;
@@ -118,26 +124,25 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         _canvas.sortingOrder = 260;
 
         CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
-        scaler.matchWidthOrHeight = 0.5f;
+        AdaptiveCanvasScaler.Configure(scaler, new Vector2(1920f, 1080f));
 
         _root = CreateRoot(canvasObject.transform);
         CreateAvatarIcon(_root);
 
+        float rowHeight = GetStatusRowHeight();
         float healthY = -BarsTopInset;
-        float carryY = -(BarsTopInset + Mathf.Max(StatusIconSize.y, BarSize.y) + BarSpacing);
-        CreateStatusBar(_root, "HealthBar", healthY, _healthIconSprite, HealthFillColor, out _healthFillImage, out _healthText);
-        CreateStatusBar(_root, "CarryLoadBar", carryY, _carryIconSprite, CarryFillColor, out _carryFillImage, out _carryText);
+        float carryY = -(BarsTopInset + rowHeight + BarSpacing);
+        CreateStatusBar(_root, "HealthBar", healthY, _healthIconSprite, HealthFillColor, out _healthFillImage, out _healthText, out _healthMarkerRect);
+        CreateStatusBar(_root, "CarryLoadBar", carryY, _carryIconSprite, CarryFillColor, out _carryFillImage, out _carryText, out _carryMarkerRect);
         RefreshBars();
     }
 
     private RectTransform CreateRoot(Transform parent)
     {
-        float rowHeight = Mathf.Max(StatusIconSize.y, BarSize.y);
+        float rowHeight = GetStatusRowHeight();
         float barsHeight = BarsTopInset + rowHeight * 2f + BarSpacing;
         float rootHeight = Mathf.Max(AvatarSize.y, barsHeight);
-        float rootWidth = AvatarSize.x + AvatarBarGap + StatusIconSize.x + IconBarGap + BarSize.x;
+        float rootWidth = AvatarSize.x + AvatarBarGap + BarSize.x;
 
         GameObject rootObject = new GameObject("PlayerStatusHudRoot", typeof(RectTransform));
         rootObject.transform.SetParent(parent, false);
@@ -178,10 +183,11 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         Sprite statusIcon,
         Color fillColor,
         out Image fillImage,
-        out Text label)
+        out Text label,
+        out RectTransform markerRect)
     {
-        float rowHeight = Mathf.Max(StatusIconSize.y, BarSize.y);
-        float rowWidth = StatusIconSize.x + IconBarGap + BarSize.x;
+        float rowHeight = GetStatusRowHeight();
+        float rowWidth = BarSize.x;
 
         GameObject rowObject = new GameObject(name, typeof(RectTransform));
         rowObject.transform.SetParent(parent, false);
@@ -193,61 +199,56 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         rowRect.anchoredPosition = new Vector2(AvatarSize.x + AvatarBarGap, yOffset);
         rowRect.sizeDelta = new Vector2(rowWidth, rowHeight);
 
-        CreateStatusIcon(rowRect, statusIcon, rowHeight);
-        RectTransform barRect = CreateProgressBar(rowRect, name, rowHeight);
+        GameObject textObject = new GameObject("Value", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        textObject.transform.SetParent(rowRect, false);
+
+        RectTransform textRect = textObject.GetComponent<RectTransform>();
+        textRect.anchorMin = new Vector2(0f, 1f);
+        textRect.anchorMax = new Vector2(1f, 1f);
+        textRect.pivot = new Vector2(0f, 1f);
+        textRect.anchoredPosition = Vector2.zero;
+        textRect.sizeDelta = new Vector2(0f, ValueRowHeight);
+
+        label = textObject.GetComponent<Text>();
+        label.font = _defaultFont;
+        label.fontSize = ValueTextFontSize;
+        label.fontStyle = FontStyle.Bold;
+        label.alignment = TextAnchor.MiddleLeft;
+        label.color = ValueTextColor;
+        label.raycastTarget = false;
+        label.supportRichText = false;
+
+        RectTransform barRect = CreateProgressBar(rowRect, name);
 
         GameObject fillObject = new GameObject("Fill", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         fillObject.transform.SetParent(barRect, false);
 
         RectTransform fillRect = fillObject.GetComponent<RectTransform>();
-        fillRect.anchorMin = Vector2.zero;
-        fillRect.anchorMax = Vector2.one;
+        fillRect.anchorMin = new Vector2(0f, 0f);
+        fillRect.anchorMax = new Vector2(0f, 1f);
+        fillRect.pivot = new Vector2(0f, 0.5f);
         fillRect.offsetMin = new Vector2(
             Mathf.Clamp(BarFillPadding.x, 0f, BarSize.x * 0.45f),
             Mathf.Clamp(BarFillPadding.y, 0f, BarSize.y * 0.45f));
         fillRect.offsetMax = new Vector2(
-            -Mathf.Clamp(BarFillPadding.x, 0f, BarSize.x * 0.45f),
+            Mathf.Clamp(BarFillPadding.x, 0f, BarSize.x * 0.45f) + BarSize.x,
             -Mathf.Clamp(BarFillPadding.y, 0f, BarSize.y * 0.45f));
 
         fillImage = fillObject.GetComponent<Image>();
         fillImage.sprite = _whiteSprite;
         fillImage.color = fillColor;
         fillImage.raycastTarget = false;
-        fillImage.type = Image.Type.Filled;
-        fillImage.fillMethod = Image.FillMethod.Horizontal;
-        fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
-        fillImage.fillAmount = 1f;
+        fillImage.type = Image.Type.Simple;
 
-        GameObject textObject = new GameObject("Value", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-        textObject.transform.SetParent(barRect, false);
+        GameObject iconObject = new GameObject("MarkerIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        iconObject.transform.SetParent(barRect, false);
 
-        RectTransform textRect = textObject.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = new Vector2(8f, 0f);
-        textRect.offsetMax = new Vector2(-8f, 0f);
-
-        label = textObject.GetComponent<Text>();
-        label.font = _defaultFont;
-        label.fontSize = 13;
-        label.fontStyle = FontStyle.Bold;
-        label.alignment = TextAnchor.MiddleCenter;
-        label.color = Color.white;
-        label.raycastTarget = false;
-        label.supportRichText = false;
-    }
-
-    private void CreateStatusIcon(RectTransform parent, Sprite statusIcon, float rowHeight)
-    {
-        GameObject iconObject = new GameObject("Icon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        iconObject.transform.SetParent(parent, false);
-
-        RectTransform iconRect = iconObject.GetComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0f, 1f);
-        iconRect.anchorMax = new Vector2(0f, 1f);
-        iconRect.pivot = new Vector2(0f, 1f);
-        iconRect.anchoredPosition = new Vector2(0f, -(rowHeight - StatusIconSize.y) * 0.5f);
-        iconRect.sizeDelta = StatusIconSize;
+        markerRect = iconObject.GetComponent<RectTransform>();
+        markerRect.anchorMin = new Vector2(0f, 0.5f);
+        markerRect.anchorMax = new Vector2(0f, 0.5f);
+        markerRect.pivot = new Vector2(0.5f, 0.5f);
+        markerRect.anchoredPosition = new Vector2(StatusIconSize.x * 0.5f, 0f);
+        markerRect.sizeDelta = StatusIconSize;
 
         Image iconImage = iconObject.GetComponent<Image>();
         iconImage.sprite = statusIcon;
@@ -256,7 +257,7 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         iconImage.enabled = statusIcon != null;
     }
 
-    private RectTransform CreateProgressBar(RectTransform parent, string name, float rowHeight)
+    private RectTransform CreateProgressBar(RectTransform parent, string name)
     {
         GameObject barObject = new GameObject($"{name}Progress", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         barObject.transform.SetParent(parent, false);
@@ -265,15 +266,20 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         barRect.anchorMin = new Vector2(0f, 1f);
         barRect.anchorMax = new Vector2(0f, 1f);
         barRect.pivot = new Vector2(0f, 1f);
-        barRect.anchoredPosition = new Vector2(StatusIconSize.x + IconBarGap, -(rowHeight - BarSize.y) * 0.5f);
+        barRect.anchoredPosition = new Vector2(0f, -(ValueRowHeight + ValueBarGap));
         barRect.sizeDelta = BarSize;
 
         Image backgroundImage = barObject.GetComponent<Image>();
-        backgroundImage.sprite = _progressBarSprite != null ? _progressBarSprite : _whiteSprite;
-        backgroundImage.type = GetImageType(backgroundImage.sprite);
-        backgroundImage.color = _progressBarSprite != null ? Color.white : PanelColor;
+        backgroundImage.sprite = _whiteSprite;
+        backgroundImage.type = Image.Type.Simple;
+        backgroundImage.color = PanelColor;
         backgroundImage.raycastTarget = false;
         return barRect;
+    }
+
+    private float GetStatusRowHeight()
+    {
+        return ValueRowHeight + ValueBarGap + Mathf.Max(StatusIconSize.y, BarSize.y);
     }
 
     private void RefreshBars()
@@ -296,7 +302,7 @@ public sealed class PlayerStatusHudController : MonoBehaviour
 
         float maxHealth = Mathf.Max(1f, healthController.MaxHealth);
         float currentHealth = Mathf.Clamp(healthController.CurrentHealth, 0f, maxHealth);
-        SetBar(_healthFillImage, _healthText, currentHealth / maxHealth, $"{currentHealth:0}/{maxHealth:0}");
+        SetBar(_healthFillImage, _healthText, _healthMarkerRect, BarSize, currentHealth / maxHealth, $"{currentHealth:0} / {maxHealth:0}  HP");
 
         InventoryScreenController inventory = InventoryScreenController.Instance;
         float currentCarryWeight = inventory != null ? inventory.GetCurrentCarryWeight() : 0f;
@@ -311,8 +317,10 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         SetBar(
             _carryFillImage,
             _carryText,
+            _carryMarkerRect,
+            BarSize,
             carryRatio,
-            $"{currentCarryWeight:0.#}/{maxCarryWeight:0.#}");
+            $"{currentCarryWeight:0.#} / {maxCarryWeight:0.#}  KG");
     }
 
     private Color GetCarryFillColor(float carryRatio)
@@ -409,26 +417,28 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         return Rect.MinMaxRect(minX, minY, maxX, maxY);
     }
 
-    private static Image.Type GetImageType(Sprite sprite)
+    private static void SetBar(Image fillImage, Text label, RectTransform markerRect, Vector2 barSize, float ratio, string text)
     {
-        if (sprite != null && sprite.border.sqrMagnitude > 0.001f)
-        {
-            return Image.Type.Sliced;
-        }
+        float clampedRatio = Mathf.Clamp01(ratio);
 
-        return Image.Type.Simple;
-    }
-
-    private static void SetBar(Image fillImage, Text label, float ratio, string text)
-    {
         if (fillImage != null)
         {
-            fillImage.fillAmount = Mathf.Clamp01(ratio);
+            RectTransform fillRect = fillImage.rectTransform;
+            float minimumFillWidth = markerRect != null ? markerRect.rect.width * 0.5f : 0f;
+            float fillWidth = Mathf.Max(minimumFillWidth, barSize.x * clampedRatio);
+            fillRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, fillWidth);
         }
 
         if (label != null)
         {
             label.text = text;
+        }
+
+        if (markerRect != null)
+        {
+            float halfWidth = Mathf.Max(0f, markerRect.rect.width * 0.5f);
+            float targetX = Mathf.Clamp(barSize.x * clampedRatio + halfWidth, halfWidth, barSize.x - halfWidth);
+            markerRect.anchoredPosition = new Vector2(targetX, 0f);
         }
     }
 

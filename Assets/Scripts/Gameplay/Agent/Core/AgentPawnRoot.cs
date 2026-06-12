@@ -15,8 +15,11 @@ namespace Gameplay.Agent.Core
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter), typeof(AgentCombatController))]
-    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver
+    public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver, global::IExternalMovementReceiver
     {
+        private const float ExternalImpulseMovementOverrideDuration = 0.45f;
+        private const float ExternalImpulseDamping = 10f;
+        private const float StopFromMaxSpeedDuration = 0.5f;
         private const int RangeGizmoSegmentCount = 64;
         private static readonly Color TargetDiscoveryRangeGizmoColor = new Color(0.1f, 0.65f, 1f, 0.85f);
         private static readonly Color AttackRangeGizmoColor = new Color(1f, 0.28f, 0.18f, 0.85f);
@@ -39,6 +42,10 @@ namespace Gameplay.Agent.Core
 
         private AgentBrainController _brainController;
         private AgentInterventionController _interventionController;
+        private Vector3 _externalImpulseVelocity;
+        private float _externalImpulseMovementOverrideRemaining;
+        private float _speedDebuffDurationRemaining;
+        private float _speedDebuffMultiplier = 1f;
 
         /// <summary>
         /// Agent 的强类型运行时 ID
@@ -95,6 +102,8 @@ namespace Gameplay.Agent.Core
         /// 当前生命比例
         /// </summary>
         public float HealthRatio => MaxHealth <= 0 ? 0f : (float)_currentHealth / MaxHealth;
+
+        public float Defense => _pawnConfig != null ? _pawnConfig.Defense : 0f;
 
         /// <summary>
         /// 当前 Pawn 是否死亡
@@ -165,13 +174,17 @@ namespace Gameplay.Agent.Core
             if (!_isInitialized)
                 return;
 
+            float deltaTime = Time.deltaTime;
+            TickExternalMovementStatus(deltaTime);
+
             double timeSeconds = Time.timeAsDouble;
 
             // 每帧先把身体层事实同步给 Brain
             SyncBodyFactsToBlackboard(timeSeconds);
 
             // 驱动自主 Brain 更新
-            _brainController.Tick(Time.deltaTime, timeSeconds);
+            _brainController.Tick(deltaTime, timeSeconds);
+            TickExternalImpulseMovement(deltaTime);
         }
 
         /// <summary>
@@ -248,8 +261,7 @@ namespace Gameplay.Agent.Core
             if (IsDead)
                 return;
 
-            _currentHealth = Mathf.Max(0, _currentHealth - Mathf.Max(0, damageRequest.DamageAmount));
-            SyncBodyFactsToBlackboard(Time.timeAsDouble);
+            ApplyMitigatedDamage(Mathf.Max(0, damageRequest.DamageAmount));
         }
 
         public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
@@ -258,11 +270,61 @@ namespace Gameplay.Agent.Core
                 return 0f;
 
             int previousHealth = _currentHealth;
-            ApplyDamage(new DamageRequest(
-                Mathf.RoundToInt(damage),
-                hitPoint,
-                hitDirection));
+            ApplyMitigatedDamage(damage);
             return Mathf.Max(0, previousHealth - _currentHealth);
+        }
+
+        private void ApplyMitigatedDamage(float rawDamage)
+        {
+            if (rawDamage <= 0f)
+                return;
+
+            float mitigatedDamage = rawDamage * global::CombatDamageUtility.CalculateDefenseDamageMultiplier(Defense);
+            _currentHealth = Mathf.Max(0, _currentHealth - Mathf.RoundToInt(mitigatedDamage));
+            SyncBodyFactsToBlackboard(Time.timeAsDouble);
+        }
+
+        public void ApplyExternalPull(Vector3 targetPosition, float pullStrength)
+        {
+            if (IsDead || pullStrength <= 0f)
+                return;
+
+            Vector3 direction = targetPosition - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude <= 0.0001f)
+                return;
+
+            _externalImpulseVelocity += direction.normalized * pullStrength;
+            _externalImpulseMovementOverrideRemaining = Mathf.Max(
+                _externalImpulseMovementOverrideRemaining,
+                ExternalImpulseMovementOverrideDuration);
+            StopNavMeshForExternalMovement();
+        }
+
+        public void ApplyExternalImpulse(Vector3 direction, float strength)
+        {
+            if (IsDead || strength <= 0f)
+                return;
+
+            Vector3 planarDirection = direction;
+            planarDirection.y = 0f;
+            if (planarDirection.sqrMagnitude <= 0.0001f)
+                return;
+
+            _externalImpulseVelocity += planarDirection.normalized * strength;
+            _externalImpulseMovementOverrideRemaining = Mathf.Max(
+                _externalImpulseMovementOverrideRemaining,
+                ExternalImpulseMovementOverrideDuration);
+            StopNavMeshForExternalMovement();
+        }
+
+        public void ApplyMoveSpeedDebuff(float multiplier, float duration)
+        {
+            if (duration <= 0f || multiplier <= 0f)
+                return;
+
+            _speedDebuffDurationRemaining = Mathf.Max(_speedDebuffDurationRemaining, duration);
+            _speedDebuffMultiplier = Mathf.Min(_speedDebuffMultiplier, Mathf.Clamp(multiplier, 0.1f, 1f));
         }
 
         /// <summary>
@@ -399,7 +461,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, false, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, _pawnConfig.MoveSpeed, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.MoveStoppingDistance, _pawnConfig.MoveStoppingDistance, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.InteractionDistance, _pawnConfig.InteractionDistance, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackRange, _pawnConfig.AttackRange, timeSeconds);
@@ -427,6 +489,76 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, isDead, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, HealthRatio, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, needRecovery, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);
+        }
+
+        private void TickExternalMovementStatus(float deltaTime)
+        {
+            _speedDebuffDurationRemaining = Mathf.Max(0f, _speedDebuffDurationRemaining - deltaTime);
+            if (_speedDebuffDurationRemaining <= 0f)
+            {
+                _speedDebuffMultiplier = 1f;
+            }
+        }
+
+        private void TickExternalImpulseMovement(float deltaTime)
+        {
+            if (deltaTime <= 0f || IsDead)
+                return;
+
+            bool hasActiveImpulse = _externalImpulseVelocity.sqrMagnitude > 0.0001f;
+            if (!hasActiveImpulse && _externalImpulseMovementOverrideRemaining <= 0f)
+                return;
+
+            StopNavMeshForExternalMovement();
+
+            Vector3 displacement = _externalImpulseVelocity * deltaTime;
+            displacement.y = 0f;
+            if (displacement.sqrMagnitude > 0.000001f)
+            {
+                if (_navMeshAgent != null && _navMeshAgent.enabled && _navMeshAgent.isOnNavMesh)
+                {
+                    _navMeshAgent.Move(displacement);
+                }
+                else
+                {
+                    transform.position += displacement;
+                }
+            }
+
+            float stopDeceleration = GetEffectiveMoveSpeed() / StopFromMaxSpeedDuration;
+            _externalImpulseVelocity = DecayVelocity(
+                _externalImpulseVelocity,
+                Mathf.Max(ExternalImpulseDamping, stopDeceleration),
+                deltaTime);
+            _externalImpulseMovementOverrideRemaining = Mathf.Max(
+                0f,
+                _externalImpulseMovementOverrideRemaining - deltaTime);
+        }
+
+        private float GetEffectiveMoveSpeed()
+        {
+            float baseMoveSpeed = _pawnConfig != null ? _pawnConfig.MoveSpeed : 0f;
+            return baseMoveSpeed * (_speedDebuffDurationRemaining > 0f ? _speedDebuffMultiplier : 1f);
+        }
+
+        private static Vector3 DecayVelocity(Vector3 velocity, float deceleration, float deltaTime)
+        {
+            return Vector3.MoveTowards(
+                velocity,
+                Vector3.zero,
+                Mathf.Max(0f, deceleration) * Mathf.Max(0f, deltaTime));
+        }
+
+        private void StopNavMeshForExternalMovement()
+        {
+            if (_navMeshAgent == null || !_navMeshAgent.enabled || !_navMeshAgent.isOnNavMesh)
+                return;
+
+            _navMeshAgent.isStopped = true;
+            _navMeshAgent.velocity = Vector3.zero;
+            if (_navMeshAgent.hasPath)
+                _navMeshAgent.ResetPath();
         }
 
         private static void DrawRangeCircle(Vector3 center, float radius, Color color)

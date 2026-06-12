@@ -149,8 +149,7 @@ public sealed class EnemyVisionDisplayController : MonoBehaviour
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            AdaptiveCanvasScaler.Configure(scaler, new Vector2(1920f, 1080f));
         }
 
         GameObject root = new GameObject(

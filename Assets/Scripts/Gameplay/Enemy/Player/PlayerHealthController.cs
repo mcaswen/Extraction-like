@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Gameplay.Agent.Core;
 
 /// <summary>
 /// 玩家生命、死亡和腐蚀状态控制器。
@@ -61,6 +62,7 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
     private Color[] _originalRendererColors;
     private float _baseMaxHealth;
     private float _damageTakenMultiplier = 1f;
+    private AgentPawnRoot _agentPawnRoot;
     private Canvas _runtimeHealthBarCanvas;
     private bool _ownsRuntimeHealthBar;
     private Texture2D _runtimeUiTexture;
@@ -91,6 +93,7 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
             MinimumDamageTakenMultiplier = 0.2f;
         }
 
+        _agentPawnRoot = GetComponent<AgentPawnRoot>();
         MaxHealth = Mathf.Max(MaxHealth, MinimumPlaytestHealth);
         _baseMaxHealth = Mathf.Max(1f, MaxHealth);
         MaxHealth = _baseMaxHealth;
@@ -144,7 +147,10 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
         }
 
         float previousHealth = CurrentHealth;
-        float effectiveMultiplier = Mathf.Max(MinimumDamageTakenMultiplier, _damageTakenMultiplier);
+        float effectiveMultiplier = CombatDamageUtility.CalculateDamageTakenMultiplier(
+            ResolveDefense(),
+            _damageTakenMultiplier,
+            MinimumDamageTakenMultiplier);
         CurrentHealth -= damage * effectiveMultiplier;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
         UpdateHealthBar();
@@ -229,6 +235,16 @@ public class PlayerHealthController : MonoBehaviour, ICombatDamageReceiver
         MaxHealth = _baseMaxHealth * safeHealthMultiplier;
         CurrentHealth = Mathf.Clamp(MaxHealth * healthRatio, 0f, MaxHealth);
         UpdateHealthBar();
+    }
+
+    private float ResolveDefense()
+    {
+        if (_agentPawnRoot == null)
+        {
+            _agentPawnRoot = GetComponent<AgentPawnRoot>();
+        }
+
+        return _agentPawnRoot != null ? _agentPawnRoot.Defense : 0f;
     }
 
     private void Die()

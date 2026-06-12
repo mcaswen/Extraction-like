@@ -643,8 +643,14 @@ MonoBehaviour:
   _groundProbeHeight: 20
   _groundProbeDistance: 80
   _minGroundNormalY: 0.35
+  _iconKind: 0
+  _dangerTier: 1
+  _enemyTierRuleSet: {fileID: 0}
   _activeEnemyCluster: {fileID: 1980687331}
   _autoResolveActiveEnemyCluster: 1
+  _autoCreateActiveEnemyCluster: 1
+  _enemyPrefabs: []
+  _autoCollectChildSpawnPoints: 1
   _spawnPoints:
   - {fileID: 901385256}
   - {fileID: 901385256}
@@ -783,6 +789,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: AncientStrander
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442436483139533611, guid: fb9ea2911091c9043a261f4feb461700,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7220791511690022099, guid: fb9ea2911091c9043a261f4feb461700,
         type: 3}
@@ -1045,7 +1056,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.64
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 548267044833c4841a73e39a7ee720ae, type: 2}
   m_BuildHeightMesh: 0
@@ -1667,6 +1678,7 @@ MonoBehaviour:
   _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}
   _rangeLineWidth: 0.18
   _rangeLineRenderer: {fileID: 1065444470}
+  _rangeColliderTarget: {fileID: 0}
   _groundProbeHeight: 20
   _groundProbeDistance: 80
   _minGroundNormalY: 0.35
@@ -2216,10 +2228,17 @@ MonoBehaviour:
   ContainerColumns: 6
   ContainerRows: 6
   BlockedCells: []
-  PrecalculateLootOnSpawn: 1
   MinLootRollCount: 3
   MaxLootRollCount: 8
+  GenerateEachLootTableEntryOnce: 0
   LootTable: []
+  UseBoardGameResourceRules: 1
+  ResourceLootRuleSet: {fileID: 0}
+  ResourceTier: 0
+  ResourceState: 0
+  LowTierSearchSeconds: 3
+  MediumTierSearchSeconds: 5
+  HighTierSearchSeconds: 7
   _savedCellStates: []
 --- !u!1 &1335340946 stripped
 GameObject:
@@ -2514,6 +2533,7 @@ MonoBehaviour:
   _groundProbeHeight: 20
   _groundProbeDistance: 80
   _minGroundNormalY: 0.35
+  _resourceTier: 0
   _resourceMembers:
   - _entityId: ResourceCluster_8fcca174d3e44889a99359f878f0caab_Entity_0
     _entityObject: {fileID: 1660766108}
@@ -2622,7 +2642,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RigSlot: {fileID: 1575414876}
   BackpackSlot: {fileID: 479490469}
+  HeadSlot: {fileID: 0}
+  BodySlot: {fileID: 0}
+  FaceSlot: {fileID: 0}
+  HeadphoneSlot: {fileID: 0}
+  TotemSlotA: {fileID: 0}
+  TotemSlotB: {fileID: 0}
+  DefaultBackpackItem: {fileID: 0}
+  MaxCarryWeight: 30
   InventoryPanel: {fileID: 1648581003}
+  LootChestPanel: {fileID: 0}
   PocketGrid: {fileID: 1073454309}
   TacticalRigGrid: {fileID: 735858806}
   BackpackGrid: {fileID: 916710848}
@@ -2654,6 +2683,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf9242e6cd414c747af10313061c0d8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DraggableItemPrefab: {fileID: 0}
+  GlobalDragLayer: {fileID: 0}
 --- !u!114 &1602670015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2666,6 +2697,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5cc8ec39a7ce0d49a847ad107e50719, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  WeaponData: {fileID: 0}
+  AmmoData: {fileID: 0}
+  MedkitData: {fileID: 0}
+  SmallBagData: {fileID: 0}
+  BackpackPanel: {fileID: 0}
+  LootChestPanel: {fileID: 0}
 --- !u!114 &1602670016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2711,10 +2748,17 @@ MonoBehaviour:
   ContainerColumns: 6
   ContainerRows: 6
   BlockedCells: []
-  PrecalculateLootOnSpawn: 1
   MinLootRollCount: 3
   MaxLootRollCount: 8
+  GenerateEachLootTableEntryOnce: 0
   LootTable: []
+  UseBoardGameResourceRules: 1
+  ResourceLootRuleSet: {fileID: 0}
+  ResourceTier: 0
+  ResourceState: 0
+  LowTierSearchSeconds: 3
+  MediumTierSearchSeconds: 5
+  HighTierSearchSeconds: 7
   _savedCellStates: []
 --- !u!1 &1730329669
 GameObject:
@@ -2763,7 +2807,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.64
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
@@ -3114,30 +3158,38 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Positions:
-  - {x: 2.7052922, y: 0.05, z: -36.43076}
-  - {x: 2.4470043, y: 0.05, z: -37.06314}
-  - {x: 2.4511864, y: 0.05, z: -37.92423}
-  - {x: 2.6814296, y: 0.05, z: -38.87699}
-  - {x: 3.1013303, y: 0.05, z: -39.784416}
-  - {x: 3.6744823, y: 0.05, z: -40.509476}
-  - {x: 4.364478, y: 0.05, z: -40.91513}
-  - {x: 5.35157, y: 0.05, z: -40.965687}
-  - {x: 6.700935, y: 0.05, z: -40.763607}
-  - {x: 8.203549, y: 0.05, z: -40.379166}
-  - {x: 9.650394, y: 0.05, z: -39.882614}
-  - {x: 10.832445, y: 0.05, z: -39.34422}
-  - {x: 11.540682, y: 0.05, z: -38.834244}
-  - {x: 11.747331, y: 0.05, z: -38.268303}
-  - {x: 11.61405, y: 0.05, z: -37.573334}
-  - {x: 11.215979, y: 0.05, z: -36.83652}
-  - {x: 10.628251, y: 0.05, z: -36.145046}
-  - {x: 9.926, y: 0.05, z: -35.586105}
-  - {x: 9.184366, y: 0.05, z: -35.246895}
-  - {x: 8.248913, y: 0.05, z: -35.129894}
-  - {x: 7.0286474, y: 0.05, z: -35.165855}
-  - {x: 5.69386, y: 0.05, z: -35.334347}
-  - {x: 4.414844, y: 0.05, z: -35.61495}
-  - {x: 3.3618915, y: 0.05, z: -35.987225}
+  - {x: 11.099998, y: 0.05, z: -40.1}
+  - {x: 11.02314, y: 0.05, z: -39.31964}
+  - {x: 10.795517, y: 0.05, z: -38.569267}
+  - {x: 10.425878, y: 0.05, z: -37.877716}
+  - {x: 9.928427, y: 0.05, z: -37.271572}
+  - {x: 9.322281, y: 0.05, z: -36.77412}
+  - {x: 8.6307335, y: 0.05, z: -36.40448}
+  - {x: 7.8803606, y: 0.05, z: -36.176857}
+  - {x: 7.0999994, y: 0.05, z: -36.1}
+  - {x: 6.319639, y: 0.05, z: -36.176857}
+  - {x: 5.5692663, y: 0.05, z: -36.404484}
+  - {x: 4.8777175, y: 0.05, z: -36.77412}
+  - {x: 4.271572, y: 0.05, z: -37.271572}
+  - {x: 3.774121, y: 0.05, z: -37.877716}
+  - {x: 3.404481, y: 0.05, z: -38.569263}
+  - {x: 3.176859, y: 0.05, z: -39.319637}
+  - {x: 3.0999997, y: 0.05, z: -40.1}
+  - {x: 3.1768582, y: 0.05, z: -40.88036}
+  - {x: 3.4044812, y: 0.05, z: -41.630737}
+  - {x: 3.774121, y: 0.05, z: -42.32228}
+  - {x: 4.2715735, y: 0.05, z: -42.928425}
+  - {x: 4.8777194, y: 0.05, z: -43.425884}
+  - {x: 5.5692663, y: 0.05, z: -43.795517}
+  - {x: 6.319638, y: 0.05, z: -44.02314}
+  - {x: 7.0999994, y: 0.05, z: -44.1}
+  - {x: 7.8803616, y: 0.05, z: -44.02314}
+  - {x: 8.630734, y: 0.05, z: -43.795517}
+  - {x: 9.322282, y: 0.05, z: -43.42588}
+  - {x: 9.928428, y: 0.05, z: -42.928425}
+  - {x: 10.425879, y: 0.05, z: -42.32228}
+  - {x: 10.795516, y: 0.05, z: -41.630737}
+  - {x: 11.02314, y: 0.05, z: -40.88036}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.08
@@ -3383,6 +3435,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: AnchorSentinel
+      objectReference: {fileID: 0}
+    - target: {fileID: 865869463984006118, guid: 9f887a3dd0771e6428206bc84b5273b6,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2115695412165550860, guid: 9f887a3dd0771e6428206bc84b5273b6,
         type: 3}
@@ -6305,6 +6362,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: TidalAberration
       objectReference: {fileID: 0}
+    - target: {fileID: 1259898022693126903, guid: bc3dbc01d8508334fb1851a55058382a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3404893122310682199, guid: bc3dbc01d8508334fb1851a55058382a,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6433,6 +6495,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: HunterBoss
       objectReference: {fileID: 0}
+    - target: {fileID: 4482442279097001780, guid: a75329ef5f0ca7a42a88b4f3db576821,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6506,6 +6573,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ModernStrander
       objectReference: {fileID: 0}
+    - target: {fileID: 6894189765784444060, guid: 9cb4030f7647c174f94c0b6d322155d5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6522,7 +6594,7 @@ PrefabInstance:
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 12.8
+      value: 15.45
       objectReference: {fileID: 0}
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
@@ -6532,7 +6604,7 @@ PrefabInstance:
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -46.9
+      value: -44.78
       objectReference: {fileID: 0}
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}

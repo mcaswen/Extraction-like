@@ -73,6 +73,8 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     [HideInInspector]
     public float AttackRange = 3.2f;
     [HideInInspector]
+    public float DirectDamageCounterAttackRange = 10.5f;
+    [HideInInspector]
     public float AttackInterval = 5f;
     [HideInInspector]
     public float TentacleLatchDuration = 1.1f;
@@ -81,7 +83,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     [HideInInspector]
     public float TentacleHitboxHeight = 0.55f;
     [HideInInspector]
-    public float LatchPullStrength = 3.4f;
+    public float LatchPullStrength = 0.20f;
     [HideInInspector]
     public float CorrosionDamagePerSecond = 10f;
     [HideInInspector]
@@ -106,10 +108,14 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
     private NavMeshAgent _navMeshAgent;
     private EnemyAnimatorDriver _animatorDriver;
+    private EnemyHealthController _healthController;
+    private Collider _bodyCollider;
+    private Collider _ignoredPlayerBodyCollider;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
+    private IExternalMovementReceiver _externalMovementReceiver;
     private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
@@ -119,9 +125,12 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private float _latchTimer;
     private float _tentacleTotalDamage;
     private float _directDamageForcedChaseEndTime = -1f;
+    private float _directDamageCounterCooldownEndTime = -1f;
+    private float _activeTentacleLatchRange;
     private Vector3 _directDamageFallbackPosition;
     private bool _isTentacleStriking;
     private bool _isTentacleLatched;
+    private bool _isDirectDamageCounterStrike;
     private bool _hasAppliedInitialLatchDamage;
     private bool _hasAddedTentacleCorrosionDamage;
     private bool _hasDirectDamageFallbackPosition;
@@ -157,6 +166,8 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        _healthController = GetComponent<EnemyHealthController>();
+        _bodyCollider = GetComponent<Collider>();
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _patrolAwareness?.ConfigurePreset(_awarenessPreset);
@@ -194,6 +205,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         TargetHeight = _config.Detection.TargetHeight;
         LoseRange = _config.Detection.LoseRange;
         AttackRange = _config.AttackRange;
+        DirectDamageCounterAttackRange = _config.DirectDamageCounterAttackRange;
         AttackInterval = _config.AttackInterval;
         TentacleLatchDuration = _config.TentacleLatchDuration;
         TentacleHitboxWidth = _config.TentacleHitboxWidth;
@@ -260,8 +272,10 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         // 魔法封印可能在触手攻击中途禁用技能，因此这里立即停止命中盒和吸附状态。
         _isTentacleStriking = false;
         _isTentacleLatched = false;
+        _isDirectDamageCounterStrike = false;
         _latchTimer = 0f;
         _tentacleTotalDamage = 0f;
+        _activeTentacleLatchRange = 0f;
         _hasAppliedInitialLatchDamage = false;
         _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(false);
@@ -351,7 +365,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return;
         }
 
-        if (distanceToPlayer > AttackRange)
+        if (distanceToPlayer > GetCurrentAttackHoldRange())
         {
             StopTentacleAttack();
             CurrentState = EnemyState.Chase;
@@ -387,10 +401,10 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
                     CorrosionTickInterval);
             }
 
-            if (_playerMovementController != null)
+            if (_externalMovementReceiver != null)
             {
                 Vector3 pullTarget = TentacleOrigin != null ? TentacleOrigin.position : transform.position;
-                _playerMovementController.ApplyExternalPull(pullTarget, LatchPullStrength);
+                _externalMovementReceiver.ApplyExternalPull(pullTarget, LatchPullStrength);
             }
 
             if (_latchTimer >= TentacleLatchDuration)
@@ -421,13 +435,20 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
     private void BeginTentacleStrike()
     {
+        BeginTentacleStrike(AttackRange, false);
+    }
+
+    private void BeginTentacleStrike(float latchRange, bool isDirectDamageCounterStrike)
+    {
         // 每次触手攻击从“伸出命中盒”开始，首次命中后才切换为吸附。
         _animatorDriver?.TriggerAttack();
         _attackTimer = 0f;
         _latchTimer = 0f;
         _tentacleTotalDamage = 0f;
+        _activeTentacleLatchRange = Mathf.Max(AttackRange, latchRange);
         _isTentacleStriking = true;
         _isTentacleLatched = false;
+        _isDirectDamageCounterStrike = isDirectDamageCounterStrike;
         _hasAppliedInitialLatchDamage = false;
         _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(true);
@@ -443,8 +464,10 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         _isTentacleStriking = false;
         _isTentacleLatched = false;
+        _isDirectDamageCounterStrike = false;
         _latchTimer = 0f;
         _tentacleTotalDamage = 0f;
+        _activeTentacleLatchRange = 0f;
         _hasAppliedInitialLatchDamage = false;
         _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(false);
@@ -472,14 +495,30 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return;
         }
 
+        if (!IsAliveAfterDamageReaction())
+        {
+            return;
+        }
+
         AssignCombatTarget(context.Attacker);
         BeginDirectDamageForcedChase(context);
 
-        StopTentacleAttack();
         _waitTimer = 0f;
         _patrolAwareness?.ResetAwareness();
         GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
         FacePlayerImmediately();
+
+        if (TryStartDirectDamageCounterAttack(context))
+        {
+            return;
+        }
+
+        if (_isTentacleStriking || _isTentacleLatched)
+        {
+            CurrentState = EnemyState.Attack;
+            SetAgentStopped(true);
+            return;
+        }
 
         CurrentState = EnemyState.Chase;
         SetAgentStopped(false);
@@ -502,6 +541,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         _playerHealthController = damageReceiver as PlayerHealthController;
         PlayerTransform = damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform : PlayerTransform;
         _playerMovementController = playerMovementController;
+        _externalMovementReceiver = ResolveExternalMovementReceiver(damageReceiver, playerMovementController);
         _isTentacleLatched = true;
 
         if (_hasAppliedInitialLatchDamage)
@@ -538,12 +578,85 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         if (!_isTentacleStriking ||
             _combatDamageReceiver == null ||
             PlayerTransform == null ||
-            Vector3.Distance(transform.position, PlayerTransform.position) > AttackRange + 0.75f)
+            Vector3.Distance(transform.position, PlayerTransform.position) > GetCurrentTentacleLatchRange() + 0.75f)
         {
             return;
         }
 
         NotifyTentacleHit(_combatDamageReceiver, _playerMovementController);
+    }
+
+    private bool TryStartDirectDamageCounterAttack(EnemyDamageContext context)
+    {
+        if (PlayerTransform == null ||
+            _combatDamageReceiver == null ||
+            !context.IsDirectPlayerDamage ||
+            _isTentacleStriking ||
+            _isTentacleLatched ||
+            Time.time < _directDamageCounterCooldownEndTime)
+        {
+            return false;
+        }
+
+        float counterRange = Mathf.Max(AttackRange, DirectDamageCounterAttackRange);
+        if (Vector3.Distance(transform.position, PlayerTransform.position) > counterRange ||
+            !EnemyVisionUtility.HasLineOfSight(transform, PlayerTransform, LineOfSightBlockMask, EyeHeight, TargetHeight))
+        {
+            return false;
+        }
+
+        CurrentState = EnemyState.Attack;
+        SetAgentStopped(true);
+        FacePlayerImmediately();
+        _directDamageCounterCooldownEndTime = Time.time + Mathf.Max(0.1f, AttackInterval);
+        BeginTentacleStrike(counterRange, true);
+        return true;
+    }
+
+    private bool IsAliveAfterDamageReaction()
+    {
+        if (_healthController == null)
+        {
+            _healthController = GetComponent<EnemyHealthController>();
+        }
+
+        return _healthController == null || _healthController.IsAlive;
+    }
+
+    private float GetCurrentAttackHoldRange()
+    {
+        return _isDirectDamageCounterStrike
+            ? Mathf.Max(AttackRange, _activeTentacleLatchRange)
+            : AttackRange;
+    }
+
+    private float GetCurrentTentacleLatchRange()
+    {
+        return _activeTentacleLatchRange > 0f
+            ? _activeTentacleLatchRange
+            : AttackRange;
+    }
+
+    private IExternalMovementReceiver ResolveExternalMovementReceiver(
+        ICombatDamageReceiver damageReceiver,
+        PlayerMovementController playerMovementController)
+    {
+        if (damageReceiver != null && damageReceiver.DamageRootTransform != null)
+        {
+            IExternalMovementReceiver receiver = damageReceiver.DamageRootTransform.GetComponent<IExternalMovementReceiver>();
+            if (receiver != null)
+            {
+                return receiver;
+            }
+
+            receiver = damageReceiver.DamageRootTransform.GetComponentInParent<IExternalMovementReceiver>();
+            if (receiver != null)
+            {
+                return receiver;
+            }
+        }
+
+        return _externalMovementReceiver ?? playerMovementController;
     }
 
     private void UpdateAnimatorSpeed()
@@ -832,7 +945,8 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return false;
         }
 
-        if (TrySetSampledDestination(PlayerTransform.position, DirectDamageDestinationSampleRadius))
+        Vector3 desiredChasePosition = ResolveChaseStandOffPosition();
+        if (TrySetSampledDestination(desiredChasePosition, DirectDamageDestinationSampleRadius))
         {
             return true;
         }
@@ -843,7 +957,32 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return true;
         }
 
-        return TrySetDestination(PlayerTransform.position);
+        return TrySetDestination(desiredChasePosition);
+    }
+
+    private Vector3 ResolveChaseStandOffPosition()
+    {
+        if (PlayerTransform == null)
+        {
+            return transform.position;
+        }
+
+        Vector3 fromPlayer = transform.position - PlayerTransform.position;
+        fromPlayer.y = 0f;
+        if (fromPlayer.sqrMagnitude <= 0.0001f)
+        {
+            fromPlayer = -PlayerTransform.forward;
+            fromPlayer.y = 0f;
+        }
+
+        if (fromPlayer.sqrMagnitude <= 0.0001f)
+        {
+            fromPlayer = -transform.forward;
+            fromPlayer.y = 0f;
+        }
+
+        float standOffDistance = Mathf.Max(0.4f, AttackRange * 0.8f);
+        return PlayerTransform.position + fromPlayer.normalized * standOffDistance;
     }
 
     private bool TrySetSampledDestination(Vector3 position, float radius)
@@ -978,12 +1117,21 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
         }
 
+        IgnorePlayerBodyCollision(target);
+
+        _externalMovementReceiver = target.GetComponent<IExternalMovementReceiver>();
+        if (_externalMovementReceiver == null)
+        {
+            _externalMovementReceiver = target.GetComponentInParent<IExternalMovementReceiver>();
+        }
+
         if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
         {
             _combatDamageReceiver = receiver;
             if (receiver.DamageRootTransform != null)
             {
                 PlayerTransform = receiver.DamageRootTransform;
+                _externalMovementReceiver = ResolveExternalMovementReceiver(receiver, _playerMovementController);
             }
 
             return true;
@@ -991,6 +1139,38 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         _combatDamageReceiver = _playerHealthController;
         return _combatDamageReceiver != null;
+    }
+
+    private void IgnorePlayerBodyCollision(Transform target)
+    {
+        if (_bodyCollider == null)
+        {
+            _bodyCollider = GetComponent<Collider>();
+        }
+
+        if (_bodyCollider == null || target == null)
+        {
+            return;
+        }
+
+        Collider playerBodyCollider = target.GetComponent<Collider>();
+        if (playerBodyCollider == null)
+        {
+            playerBodyCollider = target.GetComponentInParent<Collider>();
+        }
+
+        if (playerBodyCollider == null || playerBodyCollider == _ignoredPlayerBodyCollider)
+        {
+            return;
+        }
+
+        if (_ignoredPlayerBodyCollider != null)
+        {
+            Physics.IgnoreCollision(_bodyCollider, _ignoredPlayerBodyCollider, false);
+        }
+
+        Physics.IgnoreCollision(_bodyCollider, playerBodyCollider, true);
+        _ignoredPlayerBodyCollider = playerBodyCollider;
     }
 
     private void OnDrawGizmosSelected()

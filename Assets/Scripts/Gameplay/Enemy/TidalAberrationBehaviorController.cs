@@ -14,6 +14,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 {
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
+    private const float WaterJetHitRadius = 0.65f;
 
     /// <summary>
     /// 潮汐畸变体的主行为状态。
@@ -121,6 +122,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private EnemyPatrolAwarenessController _patrolAwareness;
     private PlayerHealthController _playerHealthController;
     private PlayerMovementController _playerMovementController;
+    private IExternalMovementReceiver _externalMovementReceiver;
     private PlayerShootingController _playerShootingController;
     private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
@@ -140,6 +142,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool _isRangedCasting;
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
+    private bool _openingWaterJetPending;
 
     /// <summary>
     /// 视野检测使用的节点。
@@ -191,6 +194,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         EnsureLineRenderers();
         SetNextPatrolDestination();
+        QueueOpeningWaterJetIfTargetInRange();
     }
 
     private bool ApplyConfig()
@@ -249,6 +253,13 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
+        if (TryFireOpeningWaterJet(distanceToPlayer))
+        {
+            UpdateAttackVisuals();
+            UpdateAnimatorSpeed();
+            return;
+        }
+
         switch (CurrentState)
         {
             case EnemyState.Patrol:
@@ -334,7 +345,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             return;
         }
 
-        if (distanceToPlayer >= MinimumRangedDistance && distanceToPlayer <= RangedAttackRange)
+        if (IsInRangedAttackWindow(distanceToPlayer))
         {
             CurrentState = EnemyState.RangedAttack;
             SetAgentStopped(true);
@@ -429,7 +440,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             return;
         }
 
-        if (distanceToPlayer < MinimumRangedDistance || distanceToPlayer > RangedAttackRange)
+        if (!IsInRangedAttackWindow(distanceToPlayer))
         {
             StopRangedAttack();
             CurrentState = EnemyState.Chase;
@@ -509,30 +520,73 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         Vector3 direction = (PlayerTransform.position + Vector3.up * 0.8f) - origin;
         direction.Normalize();
 
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, WaterJetMaxDistance))
+        if (TryGetWaterJetHit(origin, direction, out Vector3 hitPoint, out Collider hitCollider, out ICombatDamageReceiver damageReceiver))
         {
-            if (CombatDamageUtility.TryGetDamageReceiver(hit.collider, out ICombatDamageReceiver damageReceiver))
+            float totalDamage = CombatDamageUtility.ApplyDamageTo(
+                damageReceiver,
+                WaterJetDamage,
+                hitPoint,
+                direction,
+                gameObject);
+
+            IExternalMovementReceiver hitMovementReceiver = ResolveExternalMovementReceiver(damageReceiver, hitCollider);
+            if (hitMovementReceiver != null)
             {
-                float totalDamage = 0f;
-                totalDamage = CombatDamageUtility.ApplyDamageTo(
-                    damageReceiver,
-                    WaterJetDamage,
-                    hit.point,
-                    direction,
-                    gameObject);
-
-                if (_playerMovementController != null)
-                {
-                    _playerMovementController.ApplyExternalImpulse(direction, WaterJetKnockbackStrength);
-                    _playerMovementController.ApplyMoveSpeedDebuff(KnockbackMoveSpeedMultiplier, KnockbackSlowDuration);
-                }
-
-                EnemySkillDamageLogger.LogSkillDamage(this, "Water Jet", totalDamage);
-                return;
+                _externalMovementReceiver = hitMovementReceiver;
+                hitMovementReceiver.ApplyExternalImpulse(direction, WaterJetKnockbackStrength);
+                hitMovementReceiver.ApplyMoveSpeedDebuff(KnockbackMoveSpeedMultiplier, KnockbackSlowDuration);
             }
+
+            EnemySkillDamageLogger.LogSkillDamage(this, "Water Jet", totalDamage);
+            return;
         }
 
         EnemySkillDamageLogger.LogSkillDamage(this, "Water Jet", 0f);
+    }
+
+    private void QueueOpeningWaterJetIfTargetInRange()
+    {
+        if (PlayerTransform == null)
+        {
+            return;
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
+        if (!IsInRangedAttackWindow(distanceToPlayer))
+        {
+            return;
+        }
+
+        _openingWaterJetPending = true;
+        _nextRangedAttackTime = 0f;
+        CurrentState = EnemyState.RangedAttack;
+        SetAgentStopped(true);
+    }
+
+    private bool TryFireOpeningWaterJet(float distanceToPlayer)
+    {
+        if (!_openingWaterJetPending)
+        {
+            return false;
+        }
+
+        _openingWaterJetPending = false;
+        if (!IsInRangedAttackWindow(distanceToPlayer) || PlayerTransform == null)
+        {
+            return false;
+        }
+
+        StopMeleeAttack();
+        CurrentState = EnemyState.RangedAttack;
+        SetAgentStopped(true);
+        LookAtPlayer();
+        PerformRangedAttack();
+        return true;
+    }
+
+    private bool IsInRangedAttackWindow(float distanceToPlayer)
+    {
+        return distanceToPlayer >= MinimumRangedDistance && distanceToPlayer <= RangedAttackRange;
     }
 
     private void StopRangedAttack()
@@ -581,7 +635,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         if (WaterJetRenderer == null)
         {
-            WaterJetRenderer = CreateLineRenderer("WaterJet", new Color(0.72f, 0.94f, 1f, 0.95f), new Color(0.35f, 0.7f, 1f, 0.45f), 0.12f, 0.06f);
+            WaterJetRenderer = CreateLineRenderer("WaterJet", new Color(0.7f, 0.96f, 1f, 1f), new Color(0.12f, 0.56f, 1f, 0.85f), 0.34f, 0.18f);
         }
     }
 
@@ -656,10 +710,129 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         WaterJetRenderer.enabled = true;
+        float pulse = 0.5f + Mathf.Sin(Time.time * 32f) * 0.5f;
+        WaterJetRenderer.startWidth = 0.34f + pulse * 0.12f;
+        WaterJetRenderer.endWidth = 0.18f + pulse * 0.08f;
+        WaterJetRenderer.startColor = Color.Lerp(new Color(0.7f, 0.96f, 1f, 1f), Color.white, pulse * 0.45f);
+        WaterJetRenderer.endColor = new Color(0.12f, 0.56f, 1f, 0.88f);
         Vector3 origin = RangedOrigin != null ? RangedOrigin.position : transform.position + Vector3.up * 1.2f;
         Vector3 target = PlayerTransform.position + Vector3.up * 0.85f;
         WaterJetRenderer.SetPosition(0, origin);
         WaterJetRenderer.SetPosition(1, target);
+    }
+
+    private bool TryGetWaterJetHit(Vector3 origin, Vector3 direction, out Vector3 hitPoint, out Collider hitCollider, out ICombatDamageReceiver damageReceiver)
+    {
+        hitPoint = origin + direction * WaterJetMaxDistance;
+        hitCollider = null;
+        damageReceiver = null;
+
+        RaycastHit[] hits = Physics.SphereCastAll(
+            origin,
+            WaterJetHitRadius,
+            direction,
+            WaterJetMaxDistance,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Ignore);
+
+        float closestDistance = float.PositiveInfinity;
+        bool foundHit = false;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            if (hit.collider == null || IsOwnCollider(hit.collider) || hit.distance >= closestDistance)
+            {
+                continue;
+            }
+
+            if (!CombatDamageUtility.TryGetDamageReceiver(hit.collider, out ICombatDamageReceiver hitReceiver) ||
+                !IsCurrentCombatTarget(hitReceiver, hit.collider))
+            {
+                continue;
+            }
+
+            hitPoint = hit.point;
+            hitCollider = hit.collider;
+            damageReceiver = hitReceiver;
+            closestDistance = hit.distance;
+            foundHit = true;
+        }
+
+        if (foundHit)
+        {
+            return true;
+        }
+
+        if (PlayerTransform == null || !CombatDamageUtility.TryGetDamageReceiver(PlayerTransform, out damageReceiver))
+        {
+            return false;
+        }
+
+        Transform damageRoot = damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform : PlayerTransform;
+        hitPoint = damageRoot.position + Vector3.up * 0.8f;
+        hitCollider = damageRoot.GetComponentInChildren<Collider>();
+        return true;
+    }
+
+    private bool IsCurrentCombatTarget(ICombatDamageReceiver damageReceiver, Collider hitCollider)
+    {
+        if (damageReceiver == null || PlayerTransform == null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(damageReceiver, _combatDamageReceiver))
+        {
+            return true;
+        }
+
+        if (damageReceiver.DamageRootTransform != null && IsSameTransformHierarchy(damageReceiver.DamageRootTransform, PlayerTransform))
+        {
+            return true;
+        }
+
+        return hitCollider != null && IsSameTransformHierarchy(hitCollider.transform, PlayerTransform);
+    }
+
+    private static bool IsSameTransformHierarchy(Transform first, Transform second)
+    {
+        return first != null &&
+               second != null &&
+               (first == second || first.IsChildOf(second) || second.IsChildOf(first));
+    }
+
+    private bool IsOwnCollider(Collider hitCollider)
+    {
+        return hitCollider != null && hitCollider.transform.IsChildOf(transform);
+    }
+
+    private IExternalMovementReceiver ResolveExternalMovementReceiver(ICombatDamageReceiver damageReceiver, Collider hitCollider)
+    {
+        if (damageReceiver != null && damageReceiver.DamageRootTransform != null)
+        {
+            IExternalMovementReceiver rootMovement = damageReceiver.DamageRootTransform.GetComponent<IExternalMovementReceiver>();
+            if (rootMovement != null)
+            {
+                return rootMovement;
+            }
+
+            rootMovement = damageReceiver.DamageRootTransform.GetComponentInParent<IExternalMovementReceiver>();
+            if (rootMovement != null)
+            {
+                return rootMovement;
+            }
+        }
+
+        if (hitCollider != null)
+        {
+            IExternalMovementReceiver hitMovement = hitCollider.GetComponentInParent<IExternalMovementReceiver>();
+            if (hitMovement != null)
+            {
+                return hitMovement;
+            }
+        }
+
+        return _externalMovementReceiver ?? _playerMovementController;
     }
 
     private void LookAtPlayer()
@@ -977,6 +1150,12 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         if (_playerMovementController == null)
         {
             _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
+        }
+
+        _externalMovementReceiver = target.GetComponent<IExternalMovementReceiver>();
+        if (_externalMovementReceiver == null)
+        {
+            _externalMovementReceiver = target.GetComponentInParent<IExternalMovementReceiver>();
         }
 
         _playerShootingController = target.GetComponent<PlayerShootingController>();

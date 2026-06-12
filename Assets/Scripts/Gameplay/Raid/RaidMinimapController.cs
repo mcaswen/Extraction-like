@@ -87,7 +87,8 @@ public class RaidMinimapController : MonoBehaviour
         _canvas = canvasObject.AddComponent<Canvas>();
         _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         _canvas.sortingOrder = 200;
-        canvasObject.AddComponent<CanvasScaler>();
+        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+        AdaptiveCanvasScaler.Configure(scaler, new Vector2(1920f, 1080f));
         canvasObject.AddComponent<GraphicRaycaster>();
 
         _smallMapRoot = CreatePanel(canvasObject.transform, "SmallMapRoot", SmallMapSize, new Vector2(1f, 1f), new Vector2(-20f, -20f), new Color(0.06f, 0.08f, 0.12f, 0.78f));

@@ -20,14 +20,6 @@ MonoBehaviour:
     _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
       type: 3}
     _deathLootSpawnOffset: {x: 0, y: 0.25, z: 0}
-  _autoInitializeRunes: 1
-  _autoSpawnDefaultRunes: 1
-  _defaultRuneCount: 3
-  _defaultRuneRadius: 1.8
-  _defaultRuneHeight: 1.25
-  _defaultRuneScale: {x: 0.35, y: 0.35, z: 0.35}
-  _useArrayOrderAsPuzzleSequence: 0
-  _wrongRuneImmediatelyActivates: 1
   _detectionRange: 16
   _lockDuration: 5
   _firingDuration: 3

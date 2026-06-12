@@ -38,11 +38,12 @@ MonoBehaviour:
     _targetHeight: 1
     _loseRange: 16
   _attackRange: 3.2
+  _directDamageCounterAttackRange: 10.5
   _attackInterval: 5
   _tentacleLatchDuration: 1.1
   _tentacleHitboxWidth: 0.55
   _tentacleHitboxHeight: 0.55
-  _latchPullStrength: 0.5
+  _latchPullStrength: 0.20
   _corrosionDamagePerSecond: 10
   _corrosionDuration: 2.5
   _corrosionTickInterval: 0.25

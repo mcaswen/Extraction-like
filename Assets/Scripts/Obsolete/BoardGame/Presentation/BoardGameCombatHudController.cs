@@ -81,9 +81,9 @@ namespace BoardGame.Presentation
         [SerializeField] private TMP_Text _friendlyDefenseText;
         [SerializeField] private Image _friendlyHealthFillImage;
         [SerializeField] private RectTransform _friendlyFloatingAnchor;
-        private TMP_Text _friendlyTitleText;
-        private TMP_Text _friendlySubtitleText;
-        private TMP_Text _friendlyHealthText;
+        private TMP_Text _friendlyTitleText = null;
+        private TMP_Text _friendlySubtitleText = null;
+        private TMP_Text _friendlyHealthText = null;
 
         [Header("Enemy")]
         [SerializeField] private TMP_Text _enemyAttackText;
@@ -93,9 +93,9 @@ namespace BoardGame.Presentation
         [SerializeField] private Image _enemyIconImage;
         [SerializeField] private TMP_Text _enemyIconFallbackText;
         [SerializeField] private List<Sprite> _enemyIconSpriteOptions = new List<Sprite>();
-        private TMP_Text _enemyTitleText;
-        private TMP_Text _enemySubtitleText;
-        private TMP_Text _enemyHealthText;
+        private TMP_Text _enemyTitleText = null;
+        private TMP_Text _enemySubtitleText = null;
+        private TMP_Text _enemyHealthText = null;
 
         [Header("Combat Log")]
         [SerializeField] private RectTransform _combatLogContainer;

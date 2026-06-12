@@ -177,14 +177,6 @@ public static class EnemyConfigMigrationTool
         }
         else if (entry.ConfigType == typeof(AnchorSentinelConfig))
         {
-            CopyBool(behaviorObject, "AutoInitializeRunes", configObject, "_autoInitializeRunes");
-            CopyBool(behaviorObject, "AutoSpawnDefaultRunes", configObject, "_autoSpawnDefaultRunes");
-            CopyInt(behaviorObject, "DefaultRuneCount", configObject, "_defaultRuneCount");
-            CopyFloat(behaviorObject, "DefaultRuneRadius", configObject, "_defaultRuneRadius");
-            CopyFloat(behaviorObject, "DefaultRuneHeight", configObject, "_defaultRuneHeight");
-            CopyVector3(behaviorObject, "DefaultRuneScale", configObject, "_defaultRuneScale");
-            CopyBool(behaviorObject, "UseArrayOrderAsPuzzleSequence", configObject, "_useArrayOrderAsPuzzleSequence");
-            CopyBool(behaviorObject, "WrongRuneImmediatelyActivates", configObject, "_wrongRuneImmediatelyActivates");
             CopyFloat(behaviorObject, "DetectionRange", configObject, "_detectionRange");
             CopyFloat(behaviorObject, "LockDuration", configObject, "_lockDuration");
             CopyFloat(behaviorObject, "FiringDuration", configObject, "_firingDuration");

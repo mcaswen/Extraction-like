@@ -5,9 +5,10 @@ using UnityEngine.AI;
 /// <summary>
 /// 玩家移动控制器。
 /// </summary>
-public class PlayerMovementController : MonoBehaviour
+public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
 {
     private const float StopFromMaxSpeedDuration = 0.5f;
+    private const float ExternalImpulseMovementOverrideDuration = 0.45f;
 
     /// <summary>
     /// 玩家基础移动速度。
@@ -44,6 +45,7 @@ public class PlayerMovementController : MonoBehaviour
     private float _speedBoostMultiplier = 1f;
     private float _speedDebuffDurationRemaining;
     private float _speedDebuffMultiplier = 1f;
+    private float _externalImpulseMovementOverrideRemaining;
     private float _nextFootstepStimulusTime;
     private Renderer[] _cachedRenderers;
     private Color[] _originalColors;
@@ -119,6 +121,9 @@ public class PlayerMovementController : MonoBehaviour
         _externalImpulseVelocity = DecayVelocity(
             _externalImpulseVelocity,
             Mathf.Max(ExternalImpulseDamping, stopDeceleration));
+        _externalImpulseMovementOverrideRemaining = Mathf.Max(
+            0f,
+            _externalImpulseMovementOverrideRemaining - Time.fixedDeltaTime);
         _immobilizeDurationRemaining = Mathf.Max(0f, _immobilizeDurationRemaining - Time.fixedDeltaTime);
         _speedBoostDurationRemaining = Mathf.Max(0f, _speedBoostDurationRemaining - Time.unscaledDeltaTime);
         if (_speedBoostDurationRemaining <= 0f)
@@ -150,6 +155,11 @@ public class PlayerMovementController : MonoBehaviour
 
     private bool IsNavMeshAgentControllingMovement()
     {
+        if (_externalImpulseMovementOverrideRemaining > 0f || _externalImpulseVelocity.sqrMagnitude > 0.0001f)
+        {
+            return false;
+        }
+
         return _navMeshAgent != null &&
                _navMeshAgent.enabled &&
                _navMeshAgent.isOnNavMesh &&
@@ -238,6 +248,15 @@ public class PlayerMovementController : MonoBehaviour
         }
 
         _externalImpulseVelocity += planarDirection.normalized * strength;
+        _externalImpulseMovementOverrideRemaining = Mathf.Max(
+            _externalImpulseMovementOverrideRemaining,
+            ExternalImpulseMovementOverrideDuration);
+
+        if (_navMeshAgent != null && _navMeshAgent.enabled && _navMeshAgent.isOnNavMesh)
+        {
+            _navMeshAgent.ResetPath();
+            _navMeshAgent.velocity = Vector3.zero;
+        }
     }
 
     /// <summary>

@@ -208,7 +208,7 @@ MonoBehaviour:
   WaterJetRenderer: {fileID: 0}
   PatrolRadius: 8
   PatrolWaitTime: 1.5
-  DetectionRange: 14
+  DetectionRange: 16
   ViewAngle: 360
   LineOfSightBlockMask:
     serializedVersion: 2
@@ -226,15 +226,15 @@ MonoBehaviour:
   SilenceDuration: 1.5
   ElectricTickDamagePerSecond: 4
   ElectricTickInterval: 0.25
-  MinimumRangedDistance: 5
-  RangedAttackRange: 9
-  RangedAttackInterval: 2.6
-  WaterJetDuration: 0.18
+  MinimumRangedDistance: 4.2
+  RangedAttackRange: 13
+  RangedAttackInterval: 3
+  WaterJetDuration: 0.65
   WaterJetDamage: 14
-  WaterJetKnockbackStrength: 5.2
+  WaterJetKnockbackStrength: 10
   KnockbackMoveSpeedMultiplier: 0.5
-  KnockbackSlowDuration: 1
-  WaterJetMaxDistance: 10
+  KnockbackSlowDuration: 1.5
+  WaterJetMaxDistance: 14
 --- !u!114 &6888735020096167466
 MonoBehaviour:
   m_ObjectHideFlags: 0

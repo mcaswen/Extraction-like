@@ -26,12 +26,6 @@ public class PostEffectsBase : MonoBehaviour
 
     protected virtual bool CheckSupport()
     {
-        if (!SystemInfo.supportsImageEffects || !SystemInfo.supportsRenderTextures)
-        {
-            Debug.LogWarning("This platform does not support image effects or render textures.");
-            return false;
-        }
-
         return true;
     }
 

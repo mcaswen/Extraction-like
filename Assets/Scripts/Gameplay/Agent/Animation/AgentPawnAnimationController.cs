@@ -91,8 +91,11 @@ namespace Gameplay.Agent.Animation
 
         private void LateUpdate()
         {
-            if (_animator == null)
+            if (!HasPlayableAnimator())
+            {
+                _previousPosition = transform.position;
                 return;
+            }
 
             float worldSpeed = ResolvePlanarSpeed();
             float blendTreeSpeed = ConvertWorldSpeedToBlendTreeThreshold(worldSpeed);
@@ -108,6 +111,9 @@ namespace Gameplay.Agent.Animation
 
         public void NotifyAttack(float suggestedDurationSeconds)
         {
+            if (!HasPlayableAnimator())
+                return;
+
             float duration = Mathf.Clamp(
                 suggestedDurationSeconds > 0f ? suggestedDurationSeconds : _attackHoldSeconds,
                 _attackHoldSeconds,
@@ -190,7 +196,7 @@ namespace Gameplay.Agent.Animation
         {
             _parameterTypes.Clear();
 
-            if (_animator == null)
+            if (!HasPlayableAnimator())
                 return;
 
             AnimatorControllerParameter[] parameters = _animator.parameters;
@@ -207,6 +213,9 @@ namespace Gameplay.Agent.Animation
             _attackStateHash = 0;
             _combatLayerWeight = 0f;
 
+            if (!HasPlayableAnimator())
+                return;
+
             if (_combatLayerIndex < 0)
                 return;
 
@@ -220,7 +229,7 @@ namespace Gameplay.Agent.Animation
 
         private int ResolveLayerIndex(string layerName)
         {
-            if (_animator == null || string.IsNullOrEmpty(layerName))
+            if (!HasPlayableAnimator() || string.IsNullOrEmpty(layerName))
                 return -1;
 
             for (int i = 0; i < _animator.layerCount; i++)
@@ -294,7 +303,7 @@ namespace Gameplay.Agent.Animation
             out int stateHash)
         {
             stateHash = 0;
-            if (_animator == null || layerIndex < 0 || string.IsNullOrEmpty(stateName))
+            if (!HasPlayableAnimator() || layerIndex < 0 || string.IsNullOrEmpty(stateName))
                 return false;
 
             int shortNameHash = Animator.StringToHash(stateName);
@@ -320,6 +329,11 @@ namespace Gameplay.Agent.Animation
         private static int ToParameterHash(string parameterName)
         {
             return string.IsNullOrEmpty(parameterName) ? 0 : Animator.StringToHash(parameterName);
+        }
+
+        private bool HasPlayableAnimator()
+        {
+            return _animator != null && _animator.runtimeAnimatorController != null;
         }
     }
 }

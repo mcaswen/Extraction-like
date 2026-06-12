@@ -25,8 +25,8 @@ MonoBehaviour:
     _patrolWaitTime: 1.5
   _detection:
     _awarenessPreset: 2
-    _detectionRange: 14
-    _viewAngle: 124
+    _detectionRange: 16
+    _viewAngle: 360
     _loseRange: 18
   _meleeAttackRange: 4
   _meleeAttackInterval: 2.2
@@ -35,12 +35,12 @@ MonoBehaviour:
   _silenceDuration: 1.5
   _electricTickDamagePerSecond: 4
   _electricTickInterval: 0.25
-  _minimumRangedDistance: 5
-  _rangedAttackRange: 9
-  _rangedAttackInterval: 8
-  _waterJetDuration: 0.18
+  _minimumRangedDistance: 4.2
+  _rangedAttackRange: 13
+  _rangedAttackInterval: 3
+  _waterJetDuration: 0.65
   _waterJetDamage: 14
-  _waterJetKnockbackStrength: 5.2
+  _waterJetKnockbackStrength: 10
   _knockbackMoveSpeedMultiplier: 0.5
-  _knockbackSlowDuration: 1
-  _waterJetMaxDistance: 10
+  _knockbackSlowDuration: 1.5
+  _waterJetMaxDistance: 14
