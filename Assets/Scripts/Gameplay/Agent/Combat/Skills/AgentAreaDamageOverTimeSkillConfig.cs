@@ -112,10 +112,11 @@ namespace Gameplay.Agent.Combat
                 context.CasterTransform,
                 context.EnemyLayerMask,
                 _config.Radius,
-                _config.CalculateDamagePerSecond(context.Stats),
+                _config.CalculateDamagePerSecond(context.Stats) * context.SkillModifiers.DamageMultiplier,
                 _config.DurationSeconds,
                 _config.TickInterval,
                 _config.StatusEffect,
+                context.SkillModifiers.SlowDurationBonusSeconds,
                 _config.VisualPrefab,
                 _config.IndicatorColor);
             return true;

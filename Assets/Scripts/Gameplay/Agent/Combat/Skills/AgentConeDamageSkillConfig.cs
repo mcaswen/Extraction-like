@@ -123,7 +123,7 @@ namespace Gameplay.Agent.Combat
                 context.EnemyLayerMask,
                 _targets);
 
-            float damage = _config.CalculateDamage(context.Stats);
+            float damage = _config.CalculateDamage(context.Stats) * context.SkillModifiers.DamageMultiplier;
             bool hitAnyTarget = false;
             foreach (global::EnemyHealthController enemyHealth in _targets)
             {

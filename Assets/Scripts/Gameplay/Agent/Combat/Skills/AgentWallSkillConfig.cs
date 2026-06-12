@@ -149,7 +149,8 @@ namespace Gameplay.Agent.Combat
             rigidbodyComponent.isKinematic = true;
             rigidbodyComponent.useGravity = false;
             AgentCombatSkillUtility.ApplyColor(wallObject, _config.WallColor);
-            Object.Destroy(wallObject, _config.DurationSeconds);
+            float durationSeconds = Mathf.Max(0.05f, _config.DurationSeconds + context.SkillModifiers.DurationBonusSeconds);
+            Object.Destroy(wallObject, durationSeconds);
 
             // 墙体生成瞬间对重叠敌人结算一次冲击伤害
             ApplyImpactDamage(context, center, rotation, size);
@@ -184,7 +185,7 @@ namespace Gameplay.Agent.Combat
                     _targets.Add(enemyHealth);
             }
 
-            float damage = _config.CalculateDamage(context.Stats);
+            float damage = _config.CalculateDamage(context.Stats) * context.SkillModifiers.DamageMultiplier;
             foreach (global::EnemyHealthController enemyHealth in _targets)
             {
                 AgentCombatSkillUtility.ApplyDamageAndStatus(

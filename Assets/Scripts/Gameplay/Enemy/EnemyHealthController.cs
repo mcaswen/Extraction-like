@@ -551,6 +551,7 @@ public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
 
         if (_currentHealth <= 0f)
         {
+            NotifyAgentKillCredit(context.Attacker);
             Die();
         }
     }
@@ -570,6 +571,21 @@ public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
         }
 
         EnemySuspicionStimulusBus.ReportEnemyDamaged(transform.position, transform);
+    }
+
+    private void NotifyAgentKillCredit(Transform attacker)
+    {
+        if (attacker == null)
+        {
+            return;
+        }
+
+        Gameplay.Agent.Talent.AgentTalentRuntimeController talentController =
+            attacker.GetComponentInParent<Gameplay.Agent.Talent.AgentTalentRuntimeController>();
+        if (talentController != null)
+        {
+            talentController.NotifyEnemyDefeated(this);
+        }
     }
 
     /// <summary>

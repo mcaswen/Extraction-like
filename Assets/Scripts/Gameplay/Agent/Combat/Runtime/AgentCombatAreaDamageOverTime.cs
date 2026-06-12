@@ -21,6 +21,7 @@ namespace Gameplay.Agent.Combat
         private float _tickInterval;
         private float _elapsedSeconds;
         private float _tickTimer;
+        private float _slowDurationBonusSeconds;
         private AgentCombatStatusEffectDefinition _statusEffect;
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace Gameplay.Agent.Combat
         /// <param name="durationSeconds"></param>
         /// <param name="tickInterval"></param>
         /// <param name="statusEffect"></param>
+        /// <param name="slowDurationBonusSeconds"></param>
         /// <param name="visualPrefab"></param>
         /// <param name="indicatorColor"></param>
         public void Initialize(
@@ -43,6 +45,7 @@ namespace Gameplay.Agent.Combat
             float durationSeconds,
             float tickInterval,
             AgentCombatStatusEffectDefinition statusEffect,
+            float slowDurationBonusSeconds,
             GameObject visualPrefab,
             Color indicatorColor)
         {
@@ -53,6 +56,7 @@ namespace Gameplay.Agent.Combat
             _durationSeconds = Mathf.Max(0.05f, durationSeconds);
             _tickInterval = Mathf.Max(0.05f, tickInterval);
             _statusEffect = statusEffect;
+            _slowDurationBonusSeconds = Mathf.Max(0f, slowDurationBonusSeconds);
             _tickTimer = 0f;
 
             SpawnIndicator(visualPrefab, indicatorColor);
@@ -93,7 +97,8 @@ namespace Gameplay.Agent.Combat
                 null,
                 new AgentCombatRuntimeStats(1, 0f, 0f),
                 _enemyLayerMask,
-                _tickInterval);
+                _tickInterval,
+                new AgentCombatSkillModifiers(1f, 0f, _slowDurationBonusSeconds));
 
             float tickDamage = _damagePerSecond * _tickInterval;
             foreach (global::EnemyHealthController enemyHealth in _targets)

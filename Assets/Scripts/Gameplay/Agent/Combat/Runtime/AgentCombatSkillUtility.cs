@@ -109,7 +109,7 @@ namespace Gameplay.Agent.Combat
                 sourceType);
 
             enemyHealth.TakeDamage(damage, damageContext);
-            statusEffect.ApplyTo(enemyHealth);
+            statusEffect.ApplyTo(enemyHealth, context.SkillModifiers.SlowDurationBonusSeconds);
         }
 
         /// <summary>

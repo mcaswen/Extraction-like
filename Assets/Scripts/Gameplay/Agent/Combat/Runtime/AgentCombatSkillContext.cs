@@ -16,18 +16,21 @@ namespace Gameplay.Agent.Combat
         /// <param name="stats"></param>
         /// <param name="enemyLayerMask"></param>
         /// <param name="actionLockSeconds"></param>
+        /// <param name="skillModifiers"></param>
         public AgentCombatSkillContext(
             Transform casterTransform,
             AgentCombatStyleConfig styleConfig,
             AgentCombatRuntimeStats stats,
             LayerMask enemyLayerMask,
-            float actionLockSeconds)
+            float actionLockSeconds,
+            AgentCombatSkillModifiers skillModifiers = default)
         {
             CasterTransform = casterTransform;
             StyleConfig = styleConfig;
             Stats = stats;
             EnemyLayerMask = enemyLayerMask;
             ActionLockSeconds = Mathf.Max(0.05f, actionLockSeconds);
+            SkillModifiers = skillModifiers;
         }
 
         /// <summary>
@@ -59,6 +62,11 @@ namespace Gameplay.Agent.Combat
         /// 技能成功释放后建议锁定动作的时间
         /// </summary>
         public float ActionLockSeconds { get; }
+
+        /// <summary>
+        /// 本次技能释放应用的天赋修正
+        /// </summary>
+        public AgentCombatSkillModifiers SkillModifiers { get; }
 
         /// <summary>
         /// 施法者当前位置

@@ -45,7 +45,10 @@ namespace Gameplay.Agent.Combat
         /// 将状态效果应用到敌人身上
         /// </summary>
         /// <param name="enemyHealthController"></param>
-        public void ApplyTo(global::EnemyHealthController enemyHealthController)
+        /// <param name="slowDurationBonusSeconds"></param>
+        public void ApplyTo(
+            global::EnemyHealthController enemyHealthController,
+            float slowDurationBonusSeconds = 0f)
         {
             if (enemyHealthController == null || (!ApplySlow && !ApplyFreeze))
                 return;
@@ -57,7 +60,10 @@ namespace Gameplay.Agent.Combat
                 statusController = enemyHealthController.gameObject.AddComponent<global::EnemyStatusEffectController>();
 
             if (ApplySlow)
-                statusController.ApplySlow(SlowMultiplier, SlowDurationSeconds);
+            {
+                float slowDuration = SlowDurationSeconds + Mathf.Max(0f, slowDurationBonusSeconds);
+                statusController.ApplySlow(SlowMultiplier, slowDuration);
+            }
 
             if (ApplyFreeze)
                 statusController.ApplyFreeze(FreezeDurationSeconds);

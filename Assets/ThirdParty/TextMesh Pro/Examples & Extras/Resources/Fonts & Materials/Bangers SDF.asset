@@ -947,7 +947,6 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
-<<<<<<< Updated upstream
   - m_Index: 38
     m_Metrics:
       m_Width: 68.203125
@@ -963,8 +962,6 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
-<<<<<<< Updated upstream
-=======
   - m_Index: 103
     m_Metrics:
       m_Width: 75.515625
@@ -1010,9 +1007,6 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_CharacterTable:
   - m_ElementType: 1
     m_Unicode: 32
@@ -1223,7 +1217,6 @@ MonoBehaviour:
     m_GlyphIndex: 31
     m_Scale: 1
   - m_ElementType: 1
-<<<<<<< Updated upstream
     m_Unicode: 51
     m_GlyphIndex: 32
     m_Scale: 1
@@ -1239,8 +1232,6 @@ MonoBehaviour:
     m_Unicode: 57
     m_GlyphIndex: 38
     m_Scale: 1
-<<<<<<< Updated upstream
-=======
   - m_ElementType: 1
     m_Unicode: 122
     m_GlyphIndex: 103
@@ -1253,12 +1244,6 @@ MonoBehaviour:
     m_Unicode: 43
     m_GlyphIndex: 24
     m_Scale: 1
-=======
-    m_Unicode: 52
-    m_GlyphIndex: 33
-    m_Scale: 1
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_AtlasTextures:
   - {fileID: 28584486757587946}
   m_AtlasTextureIndex: 0
@@ -1469,7 +1454,6 @@ MonoBehaviour:
     m_Y: 129
     m_Width: 99
     m_Height: 125
-<<<<<<< Updated upstream
   - m_X: 576
     m_Y: 254
     m_Width: 95
@@ -1486,8 +1470,6 @@ MonoBehaviour:
     m_Y: 384
     m_Width: 90
     m_Height: 129
-<<<<<<< Updated upstream
-=======
   - m_X: 628
     m_Y: 127
     m_Width: 97
@@ -1500,13 +1482,6 @@ MonoBehaviour:
     m_Y: 939
     m_Width: 65
     m_Height: 79
-=======
-  - m_X: 570
-    m_Y: 644
-    m_Width: 91
-    m_Height: 127
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_FreeGlyphRects:
   - m_X: 86
     m_Y: 0
@@ -1631,7 +1606,6 @@ MonoBehaviour:
   - m_X: 588
     m_Y: 513
     m_Width: 435
-<<<<<<< Updated upstream
     m_Height: 2
   - m_X: 651
     m_Y: 513
@@ -1649,8 +1623,6 @@ MonoBehaviour:
     m_Y: 249
     m_Width: 345
     m_Height: 896
-<<<<<<< Updated upstream
-=======
   - m_X: 789
     m_Y: 0
     m_Width: 234
@@ -1671,26 +1643,6 @@ MonoBehaviour:
     m_Y: 1010
     m_Width: 221
     m_Height: 13
-=======
-    m_Height: 261
-  - m_X: 648
-    m_Y: 771
-    m_Width: 375
-    m_Height: 252
-  - m_X: 651
-    m_Y: 0
-    m_Width: 372
-    m_Height: 644
-  - m_X: 661
-    m_Y: 0
-    m_Width: 362
-    m_Height: 1023
-  - m_X: 570
-    m_Y: 771
-    m_Width: 453
-    m_Height: 1
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_fontInfo:
     Name: Bangers
     PointSize: 137

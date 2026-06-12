@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Gameplay.Agent.Talent;
 using UnityEngine;
 
 namespace Gameplay.Agent.Combat
@@ -16,6 +17,7 @@ namespace Gameplay.Agent.Combat
 
         private readonly List<AgentCombatSkillBase> _runtimeSkills = new List<AgentCombatSkillBase>();
         private AgentCombatShooter _shooter;
+        private AgentTalentRuntimeController _talentController;
         private AgentCombatRuntimeStats _runtimeStats = new AgentCombatRuntimeStats(1, 0f, 0f);
 
         /// <summary>
@@ -26,7 +28,12 @@ namespace Gameplay.Agent.Combat
         /// <summary>
         /// 当前最大生命值配置
         /// </summary>
-        public int MaxHealth => _runtimeStats.MaxHealth;
+        public int MaxHealth => EffectiveRuntimeStats.MaxHealth;
+
+        /// <summary>
+        /// 当前有效防御属性
+        /// </summary>
+        public float Defense => EffectiveRuntimeStats.Defense;
 
         /// <summary>
         /// 普通攻击射程
@@ -37,8 +44,8 @@ namespace Gameplay.Agent.Combat
         /// 普通攻击伤害
         /// </summary>
         public float AttackDamage => _styleConfig != null
-            ? _styleConfig.CalculateNormalAttackDamage(_runtimeStats)
-            : _runtimeStats.Attack;
+            ? _styleConfig.CalculateNormalAttackDamage(EffectiveRuntimeStats)
+            : EffectiveRuntimeStats.Attack;
 
         /// <summary>
         /// 普通攻击间隔
@@ -99,18 +106,14 @@ namespace Gameplay.Agent.Combat
             if (_styleConfig == null || enemyTarget == null || _runtimeSkills.Count <= 0)
                 return false;
 
-            AgentCombatSkillContext context = new AgentCombatSkillContext(
-                transform,
-                _styleConfig,
-                _runtimeStats,
-                _enemyLayerMask,
-                _skillActionLockSeconds);
             AgentCombatSkillTarget target = AgentCombatSkillTarget.FromEnemy(enemyTarget);
+            AgentCombatRuntimeStats effectiveStats = EffectiveRuntimeStats;
 
             // 技能按配置顺序尝试释放，成功一个后本轮攻击节点进入动作锁定
             for (int i = 0; i < _runtimeSkills.Count; i++)
             {
                 AgentCombatSkillBase skill = _runtimeSkills[i];
+                AgentCombatSkillContext context = CreateSkillContext(skill, effectiveStats);
                 if (skill != null &&
                     skill.TryCast(context, target, timeSeconds, out actionLockSeconds))
                 {
@@ -119,6 +122,27 @@ namespace Gameplay.Agent.Combat
             }
 
             return false;
+        }
+
+        private AgentCombatRuntimeStats EffectiveRuntimeStats =>
+            _talentController != null ? _talentController.ApplyStatModifiers(_runtimeStats) : _runtimeStats;
+
+        private AgentCombatSkillContext CreateSkillContext(
+            AgentCombatSkillBase skill,
+            AgentCombatRuntimeStats effectiveStats)
+        {
+            AgentCombatSkillModifiers skillModifiers =
+                _talentController != null && skill != null && skill.Config != null
+                    ? _talentController.CreateSkillModifiers(skill.Config.SkillId)
+                    : default;
+
+            return new AgentCombatSkillContext(
+                transform,
+                _styleConfig,
+                effectiveStats,
+                _enemyLayerMask,
+                _skillActionLockSeconds,
+                skillModifiers);
         }
 
         private void RebuildRuntimeSkills()
@@ -161,6 +185,12 @@ namespace Gameplay.Agent.Combat
         {
             if (_shooter == null)
                 _shooter = GetComponent<AgentCombatShooter>();
+
+            if (_talentController == null)
+                _talentController = GetComponent<AgentTalentRuntimeController>();
+
+            if (_talentController != null)
+                _talentController.EnsureInitialUnlocksApplied();
         }
     }
 }

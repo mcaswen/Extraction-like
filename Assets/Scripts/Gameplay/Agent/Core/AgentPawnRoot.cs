@@ -7,6 +7,7 @@ using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.SO;
+using Gameplay.Agent.Talent;
 
 namespace Gameplay.Agent.Core
 {
@@ -14,6 +15,7 @@ namespace Gameplay.Agent.Core
     /// Agent实体总入口
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
+    [RequireComponent(typeof(AgentTalentRuntimeController))]
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter), typeof(AgentCombatController))]
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver, global::IExternalMovementReceiver
     {
@@ -31,6 +33,7 @@ namespace Gameplay.Agent.Core
         [Header("Components")]
         [SerializeField] private NavMeshAgent _navMeshAgent;
         [SerializeField] private AgentCombatController _combatController;
+        [SerializeField] private AgentTalentRuntimeController _talentController;
 
         [Header("Editor Gizmos")]
         [SerializeField] private bool _showRangeGizmos = true;
@@ -96,14 +99,14 @@ namespace Gameplay.Agent.Core
         /// <summary>
         /// 最大生命值
         /// </summary>
-        public int MaxHealth => _pawnConfig != null ? _pawnConfig.MaxHealth : 0;
+        public int MaxHealth => ResolveMaxHealth();
 
         /// <summary>
         /// 当前生命比例
         /// </summary>
         public float HealthRatio => MaxHealth <= 0 ? 0f : (float)_currentHealth / MaxHealth;
 
-        public float Defense => _pawnConfig != null ? _pawnConfig.Defense : 0f;
+        public float Defense => ResolveDefense();
 
         /// <summary>
         /// 当前 Pawn 是否死亡
@@ -261,7 +264,9 @@ namespace Gameplay.Agent.Core
             if (IsDead)
                 return;
 
-            ApplyMitigatedDamage(Mathf.Max(0, damageRequest.DamageAmount));
+            int finalDamage = ResolveIncomingDamageAmount(damageRequest.DamageAmount, Time.timeAsDouble);
+            _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
+            SyncBodyFactsToBlackboard(Time.timeAsDouble);
         }
 
         public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
@@ -270,18 +275,10 @@ namespace Gameplay.Agent.Core
                 return 0f;
 
             int previousHealth = _currentHealth;
-            ApplyMitigatedDamage(damage);
-            return Mathf.Max(0, previousHealth - _currentHealth);
-        }
-
-        private void ApplyMitigatedDamage(float rawDamage)
-        {
-            if (rawDamage <= 0f)
-                return;
-
-            float mitigatedDamage = rawDamage * global::CombatDamageUtility.CalculateDefenseDamageMultiplier(Defense);
-            _currentHealth = Mathf.Max(0, _currentHealth - Mathf.RoundToInt(mitigatedDamage));
+            int finalDamage = ResolveIncomingDamageAmount(damage, Time.timeAsDouble);
+            _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
             SyncBodyFactsToBlackboard(Time.timeAsDouble);
+            return Mathf.Max(0, previousHealth - _currentHealth);
         }
 
         public void ApplyExternalPull(Vector3 targetPosition, float pullStrength)
@@ -421,6 +418,16 @@ namespace Gameplay.Agent.Core
 
             if (_combatController == null)
                 _combatController = GetComponent<AgentCombatController>();
+
+            if (_talentController == null)
+            {
+                _talentController = GetComponent<AgentTalentRuntimeController>();
+                if (_talentController == null && Application.isPlaying)
+                    _talentController = gameObject.AddComponent<AgentTalentRuntimeController>();
+            }
+
+            if (_talentController != null)
+                _talentController.EnsureInitialUnlocksApplied();
         }
 
         private void RegisterWithRuntime()
@@ -465,7 +472,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.MoveStoppingDistance, _pawnConfig.MoveStoppingDistance, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.InteractionDistance, _pawnConfig.InteractionDistance, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackRange, _pawnConfig.AttackRange, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.AttackDamage, _pawnConfig.AttackDamage, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackDamage, ResolveAttackDamage(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackInterval, _pawnConfig.AttackInterval, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasPendingDirective, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionModuleEnabled, false, timeSeconds);
@@ -475,8 +482,8 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.DecisionRisk, 0f, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionCandidateCount, 0, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionRiskEnemyCount, 0, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, _pawnConfig.AttackDamage, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, _pawnConfig.Defense, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, ResolveAttackDamage(), timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, ResolveDefense(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionReason, string.Empty, timeSeconds);
         }
 
@@ -485,11 +492,16 @@ namespace Gameplay.Agent.Core
         {
             bool isDead = IsDead;
             bool needRecovery = !isDead && HealthRatio <= _pawnConfig.LowHealthRecoveryThreshold;
+            float attackDamage = ResolveAttackDamage();
+            float defense = ResolveDefense();
 
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, isDead, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, HealthRatio, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, needRecovery, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackDamage, attackDamage, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, attackDamage, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, defense, timeSeconds);
         }
 
         private void TickExternalMovementStatus(float deltaTime)
@@ -559,6 +571,50 @@ namespace Gameplay.Agent.Core
             _navMeshAgent.velocity = Vector3.zero;
             if (_navMeshAgent.hasPath)
                 _navMeshAgent.ResetPath();
+        }
+
+        private int ResolveMaxHealth()
+        {
+            if (_combatController != null)
+                return _combatController.MaxHealth;
+
+            if (_pawnConfig == null)
+                return 0;
+
+            return _talentController != null
+                ? _talentController.ApplyMaxHealthModifier(_pawnConfig.MaxHealth)
+                : _pawnConfig.MaxHealth;
+        }
+
+        private float ResolveAttackDamage()
+        {
+            if (_combatController != null)
+                return _combatController.AttackDamage;
+
+            return _pawnConfig != null ? _pawnConfig.AttackDamage : 0f;
+        }
+
+        private float ResolveDefense()
+        {
+            if (_combatController != null)
+                return _combatController.Defense;
+
+            return _pawnConfig != null ? _pawnConfig.Defense : 0f;
+        }
+
+        private int ResolveIncomingDamageAmount(float incomingDamage, double timeSeconds)
+        {
+            float remainingDamage = Mathf.Max(0f, incomingDamage);
+            float defense = ResolveDefense();
+            if (_talentController != null)
+                remainingDamage = _talentController.AbsorbIncomingDamage(remainingDamage, defense, timeSeconds);
+
+            if (remainingDamage <= 0f)
+                return 0;
+
+            float mitigatedDamage =
+                remainingDamage * global::CombatDamageUtility.CalculateDefenseDamageMultiplier(defense);
+            return Mathf.RoundToInt(mitigatedDamage);
         }
 
         private static void DrawRangeCircle(Vector3 center, float radius, Color color)
