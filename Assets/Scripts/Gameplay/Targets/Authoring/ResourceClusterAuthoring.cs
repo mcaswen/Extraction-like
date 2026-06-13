@@ -23,8 +23,6 @@ namespace Gameplay.Targets.Authoring
 
         [Header("Navigation Debug")]
         [SerializeField] private bool _showNavigationCandidateDebugObjects = true;
-        [SerializeField, Min(0.05f)] private float _navigationCandidateDebugScale = 0.35f;
-        [SerializeField] private Color _navigationCandidateDebugColor = new Color(0.1f, 0.85f, 1f, 0.85f);
 
         /// <summary>
         /// 当前群目标在目标系统中的类型
@@ -37,8 +35,6 @@ namespace Gameplay.Targets.Authoring
         private const int ResourceApproachDirectionCount = 16;
 
         private readonly List<Vector3> _navigationCandidateBuffer = new List<Vector3>();
-        private Material _navigationCandidateDebugMaterial;
-        private Mesh _navigationCandidateDebugMesh;
 
         /// <summary>
         /// 当前资源群统一使用的资源等级
@@ -724,7 +720,8 @@ namespace Gameplay.Targets.Authoring
             {
                 GameObject marker = GetOrCreateNavigationCandidateDebugObject(root, i);
                 marker.transform.position = candidates[i];
-                marker.transform.localScale = Vector3.one * Mathf.Max(0.05f, _navigationCandidateDebugScale);
+                marker.transform.localRotation = Quaternion.identity;
+                marker.transform.localScale = Vector3.one;
                 marker.SetActive(true);
             }
 
@@ -732,7 +729,10 @@ namespace Gameplay.Targets.Authoring
             {
                 Transform child = root.GetChild(i);
                 if (child != null)
+                {
+                    StripNavigationCandidateDebugComponents(child.gameObject);
                     child.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -762,89 +762,38 @@ namespace Gameplay.Targets.Authoring
             {
                 GameObject existingMarker = root.GetChild(index).gameObject;
                 existingMarker.name = markerName;
-                EnsureNavigationCandidateDebugComponents(existingMarker);
+                StripNavigationCandidateDebugComponents(existingMarker);
                 return existingMarker;
             }
 
             GameObject marker = new GameObject(markerName);
             marker.transform.SetParent(root, false);
-            EnsureNavigationCandidateDebugComponents(marker);
             return marker;
         }
 
-        private void EnsureNavigationCandidateDebugComponents(GameObject marker)
+        private void StripNavigationCandidateDebugComponents(GameObject marker)
         {
             if (marker == null)
                 return;
 
-            MeshFilter meshFilter = marker.GetComponent<MeshFilter>();
-            if (meshFilter == null)
-                meshFilter = marker.AddComponent<MeshFilter>();
-            meshFilter.sharedMesh = GetNavigationCandidateDebugMesh();
-
-            MeshRenderer markerRenderer = marker.GetComponent<MeshRenderer>();
-            if (markerRenderer == null)
-                markerRenderer = marker.AddComponent<MeshRenderer>();
-
-            Material debugMaterial = GetNavigationCandidateDebugMaterial();
-            if (debugMaterial != null)
-                markerRenderer.sharedMaterial = debugMaterial;
+            RemoveDebugComponent<MeshFilter>(marker);
+            RemoveDebugComponent<MeshRenderer>(marker);
+            RemoveDebugComponent<Collider>(marker);
         }
 
-        private Material GetNavigationCandidateDebugMaterial()
+        private static void RemoveDebugComponent<T>(GameObject marker) where T : Component
         {
-            if (_navigationCandidateDebugMaterial == null)
+            T[] components = marker.GetComponents<T>();
+            for (int i = components.Length - 1; i >= 0; i--)
             {
-                Shader shader = Shader.Find("Universal Render Pipeline/Lit");
-                if (shader == null)
-                    shader = Shader.Find("Standard");
+                if (components[i] == null)
+                    continue;
 
-                if (shader == null)
-                    return null;
-
-                _navigationCandidateDebugMaterial = new Material(shader)
-                {
-                    name = "ResourceNavigationCandidateDebug"
-                };
+                if (Application.isPlaying)
+                    UnityEngine.Object.Destroy(components[i]);
+                else
+                    UnityEngine.Object.DestroyImmediate(components[i]);
             }
-
-            _navigationCandidateDebugMaterial.color = _navigationCandidateDebugColor;
-            return _navigationCandidateDebugMaterial;
-        }
-
-        private Mesh GetNavigationCandidateDebugMesh()
-        {
-            if (_navigationCandidateDebugMesh != null)
-                return _navigationCandidateDebugMesh;
-
-            _navigationCandidateDebugMesh = new Mesh
-            {
-                name = "ResourceNavigationCandidateDebugMesh"
-            };
-
-            _navigationCandidateDebugMesh.vertices = new[]
-            {
-                new Vector3(-0.5f, -0.5f, -0.5f),
-                new Vector3(0.5f, -0.5f, -0.5f),
-                new Vector3(0.5f, -0.5f, 0.5f),
-                new Vector3(-0.5f, -0.5f, 0.5f),
-                new Vector3(-0.5f, 0.5f, -0.5f),
-                new Vector3(0.5f, 0.5f, -0.5f),
-                new Vector3(0.5f, 0.5f, 0.5f),
-                new Vector3(-0.5f, 0.5f, 0.5f)
-            };
-            _navigationCandidateDebugMesh.triangles = new[]
-            {
-                0, 2, 1, 0, 3, 2,
-                4, 5, 6, 4, 6, 7,
-                0, 1, 5, 0, 5, 4,
-                1, 2, 6, 1, 6, 5,
-                2, 3, 7, 2, 7, 6,
-                3, 0, 4, 3, 4, 7
-            };
-            _navigationCandidateDebugMesh.RecalculateNormals();
-            _navigationCandidateDebugMesh.RecalculateBounds();
-            return _navigationCandidateDebugMesh;
         }
 
         private void SetNavigationCandidateDebugObjectsActive(bool active)
@@ -856,7 +805,16 @@ namespace Gameplay.Targets.Authoring
                     ? resourceObject.transform.Find(NavigationCandidateDebugRootName)
                     : null;
                 if (root != null)
+                {
+                    for (int childIndex = 0; childIndex < root.childCount; childIndex++)
+                    {
+                        Transform child = root.GetChild(childIndex);
+                        if (child != null)
+                            StripNavigationCandidateDebugComponents(child.gameObject);
+                    }
+
                     root.gameObject.SetActive(active);
+                }
             }
         }
 
