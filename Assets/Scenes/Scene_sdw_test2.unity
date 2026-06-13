@@ -8603,7 +8603,12 @@ MonoBehaviour:
   _groundProbeHeight: 20
   _groundProbeDistance: 80
   _minGroundNormalY: 0.35
-  _extractionMembers: []
+  _extractionMembers:
+  - _entityId: ExtractionCluster_39c2d8cee6694b72bcb8e98b74ea4c84_Entity_0
+    _entityObject: {fileID: 1647460680}
+    _state:
+      _hasBeenTouched: 0
+      _hasBeenCompleted: 0
   _rangeColliderTarget: {fileID: 1647460680}
 --- !u!21 &169473860
 Material:
@@ -15436,7 +15441,6 @@ Transform:
   - {fileID: 1414847387}
   - {fileID: 317829571}
   - {fileID: 922218179}
-  - {fileID: 1093580507}
   - {fileID: 20146626}
   - {fileID: 279692724}
   m_Father: {fileID: 0}
@@ -23331,7 +23335,7 @@ PrefabInstance:
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -151.2
+      value: -149.9
       objectReference: {fileID: 0}
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
@@ -23341,7 +23345,7 @@ PrefabInstance:
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -134.3
+      value: -147.9
       objectReference: {fileID: 0}
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
@@ -48762,6 +48766,7 @@ Transform:
   - {fileID: 1554751947}
   - {fileID: 1718112258}
   - {fileID: 2113265171}
+  - {fileID: 1093580507}
   - {fileID: 2112269821}
   m_Father: {fileID: 297653388}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -55671,7 +55676,7 @@ PrefabInstance:
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 219.5
+      value: 231.5
       objectReference: {fileID: 0}
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
@@ -55681,7 +55686,7 @@ PrefabInstance:
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -100.7
+      value: -175.2
       objectReference: {fileID: 0}
     - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
@@ -56216,7 +56221,7 @@ PrefabInstance:
     - target: {fileID: 1535480028882878263, guid: 3b7f01c1554484efbaade602946cc8b8,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1690733453528728974, guid: 3b7f01c1554484efbaade602946cc8b8,
         type: 3}
@@ -75483,9 +75488,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e1a8f38f7fe4a744b4ad9b97cf2b3f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RequireLootBeforeExtraction: 1
   MissionName: Large Island Wall Layout
   RestartKey: 114
+  _successScreenPrefab: {fileID: 0}
 --- !u!21 &1579743778
 Material:
   serializedVersion: 8
@@ -103028,12 +103033,12 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 297653388}
+    m_TransformParent: {fileID: 922218179}
     m_Modifications:
     - target: {fileID: 1158402609792715796, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
       propertyPath: m_Positions.Array.data[0].x
-      value: 199.91747
+      value: 199.91745
       objectReference: {fileID: 0}
     - target: {fileID: 1158402609792715796, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
@@ -103048,7 +103053,7 @@ PrefabInstance:
     - target: {fileID: 1158402609792715796, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
       propertyPath: m_Positions.Array.data[1].x
-      value: 199.91747
+      value: 199.91745
       objectReference: {fileID: 0}
     - target: {fileID: 1158402609792715796, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
@@ -103098,17 +103103,17 @@ PrefabInstance:
     - target: {fileID: 5434960340434965799, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 51.9
+      value: 215.81
       objectReference: {fileID: 0}
     - target: {fileID: 5434960340434965799, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 159.12
+      value: -5.11499
       objectReference: {fileID: 0}
     - target: {fileID: 5434960340434965799, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -211.7
+      value: -4.800003
       objectReference: {fileID: 0}
     - target: {fileID: 5434960340434965799, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}

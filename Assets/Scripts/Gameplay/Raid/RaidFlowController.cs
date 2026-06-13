@@ -24,9 +24,7 @@ public class RaidFlowController : MonoBehaviour
     private bool _isMissionFailed;
     private ExtractionPointController _activeExtractionPoint;
     private float _extractionProgressSeconds;
-    private string _recentEventMessage = string.Empty;
     private string _missionFailureDetail = "Player is down";
-    private float _recentEventTimer;
     private GUIStyle _worldPromptStyle;
     private readonly Dictionary<string, AgentExtractionProgress> _activeExtractionProgressByAgentId =
         new Dictionary<string, AgentExtractionProgress>();
@@ -66,15 +64,6 @@ public class RaidFlowController : MonoBehaviour
 
     private void Update()
     {
-        if (_recentEventTimer > 0f)
-        {
-            _recentEventTimer -= Time.unscaledDeltaTime;
-            if (_recentEventTimer <= 0f)
-            {
-                _recentEventMessage = string.Empty;
-            }
-        }
-
         if (IsInputLocked)
         {
             if (Input.GetKeyDown(RestartKey))
@@ -90,7 +79,6 @@ public class RaidFlowController : MonoBehaviour
 
     private void OnGUI()
     {
-        DrawMissionHud();
         DrawExtractionWorldPrompt();
         DrawMissionResult();
     }
@@ -98,13 +86,11 @@ public class RaidFlowController : MonoBehaviour
     public void NotifyEnemyKilled(string enemyName)
     {
         _enemiesKilledCount++;
-        PushEventMessage($"已击败敌人: {enemyName}");
     }
 
     public void NotifyLootCollected(string itemName)
     {
         _lootCollectedCount++;
-        PushEventMessage($"已获取战利品: {itemName}");
     }
 
     public void NotifyPlayerDied()
@@ -129,21 +115,12 @@ public class RaidFlowController : MonoBehaviour
         if (agent != null)
             ClearAgentExtractionProgress(agent.AgentIdValue);
 
-        string agentLabel = agent != null && !string.IsNullOrWhiteSpace(agent.AgentIdValue)
-            ? $"Agent {agent.AgentIdValue}"
-            : "Agent";
-
         AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry != null && registry.TryGetPrimaryHandle(out AgentRuntimeHandle livingAgent))
+        if (registry != null && registry.TryGetPrimaryHandle(out _))
         {
-            string nextAgentLabel = !string.IsNullOrWhiteSpace(livingAgent.AgentId.Value)
-                ? $"Agent {livingAgent.AgentId.Value}"
-                : "其他 Agent";
-            PushEventMessage($"{agentLabel} 已阵亡，当前焦点: {nextAgentLabel}");
             return;
         }
 
-        PushEventMessage("所有 Agent 已阵亡");
         _isMissionFailed = true;
         _missionFailureDetail = "All agents are down";
         Time.timeScale = 0f;
@@ -241,8 +218,7 @@ public class RaidFlowController : MonoBehaviour
 
             ExtractionPointController completionPoint = completedProgress.ExtractionPoint;
             _activeExtractionProgressByAgentId.Remove(completedAgentId);
-            if (_extractedAgentIds.Add(completedAgentId))
-                PushEventMessage($"{FormatExtractionAgentLabel(completedAgentId)} 已撤离");
+            _extractedAgentIds.Add(completedAgentId);
 
             bool allRequiredAgentsExtracted = AreAllRequiredAgentsExtracted();
             DestroyExtractedAgent(completedAgentId);
@@ -275,49 +251,6 @@ public class RaidFlowController : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    private void PushEventMessage(string message)
-    {
-        _recentEventMessage = message;
-        _recentEventTimer = 2.25f;
-    }
-
-    private void DrawMissionHud()
-    {
-        const float panelWidth = 280f;
-        const float panelHeight = 140f;
-        const float panelMargin = 16f;
-        Matrix4x4 previousMatrix = GUI.matrix;
-        GUI.matrix = Matrix4x4.Translate(new Vector3(
-            Screen.width - panelWidth - panelMargin - 16f,
-            Screen.height - panelHeight - panelMargin - 16f,
-            0f)) * previousMatrix;
-
-        GUI.Box(new Rect(16f, 16f, 280f, 140f), string.Empty);
-        GUI.Label(new Rect(28f, 28f, 240f, 24f), $"任务: {MissionName}");
-        GUI.Label(new Rect(28f, 54f, 240f, 22f), $"剩余敌人: {RemainingEnemyCount}");
-        GUI.Label(new Rect(28f, 76f, 240f, 22f), $"已获取战利品: {_lootCollectedCount}");
-
-        if (_activeExtractionPoint == null)
-        {
-            int extractedCount = GetExtractedRequiredAgentCount();
-            string extractionText = extractedCount > 0
-                ? $"已撤离: {extractedCount}/{GetRequiredExtractionAgentCount()}"
-                : "目标: 前往撤离点";
-            GUI.Label(new Rect(28f, 98f, 240f, 22f), extractionText);
-        }
-        else
-        {
-            GUI.Label(new Rect(28f, 98f, 240f, 22f), GetExtractionHudText());
-        }
-
-        if (!string.IsNullOrEmpty(_recentEventMessage))
-        {
-            GUI.Label(new Rect(28f, 120f, 240f, 22f), _recentEventMessage);
-        }
-
-        GUI.matrix = previousMatrix;
     }
 
     private void DrawExtractionWorldPrompt()
@@ -543,12 +476,6 @@ public class RaidFlowController : MonoBehaviour
         UnityEngine.Object.Destroy(handle.PawnRoot.gameObject);
     }
 
-    private string GetExtractionHudText()
-    {
-        float remainingTime = GetActiveExtractionRemainingSeconds();
-        return $"撤离中: {GetExtractedRequiredAgentCount()}/{GetRequiredExtractionAgentCount()}  {remainingTime:0.0}s";
-    }
-
     private string GetExtractionPromptText()
     {
         float remainingTime = GetActiveExtractionRemainingSeconds();
@@ -603,13 +530,6 @@ public class RaidFlowController : MonoBehaviour
     private static string NormalizeExtractionAgentId(string agentId)
     {
         return string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
-    }
-
-    private static string FormatExtractionAgentLabel(string agentId)
-    {
-        return string.Equals(agentId, LegacyPlayerExtractionId, System.StringComparison.Ordinal)
-            ? "Player"
-            : $"Agent {agentId}";
     }
 
     private sealed class AgentExtractionProgress
