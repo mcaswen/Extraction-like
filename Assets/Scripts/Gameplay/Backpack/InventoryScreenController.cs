@@ -1689,7 +1689,7 @@ public class InventoryScreenController : MonoBehaviour
     private CharacterInventorySnapshot CreateCharacterInventorySnapshot()
     {
         SyncCharacterContainerRuntimeState();
-        return new CharacterInventorySnapshot
+        CharacterInventorySnapshot snapshot = new CharacterInventorySnapshot
         {
             BackpackItem = CreateSlotSnapshot(BackpackSlot),
             RigItem = CreateSlotSnapshot(RigSlot),
@@ -1700,6 +1700,14 @@ public class InventoryScreenController : MonoBehaviour
             TotemAItem = CreateSlotSnapshot(TotemSlotA),
             TotemBItem = CreateSlotSnapshot(TotemSlotB)
         };
+
+        if (snapshot.BackpackItem == null && BackpackGrid != null)
+        {
+            snapshot.BackpackLooseItems = CloneSaveDataList(BackpackGrid.ExtractSaveData());
+            snapshot.BackpackLooseCellStates = CloneCellStateList(BackpackGrid.ExtractCellStateData());
+        }
+
+        return snapshot;
     }
 
     private void LoadCharacterInventorySnapshot(CharacterInventorySnapshot snapshot)
@@ -1720,7 +1728,15 @@ public class InventoryScreenController : MonoBehaviour
         LoadSlotSnapshot(HeadphoneSlot, snapshot.HeadphoneItem);
         LoadSlotSnapshot(TotemSlotA, snapshot.TotemAItem);
         LoadSlotSnapshot(TotemSlotB, snapshot.TotemBItem);
-        EnsureDefaultBackpackEquipped();
+
+        if (snapshot.BackpackItem == null && HasLooseBackpackSnapshot(snapshot))
+        {
+            RestoreLooseBackpackGridSnapshot(snapshot);
+        }
+        else
+        {
+            EnsureDefaultBackpackEquipped();
+        }
     }
 
     private void ClearCharacterInventoryUi()
@@ -1774,6 +1790,18 @@ public class InventoryScreenController : MonoBehaviour
         {
             UnityEngine.Object.Destroy(itemView.gameObject);
         }
+    }
+
+    private void RestoreLooseBackpackGridSnapshot(CharacterInventorySnapshot snapshot)
+    {
+        if (snapshot == null || BackpackGrid == null)
+        {
+            return;
+        }
+
+        BackpackGrid.LoadFromRuntimeState(
+            CloneSaveDataList(snapshot.BackpackLooseItems),
+            CloneCellStateList(snapshot.BackpackLooseCellStates));
     }
 
     private static void ClearEquipmentSlot(EquipmentSlotUI slot)
@@ -1872,6 +1900,11 @@ public class InventoryScreenController : MonoBehaviour
             return;
         }
 
+        if (BackpackGrid != null && HasRuntimeItemViews(BackpackGrid))
+        {
+            return;
+        }
+
         if (InventoryItemFactory.Instance == null)
         {
             return;
@@ -1897,6 +1930,8 @@ public class InventoryScreenController : MonoBehaviour
     private sealed class CharacterInventorySnapshot
     {
         public ContainerItemSaveData BackpackItem;
+        public List<ContainerItemSaveData> BackpackLooseItems;
+        public List<ContainerCellStateSaveData> BackpackLooseCellStates;
         public ContainerItemSaveData RigItem;
         public ContainerItemSaveData HeadItem;
         public ContainerItemSaveData BodyItem;
@@ -1904,6 +1939,18 @@ public class InventoryScreenController : MonoBehaviour
         public ContainerItemSaveData HeadphoneItem;
         public ContainerItemSaveData TotemAItem;
         public ContainerItemSaveData TotemBItem;
+    }
+
+    private static bool HasLooseBackpackSnapshot(CharacterInventorySnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return false;
+        }
+
+        bool hasItems = snapshot.BackpackLooseItems != null && snapshot.BackpackLooseItems.Count > 0;
+        bool hasCellStates = snapshot.BackpackLooseCellStates != null && snapshot.BackpackLooseCellStates.Count > 0;
+        return hasItems || hasCellStates;
     }
 
     // 根据界面开关状态决定是否展示背包和胸挂的联动内部网格
