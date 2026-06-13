@@ -49497,6 +49497,12 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!224 &935871447 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3955008773951821066, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 2114462592}
+  m_PrefabAsset: {fileID: 0}
 --- !u!21 &937438214
 Material:
   serializedVersion: 8
@@ -60418,6 +60424,18 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &1217282271 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9104626525539116202, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b,
+    type: 3}
+  m_PrefabInstance: {fileID: 2114462592}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!21 &1219447504
 Material:
   serializedVersion: 8
@@ -104817,6 +104835,56 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
+--- !u!1 &2145438100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2145438102}
+  - component: {fileID: 2145438101}
+  m_Layer: 0
+  m_Name: SceneRuntimePlayerBinder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2145438101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145438100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83980fcb57fc2504d8cad3eee2fe72fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CameraFollow: {fileID: 1399433259}
+  FloatingPromptUI: {fileID: 935871447}
+  FloatingPromptText: {fileID: 1217282271}
+  PreferFocusedAgent: 1
+  AutoFindSceneSupport: 1
+  RebindInterval: 0.1
+--- !u!4 &2145438102
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145438100}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 322.69824, y: 3.8150277, z: -157.91156}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1985925765930125297
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106583,3 +106651,4 @@ SceneRoots:
   - {fileID: 1933334048}
   - {fileID: 1576334561}
   - {fileID: 1921833356}
+  - {fileID: 2145438102}

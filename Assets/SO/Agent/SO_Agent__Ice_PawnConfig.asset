@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: SO_Agent__Ice_PawnConfig
   m_EditorClassIdentifier: 
   _maxHealth: 100
-  _defense: 100
+  _defense: 20
   _moveSpeed: 12
   _moveStoppingDistance: 0.25
   _interactionDistance: 1.5
   _enableTargetDiscovery: 1
-  _targetDiscoveryRange: 70
+  _targetDiscoveryRange: 200
   _targetDiscoveryInterval: 0.5
   _combatStyleConfig: {fileID: 11400000, guid: 67172581330eb4a7a8870e96b9f29a07, type: 2}
   _attackRange: 10

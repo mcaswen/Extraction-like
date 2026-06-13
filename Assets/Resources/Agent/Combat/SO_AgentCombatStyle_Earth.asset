@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: "\u571F"
   _element: 3
   _weaponType: 2
-  _normalAttackRange: 2.4
+  _normalAttackRange: 8
   _normalAttackInterval: 0.8
   _normalAttackDamage:
     _source: 1
