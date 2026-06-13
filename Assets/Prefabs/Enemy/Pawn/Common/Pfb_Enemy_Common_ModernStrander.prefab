@@ -74,8 +74,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
@@ -97,8 +97,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
   m_BlockingMask:
@@ -114,8 +114,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d11a7d1da492834b9704ab18523ff42, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2135920080695043257
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,8 +171,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.044025064, g: 0.043332845, b: 0.043332845, a: 1}
   m_RaycastTarget: 1
@@ -290,7 +290,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4.390785, y: 1, z: 8.67}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 6, y: 6, z: 6}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4592754967273627527}
@@ -403,8 +403,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f5ffc04fcf5b484481de243f9253c95, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _config: {fileID: 11400000, guid: 322600ad521f45344b476d9303907125, type: 2}
   MaxHealth: 100
   HealthFillImage: {fileID: 8565607045861694253}
@@ -419,8 +419,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12d7f8ca92238f24c9f1d7b741321749, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   CurrentState: 0
   _config: {fileID: 11400000, guid: 322600ad521f45344b476d9303907125, type: 2}
   PlayerTransform: {fileID: 0}
@@ -440,6 +440,7 @@ MonoBehaviour:
   TargetHeight: 1
   LoseRange: 16
   AttackRange: 3.2
+  DirectDamageCounterAttackRange: 10.5
   AttackInterval: 2
   TentacleLatchDuration: 1.1
   TentacleHitboxWidth: 0.55
@@ -465,8 +466,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad3a8a5b48a244b38f7cb0e0275baea7, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _visionPivot: {fileID: 0}
   _pivotHeight: 1.15
   _movingScanArc: 52
@@ -490,8 +491,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b9cd71b79fa4ff8b1c12a821b7969b2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _hearingMultiplier: 1
   _minimumAcceptedStrength: 0.18
   _stimulusCooldown: 0.25
@@ -510,8 +511,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3753b857e6c7493fb84996d296da80f2, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _lookOnlyThreshold: 0.25
   _suspiciousThreshold: 0.45
   _investigateThreshold: 0.72
@@ -531,8 +532,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b588e277b9164ffea73ebb798eabe58c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _indicatorSprite: {fileID: 21300000, guid: 23d7599f50b28934ca3444e8d7f1dac1, type: 3}
   _visibilityMode: 0
   _canvasObjectName: ChaseIndicatorCanvas
@@ -598,8 +599,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.066037595, b: 0.066037595, a: 1}
   m_RaycastTarget: 1
@@ -709,12 +710,12 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 1483e2bfd00f1344cadb179b05887ab3,
         type: 3}
       propertyPath: m_Avatar
-      value:
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 1483e2bfd00f1344cadb179b05887ab3,
         type: 3}
       propertyPath: m_Controller
-      value:
+      value: 
       objectReference: {fileID: 22100000, guid: ddc7c4cfeb4b0808c3001ba6c562570e,
         type: 2}
     - target: {fileID: 5866666021909216657, guid: 1483e2bfd00f1344cadb179b05887ab3,
