@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Data;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
 
@@ -63,6 +64,9 @@ namespace Gameplay.Targets.Input
             TargetClusterPickOptions options)
         {
             if (cluster == null || !cluster.isActiveAndEnabled)
+                return false;
+
+            if (cluster.TargetKind == GameplayTargetKind.EnemySource)
                 return false;
 
             if (options.IgnoreCompletedClusters && cluster.HasBeenCompleted)

@@ -66,16 +66,28 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 判断资源搜索/拾取是否可以被战斗打断
-        /// 条件：最近被战斗伤害命中 + 已生成接战指令 + 未死亡
+        /// 条件：最近被战斗伤害命中 + 已生成接战指令 + 未死亡；
+        /// 或资源目标已清空后，旧目标发现路径明确切换到了敌人接战指令
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public bool CanResourceWorkBeInterruptedByCombatDamage(StateMachineContext context)
         {
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-            return !isDead &&
-                   HasRecentCombatDamageInterrupt(context) &&
-                   HasPendingCombatDamageDirective(context);
+            if (isDead || HasManualResourceDirective(context))
+                return false;
+
+            if (HasRecentCombatDamageInterrupt(context) &&
+                HasPendingCombatDamageDirective(context))
+            {
+                return true;
+            }
+
+            bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
+            bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
+            return !hasResourceTarget &&
+                   !hasInteractableTarget &&
+                   HasPendingEnemyEngageDirective(context);
         }
 
         /// <summary>
@@ -251,6 +263,15 @@ namespace Gameplay.Agent.AI.Factories
                        AgentBlackboardKeys.PendingDirectiveRequest,
                        out AgentDirectiveRequest directiveRequest) &&
                    AgentManualDirectiveLock.IsCombatDamageDirective(directiveRequest);
+        }
+
+        private static bool HasPendingEnemyEngageDirective(StateMachineContext context)
+        {
+            return context.Blackboard.TryGetValue(
+                       AgentBlackboardKeys.PendingDirectiveRequest,
+                       out AgentDirectiveRequest directiveRequest) &&
+                   directiveRequest.DirectiveType == AgentDirectiveType.Engage &&
+                   directiveRequest.TargetRef.Kind == AgentTargetKind.Enemy;
         }
     }
 }
