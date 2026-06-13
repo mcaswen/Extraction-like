@@ -120,11 +120,14 @@ namespace Gameplay.Agent.Combat
         {
             if (visualPrefab != null)
             {
-                // 有配置视觉时直接挂到区域根节点，跟随区域生命周期销毁
+                // 有配置视觉时直接挂到区域根节点，跟随区域生命周期销毁，并对齐持续区域半径。
                 GameObject visualObject = Instantiate(visualPrefab, transform);
                 visualObject.transform.localPosition = Vector3.zero;
                 visualObject.transform.localRotation = Quaternion.identity;
-                visualObject.transform.localScale = Vector3.one;
+                visualObject.transform.localScale = AgentCombatSkillUtility.CreatePlanarRangeVisualScale(
+                    _radius,
+                    AgentCombatSkillUtility.AuthoredCircleVisualRadius);
+                SkillEffectLayerUtility.ApplyToRoot(visualObject);
                 return;
             }
 

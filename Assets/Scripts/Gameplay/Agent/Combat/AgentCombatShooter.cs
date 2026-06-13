@@ -23,6 +23,7 @@ namespace Gameplay.Agent.Combat
         [SerializeField] private global::BulletController.AttackElementType _attackElement =
             global::BulletController.AttackElementType.Fire;
         private AgentCombatProjectileStatus _projectileStatus = AgentCombatProjectileStatus.None;
+        private float _projectileMaxTravelDistance = -1f;
 
         /// <summary>
         /// 尝试向目标敌人发射一颗子弹
@@ -61,12 +62,15 @@ namespace Gameplay.Agent.Combat
         /// </summary>
         /// <param name="element"></param>
         /// <param name="projectileStatus"></param>
+        /// <param name="maxTravelDistance"></param>
         public void ConfigureProjectileElement(
             AgentCombatElementType element,
-            AgentCombatProjectileStatus projectileStatus)
+            AgentCombatProjectileStatus projectileStatus,
+            float maxTravelDistance)
         {
             _attackElement = ConvertElementType(element);
             _projectileStatus = projectileStatus;
+            _projectileMaxTravelDistance = Mathf.Max(0f, maxTravelDistance);
         }
 
         // 优先使用配置挂点，缺失时用本地偏移保证运行时仍能发射
@@ -128,9 +132,10 @@ namespace Gameplay.Agent.Combat
 
             SkillEffectLayerUtility.ApplyToRoot(bulletObject);
 
+            float moveSpeed = Mathf.Max(0.01f, _bulletMoveSpeed);
             bulletController.Damage = Mathf.Max(0f, damage);
-            bulletController.MoveSpeed = Mathf.Max(0f, _bulletMoveSpeed);
-            bulletController.LifeTime = Mathf.Max(0.1f, _bulletLifeTime);
+            bulletController.MoveSpeed = moveSpeed;
+            bulletController.LifeTime = ResolveBulletLifeTime(moveSpeed);
             bulletController.BulletColor = _bulletColor;
             bulletController.AttackElement = _attackElement;
             bulletController.SlowMultiplier = _projectileStatus.SlowMultiplier;
@@ -144,6 +149,14 @@ namespace Gameplay.Agent.Combat
 
             rigidbodyComponent.useGravity = false;
             rigidbodyComponent.velocity = fireDirection * bulletController.MoveSpeed;
+        }
+
+        private float ResolveBulletLifeTime(float moveSpeed)
+        {
+            if (_projectileMaxTravelDistance > 0f)
+                return Mathf.Max(0.05f, _projectileMaxTravelDistance / Mathf.Max(0.01f, moveSpeed));
+
+            return Mathf.Max(0.1f, _bulletLifeTime);
         }
 
         // 子弹忽略发射者碰撞，避免近距离生成时立即命中自己

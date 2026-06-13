@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Gameplay.SkillEffect;
 using UnityEngine;
 
 namespace Gameplay.Agent.Combat
@@ -138,6 +139,7 @@ namespace Gameplay.Agent.Combat
             wallObject.name = "AgentEarthWall";
             wallObject.transform.SetPositionAndRotation(center, rotation);
             wallObject.transform.localScale = size;
+            SkillEffectLayerUtility.ApplyToRoot(wallObject);
 
             if (wallObject.GetComponentInChildren<Collider>() == null)
                 wallObject.AddComponent<BoxCollider>();

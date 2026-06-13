@@ -159,6 +159,9 @@ namespace Gameplay.Agent.Combat
                         _config.VisualPrefab,
                         context.Position,
                         Quaternion.LookRotation(context.Forward, Vector3.up),
+                        AgentCombatSkillUtility.CreatePlanarRangeVisualScale(
+                            _config.Radius,
+                            AgentCombatSkillUtility.AuthoredFrostAssaultVisualRadius),
                         _config.IndicatorDuration);
                 }
                 else

@@ -178,7 +178,8 @@ namespace Gameplay.Agent.Combat
 
             _shooter.ConfigureProjectileElement(
                 _styleConfig.Element,
-                AgentCombatProjectileStatus.None);
+                AgentCombatProjectileStatus.None,
+                _styleConfig.NormalAttackRange);
         }
 
         private void CacheComponents()

@@ -11,6 +11,8 @@ namespace Gameplay.Agent.Combat
     public static class AgentCombatSkillUtility
     {
         private static readonly Collider[] HitBuffer = new Collider[96];
+        public const float AuthoredCircleVisualRadius = 4f;
+        public const float AuthoredFrostAssaultVisualRadius = 8f;
 
         /// <summary>
         /// 收集球形范围内仍存活的敌人
@@ -172,14 +174,47 @@ namespace Gameplay.Agent.Combat
             Quaternion rotation,
             float durationSeconds)
         {
+            return SpawnVisualPrefab(visualPrefab, position, rotation, Vector3.one, durationSeconds);
+        }
+
+        /// <summary>
+        /// 生成技能视觉预制体并应用运行时缩放。
+        /// </summary>
+        /// <param name="visualPrefab"></param>
+        /// <param name="position"></param>
+        /// <param name="rotation"></param>
+        /// <param name="scale"></param>
+        /// <param name="durationSeconds"></param>
+        /// <returns></returns>
+        public static GameObject SpawnVisualPrefab(
+            GameObject visualPrefab,
+            Vector3 position,
+            Quaternion rotation,
+            Vector3 scale,
+            float durationSeconds)
+        {
             if (visualPrefab == null)
                 return null;
 
             GameObject visualObject = Object.Instantiate(visualPrefab, position, rotation);
+            visualObject.transform.localScale = scale;
+            SkillEffectLayerUtility.ApplyToRoot(visualObject);
             if (durationSeconds > 0f)
                 Object.Destroy(visualObject, durationSeconds);
 
             return visualObject;
+        }
+
+        /// <summary>
+        /// 创建只缩放水平范围的视觉缩放，避免技能半径改变时特效与判定范围错位。
+        /// </summary>
+        /// <param name="runtimeRadius"></param>
+        /// <param name="authoredRadius"></param>
+        /// <returns></returns>
+        public static Vector3 CreatePlanarRangeVisualScale(float runtimeRadius, float authoredRadius)
+        {
+            float scale = Mathf.Max(0.01f, runtimeRadius) / Mathf.Max(0.01f, authoredRadius);
+            return new Vector3(scale, 1f, scale);
         }
 
         /// <summary>

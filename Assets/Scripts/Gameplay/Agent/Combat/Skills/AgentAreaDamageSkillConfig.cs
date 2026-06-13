@@ -127,6 +127,9 @@ namespace Gameplay.Agent.Combat
                     _config.VisualPrefab,
                     center,
                     Quaternion.identity,
+                    AgentCombatSkillUtility.CreatePlanarRangeVisualScale(
+                        _config.Radius,
+                        AgentCombatSkillUtility.AuthoredCircleVisualRadius),
                     _config.IndicatorDuration);
             }
             else if (hitAnyTarget)
