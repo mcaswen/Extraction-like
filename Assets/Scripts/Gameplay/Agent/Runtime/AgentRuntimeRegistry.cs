@@ -188,6 +188,19 @@ namespace Gameplay.Agent.Runtime
         }
 
         /// <summary>
+        /// 通知 Registry 某个 Agent 已死亡，必要时把焦点切到其他存活 Agent
+        /// </summary>
+        /// <param name="pawnRoot"></param>
+        public void NotifyAgentDied(AgentPawnRoot pawnRoot)
+        {
+            if (pawnRoot == null || pawnRoot.AgentId != _focusedAgentId)
+                return;
+
+            _hasExplicitFocusSelection = false;
+            FocusFirstAvailableAgent();
+        }
+
+        /// <summary>
         /// 按 AgentId 查询运行时句柄
         /// </summary>
         /// <param name="agentId"></param>
@@ -287,7 +300,7 @@ namespace Gameplay.Agent.Runtime
             for (int i = 0; i < _registeredAgents.Count; i++)
             {
                 handle = _registeredAgents[i];
-                if (handle.IsValid)
+                if (handle.IsAlive)
                     return true;
             }
 
@@ -301,8 +314,12 @@ namespace Gameplay.Agent.Runtime
         /// </summary>
         public bool TryGetFocusedHandle(out AgentRuntimeHandle handle)
         {
-            if (!_focusedAgentId.IsEmpty && TryGetHandle(_focusedAgentId, out handle))
+            if (!_focusedAgentId.IsEmpty &&
+                TryGetHandle(_focusedAgentId, out handle) &&
+                handle.IsAlive)
+            {
                 return true;
+            }
 
             return FocusFirstAvailableAgent(out handle);
         }
@@ -314,6 +331,9 @@ namespace Gameplay.Agent.Runtime
         {
             AgentRuntimeHandle handle;
             if (!TryGetHandle(agentId, out handle))
+                return false;
+
+            if (!handle.IsAlive)
                 return false;
 
             SetFocusedHandle(handle);
@@ -346,7 +366,7 @@ namespace Gameplay.Agent.Runtime
                     : offset - 1;
 
                 AgentRuntimeHandle handle = _registeredAgents[index];
-                if (!handle.IsValid)
+                if (!handle.IsAlive)
                     continue;
 
                 SetFocusedHandle(handle);
@@ -407,7 +427,7 @@ namespace Gameplay.Agent.Runtime
 
         private bool TryGetDefaultFocusedHandle(out AgentRuntimeHandle handle)
         {
-            return TryGetHandle(DefaultFocusedAgentIdValue, out handle);
+            return TryGetHandle(DefaultFocusedAgentIdValue, out handle) && handle.IsAlive;
         }
 
         private static bool IsDefaultFocusedAgent(AgentId agentId)

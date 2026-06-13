@@ -43,6 +43,7 @@ namespace Gameplay.Agent.Core
         private int _currentHealth;
         private bool _isInitialized;
         private bool _isRegistered;
+        private bool _deathNotified;
         private AgentId _runtimeAgentId;
 
         private AgentBrainController _brainController;
@@ -247,6 +248,7 @@ namespace Gameplay.Agent.Core
             }
 
             _currentHealth = MaxHealth;
+            _deathNotified = false;
 
             _brainController = new AgentBrainController(this);
             _interventionController = new AgentInterventionController(_brainController.Blackboard);
@@ -266,9 +268,13 @@ namespace Gameplay.Agent.Core
             if (IsDead)
                 return;
 
+            bool wasAlive = !IsDead;
             int finalDamage = ResolveIncomingDamageAmount(damageRequest.DamageAmount, Time.timeAsDouble);
             _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
-            SyncBodyFactsToBlackboard(Time.timeAsDouble);
+            double timeSeconds = Time.timeAsDouble;
+            SyncBodyFactsToBlackboard(timeSeconds);
+            if (wasAlive && IsDead)
+                HandleDeath(timeSeconds);
         }
 
         public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
@@ -277,12 +283,15 @@ namespace Gameplay.Agent.Core
                 return 0f;
 
             double timeSeconds = Time.timeAsDouble;
+            bool wasAlive = !IsDead;
             int previousHealth = _currentHealth;
             int finalDamage = ResolveIncomingDamageAmount(damage, timeSeconds);
             _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
             if (!IsDead)
                 RecordCombatDamageInterrupt(source, timeSeconds);
             SyncBodyFactsToBlackboard(timeSeconds);
+            if (wasAlive && IsDead)
+                HandleDeath(timeSeconds);
             return Mathf.Max(0, previousHealth - _currentHealth);
         }
 
@@ -602,6 +611,26 @@ namespace Gameplay.Agent.Core
             _navMeshAgent.velocity = Vector3.zero;
             if (_navMeshAgent.hasPath)
                 _navMeshAgent.ResetPath();
+        }
+
+        private void HandleDeath(double timeSeconds)
+        {
+            if (_deathNotified)
+                return;
+
+            _deathNotified = true;
+            _externalImpulseVelocity = Vector3.zero;
+            _externalImpulseMovementOverrideRemaining = 0f;
+            _speedDebuffDurationRemaining = 0f;
+            _speedDebuffMultiplier = 1f;
+
+            StopNavMeshForExternalMovement();
+            if (_interventionController != null)
+                _interventionController.ClearDirective(timeSeconds);
+            SyncBodyFactsToBlackboard(timeSeconds);
+
+            AgentRuntimeRegistry.ActiveInstance?.NotifyAgentDied(this);
+            global::RaidFlowController.Instance?.NotifyAgentDied(this);
         }
 
         private int ResolveMaxHealth()

@@ -49,6 +49,11 @@ namespace Gameplay.Agent.Runtime
         public bool IsValid => !AgentId.IsEmpty && PawnRoot != null;
 
         /// <summary>
+        /// 句柄是否仍指向一个存活 Agent
+        /// </summary>
+        public bool IsAlive => IsValid && ReadOnly != null && !ReadOnly.IsDead;
+
+        /// <summary>
         /// 当前 Agent 的缓存 Transform
         /// </summary>
         public Transform CachedTransform => IsValid ? ReadOnly.CachedTransform : null;

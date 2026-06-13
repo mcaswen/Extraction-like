@@ -1,3 +1,5 @@
+using Gameplay.Agent.Core;
+using Gameplay.Agent.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,6 +20,7 @@ public class RaidFlowController : MonoBehaviour
     private ExtractionPointController _activeExtractionPoint;
     private float _extractionProgressSeconds;
     private string _recentEventMessage = string.Empty;
+    private string _missionFailureDetail = "主角已阵亡";
     private float _recentEventTimer;
     private GUIStyle _worldPromptStyle;
 
@@ -95,6 +98,34 @@ public class RaidFlowController : MonoBehaviour
         }
 
         _isMissionFailed = true;
+        _missionFailureDetail = "主角已阵亡";
+        Time.timeScale = 0f;
+    }
+
+    public void NotifyAgentDied(AgentPawnRoot agent)
+    {
+        if (_isMissionCompleted || _isMissionFailed)
+        {
+            return;
+        }
+
+        string agentLabel = agent != null && !string.IsNullOrWhiteSpace(agent.AgentIdValue)
+            ? $"Agent {agent.AgentIdValue}"
+            : "Agent";
+
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry != null && registry.TryGetPrimaryHandle(out AgentRuntimeHandle livingAgent))
+        {
+            string nextAgentLabel = !string.IsNullOrWhiteSpace(livingAgent.AgentId.Value)
+                ? $"Agent {livingAgent.AgentId.Value}"
+                : "其他 Agent";
+            PushEventMessage($"{agentLabel} 已阵亡，当前焦点: {nextAgentLabel}");
+            return;
+        }
+
+        PushEventMessage("所有 Agent 已阵亡");
+        _isMissionFailed = true;
+        _missionFailureDetail = "所有 Agent 已阵亡";
         Time.timeScale = 0f;
     }
 
@@ -276,7 +307,7 @@ public class RaidFlowController : MonoBehaviour
         string title = _isMissionCompleted ? "撤离成功" : "任务失败";
         string detail = _isMissionCompleted
             ? $"你带走了 {_lootCollectedCount} 件战利品"
-            : "主角已阵亡";
+            : _missionFailureDetail;
 
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 26f), title);
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 56f, panelRect.width - 48f, 24f), detail);
