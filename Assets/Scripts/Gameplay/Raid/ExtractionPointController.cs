@@ -1,3 +1,4 @@
+using Gameplay.Agent.Core;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
@@ -12,6 +13,7 @@ public class ExtractionPointController : MonoBehaviour
     public float WorldPromptVerticalOffset = 0.9f;
 
     private Collider _playerCollider;
+    private string _playerAgentId;
     private bool _isPlayerInsideActiveBounds;
 
     private void Reset()
@@ -33,8 +35,9 @@ public class ExtractionPointController : MonoBehaviour
 
     private void OnDisable()
     {
-        _playerCollider = null;
         SetPlayerInsideActiveBounds(false);
+        _playerCollider = null;
+        _playerAgentId = string.Empty;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -45,6 +48,7 @@ public class ExtractionPointController : MonoBehaviour
         }
 
         _playerCollider = other;
+        _playerAgentId = ResolveAgentId(other);
         RefreshPlayerPresence();
     }
 
@@ -57,9 +61,11 @@ public class ExtractionPointController : MonoBehaviour
 
         if (_playerCollider != other)
         {
+            SetPlayerInsideActiveBounds(false);
             _playerCollider = other;
         }
 
+        _playerAgentId = ResolveAgentId(other);
         RefreshPlayerPresence();
     }
 
@@ -72,10 +78,11 @@ public class ExtractionPointController : MonoBehaviour
 
         if (_playerCollider == other)
         {
+            SetPlayerInsideActiveBounds(false);
             _playerCollider = null;
+            _playerAgentId = string.Empty;
+            return;
         }
-
-        SetPlayerInsideActiveBounds(false);
     }
 
     public Vector3 GetWorldPromptPosition()
@@ -100,7 +107,10 @@ public class ExtractionPointController : MonoBehaviour
         }
 
         _isPlayerInsideActiveBounds = isInside;
-        RaidFlowController.Instance?.SetPlayerInsideExtractionPoint(this, isInside);
+        if (!string.IsNullOrEmpty(_playerAgentId))
+            RaidFlowController.Instance?.SetAgentInsideExtractionPoint(_playerAgentId, this, isInside);
+        else
+            RaidFlowController.Instance?.SetPlayerInsideExtractionPoint(this, isInside);
     }
 
     private bool IsPlayerInsideActiveBounds()
@@ -114,6 +124,15 @@ public class ExtractionPointController : MonoBehaviour
         Vector3 playerPosition = _playerCollider.bounds.center;
         return Mathf.Abs(playerPosition.x - effectiveBounds.center.x) <= effectiveBounds.extents.x &&
                Mathf.Abs(playerPosition.z - effectiveBounds.center.z) <= effectiveBounds.extents.z;
+    }
+
+    private static string ResolveAgentId(Collider collider)
+    {
+        if (collider == null)
+            return string.Empty;
+
+        AgentPawnRoot agent = collider.GetComponentInParent<AgentPawnRoot>();
+        return agent != null ? agent.AgentIdValue : string.Empty;
     }
 
     private Bounds GetEffectiveBounds()

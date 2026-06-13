@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 385075814be61467585a74b0ddfa2085, type: 3}
   m_Name: SO_Agent__Earth_PawnConfig
   m_EditorClassIdentifier: 
-  _maxHealth: 100
+  _maxHealth: 300
   _defense: 20
   _moveSpeed: 12
   _moveStoppingDistance: 0.25
-  _interactionDistance: 1.5
+  _interactionDistance: 0
   _enableTargetDiscovery: 1
   _targetDiscoveryRange: 200
   _targetDiscoveryInterval: 0.5

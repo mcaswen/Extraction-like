@@ -15,6 +15,9 @@ namespace Gameplay.Targets.Authoring
         [SerializeField] private List<GameplayTargetEntityMember> _extractionMembers =
             new List<GameplayTargetEntityMember>();
 
+        [Header("Collider Range Override")]
+        [SerializeField] private GameObject _rangeColliderTarget;
+
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Extraction;
         protected override string IdPrefix => "ExtractionCluster";
 
@@ -100,6 +103,28 @@ namespace Gameplay.Targets.Authoring
             RefreshRuntimeState();
         }
 
+        protected override bool TryBuildCustomRangeShape(
+            List<Vector3> rangePoints,
+            out Vector3 centerPosition,
+            out Transform groundProjectionOwner)
+        {
+            centerPosition = transform.position;
+            groundProjectionOwner = transform;
+
+            Collider rangeCollider = ResolveRangeCollider();
+            if (rangeCollider == null)
+                return false;
+
+            groundProjectionOwner = rangeCollider.transform;
+            if (rangeCollider is BoxCollider boxCollider)
+            {
+                BuildBoxColliderRangeShape(boxCollider, rangePoints, out centerPosition);
+                return true;
+            }
+
+            return TryBuildBoundsRangeShape(rangeCollider.bounds, rangePoints, out centerPosition);
+        }
+
         protected override void CollectMemberPositions(List<Vector3> memberPositions)
         {
             for (int i = 0; i < _extractionMembers.Count; i++)
@@ -162,6 +187,50 @@ namespace Gameplay.Targets.Authoring
             }
 
             return null;
+        }
+
+        private Collider ResolveRangeCollider()
+        {
+            if (_rangeColliderTarget == null)
+                return null;
+
+            if (_rangeColliderTarget.TryGetComponent(out Collider directCollider))
+                return directCollider;
+
+            return _rangeColliderTarget.GetComponentInChildren<Collider>(true);
+        }
+
+        private static void BuildBoxColliderRangeShape(
+            BoxCollider boxCollider,
+            List<Vector3> rangePoints,
+            out Vector3 centerPosition)
+        {
+            Vector3 halfSize = boxCollider.size * 0.5f;
+            Transform colliderTransform = boxCollider.transform;
+            Vector3 localCenter = boxCollider.center;
+
+            rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(-halfSize.x, 0f, -halfSize.z)));
+            rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(-halfSize.x, 0f, halfSize.z)));
+            rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(halfSize.x, 0f, halfSize.z)));
+            rangePoints.Add(colliderTransform.TransformPoint(localCenter + new Vector3(halfSize.x, 0f, -halfSize.z)));
+            centerPosition = colliderTransform.TransformPoint(localCenter);
+        }
+
+        private static bool TryBuildBoundsRangeShape(
+            Bounds bounds,
+            List<Vector3> rangePoints,
+            out Vector3 centerPosition)
+        {
+            centerPosition = bounds.center;
+            if (bounds.size.x <= Mathf.Epsilon || bounds.size.z <= Mathf.Epsilon)
+                return false;
+
+            float y = bounds.center.y;
+            rangePoints.Add(new Vector3(bounds.min.x, y, bounds.min.z));
+            rangePoints.Add(new Vector3(bounds.min.x, y, bounds.max.z));
+            rangePoints.Add(new Vector3(bounds.max.x, y, bounds.max.z));
+            rangePoints.Add(new Vector3(bounds.max.x, y, bounds.min.z));
+            return true;
         }
 
         // 已完成或失效的撤离点不再作为执行候选

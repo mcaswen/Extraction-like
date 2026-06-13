@@ -121,6 +121,16 @@ namespace Gameplay.Targets.Authoring
 
         protected abstract void RefreshRuntimeState();
 
+        protected virtual bool TryBuildCustomRangeShape(
+            List<Vector3> rangePoints,
+            out Vector3 centerPosition,
+            out Transform groundProjectionOwner)
+        {
+            centerPosition = transform.position;
+            groundProjectionOwner = transform;
+            return false;
+        }
+
         /// <summary>
         /// 按另一个群目标的范围显示配置创建当前群的 LineRenderer
         /// 用于运行时生成的群目标复用来源群的显示风格
@@ -176,22 +186,38 @@ namespace Gameplay.Targets.Authoring
         // 根据成员点生成范围轮廓，并同步缓存中心点
         private void BuildRangeShape()
         {
-            _memberPositionBuffer.Clear();
-            CollectMemberPositions(_memberPositionBuffer);
-
-            GameplayTargetShapeUtility.BuildSmoothRange(
-                _memberPositionBuffer,
-                transform.position,
-                _rangePadding,
-                _fallbackRadius,
-                _circleSegments,
-                _smoothSegmentsPerEdge,
+            _rangePoints.Clear();
+            bool hasCustomShape = TryBuildCustomRangeShape(
                 _rangePoints,
-                out _cachedCenterPosition);
+                out _cachedCenterPosition,
+                out Transform groundProjectionOwner) && _rangePoints.Count > 1;
 
+            if (!hasCustomShape)
+            {
+                _memberPositionBuffer.Clear();
+                CollectMemberPositions(_memberPositionBuffer);
+
+                GameplayTargetShapeUtility.BuildSmoothRange(
+                    _memberPositionBuffer,
+                    transform.position,
+                    _rangePadding,
+                    _fallbackRadius,
+                    _circleSegments,
+                    _smoothSegmentsPerEdge,
+                    _rangePoints,
+                    out _cachedCenterPosition);
+                groundProjectionOwner = transform;
+            }
+
+            ProjectRangeShapeToGround(groundProjectionOwner != null ? groundProjectionOwner : transform);
+            _hasCachedShape = true;
+        }
+
+        private void ProjectRangeShapeToGround(Transform groundProjectionOwner)
+        {
             _cachedCenterPosition = GameplayTargetShapeUtility.ProjectPointToGround(
                 _cachedCenterPosition,
-                transform,
+                groundProjectionOwner,
                 _groundProbeHeight,
                 _groundProbeDistance,
                 _minGroundNormalY);
@@ -201,15 +227,13 @@ namespace Gameplay.Targets.Authoring
             {
                 Vector3 point = GameplayTargetShapeUtility.ProjectPointToGround(
                     _rangePoints[i],
-                    transform,
+                    groundProjectionOwner,
                     _groundProbeHeight,
                     _groundProbeDistance,
                     _minGroundNormalY);
                 point.y += _rangeHeightOffset;
                 _rangePoints[i] = point;
             }
-
-            _hasCachedShape = true;
         }
 
         // 如果配置了 LineRenderer，则把计算出的范围点同步到场景表现

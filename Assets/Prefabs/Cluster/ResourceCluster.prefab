@@ -73,8 +73,6 @@ MonoBehaviour:
       _hasBeenTouched: 0
       _hasBeenCompleted: 0
   _showNavigationCandidateDebugObjects: 1
-  _navigationCandidateDebugScale: 0.35
-  _navigationCandidateDebugColor: {r: 0.1, g: 0.85, b: 1, a: 0.85}
 --- !u!120 &415500514905207949
 LineRenderer:
   serializedVersion: 2

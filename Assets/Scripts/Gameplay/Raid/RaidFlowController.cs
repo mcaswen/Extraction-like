@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Runtime;
 using UnityEngine;
@@ -5,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class RaidFlowController : MonoBehaviour
 {
+    private const string LegacyPlayerExtractionId = "Player";
+
     public static RaidFlowController Instance { get; private set; }
 
     [Header("Flow Rules")]
@@ -23,6 +26,10 @@ public class RaidFlowController : MonoBehaviour
     private string _missionFailureDetail = "主角已阵亡";
     private float _recentEventTimer;
     private GUIStyle _worldPromptStyle;
+    private readonly Dictionary<string, AgentExtractionProgress> _activeExtractionProgressByAgentId =
+        new Dictionary<string, AgentExtractionProgress>();
+    private readonly HashSet<string> _extractedAgentIds = new HashSet<string>();
+    private readonly List<string> _completedExtractionAgentIds = new List<string>();
 
     public bool IsInputLocked => _isMissionCompleted || _isMissionFailed;
     public int RemainingEnemyCount => Mathf.Max(0, _initialEnemyCount - _enemiesKilledCount);
@@ -109,6 +116,9 @@ public class RaidFlowController : MonoBehaviour
             return;
         }
 
+        if (agent != null)
+            ClearAgentExtractionProgress(agent.AgentIdValue);
+
         string agentLabel = agent != null && !string.IsNullOrWhiteSpace(agent.AgentIdValue)
             ? $"Agent {agent.AgentIdValue}"
             : "Agent";
@@ -131,47 +141,118 @@ public class RaidFlowController : MonoBehaviour
 
     public void SetPlayerInsideExtractionPoint(ExtractionPointController extractionPoint, bool isInside)
     {
+        SetAgentInsideExtractionPoint(LegacyPlayerExtractionId, extractionPoint, isInside);
+    }
+
+    public void SetAgentInsideExtractionPoint(string agentId, ExtractionPointController extractionPoint, bool isInside)
+    {
+        if (_isMissionCompleted || _isMissionFailed || extractionPoint == null)
+            return;
+
+        string normalizedAgentId = NormalizeExtractionAgentId(agentId);
+        if (string.IsNullOrEmpty(normalizedAgentId))
+            return;
+
         if (isInside)
         {
             Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionTouched(extractionPoint);
-            if (_activeExtractionPoint != extractionPoint)
+            if (_extractedAgentIds.Contains(normalizedAgentId))
             {
-                _activeExtractionPoint = extractionPoint;
-                _extractionProgressSeconds = 0f;
+                return;
             }
 
+            if (!_activeExtractionProgressByAgentId.TryGetValue(
+                    normalizedAgentId,
+                    out AgentExtractionProgress progress))
+            {
+                progress = new AgentExtractionProgress();
+                _activeExtractionProgressByAgentId.Add(normalizedAgentId, progress);
+            }
+
+            if (progress.ExtractionPoint != extractionPoint)
+            {
+                progress.ProgressSeconds = 0f;
+            }
+
+            progress.ExtractionPoint = extractionPoint;
+            _activeExtractionPoint = extractionPoint;
             return;
         }
 
-        if (_activeExtractionPoint == extractionPoint)
+        if (_activeExtractionProgressByAgentId.TryGetValue(
+                normalizedAgentId,
+                out AgentExtractionProgress activeProgress) &&
+            activeProgress.ExtractionPoint == extractionPoint)
         {
-            _activeExtractionPoint = null;
-            _extractionProgressSeconds = 0f;
+            _activeExtractionProgressByAgentId.Remove(normalizedAgentId);
+            RefreshActiveExtractionPoint();
         }
     }
 
     private void TickExtractionProgress()
     {
-        if (_activeExtractionPoint == null)
+        if (_activeExtractionProgressByAgentId.Count <= 0)
         {
+            _activeExtractionPoint = null;
             _extractionProgressSeconds = 0f;
             return;
         }
 
         if (RequireLootBeforeExtraction && _lootCollectedCount <= 0)
         {
+            foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
+                pair.Value.ProgressSeconds = 0f;
+
             _extractionProgressSeconds = 0f;
             return;
         }
 
-        _extractionProgressSeconds += Time.deltaTime;
-        if (_extractionProgressSeconds >= _activeExtractionPoint.ExtractionDurationSeconds)
+        _completedExtractionAgentIds.Clear();
+        _extractionProgressSeconds = 0f;
+
+        foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
         {
-            CompleteExtraction();
+            AgentExtractionProgress progress = pair.Value;
+            if (progress == null || progress.ExtractionPoint == null)
+            {
+                _completedExtractionAgentIds.Add(pair.Key);
+                continue;
+            }
+
+            progress.ProgressSeconds += Time.deltaTime;
+            _extractionProgressSeconds = Mathf.Max(_extractionProgressSeconds, progress.ProgressSeconds);
+
+            float duration = Mathf.Max(0.05f, progress.ExtractionPoint.ExtractionDurationSeconds);
+            if (progress.ProgressSeconds >= duration)
+                _completedExtractionAgentIds.Add(pair.Key);
         }
+
+        for (int i = 0; i < _completedExtractionAgentIds.Count; i++)
+        {
+            string completedAgentId = _completedExtractionAgentIds[i];
+            if (!_activeExtractionProgressByAgentId.TryGetValue(
+                    completedAgentId,
+                    out AgentExtractionProgress completedProgress))
+            {
+                continue;
+            }
+
+            ExtractionPointController completionPoint = completedProgress.ExtractionPoint;
+            _activeExtractionProgressByAgentId.Remove(completedAgentId);
+            if (_extractedAgentIds.Add(completedAgentId))
+                PushEventMessage($"{FormatExtractionAgentLabel(completedAgentId)} 已撤离");
+
+            if (AreAllRequiredAgentsExtracted())
+            {
+                CompleteExtraction(completionPoint);
+                return;
+            }
+        }
+
+        RefreshActiveExtractionPoint();
     }
 
-    private void CompleteExtraction()
+    private void CompleteExtraction(ExtractionPointController extractionPoint)
     {
         if (_isMissionCompleted || _isMissionFailed)
         {
@@ -179,7 +260,8 @@ public class RaidFlowController : MonoBehaviour
         }
 
         _isMissionCompleted = true;
-        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionCompleted(_activeExtractionPoint);
+        Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionCompleted(
+            extractionPoint != null ? extractionPoint : _activeExtractionPoint);
         Time.timeScale = 0f;
     }
 
@@ -213,7 +295,11 @@ public class RaidFlowController : MonoBehaviour
 
         if (_activeExtractionPoint == null)
         {
-            GUI.Label(new Rect(28f, 98f, 240f, 22f), "目标: 前往撤离点");
+            int extractedCount = GetExtractedRequiredAgentCount();
+            string extractionText = extractedCount > 0
+                ? $"已撤离: {extractedCount}/{GetRequiredExtractionAgentCount()}"
+                : "目标: 前往撤离点";
+            GUI.Label(new Rect(28f, 98f, 240f, 22f), extractionText);
         }
         else if (RequireLootBeforeExtraction && _lootCollectedCount <= 0)
         {
@@ -221,8 +307,7 @@ public class RaidFlowController : MonoBehaviour
         }
         else
         {
-            float remainingTime = Mathf.Max(0f, _activeExtractionPoint.ExtractionDurationSeconds - _extractionProgressSeconds);
-            GUI.Label(new Rect(28f, 98f, 240f, 22f), $"撤离中: {remainingTime:0.0}s");
+            GUI.Label(new Rect(28f, 98f, 240f, 22f), GetExtractionHudText());
         }
 
         if (!string.IsNullOrEmpty(_recentEventMessage))
@@ -261,8 +346,7 @@ public class RaidFlowController : MonoBehaviour
         }
         else
         {
-            float remainingTime = Mathf.Max(0f, _activeExtractionPoint.ExtractionDurationSeconds - _extractionProgressSeconds);
-            promptText = $"撤离等待 {remainingTime:0.0}s";
+            promptText = GetExtractionPromptText();
         }
 
         const float width = 176f;
@@ -323,5 +407,147 @@ public class RaidFlowController : MonoBehaviour
 
         GameObject minimapObject = new GameObject("RaidMinimapController");
         minimapObject.AddComponent<RaidMinimapController>();
+    }
+
+    private void ClearAgentExtractionProgress(string agentId)
+    {
+        string normalizedAgentId = NormalizeExtractionAgentId(agentId);
+        if (string.IsNullOrEmpty(normalizedAgentId))
+            return;
+
+        _activeExtractionProgressByAgentId.Remove(normalizedAgentId);
+        RefreshActiveExtractionPoint();
+    }
+
+    private bool AreAllRequiredAgentsExtracted()
+    {
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || registry.AgentCount <= 0)
+            return _extractedAgentIds.Contains(LegacyPlayerExtractionId);
+
+        bool hasRequiredAgent = false;
+        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
+        for (int i = 0; i < registeredAgents.Count; i++)
+        {
+            AgentRuntimeHandle handle = registeredAgents[i];
+            if (!handle.IsValid)
+                continue;
+
+            hasRequiredAgent = true;
+            if (!_extractedAgentIds.Contains(handle.AgentId.Value))
+                return false;
+        }
+
+        return hasRequiredAgent;
+    }
+
+    private int GetRequiredExtractionAgentCount()
+    {
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || registry.AgentCount <= 0)
+            return 1;
+
+        int count = 0;
+        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
+        for (int i = 0; i < registeredAgents.Count; i++)
+        {
+            if (registeredAgents[i].IsValid)
+                count++;
+        }
+
+        return Mathf.Max(1, count);
+    }
+
+    private int GetExtractedRequiredAgentCount()
+    {
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || registry.AgentCount <= 0)
+            return _extractedAgentIds.Contains(LegacyPlayerExtractionId) ? 1 : 0;
+
+        int count = 0;
+        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
+        for (int i = 0; i < registeredAgents.Count; i++)
+        {
+            AgentRuntimeHandle handle = registeredAgents[i];
+            if (handle.IsValid && _extractedAgentIds.Contains(handle.AgentId.Value))
+                count++;
+        }
+
+        return count;
+    }
+
+    private string GetExtractionHudText()
+    {
+        float remainingTime = GetActiveExtractionRemainingSeconds();
+        return $"撤离中: {GetExtractedRequiredAgentCount()}/{GetRequiredExtractionAgentCount()}  {remainingTime:0.0}s";
+    }
+
+    private string GetExtractionPromptText()
+    {
+        float remainingTime = GetActiveExtractionRemainingSeconds();
+        return $"撤离 {GetExtractedRequiredAgentCount()}/{GetRequiredExtractionAgentCount()}  等待 {remainingTime:0.0}s";
+    }
+
+    private float GetActiveExtractionRemainingSeconds()
+    {
+        float remainingTime = 0f;
+        bool hasActiveProgress = false;
+
+        foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
+        {
+            AgentExtractionProgress progress = pair.Value;
+            if (progress == null || progress.ExtractionPoint == null)
+                continue;
+
+            float duration = Mathf.Max(0.05f, progress.ExtractionPoint.ExtractionDurationSeconds);
+            float candidateRemaining = Mathf.Max(0f, duration - progress.ProgressSeconds);
+            if (!hasActiveProgress || candidateRemaining < remainingTime)
+            {
+                remainingTime = candidateRemaining;
+                hasActiveProgress = true;
+            }
+        }
+
+        if (hasActiveProgress)
+            return remainingTime;
+
+        return _activeExtractionPoint != null
+            ? Mathf.Max(0f, _activeExtractionPoint.ExtractionDurationSeconds - _extractionProgressSeconds)
+            : 0f;
+    }
+
+    private void RefreshActiveExtractionPoint()
+    {
+        _activeExtractionPoint = null;
+        _extractionProgressSeconds = 0f;
+
+        foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
+        {
+            AgentExtractionProgress progress = pair.Value;
+            if (progress == null || progress.ExtractionPoint == null)
+                continue;
+
+            _activeExtractionPoint = progress.ExtractionPoint;
+            _extractionProgressSeconds = Mathf.Max(_extractionProgressSeconds, progress.ProgressSeconds);
+            break;
+        }
+    }
+
+    private static string NormalizeExtractionAgentId(string agentId)
+    {
+        return string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
+    }
+
+    private static string FormatExtractionAgentLabel(string agentId)
+    {
+        return string.Equals(agentId, LegacyPlayerExtractionId, System.StringComparison.Ordinal)
+            ? "Player"
+            : $"Agent {agentId}";
+    }
+
+    private sealed class AgentExtractionProgress
+    {
+        public ExtractionPointController ExtractionPoint;
+        public float ProgressSeconds;
     }
 }

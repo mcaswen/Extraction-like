@@ -12,6 +12,7 @@ namespace Gameplay.Agent.AI.Actions
     public sealed class ExtractActionNode : AgentActionNodeBase
     {
         private global::ExtractionPointController _activeExtractionPoint;
+        private string _activeAgentId;
 
         /// <summary>
         /// 创建撤离行为节点
@@ -51,7 +52,7 @@ namespace Gameplay.Agent.AI.Actions
             }
 
             // 现有撤离逻辑由 RaidFlowController 计时，这里只桥接进入状态
-            SetActiveExtractionPoint(extractionPoint);
+            SetActiveExtractionPoint(agent, extractionPoint);
             return Running();
         }
 
@@ -99,12 +100,17 @@ namespace Gameplay.Agent.AI.Actions
             return TryResolveTargetPosition(directiveRequest.TargetRef, out targetPosition);
         }
 
-        private void SetActiveExtractionPoint(global::ExtractionPointController extractionPoint)
+        private void SetActiveExtractionPoint(
+            IAgentReadOnly agent,
+            global::ExtractionPointController extractionPoint)
         {
-            if (_activeExtractionPoint == extractionPoint)
+            string agentId = agent != null ? agent.AgentIdValue : string.Empty;
+            if (_activeExtractionPoint == extractionPoint &&
+                string.Equals(_activeAgentId, agentId, System.StringComparison.Ordinal))
             {
                 // 每帧续写 true，兼容 RaidFlowController 的持续计时模型
-                global::RaidFlowController.Instance?.SetPlayerInsideExtractionPoint(
+                global::RaidFlowController.Instance?.SetAgentInsideExtractionPoint(
+                    agentId,
                     extractionPoint,
                     true);
                 return;
@@ -113,7 +119,9 @@ namespace Gameplay.Agent.AI.Actions
             // 切换撤离点前先清旧点，避免两个撤离点同时处于激活状态
             ClearActiveExtractionPoint();
             _activeExtractionPoint = extractionPoint;
-            global::RaidFlowController.Instance?.SetPlayerInsideExtractionPoint(
+            _activeAgentId = agentId;
+            global::RaidFlowController.Instance?.SetAgentInsideExtractionPoint(
+                _activeAgentId,
                 _activeExtractionPoint,
                 true);
         }
@@ -123,10 +131,12 @@ namespace Gameplay.Agent.AI.Actions
             if (_activeExtractionPoint == null)
                 return;
 
-            global::RaidFlowController.Instance?.SetPlayerInsideExtractionPoint(
+            global::RaidFlowController.Instance?.SetAgentInsideExtractionPoint(
+                _activeAgentId,
                 _activeExtractionPoint,
                 false);
             _activeExtractionPoint = null;
+            _activeAgentId = string.Empty;
         }
     }
 }
