@@ -1090,7 +1090,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         if (PlayerTransform == null)
         {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
         }
 
         if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
@@ -1098,7 +1098,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             return true;
         }
 
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer) &&
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer) &&
             AssignCombatTarget(currentPlayer))
         {
             return true;

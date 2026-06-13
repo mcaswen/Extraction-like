@@ -312,7 +312,7 @@ public sealed class EnemyVisionVisualizer : MonoBehaviour
 
     private Transform ResolvePlayerTransform()
     {
-        return PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform target)
+        return PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform target)
             ? target
             : null;
     }

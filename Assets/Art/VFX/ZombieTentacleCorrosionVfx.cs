@@ -453,7 +453,7 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             return _cachedPlayerTarget;
         }
 
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer))
         {
             _cachedPlayerTarget = currentPlayer;
             return _cachedPlayerTarget;

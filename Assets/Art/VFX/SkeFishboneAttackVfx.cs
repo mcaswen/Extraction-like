@@ -275,7 +275,7 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
             return;
         }
 
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer))
         {
             _targetCandidate = currentPlayer;
             return;

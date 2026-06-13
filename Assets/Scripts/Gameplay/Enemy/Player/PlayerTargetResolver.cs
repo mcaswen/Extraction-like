@@ -4,16 +4,12 @@ using UnityEngine;
 
 public static class PlayerTargetResolver
 {
-    public static bool TryGetCurrentPlayerTransform(out Transform target)
+    public static bool TryGetCurrentPlayerTransform(Transform seeker, out Transform target)
     {
         target = null;
 
-        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry != null &&
-            registry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle) &&
-            focusedHandle.CachedTransform != null)
+        if (TryGetNearestRegisteredAgent(seeker, out target))
         {
-            target = focusedHandle.CachedTransform;
             return true;
         }
 
@@ -23,6 +19,38 @@ public static class PlayerTargetResolver
 
         target = playerObject.transform;
         return true;
+    }
+
+    private static bool TryGetNearestRegisteredAgent(Transform seeker, out Transform target)
+    {
+        target = null;
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null)
+            return false;
+
+        float bestDistanceSqr = float.PositiveInfinity;
+        var registeredAgents = registry.RegisteredAgents;
+        for (int i = 0; i < registeredAgents.Count; i++)
+        {
+            AgentRuntimeHandle handle = registeredAgents[i];
+            if (!handle.IsAlive || handle.CachedTransform == null)
+                continue;
+
+            if (seeker == null)
+            {
+                target = handle.CachedTransform;
+                return true;
+            }
+
+            float distanceSqr = (handle.CachedTransform.position - seeker.position).sqrMagnitude;
+            if (distanceSqr >= bestDistanceSqr)
+                continue;
+
+            bestDistanceSqr = distanceSqr;
+            target = handle.CachedTransform;
+        }
+
+        return target != null;
     }
 
     public static bool TryGetDamageReceiver(Transform target, out ICombatDamageReceiver receiver)

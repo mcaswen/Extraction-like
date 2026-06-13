@@ -606,7 +606,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
     {
         if (PlayerTransform == null)
         {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
         }
 
         if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
@@ -614,7 +614,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
             return true;
         }
 
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer) &&
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer) &&
             AssignCombatTarget(currentPlayer))
         {
             return true;

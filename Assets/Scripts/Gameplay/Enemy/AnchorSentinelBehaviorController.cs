@@ -381,7 +381,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     {
         if (PlayerTransform == null)
         {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
         }
 
         if (PlayerTransform != null &&

@@ -281,7 +281,7 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         _targetRefreshTimer = TargetRefreshInterval;
         _targetCandidate = null;
 
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer))
         {
             _targetCandidate = currentPlayer;
             return;

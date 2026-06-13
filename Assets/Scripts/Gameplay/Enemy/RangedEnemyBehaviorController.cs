@@ -640,7 +640,7 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
             return true;
         }
 
-        if (!PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
+        if (!PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer))
         {
             return false;
         }
