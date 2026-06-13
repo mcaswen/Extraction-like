@@ -373,6 +373,25 @@ namespace Gameplay.Agent.Runtime
                 }
             }
 
+            if (targetRef.Kind == AgentTargetKind.Extraction &&
+                targetRef.TargetObject != null &&
+                targetRef.TargetObject.TryGetComponent(out ExtractionClusterAuthoring extractionCluster))
+            {
+                if (extractionCluster.TryGetNearestExtractionPoint(
+                        agentPosition,
+                        out global::ExtractionPointController extractionPoint) &&
+                    extractionPoint != null)
+                {
+                    resolvedObject = extractionPoint.gameObject;
+                    reason = $"nearestExtractionPointInCluster({extractionCluster.TargetId})";
+                    resolvedPosition = extractionPoint.transform.position;
+                    return true;
+                }
+
+                reason = $"missingExtractionPointInCluster({extractionCluster.TargetId})";
+                return false;
+            }
+
             // 非群目标使用碰撞体最近点，方便观察真实交互停靠点而不是对象 pivot
             if (resolvedObject != null &&
                 resolvedObject.GetComponent<GameplayTargetClusterAuthoringBase>() == null)

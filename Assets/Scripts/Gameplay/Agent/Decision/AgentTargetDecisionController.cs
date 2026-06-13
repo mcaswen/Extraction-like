@@ -291,10 +291,16 @@ namespace Gameplay.Agent.Decision
             float rangeSqr,
             string currentTargetId)
         {
-            if (!extractionCluster.TryGetNearestExtractionPoint(agentPosition, out _))
+            if (!extractionCluster.TryGetNearestExtractionPoint(
+                    agentPosition,
+                    out global::ExtractionPointController extractionPoint) ||
+                extractionPoint == null)
+            {
                 return;
+            }
 
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionCluster.CenterPosition);
+            Vector3 extractionPosition = extractionPoint.transform.position;
+            float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionPosition);
             if (distanceSqr > rangeSqr)
                 return;
 
@@ -303,8 +309,8 @@ namespace Gameplay.Agent.Decision
                 AgentDirectiveType.Extract,
                 AgentTargetKind.Extraction,
                 extractionCluster.TargetId,
-                extractionCluster.gameObject,
-                extractionCluster.CenterPosition,
+                extractionPoint.gameObject,
+                extractionPosition,
                 distanceSqr,
                 null,
                 IsCurrentTarget(extractionCluster.TargetId, currentTargetId)));

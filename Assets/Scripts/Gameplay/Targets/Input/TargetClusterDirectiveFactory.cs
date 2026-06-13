@@ -64,19 +64,48 @@ namespace Gameplay.Targets.Input
 
             if (cluster is ExtractionClusterAuthoring extractionCluster)
             {
-                directiveRequest = CreateConcreteDirective(
-                    AgentDirectiveType.Extract,
-                    AgentTargetKind.Extraction,
-                    extractionCluster.gameObject,
-                    targetId,
+                return TryCreateExtractionDirective(
+                    extractionCluster,
                     agentHandle,
+                    targetId,
                     commandId,
-                    priority);
-                return true;
+                    priority,
+                    out directiveRequest);
             }
 
             directiveRequest = default;
             return false;
+        }
+
+        private static bool TryCreateExtractionDirective(
+            ExtractionClusterAuthoring extractionCluster,
+            AgentRuntimeHandle agentHandle,
+            string targetId,
+            string commandId,
+            int priority,
+            out AgentDirectiveRequest directiveRequest)
+        {
+            if (!extractionCluster.TryGetNearestExtractionPoint(
+                    agentHandle.ReadOnly.Position,
+                    out global::ExtractionPointController extractionPoint) ||
+                extractionPoint == null)
+            {
+                Debug.LogWarning(
+                    $"[TargetInput] 撤离群 [{extractionCluster.name}] 没有可用的 ExtractionPoint 成员，无法创建撤离指令。请在 Extraction Members 里配置撤离点实体。",
+                    extractionCluster);
+                directiveRequest = default;
+                return false;
+            }
+
+            directiveRequest = CreateConcreteDirective(
+                AgentDirectiveType.Extract,
+                AgentTargetKind.Extraction,
+                extractionPoint.gameObject,
+                targetId,
+                agentHandle,
+                commandId,
+                priority);
+            return true;
         }
 
         private static bool TryCreateActiveEnemyDirective(

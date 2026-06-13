@@ -45,12 +45,6 @@ namespace Gameplay.Agent.AI.Actions
             if (!MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
                 return Running();
 
-            if (extractionPoint == null)
-            {
-                // 抽象撤离点只完成移动，具体胜负由未来撤离 Adapter 处理
-                return Succeed();
-            }
-
             // 现有撤离逻辑由 RaidFlowController 计时，这里只桥接进入状态
             SetActiveExtractionPoint(agent, extractionPoint);
             return Running();
@@ -68,36 +62,53 @@ namespace Gameplay.Agent.AI.Actions
             ClearActiveExtractionPoint();
         }
 
-        // 指令可以指向撤离群、具体撤离点或抽象点，统一解析为最终停靠位置
+        // 撤离必须解析到具体撤离点，避免只移动到 cluster 中心但没有 RaidFlow 计时实体。
         private bool TryResolveExtractionTarget(
             AgentDirectiveRequest directiveRequest,
             IAgentReadOnly agent,
             out Vector3 targetPosition,
             out global::ExtractionPointController extractionPoint)
         {
+            if (TryGetDirectExtractionPoint(directiveRequest.TargetRef, out extractionPoint))
+            {
+                targetPosition = extractionPoint.transform.position;
+                return true;
+            }
+
             if (TryGetTargetComponent(
                     directiveRequest.TargetRef,
                     out ExtractionClusterAuthoring extractionCluster))
             {
                 if (!extractionCluster.TryGetNearestExtractionPoint(agent.Position, out extractionPoint))
                 {
-                    targetPosition = extractionCluster.CenterPosition;
-                    return true;
+                    targetPosition = default;
+                    return false;
                 }
 
                 targetPosition = extractionPoint.transform.position;
                 return true;
             }
 
-            if (TryGetTargetComponent(
-                    directiveRequest.TargetRef,
-                    out extractionPoint))
-            {
-                targetPosition = extractionPoint.transform.position;
-                return true;
-            }
+            targetPosition = default;
+            extractionPoint = null;
+            return false;
+        }
 
-            return TryResolveTargetPosition(directiveRequest.TargetRef, out targetPosition);
+        private static bool TryGetDirectExtractionPoint(
+            AgentTargetRef targetRef,
+            out global::ExtractionPointController extractionPoint)
+        {
+            extractionPoint = null;
+            GameObject targetObject = targetRef.TargetObject;
+            if (targetObject == null)
+                return false;
+
+            extractionPoint = targetObject.GetComponent<global::ExtractionPointController>();
+            if (extractionPoint != null)
+                return true;
+
+            extractionPoint = targetObject.GetComponentInParent<global::ExtractionPointController>();
+            return extractionPoint != null;
         }
 
         private void SetActiveExtractionPoint(

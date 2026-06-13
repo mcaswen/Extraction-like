@@ -55,9 +55,26 @@ namespace Gameplay.Agent.AI.Actions
             }
 
             UnityEngine.Vector3 targetPosition;
-            bool resolvedTargetPosition = _targetKind == AgentTargetKind.Resource
-                ? TryResolveResourceNavigationTargetPosition(targetRef, agent.Position, agent.NavMeshAgent, out targetPosition)
-                : TryResolveTargetPosition(targetRef, out targetPosition);
+            bool resolvedTargetPosition;
+            switch (_targetKind)
+            {
+                case AgentTargetKind.Resource:
+                    resolvedTargetPosition = TryResolveResourceNavigationTargetPosition(
+                        targetRef,
+                        agent.Position,
+                        agent.NavMeshAgent,
+                        out targetPosition);
+                    break;
+                case AgentTargetKind.Extraction:
+                    resolvedTargetPosition = TryResolveExtractionNavigationTargetPosition(
+                        targetRef,
+                        agent.Position,
+                        out targetPosition);
+                    break;
+                default:
+                    resolvedTargetPosition = TryResolveTargetPosition(targetRef, out targetPosition);
+                    break;
+            }
 
             if (!resolvedTargetPosition)
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Directive target position is invalid");

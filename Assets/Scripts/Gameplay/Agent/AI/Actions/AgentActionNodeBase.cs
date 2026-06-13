@@ -203,6 +203,38 @@ namespace Gameplay.Agent.AI.Actions
                 out targetPosition);
         }
 
+        protected bool TryResolveExtractionNavigationTargetPosition(
+            AgentTargetRef targetRef,
+            Vector3 agentPosition,
+            out Vector3 targetPosition)
+        {
+            GameObject targetObject = targetRef.TargetObject;
+            if (targetObject != null &&
+                targetObject.TryGetComponent(out ExtractionClusterAuthoring extractionCluster))
+            {
+                if (extractionCluster.TryGetNearestExtractionPoint(
+                        agentPosition,
+                        out global::ExtractionPointController extractionPoint) &&
+                    extractionPoint != null)
+                {
+                    targetPosition = extractionPoint.transform.position;
+                    return true;
+                }
+
+                targetPosition = default;
+                return false;
+            }
+
+            if (targetObject != null &&
+                TryGetTargetComponent(targetRef, out global::ExtractionPointController directExtractionPoint))
+            {
+                targetPosition = directExtractionPoint.transform.position;
+                return true;
+            }
+
+            return TryResolveTargetPosition(targetRef, out targetPosition);
+        }
+
         /// <summary>
         /// 从目标引用中查找指定组件
         /// 会兼容组件挂在父级或子级表现物体上的情况

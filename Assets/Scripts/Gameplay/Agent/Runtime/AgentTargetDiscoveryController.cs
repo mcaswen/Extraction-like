@@ -272,6 +272,14 @@ namespace Gameplay.Agent.Runtime
             IAgentCommandReceiver commandReceiver,
             ExtractionClusterAuthoring extractionCluster)
         {
+            if (!extractionCluster.TryGetNearestExtractionPoint(
+                    handle.ReadOnly.Position,
+                    out global::ExtractionPointController extractionPoint) ||
+                extractionPoint == null)
+            {
+                return;
+            }
+
             commandReceiver.SetVisibleEnemy(false);
             commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
@@ -283,7 +291,7 @@ namespace Gameplay.Agent.Runtime
                 AgentDirectiveType.Extract,
                 AgentTargetRef.FromConcreteObject(
                     AgentTargetKind.Extraction,
-                    extractionCluster.gameObject,
+                    extractionPoint.gameObject,
                     targetId),
                 targetId,
                 handle.AgentId));
