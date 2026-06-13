@@ -7,13 +7,15 @@ using UnityEngine.SceneManagement;
 public class RaidFlowController : MonoBehaviour
 {
     private const string LegacyPlayerExtractionId = "Player";
+    private const string SuccessScreenResourcePath = "UI/Pfb_RaidExtractionSuccessScreen";
 
     public static RaidFlowController Instance { get; private set; }
 
-    [Header("Flow Rules")]
-    public bool RequireLootBeforeExtraction = true;
     public string MissionName = "MVP Raid";
     public KeyCode RestartKey = KeyCode.R;
+
+    [Header("Settlement UI")]
+    [SerializeField] private RaidExtractionSuccessScreen _successScreenPrefab;
 
     private int _initialEnemyCount;
     private int _enemiesKilledCount;
@@ -23,13 +25,19 @@ public class RaidFlowController : MonoBehaviour
     private ExtractionPointController _activeExtractionPoint;
     private float _extractionProgressSeconds;
     private string _recentEventMessage = string.Empty;
-    private string _missionFailureDetail = "主角已阵亡";
+    private string _missionFailureDetail = "Player is down";
     private float _recentEventTimer;
     private GUIStyle _worldPromptStyle;
     private readonly Dictionary<string, AgentExtractionProgress> _activeExtractionProgressByAgentId =
         new Dictionary<string, AgentExtractionProgress>();
     private readonly HashSet<string> _extractedAgentIds = new HashSet<string>();
+    private readonly HashSet<string> _requiredExtractionAgentIds =
+        new HashSet<string>(System.StringComparer.Ordinal);
     private readonly List<string> _completedExtractionAgentIds = new List<string>();
+    private bool _requiredExtractionAgentsCaptured;
+    private float _missionStartTime;
+    private bool _successScreenShown;
+    private RaidExtractionSuccessScreen _successScreenInstance;
 
     public bool IsInputLocked => _isMissionCompleted || _isMissionFailed;
     public int RemainingEnemyCount => Mathf.Max(0, _initialEnemyCount - _enemiesKilledCount);
@@ -50,7 +58,9 @@ public class RaidFlowController : MonoBehaviour
 
     private void Start()
     {
+        _missionStartTime = Time.time;
         _initialEnemyCount = FindObjectsOfType<EnemyHealthController>().Length;
+        TryCaptureRequiredExtractionAgents();
         PlayerStatusHudController.EnsureRuntimeInstance();
     }
 
@@ -105,7 +115,7 @@ public class RaidFlowController : MonoBehaviour
         }
 
         _isMissionFailed = true;
-        _missionFailureDetail = "主角已阵亡";
+        _missionFailureDetail = "Player is down";
         Time.timeScale = 0f;
     }
 
@@ -135,7 +145,7 @@ public class RaidFlowController : MonoBehaviour
 
         PushEventMessage("所有 Agent 已阵亡");
         _isMissionFailed = true;
-        _missionFailureDetail = "所有 Agent 已阵亡";
+        _missionFailureDetail = "All agents are down";
         Time.timeScale = 0f;
     }
 
@@ -155,6 +165,7 @@ public class RaidFlowController : MonoBehaviour
 
         if (isInside)
         {
+            TryCaptureRequiredExtractionAgents();
             Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionTouched(extractionPoint);
             if (_extractedAgentIds.Contains(normalizedAgentId))
             {
@@ -198,15 +209,6 @@ public class RaidFlowController : MonoBehaviour
             return;
         }
 
-        if (RequireLootBeforeExtraction && _lootCollectedCount <= 0)
-        {
-            foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
-                pair.Value.ProgressSeconds = 0f;
-
-            _extractionProgressSeconds = 0f;
-            return;
-        }
-
         _completedExtractionAgentIds.Clear();
         _extractionProgressSeconds = 0f;
 
@@ -242,7 +244,10 @@ public class RaidFlowController : MonoBehaviour
             if (_extractedAgentIds.Add(completedAgentId))
                 PushEventMessage($"{FormatExtractionAgentLabel(completedAgentId)} 已撤离");
 
-            if (AreAllRequiredAgentsExtracted())
+            bool allRequiredAgentsExtracted = AreAllRequiredAgentsExtracted();
+            DestroyExtractedAgent(completedAgentId);
+
+            if (allRequiredAgentsExtracted)
             {
                 CompleteExtraction(completionPoint);
                 return;
@@ -262,6 +267,7 @@ public class RaidFlowController : MonoBehaviour
         _isMissionCompleted = true;
         Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionCompleted(
             extractionPoint != null ? extractionPoint : _activeExtractionPoint);
+        ShowExtractionSuccessScreen(CreateExtractionSummary());
         Time.timeScale = 0f;
     }
 
@@ -301,10 +307,6 @@ public class RaidFlowController : MonoBehaviour
                 : "目标: 前往撤离点";
             GUI.Label(new Rect(28f, 98f, 240f, 22f), extractionText);
         }
-        else if (RequireLootBeforeExtraction && _lootCollectedCount <= 0)
-        {
-            GUI.Label(new Rect(28f, 98f, 240f, 22f), "撤离条件: 至少带走一件战利品");
-        }
         else
         {
             GUI.Label(new Rect(28f, 98f, 240f, 22f), GetExtractionHudText());
@@ -339,15 +341,7 @@ public class RaidFlowController : MonoBehaviour
 
         EnsureWorldPromptStyle();
 
-        string promptText;
-        if (RequireLootBeforeExtraction && _lootCollectedCount <= 0)
-        {
-            promptText = "需至少带走 1 件战利品";
-        }
-        else
-        {
-            promptText = GetExtractionPromptText();
-        }
+        string promptText = GetExtractionPromptText();
 
         const float width = 176f;
         const float height = 28f;
@@ -378,7 +372,7 @@ public class RaidFlowController : MonoBehaviour
 
     private void DrawMissionResult()
     {
-        if (!_isMissionCompleted && !_isMissionFailed)
+        if (!_isMissionFailed)
         {
             return;
         }
@@ -388,14 +382,66 @@ public class RaidFlowController : MonoBehaviour
         Rect panelRect = new Rect((Screen.width - width) * 0.5f, (Screen.height - height) * 0.5f, width, height);
 
         GUI.Box(panelRect, string.Empty);
-        string title = _isMissionCompleted ? "撤离成功" : "任务失败";
-        string detail = _isMissionCompleted
-            ? $"你带走了 {_lootCollectedCount} 件战利品"
-            : _missionFailureDetail;
+        string title = "MISSION FAILED";
+        string detail = _missionFailureDetail;
 
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 26f), title);
         GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 56f, panelRect.width - 48f, 24f), detail);
-        GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 92f, panelRect.width - 48f, 24f), $"按 {RestartKey} 重新开始");
+        GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 92f, panelRect.width - 48f, 24f), $"Press {RestartKey} to restart");
+    }
+
+    private RaidExtractionSummary CreateExtractionSummary()
+    {
+        float elapsedSeconds = Mathf.Max(0f, Time.time - _missionStartTime);
+        int lootItemCount = _lootCollectedCount;
+        int totalValue = 0;
+
+        InventoryScreenController inventory = InventoryScreenController.Instance;
+        if (inventory != null &&
+            inventory.TryGetExtractionInventorySummary(
+                _requiredExtractionAgentIds,
+                out int carriedItemCount,
+                out int carriedValue))
+        {
+            lootItemCount = carriedItemCount;
+            totalValue = carriedValue;
+        }
+
+        return new RaidExtractionSummary(elapsedSeconds, lootItemCount, totalValue);
+    }
+
+    private void ShowExtractionSuccessScreen(RaidExtractionSummary summary)
+    {
+        if (_successScreenShown)
+        {
+            return;
+        }
+
+        _successScreenShown = true;
+        if (_successScreenInstance == null)
+        {
+            RaidExtractionSuccessScreen prefab = _successScreenPrefab != null
+                ? _successScreenPrefab
+                : LoadSuccessScreenPrefab();
+
+            if (prefab == null)
+            {
+                Debug.LogError(
+                    $"Missing extraction success settlement prefab at Resources/{SuccessScreenResourcePath}.",
+                    this);
+                return;
+            }
+
+            _successScreenInstance = Instantiate(prefab);
+        }
+
+        _successScreenInstance.Show(summary, RestartCurrentScene);
+    }
+
+    private static RaidExtractionSuccessScreen LoadSuccessScreenPrefab()
+    {
+        GameObject prefabObject = Resources.Load<GameObject>(SuccessScreenResourcePath);
+        return prefabObject != null ? prefabObject.GetComponent<RaidExtractionSuccessScreen>() : null;
     }
 
     private static void EnsureMinimapExists()
@@ -421,59 +467,80 @@ public class RaidFlowController : MonoBehaviour
 
     private bool AreAllRequiredAgentsExtracted()
     {
-        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry == null || registry.AgentCount <= 0)
+        if (!TryCaptureRequiredExtractionAgents())
             return _extractedAgentIds.Contains(LegacyPlayerExtractionId);
 
-        bool hasRequiredAgent = false;
-        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
-        for (int i = 0; i < registeredAgents.Count; i++)
+        foreach (string requiredAgentId in _requiredExtractionAgentIds)
         {
-            AgentRuntimeHandle handle = registeredAgents[i];
-            if (!handle.IsValid)
-                continue;
-
-            hasRequiredAgent = true;
-            if (!_extractedAgentIds.Contains(handle.AgentId.Value))
+            if (!_extractedAgentIds.Contains(requiredAgentId))
                 return false;
         }
 
-        return hasRequiredAgent;
+        return _requiredExtractionAgentIds.Count > 0;
     }
 
     private int GetRequiredExtractionAgentCount()
     {
-        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry == null || registry.AgentCount <= 0)
-            return 1;
-
-        int count = 0;
-        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
-        for (int i = 0; i < registeredAgents.Count; i++)
-        {
-            if (registeredAgents[i].IsValid)
-                count++;
-        }
-
-        return Mathf.Max(1, count);
+        return TryCaptureRequiredExtractionAgents()
+            ? Mathf.Max(1, _requiredExtractionAgentIds.Count)
+            : 1;
     }
 
     private int GetExtractedRequiredAgentCount()
     {
-        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry == null || registry.AgentCount <= 0)
+        if (!TryCaptureRequiredExtractionAgents())
             return _extractedAgentIds.Contains(LegacyPlayerExtractionId) ? 1 : 0;
 
         int count = 0;
-        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
-        for (int i = 0; i < registeredAgents.Count; i++)
+        foreach (string requiredAgentId in _requiredExtractionAgentIds)
         {
-            AgentRuntimeHandle handle = registeredAgents[i];
-            if (handle.IsValid && _extractedAgentIds.Contains(handle.AgentId.Value))
+            if (_extractedAgentIds.Contains(requiredAgentId))
                 count++;
         }
 
         return count;
+    }
+
+    private bool TryCaptureRequiredExtractionAgents()
+    {
+        if (_requiredExtractionAgentsCaptured)
+            return _requiredExtractionAgentIds.Count > 0;
+
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || registry.AgentCount <= 0)
+            return false;
+
+        IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
+        for (int i = 0; i < registeredAgents.Count; i++)
+        {
+            AgentRuntimeHandle handle = registeredAgents[i];
+            string agentId = handle.IsValid ? NormalizeExtractionAgentId(handle.AgentId.Value) : string.Empty;
+            if (!string.IsNullOrEmpty(agentId))
+                _requiredExtractionAgentIds.Add(agentId);
+        }
+
+        _requiredExtractionAgentsCaptured = _requiredExtractionAgentIds.Count > 0;
+        return _requiredExtractionAgentsCaptured;
+    }
+
+    private static void DestroyExtractedAgent(string agentId)
+    {
+        string normalizedAgentId = NormalizeExtractionAgentId(agentId);
+        if (string.IsNullOrEmpty(normalizedAgentId) ||
+            string.Equals(normalizedAgentId, LegacyPlayerExtractionId, System.StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null ||
+            !registry.TryGetHandle(normalizedAgentId, out AgentRuntimeHandle handle) ||
+            handle.PawnRoot == null)
+        {
+            return;
+        }
+
+        UnityEngine.Object.Destroy(handle.PawnRoot.gameObject);
     }
 
     private string GetExtractionHudText()

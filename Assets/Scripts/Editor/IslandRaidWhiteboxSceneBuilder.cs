@@ -138,7 +138,6 @@ public static class IslandRaidWhiteboxSceneBuilder
         GameObject flowObject = new GameObject("RaidFlowController");
         flowObject.transform.SetParent(root, false);
         RaidFlowController raidFlow = flowObject.AddComponent<RaidFlowController>();
-        raidFlow.RequireLootBeforeExtraction = true;
         raidFlow.MissionName = "Large Island Wall Layout";
     }
 

@@ -108,6 +108,47 @@ public class InventoryScreenController : MonoBehaviour
         return Mathf.Clamp01(GetCurrentBackpackOccupiedCells() / GetMaxBackpackUsableCells());
     }
 
+    public bool TryGetExtractionInventorySummary(
+        IEnumerable<string> agentIds,
+        out int lootItemCount,
+        out int totalValue)
+    {
+        lootItemCount = 0;
+        totalValue = 0;
+
+        HashSet<string> targetAgentIds = new HashSet<string>(StringComparer.Ordinal);
+        if (agentIds != null)
+        {
+            foreach (string agentId in agentIds)
+            {
+                string normalizedAgentId = string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
+                if (!string.IsNullOrEmpty(normalizedAgentId))
+                    targetAgentIds.Add(normalizedAgentId);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(_activeInventoryAgentId))
+        {
+            SyncCharacterContainerRuntimeState();
+            SaveInventorySnapshot(_activeInventoryAgentId);
+
+            if (targetAgentIds.Count == 0)
+                targetAgentIds.Add(_activeInventoryAgentId);
+        }
+
+        bool foundSnapshot = false;
+        foreach (string agentId in targetAgentIds)
+        {
+            if (!_inventorySnapshotsByAgentId.TryGetValue(agentId, out CharacterInventorySnapshot snapshot))
+                continue;
+
+            foundSnapshot = true;
+            AccumulateExtractionInventorySummary(snapshot, ref lootItemCount, ref totalValue);
+        }
+
+        return foundSnapshot;
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -1874,6 +1915,67 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         return carryWeight;
+    }
+
+    private static void AccumulateExtractionInventorySummary(
+        CharacterInventorySnapshot snapshot,
+        ref int lootItemCount,
+        ref int totalValue)
+    {
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        AccumulateExtractionItems(snapshot.BackpackLooseItems, ref lootItemCount, ref totalValue);
+
+        if (snapshot.BackpackItem != null)
+            AccumulateExtractionItems(snapshot.BackpackItem.InternalItems, ref lootItemCount, ref totalValue);
+
+        if (snapshot.RigItem != null)
+            AccumulateExtractionItems(snapshot.RigItem.InternalItems, ref lootItemCount, ref totalValue);
+
+        AccumulateExtractionItem(snapshot.HeadItem, true, ref lootItemCount, ref totalValue);
+        AccumulateExtractionItem(snapshot.BodyItem, true, ref lootItemCount, ref totalValue);
+        AccumulateExtractionItem(snapshot.FaceItem, true, ref lootItemCount, ref totalValue);
+        AccumulateExtractionItem(snapshot.HeadphoneItem, true, ref lootItemCount, ref totalValue);
+        AccumulateExtractionItem(snapshot.TotemAItem, true, ref lootItemCount, ref totalValue);
+        AccumulateExtractionItem(snapshot.TotemBItem, true, ref lootItemCount, ref totalValue);
+    }
+
+    private static void AccumulateExtractionItems(
+        List<ContainerItemSaveData> items,
+        ref int lootItemCount,
+        ref int totalValue)
+    {
+        if (items == null)
+        {
+            return;
+        }
+
+        foreach (ContainerItemSaveData item in items)
+            AccumulateExtractionItem(item, true, ref lootItemCount, ref totalValue);
+    }
+
+    private static void AccumulateExtractionItem(
+        ContainerItemSaveData item,
+        bool countSelf,
+        ref int lootItemCount,
+        ref int totalValue)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        if (countSelf && item.ItemData != null)
+        {
+            int amount = Mathf.Max(1, item.Amount);
+            lootItemCount += amount;
+            totalValue += Mathf.Max(0, item.ItemData.SellPrice) * amount;
+        }
+
+        AccumulateExtractionItems(item.InternalItems, ref lootItemCount, ref totalValue);
     }
 
     // 仅以保存快照中的物品列表和格子状态判断容器是否为空
