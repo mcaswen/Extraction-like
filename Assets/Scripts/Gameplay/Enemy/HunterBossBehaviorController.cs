@@ -154,6 +154,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     private bool _isForceFieldFrozen;
     private HunterBossVortexField _activeVortexField;
     private EnemyStatusEffectController _statusEffectController;
+    private TracerAnchorVortexVfx _tracerAnchorVfx;
     private Renderer[] _cachedRenderers;
     private Color[] _originalRendererColors;
 
@@ -187,6 +188,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
         EnsurePlayerReferences();
         CacheRendererColors();
+        _tracerAnchorVfx = GetComponentInChildren<TracerAnchorVortexVfx>(true);
 
         EnsureLineRenderers();
         CurrentState = BossState.Idle;
@@ -417,6 +419,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         // 追猎者近战只检测玩家，命中后累计漩涡触发次数。
         bool didHitPlayer = false;
         _meleeVisualTimer = MeleeVisualDuration;
+        _tracerAnchorVfx?.PlayMeleeSweep();
         float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.4f;
         Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
@@ -449,9 +452,10 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void SpawnOrMoveVortexField()
     {
-        // 漩涡以 Boss 位置为中心，已有实例时复用并移动，避免重复生成多个控制区。
-        Vector3 vortexPosition = transform.position;
+        // 漩涡在玩家当前位置成形，已有实例时复用并移动，避免重复生成多个控制区。
+        Vector3 vortexPosition = PlayerTransform != null ? PlayerTransform.position : transform.position;
         vortexPosition.y = 0.02f;
+        _tracerAnchorVfx?.PlayVortexAnchorCombo(vortexPosition);
 
         if (_activeVortexField == null)
         {
@@ -488,6 +492,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         _animatorDriver?.TriggerAttack();
         Vector3 direction = (PlayerTransform.position + Vector3.up * 0.8f) - ProjectileOrigin.position;
         direction.Normalize();
+        _tracerAnchorVfx?.PlayAnchorThrow(PlayerTransform.position + Vector3.up * 0.8f);
 
         GameObject projectileObject = CreateAnchorProjectile(direction);
         if (projectileObject == null)

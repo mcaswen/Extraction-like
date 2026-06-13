@@ -763,6 +763,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2709726456043245198}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: be6a077e1ff5b104fac6a4e017508454,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1846204201}
   m_SourcePrefab: {fileID: 100100000, guid: be6a077e1ff5b104fac6a4e017508454, type: 3}
 --- !u!4 &3837143531146440137 stripped
 Transform:
@@ -776,6 +780,47 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3660015597486770722}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1846204201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4470830997161359219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d862f901ac9c4a7dac6f53c337078bd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 0}
+  _targetObjectName: Player
+  _targetOffset: {x: 0, y: 0.85, z: 0}
+  _meleeOrigin: {fileID: 6678566767293772861}
+  _projectileOrigin: {fileID: 3330404298776172343}
+  _bossController: {fileID: 6812733411681420742}
+  _autoPreviewWithoutBossController: 0
+  _previewInitialDelay: 0.6
+  _previewMeleeInterval: 2.4
+  _vortexTriggerAttackCount: 3
+  _allowKeyboardPreview: 1
+  _previewMeleeKey: 121
+  _previewComboKey: 111
+  _meleeRadius: 2.4
+  _meleeDuration: 0.42
+  _meleeAnchorScale: 0.34
+  _vortexRadius: 3
+  _vortexChargeDuration: 1.25
+  _vortexImmobilizeDuration: 1.65
+  _anchorThrowDuration: 0.55
+  _fallbackAnchorDamage: 16
+  _fallbackAnchorKnockback: 5.5
+  _arcPointCount: 28
+  _vortexPointCount: 72
+  _anchorMetalColor: {r: 0.17, g: 0.18, b: 0.22, a: 1}
+  _anchorEdgeColor: {r: 0.13, g: 0.75, b: 1, a: 0.95}
+  _vortexOuterColor: {r: 0.02, g: 0.08, b: 0.16, a: 0.78}
+  _vortexCoreColor: {r: 0.28, g: 0.95, b: 1, a: 0.98}
+  _chainColor: {r: 0.42, g: 0.28, b: 0.18, a: 0.95}
 --- !u!95 &2709726456043245198
 Animator:
   serializedVersion: 5

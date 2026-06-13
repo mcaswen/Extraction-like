@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &1206074181286247891
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.4780093
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.00000011920929
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.722695
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      propertyPath: m_Name
+      value: Ske Idle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 866506a79996c7940982fcdc88089e97,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5376124704624042660}
+  m_SourcePrefab: {fileID: 100100000, guid: 866506a79996c7940982fcdc88089e97, type: 3}
+--- !u!1 &2053007845235556482 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 866506a79996c7940982fcdc88089e97,
+    type: 3}
+  m_PrefabInstance: {fileID: 1206074181286247891}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5376124704624042660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053007845235556482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c1d3d84c824e93a15c63d8f2ad0b77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 0}
+  _targetObjectName: Player
+  _targetOffset: {x: 0, y: 0.9, z: 0}
+  _fishboneOrigin: {fileID: 0}
+  _originLocalOffset: {x: 0.18, y: 1.15, z: 0.36}
+  _faceTargetBeforeAttack: 1
+  _attackSelection: 0
+  _initialDelay: 0.65
+  _attackInterval: 2.35
+  _meleeDuration: 0.56
+  _rangedDuration: 0.9
+  _allowKeyboardPreview: 1
+  _previewMeleeKey: 106
+  _previewRangedKey: 107
+  _damageMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _meleeAttackRange: 2.65
+  _meleeDamageRadius: 1.65
+  _meleeDamage: 12
+  _minimumRangedDistance: 2.7
+  _rangedAttackRange: 7.8
+  _biteRadius: 0.82
+  _biteDamage: 15
+  _boneSegmentCount: 14
+  _pathPointCount: 24
+  _boneColor: {r: 0.92, g: 0.9, b: 0.78, a: 1}
+  _boneShadowColor: {r: 0.04, g: 0.04, b: 0.035, a: 0.72}
+  _energyColor: {r: 0.2, g: 0.92, b: 1, a: 0.92}
+  _energyFadeColor: {r: 0.72, g: 1, b: 1, a: 0.15}
