@@ -63,6 +63,10 @@ namespace Gameplay.Agent.Runtime
             if (_nextAgentKey == KeyCode.None || !Input.GetKeyDown(_nextAgentKey))
                 return;
 
+            if (global::InventoryScreenController.Instance != null &&
+                global::InventoryScreenController.Instance.IsInventoryOpen)
+                return;
+
             Registry.TryFocusNextAgent();
         }
     }

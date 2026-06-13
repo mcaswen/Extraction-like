@@ -222,9 +222,15 @@ public class PlayerShootingController : MonoBehaviour
 
     private void Update()
     {
+        TickUnlockMessage();
+
+        if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)
+        {
+            return;
+        }
+
         TickSilence();
         TickCooldowns();
-        TickUnlockMessage();
         TickTimeHourglass();
         TickSpaceHourglass();
 
@@ -234,11 +240,6 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
-        {
-            return;
-        }
-
-        if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)
         {
             return;
         }
@@ -1721,4 +1722,3 @@ public class PlayerShootingController : MonoBehaviour
         }
     }
 }
-

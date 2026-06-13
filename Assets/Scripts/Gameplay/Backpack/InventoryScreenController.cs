@@ -63,6 +63,9 @@ public class InventoryScreenController : MonoBehaviour
     private AgentRuntimeRegistry _agentRegistry;
     private bool _isAgentFocusSubscribed;
     private string _activeInventoryAgentId;
+    private bool _isInventoryTimePauseApplied;
+    private float _timeScaleBeforeInventoryPause = 1f;
+    private float _fixedDeltaTimeBeforeInventoryPause = 0.02f;
 
     public InventoryScreenSessionContext ActiveSessionContext => _activeSessionContext;
     public bool HasActiveExternalContainer => _activeSessionContext != null;
@@ -104,6 +107,8 @@ public class InventoryScreenController : MonoBehaviour
 
     private void OnDestroy()
     {
+        ReleaseInventoryTimePause();
+
         if (Instance == this)
         {
             Instance = null;
@@ -395,6 +400,7 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         IsInventoryOpen = true;
+        ApplyInventoryTimePause();
         OpenInventoryInternal();
 
         if (_logInventoryDebug)
@@ -425,6 +431,7 @@ public class InventoryScreenController : MonoBehaviour
 
         IsInventoryOpen = false;
         CloseInventoryInternal();
+        ReleaseInventoryTimePause();
 
         if (_logInventoryDebug)
         {
@@ -438,6 +445,37 @@ public class InventoryScreenController : MonoBehaviour
     public bool IsSessionContextActive(InventoryScreenSessionContext sessionContext)
     {
         return sessionContext != null && ReferenceEquals(_activeSessionContext, sessionContext);
+    }
+
+    private void ApplyInventoryTimePause()
+    {
+        if (_isInventoryTimePauseApplied)
+        {
+            return;
+        }
+
+        _timeScaleBeforeInventoryPause = Time.timeScale;
+        _fixedDeltaTimeBeforeInventoryPause = Time.fixedDeltaTime;
+        _isInventoryTimePauseApplied = true;
+        Time.timeScale = 0f;
+    }
+
+    private void ReleaseInventoryTimePause()
+    {
+        if (!_isInventoryTimePauseApplied)
+        {
+            return;
+        }
+
+        _isInventoryTimePauseApplied = false;
+
+        if (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked)
+        {
+            return;
+        }
+
+        Time.timeScale = _timeScaleBeforeInventoryPause;
+        Time.fixedDeltaTime = _fixedDeltaTimeBeforeInventoryPause;
     }
 
     /// <summary>
