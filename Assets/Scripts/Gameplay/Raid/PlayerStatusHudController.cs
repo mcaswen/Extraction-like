@@ -305,9 +305,9 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         SetBar(_healthFillImage, _healthText, _healthMarkerRect, BarSize, currentHealth / maxHealth, healthLabel);
 
         InventoryScreenController inventory = InventoryScreenController.Instance;
-        float currentCarryWeight = inventory != null ? inventory.GetCurrentCarryWeight() : 0f;
-        float maxCarryWeight = inventory != null ? inventory.GetMaxCarryWeight() : 1f;
-        float carryRatio = currentCarryWeight / Mathf.Max(0.1f, maxCarryWeight);
+        float occupiedCells = inventory != null ? inventory.GetCurrentBackpackOccupiedCells() : 0f;
+        float usableCells = inventory != null ? inventory.GetMaxBackpackUsableCells() : 1f;
+        float carryRatio = occupiedCells / Mathf.Max(1f, usableCells);
 
         if (_carryFillImage != null)
         {
@@ -320,7 +320,7 @@ public sealed class PlayerStatusHudController : MonoBehaviour
             _carryMarkerRect,
             BarSize,
             carryRatio,
-            $"{currentCarryWeight:0.#} / {maxCarryWeight:0.#}  KG");
+            $"{occupiedCells:0} / {usableCells:0}  SLOTS");
     }
 
     private static bool TryGetFocusedAgent(out IAgentReadOnly focusedAgent)

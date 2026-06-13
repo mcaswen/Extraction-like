@@ -21806,7 +21806,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AcceptedType: 4
   AcceptedEquipmentKind: 0
-  LinkedGrid: {fileID: 0}
+  LinkedGrid: {fileID: 6163529604127942678}
   IsDefaultLockedContainerSlot: 1
 --- !u!1 &8453787291206211653
 GameObject:

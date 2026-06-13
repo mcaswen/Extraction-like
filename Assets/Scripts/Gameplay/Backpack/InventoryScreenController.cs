@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Text;
 using Gameplay.Agent.Runtime;
 using UnityEngine;
 
@@ -20,7 +21,7 @@ public class InventoryScreenController : MonoBehaviour
     [SerializeField] private bool _syncWithFocusedAgent = true;
 
     [Header("Debug")]
-    [SerializeField] private bool _logInventoryDebug = true;
+    [SerializeField] private bool _logInventoryDebug;
 
     public bool IsInventoryOpen { get; private set; }
 
@@ -66,6 +67,7 @@ public class InventoryScreenController : MonoBehaviour
     private bool _isInventoryTimePauseApplied;
     private float _timeScaleBeforeInventoryPause = 1f;
     private float _fixedDeltaTimeBeforeInventoryPause = 0.02f;
+    private bool _missingBackpackLinkedGridLogged;
 
     public InventoryScreenSessionContext ActiveSessionContext => _activeSessionContext;
     public bool HasActiveExternalContainer => _activeSessionContext != null;
@@ -76,16 +78,8 @@ public class InventoryScreenController : MonoBehaviour
 
     public float GetCurrentCarryWeight()
     {
-        float carryWeight = 0f;
-        carryWeight += GetSlotCarryWeight(BackpackSlot);
-        carryWeight += GetSlotCarryWeight(RigSlot);
-        carryWeight += GetSlotCarryWeight(HeadSlot);
-        carryWeight += GetSlotCarryWeight(BodySlot);
-        carryWeight += GetSlotCarryWeight(FaceSlot);
-        carryWeight += GetSlotCarryWeight(HeadphoneSlot);
-        carryWeight += GetSlotCarryWeight(TotemSlotA);
-        carryWeight += GetSlotCarryWeight(TotemSlotB);
-        return Mathf.Max(0f, carryWeight);
+        RefreshCarryLoadRuntimeState();
+        return CalculateCurrentCarryWeightWithoutRefresh();
     }
 
     public float GetMaxCarryWeight()
@@ -96,6 +90,22 @@ public class InventoryScreenController : MonoBehaviour
     public float GetCarryWeightRatio()
     {
         return Mathf.Clamp01(GetCurrentCarryWeight() / GetMaxCarryWeight());
+    }
+
+    public float GetCurrentBackpackOccupiedCells()
+    {
+        RefreshCarryLoadRuntimeState();
+        return GetGridOccupiedCellCount(BackpackGrid);
+    }
+
+    public float GetMaxBackpackUsableCells()
+    {
+        return Mathf.Max(1f, GetGridUsableCellCount(BackpackGrid));
+    }
+
+    public float GetBackpackCapacityRatio()
+    {
+        return Mathf.Clamp01(GetCurrentBackpackOccupiedCells() / GetMaxBackpackUsableCells());
     }
 
     private void Awake()
@@ -127,6 +137,11 @@ public class InventoryScreenController : MonoBehaviour
     private void Update()
     {
         BindToFocusedAgentIfNeeded();
+
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            DumpBackpackCapacitySyncDebug();
+        }
     }
 
     private void SubscribeAgentFocus()
@@ -1412,6 +1427,263 @@ public class InventoryScreenController : MonoBehaviour
         HeadphoneSlot?.SyncEquippedItemRuntimeDataFromGrid();
         TotemSlotA?.SyncEquippedItemRuntimeDataFromGrid();
         TotemSlotB?.SyncEquippedItemRuntimeDataFromGrid();
+    }
+
+    private void RefreshCarryLoadRuntimeState()
+    {
+        EnsureDefaultBackpackEquipped();
+
+        if (BackpackSlot != null &&
+            BackpackGrid != null &&
+            BackpackSlot.LinkedGrid == null &&
+            !_missingBackpackLinkedGridLogged)
+        {
+            _missingBackpackLinkedGridLogged = true;
+            Debug.LogError(
+                "[InventoryScreen] BackpackSlot.LinkedGrid is missing. Assign BackpackGrid on the BackpackSlot component, otherwise normal items in the backpack grid will not affect HUD carry load.",
+                this);
+        }
+
+        SyncCharacterContainerRuntimeState();
+    }
+
+    private float CalculateCurrentCarryWeightWithoutRefresh()
+    {
+        float carryWeight = 0f;
+        carryWeight += GetSlotOrLooseGridCarryWeight(BackpackSlot, BackpackGrid);
+        carryWeight += GetSlotOrLooseGridCarryWeight(RigSlot, TacticalRigGrid);
+        carryWeight += GetSlotCarryWeight(HeadSlot);
+        carryWeight += GetSlotCarryWeight(BodySlot);
+        carryWeight += GetSlotCarryWeight(FaceSlot);
+        carryWeight += GetSlotCarryWeight(HeadphoneSlot);
+        carryWeight += GetSlotCarryWeight(TotemSlotA);
+        carryWeight += GetSlotCarryWeight(TotemSlotB);
+        return Mathf.Max(0f, carryWeight);
+    }
+
+    private static float GetSlotOrLooseGridCarryWeight(EquipmentSlotUI slot, InventoryUIController fallbackGrid)
+    {
+        if (slot != null && slot.HasEquippedItem)
+        {
+            return GetSlotCarryWeight(slot);
+        }
+
+        if (fallbackGrid == null)
+        {
+            return 0f;
+        }
+
+        return GetSavedItemsCarryWeight(fallbackGrid.ExtractSaveData());
+    }
+
+    private void DumpBackpackCapacitySyncDebug()
+    {
+        float beforeWeight = CalculateCurrentCarryWeightWithoutRefresh();
+        float maxWeight = GetMaxCarryWeight();
+        float occupiedCellsBefore = GetGridOccupiedCellCount(BackpackGrid);
+        float usableCells = GetMaxBackpackUsableCells();
+        StringBuilder builder = new StringBuilder(2048);
+        builder.AppendLine(
+            $"[InventoryCapacityDebug] time={Time.unscaledTime:0.###} " +
+            $"activeAgent={ActiveInventoryAgentId} inventoryOpen={IsInventoryOpen} " +
+            $"activeSession={(_activeSessionContext != null ? _activeSessionContext.DisplayName : "none")} " +
+            $"usesCustomPlayerInventory={UsesCustomPlayerInventory}");
+        builder.AppendLine($"beforeSyncWeight: current={beforeWeight:0.###} max={maxWeight:0.###} ratio={(beforeWeight / Mathf.Max(0.1f, maxWeight)):0.###}");
+        builder.AppendLine($"beforeSyncCapacity: occupiedCells={occupiedCellsBefore:0.###} usableCells={usableCells:0.###} ratio={(occupiedCellsBefore / Mathf.Max(1f, usableCells)):0.###}");
+        AppendSlotCarryDebug(builder, "BackpackSlot", BackpackSlot, BackpackGrid);
+        AppendSlotCarryDebug(builder, "RigSlot", RigSlot, TacticalRigGrid);
+
+        RefreshCarryLoadRuntimeState();
+
+        float afterWeight = CalculateCurrentCarryWeightWithoutRefresh();
+        float occupiedCellsAfter = GetGridOccupiedCellCount(BackpackGrid);
+        builder.AppendLine($"afterSyncWeight: current={afterWeight:0.###} max={maxWeight:0.###} ratio={(afterWeight / Mathf.Max(0.1f, maxWeight)):0.###}");
+        builder.AppendLine($"afterSyncCapacity: occupiedCells={occupiedCellsAfter:0.###} usableCells={usableCells:0.###} ratio={(occupiedCellsAfter / Mathf.Max(1f, usableCells)):0.###}");
+        AppendSlotCarryDebug(builder, "BackpackSlot", BackpackSlot, BackpackGrid);
+        AppendSlotCarryDebug(builder, "RigSlot", RigSlot, TacticalRigGrid);
+        Debug.Log(builder.ToString(), this);
+    }
+
+    private static void AppendSlotCarryDebug(
+        StringBuilder builder,
+        string label,
+        EquipmentSlotUI slot,
+        InventoryUIController expectedGrid)
+    {
+        if (slot == null)
+        {
+            builder.AppendLine($"{label}: slot=null");
+            return;
+        }
+
+        DraggableItemUI equippedItem = slot.EquippedItem;
+        InventoryItemRuntimeState equippedState = slot.EquippedItemState;
+        InventoryItemData itemData = equippedState != null && equippedState.ItemData != null
+            ? equippedState.ItemData
+            : equippedItem != null ? equippedItem.ItemData : null;
+        InventoryUIController linkedGrid = slot.LinkedGrid;
+        List<ContainerItemSaveData> internalItems = equippedState != null
+            ? equippedState.InternalItems
+            : equippedItem != null ? equippedItem.InternalItems : null;
+
+        builder.AppendLine(
+            $"{label}: active={slot.gameObject.activeSelf}/{slot.gameObject.activeInHierarchy} " +
+            $"hasEquipped={slot.HasEquippedItem} item={(itemData != null ? itemData.ItemName : "none")} " +
+            $"linkedGrid={(linkedGrid != null ? linkedGrid.name : "null")} " +
+            $"matchesExpectedGrid={(linkedGrid != null && expectedGrid != null && ReferenceEquals(linkedGrid, expectedGrid))} " +
+            $"slotWeight={GetSlotCarryWeight(slot):0.###} " +
+            $"slotOrGridWeight={GetSlotOrLooseGridCarryWeight(slot, expectedGrid):0.###}");
+
+        AppendGridCarryDebug(builder, $"{label}.linkedGrid", linkedGrid);
+        if (expectedGrid != null && !ReferenceEquals(linkedGrid, expectedGrid))
+        {
+            AppendGridCarryDebug(builder, $"{label}.expectedGrid", expectedGrid);
+        }
+
+        builder.AppendLine(
+            $"{label}.equippedInternalSnapshot: items={CountSavedItemsRecursive(internalItems)} " +
+            $"weight={GetSavedItemsCarryWeight(internalItems):0.###}");
+    }
+
+    private static void AppendGridCarryDebug(StringBuilder builder, string label, InventoryUIController grid)
+    {
+        if (grid == null)
+        {
+            builder.AppendLine($"{label}: grid=null");
+            return;
+        }
+
+        InventoryGridController gridController = grid.GetGridController();
+        List<ContainerItemSaveData> saveData = grid.ExtractSaveData();
+        builder.AppendLine(
+            $"{label}: active={grid.gameObject.activeSelf}/{grid.gameObject.activeInHierarchy} " +
+            $"itemsInView={CountRuntimeItemViews(grid)} savedItems={CountSavedItemsRecursive(saveData)} " +
+            $"savedWeight={GetSavedItemsCarryWeight(saveData):0.###} " +
+            $"occupiedCells={GetSavedItemsOccupiedCellCount(saveData):0.###} " +
+            $"size={(gridController != null ? $"{gridController.Columns}x{gridController.Rows}" : "no-controller")} " +
+            $"usableCells={GetGridUsableCellCount(grid):0.###} " +
+            $"blocked={(gridController != null && gridController.BlockedCells != null ? gridController.BlockedCells.Count : 0)}");
+    }
+
+    private static int CountRuntimeItemViews(InventoryUIController grid)
+    {
+        if (grid == null || grid.ItemContainer == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+        foreach (Transform child in grid.ItemContainer)
+        {
+            if (child == grid.Highlighter)
+            {
+                continue;
+            }
+
+            if (child.GetComponent<DraggableItemUI>() != null)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private static int CountSavedItemsRecursive(List<ContainerItemSaveData> items)
+    {
+        if (items == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+        foreach (ContainerItemSaveData item in items)
+        {
+            if (item == null)
+            {
+                continue;
+            }
+
+            count++;
+            count += CountSavedItemsRecursive(item.InternalItems);
+        }
+
+        return count;
+    }
+
+    private static float GetGridOccupiedCellCount(InventoryUIController grid)
+    {
+        if (grid == null)
+        {
+            return 0f;
+        }
+
+        return GetSavedItemsOccupiedCellCount(grid.ExtractSaveData());
+    }
+
+    private static float GetSavedItemsOccupiedCellCount(List<ContainerItemSaveData> items)
+    {
+        if (items == null)
+        {
+            return 0f;
+        }
+
+        float occupiedCells = 0f;
+        foreach (ContainerItemSaveData item in items)
+        {
+            if (item == null || item.ItemData == null)
+            {
+                continue;
+            }
+
+            int width = item.IsRotated ? item.ItemData.Height : item.ItemData.Width;
+            int height = item.IsRotated ? item.ItemData.Width : item.ItemData.Height;
+            occupiedCells += Mathf.Max(1, width) * Mathf.Max(1, height);
+        }
+
+        return occupiedCells;
+    }
+
+    private static float GetGridUsableCellCount(InventoryUIController grid)
+    {
+        if (grid == null)
+        {
+            return 1f;
+        }
+
+        InventoryGridController gridController = grid.GetGridController();
+        if (gridController == null)
+        {
+            return 1f;
+        }
+
+        int columns = Mathf.Max(1, gridController.Columns);
+        int rows = Mathf.Max(1, gridController.Rows);
+        int totalCells = columns * rows;
+        int blockedCells = CountUniqueBlockedCellsInBounds(gridController.BlockedCells, columns, rows);
+        return Mathf.Max(1, totalCells - blockedCells);
+    }
+
+    private static int CountUniqueBlockedCellsInBounds(IReadOnlyList<Vector2Int> blockedCells, int columns, int rows)
+    {
+        if (blockedCells == null || blockedCells.Count == 0)
+        {
+            return 0;
+        }
+
+        HashSet<Vector2Int> uniqueCells = new HashSet<Vector2Int>();
+        for (int i = 0; i < blockedCells.Count; i++)
+        {
+            Vector2Int cell = blockedCells[i];
+            if (cell.x < 0 || cell.y < 0 || cell.x >= columns || cell.y >= rows)
+            {
+                continue;
+            }
+
+            uniqueCells.Add(cell);
+        }
+
+        return uniqueCells.Count;
     }
 
     private CharacterInventorySnapshot CreateCharacterInventorySnapshot()

@@ -18,7 +18,6 @@ public class PlayerInteraction : MonoBehaviour
     public float HeightOffset = 1.5f;
 
     [Header("Debug")]
-    public bool LogInteractionDebug = true;
     public bool ShowInteractionRadiusGizmo = true;
     public Color InteractionRadiusGizmoColor = new Color(1f, 0.92f, 0.1f, 0.45f);
     public Color SelectedInteractionRadiusGizmoColor = new Color(1f, 0.58f, 0.1f, 0.9f);
@@ -148,36 +147,15 @@ public class PlayerInteraction : MonoBehaviour
         {
             if (!CanHandlePrimaryInput())
             {
-                if (LogInteractionDebug)
-                {
-                    Debug.Log($"[PlayerInteraction] F ignored by non-focused interaction owner. player={name}.", this);
-                }
-
                 return;
             }
 
             if (_lastPrimaryInputHandledFrame == Time.frameCount)
             {
-                if (LogInteractionDebug)
-                {
-                    Debug.Log($"[PlayerInteraction] F ignored: already handled this frame. player={name}.", this);
-                }
-
                 return;
             }
 
             _lastPrimaryInputHandledFrame = Time.frameCount;
-
-            if (LogInteractionDebug)
-            {
-                Debug.Log(
-                    $"[PlayerInteraction] F pressed. player={name}, " +
-                    $"inventoryInstance={(InventoryScreenController.Instance != null ? "yes" : "no")}, " +
-                    $"inventoryOpen={(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)}, " +
-                    $"closest={DescribeClosestInteractable()}",
-                    this);
-            }
-
             HandlePrimaryInteractOrInventoryToggle();
         }
 
@@ -208,50 +186,23 @@ public class PlayerInteraction : MonoBehaviour
         InventoryScreenController inventoryController = InventoryScreenController.Instance;
         if (inventoryController != null && inventoryController.IsInventoryOpen)
         {
-            if (LogInteractionDebug)
-            {
-                Debug.Log("[PlayerInteraction] F route -> close inventory.", this);
-            }
-
             inventoryController.CloseInventory();
             return;
         }
 
         if (_closestInteractable != null)
         {
-            if (LogInteractionDebug)
-            {
-                Debug.Log($"[PlayerInteraction] F route -> interact with {DescribeClosestInteractable()}.", this);
-            }
-
             _closestInteractable.Interact();
             return;
         }
 
         if (inventoryController == null)
         {
-            Debug.LogWarning("[PlayerInteraction] F route -> open inventory failed: InventoryScreenController.Instance is null.", this);
+            Debug.LogWarning("[PlayerInteraction] Cannot open inventory because InventoryScreenController.Instance is null.", this);
             return;
         }
 
-        if (LogInteractionDebug)
-        {
-            Debug.Log("[PlayerInteraction] F route -> open inventory.", this);
-        }
-
         inventoryController.OpenInventory();
-    }
-
-    private string DescribeClosestInteractable()
-    {
-        if (_closestInteractable == null)
-        {
-            return "none";
-        }
-
-        string transformName = _closestTransform != null ? _closestTransform.name : "no-transform";
-        string interactableType = _closestInteractable.GetType().Name;
-        return $"{interactableType} on {transformName}";
     }
 
     // 当目标是背包或胸挂时，额外补一行装备指引，帮助玩家理解 F/E 的区别
