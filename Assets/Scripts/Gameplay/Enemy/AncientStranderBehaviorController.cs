@@ -111,7 +111,6 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
-    private PlayerHealthController _playerHealthController;
     private ICombatDamageReceiver _combatDamageReceiver;
     private Vector3 _startingPosition;
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
@@ -925,18 +924,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         if (PlayerTransform == null)
         {
-            if (PlayerHealthController.Instance != null)
-            {
-                PlayerTransform = PlayerHealthController.Instance.transform;
-            }
-            else
-            {
-                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-                if (playerObject != null)
-                {
-                    PlayerTransform = playerObject.transform;
-                }
-            }
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
         }
 
         if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
@@ -944,23 +932,10 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
             return true;
         }
 
-        if (PlayerTransform != null &&
-            PlayerTransform.CompareTag("Player") &&
-            _playerHealthController == null)
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer) &&
+            AssignCombatTarget(currentPlayer))
         {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-            if (_playerHealthController == null)
-            {
-                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
-            }
-
-            _combatDamageReceiver = _playerHealthController;
-            return _combatDamageReceiver != null;
-        }
-
-        if (PlayerHealthController.Instance != null)
-        {
-            return AssignCombatTarget(PlayerHealthController.Instance.transform);
+            return true;
         }
 
         return false;
@@ -974,11 +949,6 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         PlayerTransform = target;
-        _playerHealthController = target.GetComponent<PlayerHealthController>();
-        if (_playerHealthController == null)
-        {
-            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
-        }
 
         if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
         {
@@ -991,8 +961,8 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
             return true;
         }
 
-        _combatDamageReceiver = _playerHealthController;
-        return _combatDamageReceiver != null;
+        _combatDamageReceiver = null;
+        return false;
     }
 
     private void OnDrawGizmosSelected()

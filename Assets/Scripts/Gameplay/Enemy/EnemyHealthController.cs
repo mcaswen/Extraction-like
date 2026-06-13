@@ -120,7 +120,7 @@ public readonly struct EnemyDamageContext
             sourcePosition,
             incomingDirection,
             attacker != null,
-            attacker != null && attacker.GetComponentInParent<PlayerHealthController>() != null,
+            PlayerTargetResolver.IsPlayerTarget(attacker),
             sourceType);
     }
 
@@ -227,7 +227,7 @@ public static class CombatDamageUtility
             return false;
         }
 
-        if (TryGetPlayerHealthReceiver(component.transform, out receiver))
+        if (TryGetAgentHealthReceiver(component.transform, out receiver))
         {
             return true;
         }
@@ -254,7 +254,7 @@ public static class CombatDamageUtility
             return false;
         }
 
-        if (TryGetPlayerHealthReceiver(target, out receiver))
+        if (TryGetAgentHealthReceiver(target, out receiver))
         {
             return true;
         }
@@ -288,7 +288,7 @@ public static class CombatDamageUtility
         return false;
     }
 
-    private static bool TryGetPlayerHealthReceiver(Transform target, out ICombatDamageReceiver receiver)
+    private static bool TryGetAgentHealthReceiver(Transform target, out ICombatDamageReceiver receiver)
     {
         receiver = null;
         if (target == null)
@@ -296,26 +296,25 @@ public static class CombatDamageUtility
             return false;
         }
 
-        PlayerHealthController playerHealth = target.GetComponentInParent<PlayerHealthController>();
-        if (playerHealth == null)
+        Gameplay.Agent.Core.AgentHealthController agentHealth =
+            target.GetComponentInParent<Gameplay.Agent.Core.AgentHealthController>();
+        if (agentHealth == null)
         {
             Transform root = target.root;
-            if (root != null && root.CompareTag("Player"))
+            if (root != null)
             {
-                playerHealth = root.GetComponent<PlayerHealthController>();
-                if (playerHealth == null)
-                {
-                    playerHealth = root.GetComponentInChildren<PlayerHealthController>();
-                }
+                agentHealth = root.GetComponent<Gameplay.Agent.Core.AgentHealthController>();
+                if (agentHealth == null)
+                    agentHealth = root.GetComponentInChildren<Gameplay.Agent.Core.AgentHealthController>();
             }
         }
 
-        if (playerHealth == null || !playerHealth.IsCombatDamageReceiverAlive)
+        if (agentHealth == null || !agentHealth.IsCombatDamageReceiverAlive)
         {
             return false;
         }
 
-        receiver = playerHealth;
+        receiver = agentHealth;
         return true;
     }
 

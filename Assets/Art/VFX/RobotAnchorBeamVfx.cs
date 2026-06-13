@@ -281,9 +281,9 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         _targetRefreshTimer = TargetRefreshInterval;
         _targetCandidate = null;
 
-        if (PlayerHealthController.Instance != null)
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
         {
-            _targetCandidate = PlayerHealthController.Instance.transform;
+            _targetCandidate = currentPlayer;
             return;
         }
 
@@ -611,18 +611,8 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
             return;
         }
 
-        if (!CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
-        {
-            PlayerHealthController playerHealth = target.GetComponentInChildren<PlayerHealthController>();
-            if (playerHealth == null)
-            {
-                playerHealth = target.GetComponentInParent<PlayerHealthController>();
-            }
-
-            receiver = playerHealth;
-        }
-
-        ApplyDamageToReceiver(receiver, damage, hitPoint, hitDirection);
+        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
+            ApplyDamageToReceiver(receiver, damage, hitPoint, hitDirection);
     }
 
     private void ApplyDamageToReceiver(ICombatDamageReceiver receiver, float damage, Vector3 hitPoint, Vector3 hitDirection)

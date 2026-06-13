@@ -328,12 +328,6 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             return characterController.transform;
         }
 
-        PlayerHealthController playerHealth = candidate.GetComponentInParent<PlayerHealthController>();
-        if (playerHealth != null)
-        {
-            return playerHealth.transform;
-        }
-
         return candidate;
     }
 
@@ -351,7 +345,6 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
 
         return IsNameHintTarget(candidate) ||
                candidate.GetComponentInParent<AgentPawnRoot>() != null ||
-               candidate.GetComponentInParent<PlayerHealthController>() != null ||
                candidate.GetComponentInParent<CharacterController>() != null ||
                CombatDamageUtility.TryGetDamageReceiver(candidate, out _);
     }
@@ -460,9 +453,9 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             return _cachedPlayerTarget;
         }
 
-        if (PlayerHealthController.Instance != null)
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
         {
-            _cachedPlayerTarget = PlayerHealthController.Instance.transform;
+            _cachedPlayerTarget = currentPlayer;
             return _cachedPlayerTarget;
         }
 
@@ -524,16 +517,6 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             return;
         }
 
-        PlayerHealthController playerHealth = playerTarget.GetComponent<PlayerHealthController>();
-        if (playerHealth == null)
-        {
-            playerHealth = playerTarget.GetComponentInChildren<PlayerHealthController>();
-        }
-
-        if (playerHealth != null && !playerHealth.IsDead)
-        {
-            playerHealth.TakeDamage(damage);
-        }
     }
 
     private void EnsureRuntimeMaterials()

@@ -42,7 +42,8 @@ GameObject:
   - component: {fileID: 2107845040278215411}
   - component: {fileID: 5586259194857200610}
   - component: {fileID: 3472449480277288328}
-  - component: {fileID: 1876515704790957546}
+  - component: {fileID: 7820163612939944075}
+  - component: {fileID: 7820163612939944076}
   - component: {fileID: 9216309406287422568}
   - component: {fileID: 5903013740452536521}
   - component: {fileID: 7464382484415442821}
@@ -107,7 +108,7 @@ CapsuleCollider:
   m_Height: 3.0216427
   m_Direction: 1
   m_Center: {x: 0, y: -0.057932537, z: 0}
---- !u!114 &1876515704790957546
+--- !u!114 &7820163612939944075
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,19 +117,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 7015472616922862980}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7719064fa4a92a9418430ca0278b55c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MaxHealth: 220
-  MinimumPlaytestHealth: 220
-  MinimumDamageTakenMultiplier: 0.2
-  CorrosionTintColor: {r: 0.45, g: 1, b: 0.55, a: 1}
-  CorrosionTintStrength: 0.45
-  HealthFillImage: {fileID: 0}
-  RuntimeHealthBarOffset: {x: 0, y: 2.15, z: 0}
-  RuntimeHealthBarSize: {x: 120, y: 16}
-  RuntimeHealthBarBackgroundColor: {r: 0, g: 0, b: 0, a: 0.65}
-  RuntimeHealthBarFillColor: {r: 0.16, g: 0.86, b: 0.24, a: 1}
+  m_Script: {fileID: 11500000, guid: 2abfc551f25c4195b1c1833fdbd6009b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _maxHealth: 1
+  _currentHealth: 0
+  _corrosionTintColor: {r: 0.45, g: 1, b: 0.55, a: 1}
+  _corrosionTintStrength: 0.45
+  _healthFillImage: {fileID: 0}
+  _runtimeHealthBarOffset: {x: 0, y: 2.15, z: 0}
+  _runtimeHealthBarSize: {x: 120, y: 16}
+  _runtimeHealthBarBackgroundColor: {r: 0, g: 0, b: 0, a: 0.65}
+  _runtimeHealthBarFillColor: {r: 0.16, g: 0.86, b: 0.24, a: 1}
+--- !u!114 &7820163612939944076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7015472616922862980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b9815e833b420ba0e182c5cad8aa6b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!54 &9216309406287422568
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -233,8 +245,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _agentId: 1
   _pawnConfig: {fileID: 11400000, guid: a932304332ad443e9a3557f6df43bf34, type: 2}
+  _healthController: {fileID: 7820163612939944075}
   _navMeshAgent: {fileID: 5491856885365467676}
   _combatController: {fileID: 9126527795397233563}
+  _talentController: {fileID: 7820163612939944076}
   _showRangeGizmos: 1
 --- !u!114 &6384219047756312460
 MonoBehaviour:

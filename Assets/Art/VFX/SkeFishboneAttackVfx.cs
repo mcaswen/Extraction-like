@@ -275,10 +275,9 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
             return;
         }
 
-        PlayerHealthController playerHealth = PlayerHealthController.Instance;
-        if (playerHealth != null)
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
         {
-            _targetCandidate = playerHealth.transform;
+            _targetCandidate = currentPlayer;
             return;
         }
 
@@ -517,13 +516,6 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
             return true;
         }
 
-        PlayerHealthController health = component.GetComponentInParent<PlayerHealthController>();
-        if (health != null && !health.IsDead)
-        {
-            health.TakeDamage(damage);
-            return true;
-        }
-
         return false;
     }
 
@@ -549,18 +541,6 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
 
             damagedReceivers.Add(receiver);
             CombatDamageUtility.ApplyDamageTo(receiver, damage, hitPoint, hitDirection, gameObject);
-            return true;
-        }
-
-        PlayerHealthController health = target.GetComponentInParent<PlayerHealthController>();
-        if (health == null)
-        {
-            health = target.GetComponentInChildren<PlayerHealthController>();
-        }
-
-        if (health != null && !health.IsDead)
-        {
-            health.TakeDamage(damage);
             return true;
         }
 

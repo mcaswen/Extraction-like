@@ -139,7 +139,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private EnemyHealthController _healthController;
     private EnemyAnimatorDriver _animatorDriver;
-    private PlayerHealthController _playerHealthController;
+    private ICombatDamageReceiver _combatDamageReceiver;
     private PlayerMovementController _playerMovementController;
     private float _meleeTimer;
     private float _vortexTimer;
@@ -242,7 +242,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void Update()
     {
-        if (!EnsurePlayerReferences() || _playerHealthController == null)
+        if (!EnsurePlayerReferences() || _combatDamageReceiver == null)
         {
             return;
         }
@@ -422,16 +422,17 @@ public class HunterBossBehaviorController : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
         foreach (Collider hit in hits)
         {
-            if (!hit.CompareTag("Player"))
+            if (!PlayerTargetResolver.IsPlayerTarget(hit.transform))
             {
                 continue;
             }
 
-            PlayerHealthController playerHealth = hit.GetComponentInParent<PlayerHealthController>();
             PlayerMovementController playerMovement = hit.GetComponentInParent<PlayerMovementController>();
-            if (playerHealth != null)
+            if (PlayerTargetResolver.TryGetDamageReceiver(hit, out ICombatDamageReceiver damageReceiver))
             {
-                totalDamage += playerHealth.TakeDamage(MeleeDamage);
+                Vector3 hitPoint = hit.ClosestPoint(center);
+                Vector3 hitDirection = hitPoint - transform.position;
+                totalDamage += damageReceiver.TakeCombatDamage(MeleeDamage, hitPoint, hitDirection, gameObject);
                 didHitPlayer = true;
             }
 
@@ -540,7 +541,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     private void ExecuteRoar(float distanceToPlayer)
     {
         float totalDamage = 0f;
-        if (_playerHealthController == null || distanceToPlayer > RoarRange || !IsPlayerInRoarCone())
+        if (_combatDamageReceiver == null || distanceToPlayer > RoarRange || !IsPlayerInRoarCone())
         {
             EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
             return;
@@ -549,13 +550,21 @@ public class HunterBossBehaviorController : MonoBehaviour
         if (IsPlayerProtectedByCover())
         {
             // 掩体不会完全免疫怒吼，但会把伤害压到很低，并仍然施加震慑。
-            totalDamage = _playerHealthController.TakeDamage(RoarDamage * 0.1f);
+            totalDamage = _combatDamageReceiver.TakeCombatDamage(
+                RoarDamage * 0.1f,
+                PlayerTransform != null ? PlayerTransform.position : transform.position,
+                PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+                gameObject);
             ApplyTrembleToPlayer();
             EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
             return;
         }
 
-        totalDamage = _playerHealthController.TakeDamage(RoarDamage);
+        totalDamage = _combatDamageReceiver.TakeCombatDamage(
+            RoarDamage,
+            PlayerTransform != null ? PlayerTransform.position : transform.position,
+            PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
+            gameObject);
         ApplyTrembleToPlayer();
         EnemySkillDamageLogger.LogSkillDamage(this, "Rage Roar", totalDamage);
     }
@@ -904,28 +913,18 @@ public class HunterBossBehaviorController : MonoBehaviour
     {
         if (PlayerTransform == null)
         {
-            if (PlayerHealthController.Instance != null)
-            {
-                PlayerTransform = PlayerHealthController.Instance.transform;
-            }
-            else
-            {
-                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-                if (playerObject != null)
-                {
-                    PlayerTransform = playerObject.transform;
-                }
-            }
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
         }
 
         if (PlayerTransform != null)
         {
-            if (_playerHealthController == null)
+            if (_combatDamageReceiver == null)
             {
-                _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-                if (_playerHealthController == null)
+                if (CombatDamageUtility.TryGetDamageReceiver(PlayerTransform, out ICombatDamageReceiver receiver))
                 {
-                    _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
+                    _combatDamageReceiver = receiver;
+                    if (receiver.DamageRootTransform != null)
+                        PlayerTransform = receiver.DamageRootTransform;
                 }
             }
 
@@ -935,17 +934,11 @@ public class HunterBossBehaviorController : MonoBehaviour
             }
         }
 
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
-        {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
-        }
-
         if (_playerMovementController == null && PlayerTransform != null)
         {
             _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
         }
 
-        return PlayerTransform != null && _playerHealthController != null;
+        return PlayerTransform != null && _combatDamageReceiver != null;
     }
 }

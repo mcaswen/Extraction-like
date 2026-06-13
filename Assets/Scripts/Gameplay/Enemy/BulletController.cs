@@ -266,14 +266,13 @@ public class BulletController : MonoBehaviour
             return false;
         }
 
-        PlayerHealthController playerHealth = source.GetComponentInParent<PlayerHealthController>();
-        if (playerHealth != null)
+        if (PlayerTargetResolver.TryGetAgentHealth(source, out Gameplay.Agent.Core.AgentHealthController agentHealth))
         {
-            playerRoot = playerHealth.transform;
+            playerRoot = agentHealth.transform;
             return true;
         }
 
-        if (source.CompareTag("Player"))
+        if (PlayerTargetResolver.IsPlayerTarget(source))
         {
             playerRoot = source;
             return true;

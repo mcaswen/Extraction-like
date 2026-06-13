@@ -99,13 +99,6 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
             return;
         }
 
-        PlayerHealthController playerHealthController = playerTransform.GetComponent<PlayerHealthController>();
-        AgentPawnRoot agentPawnRoot = playerTransform.GetComponent<AgentPawnRoot>();
-        if (agentPawnRoot == null && playerHealthController == null)
-        {
-            playerHealthController = playerTransform.gameObject.AddComponent<PlayerHealthController>();
-        }
-
         PlayerInteraction interaction = playerTransform.GetComponent<PlayerInteraction>();
         if (interaction == null)
         {

@@ -50,7 +50,6 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     [HideInInspector]
     public float BeamTickInterval = 0.12f;
 
-    private PlayerHealthController _playerHealthController;
     private EnemyAnimatorDriver _animatorDriver;
     private ICombatDamageReceiver _combatDamageReceiver;
     private float _stateTimer;
@@ -382,33 +381,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     {
         if (PlayerTransform == null)
         {
-            if (PlayerHealthController.Instance != null)
-            {
-                PlayerTransform = PlayerHealthController.Instance.transform;
-            }
-            else
-            {
-                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-                if (playerObject != null)
-                {
-                    PlayerTransform = playerObject.transform;
-                }
-            }
-        }
-
-        if (PlayerTransform != null && _playerHealthController == null)
-        {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-            if (_playerHealthController == null)
-            {
-                _playerHealthController = PlayerTransform.GetComponentInParent<PlayerHealthController>();
-            }
-        }
-
-        if (_playerHealthController == null && PlayerHealthController.Instance != null)
-        {
-            _playerHealthController = PlayerHealthController.Instance;
-            PlayerTransform = _playerHealthController.transform;
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
         }
 
         if (PlayerTransform != null &&
@@ -419,13 +392,6 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
             {
                 PlayerTransform = receiver.DamageRootTransform;
             }
-
-            _playerHealthController = receiver as PlayerHealthController ?? _playerHealthController;
-        }
-
-        if (_combatDamageReceiver == null && _playerHealthController != null)
-        {
-            _combatDamageReceiver = _playerHealthController;
         }
 
         return PlayerTransform != null &&

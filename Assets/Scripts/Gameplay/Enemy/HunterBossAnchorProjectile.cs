@@ -90,7 +90,7 @@ public class HunterBossAnchorProjectile : MonoBehaviour
 
         if (!TryResolvePlayerTarget(
                 other,
-                out PlayerHealthController playerHealth,
+                out ICombatDamageReceiver damageReceiver,
                 out PlayerMovementController playerMovement))
         {
             return;
@@ -99,9 +99,11 @@ public class HunterBossAnchorProjectile : MonoBehaviour
         _hasHitTarget = true;
         float totalDamage = 0f;
 
-        if (playerHealth != null)
+        if (damageReceiver != null)
         {
-            totalDamage = playerHealth.TakeDamage(Damage);
+            Vector3 hitPoint = other.ClosestPoint(transform.position);
+            Vector3 hitDirection = hitPoint - transform.position;
+            totalDamage = damageReceiver.TakeCombatDamage(Damage, hitPoint, hitDirection, SourceEnemy);
         }
 
         if (playerMovement != null)
@@ -140,24 +142,21 @@ public class HunterBossAnchorProjectile : MonoBehaviour
 
     private static bool TryResolvePlayerTarget(
         Collider other,
-        out PlayerHealthController playerHealth,
+        out ICombatDamageReceiver damageReceiver,
         out PlayerMovementController playerMovement)
     {
-        playerHealth = other.GetComponentInParent<PlayerHealthController>();
+        PlayerTargetResolver.TryGetDamageReceiver(other, out damageReceiver);
         playerMovement = other.GetComponentInParent<PlayerMovementController>();
-        if (playerHealth != null || playerMovement != null)
+        if (damageReceiver != null || playerMovement != null)
             return true;
 
         Transform playerRoot = other.transform.root;
-        if (playerRoot == null || !playerRoot.CompareTag("Player"))
+        if (playerRoot == null || !PlayerTargetResolver.IsPlayerTarget(playerRoot))
             return false;
 
-        playerHealth = playerRoot.GetComponent<PlayerHealthController>();
-        if (playerHealth == null)
-            playerHealth = playerRoot.gameObject.AddComponent<PlayerHealthController>();
-
         playerMovement = playerRoot.GetComponent<PlayerMovementController>();
-        return true;
+        return PlayerTargetResolver.TryGetDamageReceiver(playerRoot, out damageReceiver) ||
+               playerMovement != null;
     }
 }
 
@@ -235,7 +234,7 @@ public class HunterBossVortexField : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (!_isArmed || !other.CompareTag("Player"))
+        if (!_isArmed || !PlayerTargetResolver.IsPlayerTarget(other.transform))
         {
             return;
         }

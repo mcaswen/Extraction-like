@@ -287,32 +287,18 @@ public sealed class PlayerStatusHudController : MonoBehaviour
     private void RefreshBars()
     {
         bool hasFocusedAgent = TryGetFocusedAgent(out IAgentReadOnly focusedAgent);
-        PlayerHealthController healthController = null;
-        if (!hasFocusedAgent)
-        {
-            healthController = PlayerHealthController.Instance;
-            if (healthController == null)
-            {
-                healthController = FindObjectOfType<PlayerHealthController>();
-            }
-        }
-
         if (_root != null)
         {
-            _root.gameObject.SetActive(hasFocusedAgent || healthController != null);
+            _root.gameObject.SetActive(hasFocusedAgent);
         }
 
-        if (!hasFocusedAgent && healthController == null)
+        if (!hasFocusedAgent)
         {
             return;
         }
 
-        float maxHealth = hasFocusedAgent
-            ? Mathf.Max(1f, focusedAgent.MaxHealth)
-            : Mathf.Max(1f, healthController.MaxHealth);
-        float currentHealth = hasFocusedAgent
-            ? Mathf.Clamp(focusedAgent.CurrentHealth, 0f, maxHealth)
-            : Mathf.Clamp(healthController.CurrentHealth, 0f, maxHealth);
+        float maxHealth = Mathf.Max(1f, focusedAgent.MaxHealth);
+        float currentHealth = Mathf.Max(0f, focusedAgent.CurrentHealth);
         string healthLabel = hasFocusedAgent && !string.IsNullOrWhiteSpace(focusedAgent.AgentIdValue)
             ? $"{focusedAgent.AgentIdValue}  {currentHealth:0} / {maxHealth:0}  HP"
             : $"{currentHealth:0} / {maxHealth:0}  HP";

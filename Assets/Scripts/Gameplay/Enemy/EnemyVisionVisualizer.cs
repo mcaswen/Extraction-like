@@ -312,13 +312,9 @@ public sealed class EnemyVisionVisualizer : MonoBehaviour
 
     private Transform ResolvePlayerTransform()
     {
-        if (PlayerHealthController.Instance != null)
-        {
-            return PlayerHealthController.Instance.transform;
-        }
-
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        return playerObject != null ? playerObject.transform : null;
+        return PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform target)
+            ? target
+            : null;
     }
 
     private void SetVisible(bool isVisible)

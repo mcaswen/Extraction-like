@@ -17,6 +17,7 @@ namespace Gameplay.Agent.Core
     /// Agent实体总入口
     /// 当前阶段负责承载最小身体事实，并桥接 Brain 与干预层
     /// </summary>
+    [RequireComponent(typeof(AgentHealthController))]
     [RequireComponent(typeof(AgentTalentRuntimeController))]
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter), typeof(AgentCombatController))]
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver, global::IExternalMovementReceiver
@@ -33,6 +34,7 @@ namespace Gameplay.Agent.Core
         [SerializeField] private AgentPawnConfig _pawnConfig;
 
         [Header("Components")]
+        [SerializeField] private AgentHealthController _healthController;
         [SerializeField] private NavMeshAgent _navMeshAgent;
         [SerializeField] private AgentCombatController _combatController;
         [SerializeField] private AgentTalentRuntimeController _talentController;
@@ -40,7 +42,6 @@ namespace Gameplay.Agent.Core
         [Header("Editor Gizmos")]
         [SerializeField] private bool _showRangeGizmos = true;
 
-        private int _currentHealth;
         private bool _isInitialized;
         private bool _isRegistered;
         private bool _deathNotified;
@@ -97,26 +98,27 @@ namespace Gameplay.Agent.Core
         /// <summary>
         /// 当前生命值
         /// </summary>
-        public int CurrentHealth => _currentHealth;
+        public int CurrentHealth => _healthController != null ? _healthController.CurrentHealth : 0;
 
         /// <summary>
         /// 最大生命值
         /// </summary>
-        public int MaxHealth => ResolveMaxHealth();
+        public int MaxHealth => _healthController != null ? _healthController.MaxHealth : ResolveMaxHealth();
 
         /// <summary>
         /// 当前生命比例
         /// </summary>
-        public float HealthRatio => MaxHealth <= 0 ? 0f : (float)_currentHealth / MaxHealth;
+        public float HealthRatio => _healthController != null ? _healthController.HealthRatio : 0f;
 
         public float Defense => ResolveDefense();
 
         /// <summary>
         /// 当前 Pawn 是否死亡
         /// </summary>
-        public bool IsDead => _currentHealth <= 0;
+        public bool IsDead => _healthController == null || _healthController.IsDead;
         public Transform DamageRootTransform => transform;
-        public bool IsCombatDamageReceiverAlive => !IsDead;
+        public bool IsCombatDamageReceiverAlive =>
+            _healthController != null && _healthController.IsCombatDamageReceiverAlive;
 
         /// <summary>
         /// 是否启用目标发现
@@ -186,6 +188,7 @@ namespace Gameplay.Agent.Core
             double timeSeconds = Time.timeAsDouble;
 
             // 每帧先把身体层事实同步给 Brain
+            SyncHealthMaxToStats();
             SyncBodyFactsToBlackboard(timeSeconds);
 
             // 驱动自主 Brain 更新
@@ -247,7 +250,14 @@ namespace Gameplay.Agent.Core
                     _pawnConfig.CreateCombatRuntimeStats());
             }
 
-            _currentHealth = MaxHealth;
+            if (_healthController == null)
+            {
+                Debug.LogError("AgentPawnRoot 缺少 AgentHealthController。请把 AgentHealthController 挂到 Agent 根节点。", this);
+                enabled = false;
+                return false;
+            }
+
+            _healthController.Initialize(ResolveMaxHealth());
             _deathNotified = false;
 
             _brainController = new AgentBrainController(this);
@@ -270,7 +280,7 @@ namespace Gameplay.Agent.Core
 
             bool wasAlive = !IsDead;
             int finalDamage = ResolveIncomingDamageAmount(damageRequest.DamageAmount, Time.timeAsDouble);
-            _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
+            _healthController.ApplyResolvedDamage(finalDamage);
             double timeSeconds = Time.timeAsDouble;
             SyncBodyFactsToBlackboard(timeSeconds);
             if (wasAlive && IsDead)
@@ -284,15 +294,14 @@ namespace Gameplay.Agent.Core
 
             double timeSeconds = Time.timeAsDouble;
             bool wasAlive = !IsDead;
-            int previousHealth = _currentHealth;
             int finalDamage = ResolveIncomingDamageAmount(damage, timeSeconds);
-            _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
-            if (!IsDead)
+            float actualDamage = _healthController.ApplyResolvedDamage(finalDamage);
+            if (actualDamage > 0f && !IsDead)
                 RecordCombatDamageInterrupt(source, timeSeconds);
             SyncBodyFactsToBlackboard(timeSeconds);
             if (wasAlive && IsDead)
                 HandleDeath(timeSeconds);
-            return Mathf.Max(0, previousHealth - _currentHealth);
+            return actualDamage;
         }
 
         public void ApplyExternalPull(Vector3 targetPosition, float pullStrength)
@@ -451,6 +460,9 @@ namespace Gameplay.Agent.Core
 
         private void CacheComponents()
         {
+            if (_healthController == null)
+                _healthController = GetComponent<AgentHealthController>();
+
             if (_navMeshAgent == null)
                 _navMeshAgent = GetComponent<NavMeshAgent>();
 
@@ -542,6 +554,14 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AttackDamage, attackDamage, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, attackDamage, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, defense, timeSeconds);
+        }
+
+        private void SyncHealthMaxToStats()
+        {
+            if (_healthController == null)
+                return;
+
+            _healthController.SyncMaxHealth(ResolveMaxHealth());
         }
 
         private void TickExternalMovementStatus(float deltaTime)

@@ -113,7 +113,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private Collider _ignoredPlayerBodyCollider;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
-    private PlayerHealthController _playerHealthController;
+    private Gameplay.Agent.Core.AgentHealthController _agentHealthController;
     private PlayerMovementController _playerMovementController;
     private IExternalMovementReceiver _externalMovementReceiver;
     private ICombatDamageReceiver _combatDamageReceiver;
@@ -383,7 +383,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             // 吸附阶段持续造成腐蚀伤害，并把玩家向触手起点方向拉拽。
             _latchTimer += Time.deltaTime;
 
-            if (_combatDamageReceiver != null && _playerHealthController == null)
+            if (_combatDamageReceiver != null && _agentHealthController == null)
             {
                 _tentacleTotalDamage += CombatDamageUtility.ApplyDamageTo(
                     _combatDamageReceiver,
@@ -393,9 +393,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
                     gameObject);
             }
 
-            if (_playerHealthController != null)
+            if (_agentHealthController != null)
             {
-                _playerHealthController.ApplyCorrosion(
+                _agentHealthController.ApplyCorrosion(
                     CorrosionDamagePerSecond,
                     CorrosionDuration,
                     CorrosionTickInterval);
@@ -538,7 +538,12 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
 
         _combatDamageReceiver = damageReceiver;
-        _playerHealthController = damageReceiver as PlayerHealthController;
+        _agentHealthController = damageReceiver as Gameplay.Agent.Core.AgentHealthController;
+        if (_agentHealthController == null &&
+            damageReceiver.DamageRootTransform != null)
+        {
+            PlayerTargetResolver.TryGetAgentHealth(damageReceiver.DamageRootTransform, out _agentHealthController);
+        }
         PlayerTransform = damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform : PlayerTransform;
         _playerMovementController = playerMovementController;
         _externalMovementReceiver = ResolveExternalMovementReceiver(damageReceiver, playerMovementController);
@@ -558,9 +563,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             PlayerTransform != null ? PlayerTransform.position - transform.position : transform.forward,
             gameObject);
 
-        if (_playerHealthController != null)
+        if (_agentHealthController != null)
         {
-            _playerHealthController.ApplyCorrosion(
+            _agentHealthController.ApplyCorrosion(
                 CorrosionDamagePerSecond,
                 CorrosionDuration,
                 CorrosionTickInterval);
@@ -1056,18 +1061,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     {
         if (PlayerTransform == null)
         {
-            if (PlayerHealthController.Instance != null)
-            {
-                PlayerTransform = PlayerHealthController.Instance.transform;
-            }
-            else
-            {
-                GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-                if (playerObject != null)
-                {
-                    PlayerTransform = playerObject.transform;
-                }
-            }
+            PlayerTargetResolver.TryGetCurrentPlayerTransform(out PlayerTransform);
         }
 
         if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
@@ -1075,23 +1069,10 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return true;
         }
 
-        if (PlayerTransform != null &&
-            PlayerTransform.CompareTag("Player") &&
-            _playerHealthController == null)
+        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer) &&
+            AssignCombatTarget(currentPlayer))
         {
-            _playerHealthController = PlayerTransform.GetComponent<PlayerHealthController>();
-            if (_playerHealthController == null)
-            {
-                _playerHealthController = PlayerTransform.gameObject.AddComponent<PlayerHealthController>();
-            }
-
-            _combatDamageReceiver = _playerHealthController;
-            return _combatDamageReceiver != null;
-        }
-
-        if (PlayerHealthController.Instance != null)
-        {
-            return AssignCombatTarget(PlayerHealthController.Instance.transform);
+            return true;
         }
 
         return false;
@@ -1105,11 +1086,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
 
         PlayerTransform = target;
-        _playerHealthController = target.GetComponent<PlayerHealthController>();
-        if (_playerHealthController == null)
-        {
-            _playerHealthController = target.GetComponentInParent<PlayerHealthController>();
-        }
+        PlayerTargetResolver.TryGetAgentHealth(target, out _agentHealthController);
 
         _playerMovementController = target.GetComponent<PlayerMovementController>();
         if (_playerMovementController == null)
@@ -1137,8 +1114,8 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return true;
         }
 
-        _combatDamageReceiver = _playerHealthController;
-        return _combatDamageReceiver != null;
+        _combatDamageReceiver = null;
+        return false;
     }
 
     private void IgnorePlayerBodyCollision(Transform target)

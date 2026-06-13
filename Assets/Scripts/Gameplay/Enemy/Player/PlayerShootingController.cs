@@ -44,8 +44,6 @@ public class PlayerShootingController : MonoBehaviour
 
     [Header("Rune Growth")]
     public float AttackBonusPerRuneLevel = 0.12f;
-    public float DefenseBonusPerRuneLevel = 0.08f;
-    public float MaxHealthBonusPerRuneLevel = 0.1f;
 
     [Header("Ice Freeze Spell")]
     public KeyCode IceFreezeKey = KeyCode.Alpha2;
@@ -137,7 +135,6 @@ public class PlayerShootingController : MonoBehaviour
     private Color[] _originalColors;
     private Camera _mainCamera;
     private PlayerMovementController _playerMovementController;
-    private PlayerHealthController _playerHealthController;
     private float _defaultFixedDeltaTime;
 
     private bool _iceFreezeUnlocked;
@@ -188,7 +185,6 @@ public class PlayerShootingController : MonoBehaviour
         CacheRendererColors();
         _mainCamera = Camera.main;
         _playerMovementController = GetComponent<PlayerMovementController>();
-        _playerHealthController = GetComponent<PlayerHealthController>();
 
         _iceFreezeUnlocked = StartWithIceFreezeUnlocked;
         _iceConeUnlocked = StartWithIceConeUnlocked;
@@ -197,7 +193,6 @@ public class PlayerShootingController : MonoBehaviour
         _timeHourglassUnlocked = StartWithTimeHourglassUnlocked;
         _spaceHourglassUnlocked = StartWithSpaceHourglassUnlocked;
         _runePatternLevel = Mathf.Max(0, StartWithRunePatternLevel);
-        ApplyRuneCombatEnhancement();
         EnsureSelectedSkillAvailable();
     }
 
@@ -358,7 +353,6 @@ public class PlayerShootingController : MonoBehaviour
                 break;
             case MagicUnlockType.RunePattern:
                 _runePatternLevel += resolvedRunePoints;
-                ApplyRuneCombatEnhancement();
                 didUnlock = true;
                 break;
         }
@@ -1525,16 +1519,6 @@ public class PlayerShootingController : MonoBehaviour
 
         _attackDebuffDurationRemaining = Mathf.Max(_attackDebuffDurationRemaining, duration);
         _attackDebuffMultiplier = Mathf.Min(_attackDebuffMultiplier, Mathf.Clamp(multiplier, 0.1f, 1f));
-    }
-
-    private void ApplyRuneCombatEnhancement()
-    {
-        float defenseMultiplier = 1f + Mathf.Max(0, _runePatternLevel) * DefenseBonusPerRuneLevel;
-        float healthMultiplier = 1f + Mathf.Max(0, _runePatternLevel) * MaxHealthBonusPerRuneLevel;
-        if (_playerHealthController != null)
-        {
-            _playerHealthController.ApplyCombatEnhancement(defenseMultiplier, healthMultiplier);
-        }
     }
 
     private static bool SetUnlock(ref bool targetFlag)

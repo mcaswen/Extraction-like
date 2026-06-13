@@ -99,20 +99,6 @@ public class EnemyBulletController : MonoBehaviour
         out ICombatDamageReceiver damageReceiver)
     {
         damageReceiver = null;
-        PlayerHealthController playerHealthController =
-            other.GetComponentInParent<PlayerHealthController>();
-        if (playerHealthController == null)
-        {
-            Transform playerRoot = other.transform.root;
-            if (playerRoot == null || !playerRoot.CompareTag("Player"))
-                return false;
-
-            playerHealthController = playerRoot.GetComponent<PlayerHealthController>();
-            if (playerHealthController == null)
-                playerHealthController = playerRoot.gameObject.AddComponent<PlayerHealthController>();
-        }
-
-        damageReceiver = playerHealthController;
-        return damageReceiver != null;
+        return PlayerTargetResolver.TryGetDamageReceiver(other, out damageReceiver);
     }
 }

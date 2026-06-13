@@ -640,19 +640,12 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
             return true;
         }
 
-        if (PlayerHealthController.Instance != null)
-        {
-            PlayerTransform = PlayerHealthController.Instance.transform;
-            return AssignCombatTarget(PlayerTransform);
-        }
-
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        if (playerObject == null)
+        if (!PlayerTargetResolver.TryGetCurrentPlayerTransform(out Transform currentPlayer))
         {
             return false;
         }
 
-        PlayerTransform = playerObject.transform;
+        PlayerTransform = currentPlayer;
         return AssignCombatTarget(PlayerTransform);
     }
 

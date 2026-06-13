@@ -599,7 +599,7 @@ AgentCommandRouter.GetOrCreate().TrySubmitDirective(agentId, request);
 
 - Assets/Scripts/Gameplay/Enemy/EnemyHealthController.cs
 - Assets/Scripts/Gameplay/Enemy/EnemyBehaviorController.cs
-- Assets/Scripts/Gameplay/Enemy/Player/PlayerHealthController.cs
+- Assets/Scripts/Gameplay/Agent/Core/AgentHealthController.cs
 
 Enemy 系统权限：
 
@@ -610,8 +610,8 @@ Enemy 系统权限：
 
 Agent 与 Enemy 的边界：
 
-1. 敌人查找攻击目标应逐步从 PlayerHealthController.Instance 迁移到 AgentRuntimeQuery
-2. 敌人对 Agent 造成伤害应通过 AgentCommandRouter.TryApplyDamage
+1. 敌人查找攻击目标通过 AgentRuntimeRegistry / PlayerTargetResolver
+2. 敌人对 Agent 造成伤害通过 ICombatDamageReceiver / AgentHealthController
 3. Agent 攻击敌人应通过 EnemyHealthController.TakeDamage 或后续 Combat Adapter
 4. 敌人死亡后的战利品生成仍由 EnemyHealthController 负责
 5. Agent 不直接 Destroy 敌人对象
@@ -874,24 +874,22 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 2. 后续补 AgentExtractionPresenceService，让撤离点识别 AgentPawnRoot
 3. 保持 AgentBrainController 只负责装配与 Tick，不把具体业务塞回 Brain
 
-### 10.2 旧 Player 单例依赖尚未完全替换
+### 10.2 旧 Player 输入脚本仍需继续收敛
 
 现状：
 
-1. Enemy/Player 下仍有 PlayerHealthController、PlayerMovementController、PlayerShootingController
-2. 部分敌人脚本仍可能使用 PlayerHealthController.Instance 或 PlayerTransform
+1. Enemy/Player 下仍有 PlayerMovementController、PlayerShootingController 等旧输入脚本
+2. 敌人脚本仍保留 PlayerTransform 命名，但目标来源已经迁移到 AgentRuntimeRegistry / PlayerTargetResolver
 
 风险：
 
-1. 多 Agent 时敌人只攻击旧 Player
-2. Agent 受到伤害链路无法统一
-3. Agent 与手控玩家职责混在一起
+1. PlayerTransform 命名容易和多 Agent 语义混淆
+2. Agent 与手控玩家职责仍有局部历史命名
 
 建议：
 
-1. 敌人目标选择迁移到 AgentRuntimeQuery
-2. 敌人伤害输出迁移到 AgentCommandRouter.TryApplyDamage
-3. 手控 Player 脚本保留为 legacy 或输入驱动层，不作为全局主角权威
+1. 后续把敌人脚本中的 PlayerTransform 命名收敛为 TargetTransform
+2. 手控 Player 脚本保留为 legacy 或输入驱动层，不作为全局主角权威
 
 ### 10.3 ExtractionPointController 只识别 Player Tag
 

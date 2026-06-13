@@ -174,17 +174,16 @@ public class CorrosiveSlimePuddle : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (!other.CompareTag("Player"))
+        if (!PlayerTargetResolver.IsPlayerTarget(other.transform))
         {
             return;
         }
 
-        PlayerHealthController playerHealth = other.GetComponentInParent<PlayerHealthController>();
-        if (playerHealth == null)
+        if (!PlayerTargetResolver.TryGetAgentHealth(other.transform, out Gameplay.Agent.Core.AgentHealthController agentHealth))
         {
             return;
         }
 
-        playerHealth.ApplyCorrosion(_damagePerSecond, _corrosionDuration, _tickInterval);
+        agentHealth.ApplyCorrosion(_damagePerSecond, _corrosionDuration, _tickInterval);
     }
 }
