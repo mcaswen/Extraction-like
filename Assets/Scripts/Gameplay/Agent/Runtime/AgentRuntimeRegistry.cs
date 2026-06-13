@@ -12,6 +12,8 @@ namespace Gameplay.Agent.Runtime
     /// </summary>
     public sealed class AgentRuntimeRegistry : MonoBehaviour
     {
+        private const string DefaultFocusedAgentIdValue = "1";
+
         private static AgentRuntimeRegistry _activeInstance;
 
         private readonly Dictionary<AgentId, AgentRuntimeHandle> _handlesById =
@@ -22,6 +24,7 @@ namespace Gameplay.Agent.Runtime
 
         private AgentRuntimeQuery _query;
         private AgentId _focusedAgentId;
+        private bool _hasExplicitFocusSelection;
 
         /// <summary>
         /// 当前场景中的 Agent 运行时注册表实例
@@ -143,6 +146,12 @@ namespace Gameplay.Agent.Runtime
             _handlesById.Add(agentId, handle);
             _registeredAgents.Add(handle);
 
+            if (!_hasExplicitFocusSelection && IsDefaultFocusedAgent(agentId))
+            {
+                SetFocusedHandle(handle);
+                return true;
+            }
+
             if (!TryGetFocusedHandle(out _))
                 SetFocusedHandle(handle);
 
@@ -172,7 +181,10 @@ namespace Gameplay.Agent.Runtime
             RemoveHandle(removedAgentId);
 
             if (removedFocusedAgent)
+            {
+                _hasExplicitFocusSelection = false;
                 FocusFirstAvailableAgent();
+            }
         }
 
         /// <summary>
@@ -269,6 +281,9 @@ namespace Gameplay.Agent.Runtime
         /// <returns></returns>
         public bool TryGetPrimaryHandle(out AgentRuntimeHandle handle)
         {
+            if (TryGetDefaultFocusedHandle(out handle))
+                return true;
+
             for (int i = 0; i < _registeredAgents.Count; i++)
             {
                 handle = _registeredAgents[i];
@@ -302,6 +317,7 @@ namespace Gameplay.Agent.Runtime
                 return false;
 
             SetFocusedHandle(handle);
+            _hasExplicitFocusSelection = true;
             return true;
         }
 
@@ -334,6 +350,7 @@ namespace Gameplay.Agent.Runtime
                     continue;
 
                 SetFocusedHandle(handle);
+                _hasExplicitFocusSelection = true;
                 return true;
             }
 
@@ -386,6 +403,16 @@ namespace Gameplay.Agent.Runtime
 
             SetFocusedHandle(handle);
             return true;
+        }
+
+        private bool TryGetDefaultFocusedHandle(out AgentRuntimeHandle handle)
+        {
+            return TryGetHandle(DefaultFocusedAgentIdValue, out handle);
+        }
+
+        private static bool IsDefaultFocusedAgent(AgentId agentId)
+        {
+            return string.Equals(agentId.Value, DefaultFocusedAgentIdValue, StringComparison.Ordinal);
         }
 
         private int FindFocusedAgentIndex()
