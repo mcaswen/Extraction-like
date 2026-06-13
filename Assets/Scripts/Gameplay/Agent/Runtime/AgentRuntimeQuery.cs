@@ -60,6 +60,16 @@ namespace Gameplay.Agent.Runtime
         }
 
         /// <summary>
+        /// 查询当前焦点 Agent 运行时句柄
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <returns></returns>
+        public bool TryGetFocusedAgent(out AgentRuntimeHandle handle)
+        {
+            return _registry.TryGetFocusedHandle(out handle);
+        }
+
+        /// <summary>
         /// 将当前有效 Agent 复制到外部缓冲区
         /// </summary>
         /// <param name="results"></param>

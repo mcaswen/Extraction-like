@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using Gameplay.Agent.Runtime;
 using UnityEngine;
 
 /// <summary>
@@ -15,6 +16,11 @@ public class InventoryScreenController : MonoBehaviour
     private const float LootHeaderHeight = 56f;
     private const float LootHeaderGap = 10f;
 
+    [Header("Agent Focus")]
+    [SerializeField] private bool _syncWithFocusedAgent = true;
+
+    [Header("Debug")]
+    [SerializeField] private bool _logInventoryDebug = true;
 
     public bool IsInventoryOpen { get; private set; }
 
@@ -52,12 +58,18 @@ public class InventoryScreenController : MonoBehaviour
     private bool _backpackSlotWasActive;
     private bool _tacticalRigGridWasActive;
     private bool _backpackGridWasActive;
+    private readonly Dictionary<string, CharacterInventorySnapshot> _inventorySnapshotsByAgentId =
+        new Dictionary<string, CharacterInventorySnapshot>();
+    private AgentRuntimeRegistry _agentRegistry;
+    private bool _isAgentFocusSubscribed;
+    private string _activeInventoryAgentId;
 
     public InventoryScreenSessionContext ActiveSessionContext => _activeSessionContext;
     public bool HasActiveExternalContainer => _activeSessionContext != null;
     public bool UsesCustomPlayerInventory => _activeSessionContext != null && _activeSessionContext.UseCustomPlayerInventory;
     public InventoryUIController ActiveExternalGrid => HasActiveExternalContainer ? LootChestGrid : null;
     public InventoryUIController ActivePlayerGrid => BackpackGrid;
+    public string ActiveInventoryAgentId => _activeInventoryAgentId ?? string.Empty;
 
     public float GetCurrentCarryWeight()
     {
@@ -87,6 +99,7 @@ public class InventoryScreenController : MonoBehaviour
     {
         Instance = this;
         InitializeRuntimeScreen();
+        SubscribeAgentFocus();
     }
 
     private void OnDestroy()
@@ -95,19 +108,149 @@ public class InventoryScreenController : MonoBehaviour
         {
             Instance = null;
         }
+
+        UnsubscribeAgentFocus();
     }
 
     private void Start()
     {
         EnsureDefaultBackpackEquipped();
         RefreshCharacterContainerState(false);
+        BindToFocusedAgentIfNeeded();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        BindToFocusedAgentIfNeeded();
+    }
+
+    private void SubscribeAgentFocus()
+    {
+        if (!_syncWithFocusedAgent || _isAgentFocusSubscribed)
         {
-            ToggleInventory();
+            return;
+        }
+
+        _agentRegistry = AgentRuntimeRegistry.GetOrCreate();
+        if (_agentRegistry == null)
+        {
+            return;
+        }
+
+        _agentRegistry.FocusedAgentChanged += HandleFocusedAgentChanged;
+        _isAgentFocusSubscribed = true;
+    }
+
+    private void UnsubscribeAgentFocus()
+    {
+        if (_agentRegistry != null && _isAgentFocusSubscribed)
+        {
+            _agentRegistry.FocusedAgentChanged -= HandleFocusedAgentChanged;
+        }
+
+        _isAgentFocusSubscribed = false;
+        _agentRegistry = null;
+    }
+
+    private void BindToFocusedAgentIfNeeded()
+    {
+        if (!_syncWithFocusedAgent)
+        {
+            return;
+        }
+
+        SubscribeAgentFocus();
+        if (_agentRegistry == null || !_agentRegistry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle))
+        {
+            return;
+        }
+
+        SwitchActiveInventoryAgent(focusedHandle.AgentId.Value);
+    }
+
+    private void HandleFocusedAgentChanged(
+        AgentRuntimeHandle previousHandle,
+        AgentRuntimeHandle currentHandle)
+    {
+        if (!currentHandle.IsValid)
+        {
+            PersistActiveAgentInventory();
+            _activeInventoryAgentId = string.Empty;
+            return;
+        }
+
+        SwitchActiveInventoryAgent(currentHandle.AgentId.Value);
+    }
+
+    private void SwitchActiveInventoryAgent(string agentId)
+    {
+        string normalizedAgentId = string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
+        if (string.IsNullOrEmpty(normalizedAgentId) || string.Equals(_activeInventoryAgentId, normalizedAgentId, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_activeInventoryAgentId))
+        {
+            _activeInventoryAgentId = normalizedAgentId;
+            SaveInventorySnapshot(normalizedAgentId);
+            return;
+        }
+
+        PersistActiveAgentInventory();
+        _activeInventoryAgentId = normalizedAgentId;
+        RestoreInventorySnapshot(normalizedAgentId);
+    }
+
+    private void PersistActiveAgentInventory()
+    {
+        if (string.IsNullOrEmpty(_activeInventoryAgentId))
+        {
+            return;
+        }
+
+        EndCurrentDragIfNeeded();
+
+        if (_activeSessionContext != null)
+        {
+            CloseActiveSessionIfNeeded();
+        }
+
+        SyncCharacterContainerRuntimeState();
+        SaveInventorySnapshot(_activeInventoryAgentId);
+    }
+
+    private void SaveInventorySnapshot(string agentId)
+    {
+        if (string.IsNullOrWhiteSpace(agentId))
+        {
+            return;
+        }
+
+        _inventorySnapshotsByAgentId[agentId] = CreateCharacterInventorySnapshot();
+    }
+
+    private void RestoreInventorySnapshot(string agentId)
+    {
+        InventoryItemInfoPanelController.Instance?.Hide();
+
+        if (_inventorySnapshotsByAgentId.TryGetValue(agentId, out CharacterInventorySnapshot snapshot))
+        {
+            LoadCharacterInventorySnapshot(snapshot);
+        }
+        else
+        {
+            ClearCharacterInventoryUi();
+            EnsureDefaultBackpackEquipped();
+        }
+
+        if (IsInventoryOpen)
+        {
+            RefreshVisibleStateForCurrentContext();
+        }
+        else
+        {
+            RefreshCharacterContainerState(false);
         }
     }
 
@@ -138,7 +281,20 @@ public class InventoryScreenController : MonoBehaviour
     {
         if (lootBox == null || LootChestGrid == null)
         {
+            if (_logInventoryDebug)
+            {
+                Debug.LogWarning(
+                    $"[InventoryScreen] OpenLootBox skipped. lootBox={(lootBox != null ? lootBox.name : "null")}, " +
+                    $"lootGrid={(LootChestGrid != null ? LootChestGrid.name : "null")}.",
+                    this);
+            }
+
             return;
+        }
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log($"[InventoryScreen] OpenLootBox -> {lootBox.name}.", this);
         }
 
         InventoryScreenSessionContext sessionContext = lootBox.CreateInventorySessionContext();
@@ -152,10 +308,26 @@ public class InventoryScreenController : MonoBehaviour
     {
         if (sessionContext == null || LootChestGrid == null)
         {
+            if (_logInventoryDebug)
+            {
+                Debug.LogWarning(
+                    $"[InventoryScreen] OpenInventorySession skipped. session={(sessionContext != null ? sessionContext.DisplayName : "null")}, " +
+                    $"lootGrid={(LootChestGrid != null ? LootChestGrid.name : "null")}.",
+                    this);
+            }
+
             return;
         }
 
         bool wasInventoryOpen = IsInventoryOpen;
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log(
+                $"[InventoryScreen] OpenInventorySession start. display={sessionContext.DisplayName}, " +
+                $"wasOpen={wasInventoryOpen}, activeAgent={ActiveInventoryAgentId}.",
+                this);
+        }
 
         if (_activeSessionContext != null)
         {
@@ -174,6 +346,11 @@ public class InventoryScreenController : MonoBehaviour
         else
         {
             RefreshVisibleStateForCurrentContext();
+        }
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log($"[InventoryScreen] OpenInventorySession complete. isOpen={IsInventoryOpen}.", this);
         }
     }
 
@@ -199,11 +376,31 @@ public class InventoryScreenController : MonoBehaviour
     {
         if (IsInventoryOpen)
         {
+            if (_logInventoryDebug)
+            {
+                Debug.Log("[InventoryScreen] OpenInventory ignored: already open.", this);
+            }
+
             return;
+        }
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log(
+                $"[InventoryScreen] OpenInventory start. panel={(InventoryPanel != null ? InventoryPanel.name : "null")}, " +
+                $"backpackGrid={(BackpackGrid != null ? BackpackGrid.name : "null")}, " +
+                $"backpackSlot={(BackpackSlot != null ? BackpackSlot.name : "null")}, " +
+                $"activeAgent={ActiveInventoryAgentId}.",
+                this);
         }
 
         IsInventoryOpen = true;
         OpenInventoryInternal();
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log($"[InventoryScreen] OpenInventory complete. panelActive={(InventoryPanel != null && InventoryPanel.activeSelf)}.", this);
+        }
     }
 
     /// <summary>
@@ -213,11 +410,26 @@ public class InventoryScreenController : MonoBehaviour
     {
         if (!IsInventoryOpen)
         {
+            if (_logInventoryDebug)
+            {
+                Debug.Log("[InventoryScreen] CloseInventory ignored: already closed.", this);
+            }
+
             return;
+        }
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log($"[InventoryScreen] CloseInventory start. activeAgent={ActiveInventoryAgentId}.", this);
         }
 
         IsInventoryOpen = false;
         CloseInventoryInternal();
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log("[InventoryScreen] CloseInventory complete.", this);
+        }
     }
 
     /// <summary>
@@ -456,15 +668,37 @@ public class InventoryScreenController : MonoBehaviour
     // 打开背包面板时，同步角色容器状态并释放鼠标
     private void OpenInventoryInternal()
     {
+        if (_logInventoryDebug)
+        {
+            Debug.Log(
+                $"[InventoryScreen] OpenInventoryInternal. hasPanel={InventoryPanel != null}, " +
+                $"hasBackpackGrid={BackpackGrid != null}, hasBackpackSlot={BackpackSlot != null}, " +
+                $"hasDefaultBackpack={DefaultBackpackItem != null}.",
+                this);
+        }
+
         if (InventoryPanel != null)
         {
             InventoryPanel.SetActive(true);
+        }
+        else if (_logInventoryDebug)
+        {
+            Debug.LogWarning("[InventoryScreen] OpenInventoryInternal could not activate UI: InventoryPanel is null.", this);
         }
 
         RefreshVisibleStateForCurrentContext();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        if (_logInventoryDebug)
+        {
+            Debug.Log(
+                $"[InventoryScreen] OpenInventoryInternal complete. panelActive={(InventoryPanel != null && InventoryPanel.activeSelf)}, " +
+                $"backpackGridActive={(BackpackGrid != null && BackpackGrid.gameObject.activeSelf)}, " +
+                $"cursorVisible={Cursor.visible}, cursorLock={Cursor.lockState}.",
+                this);
+        }
     }
 
     // 关闭背包面板时，回收拖拽态并保存当前容器运行时数据
@@ -1142,6 +1376,122 @@ public class InventoryScreenController : MonoBehaviour
         TotemSlotB?.SyncEquippedItemRuntimeDataFromGrid();
     }
 
+    private CharacterInventorySnapshot CreateCharacterInventorySnapshot()
+    {
+        SyncCharacterContainerRuntimeState();
+        return new CharacterInventorySnapshot
+        {
+            BackpackItem = CreateSlotSnapshot(BackpackSlot),
+            RigItem = CreateSlotSnapshot(RigSlot),
+            HeadItem = CreateSlotSnapshot(HeadSlot),
+            BodyItem = CreateSlotSnapshot(BodySlot),
+            FaceItem = CreateSlotSnapshot(FaceSlot),
+            HeadphoneItem = CreateSlotSnapshot(HeadphoneSlot),
+            TotemAItem = CreateSlotSnapshot(TotemSlotA),
+            TotemBItem = CreateSlotSnapshot(TotemSlotB)
+        };
+    }
+
+    private void LoadCharacterInventorySnapshot(CharacterInventorySnapshot snapshot)
+    {
+        ClearCharacterInventoryUi();
+
+        if (snapshot == null)
+        {
+            EnsureDefaultBackpackEquipped();
+            return;
+        }
+
+        LoadSlotSnapshot(BackpackSlot, snapshot.BackpackItem);
+        LoadSlotSnapshot(RigSlot, snapshot.RigItem);
+        LoadSlotSnapshot(HeadSlot, snapshot.HeadItem);
+        LoadSlotSnapshot(BodySlot, snapshot.BodyItem);
+        LoadSlotSnapshot(FaceSlot, snapshot.FaceItem);
+        LoadSlotSnapshot(HeadphoneSlot, snapshot.HeadphoneItem);
+        LoadSlotSnapshot(TotemSlotA, snapshot.TotemAItem);
+        LoadSlotSnapshot(TotemSlotB, snapshot.TotemBItem);
+        EnsureDefaultBackpackEquipped();
+    }
+
+    private void ClearCharacterInventoryUi()
+    {
+        ClearEquipmentSlot(BackpackSlot);
+        ClearEquipmentSlot(RigSlot);
+        ClearEquipmentSlot(HeadSlot);
+        ClearEquipmentSlot(BodySlot);
+        ClearEquipmentSlot(FaceSlot);
+        ClearEquipmentSlot(HeadphoneSlot);
+        ClearEquipmentSlot(TotemSlotA);
+        ClearEquipmentSlot(TotemSlotB);
+
+        PocketGrid?.ClearUI();
+        TacticalRigGrid?.ClearUI();
+        BackpackGrid?.ClearUI();
+    }
+
+    private static ContainerItemSaveData CreateSlotSnapshot(EquipmentSlotUI slot)
+    {
+        if (slot == null || !slot.HasEquippedItem || slot.EquippedItemState == null)
+        {
+            return null;
+        }
+
+        slot.SyncEquippedItemRuntimeDataFromGrid();
+        return slot.EquippedItemState.CreateSaveDataSnapshot(Vector2Int.zero, false);
+    }
+
+    private static void LoadSlotSnapshot(EquipmentSlotUI slot, ContainerItemSaveData itemSnapshot)
+    {
+        if (slot == null || itemSnapshot == null || itemSnapshot.ItemData == null || InventoryItemFactory.Instance == null)
+        {
+            return;
+        }
+
+        InventoryItemRuntimeState runtimeState = InventoryItemRuntimeState.Create(
+            itemSnapshot.ItemData,
+            itemSnapshot.Amount,
+            itemSnapshot.InternalItems,
+            itemSnapshot.InternalCellStates);
+        runtimeState.ApplyContainerSaveData(itemSnapshot);
+
+        DraggableItemUI itemView = InventoryItemFactory.Instance.CreateFloatingItem(runtimeState);
+        if (itemView == null)
+        {
+            return;
+        }
+
+        if (!slot.TryEquip(itemView))
+        {
+            UnityEngine.Object.Destroy(itemView.gameObject);
+        }
+    }
+
+    private static void ClearEquipmentSlot(EquipmentSlotUI slot)
+    {
+        if (slot == null)
+        {
+            return;
+        }
+
+        DraggableItemUI releasedItem = slot.ReleaseEquippedItem();
+        if (releasedItem != null)
+        {
+            UnityEngine.Object.Destroy(releasedItem.gameObject);
+        }
+    }
+
+    private static void EndCurrentDragIfNeeded()
+    {
+        DraggableItemUI draggedItem = DraggableItemUI.CurrentlyDraggedItem;
+        if (draggedItem == null)
+        {
+            return;
+        }
+
+        draggedItem.BounceBack();
+        draggedItem.ForceEndDrag();
+    }
+
     private static bool HasRuntimeItemViews(InventoryUIController grid)
     {
         if (grid == null || grid.ItemContainer == null)
@@ -1232,6 +1582,18 @@ public class InventoryScreenController : MonoBehaviour
         {
             Destroy(defaultBackpack.gameObject);
         }
+    }
+
+    private sealed class CharacterInventorySnapshot
+    {
+        public ContainerItemSaveData BackpackItem;
+        public ContainerItemSaveData RigItem;
+        public ContainerItemSaveData HeadItem;
+        public ContainerItemSaveData BodyItem;
+        public ContainerItemSaveData FaceItem;
+        public ContainerItemSaveData HeadphoneItem;
+        public ContainerItemSaveData TotemAItem;
+        public ContainerItemSaveData TotemBItem;
     }
 
     // 根据界面开关状态决定是否展示背包和胸挂的联动内部网格

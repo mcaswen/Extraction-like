@@ -144,6 +144,36 @@ public class InventoryItemFactory : MonoBehaviour
         return itemView;
     }
 
+    /// <summary>
+    /// 创建一个保留完整运行时状态的悬浮物品视图
+    /// </summary>
+    /// <param name="runtimeState">物品运行时状态</param>
+    /// <returns>生成出的悬浮物品视图，失败则返回空</returns>
+    public DraggableItemUI CreateFloatingItem(InventoryItemRuntimeState runtimeState)
+    {
+        if (runtimeState == null || runtimeState.ItemData == null || GlobalDragLayer == null)
+        {
+            return null;
+        }
+
+        GameObject itemObject = CreateItemObject(GlobalDragLayer);
+        if (itemObject == null)
+        {
+            return null;
+        }
+
+        DraggableItemUI itemView = itemObject.GetComponent<DraggableItemUI>();
+        if (itemView == null)
+        {
+            Destroy(itemObject);
+            return null;
+        }
+
+        ConfigureItemView(itemView, runtimeState, null);
+        itemView.InitializeItem(runtimeState.ItemData, Vector2Int.zero, false);
+        return itemView;
+    }
+
     // 把静态配置和运行时快照统一灌入物品视图，避免生成入口分散赋值
     private static void ConfigureItemView(
         DraggableItemUI itemView,

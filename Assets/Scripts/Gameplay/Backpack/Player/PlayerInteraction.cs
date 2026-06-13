@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Gameplay.Agent.Runtime;
+using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -8,7 +9,7 @@ using UnityEngine.UI;
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Interaction")]
-    public float InteractionRadius = 3f;
+    public float InteractionRadius = 5f;
     public LayerMask InteractableLayer;
 
     [Header("Prompt UI")]
@@ -16,10 +17,14 @@ public class PlayerInteraction : MonoBehaviour
     public Text PromptText;
     public float HeightOffset = 1.5f;
 
+    [Header("Debug")]
+    public bool LogInteractionDebug = true;
+
     private IInteractable _closestInteractable;
     private ISecondaryInteractable _closestSecondaryInteractable;
     private Transform _closestTransform;
     private Camera _mainCamera;
+    private static int _lastPrimaryInputHandledFrame = -1;
 
     private void Start()
     {
@@ -48,6 +53,7 @@ public class PlayerInteraction : MonoBehaviour
         IInteractable nearestInteractable = null;
         ISecondaryInteractable nearestSecondaryInteractable = null;
         Transform nearestTransform = null;
+        int bestPriority = int.MaxValue;
 
         foreach (Collider hit in hits)
         {
@@ -57,12 +63,14 @@ public class PlayerInteraction : MonoBehaviour
                 continue;
             }
 
+            int priority = GetInteractablePriority(hit);
             float distance = Vector3.Distance(transform.position, hit.transform.position);
-            if (distance >= minDistance)
+            if (priority > bestPriority || (priority == bestPriority && distance >= minDistance))
             {
                 continue;
             }
 
+            bestPriority = priority;
             minDistance = distance;
             nearestInteractable = interactable;
             nearestSecondaryInteractable = hit.GetComponentInParent<ISecondaryInteractable>();
@@ -72,6 +80,17 @@ public class PlayerInteraction : MonoBehaviour
         _closestInteractable = nearestInteractable;
         _closestSecondaryInteractable = nearestSecondaryInteractable;
         _closestTransform = nearestTransform;
+    }
+
+    private static int GetInteractablePriority(Collider hit)
+    {
+        LootBoxEntity lootBox = hit != null ? hit.GetComponentInParent<LootBoxEntity>() : null;
+        if (lootBox != null && !lootBox.IsResourcePointLooted)
+        {
+            return 0;
+        }
+
+        return 1;
     }
 
     // 刷新世界空间悬浮提示，并在背包打开时隐藏提示避免 UI 干扰
@@ -122,15 +141,114 @@ public class PlayerInteraction : MonoBehaviour
     // 统一处理主交互键和副交互键输入
     private void HandleInteractionInput()
     {
-        if (Input.GetKeyDown(KeyCode.F) && _closestInteractable != null)
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            _closestInteractable.Interact();
+            if (!CanHandlePrimaryInput())
+            {
+                if (LogInteractionDebug)
+                {
+                    Debug.Log($"[PlayerInteraction] F ignored by non-focused interaction owner. player={name}.", this);
+                }
+
+                return;
+            }
+
+            if (_lastPrimaryInputHandledFrame == Time.frameCount)
+            {
+                if (LogInteractionDebug)
+                {
+                    Debug.Log($"[PlayerInteraction] F ignored: already handled this frame. player={name}.", this);
+                }
+
+                return;
+            }
+
+            _lastPrimaryInputHandledFrame = Time.frameCount;
+
+            if (LogInteractionDebug)
+            {
+                Debug.Log(
+                    $"[PlayerInteraction] F pressed. player={name}, " +
+                    $"inventoryInstance={(InventoryScreenController.Instance != null ? "yes" : "no")}, " +
+                    $"inventoryOpen={(InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)}, " +
+                    $"closest={DescribeClosestInteractable()}",
+                    this);
+            }
+
+            HandlePrimaryInteractOrInventoryToggle();
         }
 
         if (Input.GetKeyDown(KeyCode.E) && _closestSecondaryInteractable != null)
         {
             _closestSecondaryInteractable.SecondaryInteract();
         }
+    }
+
+    private bool CanHandlePrimaryInput()
+    {
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null ||
+            !registry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle) ||
+            focusedHandle.CachedTransform == null)
+        {
+            return true;
+        }
+
+        Transform focusedTransform = focusedHandle.CachedTransform;
+        return transform == focusedTransform ||
+               transform.IsChildOf(focusedTransform) ||
+               focusedTransform.IsChildOf(transform);
+    }
+
+    private void HandlePrimaryInteractOrInventoryToggle()
+    {
+        InventoryScreenController inventoryController = InventoryScreenController.Instance;
+        if (inventoryController != null && inventoryController.IsInventoryOpen)
+        {
+            if (LogInteractionDebug)
+            {
+                Debug.Log("[PlayerInteraction] F route -> close inventory.", this);
+            }
+
+            inventoryController.CloseInventory();
+            return;
+        }
+
+        if (_closestInteractable != null)
+        {
+            if (LogInteractionDebug)
+            {
+                Debug.Log($"[PlayerInteraction] F route -> interact with {DescribeClosestInteractable()}.", this);
+            }
+
+            _closestInteractable.Interact();
+            return;
+        }
+
+        if (inventoryController == null)
+        {
+            Debug.LogWarning("[PlayerInteraction] F route -> open inventory failed: InventoryScreenController.Instance is null.", this);
+            return;
+        }
+
+        if (LogInteractionDebug)
+        {
+            Debug.Log("[PlayerInteraction] F route -> open inventory.", this);
+        }
+
+        inventoryController.OpenInventory();
+    }
+
+    private string DescribeClosestInteractable()
+    {
+        if (_closestInteractable == null)
+        {
+            return "none";
+        }
+
+        string transformName = _closestTransform != null ? _closestTransform.name : "no-transform";
+        string interactableType = _closestInteractable.GetType().Name;
+        return $"{interactableType} on {transformName}";
     }
 
     // 当目标是背包或胸挂时，额外补一行装备指引，帮助玩家理解 F/E 的区别

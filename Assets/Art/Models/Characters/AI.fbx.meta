@@ -3,7 +3,12 @@ guid: 1df61efd77de91c49a234095fdc94eb6
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_mat_5ecb318b
+    second: {fileID: 619677370121587493, guid: e9010b2b159c5654e864d9c068f53e1e, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -16,7 +21,7 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors:
+    rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 

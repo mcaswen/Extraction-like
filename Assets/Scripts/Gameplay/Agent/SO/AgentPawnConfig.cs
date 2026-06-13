@@ -19,7 +19,7 @@ namespace Gameplay.Agent.SO
         [Header("行动参数")]
         [SerializeField] private float _moveSpeed = 4f;
         [SerializeField] private float _moveStoppingDistance = 0.25f;
-        [SerializeField] private float _interactionDistance = 1.5f;
+        [SerializeField] private float _interactionDistance = 0f;
 
         [Header("目标发现参数")]
         [SerializeField] private bool _enableTargetDiscovery = true;

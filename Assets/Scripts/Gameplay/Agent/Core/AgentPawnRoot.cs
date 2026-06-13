@@ -439,6 +439,7 @@ namespace Gameplay.Agent.Core
             _isRegistered = registry.Register(this);
             if (_isRegistered)
             {
+                AgentFocusInputController.GetOrCreate();
                 AgentTargetDiscoveryController.GetOrCreate();
             }
         }

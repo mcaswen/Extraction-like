@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Interfaces;
@@ -20,6 +21,7 @@ namespace Gameplay.Agent.Runtime
             new List<AgentRuntimeHandle>();
 
         private AgentRuntimeQuery _query;
+        private AgentId _focusedAgentId;
 
         /// <summary>
         /// 当前场景中的 Agent 运行时注册表实例
@@ -55,6 +57,18 @@ namespace Gameplay.Agent.Runtime
         /// 外部只允许读取，不直接修改 Registry 内部集合
         /// </summary>
         public IReadOnlyList<AgentRuntimeHandle> RegisteredAgents => _registeredAgents;
+
+        /// <summary>
+        /// 当前玩家视角聚焦的 AgentId
+        /// UI、背包和默认指令路由都会以该 Agent 为上下文
+        /// </summary>
+        public AgentId FocusedAgentId => _focusedAgentId;
+
+        /// <summary>
+        /// 焦点 Agent 变化事件
+        /// 参数依次为旧焦点句柄与新焦点句柄
+        /// </summary>
+        public event Action<AgentRuntimeHandle, AgentRuntimeHandle> FocusedAgentChanged;
 
         /// <summary>
         /// Agent 查询入口
@@ -128,6 +142,10 @@ namespace Gameplay.Agent.Runtime
             AgentRuntimeHandle handle = new AgentRuntimeHandle(pawnRoot);
             _handlesById.Add(agentId, handle);
             _registeredAgents.Add(handle);
+
+            if (!TryGetFocusedHandle(out _))
+                SetFocusedHandle(handle);
+
             return true;
         }
 
@@ -148,7 +166,13 @@ namespace Gameplay.Agent.Runtime
             if (existingHandle.PawnRoot != pawnRoot)
                 return;
 
-            RemoveHandle(pawnRoot.AgentId);
+            AgentId removedAgentId = pawnRoot.AgentId;
+            bool removedFocusedAgent = removedAgentId == _focusedAgentId;
+
+            RemoveHandle(removedAgentId);
+
+            if (removedFocusedAgent)
+                FocusFirstAvailableAgent();
         }
 
         /// <summary>
@@ -257,6 +281,66 @@ namespace Gameplay.Agent.Runtime
         }
 
         /// <summary>
+        /// 获取当前焦点 Agent 句柄
+        /// 若焦点已失效，会自动回落到第一个有效 Agent
+        /// </summary>
+        public bool TryGetFocusedHandle(out AgentRuntimeHandle handle)
+        {
+            if (!_focusedAgentId.IsEmpty && TryGetHandle(_focusedAgentId, out handle))
+                return true;
+
+            return FocusFirstAvailableAgent(out handle);
+        }
+
+        /// <summary>
+        /// 将指定 Agent 设置为当前焦点
+        /// </summary>
+        public bool TrySetFocusedAgent(AgentId agentId)
+        {
+            AgentRuntimeHandle handle;
+            if (!TryGetHandle(agentId, out handle))
+                return false;
+
+            SetFocusedHandle(handle);
+            return true;
+        }
+
+        /// <summary>
+        /// 将指定字符串 AgentId 设置为当前焦点
+        /// </summary>
+        public bool TrySetFocusedAgent(string agentId)
+        {
+            return TrySetFocusedAgent(AgentId.FromString(agentId));
+        }
+
+        /// <summary>
+        /// 切换到注册顺序中的下一个有效 Agent
+        /// </summary>
+        public bool TryFocusNextAgent()
+        {
+            if (_registeredAgents.Count <= 0)
+                return false;
+
+            int startIndex = FindFocusedAgentIndex();
+            int candidateCount = _registeredAgents.Count;
+            for (int offset = 1; offset <= candidateCount; offset++)
+            {
+                int index = startIndex >= 0
+                    ? (startIndex + offset) % candidateCount
+                    : offset - 1;
+
+                AgentRuntimeHandle handle = _registeredAgents[index];
+                if (!handle.IsValid)
+                    continue;
+
+                SetFocusedHandle(handle);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 将当前有效 Agent 句柄复制到外部缓冲区
         /// 避免外部直接持有内部集合并修改注册状态
         /// </summary>
@@ -284,6 +368,52 @@ namespace Gameplay.Agent.Runtime
                 if (_registeredAgents[i].AgentId == agentId)
                     _registeredAgents.RemoveAt(i);
             }
+        }
+
+        private bool FocusFirstAvailableAgent()
+        {
+            AgentRuntimeHandle handle;
+            return FocusFirstAvailableAgent(out handle);
+        }
+
+        private bool FocusFirstAvailableAgent(out AgentRuntimeHandle handle)
+        {
+            if (!TryGetPrimaryHandle(out handle))
+            {
+                SetFocusedHandle(default);
+                return false;
+            }
+
+            SetFocusedHandle(handle);
+            return true;
+        }
+
+        private int FindFocusedAgentIndex()
+        {
+            if (_focusedAgentId.IsEmpty)
+                return -1;
+
+            for (int i = 0; i < _registeredAgents.Count; i++)
+            {
+                if (_registeredAgents[i].AgentId == _focusedAgentId)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void SetFocusedHandle(AgentRuntimeHandle handle)
+        {
+            AgentRuntimeHandle previousHandle = default;
+            if (!_focusedAgentId.IsEmpty)
+                TryGetHandle(_focusedAgentId, out previousHandle);
+
+            AgentId nextAgentId = handle.IsValid ? handle.AgentId : AgentId.Empty;
+            if (_focusedAgentId == nextAgentId)
+                return;
+
+            _focusedAgentId = nextAgentId;
+            FocusedAgentChanged?.Invoke(previousHandle, handle);
         }
     }
 }

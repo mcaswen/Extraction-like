@@ -1,3 +1,5 @@
+using Gameplay.Agent.Core;
+using Gameplay.Agent.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +14,7 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
     public Text FloatingPromptText;
 
     [Header("Fallback Search")]
+    public bool PreferFocusedAgent = true;
     public bool AutoFindSceneSupport = true;
     public float RebindInterval = 0.5f;
 
@@ -97,7 +100,8 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
         }
 
         PlayerHealthController playerHealthController = playerTransform.GetComponent<PlayerHealthController>();
-        if (playerHealthController == null)
+        AgentPawnRoot agentPawnRoot = playerTransform.GetComponent<AgentPawnRoot>();
+        if (agentPawnRoot == null && playerHealthController == null)
         {
             playerHealthController = playerTransform.gameObject.AddComponent<PlayerHealthController>();
         }
@@ -123,12 +127,29 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
             CameraFollow.TargetTransform = playerTransform;
         }
 
+        if (_cachedPlayerInteraction != null && _cachedPlayerInteraction != interaction)
+        {
+            _cachedPlayerInteraction.enabled = false;
+        }
+
+        interaction.enabled = true;
         _cachedPlayerTransform = playerTransform;
         _cachedPlayerInteraction = interaction;
     }
 
     private Transform FindCurrentPlayerTransform()
     {
+        if (PreferFocusedAgent)
+        {
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+            if (registry != null &&
+                registry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle) &&
+                focusedHandle.CachedTransform != null)
+            {
+                return focusedHandle.CachedTransform;
+            }
+        }
+
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         return playerObject != null ? playerObject.transform : null;
     }

@@ -380,6 +380,13 @@ namespace Gameplay.Agent.AI.Actions
                 return Running();
             }
 
+            if (TryGetAgent(context, out IAgentReadOnly agent) &&
+                !string.IsNullOrEmpty(inventoryController.ActiveInventoryAgentId) &&
+                !string.Equals(inventoryController.ActiveInventoryAgentId, agent.AgentIdValue, System.StringComparison.Ordinal))
+            {
+                return Running();
+            }
+
             if (_waitingResourceObject != resourceObject)
             {
                 _waitingResourceObject = resourceObject;

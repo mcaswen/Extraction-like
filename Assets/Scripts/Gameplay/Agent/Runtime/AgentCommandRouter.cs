@@ -270,7 +270,7 @@ namespace Gameplay.Agent.Runtime
             if (!targetAgentId.IsEmpty)
                 return Registry.TryGetHandle(targetAgentId, out handle);
 
-            return Registry.TryGetPrimaryHandle(out handle);
+            return Registry.TryGetFocusedHandle(out handle);
         }
     }
 }

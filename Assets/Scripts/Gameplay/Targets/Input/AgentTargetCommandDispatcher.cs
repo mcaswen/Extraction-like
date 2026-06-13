@@ -46,7 +46,7 @@ namespace Gameplay.Targets.Input
                 return true;
             }
 
-            return registry.TryGetPrimaryHandle(out agentHandle);
+            return registry.TryGetFocusedHandle(out agentHandle);
         }
 
         private static void ApplyTargetFacts(

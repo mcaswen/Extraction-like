@@ -1,3 +1,5 @@
+using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -284,25 +286,37 @@ public sealed class PlayerStatusHudController : MonoBehaviour
 
     private void RefreshBars()
     {
-        PlayerHealthController healthController = PlayerHealthController.Instance;
-        if (healthController == null)
+        bool hasFocusedAgent = TryGetFocusedAgent(out IAgentReadOnly focusedAgent);
+        PlayerHealthController healthController = null;
+        if (!hasFocusedAgent)
         {
-            healthController = FindObjectOfType<PlayerHealthController>();
+            healthController = PlayerHealthController.Instance;
+            if (healthController == null)
+            {
+                healthController = FindObjectOfType<PlayerHealthController>();
+            }
         }
 
         if (_root != null)
         {
-            _root.gameObject.SetActive(healthController != null);
+            _root.gameObject.SetActive(hasFocusedAgent || healthController != null);
         }
 
-        if (healthController == null)
+        if (!hasFocusedAgent && healthController == null)
         {
             return;
         }
 
-        float maxHealth = Mathf.Max(1f, healthController.MaxHealth);
-        float currentHealth = Mathf.Clamp(healthController.CurrentHealth, 0f, maxHealth);
-        SetBar(_healthFillImage, _healthText, _healthMarkerRect, BarSize, currentHealth / maxHealth, $"{currentHealth:0} / {maxHealth:0}  HP");
+        float maxHealth = hasFocusedAgent
+            ? Mathf.Max(1f, focusedAgent.MaxHealth)
+            : Mathf.Max(1f, healthController.MaxHealth);
+        float currentHealth = hasFocusedAgent
+            ? Mathf.Clamp(focusedAgent.CurrentHealth, 0f, maxHealth)
+            : Mathf.Clamp(healthController.CurrentHealth, 0f, maxHealth);
+        string healthLabel = hasFocusedAgent && !string.IsNullOrWhiteSpace(focusedAgent.AgentIdValue)
+            ? $"{focusedAgent.AgentIdValue}  {currentHealth:0} / {maxHealth:0}  HP"
+            : $"{currentHealth:0} / {maxHealth:0}  HP";
+        SetBar(_healthFillImage, _healthText, _healthMarkerRect, BarSize, currentHealth / maxHealth, healthLabel);
 
         InventoryScreenController inventory = InventoryScreenController.Instance;
         float currentCarryWeight = inventory != null ? inventory.GetCurrentCarryWeight() : 0f;
@@ -321,6 +335,19 @@ public sealed class PlayerStatusHudController : MonoBehaviour
             BarSize,
             carryRatio,
             $"{currentCarryWeight:0.#} / {maxCarryWeight:0.#}  KG");
+    }
+
+    private static bool TryGetFocusedAgent(out IAgentReadOnly focusedAgent)
+    {
+        focusedAgent = null;
+        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || !registry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle))
+        {
+            return false;
+        }
+
+        focusedAgent = focusedHandle.ReadOnly;
+        return focusedAgent != null;
     }
 
     private Color GetCarryFillColor(float carryRatio)
