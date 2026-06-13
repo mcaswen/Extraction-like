@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Interaction")]
-    public float InteractionRadius = 5f;
+    public float InteractionRadius = 9f;
     public LayerMask InteractableLayer;
 
     [Header("Prompt UI")]
@@ -19,6 +19,9 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("Debug")]
     public bool LogInteractionDebug = true;
+    public bool ShowInteractionRadiusGizmo = true;
+    public Color InteractionRadiusGizmoColor = new Color(1f, 0.92f, 0.1f, 0.45f);
+    public Color SelectedInteractionRadiusGizmoColor = new Color(1f, 0.58f, 0.1f, 0.9f);
 
     private IInteractable _closestInteractable;
     private ISecondaryInteractable _closestSecondaryInteractable;
@@ -288,9 +291,22 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // 在 Scene 视图里绘制交互半径，方便调试交互范围
+    private void OnDrawGizmos()
+    {
+        DrawInteractionRadiusGizmo(InteractionRadiusGizmoColor);
+    }
+
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, InteractionRadius);
+        DrawInteractionRadiusGizmo(SelectedInteractionRadiusGizmoColor);
+    }
+
+    private void DrawInteractionRadiusGizmo(Color gizmoColor)
+    {
+        if (!ShowInteractionRadiusGizmo)
+            return;
+
+        Gizmos.color = gizmoColor;
+        Gizmos.DrawWireSphere(transform.position, Mathf.Max(0f, InteractionRadius));
     }
 }

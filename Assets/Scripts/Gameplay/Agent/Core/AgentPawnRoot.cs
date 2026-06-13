@@ -8,6 +8,8 @@ using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.SO;
 using Gameplay.Agent.Talent;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Runtime;
 
 namespace Gameplay.Agent.Core
 {
@@ -274,10 +276,13 @@ namespace Gameplay.Agent.Core
             if (IsDead || damage <= 0f)
                 return 0f;
 
+            double timeSeconds = Time.timeAsDouble;
             int previousHealth = _currentHealth;
-            int finalDamage = ResolveIncomingDamageAmount(damage, Time.timeAsDouble);
+            int finalDamage = ResolveIncomingDamageAmount(damage, timeSeconds);
             _currentHealth = Mathf.Max(0, _currentHealth - finalDamage);
-            SyncBodyFactsToBlackboard(Time.timeAsDouble);
+            if (!IsDead)
+                RecordCombatDamageInterrupt(source, timeSeconds);
+            SyncBodyFactsToBlackboard(timeSeconds);
             return Mathf.Max(0, previousHealth - _currentHealth);
         }
 
@@ -395,6 +400,30 @@ namespace Gameplay.Agent.Core
             _interventionController.SubmitDirective(routedRequest, Time.timeAsDouble);
         }
 
+        private void RecordCombatDamageInterrupt(GameObject source, double timeSeconds)
+        {
+            if (_brainController == null ||
+                _interventionController == null ||
+                !TryResolveEnemyDamageSource(source, out global::EnemyHealthController enemy))
+            {
+                return;
+            }
+
+            string targetId = ResolveEnemyTargetId(enemy);
+            string commandId = AgentManualDirectiveLock.CreateCombatDamageCommandId(enemy);
+            AgentDirectiveRequest directiveRequest = AgentDirectiveRequest.EngageConcreteEnemy(
+                enemy.gameObject,
+                targetId,
+                AgentId,
+                commandId,
+                AgentManualDirectiveLock.CombatDamageDirectivePriority);
+
+            _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, timeSeconds, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, true, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
+            _interventionController.SubmitDirective(directiveRequest, timeSeconds);
+        }
+
         /// <summary>
         /// 清除当前待处理的Agent干预请求
         /// </summary>
@@ -464,6 +493,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AgentIsDead, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, 1f, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, false, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, double.NegativeInfinity, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasResourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
@@ -616,6 +646,44 @@ namespace Gameplay.Agent.Core
             float mitigatedDamage =
                 remainingDamage * global::CombatDamageUtility.CalculateDefenseDamageMultiplier(defense);
             return Mathf.RoundToInt(mitigatedDamage);
+        }
+
+        private static bool TryResolveEnemyDamageSource(
+            GameObject source,
+            out global::EnemyHealthController enemy)
+        {
+            enemy = null;
+            if (source == null)
+                return false;
+
+            enemy = source.GetComponent<global::EnemyHealthController>();
+            if (enemy != null)
+                return true;
+
+            enemy = source.GetComponentInParent<global::EnemyHealthController>();
+            if (enemy != null)
+                return true;
+
+            enemy = source.GetComponentInChildren<global::EnemyHealthController>();
+            return enemy != null;
+        }
+
+        private static string ResolveEnemyTargetId(global::EnemyHealthController enemy)
+        {
+            if (enemy == null)
+                return string.Empty;
+
+            GameplayTargetRegistry registry = GameplayTargetRegistry.ActiveInstance;
+            if (registry == null)
+                return string.Empty;
+
+            if (registry.TryFindEnemyClusterByEnemy(enemy, out ActiveEnemyClusterAuthoring enemyCluster) &&
+                enemyCluster != null)
+            {
+                return enemyCluster.TargetId;
+            }
+
+            return string.Empty;
         }
 
         private static void DrawRangeCircle(Vector3 center, float radius, Color color)

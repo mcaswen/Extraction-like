@@ -1,6 +1,7 @@
 using Core.BehaviorTree.Blackboard;
 using Core.StateMachine.Runtime;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Runtime;
 
 namespace Gameplay.Agent.AI.Factories
 {
@@ -10,14 +11,19 @@ namespace Gameplay.Agent.AI.Factories
     /// </summary>
     public sealed class AgentBrainTransitionRules
     {
+        private const double CombatDamageInterruptWindowSeconds = 1.25d;
+
         /// <summary>
         /// 判断是否可以进入战斗状态
-        /// 条件：有可见敌人且未死亡
+        /// 条件：有可见敌人且未死亡；手动资源指令生效时不被敌人事实打断
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public bool CanEnterCombat(StateMachineContext context)
         {
+            if (HasManualResourceDirective(context))
+                return false;
+
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
             return !isDead && hasVisibleEnemy;
@@ -25,7 +31,7 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 判断是否可以进入搜索资源状态
-        /// 条件：有资源目标 + 未死亡 + 没有可见敌人 + 不应该撤离
+        /// 条件：有资源目标 + 未死亡；非手动资源指令时还要求没有敌人事实且不应该撤离
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -36,8 +42,40 @@ namespace Gameplay.Agent.AI.Factories
             bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+            bool hasManualResourceDirective = HasManualResourceDirective(context);
 
-            return !isDead && hasResourceTarget && !hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract;
+            return !isDead &&
+                   hasResourceTarget &&
+                   (hasManualResourceDirective ||
+                    (!hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract));
+        }
+
+        /// <summary>
+        /// 判断手动资源指令是否可以抢回资源搜索
+        /// 条件：手动资源目标仍存在 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanManualResourceOverrideCurrentState(StateMachineContext context)
+        {
+            bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+
+            return !isDead && hasResourceTarget && HasManualResourceDirective(context);
+        }
+
+        /// <summary>
+        /// 判断资源搜索/拾取是否可以被战斗打断
+        /// 条件：最近被战斗伤害命中 + 已生成接战指令 + 未死亡
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public bool CanResourceWorkBeInterruptedByCombatDamage(StateMachineContext context)
+        {
+            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
+            return !isDead &&
+                   HasRecentCombatDamageInterrupt(context) &&
+                   HasPendingCombatDamageDirective(context);
         }
 
         /// <summary>
@@ -48,6 +86,9 @@ namespace Gameplay.Agent.AI.Factories
         /// <returns></returns>
         public bool CanEnterInvestigateEnemySource(StateMachineContext context)
         {
+            if (HasManualResourceDirective(context))
+                return false;
+
             bool hasEnemySourceTarget = GetBool(context, AgentBlackboardKeys.HasEnemySourceTarget);
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
@@ -150,12 +191,15 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 判断是否可以从撤离状态被战斗打断
-        /// 条件：有可见敌人且未死亡
+        /// 条件：有可见敌人且未死亡；手动资源指令生效时不被敌人事实打断
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public bool CanExtractionBeInterruptedByCombat(StateMachineContext context)
         {
+            if (HasManualResourceDirective(context))
+                return false;
+
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
@@ -181,6 +225,32 @@ namespace Gameplay.Agent.AI.Factories
         private static bool GetBool(StateMachineContext context, BlackboardKey key, bool defaultValue = false)
         {
             return context.Blackboard.TryGetValue(key, out bool value) ? value : defaultValue;
+        }
+
+        private static bool HasManualResourceDirective(StateMachineContext context)
+        {
+            return context.Blackboard.TryGetValue(
+                       AgentBlackboardKeys.PendingDirectiveRequest,
+                       out AgentDirectiveRequest directiveRequest) &&
+                   AgentManualDirectiveLock.ShouldHoldManualResourceDirective(directiveRequest);
+        }
+
+        private static bool HasRecentCombatDamageInterrupt(StateMachineContext context)
+        {
+            return context.Blackboard.TryGetValue(
+                       AgentBlackboardKeys.LastCombatDamageTime,
+                       out double lastDamageTime) &&
+                   lastDamageTime > double.NegativeInfinity &&
+                   context.TimeSeconds >= lastDamageTime &&
+                   context.TimeSeconds - lastDamageTime <= CombatDamageInterruptWindowSeconds;
+        }
+
+        private static bool HasPendingCombatDamageDirective(StateMachineContext context)
+        {
+            return context.Blackboard.TryGetValue(
+                       AgentBlackboardKeys.PendingDirectiveRequest,
+                       out AgentDirectiveRequest directiveRequest) &&
+                   AgentManualDirectiveLock.IsCombatDamageDirective(directiveRequest);
         }
     }
 }

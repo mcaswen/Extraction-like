@@ -7,18 +7,26 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// Tracks player-issued target commands so autonomous target refresh cannot replace the current task.
+    /// Tracks high-priority directives so autonomous target refresh cannot replace the current task.
     /// </summary>
     public static class AgentManualDirectiveLock
     {
         public const string CommandIdPrefix = "ManualTargetClick";
         public const int ManualDirectivePriority = 1000;
+        public const string CombatDamageCommandIdPrefix = "CombatDamageInterrupt";
+        public const int CombatDamageDirectivePriority = 900;
 
         public static string CreateCommandId(string targetId)
         {
             return string.IsNullOrWhiteSpace(targetId)
                 ? $"{CommandIdPrefix}_{Time.frameCount}"
                 : $"{CommandIdPrefix}_{targetId.Trim()}_{Time.frameCount}";
+        }
+
+        public static string CreateCombatDamageCommandId(UnityEngine.Object source)
+        {
+            int sourceId = source != null ? source.GetInstanceID() : 0;
+            return $"{CombatDamageCommandIdPrefix}_{sourceId}_{Time.frameCount}";
         }
 
         public static bool ShouldHoldManualDirective(IAgentReadOnly agent)
@@ -33,7 +41,22 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
-            return !IsManualTargetCompleted(directiveRequest);
+            return !IsDirectiveTargetCompleted(directiveRequest);
+        }
+
+        public static bool ShouldHoldCombatDamageDirective(IAgentReadOnly agent)
+        {
+            if (agent == null ||
+                agent.Blackboard == null ||
+                !agent.Blackboard.TryGetValue(
+                    AgentBlackboardKeys.PendingDirectiveRequest,
+                    out AgentDirectiveRequest directiveRequest) ||
+                !IsCombatDamageDirective(directiveRequest))
+            {
+                return false;
+            }
+
+            return !IsDirectiveTargetCompleted(directiveRequest);
         }
 
         public static bool IsManualDirective(AgentDirectiveRequest directiveRequest)
@@ -45,7 +68,31 @@ namespace Gameplay.Agent.Runtime
                        System.StringComparison.Ordinal);
         }
 
-        private static bool IsManualTargetCompleted(AgentDirectiveRequest directiveRequest)
+        public static bool IsManualResourceDirective(AgentDirectiveRequest directiveRequest)
+        {
+            return IsManualDirective(directiveRequest) &&
+                   directiveRequest.DirectiveType == AgentDirectiveType.Search &&
+                   directiveRequest.TargetRef.Kind == AgentTargetKind.Resource;
+        }
+
+        public static bool ShouldHoldManualResourceDirective(AgentDirectiveRequest directiveRequest)
+        {
+            return IsManualResourceDirective(directiveRequest) &&
+                   !IsDirectiveTargetCompleted(directiveRequest);
+        }
+
+        public static bool IsCombatDamageDirective(AgentDirectiveRequest directiveRequest)
+        {
+            return directiveRequest.Priority >= CombatDamageDirectivePriority &&
+                   directiveRequest.DirectiveType == AgentDirectiveType.Engage &&
+                   directiveRequest.TargetRef.Kind == AgentTargetKind.Enemy &&
+                   !string.IsNullOrWhiteSpace(directiveRequest.CommandId) &&
+                   directiveRequest.CommandId.StartsWith(
+                       CombatDamageCommandIdPrefix,
+                       System.StringComparison.Ordinal);
+        }
+
+        private static bool IsDirectiveTargetCompleted(AgentDirectiveRequest directiveRequest)
         {
             if (!string.IsNullOrWhiteSpace(directiveRequest.TargetId) &&
                 GameplayTargetRegistry.ActiveInstance != null &&

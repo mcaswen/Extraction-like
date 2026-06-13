@@ -21,17 +21,24 @@ namespace Gameplay.Targets.Authoring
         private List<GameplayTargetEntityMember> _resourceMembers =
             new List<GameplayTargetEntityMember>();
 
+        [Header("Navigation Debug")]
+        [SerializeField] private bool _showNavigationCandidateDebugObjects = true;
+        [SerializeField, Min(0.05f)] private float _navigationCandidateDebugScale = 0.35f;
+        [SerializeField] private Color _navigationCandidateDebugColor = new Color(0.1f, 0.85f, 1f, 0.85f);
+
         /// <summary>
         /// 当前群目标在目标系统中的类型
         /// </summary>
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Resource;
         protected override string IdPrefix => "ResourceCluster";
+        private const string NavigationCandidateDebugRootName = "__ResourceNavigationCandidates";
         private const float NavMeshResourceSampleRadius = 4f;
-        private const float NavMeshResourceMaxVerticalDelta = 1f;
-        private const float ResourceApproachPadding = 1f;
+        private const float ResourceApproachPadding = 2f;
         private const int ResourceApproachDirectionCount = 16;
 
         private readonly List<Vector3> _navigationCandidateBuffer = new List<Vector3>();
+        private Material _navigationCandidateDebugMaterial;
+        private Mesh _navigationCandidateDebugMesh;
 
         /// <summary>
         /// 当前资源群统一使用的资源等级
@@ -422,9 +429,9 @@ namespace Gameplay.Targets.Authoring
                 member.Position,
                 agentPosition,
                 _navigationCandidateBuffer);
+            RefreshNavigationCandidateDebugMarkers(member.EntityObject, _navigationCandidateBuffer);
 
             int sampledCount = 0;
-            int verticalRejectedCount = 0;
             int completeCount = 0;
             int partialCount = 0;
             int invalidCount = 0;
@@ -449,14 +456,6 @@ namespace Gameplay.Targets.Authoring
                 }
 
                 sampledCount++;
-                float verticalDelta = Mathf.Abs(targetHit.position.y - candidatePosition.y);
-                // 避免大半径采样把目标吸到楼下/隔层的 NavMesh
-                if (verticalDelta > NavMeshResourceMaxVerticalDelta)
-                {
-                    verticalRejectedCount++;
-                    continue;
-                }
-
                 bool calculated =
                     navMeshAgent != null &&
                     navMeshAgent.enabled &&
@@ -506,8 +505,8 @@ namespace Gameplay.Targets.Authoring
             builder.Append(
                 $"resourceMemberCandidates[{memberIndex}]: " +
                 $"count={_navigationCandidateBuffer.Count} sampled={sampledCount} " +
-                $"verticalRejected={verticalRejectedCount} complete={completeCount} " +
-                $"partial={partialCount} invalid={invalidCount} calculateFailed={calculateFailedCount}");
+                $"complete={completeCount} partial={partialCount} " +
+                $"invalid={invalidCount} calculateFailed={calculateFailedCount}");
             if (completeCount > 0)
             {
                 builder.Append(
@@ -609,6 +608,7 @@ namespace Gameplay.Targets.Authoring
                 fallbackPosition,
                 agentPosition,
                 _navigationCandidateBuffer);
+            RefreshNavigationCandidateDebugMarkers(resourceObject, _navigationCandidateBuffer);
 
             bool foundReachablePosition = false;
             for (int i = 0; i < _navigationCandidateBuffer.Count; i++)
@@ -703,6 +703,163 @@ namespace Gameplay.Targets.Authoring
             }
         }
 
+        private void RefreshNavigationCandidateDebugMarkers(
+            GameObject resourceObject,
+            List<Vector3> candidates)
+        {
+            if (!_showNavigationCandidateDebugObjects)
+            {
+                SetNavigationCandidateDebugObjectsActive(false);
+                return;
+            }
+
+            Transform root = EnsureNavigationCandidateDebugRoot(resourceObject);
+            if (root == null)
+                return;
+
+            root.gameObject.SetActive(true);
+
+            int candidateCount = candidates != null ? candidates.Count : 0;
+            for (int i = 0; i < candidateCount; i++)
+            {
+                GameObject marker = GetOrCreateNavigationCandidateDebugObject(root, i);
+                marker.transform.position = candidates[i];
+                marker.transform.localScale = Vector3.one * Mathf.Max(0.05f, _navigationCandidateDebugScale);
+                marker.SetActive(true);
+            }
+
+            for (int i = candidateCount; i < root.childCount; i++)
+            {
+                Transform child = root.GetChild(i);
+                if (child != null)
+                    child.gameObject.SetActive(false);
+            }
+        }
+
+        private Transform EnsureNavigationCandidateDebugRoot(GameObject resourceObject)
+        {
+            if (resourceObject == null)
+                return null;
+
+            Transform existingRoot = resourceObject.transform.Find(NavigationCandidateDebugRootName);
+            if (existingRoot != null)
+            {
+                return existingRoot;
+            }
+
+            GameObject rootObject = new GameObject(NavigationCandidateDebugRootName);
+            rootObject.transform.SetParent(resourceObject.transform, false);
+            rootObject.transform.localPosition = Vector3.zero;
+            rootObject.transform.localRotation = Quaternion.identity;
+            rootObject.transform.localScale = Vector3.one;
+            return rootObject.transform;
+        }
+
+        private GameObject GetOrCreateNavigationCandidateDebugObject(Transform root, int index)
+        {
+            string markerName = $"Candidate_{index:00}";
+            if (root != null && index < root.childCount)
+            {
+                GameObject existingMarker = root.GetChild(index).gameObject;
+                existingMarker.name = markerName;
+                EnsureNavigationCandidateDebugComponents(existingMarker);
+                return existingMarker;
+            }
+
+            GameObject marker = new GameObject(markerName);
+            marker.transform.SetParent(root, false);
+            EnsureNavigationCandidateDebugComponents(marker);
+            return marker;
+        }
+
+        private void EnsureNavigationCandidateDebugComponents(GameObject marker)
+        {
+            if (marker == null)
+                return;
+
+            MeshFilter meshFilter = marker.GetComponent<MeshFilter>();
+            if (meshFilter == null)
+                meshFilter = marker.AddComponent<MeshFilter>();
+            meshFilter.sharedMesh = GetNavigationCandidateDebugMesh();
+
+            MeshRenderer markerRenderer = marker.GetComponent<MeshRenderer>();
+            if (markerRenderer == null)
+                markerRenderer = marker.AddComponent<MeshRenderer>();
+
+            Material debugMaterial = GetNavigationCandidateDebugMaterial();
+            if (debugMaterial != null)
+                markerRenderer.sharedMaterial = debugMaterial;
+        }
+
+        private Material GetNavigationCandidateDebugMaterial()
+        {
+            if (_navigationCandidateDebugMaterial == null)
+            {
+                Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+                if (shader == null)
+                    shader = Shader.Find("Standard");
+
+                if (shader == null)
+                    return null;
+
+                _navigationCandidateDebugMaterial = new Material(shader)
+                {
+                    name = "ResourceNavigationCandidateDebug"
+                };
+            }
+
+            _navigationCandidateDebugMaterial.color = _navigationCandidateDebugColor;
+            return _navigationCandidateDebugMaterial;
+        }
+
+        private Mesh GetNavigationCandidateDebugMesh()
+        {
+            if (_navigationCandidateDebugMesh != null)
+                return _navigationCandidateDebugMesh;
+
+            _navigationCandidateDebugMesh = new Mesh
+            {
+                name = "ResourceNavigationCandidateDebugMesh"
+            };
+
+            _navigationCandidateDebugMesh.vertices = new[]
+            {
+                new Vector3(-0.5f, -0.5f, -0.5f),
+                new Vector3(0.5f, -0.5f, -0.5f),
+                new Vector3(0.5f, -0.5f, 0.5f),
+                new Vector3(-0.5f, -0.5f, 0.5f),
+                new Vector3(-0.5f, 0.5f, -0.5f),
+                new Vector3(0.5f, 0.5f, -0.5f),
+                new Vector3(0.5f, 0.5f, 0.5f),
+                new Vector3(-0.5f, 0.5f, 0.5f)
+            };
+            _navigationCandidateDebugMesh.triangles = new[]
+            {
+                0, 2, 1, 0, 3, 2,
+                4, 5, 6, 4, 6, 7,
+                0, 1, 5, 0, 5, 4,
+                1, 2, 6, 1, 6, 5,
+                2, 3, 7, 2, 7, 6,
+                3, 0, 4, 3, 4, 7
+            };
+            _navigationCandidateDebugMesh.RecalculateNormals();
+            _navigationCandidateDebugMesh.RecalculateBounds();
+            return _navigationCandidateDebugMesh;
+        }
+
+        private void SetNavigationCandidateDebugObjectsActive(bool active)
+        {
+            for (int i = 0; i < _resourceMembers.Count; i++)
+            {
+                GameObject resourceObject = _resourceMembers[i]?.EntityObject;
+                Transform root = resourceObject != null
+                    ? resourceObject.transform.Find(NavigationCandidateDebugRootName)
+                    : null;
+                if (root != null)
+                    root.gameObject.SetActive(active);
+            }
+        }
+
         private static Vector3 WithY(Vector3 value, float y)
         {
             value.y = y;
@@ -742,9 +899,6 @@ namespace Gameplay.Targets.Authoring
             {
                 return false;
             }
-
-            if (Mathf.Abs(targetHit.position.y - candidatePosition.y) > NavMeshResourceMaxVerticalDelta)
-                return false;
 
             // Agent 自身在 NavMesh 上时优先使用实例路径计算，避免 transform 高度偏移污染起点
             bool calculated =

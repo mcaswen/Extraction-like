@@ -47,6 +47,13 @@ namespace Gameplay.Agent.Data
             new BlackboardKey("Agent_HasVisibleEnemy");
 
         /// <summary>
+        /// 最近一次被战斗伤害命中的游戏时间
+        /// 用于资源搜索被攻击打断，不等同于单纯看见敌人
+        /// </summary>
+        public static readonly BlackboardKey LastCombatDamageTime =
+            new BlackboardKey("Agent_LastCombatDamageTime");
+
+        /// <summary>
         /// 当前 Agent 是否有可侦查的敌人来源目标
         /// </summary>
         public static readonly BlackboardKey HasEnemySourceTarget =

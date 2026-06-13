@@ -81,6 +81,12 @@ namespace Gameplay.Agent.AI.Factories
 
             // Combat 转移
             combatState.AddTransition(new StateTransition(
+                "CombatToManualSearchResource",
+                searchResourceState,
+                _transitionRules.CanManualResourceOverrideCurrentState,
+                110));
+
+            combatState.AddTransition(new StateTransition(
                 "CombatToExtraction",
                 extractionState,
                 _transitionRules.CanEnterExtraction,
@@ -127,7 +133,7 @@ namespace Gameplay.Agent.AI.Factories
             searchResourceState.AddTransition(new StateTransition(
                 "SearchResourceToCombat",
                 combatState,
-                _transitionRules.CanEnterCombat,
+                _transitionRules.CanResourceWorkBeInterruptedByCombatDamage,
                 100));
 
             searchResourceState.AddTransition(new StateTransition(
@@ -150,9 +156,15 @@ namespace Gameplay.Agent.AI.Factories
 
             // InteractLoot 转移
             interactLootState.AddTransition(new StateTransition(
+                "InteractLootToManualSearchResource",
+                searchResourceState,
+                _transitionRules.CanManualResourceOverrideCurrentState,
+                110));
+
+            interactLootState.AddTransition(new StateTransition(
                 "InteractLootToCombat",
                 combatState,
-                _transitionRules.CanEnterCombat,
+                _transitionRules.CanResourceWorkBeInterruptedByCombatDamage,
                 100));
 
             interactLootState.AddTransition(new StateTransition(
@@ -168,6 +180,12 @@ namespace Gameplay.Agent.AI.Factories
                 80));
 
             // Extraction 转移
+            extractionState.AddTransition(new StateTransition(
+                "ExtractionToManualSearchResource",
+                searchResourceState,
+                _transitionRules.CanManualResourceOverrideCurrentState,
+                110));
+
             extractionState.AddTransition(new StateTransition(
                 "ExtractionToCombat",
                 combatState,

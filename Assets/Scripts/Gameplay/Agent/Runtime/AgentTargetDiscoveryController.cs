@@ -11,7 +11,7 @@ namespace Gameplay.Agent.Runtime
 {
     /// <summary>
     /// Agent 保底目标发现系统。
-    /// 当 AgentTargetDecisionController 未启用时，按固定优先级选择目标并投递给 Brain。
+    /// 当 AgentTargetDecisionController 未启用时，按旧路径临时规则选择目标并投递给 Brain。
     /// </summary>
     public sealed class AgentTargetDiscoveryController : MonoBehaviour
     {
@@ -121,7 +121,8 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
-            if (AgentManualDirectiveLock.ShouldHoldManualDirective(handle.ReadOnly))
+            if (AgentManualDirectiveLock.ShouldHoldManualDirective(handle.ReadOnly) ||
+                AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(handle.ReadOnly))
             {
                 return false;
             }
@@ -136,7 +137,7 @@ namespace Gameplay.Agent.Runtime
             _nextScanTimeByAgentId[handle.AgentId] = timeSeconds + interval;
         }
 
-        // 旧 MVP 优先级：活跃敌人群 > 敌人来源群 > 资源群 > 撤离点群。
+        // 临时旧路径规则：ActiveEnemy 和 Resource 里选最近；EnemySource 不自动选择；都没有时撤离。
         private void RefreshAgentTarget(AgentRuntimeHandle handle)
         {
             IAgentReadOnly agent = handle.ReadOnly;
@@ -144,7 +145,8 @@ namespace Gameplay.Agent.Runtime
             float range = Mathf.Max(0f, handle.PawnRoot.TargetDiscoveryRange);
             float rangeSqr = range * range;
 
-            if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent))
+            if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent) ||
+                AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent))
                 return;
 
             if (range <= 0f)
@@ -155,29 +157,29 @@ namespace Gameplay.Agent.Runtime
 
             GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
 
-            if (TryFindNearestEnemyCluster(
+            bool hasEnemyTarget = TryFindNearestEnemyCluster(
                     targetRegistry,
                     agent.Position,
                     rangeSqr,
                     out ActiveEnemyClusterAuthoring enemyCluster,
-                    out global::EnemyHealthController enemy))
+                    out global::EnemyHealthController enemy,
+                    out float enemyDistanceSqr);
+
+            bool hasResourceTarget = TryFindNearestResourceCluster(
+                    targetRegistry,
+                    agent,
+                    rangeSqr,
+                    out ResourceClusterAuthoring resourceCluster,
+                    out float resourceDistanceSqr);
+
+            if (hasEnemyTarget &&
+                (!hasResourceTarget || enemyDistanceSqr <= resourceDistanceSqr))
             {
                 ApplyEnemyClusterTarget(targetRegistry, handle, commandReceiver, enemyCluster, enemy);
                 return;
             }
 
-            if (TryFindNearestEnemySourceCluster(
-                    targetRegistry,
-                    agent.Position,
-                    rangeSqr,
-                    out EnemySourceClusterAuthoring enemySourceCluster))
-            {
-                ApplyEnemySourceClusterTarget(handle, commandReceiver, enemySourceCluster);
-                return;
-            }
-
-            if (TryKeepCurrentResourceClusterTarget(agent, rangeSqr, out ResourceClusterAuthoring resourceCluster) ||
-                TryFindNearestResourceCluster(targetRegistry, agent, rangeSqr, out resourceCluster))
+            if (hasResourceTarget)
             {
                 ApplyResourceClusterTarget(handle, commandReceiver, resourceCluster);
                 return;
@@ -186,7 +188,7 @@ namespace Gameplay.Agent.Runtime
             if (TryFindNearestExtractionCluster(
                     targetRegistry,
                     agent.Position,
-                    rangeSqr,
+                    float.PositiveInfinity,
                     out ExtractionClusterAuthoring extractionCluster))
             {
                 ApplyExtractionClusterTarget(handle, commandReceiver, extractionCluster);
@@ -302,11 +304,12 @@ namespace Gameplay.Agent.Runtime
             Vector3 agentPosition,
             float rangeSqr,
             out ActiveEnemyClusterAuthoring nearestEnemyCluster,
-            out global::EnemyHealthController nearestEnemy)
+            out global::EnemyHealthController nearestEnemy,
+            out float nearestDistanceSqr)
         {
             nearestEnemyCluster = null;
             nearestEnemy = null;
-            float nearestDistanceSqr = float.MaxValue;
+            nearestDistanceSqr = float.MaxValue;
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
             for (int i = 0; i < _clusterBuffer.Count; i++)
@@ -318,7 +321,7 @@ namespace Gameplay.Agent.Runtime
                     continue;
                 }
 
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemyCluster.CenterPosition);
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemy.transform.position);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
                 {
                     continue;
@@ -382,10 +385,11 @@ namespace Gameplay.Agent.Runtime
             GameplayTargetRegistry targetRegistry,
             IAgentReadOnly agent,
             float rangeSqr,
-            out ResourceClusterAuthoring nearestResourceCluster)
+            out ResourceClusterAuthoring nearestResourceCluster,
+            out float nearestDistanceSqr)
         {
             nearestResourceCluster = null;
-            float nearestDistanceSqr = float.MaxValue;
+            nearestDistanceSqr = float.MaxValue;
             Vector3 agentPosition = agent.Position;
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
@@ -393,12 +397,18 @@ namespace Gameplay.Agent.Runtime
             {
                 if (!(_clusterBuffer[i] is ResourceClusterAuthoring resourceCluster) ||
                     resourceCluster.HasBeenCompleted ||
-                    !resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, agent.NavMeshAgent, out _))
+                    !resourceCluster.TryGetNearestReachableIncompleteResource(
+                        agentPosition,
+                        agent.NavMeshAgent,
+                        out GameObject resourceObject))
                 {
                     continue;
                 }
 
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, resourceCluster.CenterPosition);
+                Vector3 targetPosition = resourceObject != null
+                    ? resourceObject.transform.position
+                    : resourceCluster.CenterPosition;
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
                 {
                     continue;
@@ -468,12 +478,17 @@ namespace Gameplay.Agent.Runtime
             {
                 if (!(_clusterBuffer[i] is ExtractionClusterAuthoring extractionCluster) ||
                     extractionCluster.HasBeenCompleted ||
-                    !extractionCluster.TryGetNearestExtractionPoint(agentPosition, out _))
+                    !extractionCluster.TryGetNearestExtractionPoint(
+                        agentPosition,
+                        out global::ExtractionPointController extractionPoint))
                 {
                     continue;
                 }
 
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionCluster.CenterPosition);
+                Vector3 targetPosition = extractionPoint != null
+                    ? extractionPoint.transform.position
+                    : extractionCluster.CenterPosition;
+                float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
                 if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
                 {
                     continue;
