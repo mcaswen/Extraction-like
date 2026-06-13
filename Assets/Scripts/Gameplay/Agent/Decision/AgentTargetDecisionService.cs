@@ -17,7 +17,7 @@ namespace Gameplay.Agent.Decision
         }
 
         /// <summary>
-        /// 从候选目标中选择最高评分目标
+        /// 从候选目标中选择目标
         /// </summary>
         /// <param name="context"></param>
         /// <param name="candidates"></param>
@@ -40,11 +40,9 @@ namespace Gameplay.Agent.Decision
                 return false;
             }
 
-            bool hasBest = false;
-            AgentDecisionCandidate bestCandidate = default;
-            float bestScore = float.NegativeInfinity;
-            float bestRisk = 0f;
-            string bestReason = string.Empty;
+            bool hasNearestWorkTarget = false;
+            AgentDecisionCandidate nearestWorkTarget = default;
+            float nearestWorkDistanceSqr = float.MaxValue;
 
             for (int index = 0; index < candidates.Count; index++)
             {
@@ -52,34 +50,55 @@ namespace Gameplay.Agent.Decision
                 if (!candidate.IsValid)
                     continue;
 
-                float risk = CalculateRisk(context, candidate);
-                if (!CanAcceptCandidate(context, candidate, risk))
+                if (candidate.DecisionTargetKind != AgentDecisionTargetKind.ActiveEnemy &&
+                    candidate.DecisionTargetKind != AgentDecisionTargetKind.Resource)
+                {
+                    continue;
+                }
+
+                if (hasNearestWorkTarget && candidate.DistanceSqr >= nearestWorkDistanceSqr)
                     continue;
 
-                float score = CalculateScore(context, candidate, risk);
-                if (hasBest && score <= bestScore)
-                    continue;
-
-                hasBest = true;
-                bestCandidate = candidate;
-                bestScore = score;
-                bestRisk = risk;
-                bestReason = BuildReason(candidate, score, risk);
+                hasNearestWorkTarget = true;
+                nearestWorkTarget = candidate;
+                nearestWorkDistanceSqr = candidate.DistanceSqr;
             }
 
-            if (!hasBest)
+            if (hasNearestWorkTarget)
             {
-                result = AgentDecisionResult.NoDecision("所有候选目标都超过当前风险或生命约束");
-                return false;
+                result = BuildTemporaryNearestResult(context, nearestWorkTarget);
+                return true;
             }
 
-            result = new AgentDecisionResult(
-                true,
-                bestCandidate,
-                bestScore,
-                bestRisk,
-                bestReason);
-            return true;
+            bool hasNearestExtraction = false;
+            AgentDecisionCandidate nearestExtraction = default;
+            float nearestExtractionDistanceSqr = float.MaxValue;
+
+            for (int index = 0; index < candidates.Count; index++)
+            {
+                AgentDecisionCandidate candidate = candidates[index];
+                if (!candidate.IsValid ||
+                    candidate.DecisionTargetKind != AgentDecisionTargetKind.Extraction)
+                {
+                    continue;
+                }
+
+                if (hasNearestExtraction && candidate.DistanceSqr >= nearestExtractionDistanceSqr)
+                    continue;
+
+                hasNearestExtraction = true;
+                nearestExtraction = candidate;
+                nearestExtractionDistanceSqr = candidate.DistanceSqr;
+            }
+
+            if (hasNearestExtraction)
+            {
+                result = BuildTemporaryNearestResult(context, nearestExtraction);
+                return true;
+            }
+
+            result = AgentDecisionResult.NoDecision("没有可用 ActiveEnemy/Resource，且没有可用撤离点");
+            return false;
         }
 
         /// <summary>
@@ -167,6 +186,23 @@ namespace Gameplay.Agent.Decision
             }
 
             return score;
+        }
+
+        private AgentDecisionResult BuildTemporaryNearestResult(
+            AgentDecisionContext context,
+            AgentDecisionCandidate candidate)
+        {
+            float risk = CalculateRisk(context, candidate);
+            float distance = Mathf.Sqrt(Mathf.Max(0f, candidate.DistanceSqr));
+            float score = -distance;
+            string reason = $"TemporaryNearest {candidate.DecisionTargetKind} distance={distance:0.##} risk={risk:0.##}";
+
+            return new AgentDecisionResult(
+                true,
+                candidate,
+                score,
+                risk,
+                reason);
         }
 
         private static string BuildReason(

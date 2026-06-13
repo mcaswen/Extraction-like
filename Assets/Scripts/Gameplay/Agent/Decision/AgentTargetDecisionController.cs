@@ -180,11 +180,8 @@ namespace Gameplay.Agent.Decision
                     continue;
                 }
 
-                if (cluster is EnemySourceClusterAuthoring enemySourceCluster)
-                {
-                    TryAddEnemySourceDecisionCandidate(enemySourceCluster, agent.Position, rangeSqr, currentTargetId);
+                if (cluster is EnemySourceClusterAuthoring)
                     continue;
-                }
 
                 if (cluster is ResourceClusterAuthoring resourceCluster)
                 {
@@ -193,7 +190,7 @@ namespace Gameplay.Agent.Decision
                 }
 
                 if (cluster is ExtractionClusterAuthoring extractionCluster)
-                    TryAddExtractionDecisionCandidate(extractionCluster, agent.Position, rangeSqr, currentTargetId);
+                    TryAddExtractionDecisionCandidate(extractionCluster, agent.Position, float.PositiveInfinity, currentTargetId);
             }
         }
 
@@ -209,7 +206,8 @@ namespace Gameplay.Agent.Decision
 
             AddUniqueRiskEnemy(enemy);
 
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemyCluster.CenterPosition);
+            Vector3 targetPosition = enemy != null ? enemy.transform.position : enemyCluster.CenterPosition;
+            float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
             if (distanceSqr > rangeSqr)
                 return;
 
@@ -222,7 +220,7 @@ namespace Gameplay.Agent.Decision
                 AgentTargetKind.Enemy,
                 targetId,
                 targetObject,
-                enemy != null ? enemy.transform.position : enemyCluster.CenterPosition,
+                targetPosition,
                 distanceSqr,
                 enemy,
                 IsCurrentTarget(targetId, currentTargetId)));
@@ -260,10 +258,18 @@ namespace Gameplay.Agent.Decision
             string currentTargetId)
         {
             Vector3 agentPosition = agent.Position;
-            if (!resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, agent.NavMeshAgent, out _))
+            if (!resourceCluster.TryGetNearestReachableIncompleteResource(
+                    agentPosition,
+                    agent.NavMeshAgent,
+                    out GameObject resourceObject))
+            {
                 return;
+            }
 
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, resourceCluster.CenterPosition);
+            Vector3 targetPosition = resourceObject != null
+                ? resourceObject.transform.position
+                : resourceCluster.CenterPosition;
+            float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
             if (distanceSqr > rangeSqr)
                 return;
 
@@ -273,7 +279,7 @@ namespace Gameplay.Agent.Decision
                 AgentTargetKind.Resource,
                 resourceCluster.TargetId,
                 resourceCluster.gameObject,
-                resourceCluster.CenterPosition,
+                targetPosition,
                 distanceSqr,
                 null,
                 IsCurrentTarget(resourceCluster.TargetId, currentTargetId)));
@@ -285,10 +291,17 @@ namespace Gameplay.Agent.Decision
             float rangeSqr,
             string currentTargetId)
         {
-            if (!extractionCluster.TryGetNearestExtractionPoint(agentPosition, out _))
+            if (!extractionCluster.TryGetNearestExtractionPoint(
+                    agentPosition,
+                    out global::ExtractionPointController extractionPoint))
+            {
                 return;
+            }
 
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionCluster.CenterPosition);
+            Vector3 targetPosition = extractionPoint != null
+                ? extractionPoint.transform.position
+                : extractionCluster.CenterPosition;
+            float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
             if (distanceSqr > rangeSqr)
                 return;
 
@@ -298,7 +311,7 @@ namespace Gameplay.Agent.Decision
                 AgentTargetKind.Extraction,
                 extractionCluster.TargetId,
                 extractionCluster.gameObject,
-                extractionCluster.CenterPosition,
+                targetPosition,
                 distanceSqr,
                 null,
                 IsCurrentTarget(extractionCluster.TargetId, currentTargetId)));
