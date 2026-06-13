@@ -30,6 +30,8 @@ namespace Gameplay.Agent.Core
         private float _corrosionTickTimer;
         private float _corrosionTickInterval = 0.25f;
         private float _corrosionDamagePerTick;
+        private float _currentShield;
+        private float _shieldDurationRemaining;
         private Renderer[] _cachedRenderers;
         private Color[] _originalRendererColors;
         private Canvas _runtimeHealthBarCanvas;
@@ -39,6 +41,7 @@ namespace Gameplay.Agent.Core
 
         public int CurrentHealth => Mathf.Max(0, _currentHealth);
         public int MaxHealth => Mathf.Max(1, _maxHealth);
+        public float CurrentShield => Mathf.Max(0f, _currentShield);
         public float HealthRatio => MaxHealth <= 0 ? 0f : Mathf.Clamp01((float)CurrentHealth / MaxHealth);
         public bool IsDead => _initialized && CurrentHealth <= 0;
         public Transform DamageRootTransform => transform;
@@ -59,6 +62,7 @@ namespace Gameplay.Agent.Core
         private void Update()
         {
             TickCorrosionEffect();
+            TickShieldEffect();
         }
 
         private void LateUpdate()
@@ -89,6 +93,8 @@ namespace Gameplay.Agent.Core
         {
             _maxHealth = Mathf.Max(1, maxHealth);
             _currentHealth = _maxHealth;
+            _currentShield = 0f;
+            _shieldDurationRemaining = 0f;
             _initialized = true;
             UpdateHealthBar();
         }
@@ -117,10 +123,52 @@ namespace Gameplay.Agent.Core
                 return 0f;
 
             _initialized = true;
+            float remainingDamage = damageAmount;
+            if (_currentShield > 0f)
+            {
+                float absorbedDamage = Mathf.Min(_currentShield, remainingDamage);
+                _currentShield -= absorbedDamage;
+                remainingDamage -= absorbedDamage;
+                if (_currentShield <= 0f)
+                    _shieldDurationRemaining = 0f;
+            }
+
             int previousHealth = CurrentHealth;
-            _currentHealth = Mathf.Max(0, _currentHealth - damageAmount);
+            _currentHealth = Mathf.Max(0, _currentHealth - Mathf.RoundToInt(remainingDamage));
             UpdateHealthBar();
             return Mathf.Max(0, previousHealth - CurrentHealth);
+        }
+
+        public void AddShield(float shieldAmount)
+        {
+            AddShield(shieldAmount, 0f);
+        }
+
+        public void AddShield(float shieldAmount, float duration)
+        {
+            if (IsDead || shieldAmount <= 0f)
+                return;
+
+            _currentShield = Mathf.Max(_currentShield, shieldAmount);
+            if (duration > 0f)
+                _shieldDurationRemaining = Mathf.Max(_shieldDurationRemaining, duration);
+
+            UpdateHealthBar();
+        }
+
+        public float Heal(float amount)
+        {
+            if (IsDead || amount <= 0f)
+                return 0f;
+
+            _initialized = true;
+            int previousHealth = CurrentHealth;
+            _currentHealth = Mathf.Clamp(
+                _currentHealth + Mathf.RoundToInt(amount),
+                0,
+                MaxHealth);
+            UpdateHealthBar();
+            return Mathf.Max(0, CurrentHealth - previousHealth);
         }
 
         public void ApplyCorrosion(float damagePerSecond, float duration, float tickInterval = 0.25f)
@@ -180,13 +228,26 @@ namespace Gameplay.Agent.Core
             }
         }
 
+        private void TickShieldEffect()
+        {
+            if (_currentShield <= 0f || _shieldDurationRemaining <= 0f)
+                return;
+
+            _shieldDurationRemaining = Mathf.Max(0f, _shieldDurationRemaining - Time.deltaTime);
+            if (_shieldDurationRemaining > 0f)
+                return;
+
+            _currentShield = 0f;
+            UpdateHealthBar();
+        }
+
         private void UpdateHealthBar()
         {
             if (_healthFillImage == null)
                 return;
 
             ConfigureHealthFillImage(_healthFillImage);
-            _healthFillImage.fillAmount = Mathf.Clamp01((float)CurrentHealth / MaxHealth);
+            _healthFillImage.fillAmount = Mathf.Clamp01((CurrentHealth + _currentShield) / MaxHealth);
 
             if (IsDead && _ownsRuntimeHealthBar && _runtimeHealthBarCanvas != null)
                 _runtimeHealthBarCanvas.gameObject.SetActive(false);

@@ -1,0 +1,320 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5826992109798366729
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_Name
+      value: Ai Idle
+      objectReference: {fileID: 0}
+    - target: {fileID: 3906614209734324418, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c83dbc5beef9ea45819aeb48b711eed, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 1328a45137bb802458bcd9fb5cba36e6, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      propertyPath: m_WarningMessage
+      value: 
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4699878107279714120}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2299497081857545660}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3245296494520961465}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9124410196659373990}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7881989739057466428}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5387164750877248389}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7113843804124574301}
+  m_SourcePrefab: {fileID: 100100000, guid: 1010cbeeab37fe146a6cc7b3707de979, type: 3}
+--- !u!95 &123628926471349144 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 1010cbeeab37fe146a6cc7b3707de979,
+    type: 3}
+  m_PrefabInstance: {fileID: 5826992109798366729}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6637403850057982808 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1010cbeeab37fe146a6cc7b3707de979,
+    type: 3}
+  m_PrefabInstance: {fileID: 5826992109798366729}
+  m_PrefabAsset: {fileID: 0}
+--- !u!143 &4699878107279714120
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1.1
+  m_Radius: 0.3
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &2299497081857545660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ec198b8b0d71b7418d96a4f5423df7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3245296494520961465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e538c462edbb244496094f01ae9e7fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 4
+--- !u!114 &9124410196659373990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e030d2f68bda80545bfbaa5c12871e00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitbox: {fileID: 0}
+--- !u!114 &7881989739057466428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa211bdb904785b4ea5ad81f298597ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 123628926471349144}
+  debugCurrentState: 0
+  debugNormalizedTime: 0
+  debugStateTime: 0
+--- !u!114 &5387164750877248389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b8f4ed2156b4e7b9a7f3f1de57f1a42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _castKey: 324
+  _cooldownSeconds: 0.28
+  _aimCamera: {fileID: 0}
+  _firePoint: {fileID: 0}
+  _fallbackFireLocalOffset: {x: 0.25, y: 0.85, z: 0.45}
+  _faceAimWhenCasting: 1
+  _maxAimDistance: 80
+  _projectileSpeed: 13
+  _projectileLifetime: 1.8
+  _projectileCollisionRadius: 0.16
+  _impactMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _coreColor: {r: 0.55, g: 0.94, b: 1, a: 1}
+  _rimColor: {r: 0.9, g: 0.45, b: 1, a: 0.86}
+  _sparkColor: {r: 1, g: 0.92, b: 0.56, a: 1}
+  _impactScale: 1
+--- !u!114 &7113843804124574301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6637403850057982808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fd2b26e82c84d699cce8c07f5f203b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enableKeyboardPreview: 1
+  _primarySkillKey: 114
+  _secondarySkillKey: 116
+  _cycleElementKey: 99
+  _iceElementKey: 49
+  _earthElementKey: 50
+  _fireElementKey: 51
+  _metalElementKey: 52
+  _waterElementKey: 53
+  _selectedElement: 0
+  _attackPower: 30
+  _defense: 28
+  _fallbackMaxHealth: 220
+  _aimCamera: {fileID: 0}
+  _enemyMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _impactMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _aimGroundHeightOffset: 0.04
+  _maxAimDistance: 40
+  _castOriginOffset: {x: 0.25, y: 0.9, z: 0.45}
+  _iceConeCooldown: 9
+  _iceConeDamageMultiplier: 2.5
+  _iceConeAngle: 120
+  _iceConeRadius: 7.5
+  _iceSlowMultiplier: 0.5
+  _iceSlowDuration: 3
+  _winterCooldown: 12
+  _winterDamageMultiplier: 3
+  _winterRadius: 2.8
+  _earthWallCooldown: 12
+  _earthWallDamageMultiplier: 0.8
+  _earthWallLength: 4.2
+  _earthWallWidth: 0.55
+  _earthWallHeight: 2.2
+  _earthWallDuration: 10
+  _earthQuakeCooldown: 15
+  _earthQuakeDamageMultiplier: 0.5
+  _earthQuakeRadius: 3.25
+  _earthQuakeDuration: 5
+  _fireShieldCooldown: 18
+  _fireShieldAbsorbMultiplier: 3
+  _fireShieldBaseDuration: 5
+  _fireShieldMaxDuration: 10
+  _fireShieldDamageMultiplier: 0.5
+  _fireShieldDamageRadius: 2.75
+  _fireShieldTickInterval: 0.75
+  _fireballCooldown: 3
+  _fireballDamageMultiplier: 1.5
+  _fireballRadius: 0.38
+  _fireballSpeed: 14
+  _fireballLifetime: 2.2
+  _fireShieldExtendOnHit: 2
+  _metalBuffCooldown: 14
+  _metalAttackBonusMultiplier: 1.5
+  _metalBuffDuration: 5
+  _smeltCooldown: 20
+  _smeltVulnerabilityMultiplier: 1.5
+  _smeltDuration: 10
+  _smeltRange: 18
+  _confluenceCooldown: 12
+  _confluenceRadius: 5
+  _confluenceDuration: 2
+  _confluenceCooldownReductionSeconds: 2
+  _confluenceMoveSpeedMultiplier: 1.45
+  _springCooldown: 9
+  _springHealMaxHealthRatio: 0.05
+  _springDuration: 3
+  _springRange: 12
+  _ringSegments: 72
+  _lineSegments: 24
+  _groundOffset: 0.06
