@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 7110605897752205501}
   - component: {fileID: 4401007001007001005}
   - component: {fileID: 9126527795397233563}
+  - component: {fileID: 8650643972814429748}
   m_Layer: 0
   m_Name: Agent
   m_TagString: Player
@@ -118,8 +119,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2abfc551f25c4195b1c1833fdbd6009b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _maxHealth: 1
   _currentHealth: 0
   _corrosionTintColor: {r: 0.45, g: 1, b: 0.55, a: 1}
@@ -139,8 +140,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d0b9815e833b420ba0e182c5cad8aa6b, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _initialUnlockedNodes: 
+  _unlockAllEarthOnAwake: 0
+  _unlockAllIceOnAwake: 0
+  _availableTalentPoints: 0
 --- !u!54 &9216309406287422568
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -187,6 +192,9 @@ MonoBehaviour:
   FloatingPromptUI: {fileID: 0}
   PromptText: {fileID: 0}
   HeightOffset: 1.5
+  ShowInteractionRadiusGizmo: 1
+  InteractionRadiusGizmoColor: {r: 1, g: 0.92, b: 0.1, a: 0.45}
+  SelectedInteractionRadiusGizmoColor: {r: 1, g: 0.58, b: 0.1, a: 0.9}
 --- !u!114 &7464382484415442821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,6 +257,7 @@ MonoBehaviour:
   _navMeshAgent: {fileID: 5491856885365467676}
   _combatController: {fileID: 9126527795397233563}
   _talentController: {fileID: 7820163612939944076}
+  _levelProgressionController: {fileID: 8650643972814429748}
   _showRangeGizmos: 1
 --- !u!114 &6384219047756312460
 MonoBehaviour:
@@ -314,6 +323,14 @@ MonoBehaviour:
   _payloadId: 
   _commandId: 
   _priority: 0
+  _concreteTargetKind: 0
+  _concreteTargetObject: {fileID: 0}
+  _concreteTargetName: 
+  _concreteTargetInstanceId: 0
+  _concreteTargetPosition: {x: 0, y: 0, z: 0}
+  _hasConcreteNavigationPosition: 0
+  _concreteNavigationPosition: {x: 0, y: 0, z: 0}
+  _concreteTargetSummary: 
   _hasNavMeshAgent: 0
   _isOnNavMesh: 0
   _pathPending: 0
@@ -383,6 +400,25 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   _skillActionLockSeconds: 0.45
+  _playPrototypeSkillVfx: 0
+  _suppressConfiguredSkillVfx: 1
+--- !u!114 &8650643972814429748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7015472616922862980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be367c6783404e02a14688fb2d94eeb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _progressionConfig: {fileID: 11400000, guid: 4d6944cb5f6b45d7be17f8a1ca36378c, type: 2}
+  _level: 1
+  _currentExperience: 0
+  _sourceAwardCounters: []
+  _logExperienceAwards: 0
 --- !u!1001 &4401007001007001001
 PrefabInstance:
   m_ObjectHideFlags: 0

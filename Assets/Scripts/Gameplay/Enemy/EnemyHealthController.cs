@@ -585,6 +585,13 @@ public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
         {
             talentController.NotifyEnemyDefeated(this);
         }
+
+        Gameplay.Agent.Progression.AgentLevelProgressionController progressionController =
+            attacker.GetComponentInParent<Gameplay.Agent.Progression.AgentLevelProgressionController>();
+        if (progressionController != null)
+        {
+            progressionController.NotifyEnemyDefeated(this);
+        }
     }
 
     /// <summary>

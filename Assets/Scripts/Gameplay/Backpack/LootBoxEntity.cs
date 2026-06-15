@@ -83,6 +83,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
     private bool _isFirstTimeOpen = true;
     private bool _hasGeneratedLoot;
+    private bool _hasAwardedOpenExperience;
 
     public bool IsBoardGameResourcePoint => UseBoardGameResourceRules;
     public bool IsResourcePointLooted => UseBoardGameResourceRules && ResourceState == SceneResourceStateType.Looted;
@@ -185,6 +186,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
         }
 
         MarkResourceSearchStarted();
+        AwardOpenExperienceIfNeeded();
         InventoryScreenController.Instance.OpenLootBox(this);
     }
 
@@ -324,6 +326,47 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         UseBoardGameResourceRules = true;
         ResourceTier = resourceTier;
+    }
+
+    /// <summary>
+    /// 供经验系统读取该箱子当前使用的资源等级。
+    /// </summary>
+    public SceneResourceTier ResolveExperienceResourceTier()
+    {
+        return ResolveEffectiveResourceTier();
+    }
+
+    private void AwardOpenExperienceIfNeeded()
+    {
+        if (_hasAwardedOpenExperience)
+            return;
+
+        if (!TryGetFocusedAgentProgression(
+                out Gameplay.Agent.Progression.AgentLevelProgressionController progressionController))
+        {
+            return;
+        }
+
+        int awardedExperience = progressionController.NotifyLootBoxOpened(this);
+        if (awardedExperience > 0)
+            _hasAwardedOpenExperience = true;
+    }
+
+    private static bool TryGetFocusedAgentProgression(
+        out Gameplay.Agent.Progression.AgentLevelProgressionController progressionController)
+    {
+        progressionController = null;
+        Gameplay.Agent.Runtime.AgentRuntimeRegistry registry =
+            Gameplay.Agent.Runtime.AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || !registry.TryGetFocusedHandle(out Gameplay.Agent.Runtime.AgentRuntimeHandle handle))
+            return false;
+
+        if (!handle.IsAlive || handle.CachedTransform == null)
+            return false;
+
+        progressionController =
+            handle.CachedTransform.GetComponent<Gameplay.Agent.Progression.AgentLevelProgressionController>();
+        return progressionController != null;
     }
 
     // 生成本次容器应包含的战利品候选列表

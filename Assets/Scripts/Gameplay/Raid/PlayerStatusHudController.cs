@@ -1,4 +1,5 @@
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Progression;
 using Gameplay.Agent.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,17 +19,22 @@ public sealed class PlayerStatusHudController : MonoBehaviour
     public Color CarryFillColor = new Color(0.95f, 0.7f, 0.22f, 1f);
     public Color CarryWarningFillColor = new Color(0.96f, 0.48f, 0.18f, 1f);
     public Color CarryOverloadFillColor = new Color(0.92f, 0.22f, 0.2f, 1f);
+    public Color ExperienceFillColor = new Color(0.42f, 0.65f, 1f, 1f);
 
     [Header("Prefab References")]
     [SerializeField] private RectTransform _root;
     [SerializeField] private Image _healthFillImage;
     [SerializeField] private Image _carryFillImage;
+    [SerializeField] private Image _experienceFillImage;
     [SerializeField] private RectTransform _healthBarRect;
     [SerializeField] private RectTransform _carryBarRect;
+    [SerializeField] private RectTransform _experienceBarRect;
     [SerializeField] private RectTransform _healthMarkerRect;
     [SerializeField] private RectTransform _carryMarkerRect;
+    [SerializeField] private RectTransform _experienceMarkerRect;
     [SerializeField] private Text _healthText;
     [SerializeField] private Text _carryText;
+    [SerializeField] private Text _experienceText;
 
     public static PlayerStatusHudController EnsureRuntimeInstance()
     {
@@ -85,11 +91,17 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         if (_carryFillImage == null)
             _carryFillImage = FindComponent<Image>("CarryFill");
 
+        if (_experienceFillImage == null)
+            _experienceFillImage = FindComponent<Image>("ExperienceFill");
+
         if (_healthBarRect == null)
             _healthBarRect = FindComponent<RectTransform>("HealthBarProgress");
 
         if (_carryBarRect == null)
             _carryBarRect = FindComponent<RectTransform>("CarryLoadBarProgress");
+
+        if (_experienceBarRect == null)
+            _experienceBarRect = FindComponent<RectTransform>("ExperienceBarProgress");
 
         if (_healthMarkerRect == null)
             _healthMarkerRect = FindComponent<RectTransform>("HealthMarkerIcon");
@@ -97,16 +109,24 @@ public sealed class PlayerStatusHudController : MonoBehaviour
         if (_carryMarkerRect == null)
             _carryMarkerRect = FindComponent<RectTransform>("CarryMarkerIcon");
 
+        if (_experienceMarkerRect == null)
+            _experienceMarkerRect = FindComponent<RectTransform>("ExperienceMarkerIcon");
+
         if (_healthText == null)
             _healthText = FindComponent<Text>("HealthValue");
 
         if (_carryText == null)
             _carryText = FindComponent<Text>("CarryValue");
+
+        if (_experienceText == null)
+            _experienceText = FindComponent<Text>("ExperienceValue");
     }
 
     private void RefreshBars()
     {
-        bool hasFocusedAgent = TryGetFocusedAgent(out IAgentReadOnly focusedAgent);
+        bool hasFocusedAgent = TryGetFocusedAgent(
+            out IAgentReadOnly focusedAgent,
+            out AgentRuntimeHandle focusedHandle);
         if (_root != null)
         {
             _root.gameObject.SetActive(hasFocusedAgent);
@@ -149,19 +169,52 @@ public sealed class PlayerStatusHudController : MonoBehaviour
             BarSize,
             carryRatio,
             $"{occupiedCells:0} / {usableCells:0}  SLOTS");
+
+        AgentLevelProgressionController progressionController = focusedHandle.PawnRoot != null
+            ? focusedHandle.PawnRoot.GetComponent<AgentLevelProgressionController>()
+            : null;
+        float experienceRatio = progressionController != null ? progressionController.ExperienceRatio : 0f;
+        string experienceLabel = BuildExperienceLabel(progressionController);
+
+        SetBar(
+            _experienceFillImage,
+            _experienceText,
+            _experienceMarkerRect,
+            _experienceBarRect,
+            BarSize,
+            experienceRatio,
+            experienceLabel);
     }
 
-    private static bool TryGetFocusedAgent(out IAgentReadOnly focusedAgent)
+    private static bool TryGetFocusedAgent(
+        out IAgentReadOnly focusedAgent,
+        out AgentRuntimeHandle focusedHandle)
     {
         focusedAgent = null;
+        focusedHandle = default;
         AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry == null || !registry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle))
+        if (registry == null || !registry.TryGetFocusedHandle(out focusedHandle))
         {
             return false;
         }
 
         focusedAgent = focusedHandle.ReadOnly;
         return focusedAgent != null;
+    }
+
+    private static string BuildExperienceLabel(AgentLevelProgressionController progressionController)
+    {
+        if (progressionController == null)
+        {
+            return "LV --  0 / 0  XP";
+        }
+
+        if (progressionController.IsMaxLevel)
+        {
+            return $"LV {progressionController.Level}  MAX";
+        }
+
+        return $"LV {progressionController.Level}  {progressionController.CurrentExperience:0} / {progressionController.RequiredExperienceToNextLevel:0}  XP";
     }
 
     private Color GetCarryFillColor(float carryRatio)
@@ -186,6 +239,9 @@ public sealed class PlayerStatusHudController : MonoBehaviour
 
         if (_carryFillImage != null)
             _carryFillImage.color = CarryFillColor;
+
+        if (_experienceFillImage != null)
+            _experienceFillImage.color = ExperienceFillColor;
     }
 
     private static void SetBar(

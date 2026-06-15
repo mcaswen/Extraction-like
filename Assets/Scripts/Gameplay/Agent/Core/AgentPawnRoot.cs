@@ -5,6 +5,7 @@ using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Progression;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.SO;
 using Gameplay.Agent.Talent;
@@ -19,6 +20,7 @@ namespace Gameplay.Agent.Core
     /// </summary>
     [RequireComponent(typeof(AgentHealthController))]
     [RequireComponent(typeof(AgentTalentRuntimeController))]
+    [RequireComponent(typeof(AgentLevelProgressionController))]
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter), typeof(AgentCombatController))]
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver, global::IExternalMovementReceiver
     {
@@ -38,6 +40,7 @@ namespace Gameplay.Agent.Core
         [SerializeField] private NavMeshAgent _navMeshAgent;
         [SerializeField] private AgentCombatController _combatController;
         [SerializeField] private AgentTalentRuntimeController _talentController;
+        [SerializeField] private AgentLevelProgressionController _levelProgressionController;
 
         [Header("Editor Gizmos")]
         [SerializeField] private bool _showRangeGizmos = true;
@@ -478,6 +481,13 @@ namespace Gameplay.Agent.Core
 
             if (_talentController != null)
                 _talentController.EnsureInitialUnlocksApplied();
+
+            if (_levelProgressionController == null)
+            {
+                _levelProgressionController = GetComponent<AgentLevelProgressionController>();
+                if (_levelProgressionController == null && Application.isPlaying)
+                    _levelProgressionController = gameObject.AddComponent<AgentLevelProgressionController>();
+            }
         }
 
         private void RegisterWithRuntime()

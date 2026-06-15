@@ -46,6 +46,10 @@ namespace Gameplay.TalentTree.UI
         [SerializeField] private Text _gainTitleText;
         [SerializeField] private Text _requirementText;
         [SerializeField] private Text[] _descriptionTexts;
+        [SerializeField] private Font _switchButtonFont;
+        [SerializeField] private bool _pollNodeHover = true;
+        [SerializeField] private Vector2 _hoverPanelPointerOffset = new Vector2(24f, -24f);
+        [SerializeField] private Vector2 _hoverPanelParentPadding = new Vector2(16f, 16f);
 
         [Header("Art")]
         [SerializeField] private Sprite _attackSprite;
@@ -62,6 +66,10 @@ namespace Gameplay.TalentTree.UI
         private readonly Dictionary<string, Transform> _childByName = new Dictionary<string, Transform>();
         private AgentTalentTreeKind _currentTree;
         private bool _hasInitialized;
+        private GameObject _nodeDetailsPanel;
+        private RectTransform _nodeDetailsPanelRect;
+        private RectTransform _nodeDetailsPanelParentRect;
+        private TalentTreeNodeView _polledHoverNode;
 
         /// <summary>
         /// 当前面板绑定的天赋运行时对象。
@@ -78,6 +86,12 @@ namespace Gameplay.TalentTree.UI
             InitializeIfNeeded();
             ResolveTargetTalentRuntime();
             RefreshAll();
+        }
+
+        private void Update()
+        {
+            if (_pollNodeHover)
+                UpdatePolledNodeHover();
         }
 
         /// <summary>
@@ -171,7 +185,7 @@ namespace Gameplay.TalentTree.UI
             if (_targetTalentRuntime.IsUnlocked(nodeView.NodeId))
                 ShowStatus("已解锁");
             else if (_targetTalentRuntime.CanUnlockNode(nodeView.NodeId))
-                ShowStatus("点击解锁");
+                ShowStatus($"点击解锁（剩余点数：{_targetTalentRuntime.AvailableTalentPoints}）");
             else
                 ShowStatus(BuildPrerequisiteText(nodeView.NodeId));
         }
@@ -195,6 +209,7 @@ namespace Gameplay.TalentTree.UI
             _currentTree = _defaultTree;
             CacheChildLookup();
             CacheTexts();
+            CacheNodeDetailsPanel();
             ConfigureUnusedSlots();
             BindVisibleTree();
 
@@ -366,6 +381,21 @@ namespace Gameplay.TalentTree.UI
             }
         }
 
+        private void CacheNodeDetailsPanel()
+        {
+            if (_nodeDetailsPanel == null)
+            {
+                Transform panelTransform = FindCachedChild("NodeDetailsPanel");
+                _nodeDetailsPanel = panelTransform != null ? panelTransform.gameObject : null;
+            }
+
+            if (_nodeDetailsPanelRect == null && _nodeDetailsPanel != null)
+                _nodeDetailsPanelRect = _nodeDetailsPanel.transform as RectTransform;
+
+            if (_nodeDetailsPanelParentRect == null && _nodeDetailsPanelRect != null)
+                _nodeDetailsPanelParentRect = _nodeDetailsPanelRect.parent as RectTransform;
+        }
+
         private Text FindText(string objectName)
         {
             Transform target = FindCachedChild(objectName);
@@ -399,22 +429,135 @@ namespace Gameplay.TalentTree.UI
                 _descriptionTexts[index].text = value;
         }
 
+        private void UpdatePolledNodeHover()
+        {
+            if (_activeNodeViews.Count <= 0)
+                return;
+
+            TalentTreeNodeView hoveredNode = FindNodeUnderPointer(Input.mousePosition);
+            if (hoveredNode == null)
+            {
+                _polledHoverNode = null;
+                SetNodeDetailsPanelVisible(false);
+                return;
+            }
+
+            if (_polledHoverNode != hoveredNode)
+            {
+                _polledHoverNode = hoveredNode;
+                hoveredNode.ShowDetails();
+            }
+
+            SetNodeDetailsPanelVisible(true);
+            UpdateNodeDetailsPanelPosition(Input.mousePosition);
+        }
+
+        private TalentTreeNodeView FindNodeUnderPointer(Vector2 screenPoint)
+        {
+            for (int i = _activeNodeViews.Count - 1; i >= 0; i--)
+            {
+                TalentTreeNodeView nodeView = _activeNodeViews[i];
+                if (nodeView == null || !nodeView.IsBound || !nodeView.gameObject.activeInHierarchy)
+                    continue;
+
+                RectTransform rectTransform = nodeView.transform as RectTransform;
+                if (rectTransform == null)
+                    continue;
+
+                if (RectTransformUtility.RectangleContainsScreenPoint(
+                        rectTransform,
+                        screenPoint,
+                        ResolveEventCamera(rectTransform)))
+                {
+                    return nodeView;
+                }
+            }
+
+            return null;
+        }
+
+        private void SetNodeDetailsPanelVisible(bool visible)
+        {
+            CacheNodeDetailsPanel();
+            if (_nodeDetailsPanel == null || _nodeDetailsPanel.activeSelf == visible)
+                return;
+
+            _nodeDetailsPanel.SetActive(visible);
+            if (visible)
+                _nodeDetailsPanel.transform.SetAsLastSibling();
+        }
+
+        private void UpdateNodeDetailsPanelPosition(Vector2 screenPoint)
+        {
+            CacheNodeDetailsPanel();
+            if (_nodeDetailsPanelRect == null || _nodeDetailsPanelParentRect == null)
+                return;
+
+            Camera eventCamera = ResolveEventCamera(_nodeDetailsPanelParentRect);
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _nodeDetailsPanelParentRect,
+                    screenPoint,
+                    eventCamera,
+                    out Vector2 localPoint))
+            {
+                return;
+            }
+
+            _nodeDetailsPanelRect.anchoredPosition =
+                ClampNodeDetailsPanelToParent(localPoint + _hoverPanelPointerOffset);
+        }
+
+        private Vector2 ClampNodeDetailsPanelToParent(Vector2 anchoredPosition)
+        {
+            if (_nodeDetailsPanelRect == null || _nodeDetailsPanelParentRect == null)
+                return anchoredPosition;
+
+            Rect parentRect = _nodeDetailsPanelParentRect.rect;
+            Rect panelRect = _nodeDetailsPanelRect.rect;
+            Vector2 pivot = _nodeDetailsPanelRect.pivot;
+
+            float minX = parentRect.xMin + _hoverPanelParentPadding.x + panelRect.width * pivot.x;
+            float maxX = parentRect.xMax - _hoverPanelParentPadding.x - panelRect.width * (1f - pivot.x);
+            float minY = parentRect.yMin + _hoverPanelParentPadding.y + panelRect.height * pivot.y;
+            float maxY = parentRect.yMax - _hoverPanelParentPadding.y - panelRect.height * (1f - pivot.y);
+
+            anchoredPosition.x = minX <= maxX
+                ? Mathf.Clamp(anchoredPosition.x, minX, maxX)
+                : parentRect.center.x;
+            anchoredPosition.y = minY <= maxY
+                ? Mathf.Clamp(anchoredPosition.y, minY, maxY)
+                : parentRect.center.y;
+
+            return anchoredPosition;
+        }
+
+        private static Camera ResolveEventCamera(RectTransform rectTransform)
+        {
+            Canvas canvas = rectTransform != null ? rectTransform.GetComponentInParent<Canvas>() : null;
+            return canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? canvas.worldCamera
+                : null;
+        }
+
         private string BuildPrerequisiteText(AgentTalentNodeId nodeId)
         {
             if (_targetTalentRuntime == null)
                 return "未绑定 Agent 天赋运行时";
 
             IReadOnlyList<AgentTalentNodeId> prerequisites = _targetTalentRuntime.GetPrerequisites(nodeId);
-            if (prerequisites == null || prerequisites.Count <= 0)
-                return "点击解锁";
-
-            for (int i = 0; i < prerequisites.Count; i++)
+            if (prerequisites != null && prerequisites.Count > 0)
             {
-                if (!_targetTalentRuntime.IsUnlocked(prerequisites[i]))
-                    return "需要前置节点：" + GetDisplayName(prerequisites[i]);
+                for (int i = 0; i < prerequisites.Count; i++)
+                {
+                    if (!_targetTalentRuntime.IsUnlocked(prerequisites[i]))
+                        return "需要前置节点：" + GetDisplayName(prerequisites[i]);
+                }
             }
 
-            return "点击解锁";
+            if (!_targetTalentRuntime.HasAvailableTalentPoints)
+                return "天赋点不足";
+
+            return $"点击解锁（剩余点数：{_targetTalentRuntime.AvailableTalentPoints}）";
         }
 
         private string GetDisplayName(AgentTalentNodeId nodeId)
@@ -504,7 +647,8 @@ namespace Gameplay.TalentTree.UI
             text.alignment = TextAnchor.MiddleCenter;
             text.fontSize = 20;
             text.color = new Color(0.07f, 0.08f, 0.1f, 1f);
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            if (_switchButtonFont != null)
+                text.font = _switchButtonFont;
         }
     }
 }

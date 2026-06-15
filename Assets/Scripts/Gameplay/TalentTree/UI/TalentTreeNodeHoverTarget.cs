@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Gameplay.TalentTree.UI;
 
 /// <summary>
 /// 天赋树节点悬浮目标。
@@ -45,6 +46,10 @@ public sealed class TalentTreeNodeHoverTarget : MonoBehaviour, IPointerEnterHand
     public void OnPointerEnter(PointerEventData eventData)
     {
         _isPointerInside = true;
+        TalentTreeNodeView nodeView = GetComponent<TalentTreeNodeView>();
+        if (nodeView != null)
+            nodeView.ShowDetails();
+
         SetHoverPanelVisible(true);
         UpdateHoverPanelPosition(eventData);
     }

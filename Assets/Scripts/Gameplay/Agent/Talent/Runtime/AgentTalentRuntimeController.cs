@@ -108,6 +108,7 @@ namespace Gameplay.Agent.Talent
         [SerializeField] private AgentTalentNodeId[] _initialUnlockedNodes;
         [SerializeField] private bool _unlockAllEarthOnAwake;
         [SerializeField] private bool _unlockAllIceOnAwake;
+        [SerializeField, Min(0)] private int _availableTalentPoints;
 
         private readonly HashSet<AgentTalentNodeId> _unlockedNodes = new HashSet<AgentTalentNodeId>();
         private readonly HashSet<int> _creditedEnemyInstanceIds = new HashSet<int>();
@@ -141,6 +142,23 @@ namespace Gameplay.Agent.Talent
                 return _iceKillAttackStacks;
             }
         }
+
+        /// <summary>
+        /// 当前可用于解锁天赋节点的未消耗点数。
+        /// </summary>
+        public int AvailableTalentPoints
+        {
+            get
+            {
+                EnsureInitialUnlocksApplied();
+                return Mathf.Max(0, _availableTalentPoints);
+            }
+        }
+
+        /// <summary>
+        /// 当前是否至少有一个可消耗天赋点。
+        /// </summary>
+        public bool HasAvailableTalentPoints => AvailableTalentPoints > 0;
 
         /// <summary>
         /// 当前土系受击护盾剩余吸收量。
@@ -207,10 +225,14 @@ namespace Gameplay.Agent.Talent
         /// <returns>成功解锁时返回 true。</returns>
         public bool TryUnlockNode(AgentTalentNodeId nodeId)
         {
-            if (!CanUnlockNode(nodeId))
+            if (!HasUnlockedPrerequisites(nodeId) || _availableTalentPoints <= 0)
                 return false;
 
-            return UnlockNode(nodeId);
+            if (!UnlockNode(nodeId))
+                return false;
+
+            _availableTalentPoints = Mathf.Max(0, _availableTalentPoints - 1);
+            return true;
         }
 
         /// <summary>
@@ -219,6 +241,16 @@ namespace Gameplay.Agent.Talent
         /// <param name="nodeId">要查询的节点 ID。</param>
         /// <returns>节点未解锁且所有前置节点已解锁时返回 true。</returns>
         public bool CanUnlockNode(AgentTalentNodeId nodeId)
+        {
+            return HasUnlockedPrerequisites(nodeId) && AvailableTalentPoints > 0;
+        }
+
+        /// <summary>
+        /// 查询指定节点是否满足前置节点条件，不检查可用天赋点。
+        /// </summary>
+        /// <param name="nodeId">要查询的节点 ID。</param>
+        /// <returns>前置条件已满足时返回 true。</returns>
+        public bool HasUnlockedPrerequisites(AgentTalentNodeId nodeId)
         {
             EnsureInitialUnlocksApplied();
             if (_unlockedNodes.Contains(nodeId))
@@ -232,6 +264,19 @@ namespace Gameplay.Agent.Talent
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 增加可用天赋点。升级系统在 Agent 升级时调用。
+        /// </summary>
+        /// <param name="points">新增点数。</param>
+        public void AddTalentPoints(int points)
+        {
+            EnsureInitialUnlocksApplied();
+            if (points <= 0)
+                return;
+
+            _availableTalentPoints += points;
         }
 
         /// <summary>
@@ -321,6 +366,7 @@ namespace Gameplay.Agent.Talent
             EnsureInitialUnlocksApplied();
             _unlockedNodes.Clear();
             _creditedEnemyInstanceIds.Clear();
+            _availableTalentPoints = 0;
             _iceKillAttackStacks = 0;
             _earthShieldValue = 0f;
             _earthShieldExpiresAt = 0d;

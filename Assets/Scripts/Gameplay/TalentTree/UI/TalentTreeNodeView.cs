@@ -35,6 +35,7 @@ namespace Gameplay.TalentTree.UI
         /// 当前视图绑定的天赋节点 ID。
         /// </summary>
         public AgentTalentNodeId NodeId => _nodeId;
+        public bool IsBound => _isBound;
 
         /// <summary>
         /// 当前节点标题。
@@ -129,7 +130,7 @@ namespace Gameplay.TalentTree.UI
             bool isUnlocked = hasRuntime && talentRuntime.IsUnlocked(_nodeId);
             bool canUnlock = hasRuntime && talentRuntime.CanUnlockNode(_nodeId);
 
-            SetInteractable(canUnlock);
+            SetInteractable(hasRuntime);
             SetLockedCoreVisible(!isUnlocked);
 
             if (isUnlocked)
@@ -167,6 +168,11 @@ namespace Gameplay.TalentTree.UI
         /// </summary>
         /// <param name="eventData">指针事件数据。</param>
         public void OnPointerEnter(PointerEventData eventData)
+        {
+            ShowDetails();
+        }
+
+        public void ShowDetails()
         {
             if (_isBound && _controller != null)
                 _controller.ShowNodeDetails(this);

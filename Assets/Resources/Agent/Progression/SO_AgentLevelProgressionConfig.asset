@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7ebe2157c654f7c97b3bf965f85aaa1, type: 3}
+  m_Name: SO_AgentLevelProgressionConfig
+  m_EditorClassIdentifier: 
+  _experienceSourceRules:
+  - _sourceKind: 0
+    _experienceAmount: 10
+    _experienceCap: 100
+  - _sourceKind: 1
+    _experienceAmount: 15
+    _experienceCap: 125
+  - _sourceKind: 2
+    _experienceAmount: 25
+    _experienceCap: 150
+  - _sourceKind: 3
+    _experienceAmount: 40
+    _experienceCap: 120
+  - _sourceKind: 4
+    _experienceAmount: 5
+    _experienceCap: 50
+  - _sourceKind: 5
+    _experienceAmount: 10
+    _experienceCap: 80
+  - _sourceKind: 6
+    _experienceAmount: 15
+    _experienceCap: 90
+  _levelRules:
+  - _level: 1
+    _experienceToNextLevel: 10
+    _talentPointsGrantedOnReachLevel: 0
+  - _level: 2
+    _experienceToNextLevel: 15
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 3
+    _experienceToNextLevel: 25
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 4
+    _experienceToNextLevel: 40
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 5
+    _experienceToNextLevel: 60
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 6
+    _experienceToNextLevel: 80
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 7
+    _experienceToNextLevel: 100
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 8
+    _experienceToNextLevel: 125
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 9
+    _experienceToNextLevel: 150
+    _talentPointsGrantedOnReachLevel: 2
+  - _level: 10
+    _experienceToNextLevel: 0
+    _talentPointsGrantedOnReachLevel: 1

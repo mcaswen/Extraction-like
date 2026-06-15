@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyId: modernstrander
   _displayName: "ModernStrander\u20141"
-  _maxHealth: 100
+  _maxHealth: 500
   _deathLoot:
     _spawnLootContainerOnDeath: 1
     _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
@@ -43,7 +43,7 @@ MonoBehaviour:
   _tentacleLatchDuration: 1.1
   _tentacleHitboxWidth: 0.55
   _tentacleHitboxHeight: 0.55
-  _latchPullStrength: 0.20
+  _latchPullStrength: 0.2
   _corrosionDamagePerSecond: 10
   _corrosionDuration: 2.5
   _corrosionTickInterval: 0.25
