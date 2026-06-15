@@ -103,6 +103,13 @@ namespace Gameplay.Agent.Combat
         {
             // 先解析目标点，敌人目标优先落在敌人位置，否则使用上下文前方点
             Vector3 center = AgentCombatSkillUtility.ResolveTargetPosition(context, target);
+            bool playedPrototype = AgentPrototypeSkillVfxBridge.TryPlayQuakeField(
+                context,
+                _config,
+                center,
+                _config.Radius,
+                _config.DurationSeconds + context.SkillModifiers.DurationBonusSeconds);
+            bool suppressConfiguredVisual = playedPrototype && context.SuppressConfiguredSkillVfx;
 
             // 再创建运行时区域实体，由实体自己负责 tick 和生命周期
             GameObject areaObject = new GameObject("AgentAreaDamageOverTime");
@@ -117,8 +124,9 @@ namespace Gameplay.Agent.Combat
                 _config.TickInterval,
                 _config.StatusEffect,
                 context.SkillModifiers.SlowDurationBonusSeconds,
-                _config.VisualPrefab,
-                _config.IndicatorColor);
+                suppressConfiguredVisual ? null : _config.VisualPrefab,
+                _config.IndicatorColor,
+                suppressConfiguredVisual);
             return true;
         }
     }

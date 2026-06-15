@@ -37,6 +37,7 @@ namespace Gameplay.Agent.Combat
         /// <param name="slowDurationBonusSeconds"></param>
         /// <param name="visualPrefab"></param>
         /// <param name="indicatorColor"></param>
+        /// <param name="suppressIndicator"></param>
         public void Initialize(
             Transform casterTransform,
             LayerMask enemyLayerMask,
@@ -47,7 +48,8 @@ namespace Gameplay.Agent.Combat
             AgentCombatStatusEffectDefinition statusEffect,
             float slowDurationBonusSeconds,
             GameObject visualPrefab,
-            Color indicatorColor)
+            Color indicatorColor,
+            bool suppressIndicator = false)
         {
             _casterTransform = casterTransform;
             _enemyLayerMask = enemyLayerMask;
@@ -59,7 +61,9 @@ namespace Gameplay.Agent.Combat
             _slowDurationBonusSeconds = Mathf.Max(0f, slowDurationBonusSeconds);
             _tickTimer = 0f;
 
-            SpawnIndicator(visualPrefab, indicatorColor);
+            if (!suppressIndicator)
+                SpawnIndicator(visualPrefab, indicatorColor);
+
             Destroy(gameObject, _durationSeconds + 0.05f);
         }
 

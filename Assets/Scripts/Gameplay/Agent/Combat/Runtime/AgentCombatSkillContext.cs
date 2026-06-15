@@ -23,7 +23,9 @@ namespace Gameplay.Agent.Combat
             AgentCombatRuntimeStats stats,
             LayerMask enemyLayerMask,
             float actionLockSeconds,
-            AgentCombatSkillModifiers skillModifiers = default)
+            AgentCombatSkillModifiers skillModifiers = default,
+            bool playPrototypeSkillVfx = false,
+            bool suppressConfiguredSkillVfx = false)
         {
             CasterTransform = casterTransform;
             StyleConfig = styleConfig;
@@ -31,6 +33,8 @@ namespace Gameplay.Agent.Combat
             EnemyLayerMask = enemyLayerMask;
             ActionLockSeconds = Mathf.Max(0.05f, actionLockSeconds);
             SkillModifiers = skillModifiers;
+            PlayPrototypeSkillVfx = playPrototypeSkillVfx;
+            SuppressConfiguredSkillVfx = suppressConfiguredSkillVfx;
         }
 
         /// <summary>
@@ -67,6 +71,16 @@ namespace Gameplay.Agent.Combat
         /// 本次技能释放应用的天赋修正
         /// </summary>
         public AgentCombatSkillModifiers SkillModifiers { get; }
+
+        /// <summary>
+        /// 是否额外播放旧提交里的主角技能 prototype 特效，用于测试对比。
+        /// </summary>
+        public bool PlayPrototypeSkillVfx { get; }
+
+        /// <summary>
+        /// prototype 特效播放成功时是否跳过配置里的正式 prefab/指示器。
+        /// </summary>
+        public bool SuppressConfiguredSkillVfx { get; }
 
         /// <summary>
         /// 施法者当前位置

@@ -14,6 +14,9 @@ namespace Gameplay.Agent.Combat
         [SerializeField] private AgentCombatStyleConfig _styleConfig;
         [SerializeField] private LayerMask _enemyLayerMask = ~0;
         [SerializeField, Min(0.05f)] private float _skillActionLockSeconds = 0.45f;
+        [Header("Debug Visuals")]
+        [SerializeField] private bool _playPrototypeSkillVfx = true;
+        [SerializeField] private bool _suppressConfiguredSkillVfx = true;
 
         private readonly List<AgentCombatSkillBase> _runtimeSkills = new List<AgentCombatSkillBase>();
         private AgentCombatShooter _shooter;
@@ -142,7 +145,9 @@ namespace Gameplay.Agent.Combat
                 effectiveStats,
                 _enemyLayerMask,
                 _skillActionLockSeconds,
-                skillModifiers);
+                skillModifiers,
+                _playPrototypeSkillVfx,
+                _suppressConfiguredSkillVfx);
         }
 
         private void RebuildRuntimeSkills()

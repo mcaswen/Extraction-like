@@ -152,6 +152,14 @@ namespace Gameplay.Agent.Combat
 
             if (hitAnyTarget)
             {
+                bool playedPrototype = AgentPrototypeSkillVfxBridge.TryPlayFrostAssault(
+                    context,
+                    _config,
+                    _config.Radius,
+                    _config.AngleDegrees);
+                if (playedPrototype && context.SuppressConfiguredSkillVfx)
+                    return true;
+
                 // 命中后优先播放配置视觉，否则生成默认扇形指示器
                 if (_config.VisualPrefab != null)
                 {

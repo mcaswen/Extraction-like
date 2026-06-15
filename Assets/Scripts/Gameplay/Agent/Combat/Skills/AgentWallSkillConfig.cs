@@ -131,28 +131,40 @@ namespace Gameplay.Agent.Combat
             // 墙体中心抬高半个高度，使底部落在地面附近
             Vector3 center = context.Position + forward * _config.ForwardDistance + Vector3.up * (_config.Height * 0.5f);
             Vector3 size = new Vector3(_config.Length, _config.Height, _config.Width);
-
-            // 有预制体时使用美术资产，否则生成最小 Cube 兜底
-            GameObject wallObject = _config.WallPrefab != null
-                ? Object.Instantiate(_config.WallPrefab)
-                : GameObject.CreatePrimitive(PrimitiveType.Cube);
-            wallObject.name = "AgentEarthWall";
-            wallObject.transform.SetPositionAndRotation(center, rotation);
-            wallObject.transform.localScale = size;
-            SkillEffectLayerUtility.ApplyToRoot(wallObject);
-
-            if (wallObject.GetComponentInChildren<Collider>() == null)
-                wallObject.AddComponent<BoxCollider>();
-
-            Rigidbody rigidbodyComponent = wallObject.GetComponent<Rigidbody>();
-            if (rigidbodyComponent == null)
-                rigidbodyComponent = wallObject.AddComponent<Rigidbody>();
-
-            rigidbodyComponent.isKinematic = true;
-            rigidbodyComponent.useGravity = false;
-            AgentCombatSkillUtility.ApplyColor(wallObject, _config.WallColor);
             float durationSeconds = Mathf.Max(0.05f, _config.DurationSeconds + context.SkillModifiers.DurationBonusSeconds);
-            Object.Destroy(wallObject, durationSeconds);
+
+            bool playedPrototype = AgentPrototypeSkillVfxBridge.TryPlayStoneWall(
+                context,
+                _config,
+                center,
+                forward,
+                _config.Length,
+                _config.Width,
+                _config.Height,
+                durationSeconds);
+            if (!playedPrototype || !context.SuppressConfiguredSkillVfx)
+            {
+                // 有预制体时使用美术资产，否则生成最小 Cube 兜底
+                GameObject wallObject = _config.WallPrefab != null
+                    ? Object.Instantiate(_config.WallPrefab)
+                    : GameObject.CreatePrimitive(PrimitiveType.Cube);
+                wallObject.name = "AgentEarthWall";
+                wallObject.transform.SetPositionAndRotation(center, rotation);
+                wallObject.transform.localScale = size;
+                SkillEffectLayerUtility.ApplyToRoot(wallObject);
+
+                if (wallObject.GetComponentInChildren<Collider>() == null)
+                    wallObject.AddComponent<BoxCollider>();
+
+                Rigidbody rigidbodyComponent = wallObject.GetComponent<Rigidbody>();
+                if (rigidbodyComponent == null)
+                    rigidbodyComponent = wallObject.AddComponent<Rigidbody>();
+
+                rigidbodyComponent.isKinematic = true;
+                rigidbodyComponent.useGravity = false;
+                AgentCombatSkillUtility.ApplyColor(wallObject, _config.WallColor);
+                Object.Destroy(wallObject, durationSeconds);
+            }
 
             // 墙体生成瞬间对重叠敌人结算一次冲击伤害
             ApplyImpactDamage(context, center, rotation, size);

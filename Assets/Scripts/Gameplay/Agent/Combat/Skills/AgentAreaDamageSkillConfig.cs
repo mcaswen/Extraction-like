@@ -121,6 +121,17 @@ namespace Gameplay.Agent.Combat
             }
 
             // 只有命中目标时播放视觉反馈，避免空放时制造误导性范围特效
+            if (hitAnyTarget)
+            {
+                bool playedPrototype = AgentPrototypeSkillVfxBridge.TryPlayWinterfall(
+                    context,
+                    _config,
+                    center,
+                    _config.Radius);
+                if (playedPrototype && context.SuppressConfiguredSkillVfx)
+                    return true;
+            }
+
             if (hitAnyTarget && _config.VisualPrefab != null)
             {
                 AgentCombatSkillUtility.SpawnVisualPrefab(
