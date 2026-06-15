@@ -16,7 +16,7 @@ public sealed class AnchorSentinelConfig : EnemyHealthConfigBase
     [SerializeField, Min(0.05f), Tooltip("Seconds the firing beam remains active.")]
     private float _firingDuration = 3f;
 
-    [SerializeField, Min(0.05f), Tooltip("Seconds between beam volley start times.")]
+    [SerializeField, Min(0.05f), Tooltip("Seconds after a beam finishes before the sentinel starts locking again.")]
     private float _cooldownDuration = 5f;
 
     [SerializeField, Min(0f), Tooltip("Seconds before the sentinel returns dormant while active. Set to 0 to stay active until out of range.")]

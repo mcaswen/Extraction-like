@@ -213,7 +213,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         {
             FinishBeamAttack();
             CurrentState = SentinelState.Cooldown;
-            _stateTimer = FiringDuration;
+            _stateTimer = 0f;
         }
     }
 
@@ -226,10 +226,10 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         }
 
         _stateTimer += Time.deltaTime;
-        if (_stateTimer >= Mathf.Max(FiringDuration, CooldownDuration))
+        if (_stateTimer >= CooldownDuration)
         {
             CurrentState = SentinelState.Locking;
-            _stateTimer = LockDuration;
+            _stateTimer = 0f;
         }
     }
 
@@ -241,7 +241,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         }
 
         CurrentState = SentinelState.Locking;
-        _stateTimer = LockDuration;
+        _stateTimer = 0f;
         _activeStateTimer = 0f;
     }
 
