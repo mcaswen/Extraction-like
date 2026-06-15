@@ -101,7 +101,7 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AmbientStrength: 0.25
-    - _BendRotationRandom: 0.22
+    - _BendRotationRandom: 0.048
     - _BladeCurve: 1.81
     - _BladeForward: 0.4
     - _BladeHeight: 0.5
@@ -152,5 +152,5 @@ Material:
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _TopColor: {r: 0.5081691, g: 0.76729554, b: 0.19061732, a: 1}
     - _WaveDirection: {r: 1, g: 0, b: 0, a: 0}
-    - _WindFrequency: {r: 0.05, g: 0.05, b: 0, a: 0}
+    - _WindFrequency: {r: 0.5, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
