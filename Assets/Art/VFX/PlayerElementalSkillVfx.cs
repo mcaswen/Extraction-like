@@ -109,6 +109,9 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     [SerializeField, Range(16, 128)] private int _ringSegments = 72;
     [SerializeField, Range(6, 64)] private int _lineSegments = 24;
     [SerializeField] private float _groundOffset = 0.06f;
+    [SerializeField, Range(0.8f, 2.5f)] private float _effectIntensityScale = 1.35f;
+    [SerializeField, Range(0.8f, 2.5f)] private float _lineWidthScale = 1.45f;
+    [SerializeField, Range(0.8f, 2.5f)] private float _burstDensityScale = 1.45f;
 
     private readonly Collider[] _overlapHits = new Collider[96];
     private readonly RaycastHit[] _sphereCastHits = new RaycastHit[32];
@@ -307,25 +310,25 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         Vector3 forward = ResolveAimDirection(origin);
         FaceDirection(forward);
 
-        SpawnConeTelegraph(origin, forward, _iceConeRadius, _iceConeAngle, GetIceMaterial(), GetSoftMaterial(), 0.55f);
-        SpawnDirectionalParticles("FrostAssaultMist", origin + Vector3.up * 0.2f, forward, GetIceMaterial(), 0.45f, 72, _iceConeRadius);
+        SpawnConeTelegraph(origin, forward, _iceConeRadius, _iceConeAngle, GetIceMaterial(), GetSoftMaterial(), 0.72f);
+        SpawnDirectionalParticles("FrostAssaultMist", origin + Vector3.up * 0.2f, forward, GetIceMaterial(), 0.6f, 96, _iceConeRadius);
 
         CollectEnemiesInCone(origin, forward, _iceConeRadius, _iceConeAngle, _targets);
         foreach (EnemyHealthController enemy in _targets)
         {
             ApplyEnemyDamage(enemy, AttackDamage(_iceConeDamageMultiplier), enemy.transform.position, origin);
             GetOrCreateEnemyStatus(enemy).ApplySlow(_iceSlowMultiplier, _iceSlowDuration);
-            SpawnSmallBurst(enemy.transform.position + Vector3.up * 0.75f, Color.white, new Color(0.45f, 0.9f, 1f, 0.65f), 0.7f);
+            SpawnSmallBurst(enemy.transform.position + Vector3.up * 0.75f, Color.white, new Color(0.45f, 0.9f, 1f, 0.65f), 1f);
         }
 
-        int spikeCount = Mathf.Max(7, Mathf.RoundToInt(_iceConeAngle / 12f));
+        int spikeCount = Mathf.Max(11, Mathf.RoundToInt(_iceConeAngle / 9f));
         for (int i = 0; i < spikeCount; i++)
         {
             float t = spikeCount == 1 ? 0.5f : i / (float)(spikeCount - 1);
             float angle = Mathf.Lerp(-_iceConeAngle * 0.5f, _iceConeAngle * 0.5f, t);
             float distance = Mathf.Lerp(1.25f, _iceConeRadius * 0.95f, Mathf.PingPong(i * 0.37f, 1f));
             Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * forward;
-            SpawnIceSpike(origin + direction * distance, direction, 0.45f + t * 0.25f);
+            SpawnIceSpike(origin + direction * distance, direction, 0.58f + t * 0.38f);
         }
 
         return true;
@@ -335,14 +338,15 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     {
         Vector3 target = ResolveAimPoint(_winterRadius + 4f);
         target.y += _groundOffset;
-        SpawnGroundRing("WinterTargetRing", target, _winterRadius, GetIceMaterial(), 0.13f, 0.75f);
+        SpawnGroundRing("WinterTargetRing", target, _winterRadius, GetIceMaterial(), 0.18f, 0.95f);
+        SpawnVerticalStrike(target, _winterRadius, GetIceMaterial(), 0.95f);
         StartCoroutine(WinterRoutine(target));
         return true;
     }
 
     private IEnumerator WinterRoutine(Vector3 target)
     {
-        SpawnSmallBurst(target + Vector3.up * 2.9f, new Color(0.74f, 0.96f, 1f, 0.8f), Color.white, 1f);
+        SpawnSmallBurst(target + Vector3.up * 2.9f, new Color(0.74f, 0.96f, 1f, 0.8f), Color.white, 1.45f);
         yield return new WaitForSeconds(0.22f);
 
         CollectEnemiesInSphere(target, _winterRadius, _targets);
@@ -351,13 +355,13 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             ApplyEnemyDamage(enemy, AttackDamage(_winterDamageMultiplier), enemy.transform.position, target);
         }
 
-        int pillarCount = 9;
+        int pillarCount = 13;
         for (int i = 0; i < pillarCount; i++)
         {
             float angle = i * (360f / pillarCount);
             float radius = i == 0 ? 0f : Random.Range(_winterRadius * 0.2f, _winterRadius * 0.78f);
             Vector3 offset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0f, Mathf.Sin(angle * Mathf.Deg2Rad)) * radius;
-            SpawnIcePillar(target + offset, Random.Range(1.35f, 2.65f), Random.Range(0.16f, 0.34f), Random.Range(0.9f, 1.25f));
+            SpawnIcePillar(target + offset, Random.Range(1.75f, 3.35f), Random.Range(0.2f, 0.44f), Random.Range(1.05f, 1.45f));
         }
     }
 
@@ -391,8 +395,8 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         Rigidbody wallBody = wall.AddComponent<Rigidbody>();
         wallBody.isKinematic = true;
         wallBody.useGravity = false;
-        SpawnGroundRing("EarthWallDustRing", center - Vector3.up * (_earthWallHeight * 0.5f - _groundOffset), _earthWallLength * 0.55f, GetEarthMaterial(), 0.11f, 0.65f);
-        SpawnSmallBurst(center, new Color(0.44f, 0.34f, 0.22f, 0.85f), new Color(0.9f, 0.72f, 0.45f, 0.4f), 1.1f);
+        SpawnGroundRing("EarthWallDustRing", center - Vector3.up * (_earthWallHeight * 0.5f - _groundOffset), _earthWallLength * 0.58f, GetEarthMaterial(), 0.16f, 0.9f);
+        SpawnSmallBurst(center, new Color(0.44f, 0.34f, 0.22f, 0.85f), new Color(0.9f, 0.72f, 0.45f, 0.4f), 1.45f);
 
         DamageEnemiesInWallBox(center, rotation, DefenseDamage(_earthWallDamageMultiplier));
         Destroy(wall, _earthWallDuration);
@@ -414,20 +418,20 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         root.layer = gameObject.layer;
         root.transform.position = target;
 
-        LineRenderer outer = CreateLine(root.transform, "EarthQuakeOuter", GetEarthMaterial(), 0.12f, 8);
-        LineRenderer inner = CreateLine(root.transform, "EarthQuakeInner", GetDarkLineMaterial(), 0.06f, 9);
-        LineRenderer crackA = CreateLine(root.transform, "EarthCrackA", GetDarkLineMaterial(), 0.08f, 10);
-        LineRenderer crackB = CreateLine(root.transform, "EarthCrackB", GetDarkLineMaterial(), 0.08f, 10);
+        LineRenderer outer = CreateLine(root.transform, "EarthQuakeOuter", GetEarthMaterial(), 0.18f, 8);
+        LineRenderer inner = CreateLine(root.transform, "EarthQuakeInner", GetDarkLineMaterial(), 0.1f, 9);
+        LineRenderer crackA = CreateLine(root.transform, "EarthCrackA", GetDarkLineMaterial(), 0.13f, 10);
+        LineRenderer crackB = CreateLine(root.transform, "EarthCrackB", GetDarkLineMaterial(), 0.13f, 10);
 
         while (elapsed < _earthQuakeDuration)
         {
             elapsed += Time.deltaTime;
             tick -= Time.deltaTime;
             float pulse = 0.85f + Mathf.Sin(Time.time * 12f) * 0.15f;
-            ApplyLine(outer, BuildCircle(target, _earthQuakeRadius * pulse, _groundOffset), new Color(0.72f, 0.55f, 0.28f, 0.9f), new Color(0.36f, 0.2f, 0.1f, 0.65f), 0.85f, 0.12f);
-            ApplyLine(inner, BuildCircle(target, _earthQuakeRadius * 0.58f, _groundOffset + 0.01f), new Color(0.95f, 0.76f, 0.35f, 0.85f), new Color(0.22f, 0.13f, 0.08f, 0.7f), 0.8f, 0.06f);
-            ApplyLine(crackA, BuildCrack(target, _earthQuakeRadius, Time.time * 25f), Color.black, new Color(0.85f, 0.55f, 0.2f, 0.7f), 0.75f, 0.08f);
-            ApplyLine(crackB, BuildCrack(target, _earthQuakeRadius, Time.time * -18f + 90f), Color.black, new Color(0.85f, 0.55f, 0.2f, 0.7f), 0.75f, 0.08f);
+            ApplyLine(outer, BuildCircle(target, _earthQuakeRadius * pulse, _groundOffset), new Color(0.78f, 0.58f, 0.28f, 0.95f), new Color(0.36f, 0.2f, 0.1f, 0.78f), 0.95f, 0.18f);
+            ApplyLine(inner, BuildCircle(target, _earthQuakeRadius * 0.58f, _groundOffset + 0.01f), new Color(1f, 0.82f, 0.38f, 0.95f), new Color(0.22f, 0.13f, 0.08f, 0.8f), 0.92f, 0.1f);
+            ApplyLine(crackA, BuildCrack(target, _earthQuakeRadius, Time.time * 25f), Color.black, new Color(0.95f, 0.62f, 0.22f, 0.82f), 0.86f, 0.13f);
+            ApplyLine(crackB, BuildCrack(target, _earthQuakeRadius, Time.time * -18f + 90f), Color.black, new Color(0.95f, 0.62f, 0.22f, 0.82f), 0.86f, 0.13f);
 
             if (tick <= 0f)
             {
@@ -438,7 +442,8 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
                     ApplyEnemyDamage(enemy, DefenseDamage(_earthQuakeDamageMultiplier), enemy.transform.position, target);
                 }
 
-                SpawnSmallBurst(target + Vector3.up * 0.12f, new Color(0.58f, 0.39f, 0.18f, 0.85f), new Color(0.95f, 0.65f, 0.25f, 0.45f), 0.9f);
+                SpawnGroundRing("EarthQuakePulseRing", target + Vector3.up * _groundOffset, _earthQuakeRadius * 0.92f, GetEarthMaterial(), 0.11f, 0.42f);
+                SpawnSmallBurst(target + Vector3.up * 0.12f, new Color(0.58f, 0.39f, 0.18f, 0.85f), new Color(0.95f, 0.65f, 0.25f, 0.45f), 1.25f);
             }
 
             yield return null;
@@ -462,7 +467,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             _fireShieldVisual = CreateFollowAura("PlayerFireShieldAura", GetFireMaterial(), _fireShieldDamageRadius, 0.2f);
         }
 
-        SpawnSmallBurst(transform.position + Vector3.up * 0.9f, new Color(1f, 0.5f, 0.16f, 0.9f), new Color(1f, 0.94f, 0.54f, 0.65f), 1.2f);
+        SpawnSmallBurst(transform.position + Vector3.up * 0.9f, new Color(1f, 0.5f, 0.16f, 0.9f), new Color(1f, 0.94f, 0.54f, 0.65f), 1.6f);
         return true;
     }
 
@@ -481,12 +486,13 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         projectile.name = "PlayerFireball";
         projectile.layer = gameObject.layer;
         projectile.transform.position = origin;
-        projectile.transform.localScale = Vector3.one * (_fireballRadius * 2f);
+        projectile.transform.localScale = Vector3.one * (_fireballRadius * 2.65f);
         ApplyRenderer(projectile, GetFireMaterial());
         RemoveCollider(projectile);
 
         ParticleSystem trail = projectile.AddComponent<ParticleSystem>();
-        ConfigureTrailParticles(trail, new Color(1f, 0.45f, 0.08f, 0.9f), new Color(1f, 0.9f, 0.35f, 0.55f), 0.25f, 0.12f);
+        ConfigureTrailParticles(trail, new Color(1f, 0.45f, 0.08f, 0.9f), new Color(1f, 0.9f, 0.35f, 0.55f), 0.34f, 0.18f);
+        LineRenderer coreTrail = CreateLine(projectile.transform, "FireballCoreTrail", GetFireMaterial(), 0.16f, 14);
 
         float elapsed = 0f;
         Vector3 previous = origin;
@@ -498,17 +504,18 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             {
                 ApplyEnemyDamage(enemy, AttackDamage(_fireballDamageMultiplier), hitPoint, origin);
                 _fireShieldRemaining = Mathf.Min(_fireShieldMaxDuration, _fireShieldRemaining + _fireShieldExtendOnHit);
-                SpawnSmallBurst(hitPoint, new Color(1f, 0.42f, 0.05f, 0.95f), new Color(1f, 0.94f, 0.45f, 0.8f), 1.2f);
+                SpawnSmallBurst(hitPoint, new Color(1f, 0.42f, 0.05f, 0.95f), new Color(1f, 0.94f, 0.45f, 0.8f), 1.65f);
                 Destroy(projectile);
                 yield break;
             }
 
             projectile.transform.position = next;
+            ApplyLine(coreTrail, new[] { next - direction * 1.15f, next + direction * 0.16f }, new Color(1f, 0.24f, 0.02f, 0.85f), new Color(1f, 0.96f, 0.48f, 0.95f), 1f, 0.16f);
             previous = next;
             yield return null;
         }
 
-        SpawnSmallBurst(projectile.transform.position, new Color(1f, 0.42f, 0.05f, 0.85f), new Color(1f, 0.94f, 0.45f, 0.55f), 0.9f);
+        SpawnSmallBurst(projectile.transform.position, new Color(1f, 0.42f, 0.05f, 0.85f), new Color(1f, 0.94f, 0.45f, 0.55f), 1.25f);
         Destroy(projectile);
     }
 
@@ -520,7 +527,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             _metalBuffVisual = CreateFollowAura("PlayerMetalBuffAura", GetMetalMaterial(), 1.65f, 0.1f);
         }
 
-        SpawnSmallBurst(transform.position + Vector3.up * 0.8f, new Color(0.95f, 0.86f, 0.48f, 0.9f), new Color(1f, 1f, 0.85f, 0.7f), 1.1f);
+        SpawnSmallBurst(transform.position + Vector3.up * 0.8f, new Color(0.95f, 0.86f, 0.48f, 0.9f), new Color(1f, 1f, 0.85f, 0.7f), 1.45f);
         return true;
     }
 
@@ -534,7 +541,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
 
         _vulnerableTargets[enemy] = Time.time + _smeltDuration;
         StartCoroutine(SmeltMarkRoutine(enemy, _smeltDuration));
-        SpawnSmallBurst(enemy.transform.position + Vector3.up * 1f, new Color(1f, 0.72f, 0.24f, 0.9f), new Color(1f, 0.96f, 0.7f, 0.7f), 0.8f);
+        SpawnSmallBurst(enemy.transform.position + Vector3.up * 1f, new Color(1f, 0.72f, 0.24f, 0.9f), new Color(1f, 0.96f, 0.7f, 0.7f), 1.2f);
         return true;
     }
 
@@ -542,8 +549,8 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     {
         GameObject root = new GameObject("PlayerSmeltVulnerableMark");
         root.layer = gameObject.layer;
-        LineRenderer ring = CreateLine(root.transform, "SmeltRing", GetMetalMaterial(), 0.08f, 10);
-        LineRenderer spark = CreateLine(root.transform, "SmeltSpark", GetFireMaterial(), 0.05f, 11);
+        LineRenderer ring = CreateLine(root.transform, "SmeltRing", GetMetalMaterial(), 0.13f, 10);
+        LineRenderer spark = CreateLine(root.transform, "SmeltSpark", GetFireMaterial(), 0.08f, 11);
         float elapsed = 0f;
 
         while (elapsed < duration && enemy != null && enemy.IsAlive)
@@ -551,8 +558,8 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             elapsed += Time.deltaTime;
             Vector3 center = enemy.transform.position + Vector3.up * 1.1f;
             float radius = 0.65f + Mathf.Sin(Time.time * 7f) * 0.08f;
-            ApplyLine(ring, BuildVerticalCircle(center, radius, transform.forward), new Color(1f, 0.74f, 0.22f, 0.9f), new Color(1f, 0.96f, 0.64f, 0.75f), 0.9f, 0.08f);
-            ApplyLine(spark, BuildVerticalSpark(center, radius, Time.time * 110f), new Color(1f, 0.4f, 0.08f, 0.9f), Color.white, 0.85f, 0.05f);
+            ApplyLine(ring, BuildVerticalCircle(center, radius, transform.forward), new Color(1f, 0.74f, 0.22f, 0.95f), new Color(1f, 0.96f, 0.64f, 0.84f), 0.96f, 0.13f);
+            ApplyLine(spark, BuildVerticalSpark(center, radius, Time.time * 110f), new Color(1f, 0.4f, 0.08f, 0.95f), Color.white, 0.92f, 0.08f);
             yield return null;
         }
 
@@ -573,8 +580,8 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             _characterMotor.ApplyMoveSpeedMultiplier(_confluenceMoveSpeedMultiplier, _confluenceDuration);
         }
 
-        SpawnGroundRing("PlayerWaterConfluenceRing", transform.position + Vector3.up * _groundOffset, _confluenceRadius, GetWaterMaterial(), 0.14f, _confluenceDuration);
-        SpawnSmallBurst(transform.position + Vector3.up * 0.8f, new Color(0.18f, 0.85f, 1f, 0.9f), new Color(0.82f, 1f, 1f, 0.72f), 1.1f);
+        SpawnGroundRing("PlayerWaterConfluenceRing", transform.position + Vector3.up * _groundOffset, _confluenceRadius, GetWaterMaterial(), 0.2f, _confluenceDuration);
+        SpawnSmallBurst(transform.position + Vector3.up * 0.8f, new Color(0.18f, 0.85f, 1f, 0.9f), new Color(0.82f, 1f, 1f, 0.72f), 1.45f);
         return true;
     }
 
@@ -597,7 +604,8 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         float tick = 0f;
         GameObject root = new GameObject("PlayerWaterSpring");
         root.layer = gameObject.layer;
-        LineRenderer ring = CreateLine(root.transform, "SpringRing", GetWaterMaterial(), 0.09f, 11);
+        LineRenderer ring = CreateLine(root.transform, "SpringRing", GetWaterMaterial(), 0.14f, 11);
+        LineRenderer innerRing = CreateLine(root.transform, "SpringInnerRing", GetSoftMaterial(), 0.07f, 12);
 
         while (elapsed < _springDuration && target != null && !target.IsDead)
         {
@@ -605,13 +613,14 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             tick -= Time.deltaTime;
             Vector3 center = target.transform.position + Vector3.up * _groundOffset;
             root.transform.position = center;
-            ApplyLine(ring, BuildCircle(center, 1.05f + Mathf.Sin(Time.time * 8f) * 0.12f, 0.02f), new Color(0.36f, 0.94f, 1f, 0.9f), Color.white, 0.9f, 0.09f);
+            ApplyLine(ring, BuildCircle(center, 1.18f + Mathf.Sin(Time.time * 8f) * 0.16f, 0.02f), new Color(0.36f, 0.94f, 1f, 0.95f), Color.white, 0.96f, 0.14f);
+            ApplyLine(innerRing, BuildCircle(center, 0.62f + Mathf.Sin(Time.time * 12f) * 0.08f, 0.06f), Color.white, new Color(0.22f, 0.9f, 1f, 0.85f), 0.82f, 0.07f);
 
             if (tick <= 0f)
             {
                 tick = 1f;
                 target.Heal(ResolveMaxHealth(target) * _springHealMaxHealthRatio);
-                SpawnSmallBurst(target.transform.position + Vector3.up * 1f, new Color(0.32f, 0.9f, 1f, 0.85f), Color.white, 0.75f);
+                SpawnSmallBurst(target.transform.position + Vector3.up * 1f, new Color(0.32f, 0.9f, 1f, 0.85f), Color.white, 1.05f);
             }
 
             yield return null;
@@ -1050,9 +1059,17 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         root.layer = gameObject.layer;
         root.transform.position = transform.position + Vector3.up * 0.85f;
 
-        LineRenderer ring = CreateLine(root.transform, "AuraRing", material, 0.08f, 8);
-        ring.useWorldSpace = false;
-        ApplyLine(ring, BuildCircle(Vector3.down * (0.85f - height), radius, 0f), Color.white, material.color, 0.85f, 0.08f);
+        LineRenderer outerRing = CreateLine(root.transform, "AuraOuterRing", material, 0.13f, 8);
+        LineRenderer innerRing = CreateLine(root.transform, "AuraInnerRing", GetSoftMaterial(), 0.07f, 9);
+        LineRenderer upperRing = CreateLine(root.transform, "AuraUpperRing", material, 0.075f, 10);
+        outerRing.useWorldSpace = false;
+        innerRing.useWorldSpace = false;
+        upperRing.useWorldSpace = false;
+
+        Vector3 groundCenter = Vector3.down * (0.85f - height);
+        ApplyLine(outerRing, BuildCircle(groundCenter, radius, 0f), Color.white, material.color, 0.96f, 0.13f);
+        ApplyLine(innerRing, BuildCircle(groundCenter, radius * 0.62f, 0.02f), material.color, Color.white, 0.78f, 0.07f);
+        ApplyLine(upperRing, BuildCircle(Vector3.up * 0.18f, radius * 0.42f, 0f), Color.white, material.color, 0.66f, 0.075f);
 
         ParticleSystem particles = root.AddComponent<ParticleSystem>();
         ConfigureAuraParticles(particles, material.color, radius);
@@ -1071,15 +1088,26 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         GameObject root = new GameObject("PlayerConeSkillTelegraph");
         root.layer = gameObject.layer;
 
-        LineRenderer arc = CreateLine(root.transform, "ConeArc", lineMaterial, 0.1f, 8);
-        LineRenderer left = CreateLine(root.transform, "ConeLeft", boundaryMaterial, 0.055f, 9);
-        LineRenderer right = CreateLine(root.transform, "ConeRight", boundaryMaterial, 0.055f, 9);
+        LineRenderer outerArc = CreateLine(root.transform, "ConeOuterArc", lineMaterial, 0.18f, 8);
+        LineRenderer innerArc = CreateLine(root.transform, "ConeInnerArc", GetSoftMaterial(), 0.09f, 9);
+        LineRenderer left = CreateLine(root.transform, "ConeLeft", boundaryMaterial, 0.09f, 10);
+        LineRenderer right = CreateLine(root.transform, "ConeRight", boundaryMaterial, 0.09f, 10);
+        LineRenderer centerSlash = CreateLine(root.transform, "ConeCenterSlash", lineMaterial, 0.075f, 11);
+        LineRenderer midSlashA = CreateLine(root.transform, "ConeMidSlashA", GetSoftMaterial(), 0.055f, 12);
+        LineRenderer midSlashB = CreateLine(root.transform, "ConeMidSlashB", GetSoftMaterial(), 0.055f, 12);
 
         Vector3 leftDirection = Quaternion.AngleAxis(-angle * 0.5f, Vector3.up) * forward;
         Vector3 rightDirection = Quaternion.AngleAxis(angle * 0.5f, Vector3.up) * forward;
-        ApplyLine(arc, BuildArc(origin, forward, radius, angle, _groundOffset), new Color(0.55f, 0.92f, 1f, 0.95f), Color.white, 0.9f, 0.1f);
-        ApplyLine(left, new[] { origin + Vector3.up * _groundOffset, origin + leftDirection * radius + Vector3.up * _groundOffset }, Color.white, new Color(0.55f, 0.92f, 1f, 0.75f), 0.75f, 0.055f);
-        ApplyLine(right, new[] { origin + Vector3.up * _groundOffset, origin + rightDirection * radius + Vector3.up * _groundOffset }, Color.white, new Color(0.55f, 0.92f, 1f, 0.75f), 0.75f, 0.055f);
+        Vector3 midLeftDirection = Quaternion.AngleAxis(-angle * 0.22f, Vector3.up) * forward;
+        Vector3 midRightDirection = Quaternion.AngleAxis(angle * 0.22f, Vector3.up) * forward;
+        Vector3 start = origin + Vector3.up * _groundOffset;
+        ApplyLine(outerArc, BuildArc(origin, forward, radius, angle, _groundOffset), new Color(0.45f, 0.88f, 1f, 1f), Color.white, 1f, 0.18f);
+        ApplyLine(innerArc, BuildArc(origin, forward, radius * 0.58f, angle * 0.72f, _groundOffset + 0.025f), Color.white, new Color(0.68f, 0.96f, 1f, 0.9f), 0.82f, 0.09f);
+        ApplyLine(left, new[] { start, origin + leftDirection * radius + Vector3.up * _groundOffset }, Color.white, new Color(0.55f, 0.92f, 1f, 0.86f), 0.88f, 0.09f);
+        ApplyLine(right, new[] { start, origin + rightDirection * radius + Vector3.up * _groundOffset }, Color.white, new Color(0.55f, 0.92f, 1f, 0.86f), 0.88f, 0.09f);
+        ApplyLine(centerSlash, new[] { start + forward * 0.45f, origin + forward * radius + Vector3.up * (_groundOffset + 0.04f) }, new Color(0.46f, 0.9f, 1f, 0.9f), Color.white, 0.8f, 0.075f);
+        ApplyLine(midSlashA, new[] { start + midLeftDirection * 0.55f, origin + midLeftDirection * radius * 0.82f + Vector3.up * _groundOffset }, Color.white, new Color(0.55f, 0.92f, 1f, 0.65f), 0.52f, 0.055f);
+        ApplyLine(midSlashB, new[] { start + midRightDirection * 0.55f, origin + midRightDirection * radius * 0.82f + Vector3.up * _groundOffset }, Color.white, new Color(0.55f, 0.92f, 1f, 0.65f), 0.52f, 0.055f);
         Destroy(root, duration);
     }
 
@@ -1087,8 +1115,32 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     {
         GameObject root = new GameObject(objectName);
         root.layer = gameObject.layer;
-        LineRenderer ring = CreateLine(root.transform, "Ring", material, width, 8);
-        ApplyLine(ring, BuildCircle(center, radius, 0f), material.color, Color.white, 0.85f, width);
+        LineRenderer outerRing = CreateLine(root.transform, "OuterRing", material, width, 8);
+        LineRenderer innerRing = CreateLine(root.transform, "InnerRing", GetSoftMaterial(), Mathf.Max(0.025f, width * 0.48f), 9);
+        LineRenderer pulseRing = CreateLine(root.transform, "PulseRing", material, Mathf.Max(0.025f, width * 0.34f), 10);
+        LineRenderer spokeA = CreateLine(root.transform, "SpokeA", GetSoftMaterial(), Mathf.Max(0.02f, width * 0.34f), 11);
+        LineRenderer spokeB = CreateLine(root.transform, "SpokeB", GetSoftMaterial(), Mathf.Max(0.02f, width * 0.34f), 11);
+        ApplyLine(outerRing, BuildCircle(center, radius, 0f), material.color, Color.white, 0.95f, width);
+        ApplyLine(innerRing, BuildCircle(center, radius * 0.58f, 0.02f), Color.white, material.color, 0.66f, Mathf.Max(0.025f, width * 0.48f));
+        ApplyLine(pulseRing, BuildCircle(center, radius * 1.18f, 0.04f), material.color, Color.white, 0.42f, Mathf.Max(0.025f, width * 0.34f));
+        ApplyLine(spokeA, new[] { center + Vector3.left * radius * 0.78f + Vector3.up * 0.03f, center + Vector3.right * radius * 0.78f + Vector3.up * 0.03f }, Color.white, material.color, 0.35f, Mathf.Max(0.02f, width * 0.34f));
+        ApplyLine(spokeB, new[] { center + Vector3.back * radius * 0.78f + Vector3.up * 0.03f, center + Vector3.forward * radius * 0.78f + Vector3.up * 0.03f }, Color.white, material.color, 0.35f, Mathf.Max(0.02f, width * 0.34f));
+        Destroy(root, duration);
+    }
+
+    private void SpawnVerticalStrike(Vector3 center, float radius, Material material, float duration)
+    {
+        GameObject root = new GameObject("PlayerVerticalStrike");
+        root.layer = gameObject.layer;
+
+        float height = Mathf.Max(3.2f, radius * 1.85f);
+        Vector3 top = center + Vector3.up * height;
+        LineRenderer core = CreateLine(root.transform, "StrikeCore", material, 0.2f, 15);
+        LineRenderer edgeA = CreateLine(root.transform, "StrikeEdgeA", GetSoftMaterial(), 0.085f, 16);
+        LineRenderer edgeB = CreateLine(root.transform, "StrikeEdgeB", GetSoftMaterial(), 0.085f, 16);
+        ApplyLine(core, new[] { top, center + Vector3.up * 0.08f }, Color.white, material.color, 0.95f, 0.2f);
+        ApplyLine(edgeA, new[] { top + Vector3.right * radius * 0.18f, center + Vector3.left * radius * 0.18f + Vector3.up * 0.05f }, material.color, Color.white, 0.58f, 0.085f);
+        ApplyLine(edgeB, new[] { top + Vector3.forward * radius * 0.18f, center + Vector3.back * radius * 0.18f + Vector3.up * 0.05f }, material.color, Color.white, 0.58f, 0.085f);
         Destroy(root, duration);
     }
 
@@ -1103,22 +1155,22 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         ParticleSystem.MainModule main = particles.main;
         main.duration = duration;
         main.loop = false;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.28f, 0.52f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(range * 0.75f, range * 1.15f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.2f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.34f, 0.68f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(range * 0.82f, range * 1.32f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.08f * _effectIntensityScale, 0.3f * _effectIntensityScale);
         main.startColor = new ParticleSystem.MinMaxGradient(material.color, Color.white);
-        main.maxParticles = burstCount * 2;
+        main.maxParticles = Mathf.RoundToInt(burstCount * _burstDensityScale * 2.2f);
 
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
-        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)burstCount) });
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(burstCount * _burstDensityScale)) });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Cone;
         shape.angle = _iceConeAngle * 0.5f;
-        shape.radius = 0.2f;
-        shape.length = 0.5f;
+        shape.radius = 0.32f;
+        shape.length = 0.7f;
 
         ParticleSystemRenderer rendererComponent = particles.GetComponent<ParticleSystemRenderer>();
         rendererComponent.renderMode = ParticleSystemRenderMode.Billboard;
@@ -1134,27 +1186,32 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         GameObject root = new GameObject("PlayerSkillBurst");
         root.layer = gameObject.layer;
         root.transform.position = position;
+        LineRenderer flashRing = CreateLine(root.transform, "BurstFlashRing", GetSoftMaterial(), 0.075f, 13);
+        float ringRadius = Mathf.Max(0.22f, 0.48f * scale * _effectIntensityScale);
+        ApplyLine(flashRing, BuildCircle(position, ringRadius, 0f), startColor, endColor, 0.62f, 0.075f);
+
         ParticleSystem particles = root.AddComponent<ParticleSystem>();
         PrepareParticleSystem(particles);
 
+        float visualScale = scale * _effectIntensityScale;
         ParticleSystem.MainModule main = particles.main;
-        main.duration = 0.35f;
+        main.duration = 0.46f;
         main.loop = false;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.25f, 0.65f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(1.1f * scale, 3.2f * scale);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.08f * scale, 0.28f * scale);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.28f, 0.78f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(1.35f * visualScale, 4.25f * visualScale);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.1f * visualScale, 0.38f * visualScale);
         main.startColor = new ParticleSystem.MinMaxGradient(startColor, endColor);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.maxParticles = 96;
+        main.maxParticles = Mathf.RoundToInt(140f * _burstDensityScale);
 
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
-        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)42) });
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(58f * _burstDensityScale)) });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.18f * scale;
+        shape.radius = 0.22f * visualScale;
 
         ParticleSystemRenderer rendererComponent = particles.GetComponent<ParticleSystemRenderer>();
         rendererComponent.renderMode = ParticleSystemRenderMode.Billboard;
@@ -1162,7 +1219,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         rendererComponent.sortingOrder = 12;
 
         particles.Play();
-        Destroy(root, 1.2f);
+        Destroy(root, 1.35f);
     }
 
     private void SpawnIceSpike(Vector3 position, Vector3 forward, float heightScale)
@@ -1198,19 +1255,19 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         main.duration = 1f;
         main.loop = true;
         main.startLifetime = new ParticleSystem.MinMaxCurve(lifetime * 0.55f, lifetime);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.04f, 0.12f);
-        main.startSize = new ParticleSystem.MinMaxCurve(size * 0.5f, size);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.08f, 0.22f);
+        main.startSize = new ParticleSystem.MinMaxCurve(size * 0.7f * _effectIntensityScale, size * _effectIntensityScale);
         main.startColor = new ParticleSystem.MinMaxGradient(startColor, endColor);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.maxParticles = 96;
+        main.maxParticles = Mathf.RoundToInt(160f * _burstDensityScale);
 
         ParticleSystem.EmissionModule emission = particles.emission;
-        emission.rateOverTime = 62f;
+        emission.rateOverTime = 96f * _burstDensityScale;
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.08f;
+        shape.radius = 0.13f;
 
         ParticleSystemRenderer rendererComponent = particles.GetComponent<ParticleSystemRenderer>();
         rendererComponent.renderMode = ParticleSystemRenderMode.Billboard;
@@ -1224,14 +1281,14 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         ParticleSystem.MainModule main = particles.main;
         main.duration = 1f;
         main.loop = true;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.5f, 0.9f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.15f, 0.45f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.08f, 0.2f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.55f, 1.05f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.22f, 0.72f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.1f * _effectIntensityScale, 0.28f * _effectIntensityScale);
         main.startColor = new ParticleSystem.MinMaxGradient(color, Color.white);
-        main.maxParticles = 150;
+        main.maxParticles = Mathf.RoundToInt(240f * _burstDensityScale);
 
         ParticleSystem.EmissionModule emission = particles.emission;
-        emission.rateOverTime = 52f;
+        emission.rateOverTime = 86f * _burstDensityScale;
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
@@ -1340,7 +1397,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         endColor.a *= alpha;
         line.startColor = startColor;
         line.endColor = endColor;
-        line.widthMultiplier = width;
+        line.widthMultiplier = Mathf.Max(0.001f, width * _lineWidthScale);
         line.enabled = alpha > 0.01f;
     }
 
@@ -1353,7 +1410,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         LineRenderer line = lineObject.AddComponent<LineRenderer>();
         line.useWorldSpace = true;
         line.positionCount = 2;
-        line.widthMultiplier = width;
+        line.widthMultiplier = Mathf.Max(0.001f, width * _lineWidthScale);
         line.numCapVertices = 6;
         line.numCornerVertices = 4;
         line.alignment = LineAlignment.View;
