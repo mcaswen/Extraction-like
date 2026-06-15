@@ -70,6 +70,7 @@ Shader "Grass/GrassShader"
         float3 _LightDirection;
         float3 _LightPosition;
 
+        #if !defined(SHADER_API_METAL)
         struct Attributes
         {
             float3 positionOS : POSITION;
@@ -479,6 +480,7 @@ Shader "Grass/GrassShader"
         {
             return 0;
         }
+        #endif
         ENDHLSL
 
         Pass
@@ -490,6 +492,7 @@ Shader "Grass/GrassShader"
 
             HLSLPROGRAM
             #pragma target 4.6
+            #pragma exclude_renderers metal
             #pragma vertex vert
             #pragma hull hull
             #pragma domain domain
@@ -513,11 +516,147 @@ Shader "Grass/GrassShader"
 
             HLSLPROGRAM
             #pragma target 4.6
+            #pragma exclude_renderers metal
             #pragma vertex vert
             #pragma hull shadowHull
             #pragma domain domain
             #pragma geometry shadowGeom
             #pragma fragment shadowFrag
+
+            #pragma multi_compile _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            ENDHLSL
+        }
+    }
+
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" "RenderPipeline"="UniversalPipeline" }
+
+        HLSLINCLUDE
+        struct GrassFallbackAttributes
+        {
+            float3 positionOS : POSITION;
+            float3 normalOS : NORMAL;
+            float2 uv : TEXCOORD0;
+        };
+
+        struct GrassFallbackVaryings
+        {
+            float4 positionCS : SV_POSITION;
+            float2 uv : TEXCOORD0;
+            float3 positionWS : TEXCOORD1;
+            float3 normalWS : TEXCOORD2;
+        };
+
+        float3 GrassFallbackSafeNormalize(float3 value, float3 fallback)
+        {
+            return dot(value, value) > 1e-6 ? normalize(value) : fallback;
+        }
+
+        float4 GrassFallbackShadowPositionHClip(float3 positionOS, float3 normalOS)
+        {
+            float3 positionWS = TransformObjectToWorld(positionOS);
+            float3 normalWS = TransformObjectToWorldNormal(normalOS);
+
+            #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
+                float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+            #else
+                float3 lightDirectionWS = _LightDirection;
+            #endif
+
+            float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+
+            #if UNITY_REVERSED_Z
+                positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+            #else
+                positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+            #endif
+
+            return positionCS;
+        }
+
+        GrassFallbackVaryings GrassFallbackVert(GrassFallbackAttributes input)
+        {
+            GrassFallbackVaryings output = (GrassFallbackVaryings)0;
+            output.positionWS = TransformObjectToWorld(input.positionOS);
+            output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+            output.positionCS = TransformWorldToHClip(output.positionWS);
+            output.uv = input.uv;
+            return output;
+        }
+
+        GrassFallbackVaryings GrassFallbackShadowVert(GrassFallbackAttributes input)
+        {
+            GrassFallbackVaryings output = (GrassFallbackVaryings)0;
+            output.positionWS = TransformObjectToWorld(input.positionOS);
+            output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+            output.positionCS = GrassFallbackShadowPositionHClip(input.positionOS, input.normalOS);
+            output.uv = input.uv;
+            return output;
+        }
+
+        half4 GrassFallbackFrag(GrassFallbackVaryings input) : SV_Target
+        {
+            half4 baseColor = lerp(_BottomColor, _TopColor, saturate(input.uv.y));
+
+            float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+            Light mainLight = GetMainLight(shadowCoord);
+
+            half3 normalWS = GrassFallbackSafeNormalize(input.normalWS, half3(0.0, 1.0, 0.0));
+            half3 viewDirectionWS = GrassFallbackSafeNormalize(GetWorldSpaceViewDir(input.positionWS), half3(0.0, 0.0, 1.0));
+            half3 lightDirectionWS = GrassFallbackSafeNormalize(mainLight.direction, half3(0.0, 1.0, 0.0));
+            half3 halfDirectionWS = GrassFallbackSafeNormalize(lightDirectionWS + viewDirectionWS, normalWS);
+
+            half attenuation = mainLight.distanceAttenuation * mainLight.shadowAttenuation;
+            half diffuse = saturate(dot(normalWS, lightDirectionWS));
+            half specular = pow(saturate(dot(normalWS, halfDirectionWS)), _Shininess) * _SpecularStrength;
+
+            half3 ambientColor = baseColor.rgb * _AmbientStrength;
+            half3 diffuseColor = baseColor.rgb * mainLight.color * diffuse * attenuation;
+            half3 specularColor = _SpecularColor.rgb * mainLight.color * specular * attenuation;
+
+            return half4(ambientColor + diffuseColor + specularColor, baseColor.a);
+        }
+
+        half4 GrassFallbackShadowFrag(GrassFallbackVaryings input) : SV_Target
+        {
+            return 0;
+        }
+        ENDHLSL
+
+        Pass
+        {
+            Name "ForwardGrassMetalFallback"
+            Tags { "LightMode"="UniversalForward" }
+
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma target 2.0
+            #pragma only_renderers metal
+            #pragma vertex GrassFallbackVert
+            #pragma fragment GrassFallbackFrag
+
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCasterMetalFallback"
+            Tags { "LightMode"="ShadowCaster" }
+
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma target 2.0
+            #pragma only_renderers metal
+            #pragma vertex GrassFallbackShadowVert
+            #pragma fragment GrassFallbackShadowFrag
 
             #pragma multi_compile _ _CASTING_PUNCTUAL_LIGHT_SHADOW
             ENDHLSL
