@@ -73044,7 +73044,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1578503826}
   - {fileID: 1972314043}
   - {fileID: 146254463}
   - {fileID: 2086548526}
@@ -75480,12 +75479,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1578503825}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1537201407}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1578503827
 MonoBehaviour:
@@ -75512,12 +75511,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f0acb13a85742f8a12364c0f6771964, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   _toggleKey: 112
   _closeKey: 27
   _ignoreInputWhileInventoryOpen: 1
-  _panelPrefab: {fileID: 1000000000000008000, guid: 1071444091e54543a465d88eca675573, type: 3}
+  _panelPrefab: {fileID: 1000000000000008000, guid: 1071444091e54543a465d88eca675573,
+    type: 3}
   _panelInstance: {fileID: 0}
   _targetCanvas: {fileID: 0}
   _runtimeCanvasSortingOrder: 700
@@ -105072,3 +105072,4 @@ SceneRoots:
   - {fileID: 1921833356}
   - {fileID: 2145438102}
   - {fileID: 1723679433}
+  - {fileID: 1578503826}

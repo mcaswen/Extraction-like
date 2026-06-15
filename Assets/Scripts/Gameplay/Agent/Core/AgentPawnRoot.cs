@@ -317,11 +317,16 @@ namespace Gameplay.Agent.Core
             if (direction.sqrMagnitude <= 0.0001f)
                 return;
 
-            _externalImpulseVelocity += direction.normalized * pullStrength;
-            _externalImpulseMovementOverrideRemaining = Mathf.Max(
-                _externalImpulseMovementOverrideRemaining,
-                ExternalImpulseMovementOverrideDuration);
+            float pullStep = Mathf.Min(direction.magnitude, pullStrength * Time.deltaTime);
+            if (pullStep <= 0f)
+                return;
+
+            Vector3 displacement = direction.normalized * pullStep;
             StopNavMeshForExternalMovement();
+            if (_navMeshAgent != null && _navMeshAgent.enabled && _navMeshAgent.isOnNavMesh)
+                _navMeshAgent.Move(displacement);
+            else
+                transform.position += displacement;
         }
 
         public void ApplyExternalImpulse(Vector3 direction, float strength)

@@ -25,8 +25,8 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     [SerializeField, Min(0.1f), Tooltip("Height of the generated tentacle hitbox.")]
     private float _tentacleHitboxHeight = 0.55f;
 
-    [SerializeField, Min(0f), Tooltip("Pull strength applied to the player during a latch.")]
-    private float _latchPullStrength = 0.20f;
+    [SerializeField, Min(0f), Tooltip("Direct pull speed in world units per second applied during a latch.")]
+    private float _latchPullStrength = 2.5f;
 
     [SerializeField, Min(0f), Tooltip("Corrosion damage per second applied during a latch.")]
     private float _corrosionDamagePerSecond = 10f;
@@ -87,7 +87,7 @@ public sealed class ModernStranderConfig : EnemyPatrolConfigBase
     public float TentacleHitboxHeight => _tentacleHitboxHeight;
 
     /// <summary>
-    /// 触手吸附玩家时施加的拉拽强度。
+    /// 触手吸附目标时每秒直接拉拽的世界距离。
     /// </summary>
     public float LatchPullStrength => _latchPullStrength;
 

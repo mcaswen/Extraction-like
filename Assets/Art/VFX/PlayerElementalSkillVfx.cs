@@ -1270,6 +1270,77 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         Destroy(root, duration);
     }
 
+    private void SpawnVerticalStrike(Vector3 center, float radius, Material material, float duration)
+    {
+        GameObject root = new GameObject("PlayerVerticalStrike");
+        root.layer = gameObject.layer;
+
+        float safeRadius = Mathf.Max(0.1f, radius);
+        float safeDuration = Mathf.Max(0.05f, duration);
+        Vector3 liftedCenter = center + Vector3.up * (safeRadius * 1.25f);
+
+        LineRenderer verticalHalo = CreateLine(root.transform, "VerticalStrikeHalo", material, 0.14f, 11);
+        LineRenderer innerHalo = CreateLine(root.transform, "VerticalStrikeInnerHalo", GetSoftMaterial(), 0.08f, 12);
+        LineRenderer downLineA = CreateLine(root.transform, "VerticalStrikeDownA", material, 0.11f, 13);
+        LineRenderer downLineB = CreateLine(root.transform, "VerticalStrikeDownB", GetSoftMaterial(), 0.075f, 14);
+        LineRenderer sparkA = CreateLine(root.transform, "VerticalStrikeSparkA", GetSoftMaterial(), 0.065f, 15);
+        LineRenderer sparkB = CreateLine(root.transform, "VerticalStrikeSparkB", material, 0.065f, 16);
+
+        Vector3 facing = ResolveSafePlanarDirection(ResolveAimDirection(center));
+        ApplyLine(verticalHalo, BuildVerticalCircle(liftedCenter, safeRadius * 0.72f, facing), material.color, Color.white, 0.8f, 0.14f);
+        ApplyLine(innerHalo, BuildVerticalCircle(liftedCenter, safeRadius * 0.44f, facing), Color.white, material.color, 0.6f, 0.08f);
+        ApplyLine(
+            downLineA,
+            new[] { center + Vector3.up * (safeRadius * 2.4f), center + Vector3.up * _groundOffset },
+            Color.white,
+            material.color,
+            0.9f,
+            0.11f);
+        ApplyLine(
+            downLineB,
+            new[] { center + Vector3.up * (safeRadius * 1.9f), center + facing * (safeRadius * 0.18f) + Vector3.up * _groundOffset },
+            material.color,
+            Color.white,
+            0.68f,
+            0.075f);
+        ApplyLine(sparkA, BuildVerticalSpark(liftedCenter, safeRadius * 0.56f, 35f), Color.white, material.color, 0.56f, 0.065f);
+        ApplyLine(sparkB, BuildVerticalSpark(liftedCenter, safeRadius * 0.5f, 128f), material.color, Color.white, 0.5f, 0.065f);
+
+        ParticleSystem particles = root.AddComponent<ParticleSystem>();
+        PrepareParticleSystem(particles);
+
+        ParticleSystem.MainModule main = particles.main;
+        main.duration = safeDuration;
+        main.loop = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.28f, 0.76f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(safeRadius * 0.72f, safeRadius * 1.55f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.08f * _effectIntensityScale, 0.3f * _effectIntensityScale);
+        main.startColor = new ParticleSystem.MinMaxGradient(material.color, Color.white);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.maxParticles = Mathf.RoundToInt(180f * _burstDensityScale);
+
+        ParticleSystem.EmissionModule emission = particles.emission;
+        emission.rateOverTime = 0f;
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(70f * _burstDensityScale)) });
+
+        ParticleSystem.ShapeModule shape = particles.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Cone;
+        shape.angle = 12f;
+        shape.radius = safeRadius * 0.45f;
+        shape.length = safeRadius * 1.8f;
+        root.transform.position = center + Vector3.up * (safeRadius * 0.2f);
+        root.transform.rotation = Quaternion.LookRotation(Vector3.down, facing);
+
+        ParticleSystemRenderer rendererComponent = particles.GetComponent<ParticleSystemRenderer>();
+        rendererComponent.renderMode = ParticleSystemRenderMode.Billboard;
+        rendererComponent.sharedMaterial = GetSoftMaterial();
+        rendererComponent.sortingOrder = 13;
+
+        particles.Play();
+        Destroy(root, safeDuration + 0.9f);
+    }
+
     private void SpawnDirectionalParticles(
         string objectName,
         Vector3 position,

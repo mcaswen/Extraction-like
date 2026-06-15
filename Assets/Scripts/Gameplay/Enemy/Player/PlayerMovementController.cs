@@ -16,11 +16,6 @@ public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
     public float MoveSpeed = 6f;
 
     /// <summary>
-    /// 外部拉拽速度衰减速率。
-    /// </summary>
-    public float ExternalPullDamping = 14f;
-
-    /// <summary>
     /// 外部击退速度衰减速率。
     /// </summary>
     public float ExternalImpulseDamping = 10f;
@@ -38,7 +33,6 @@ public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
     private Rigidbody _playerRigidbody;
     private NavMeshAgent _navMeshAgent;
     private Camera _mainCamera;
-    private Vector3 _externalPullVelocity;
     private Vector3 _externalImpulseVelocity;
     private float _immobilizeDurationRemaining;
     private float _speedBoostDurationRemaining;
@@ -101,7 +95,7 @@ public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
         }
         float effectiveMoveSpeed = GetEffectiveMoveSpeed();
         Vector3 movement = new Vector3(horizontal, 0f, vertical).normalized * effectiveMoveSpeed;
-        Vector3 finalVelocity = movement + _externalPullVelocity + _externalImpulseVelocity;
+        Vector3 finalVelocity = movement + _externalImpulseVelocity;
         _playerRigidbody.MovePosition(_playerRigidbody.position + finalVelocity * Time.fixedDeltaTime);
         if (movement.sqrMagnitude > 0.01f && Time.time >= _nextFootstepStimulusTime)
         {
@@ -115,9 +109,6 @@ public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
     private void TickMovementStateTimers()
     {
         float stopDeceleration = GetEffectiveMoveSpeed() / StopFromMaxSpeedDuration;
-        _externalPullVelocity = DecayVelocity(
-            _externalPullVelocity,
-            Mathf.Max(ExternalPullDamping, stopDeceleration));
         _externalImpulseVelocity = DecayVelocity(
             _externalImpulseVelocity,
             Mathf.Max(ExternalImpulseDamping, stopDeceleration));
@@ -223,6 +214,11 @@ public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
     /// <param name="pullStrength">拉拽强度。</param>
     public void ApplyExternalPull(Vector3 targetPosition, float pullStrength)
     {
+        if (pullStrength <= 0f)
+        {
+            return;
+        }
+
         Vector3 direction = targetPosition - transform.position;
         direction.y = 0f;
         if (direction.sqrMagnitude <= 0.0001f)
@@ -230,7 +226,34 @@ public class PlayerMovementController : MonoBehaviour, IExternalMovementReceiver
             return;
         }
 
-        _externalPullVelocity += direction.normalized * pullStrength;
+        float pullStep = Mathf.Min(direction.magnitude, pullStrength * Time.deltaTime);
+        if (pullStep <= 0f)
+        {
+            return;
+        }
+
+        Vector3 displacement = direction.normalized * pullStep;
+        if (_navMeshAgent != null && _navMeshAgent.enabled && _navMeshAgent.isOnNavMesh)
+        {
+            _navMeshAgent.ResetPath();
+            _navMeshAgent.velocity = Vector3.zero;
+            _navMeshAgent.Move(displacement);
+            return;
+        }
+
+        if (_playerRigidbody == null)
+        {
+            _playerRigidbody = GetComponent<Rigidbody>();
+        }
+
+        if (_playerRigidbody != null)
+        {
+            _playerRigidbody.MovePosition(_playerRigidbody.position + displacement);
+        }
+        else
+        {
+            transform.position += displacement;
+        }
     }
 
     /// <summary>
