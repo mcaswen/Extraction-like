@@ -118,6 +118,7 @@ namespace Gameplay.Agent.Talent
         private double _earthShieldExpiresAt;
         private double _nextEarthShieldReadyAt;
         private bool _hasAppliedInitialUnlocks;
+        private bool _isApplyingInitialUnlocks;
 
         /// <summary>
         /// 当前已解锁节点集合。
@@ -215,7 +216,17 @@ namespace Gameplay.Agent.Talent
         public bool UnlockNode(AgentTalentNodeId nodeId)
         {
             EnsureInitialUnlocksApplied();
-            return _unlockedNodes.Add(nodeId);
+            bool didUnlock = _unlockedNodes.Add(nodeId);
+            if (didUnlock && Application.isPlaying && !_isApplyingInitialUnlocks)
+            {
+                global::AgentSfxEmitter sfxEmitter = GetComponent<global::AgentSfxEmitter>();
+                if (sfxEmitter != null)
+                    sfxEmitter.PlayUpgrade();
+                else
+                    global::GameSfxPlayer.PlayAiUpgrade(transform.position);
+            }
+
+            return didUnlock;
         }
 
         /// <summary>
@@ -519,6 +530,7 @@ namespace Gameplay.Agent.Talent
 
         private void ApplyInitialUnlocks()
         {
+            _isApplyingInitialUnlocks = true;
             UnlockNodes(_initialUnlockedNodes);
 
             if (_unlockAllEarthOnAwake)
@@ -526,6 +538,8 @@ namespace Gameplay.Agent.Talent
 
             if (_unlockAllIceOnAwake)
                 UnlockAllIceDesignNodes();
+
+            _isApplyingInitialUnlocks = false;
         }
 
         private int CountUnlocked(params AgentTalentNodeId[] nodeIds)

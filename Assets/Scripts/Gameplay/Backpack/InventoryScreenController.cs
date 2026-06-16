@@ -784,6 +784,7 @@ public class InventoryScreenController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        GameSfxPlayer.PlayInventoryOpen();
 
         if (_logInventoryDebug)
         {
@@ -817,6 +818,7 @@ public class InventoryScreenController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        GameSfxPlayer.PlayInventoryClose();
     }
 
     // 关闭当前会话，并把左右容器的运行时结果统一交给会话回调处理

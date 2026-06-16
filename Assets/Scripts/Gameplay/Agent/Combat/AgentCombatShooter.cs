@@ -54,6 +54,11 @@ namespace Gameplay.Agent.Combat
             // 再写入 BulletController 参数，并忽略发射者自身碰撞
             ConfigureBulletObject(bulletObject, fireDirection.normalized, damage);
             IgnoreShooterCollisions(bulletObject);
+            global::AgentSfxEmitter sfxEmitter = GetComponent<global::AgentSfxEmitter>();
+            if (sfxEmitter != null)
+                sfxEmitter.PlayBasicAttack();
+            else
+                global::GameSfxPlayer.PlayAiBasicAttack(firePosition);
             return true;
         }
 

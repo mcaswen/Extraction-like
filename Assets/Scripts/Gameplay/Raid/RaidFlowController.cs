@@ -473,6 +473,11 @@ public class RaidFlowController : MonoBehaviour
             return;
         }
 
+        AgentSfxEmitter sfxEmitter = handle.PawnRoot.GetComponent<AgentSfxEmitter>();
+        if (sfxEmitter != null)
+            sfxEmitter.PlayExtract();
+        else
+            global::GameSfxPlayer.PlayAiExtract(handle.PawnRoot.transform.position);
         UnityEngine.Object.Destroy(handle.PawnRoot.gameObject);
     }
 

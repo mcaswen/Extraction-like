@@ -19,6 +19,7 @@ namespace Gameplay.Agent.AI.Actions
         private string _activeResourceTargetId;
         private bool _hasReachedInteractionRange;
         private bool _hasObservedInventoryOpen;
+        private bool _hasPlayedSearchCompleteSfx;
 
         /// <summary>
         /// 创建资源搜索行为节点
@@ -332,9 +333,28 @@ namespace Gameplay.Agent.AI.Actions
 
         private void CompleteResourceSearch(BehaviorTreeContext context)
         {
+            PlaySearchCompleteSfx(context);
             SetFact(context, AgentBlackboardKeys.HasResourceTarget, false);
             SetFact(context, AgentBlackboardKeys.HasInteractableTarget, false);
             ClearPendingDirective(context);
+        }
+
+        private void PlaySearchCompleteSfx(BehaviorTreeContext context)
+        {
+            if (_hasPlayedSearchCompleteSfx)
+                return;
+
+            if (TryGetAgent(context, out IAgentReadOnly agent))
+            {
+                _hasPlayedSearchCompleteSfx = true;
+                global::AgentSfxEmitter sfxEmitter = agent.CachedTransform != null
+                    ? agent.CachedTransform.GetComponent<global::AgentSfxEmitter>()
+                    : null;
+                if (sfxEmitter != null)
+                    sfxEmitter.PlaySearch();
+                else
+                    global::GameSfxPlayer.PlaySearchShort(agent.Position);
+            }
         }
 
         private void SyncActiveResourceTarget(AgentDirectiveRequest directiveRequest)
@@ -347,6 +367,7 @@ namespace Gameplay.Agent.AI.Actions
             _activeResourceTargetId = targetId;
             _activeConcreteResourceObject = null;
             _hasReachedInteractionRange = false;
+            _hasPlayedSearchCompleteSfx = false;
             ResetWaitState();
         }
 

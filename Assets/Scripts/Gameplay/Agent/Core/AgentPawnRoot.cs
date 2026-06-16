@@ -287,7 +287,14 @@ namespace Gameplay.Agent.Core
             double timeSeconds = Time.timeAsDouble;
             SyncBodyFactsToBlackboard(timeSeconds);
             if (wasAlive && IsDead)
+            {
+                global::AgentSfxEmitter sfxEmitter = GetComponent<global::AgentSfxEmitter>();
+                if (sfxEmitter != null)
+                    sfxEmitter.PlayDeath();
+                else
+                    global::GameSfxPlayer.PlayAiDeath(transform.position);
                 HandleDeath(timeSeconds);
+            }
         }
 
         public float TakeCombatDamage(float damage, Vector3 hitPoint, Vector3 hitDirection, GameObject source)
@@ -303,7 +310,14 @@ namespace Gameplay.Agent.Core
                 RecordCombatDamageInterrupt(source, timeSeconds);
             SyncBodyFactsToBlackboard(timeSeconds);
             if (wasAlive && IsDead)
+            {
+                global::AgentSfxEmitter sfxEmitter = GetComponent<global::AgentSfxEmitter>();
+                if (sfxEmitter != null)
+                    sfxEmitter.PlayDeath();
+                else
+                    global::GameSfxPlayer.PlayAiDeath(transform.position);
                 HandleDeath(timeSeconds);
+            }
             return actualDamage;
         }
 

@@ -698,6 +698,8 @@ public class PlayerShootingController : MonoBehaviour
         {
             EnemySuspicionStimulusBus.ReportGunshot(FirePoint.position, transform);
         }
+
+        GameSfxPlayer.PlayPlayerFireAttack(FirePoint.position);
         BulletController bullet = bulletObject.GetComponent<BulletController>();
         if (bullet != null)
         {
@@ -729,6 +731,7 @@ public class PlayerShootingController : MonoBehaviour
             IceFreezeDamage * GetAttackMultiplier(),
             CreatePlayerDamageContext(enemyHealthController.transform.position, EnemyDamageSourceType.Magic));
         SpawnIceFreezeVisual(enemyHealthController.transform.position);
+        GameSfxPlayer.PlayIceSkill(enemyHealthController.transform.position);
         _iceFreezeCooldownRemaining = IceFreezeCooldownSeconds;
         return true;
     }
@@ -781,6 +784,7 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         SpawnIceConeVisual(origin, forward);
+        GameSfxPlayer.PlayIceSkill(origin);
         _iceConeCooldownRemaining = IceConeCooldownSeconds;
         return true;
     }
@@ -820,6 +824,7 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         Destroy(wallObject, EarthWallLifetime);
+        GameSfxPlayer.PlayEarthSkill(spawnPosition);
         _earthWallCooldownRemaining = EarthWallCooldownSeconds;
         return true;
     }
@@ -832,6 +837,7 @@ public class PlayerShootingController : MonoBehaviour
         }
 
         _playerMovementController.ApplyExternalImpulse(transform.forward, DashImpulseStrength);
+        GameSfxPlayer.PlayImpactSkill(transform.position);
         _dashCooldownRemaining = DashCooldownSeconds;
         return true;
     }
@@ -855,6 +861,7 @@ public class PlayerShootingController : MonoBehaviour
         _timeHourglassActive = true;
         _timeHourglassRemaining = TimeHourglassDuration;
         _timeHourglassCooldownRemaining = TimeHourglassCooldownSeconds;
+        GameSfxPlayer.PlaySearchShort(transform.position);
         return true;
     }
 
@@ -869,6 +876,7 @@ public class PlayerShootingController : MonoBehaviour
         _spaceHourglassRemaining = SpaceHourglassDuration;
         _spaceSealPulseRemaining = 0f;
         _spaceHourglassCooldownRemaining = SpaceHourglassCooldownSeconds;
+        GameSfxPlayer.PlayImpactSkill(transform.position);
         return true;
     }
 
