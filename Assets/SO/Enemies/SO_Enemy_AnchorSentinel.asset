@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyId: anchorsentinel
   _displayName: "AnchorSentinel\u20143"
-  _maxHealth: 100
+  _maxHealth: 200
   _deathLoot:
     _spawnLootContainerOnDeath: 1
     _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
       type: 3}
     _deathLootSpawnOffset: {x: 0, y: 0.25, z: 0}
-  _detectionRange: 16
+  _detectionRange: 20
   _lockDuration: 5
   _firingDuration: 3
-  _cooldownDuration: 5
+  _cooldownDuration: 2
   _activeRecoveryDuration: 0
-  _beamDamagePerSecond: 22
+  _beamDamagePerSecond: 8
   _beamTickInterval: 0.12

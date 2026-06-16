@@ -14,33 +14,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyId: tidalaberration
   _displayName: "TidalAberration\u20142"
-  _maxHealth: 100
+  _maxHealth: 250
   _deathLoot:
     _spawnLootContainerOnDeath: 1
     _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
       type: 3}
     _deathLootSpawnOffset: {x: 0, y: 0.1, z: 0}
   _patrol:
+    _patrolMode: 0
     _patrolRadius: 8
     _patrolWaitTime: 1.5
   _detection:
     _awarenessPreset: 2
-    _detectionRange: 16
-    _viewAngle: 360
+    _detectionRange: 14
+    _viewAngle: 124
+    _lineOfSightBlockMask:
+      serializedVersion: 2
+      m_Bits: 1
+    _groundMask:
+      serializedVersion: 2
+      m_Bits: 1
+    _eyeHeight: 1.2
+    _targetHeight: 1
     _loseRange: 18
   _meleeAttackRange: 4
   _meleeAttackInterval: 2.2
   _meleeLatchDuration: 0.8
-  _meleeContactDamage: 1
+  _meleeContactDamage: 10
   _silenceDuration: 1.5
   _electricTickDamagePerSecond: 4
   _electricTickInterval: 0.25
-  _minimumRangedDistance: 4.2
-  _rangedAttackRange: 13
-  _rangedAttackInterval: 3
-  _waterJetDuration: 0.65
-  _waterJetDamage: 14
-  _waterJetKnockbackStrength: 10
+  _minimumRangedDistance: 5
+  _rangedAttackRange: 9
+  _rangedAttackInterval: 6
+  _waterJetDuration: 0.18
+  _waterJetDamage: 25
+  _waterJetKnockbackStrength: 5.2
   _knockbackMoveSpeedMultiplier: 0.5
   _knockbackSlowDuration: 1.5
   _waterJetMaxDistance: 14

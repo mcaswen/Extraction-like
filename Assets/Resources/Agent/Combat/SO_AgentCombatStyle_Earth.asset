@@ -17,7 +17,7 @@ MonoBehaviour:
   _element: 3
   _weaponType: 2
   _normalAttackRange: 8
-  _normalAttackInterval: 0.8
+  _normalAttackInterval: 1
   _normalAttackDamage:
     _source: 1
     _multiplier: 0.9
