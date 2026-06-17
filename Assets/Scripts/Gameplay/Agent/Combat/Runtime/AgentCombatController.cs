@@ -17,6 +17,7 @@ namespace Gameplay.Agent.Combat
         [Header("Debug Visuals")]
         [SerializeField] private bool _playPrototypeSkillVfx = true;
         [SerializeField] private bool _suppressConfiguredSkillVfx = true;
+        [SerializeField, Min(0.01f)] private float _prototypeSkillVfxRangeScale = 1f;
 
         private readonly List<AgentCombatSkillBase> _runtimeSkills = new List<AgentCombatSkillBase>();
         private AgentCombatShooter _shooter;
@@ -72,6 +73,7 @@ namespace Gameplay.Agent.Combat
         private void OnValidate()
         {
             _skillActionLockSeconds = Mathf.Max(0.05f, _skillActionLockSeconds);
+            _prototypeSkillVfxRangeScale = Mathf.Max(0.01f, _prototypeSkillVfxRangeScale);
             CacheComponents();
         }
 
@@ -171,7 +173,8 @@ namespace Gameplay.Agent.Combat
                 _skillActionLockSeconds,
                 skillModifiers,
                 _playPrototypeSkillVfx,
-                _suppressConfiguredSkillVfx);
+                _suppressConfiguredSkillVfx,
+                _prototypeSkillVfxRangeScale);
         }
 
         private void RebuildRuntimeSkills()

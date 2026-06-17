@@ -25,6 +25,7 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
     [SerializeField] private Color _coreColor = new Color(0.55f, 0.9f, 1f, 1f);
     [SerializeField] private Color _rimColor = new Color(0.86f, 0.97f, 1f, 0.9f);
     [SerializeField] private Color _sparkColor = Color.white;
+    [SerializeField] private float _projectileVisualScale = 1f;
     [SerializeField] private float _impactScale = 1f;
 
     private Camera _cachedMainCamera;
@@ -32,11 +33,17 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
     private Material _coreMaterial;
     private Material _rimMaterial;
     private Material _sparkMaterial;
+    private Color _defaultCoreColor;
+    private Color _defaultRimColor;
+    private Color _defaultSparkColor;
     private static Texture2D s_softCircleTexture;
 
     private void Awake()
     {
         _cachedMainCamera = Camera.main;
+        _defaultCoreColor = _coreColor;
+        _defaultRimColor = _rimColor;
+        _defaultSparkColor = _sparkColor;
     }
 
     private void OnDisable()
@@ -86,6 +93,28 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
     public void SetKeyboardPreviewEnabled(bool enabled)
     {
         _enableKeyboardPreview = enabled;
+    }
+
+    public void ResetVisualColorsToDefault()
+    {
+        SetVisualColors(_defaultCoreColor, _defaultRimColor, _defaultSparkColor);
+    }
+
+    public void SetVisualColors(Color coreColor, Color rimColor, Color sparkColor)
+    {
+        if (_coreColor == coreColor &&
+            _rimColor == rimColor &&
+            _sparkColor == sparkColor)
+        {
+            return;
+        }
+
+        _coreColor = coreColor;
+        _rimColor = rimColor;
+        _sparkColor = sparkColor;
+        ApplyParticleMaterialTint(_coreMaterial, _coreColor);
+        ApplyParticleMaterialTint(_rimMaterial, _rimColor);
+        ApplyParticleMaterialTint(_sparkMaterial, _sparkColor);
     }
 
     public bool PlayExternalCastVisual(
@@ -244,11 +273,12 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         PrepareParticleSystem(flash);
 
         ParticleSystem.MainModule main = flash.main;
+        float visualScale = ResolveProjectileVisualScale();
         main.duration = 0.2f;
         main.loop = false;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.12f, 0.24f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(0.45f, 1.4f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.22f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.05f * visualScale, 0.22f * visualScale);
         main.startColor = new ParticleSystem.MinMaxGradient(_coreColor, _sparkColor);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.maxParticles = 36;
@@ -261,8 +291,8 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Cone;
         shape.angle = 22f;
-        shape.radius = 0.18f;
-        shape.length = 0.25f;
+        shape.radius = 0.18f * visualScale;
+        shape.length = 0.25f * visualScale;
 
         ParticleSystem.ColorOverLifetimeModule colorOverLifetime = flash.colorOverLifetime;
         colorOverLifetime.enabled = true;
@@ -303,11 +333,12 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         PrepareParticleSystem(particleSystem);
 
         ParticleSystem.MainModule main = particleSystem.main;
+        float visualScale = ResolveProjectileVisualScale();
         main.duration = 1f;
         main.loop = true;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.12f, 0.22f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(0.04f, 0.16f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.18f, 0.32f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.18f * visualScale, 0.32f * visualScale);
         main.startColor = new ParticleSystem.MinMaxGradient(_coreColor, _rimColor);
         main.simulationSpace = ParticleSystemSimulationSpace.Local;
         main.maxParticles = 72;
@@ -318,7 +349,7 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         ParticleSystem.ShapeModule shape = particleSystem.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.08f;
+        shape.radius = 0.08f * visualScale;
 
         ParticleSystem.ColorOverLifetimeModule colorOverLifetime = particleSystem.colorOverLifetime;
         colorOverLifetime.enabled = true;
@@ -338,11 +369,12 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         PrepareParticleSystem(particleSystem);
 
         ParticleSystem.MainModule main = particleSystem.main;
+        float visualScale = ResolveProjectileVisualScale();
         main.duration = 1f;
         main.loop = true;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.22f, 0.44f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(0.02f, 0.08f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.06f, 0.18f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.06f * visualScale, 0.18f * visualScale);
         main.startColor = new ParticleSystem.MinMaxGradient(_rimColor, Transparent(_coreColor));
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.maxParticles = 120;
@@ -353,7 +385,7 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         ParticleSystem.ShapeModule shape = particleSystem.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.06f;
+        shape.radius = 0.06f * visualScale;
 
         ParticleSystem.ColorOverLifetimeModule colorOverLifetime = particleSystem.colorOverLifetime;
         colorOverLifetime.enabled = true;
@@ -464,6 +496,7 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
     {
         if (material != null)
         {
+            ApplyParticleMaterialTint(material, tint);
             return material;
         }
 
@@ -483,6 +516,18 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
         ApplySoftCircleTexture(material);
 
+        ApplyParticleMaterialTint(material, tint);
+
+        return material;
+    }
+
+    private static void ApplyParticleMaterialTint(Material material, Color tint)
+    {
+        if (material == null)
+        {
+            return;
+        }
+
         if (material.HasProperty("_BaseColor"))
         {
             material.SetColor("_BaseColor", tint);
@@ -492,8 +537,6 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         {
             material.SetColor("_Color", tint);
         }
-
-        return material;
     }
 
     private static void ApplySoftCircleTexture(Material material)
@@ -577,6 +620,11 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
     {
         color.a = 0f;
         return color;
+    }
+
+    private float ResolveProjectileVisualScale()
+    {
+        return Mathf.Max(0.01f, _projectileVisualScale);
     }
 
     private static void DestroyRuntimeMaterial(ref Material material)

@@ -109,9 +109,11 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     [SerializeField, Range(16, 128)] private int _ringSegments = 72;
     [SerializeField, Range(6, 64)] private int _lineSegments = 24;
     [SerializeField] private float _groundOffset = 0.06f;
-    [SerializeField, Range(0.8f, 2.5f)] private float _effectIntensityScale = 1.35f;
-    [SerializeField, Range(0.8f, 2.5f)] private float _lineWidthScale = 1.45f;
-    [SerializeField, Range(0.8f, 2.5f)] private float _burstDensityScale = 1.45f;
+    [SerializeField, Range(0.8f, 4f)] private float _effectIntensityScale = 2.2f;
+    [SerializeField, Range(0.8f, 4f)] private float _lineWidthScale = 1.85f;
+    [SerializeField, Range(0.8f, 4f)] private float _burstDensityScale = 2.35f;
+    [SerializeField, Range(0.5f, 3f)] private float _runeGlowScale = 1.35f;
+    [SerializeField, Range(0.5f, 3f)] private float _crystalVisualScale = 1.35f;
 
     private readonly Collider[] _overlapHits = new Collider[96];
     private readonly RaycastHit[] _sphereCastHits = new RaycastHit[32];
@@ -241,34 +243,14 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         Vector3 safeForward = ResolveSafePlanarDirection(forward);
         float safeRadius = Mathf.Max(0.1f, radius);
         float safeAngle = Mathf.Clamp(angleDegrees, 1f, 360f);
-
-        SpawnConeTelegraph(origin, safeForward, safeRadius, safeAngle, GetIceMaterial(), GetSoftMaterial(), 0.55f);
-        SpawnDirectionalParticles(
-            "PrototypeFrostAssaultMist",
-            origin + Vector3.up * 0.2f,
-            safeForward,
-            GetIceMaterial(),
-            0.45f,
-            72,
-            safeRadius,
-            safeAngle);
-
-        int spikeCount = Mathf.Max(7, Mathf.RoundToInt(safeAngle / 12f));
-        for (int i = 0; i < spikeCount; i++)
-        {
-            float t = spikeCount == 1 ? 0.5f : i / (float)(spikeCount - 1);
-            float angle = Mathf.Lerp(-safeAngle * 0.5f, safeAngle * 0.5f, t);
-            float distance = Mathf.Lerp(1.25f, safeRadius * 0.95f, Mathf.PingPong(i * 0.37f, 1f));
-            Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * safeForward;
-            SpawnIceSpike(origin + direction * distance, direction, 0.45f + t * 0.25f);
-        }
+        SpawnFrostAssaultSpectacle(origin, safeForward, safeRadius, safeAngle, 0.9f);
     }
 
     public void PlayPrototypeIceWinterVisual(Vector3 target, float radius)
     {
         float safeRadius = Mathf.Max(0.1f, radius);
         target.y += _groundOffset;
-        SpawnGroundRing("PrototypeWinterTargetRing", target, safeRadius, GetIceMaterial(), 0.13f, 0.75f);
+        SpawnWinterfallSpectacle(target, safeRadius, 0.95f);
         StartCoroutine(WinterVisualRoutine(target, safeRadius));
     }
 
@@ -281,51 +263,26 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         float durationSeconds)
     {
         Vector3 safeForward = ResolveSafePlanarDirection(forward);
-        Quaternion rotation = Quaternion.LookRotation(safeForward, Vector3.up);
-        GameObject wall = new GameObject("PrototypePlayerEarthWall");
-        wall.layer = gameObject.layer;
-        wall.transform.SetPositionAndRotation(center, rotation);
-
         float safeLength = Mathf.Max(0.1f, length);
         float safeWidth = Mathf.Max(0.1f, width);
         float safeHeight = Mathf.Max(0.1f, height);
-        int blockCount = 7;
-        for (int i = 0; i < blockCount; i++)
-        {
-            float t = blockCount == 1 ? 0.5f : i / (float)(blockCount - 1);
-            float x = Mathf.Lerp(-safeLength * 0.5f, safeLength * 0.5f, t);
-            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            block.name = "PrototypeEarthWallBlock";
-            block.layer = gameObject.layer;
-            block.transform.SetParent(wall.transform, false);
-            block.transform.localPosition = new Vector3(x, Random.Range(-0.08f, 0.1f), Random.Range(-0.04f, 0.04f));
-            block.transform.localRotation = Quaternion.Euler(0f, Random.Range(-6f, 6f), Random.Range(-4f, 4f));
-            block.transform.localScale = new Vector3(
-                safeLength / blockCount * Random.Range(0.95f, 1.18f),
-                safeHeight * Random.Range(0.82f, 1.05f),
-                safeWidth * Random.Range(0.8f, 1.18f));
-            ApplyRenderer(block, GetEarthMaterial());
-            RemoveCollider(block);
-        }
-
-        SpawnGroundRing(
-            "PrototypeEarthWallDustRing",
-            center - Vector3.up * (safeHeight * 0.5f - _groundOffset),
-            safeLength * 0.55f,
-            GetEarthMaterial(),
-            0.11f,
-            0.65f);
-        SpawnSmallBurst(
+        GameObject wall = SpawnEarthWallSpectacle(
+            "PrototypePlayerEarthWall",
             center,
-            new Color(0.44f, 0.34f, 0.22f, 0.85f),
-            new Color(0.9f, 0.72f, 0.45f, 0.4f),
-            1.1f);
+            safeForward,
+            safeLength,
+            safeWidth,
+            safeHeight,
+            false);
         Destroy(wall, Mathf.Max(0.05f, durationSeconds));
     }
 
     public void PlayPrototypeEarthQuakeVisual(Vector3 target, float radius, float durationSeconds)
     {
-        StartCoroutine(EarthQuakeVisualRoutine(target, Mathf.Max(0.1f, radius), Mathf.Max(0.05f, durationSeconds)));
+        float safeRadius = Mathf.Max(0.1f, radius);
+        float safeDuration = Mathf.Max(0.05f, durationSeconds);
+        SpawnQuakeOpeningSpectacle(target, safeRadius, safeDuration);
+        StartCoroutine(EarthQuakeVisualRoutine(target, safeRadius, safeDuration));
     }
 
     private void HandleElementSelection()
@@ -407,8 +364,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         Vector3 forward = ResolveAimDirection(origin);
         FaceDirection(forward);
 
-        SpawnConeTelegraph(origin, forward, _iceConeRadius, _iceConeAngle, GetIceMaterial(), GetSoftMaterial(), 0.72f);
-        SpawnDirectionalParticles("FrostAssaultMist", origin + Vector3.up * 0.2f, forward, GetIceMaterial(), 0.6f, 96, _iceConeRadius);
+        SpawnFrostAssaultSpectacle(origin, forward, _iceConeRadius, _iceConeAngle, 1f);
 
         CollectEnemiesInCone(origin, forward, _iceConeRadius, _iceConeAngle, _targets);
         foreach (EnemyHealthController enemy in _targets)
@@ -418,16 +374,6 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             SpawnSmallBurst(enemy.transform.position + Vector3.up * 0.75f, Color.white, new Color(0.45f, 0.9f, 1f, 0.65f), 1f);
         }
 
-        int spikeCount = Mathf.Max(11, Mathf.RoundToInt(_iceConeAngle / 9f));
-        for (int i = 0; i < spikeCount; i++)
-        {
-            float t = spikeCount == 1 ? 0.5f : i / (float)(spikeCount - 1);
-            float angle = Mathf.Lerp(-_iceConeAngle * 0.5f, _iceConeAngle * 0.5f, t);
-            float distance = Mathf.Lerp(1.25f, _iceConeRadius * 0.95f, Mathf.PingPong(i * 0.37f, 1f));
-            Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * forward;
-            SpawnIceSpike(origin + direction * distance, direction, 0.58f + t * 0.38f);
-        }
-
         return true;
     }
 
@@ -435,8 +381,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     {
         Vector3 target = ResolveAimPoint(_winterRadius + 4f);
         target.y += _groundOffset;
-        SpawnGroundRing("WinterTargetRing", target, _winterRadius, GetIceMaterial(), 0.18f, 0.95f);
-        SpawnVerticalStrike(target, _winterRadius, GetIceMaterial(), 0.95f);
+        SpawnWinterfallSpectacle(target, _winterRadius, 1.1f);
         StartCoroutine(WinterRoutine(target));
         return true;
     }
@@ -482,33 +427,18 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         Vector3 forward = FlattenedForward();
         Vector3 center = transform.position + forward * 2.15f + Vector3.up * (_earthWallHeight * 0.5f);
         Quaternion rotation = Quaternion.LookRotation(forward, Vector3.up);
-        GameObject wall = new GameObject("PlayerEarthWall");
-        wall.layer = gameObject.layer;
-        wall.transform.SetPositionAndRotation(center, rotation);
-
-        int blockCount = 7;
-        for (int i = 0; i < blockCount; i++)
-        {
-            float t = blockCount == 1 ? 0.5f : i / (float)(blockCount - 1);
-            float x = Mathf.Lerp(-_earthWallLength * 0.5f, _earthWallLength * 0.5f, t);
-            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            block.name = "EarthWallBlock";
-            block.layer = gameObject.layer;
-            block.transform.SetParent(wall.transform, false);
-            block.transform.localPosition = new Vector3(x, Random.Range(-0.08f, 0.1f), Random.Range(-0.04f, 0.04f));
-            block.transform.localRotation = Quaternion.Euler(0f, Random.Range(-6f, 6f), Random.Range(-4f, 4f));
-            block.transform.localScale = new Vector3(
-                _earthWallLength / blockCount * Random.Range(0.95f, 1.18f),
-                _earthWallHeight * Random.Range(0.82f, 1.05f),
-                _earthWallWidth * Random.Range(0.8f, 1.18f));
-            ApplyRenderer(block, GetEarthMaterial());
-        }
+        GameObject wall = SpawnEarthWallSpectacle(
+            "PlayerEarthWall",
+            center,
+            forward,
+            _earthWallLength,
+            _earthWallWidth,
+            _earthWallHeight,
+            true);
 
         Rigidbody wallBody = wall.AddComponent<Rigidbody>();
         wallBody.isKinematic = true;
         wallBody.useGravity = false;
-        SpawnGroundRing("EarthWallDustRing", center - Vector3.up * (_earthWallHeight * 0.5f - _groundOffset), _earthWallLength * 0.58f, GetEarthMaterial(), 0.16f, 0.9f);
-        SpawnSmallBurst(center, new Color(0.44f, 0.34f, 0.22f, 0.85f), new Color(0.9f, 0.72f, 0.45f, 0.4f), 1.45f);
 
         DamageEnemiesInWallBox(center, rotation, DefenseDamage(_earthWallDamageMultiplier));
         Destroy(wall, _earthWallDuration);
@@ -518,6 +448,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
     private bool CastEarthQuakeInternal()
     {
         Vector3 target = ResolveAimPoint(_earthQuakeRadius + 4f);
+        SpawnQuakeOpeningSpectacle(target, _earthQuakeRadius, _earthQuakeDuration);
         StartCoroutine(EarthQuakeRoutine(target));
         return true;
     }
@@ -555,6 +486,23 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
                 }
 
                 SpawnSmallBurst(target + Vector3.up * 0.12f, new Color(0.58f, 0.39f, 0.18f, 0.85f), new Color(0.95f, 0.65f, 0.25f, 0.45f), 0.9f);
+                SpawnRadialParticleBurst(
+                    "QuakePulseDebris",
+                    target + Vector3.up * 0.16f,
+                    GetEarthMaterial(),
+                    new Color(0.72f, 0.48f, 0.2f, 0.82f),
+                    new Color(0.18f, 0.1f, 0.06f, 0.32f),
+                    _earthQuakeRadius,
+                    0.72f,
+                    120,
+                    0.82f);
+                for (int shardIndex = 0; shardIndex < 7; shardIndex++)
+                {
+                    float angle = Random.Range(0f, 360f);
+                    float shardRadius = Random.Range(_earthQuakeRadius * 0.18f, _earthQuakeRadius * 0.88f);
+                    Vector3 shardPosition = target + new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0f, Mathf.Sin(angle * Mathf.Deg2Rad)) * shardRadius;
+                    SpawnEarthShard(shardPosition, Random.Range(0.35f, 0.9f), Random.Range(0.45f, 0.9f));
+                }
             }
 
             yield return null;
@@ -590,6 +538,23 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
             {
                 burstTick = 1f;
                 SpawnSmallBurst(target + Vector3.up * 0.12f, new Color(0.58f, 0.39f, 0.18f, 0.85f), new Color(0.95f, 0.65f, 0.25f, 0.45f), 0.9f);
+                SpawnRadialParticleBurst(
+                    "PrototypeQuakePulseDebris",
+                    target + Vector3.up * 0.16f,
+                    GetEarthMaterial(),
+                    new Color(0.72f, 0.48f, 0.2f, 0.78f),
+                    new Color(0.18f, 0.1f, 0.06f, 0.28f),
+                    radius,
+                    0.72f,
+                    100,
+                    0.75f);
+                for (int shardIndex = 0; shardIndex < 5; shardIndex++)
+                {
+                    float angle = Random.Range(0f, 360f);
+                    float shardRadius = Random.Range(radius * 0.18f, radius * 0.88f);
+                    Vector3 shardPosition = target + new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0f, Mathf.Sin(angle * Mathf.Deg2Rad)) * shardRadius;
+                    SpawnEarthShard(shardPosition, Random.Range(0.32f, 0.78f), Random.Range(0.45f, 0.85f));
+                }
             }
 
             yield return null;
@@ -1226,6 +1191,366 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         return root;
     }
 
+    private void SpawnFrostAssaultSpectacle(
+        Vector3 origin,
+        Vector3 forward,
+        float radius,
+        float angle,
+        float scale)
+    {
+        float safeRadius = Mathf.Max(0.1f, radius);
+        float safeAngle = Mathf.Clamp(angle, 1f, 360f);
+        float visualScale = Mathf.Max(0.1f, scale);
+        Vector3 safeForward = ResolveSafePlanarDirection(forward);
+
+        SpawnConeTelegraph(origin, safeForward, safeRadius, safeAngle, GetIceMaterial(), GetSoftMaterial(), 0.92f);
+        SpawnConeRune(origin, safeForward, safeRadius, safeAngle, GetIceMaterial(), GetSoftMaterial(), 0.86f);
+        SpawnDirectionalParticles(
+            "FrostAssaultBlizzardFan",
+            origin + Vector3.up * 0.28f,
+            safeForward,
+            GetIceMaterial(),
+            0.72f,
+            Mathf.RoundToInt(150f * visualScale),
+            safeRadius,
+            safeAngle);
+        SpawnDirectionalParticles(
+            "FrostAssaultSilverMist",
+            origin + Vector3.up * 0.55f,
+            safeForward,
+            GetSoftMaterial(),
+            0.58f,
+            Mathf.RoundToInt(92f * visualScale),
+            safeRadius * 0.72f,
+            safeAngle * 0.72f);
+        SpawnSmallBurst(
+            origin + Vector3.up * 0.55f,
+            new Color(0.62f, 0.94f, 1f, 0.95f),
+            Color.white,
+            1.25f * visualScale);
+
+        int spikeCount = Mathf.Max(18, Mathf.RoundToInt(safeAngle / 5.5f));
+        for (int i = 0; i < spikeCount; i++)
+        {
+            float t = spikeCount == 1 ? 0.5f : i / (float)(spikeCount - 1);
+            float currentAngle = Mathf.Lerp(-safeAngle * 0.5f, safeAngle * 0.5f, t);
+            float distanceT = Mathf.PingPong(i * 0.41f + 0.17f, 1f);
+            float distance = Mathf.Lerp(safeRadius * 0.22f, safeRadius * 0.96f, distanceT);
+            Vector3 direction = Quaternion.AngleAxis(currentAngle, Vector3.up) * safeForward;
+            SpawnIceSpike(
+                origin + direction * distance + Vector3.up * _groundOffset,
+                direction,
+                (0.55f + distanceT * 0.52f) * visualScale);
+        }
+    }
+
+    private void SpawnWinterfallSpectacle(Vector3 center, float radius, float scale)
+    {
+        float safeRadius = Mathf.Max(0.1f, radius);
+        float visualScale = Mathf.Max(0.1f, scale);
+        SpawnLayeredGroundRune(
+            "WinterfallRune",
+            center,
+            safeRadius,
+            GetIceMaterial(),
+            GetSoftMaterial(),
+            new Color(0.56f, 0.95f, 1f, 0.92f),
+            1.25f);
+        SpawnVerticalStrike(center, safeRadius, GetIceMaterial(), 1.05f);
+        SpawnRadialParticleBurst(
+            "WinterfallSnowCrown",
+            center + Vector3.up * (safeRadius * 0.45f),
+            GetSoftMaterial(),
+            new Color(0.72f, 0.96f, 1f, 0.95f),
+            Color.white,
+            safeRadius,
+            1.2f,
+            Mathf.RoundToInt(230f * visualScale),
+            0.8f * visualScale);
+        SpawnSmallBurst(
+            center + Vector3.up * (safeRadius * 0.85f),
+            new Color(0.72f, 0.96f, 1f, 0.95f),
+            Color.white,
+            1.35f * visualScale);
+    }
+
+    private GameObject SpawnEarthWallSpectacle(
+        string objectName,
+        Vector3 center,
+        Vector3 forward,
+        float length,
+        float width,
+        float height,
+        bool keepBlockColliders)
+    {
+        Vector3 safeForward = ResolveSafePlanarDirection(forward);
+        Quaternion rotation = Quaternion.LookRotation(safeForward, Vector3.up);
+        GameObject wall = new GameObject(objectName);
+        wall.layer = gameObject.layer;
+        wall.transform.SetPositionAndRotation(center, rotation);
+
+        float safeLength = Mathf.Max(0.1f, length);
+        float safeWidth = Mathf.Max(0.1f, width);
+        float safeHeight = Mathf.Max(0.1f, height);
+        int blockCount = Mathf.Max(9, Mathf.RoundToInt(safeLength * 2.5f));
+        for (int i = 0; i < blockCount; i++)
+        {
+            float t = blockCount == 1 ? 0.5f : i / (float)(blockCount - 1);
+            float x = Mathf.Lerp(-safeLength * 0.5f, safeLength * 0.5f, t);
+            float crest = Mathf.Sin(t * Mathf.PI) * 0.22f + Random.Range(-0.06f, 0.12f);
+            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            block.name = "EarthWallObelisk";
+            block.layer = gameObject.layer;
+            block.transform.SetParent(wall.transform, false);
+            block.transform.localPosition = new Vector3(
+                x,
+                crest,
+                Random.Range(-safeWidth * 0.16f, safeWidth * 0.16f));
+            block.transform.localRotation = Quaternion.Euler(
+                Random.Range(-5f, 8f),
+                Random.Range(-11f, 11f),
+                Random.Range(-7f, 7f));
+            block.transform.localScale = new Vector3(
+                safeLength / blockCount * Random.Range(1.08f, 1.48f),
+                safeHeight * Random.Range(0.72f, 1.18f),
+                safeWidth * Random.Range(0.85f, 1.32f));
+            ApplyRenderer(block, GetEarthMaterial());
+            if (!keepBlockColliders)
+            {
+                RemoveCollider(block);
+            }
+        }
+
+        Vector3 groundCenter = center - Vector3.up * (safeHeight * 0.5f - _groundOffset);
+        SpawnLayeredGroundRune(
+            "EarthWallFaultRune",
+            groundCenter,
+            safeLength * 0.64f,
+            GetEarthMaterial(),
+            GetDarkLineMaterial(),
+            new Color(1f, 0.72f, 0.32f, 0.88f),
+            1.05f);
+        SpawnWallDustCurtain(groundCenter, safeForward, safeLength, safeWidth, safeHeight);
+        SpawnSmallBurst(
+            center,
+            new Color(0.62f, 0.42f, 0.18f, 0.92f),
+            new Color(1f, 0.78f, 0.34f, 0.56f),
+            1.75f);
+
+        for (int i = 0; i < 12; i++)
+        {
+            float side = i % 2 == 0 ? -1f : 1f;
+            Vector3 right = Vector3.Cross(Vector3.up, safeForward).normalized;
+            Vector3 shardPosition =
+                groundCenter +
+                right * Random.Range(-safeLength * 0.5f, safeLength * 0.5f) +
+                safeForward * (side * Random.Range(safeWidth * 0.55f, safeWidth * 1.6f));
+            SpawnEarthShard(shardPosition, Random.Range(0.55f, 1.2f), Random.Range(0.65f, 1.25f));
+        }
+
+        return wall;
+    }
+
+    private void SpawnQuakeOpeningSpectacle(Vector3 center, float radius, float duration)
+    {
+        float safeRadius = Mathf.Max(0.1f, radius);
+        SpawnLayeredGroundRune(
+            "QuakeImpactSigil",
+            center + Vector3.up * _groundOffset,
+            safeRadius,
+            GetEarthMaterial(),
+            GetDarkLineMaterial(),
+            new Color(1f, 0.72f, 0.28f, 0.9f),
+            Mathf.Min(1.3f, duration));
+        SpawnRadialParticleBurst(
+            "QuakeOpeningDust",
+            center + Vector3.up * 0.16f,
+            GetEarthMaterial(),
+            new Color(0.84f, 0.56f, 0.25f, 0.88f),
+            new Color(0.18f, 0.1f, 0.06f, 0.42f),
+            safeRadius,
+            0.95f,
+            220,
+            1.15f);
+        SpawnSmallBurst(
+            center + Vector3.up * 0.24f,
+            new Color(0.78f, 0.5f, 0.18f, 0.96f),
+            new Color(1f, 0.82f, 0.34f, 0.62f),
+            1.55f);
+    }
+
+    private void SpawnConeRune(
+        Vector3 origin,
+        Vector3 forward,
+        float radius,
+        float angle,
+        Material primary,
+        Material secondary,
+        float duration)
+    {
+        GameObject root = new GameObject("FrostAssaultRunicFan");
+        root.layer = gameObject.layer;
+        LineRenderer farArc = CreateLine(root.transform, "FarArc", primary, 0.13f, 16);
+        LineRenderer midArc = CreateLine(root.transform, "MidArc", secondary, 0.08f, 17);
+        LineRenderer nearArc = CreateLine(root.transform, "NearArc", primary, 0.06f, 18);
+
+        ApplyLine(farArc, BuildArc(origin, forward, radius, angle, _groundOffset + 0.04f), Color.white, primary.color, 0.95f, 0.13f);
+        ApplyLine(midArc, BuildArc(origin, forward, radius * 0.66f, angle * 0.78f, _groundOffset + 0.08f), primary.color, Color.white, 0.72f, 0.08f);
+        ApplyLine(nearArc, BuildArc(origin, forward, radius * 0.34f, angle * 0.52f, _groundOffset + 0.12f), Color.white, primary.color, 0.5f, 0.06f);
+
+        int spokeCount = 7;
+        for (int i = 0; i < spokeCount; i++)
+        {
+            float t = spokeCount == 1 ? 0.5f : i / (float)(spokeCount - 1);
+            float currentAngle = Mathf.Lerp(-angle * 0.5f, angle * 0.5f, t);
+            Vector3 direction = Quaternion.AngleAxis(currentAngle, Vector3.up) * forward;
+            LineRenderer spoke = CreateLine(root.transform, $"FanSpoke_{i:00}", i % 2 == 0 ? primary : secondary, 0.055f, 19);
+            ApplyLine(
+                spoke,
+                new[]
+                {
+                    origin + direction * (radius * 0.16f) + Vector3.up * (_groundOffset + 0.04f),
+                    origin + direction * (radius * Random.Range(0.74f, 0.98f)) + Vector3.up * (_groundOffset + 0.06f)
+                },
+                Color.white,
+                primary.color,
+                i % 2 == 0 ? 0.64f : 0.42f,
+                0.055f);
+        }
+
+        Destroy(root, duration);
+    }
+
+    private void SpawnLayeredGroundRune(
+        string objectName,
+        Vector3 center,
+        float radius,
+        Material primary,
+        Material secondary,
+        Color accent,
+        float duration)
+    {
+        float safeRadius = Mathf.Max(0.1f, radius);
+        GameObject root = new GameObject(objectName);
+        root.layer = gameObject.layer;
+
+        LineRenderer outer = CreateLine(root.transform, "OuterRune", primary, 0.16f * _runeGlowScale, 11);
+        LineRenderer outerGlow = CreateLine(root.transform, "OuterGlow", secondary, 0.08f * _runeGlowScale, 12);
+        LineRenderer middle = CreateLine(root.transform, "MiddleRune", primary, 0.085f * _runeGlowScale, 13);
+        LineRenderer inner = CreateLine(root.transform, "InnerRune", secondary, 0.055f * _runeGlowScale, 14);
+
+        ApplyLine(outer, BuildCircle(center, safeRadius, _groundOffset + 0.02f), accent, Color.white, 0.95f, 0.16f * _runeGlowScale);
+        ApplyLine(outerGlow, BuildCircle(center, safeRadius * 0.9f, _groundOffset + 0.04f), Color.white, accent, 0.58f, 0.08f * _runeGlowScale);
+        ApplyLine(middle, BuildCircle(center, safeRadius * 0.62f, _groundOffset + 0.06f), accent, Color.white, 0.72f, 0.085f * _runeGlowScale);
+        ApplyLine(inner, BuildCircle(center, safeRadius * 0.33f, _groundOffset + 0.08f), Color.white, accent, 0.52f, 0.055f * _runeGlowScale);
+
+        int spokeCount = 10;
+        for (int i = 0; i < spokeCount; i++)
+        {
+            float angle = i * (360f / spokeCount) + (i % 2 == 0 ? 0f : 9f);
+            LineRenderer spoke = CreateLine(root.transform, $"RuneSpoke_{i:00}", i % 2 == 0 ? primary : secondary, 0.045f, 15);
+            ApplyLine(
+                spoke,
+                BuildRadialSegment(center, angle, safeRadius * 0.36f, safeRadius * 0.94f, _groundOffset + 0.1f),
+                i % 2 == 0 ? accent : Color.white,
+                i % 2 == 0 ? Color.white : accent,
+                i % 2 == 0 ? 0.52f : 0.36f,
+                0.045f);
+        }
+
+        Destroy(root, duration);
+    }
+
+    private void SpawnRadialParticleBurst(
+        string objectName,
+        Vector3 position,
+        Material material,
+        Color startColor,
+        Color endColor,
+        float radius,
+        float duration,
+        int burstCount,
+        float scale)
+    {
+        GameObject root = new GameObject(objectName);
+        root.layer = gameObject.layer;
+        root.transform.position = position;
+
+        ParticleSystem particles = root.AddComponent<ParticleSystem>();
+        PrepareParticleSystem(particles);
+
+        float safeRadius = Mathf.Max(0.1f, radius);
+        float visualScale = Mathf.Max(0.1f, scale) * _effectIntensityScale;
+        ParticleSystem.MainModule main = particles.main;
+        main.duration = Mathf.Max(0.05f, duration);
+        main.loop = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.38f, 1.15f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(safeRadius * 0.34f, safeRadius * 1.24f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.055f * visualScale, 0.22f * visualScale);
+        main.startColor = new ParticleSystem.MinMaxGradient(startColor, endColor);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.maxParticles = Mathf.RoundToInt(Mathf.Max(16, burstCount * _burstDensityScale * 1.5f));
+
+        ParticleSystem.EmissionModule emission = particles.emission;
+        emission.rateOverTime = 0f;
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, ResolveBurstCount(burstCount)) });
+
+        ParticleSystem.ShapeModule shape = particles.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = safeRadius * 0.16f;
+
+        ParticleSystemRenderer rendererComponent = particles.GetComponent<ParticleSystemRenderer>();
+        rendererComponent.renderMode = ParticleSystemRenderMode.Billboard;
+        rendererComponent.sharedMaterial = material != null ? material : GetSoftMaterial();
+        rendererComponent.sortingOrder = 18;
+
+        particles.Play();
+        Destroy(root, duration + 1.4f);
+    }
+
+    private void SpawnWallDustCurtain(Vector3 groundCenter, Vector3 forward, float length, float width, float height)
+    {
+        Vector3 safeForward = ResolveSafePlanarDirection(forward);
+        Vector3 right = Vector3.Cross(Vector3.up, safeForward).normalized;
+        int plumeCount = Mathf.Max(5, Mathf.RoundToInt(length * 1.8f));
+        for (int i = 0; i < plumeCount; i++)
+        {
+            float t = plumeCount == 1 ? 0.5f : i / (float)(plumeCount - 1);
+            Vector3 plumePosition =
+                groundCenter +
+                right * Mathf.Lerp(-length * 0.5f, length * 0.5f, t) +
+                safeForward * Random.Range(-width, width) +
+                Vector3.up * Random.Range(0.05f, height * 0.18f);
+            SpawnRadialParticleBurst(
+                "EarthWallDustPlume",
+                plumePosition,
+                GetEarthMaterial(),
+                new Color(0.66f, 0.45f, 0.22f, 0.86f),
+                new Color(0.18f, 0.11f, 0.07f, 0.34f),
+                Mathf.Max(0.35f, width * 1.4f),
+                0.75f,
+                34,
+                0.75f);
+        }
+    }
+
+    private void SpawnEarthShard(Vector3 position, float height, float lifetime)
+    {
+        GameObject shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        shard.name = "EarthShard";
+        shard.layer = gameObject.layer;
+        shard.transform.position = position + Vector3.up * (height * 0.34f);
+        shard.transform.rotation = Quaternion.Euler(Random.Range(-18f, 18f), Random.Range(0f, 360f), Random.Range(-18f, 18f));
+        shard.transform.localScale = new Vector3(
+            Random.Range(0.08f, 0.18f) * _effectIntensityScale,
+            height * Random.Range(0.45f, 0.82f),
+            Random.Range(0.08f, 0.22f) * _effectIntensityScale);
+        ApplyRenderer(shard, GetEarthMaterial());
+        RemoveCollider(shard);
+        Destroy(shard, lifetime);
+    }
+
     private void SpawnConeTelegraph(
         Vector3 origin,
         Vector3 forward,
@@ -1360,22 +1685,23 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         ParticleSystem.MainModule main = particles.main;
         main.duration = duration;
         main.loop = false;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.34f, 0.68f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(range * 0.82f, range * 1.32f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.08f * _effectIntensityScale, 0.3f * _effectIntensityScale);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.42f, 1.08f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(range * 0.68f, range * 1.55f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.075f * _effectIntensityScale, 0.42f * _effectIntensityScale);
         main.startColor = new ParticleSystem.MinMaxGradient(material.color, Color.white);
-        main.maxParticles = Mathf.RoundToInt(burstCount * _burstDensityScale * 2.2f);
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.maxParticles = Mathf.RoundToInt(burstCount * _burstDensityScale * 3.2f);
 
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
-        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(burstCount * _burstDensityScale)) });
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, ResolveBurstCount(burstCount)) });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
         shape.shapeType = ParticleSystemShapeType.Cone;
         shape.angle = (coneAngle > 0f ? coneAngle : _iceConeAngle) * 0.5f;
-        shape.radius = 0.2f;
-        shape.length = 0.5f;
+        shape.radius = Mathf.Max(0.2f, range * 0.08f);
+        shape.length = Mathf.Max(0.5f, range * 0.32f);
 
         ParticleSystemRenderer rendererComponent = particles.GetComponent<ParticleSystemRenderer>();
         rendererComponent.renderMode = ParticleSystemRenderMode.Billboard;
@@ -1392,8 +1718,10 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         root.layer = gameObject.layer;
         root.transform.position = position;
         LineRenderer flashRing = CreateLine(root.transform, "BurstFlashRing", GetSoftMaterial(), 0.075f, 13);
+        LineRenderer echoRing = CreateLine(root.transform, "BurstEchoRing", GetSoftMaterial(), 0.045f, 14);
         float ringRadius = Mathf.Max(0.22f, 0.48f * scale * _effectIntensityScale);
         ApplyLine(flashRing, BuildCircle(position, ringRadius, 0f), startColor, endColor, 0.62f, 0.075f);
+        ApplyLine(echoRing, BuildCircle(position, ringRadius * 1.55f, 0.04f), endColor, startColor, 0.34f, 0.045f);
 
         ParticleSystem particles = root.AddComponent<ParticleSystem>();
         PrepareParticleSystem(particles);
@@ -1411,7 +1739,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
 
         ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
-        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(58f * _burstDensityScale)) });
+        emission.SetBursts(new[] { new ParticleSystem.Burst(0f, ResolveBurstCount(58)) });
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled = true;
@@ -1429,28 +1757,82 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
 
     private void SpawnIceSpike(Vector3 position, Vector3 forward, float heightScale)
     {
-        GameObject spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        spike.name = "PlayerIceSpike";
-        spike.layer = gameObject.layer;
-        spike.transform.position = position + Vector3.up * (0.35f + heightScale * 0.4f);
-        spike.transform.rotation = Quaternion.LookRotation(forward, Vector3.up) * Quaternion.Euler(Random.Range(-18f, 18f), 0f, Random.Range(-8f, 8f));
-        spike.transform.localScale = new Vector3(0.12f, heightScale, 0.12f);
-        ApplyRenderer(spike, GetIceMaterial());
-        RemoveCollider(spike);
-        Destroy(spike, 0.95f);
+        Vector3 safeForward = ResolveSafePlanarDirection(forward);
+        GameObject root = new GameObject("PlayerIceCrystalCluster");
+        root.layer = gameObject.layer;
+        root.transform.position = position + Vector3.up * (0.28f + heightScale * 0.32f);
+        root.transform.rotation = Quaternion.LookRotation(safeForward, Vector3.up);
+
+        int shardCount = 3;
+        for (int i = 0; i < shardCount; i++)
+        {
+            GameObject shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            shard.name = "IceCrystalShard";
+            shard.layer = gameObject.layer;
+            shard.transform.SetParent(root.transform, false);
+            float side = i - 1f;
+            shard.transform.localPosition = new Vector3(side * 0.08f * _crystalVisualScale, i == 0 ? 0f : 0.08f, Random.Range(-0.06f, 0.08f));
+            shard.transform.localRotation = Quaternion.Euler(
+                Random.Range(-22f, 22f),
+                Random.Range(-18f, 18f),
+                side * Random.Range(14f, 32f));
+            shard.transform.localScale = new Vector3(
+                0.08f * _crystalVisualScale * Random.Range(0.75f, 1.18f),
+                heightScale * _crystalVisualScale * Random.Range(0.72f, 1.08f),
+                0.08f * _crystalVisualScale * Random.Range(0.75f, 1.18f));
+            ApplyRenderer(shard, GetIceMaterial());
+            RemoveCollider(shard);
+        }
+
+        LineRenderer glint = CreateLine(root.transform, "IceCrystalGlint", GetSoftMaterial(), 0.035f, 18);
+        ApplyLine(
+            glint,
+            new[]
+            {
+                root.transform.position + Vector3.up * (heightScale * 0.15f),
+                root.transform.position + Vector3.up * (heightScale * _crystalVisualScale * 1.18f)
+            },
+            Color.white,
+            new Color(0.5f, 0.95f, 1f, 0.72f),
+            0.72f,
+            0.035f);
+        Destroy(root, 1.05f);
     }
 
     private void SpawnIcePillar(Vector3 position, float height, float width, float lifetime)
     {
+        GameObject root = new GameObject("PlayerWinterCrystalPillar");
+        root.layer = gameObject.layer;
+        root.transform.position = position;
+        root.transform.rotation = Quaternion.Euler(Random.Range(-4f, 4f), Random.Range(0f, 360f), Random.Range(-4f, 4f));
+
         GameObject pillar = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        pillar.name = "PlayerWinterIcePillar";
+        pillar.name = "WinterCrystalCore";
         pillar.layer = gameObject.layer;
-        pillar.transform.position = position + Vector3.up * (height * 0.5f);
-        pillar.transform.rotation = Quaternion.Euler(Random.Range(-6f, 6f), Random.Range(0f, 360f), Random.Range(-6f, 6f));
-        pillar.transform.localScale = new Vector3(width, height * 0.5f, width);
+        pillar.transform.SetParent(root.transform, false);
+        pillar.transform.localPosition = Vector3.up * (height * 0.5f);
+        pillar.transform.localScale = new Vector3(width * _crystalVisualScale, height * 0.5f, width * _crystalVisualScale);
         ApplyRenderer(pillar, GetIceMaterial());
         RemoveCollider(pillar);
-        Destroy(pillar, lifetime);
+
+        for (int i = 0; i < 4; i++)
+        {
+            float angle = i * 90f + Random.Range(-16f, 16f);
+            Vector3 direction = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0f, Mathf.Sin(angle * Mathf.Deg2Rad));
+            GameObject shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            shard.name = "WinterCrystalFacet";
+            shard.layer = gameObject.layer;
+            shard.transform.SetParent(root.transform, false);
+            shard.transform.localPosition = direction * width * Random.Range(0.55f, 1.15f) + Vector3.up * height * Random.Range(0.35f, 0.78f);
+            shard.transform.localRotation = Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Euler(Random.Range(-22f, 22f), 0f, Random.Range(-18f, 18f));
+            shard.transform.localScale = new Vector3(width * 0.38f, height * Random.Range(0.24f, 0.42f), width * 0.18f);
+            ApplyRenderer(shard, GetIceMaterial());
+            RemoveCollider(shard);
+        }
+
+        LineRenderer halo = CreateLine(root.transform, "WinterPillarHalo", GetSoftMaterial(), 0.045f, 17);
+        ApplyLine(halo, BuildCircle(position + Vector3.up * 0.04f, width * 2.8f, 0f), Color.white, GetIceMaterial().color, 0.42f, 0.045f);
+        Destroy(root, lifetime);
     }
 
     private void ConfigureTrailParticles(ParticleSystem particles, Color startColor, Color endColor, float lifetime, float size)
@@ -1557,6 +1939,16 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
         }
 
         return points;
+    }
+
+    private Vector3[] BuildRadialSegment(Vector3 center, float angle, float innerRadius, float outerRadius, float heightOffset)
+    {
+        Vector3 direction = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0f, Mathf.Sin(angle * Mathf.Deg2Rad));
+        return new[]
+        {
+            center + direction * innerRadius + Vector3.up * heightOffset,
+            center + direction * outerRadius + Vector3.up * heightOffset
+        };
     }
 
     private Vector3[] BuildVerticalCircle(Vector3 center, float radius, Vector3 facing)
@@ -1721,6 +2113,14 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
 
         material.renderQueue = 3000;
         return material;
+    }
+
+    private short ResolveBurstCount(float baseCount)
+    {
+        return (short)Mathf.Clamp(
+            Mathf.RoundToInt(Mathf.Max(1f, baseCount) * _burstDensityScale),
+            1,
+            short.MaxValue);
     }
 
     private static Gradient BuildFadeGradient(Color color)

@@ -249,6 +249,7 @@ MonoBehaviour:
   _coreColor: {r: 0.55, g: 0.9, b: 1, a: 1}
   _rimColor: {r: 0.86, g: 0.97, b: 1, a: 0.9}
   _sparkColor: {r: 1, g: 1, b: 1, a: 1}
+  _projectileVisualScale: 5
   _impactScale: 5
 --- !u!195 &5491856885365467676
 NavMeshAgent:
@@ -433,8 +434,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   _skillActionLockSeconds: 0.45
-  _playPrototypeSkillVfx: 0
+  _playPrototypeSkillVfx: 1
   _suppressConfiguredSkillVfx: 1
+  _prototypeSkillVfxRangeScale: 1
 --- !u!114 &8650643972814429748
 MonoBehaviour:
   m_ObjectHideFlags: 0

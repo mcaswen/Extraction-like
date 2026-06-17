@@ -24,8 +24,12 @@ namespace Gameplay.Agent.Combat
         [SerializeField] private Color _bulletColor = new Color(1f, 0.62f, 0.24f, 1f);
         [SerializeField] private global::BulletController.AttackElementType _attackElement =
             global::BulletController.AttackElementType.Fire;
+        private AgentCombatElementType _configuredElement = AgentCombatElementType.Physical;
         private AgentCombatProjectileStatus _projectileStatus = AgentCombatProjectileStatus.None;
         private float _projectileMaxTravelDistance = -1f;
+        private static readonly Color EarthMagicCoreColor = new Color(0.86f, 0.57f, 0.18f, 1f);
+        private static readonly Color EarthMagicRimColor = new Color(1f, 0.78f, 0.34f, 0.9f);
+        private static readonly Color EarthMagicSparkColor = new Color(1f, 0.93f, 0.58f, 1f);
 
         /// <summary>
         /// 尝试向目标敌人发射一颗子弹
@@ -83,6 +87,7 @@ namespace Gameplay.Agent.Combat
             AgentCombatProjectileStatus projectileStatus,
             float maxTravelDistance)
         {
+            _configuredElement = element;
             _attackElement = ConvertElementType(element);
             _projectileStatus = projectileStatus;
             _projectileMaxTravelDistance = Mathf.Max(0f, maxTravelDistance);
@@ -174,6 +179,7 @@ namespace Gameplay.Agent.Combat
             if (_simpleMagicAttackVisual == null || !_simpleMagicAttackVisual.isActiveAndEnabled)
                 return false;
 
+            ApplySimpleMagicAttackVisualColors();
             float projectileSpeed = bulletController != null ? bulletController.MoveSpeed : Mathf.Max(0.01f, _bulletMoveSpeed);
             float projectileLifetime = bulletController != null ? bulletController.LifeTime : ResolveBulletLifeTime(projectileSpeed);
             return _simpleMagicAttackVisual.PlayExternalCastVisual(
@@ -182,6 +188,23 @@ namespace Gameplay.Agent.Combat
                 transform,
                 projectileSpeed,
                 projectileLifetime);
+        }
+
+        private void ApplySimpleMagicAttackVisualColors()
+        {
+            if (_simpleMagicAttackVisual == null)
+                return;
+
+            if (_configuredElement == AgentCombatElementType.Earth)
+            {
+                _simpleMagicAttackVisual.SetVisualColors(
+                    EarthMagicCoreColor,
+                    EarthMagicRimColor,
+                    EarthMagicSparkColor);
+                return;
+            }
+
+            _simpleMagicAttackVisual.ResetVisualColorsToDefault();
         }
 
         private static void SetBulletRenderersEnabled(GameObject bulletObject, bool isEnabled)

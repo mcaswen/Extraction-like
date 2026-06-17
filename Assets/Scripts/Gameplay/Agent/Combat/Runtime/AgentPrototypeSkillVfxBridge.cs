@@ -23,7 +23,8 @@ namespace Gameplay.Agent.Combat
             if (!ShouldPlay(context, config, IceFrostAssaultSkillId, out PlayerElementalSkillVfx runner))
                 return false;
 
-            runner.PlayPrototypeIceFrostAssaultVisual(context.Position, context.Forward, radius, angleDegrees);
+            float rangeScale = ResolveRangeScale(context);
+            runner.PlayPrototypeIceFrostAssaultVisual(context.Position, context.Forward, radius * rangeScale, angleDegrees);
             return true;
         }
 
@@ -36,7 +37,8 @@ namespace Gameplay.Agent.Combat
             if (!ShouldPlay(context, config, IceWinterfallSkillId, out PlayerElementalSkillVfx runner))
                 return false;
 
-            runner.PlayPrototypeIceWinterVisual(center, radius);
+            float rangeScale = ResolveRangeScale(context);
+            runner.PlayPrototypeIceWinterVisual(center, radius * rangeScale);
             return true;
         }
 
@@ -53,7 +55,8 @@ namespace Gameplay.Agent.Combat
             if (!ShouldPlay(context, config, EarthStoneWallSkillId, out PlayerElementalSkillVfx runner))
                 return false;
 
-            runner.PlayPrototypeEarthWallVisual(center, forward, length, width, height, durationSeconds);
+            float rangeScale = ResolveRangeScale(context);
+            runner.PlayPrototypeEarthWallVisual(center, forward, length * rangeScale, width * rangeScale, height, durationSeconds);
             return true;
         }
 
@@ -67,8 +70,14 @@ namespace Gameplay.Agent.Combat
             if (!ShouldPlay(context, config, EarthQuakeFieldSkillId, out PlayerElementalSkillVfx runner))
                 return false;
 
-            runner.PlayPrototypeEarthQuakeVisual(center, radius, durationSeconds);
+            float rangeScale = ResolveRangeScale(context);
+            runner.PlayPrototypeEarthQuakeVisual(center, radius * rangeScale, durationSeconds);
             return true;
+        }
+
+        private static float ResolveRangeScale(AgentCombatSkillContext context)
+        {
+            return Mathf.Max(0.01f, context.PrototypeSkillVfxRangeScale);
         }
 
         private static bool ShouldPlay(

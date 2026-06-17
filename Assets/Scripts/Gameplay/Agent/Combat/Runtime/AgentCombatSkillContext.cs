@@ -25,7 +25,8 @@ namespace Gameplay.Agent.Combat
             float actionLockSeconds,
             AgentCombatSkillModifiers skillModifiers = default,
             bool playPrototypeSkillVfx = false,
-            bool suppressConfiguredSkillVfx = false)
+            bool suppressConfiguredSkillVfx = false,
+            float prototypeSkillVfxRangeScale = 1f)
         {
             CasterTransform = casterTransform;
             StyleConfig = styleConfig;
@@ -35,6 +36,7 @@ namespace Gameplay.Agent.Combat
             SkillModifiers = skillModifiers;
             PlayPrototypeSkillVfx = playPrototypeSkillVfx;
             SuppressConfiguredSkillVfx = suppressConfiguredSkillVfx;
+            PrototypeSkillVfxRangeScale = Mathf.Max(0.01f, prototypeSkillVfxRangeScale);
         }
 
         /// <summary>
@@ -81,6 +83,11 @@ namespace Gameplay.Agent.Combat
         /// prototype 特效播放成功时是否跳过配置里的正式 prefab/指示器。
         /// </summary>
         public bool SuppressConfiguredSkillVfx { get; }
+
+        /// <summary>
+        /// Prototype 技能特效的视觉范围缩放，只影响测试特效，不改变技能判定。
+        /// </summary>
+        public float PrototypeSkillVfxRangeScale { get; }
 
         /// <summary>
         /// 施法者当前位置

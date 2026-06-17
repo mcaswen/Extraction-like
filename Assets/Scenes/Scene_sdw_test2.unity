@@ -23410,7 +23410,7 @@ PrefabInstance:
     - target: {fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: _playPrototypeSkillVfx
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7921676892967629285, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}
@@ -55753,7 +55753,7 @@ PrefabInstance:
     - target: {fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d,
         type: 3}
       propertyPath: _playPrototypeSkillVfx
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
