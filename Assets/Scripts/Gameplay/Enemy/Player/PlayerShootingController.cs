@@ -29,6 +29,10 @@ public class PlayerShootingController : MonoBehaviour
     public float FrozenFireBonusMultiplier = 2.2f;
     public bool ReportGunshotStimulus;
 
+    [Header("Normal Attack Visual")]
+    public SimpleMagicRangedAttack SimpleMagicAttackVisual;
+    public bool HideBulletRenderersWhenUsingSimpleMagicVisual = true;
+
     [Header("Status Effect")]
     public float SilenceTintStrength = 0.55f;
     public Color SilenceTintColor = new Color(0.32f, 0.82f, 1f, 1f);
@@ -710,7 +714,49 @@ public class PlayerShootingController : MonoBehaviour
             bullet.FrozenFireBonusMultiplier = FrozenFireBonusMultiplier;
         }
 
+        bool playedMagicVisual = TryPlaySimpleMagicAttackVisual(bulletObject, bullet);
+        if (playedMagicVisual && HideBulletRenderersWhenUsingSimpleMagicVisual)
+        {
+            SetBulletRenderersEnabled(bulletObject, false);
+        }
+
         return true;
+    }
+
+    private bool TryPlaySimpleMagicAttackVisual(GameObject bulletObject, BulletController bullet)
+    {
+        if (SimpleMagicAttackVisual == null || !SimpleMagicAttackVisual.isActiveAndEnabled || FirePoint == null)
+        {
+            return false;
+        }
+
+        float projectileSpeed = bullet != null ? bullet.MoveSpeed : 20f;
+        float projectileLifetime = bullet != null ? bullet.LifeTime : 3f;
+        Vector3 direction = bulletObject != null ? bulletObject.transform.forward : FirePoint.forward;
+        return SimpleMagicAttackVisual.PlayExternalCastVisual(
+            FirePoint.position,
+            direction,
+            transform,
+            projectileSpeed,
+            projectileLifetime);
+    }
+
+    private static void SetBulletRenderersEnabled(GameObject bulletObject, bool isEnabled)
+    {
+        if (bulletObject == null)
+        {
+            return;
+        }
+
+        Renderer[] renderers = bulletObject.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer rendererComponent = renderers[i];
+            if (rendererComponent != null)
+            {
+                rendererComponent.enabled = isEnabled;
+            }
+        }
     }
 
     private bool TryCastIceFreeze()

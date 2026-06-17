@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class SimpleMagicRangedAttack : MonoBehaviour
 {
     [Header("Input")]
+    [SerializeField] private bool _enableKeyboardPreview = true;
     [SerializeField] private KeyCode _castKey = KeyCode.Mouse1;
     [SerializeField] private float _cooldownSeconds = 0.28f;
 
@@ -52,7 +53,7 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
             _cooldownRemaining = Mathf.Max(0f, _cooldownRemaining - Time.deltaTime);
         }
 
-        if (_cooldownRemaining > 0f || !Input.GetKeyDown(_castKey))
+        if (!_enableKeyboardPreview || _cooldownRemaining > 0f || !Input.GetKeyDown(_castKey))
         {
             return;
         }
@@ -72,7 +73,76 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         }
 
         SpawnCastFlash(firePosition, direction);
-        SpawnProjectile(firePosition, direction);
+        SpawnProjectile(
+            firePosition,
+            direction,
+            transform,
+            _projectileSpeed,
+            _projectileLifetime,
+            _projectileCollisionRadius,
+            _impactMask);
+    }
+
+    public void SetKeyboardPreviewEnabled(bool enabled)
+    {
+        _enableKeyboardPreview = enabled;
+    }
+
+    public bool PlayExternalCastVisual(
+        Vector3 firePosition,
+        Vector3 direction,
+        Transform owner,
+        float projectileSpeed,
+        float projectileLifetime)
+    {
+        return PlayExternalCastVisual(
+            firePosition,
+            direction,
+            owner,
+            projectileSpeed,
+            projectileLifetime,
+            _projectileCollisionRadius,
+            _impactMask);
+    }
+
+    public bool PlayExternalCastVisual(
+        Vector3 firePosition,
+        Vector3 direction,
+        Transform owner,
+        float projectileSpeed,
+        float projectileLifetime,
+        float projectileCollisionRadius,
+        LayerMask impactMask)
+    {
+        if (!isActiveAndEnabled)
+        {
+            return false;
+        }
+
+        Vector3 safeDirection = direction;
+        safeDirection.y = 0f;
+        if (safeDirection.sqrMagnitude <= 0.0001f)
+        {
+            safeDirection = transform.forward;
+            safeDirection.y = 0f;
+        }
+
+        if (safeDirection.sqrMagnitude <= 0.0001f)
+        {
+            safeDirection = Vector3.forward;
+        }
+
+        safeDirection.Normalize();
+        SpawnCastFlash(firePosition, safeDirection);
+        SpawnProjectile(
+            firePosition,
+            safeDirection,
+            owner != null ? owner : transform,
+            projectileSpeed,
+            projectileLifetime,
+            projectileCollisionRadius,
+            impactMask);
+        return true;
     }
 
     private Vector3 ResolveFirePosition()
@@ -132,7 +202,14 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(planarDirection.normalized, Vector3.up);
     }
 
-    private void SpawnProjectile(Vector3 firePosition, Vector3 direction)
+    private void SpawnProjectile(
+        Vector3 firePosition,
+        Vector3 direction,
+        Transform owner,
+        float projectileSpeed,
+        float projectileLifetime,
+        float projectileCollisionRadius,
+        LayerMask impactMask)
     {
         GameObject projectileObject = new GameObject("SimpleMagicProjectile");
         projectileObject.transform.SetPositionAndRotation(
@@ -148,12 +225,12 @@ public sealed class SimpleMagicRangedAttack : MonoBehaviour
         SimpleMagicProjectileRuntime runtime = projectileObject.AddComponent<SimpleMagicProjectileRuntime>();
         runtime.Initialize(
             this,
-            transform,
+            owner != null ? owner : transform,
             direction,
-            _projectileSpeed,
-            _projectileLifetime,
-            _projectileCollisionRadius,
-            _impactMask);
+            projectileSpeed,
+            projectileLifetime,
+            projectileCollisionRadius,
+            impactMask);
     }
 
     private void SpawnCastFlash(Vector3 firePosition, Vector3 direction)

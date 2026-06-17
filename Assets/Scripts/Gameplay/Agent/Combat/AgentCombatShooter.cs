@@ -12,6 +12,8 @@ namespace Gameplay.Agent.Combat
         [Header("Fire Setup")]
         [SerializeField] private Transform _firePoint;
         [SerializeField] private GameObject _bulletPrefab;
+        [SerializeField] private global::SimpleMagicRangedAttack _simpleMagicAttackVisual;
+        [SerializeField] private bool _hideBulletRenderersWhenUsingSimpleMagicVisual = true;
         [SerializeField] private Vector3 _fallbackFirePointLocalOffset = new Vector3(0f, 1.2f, 0.6f);
         [SerializeField] private bool _createFallbackBulletIfPrefabMissing = true;
 
@@ -54,6 +56,14 @@ namespace Gameplay.Agent.Combat
             // 再写入 BulletController 参数，并忽略发射者自身碰撞
             ConfigureBulletObject(bulletObject, fireDirection.normalized, damage);
             IgnoreShooterCollisions(bulletObject);
+            global::BulletController bulletController = bulletObject.GetComponent<global::BulletController>();
+            bool playedMagicVisual = TryPlaySimpleMagicAttackVisual(
+                firePosition,
+                fireDirection.normalized,
+                bulletController);
+            if (playedMagicVisual && _hideBulletRenderersWhenUsingSimpleMagicVisual)
+                SetBulletRenderersEnabled(bulletObject, false);
+
             global::AgentSfxEmitter sfxEmitter = GetComponent<global::AgentSfxEmitter>();
             if (sfxEmitter != null)
                 sfxEmitter.PlayBasicAttack();
@@ -154,6 +164,38 @@ namespace Gameplay.Agent.Combat
 
             rigidbodyComponent.useGravity = false;
             rigidbodyComponent.velocity = fireDirection * bulletController.MoveSpeed;
+        }
+
+        private bool TryPlaySimpleMagicAttackVisual(
+            Vector3 firePosition,
+            Vector3 fireDirection,
+            global::BulletController bulletController)
+        {
+            if (_simpleMagicAttackVisual == null || !_simpleMagicAttackVisual.isActiveAndEnabled)
+                return false;
+
+            float projectileSpeed = bulletController != null ? bulletController.MoveSpeed : Mathf.Max(0.01f, _bulletMoveSpeed);
+            float projectileLifetime = bulletController != null ? bulletController.LifeTime : ResolveBulletLifeTime(projectileSpeed);
+            return _simpleMagicAttackVisual.PlayExternalCastVisual(
+                firePosition,
+                fireDirection,
+                transform,
+                projectileSpeed,
+                projectileLifetime);
+        }
+
+        private static void SetBulletRenderersEnabled(GameObject bulletObject, bool isEnabled)
+        {
+            if (bulletObject == null)
+                return;
+
+            Renderer[] renderers = bulletObject.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Renderer rendererComponent = renderers[i];
+                if (rendererComponent != null)
+                    rendererComponent.enabled = isEnabled;
+            }
         }
 
         private float ResolveBulletLifeTime(float moveSpeed)

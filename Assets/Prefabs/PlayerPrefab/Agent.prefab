@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 9216309406287422568}
   - component: {fileID: 5903013740452536521}
   - component: {fileID: 7464382484415442821}
+  - component: {fileID: 7464382484415442822}
   - component: {fileID: 5491856885365467676}
   - component: {fileID: 2898261118407030116}
   - component: {fileID: 6384219047756312460}
@@ -210,6 +211,8 @@ MonoBehaviour:
   _firePoint: {fileID: 3217197453321804268}
   _bulletPrefab: {fileID: 6621331782827505674, guid: afbf79f519237ce4498e2c5e3751aa09,
     type: 3}
+  _simpleMagicAttackVisual: {fileID: 7464382484415442822}
+  _hideBulletRenderersWhenUsingSimpleMagicVisual: 1
   _fallbackFirePointLocalOffset: {x: 0, y: 1.2, z: 0.6}
   _createFallbackBulletIfPrefabMissing: 1
   _bulletMoveSpeed: 20
@@ -217,6 +220,36 @@ MonoBehaviour:
   _fallbackBulletRadius: 0.12
   _bulletColor: {r: 1, g: 0.62, b: 0.24, a: 1}
   _attackElement: 1
+--- !u!114 &7464382484415442822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7015472616922862980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b8f4ed2156b4e7b9a7f3f1de57f1a42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enableKeyboardPreview: 0
+  _castKey: 324
+  _cooldownSeconds: 0.28
+  _aimCamera: {fileID: 0}
+  _firePoint: {fileID: 3217197453321804268}
+  _fallbackFireLocalOffset: {x: 0.25, y: 0.85, z: 0.45}
+  _faceAimWhenCasting: 1
+  _maxAimDistance: 80
+  _projectileSpeed: 20
+  _projectileLifetime: 3
+  _projectileCollisionRadius: 0.16
+  _impactMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _coreColor: {r: 0.55, g: 0.9, b: 1, a: 1}
+  _rimColor: {r: 0.86, g: 0.97, b: 1, a: 0.9}
+  _sparkColor: {r: 1, g: 1, b: 1, a: 1}
+  _impactScale: 5
 --- !u!195 &5491856885365467676
 NavMeshAgent:
   m_ObjectHideFlags: 0
