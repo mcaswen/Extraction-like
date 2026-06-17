@@ -108,6 +108,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     public float BiteDamage = 15f;
 
     private NavMeshAgent _navMeshAgent;
+    private EnemyLookController _lookController;
     private EnemyAnimatorDriver _animatorDriver;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
@@ -161,6 +162,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
         EnemyAwarenessRuntimeInstaller.EnsureAwarenessComponents(gameObject);
+        _lookController = GetComponent<EnemyLookController>();
         _patrolAwareness = GetComponent<EnemyPatrolAwarenessController>();
         _patrolAwareness?.ConfigurePreset(_awarenessPreset);
         _startingPosition = transform.position;
@@ -290,6 +292,8 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             return;
         }
+
+        SyncPatrolBodyWithVision(isWaiting);
 
         if (isWaiting)
         {
@@ -529,7 +533,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         StopBiteStrike();
         _waitTimer = 0f;
         _patrolAwareness?.ResetAwareness();
-        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        _lookController?.LookAtPlayer(PlayerTransform);
         FacePlayerImmediately();
 
         CurrentState = EnemyState.Chase;
@@ -671,9 +675,24 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private void LookAtPlayer()
     {
         _patrolAwareness?.ResetAwareness();
-        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        _lookController?.LookAtPlayer(PlayerTransform);
         Vector3 lookPosition = new Vector3(PlayerTransform.position.x, transform.position.y, PlayerTransform.position.z);
         transform.LookAt(lookPosition);
+    }
+
+    private void SyncPatrolBodyWithVision(bool isWaiting)
+    {
+        if (!isWaiting)
+        {
+            return;
+        }
+
+        if (_lookController == null)
+        {
+            _lookController = GetComponent<EnemyLookController>();
+        }
+
+        _lookController?.SnapBodyTowardsVisionAtPatrolSpeed();
     }
 
     private void InitializePatrolRoute()

@@ -214,6 +214,14 @@ public sealed class EnemyLookController : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
     }
 
+    /// <summary>
+    /// 使用巡逻转向速度让身体逐步贴近当前视野朝向。
+    /// </summary>
+    public void SnapBodyTowardsVisionAtPatrolSpeed()
+    {
+        SnapBodyTowardsVision(_patrolTurnSpeed);
+    }
+
     private bool TryTickExternalIntent()
     {
         if (!_hasExternalIntent)
