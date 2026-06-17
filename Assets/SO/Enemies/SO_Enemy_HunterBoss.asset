@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyId: hunterboss
   _displayName: "HunterBoss\u20144"
-  _maxHealth: 100
+  _maxHealth: 1000
   _deathLoot:
     _spawnLootContainerOnDeath: 1
     _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
@@ -26,6 +26,7 @@ MonoBehaviour:
   _meleeAttackRange: 4
   _meleeAttackInterval: 2.4
   _meleeAttackRadius: 2.2
+  _meleeAttackHeight: 20
   _meleeDamage: 18
   _meleeKnockbackStrength: 6
   _meleeVisualDuration: 0.22
@@ -44,7 +45,7 @@ MonoBehaviour:
   _anchorThrowCooldown: 3
   _rageThreshold: 0.5
   _roarChargeDuration: 3
-  _roarCooldown: 7
+  _roarCooldown: 2
   _roarRange: 12
   _roarAngle: 120
   _roarDamage: 80

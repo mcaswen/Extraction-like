@@ -165,6 +165,7 @@ public static class EnemyConfigMigrationTool
             CopyFloat(behaviorObject, "MeleeAttackRange", configObject, "_meleeAttackRange");
             CopyFloat(behaviorObject, "MeleeAttackInterval", configObject, "_meleeAttackInterval");
             CopyFloat(behaviorObject, "MeleeAttackRadius", configObject, "_meleeAttackRadius");
+            CopyFloat(behaviorObject, "MeleeAttackHeight", configObject, "_meleeAttackHeight");
             CopyFloat(behaviorObject, "MeleeDamage", configObject, "_meleeDamage");
             CopyFloat(behaviorObject, "MeleeVisualDuration", configObject, "_meleeVisualDuration");
             CopyFloat(behaviorObject, "MinimumRangedDistance", configObject, "_minimumRangedDistance");

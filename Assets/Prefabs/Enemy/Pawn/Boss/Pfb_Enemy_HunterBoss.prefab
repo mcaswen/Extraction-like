@@ -309,6 +309,7 @@ MonoBehaviour:
   EyeOrigin: {fileID: 3922987088329311086}
   MeleeSwingRenderer: {fileID: 0}
   RoarWaveRenderer: {fileID: 0}
+  _drawMeleeHitboxGizmo: 1
   AnchorProjectilePrefab: {fileID: 2918509184010544663, guid: 133b1b7f63cfda547b5c8516b2285a1a,
     type: 3}
   VortexFieldPrefab: {fileID: 0}
@@ -318,6 +319,7 @@ MonoBehaviour:
   MeleeAttackRange: 4
   MeleeAttackInterval: 2.4
   MeleeAttackRadius: 2.2
+  MeleeAttackHeight: 6
   MeleeDamage: 18
   MeleeKnockbackStrength: 6
   MeleeVisualDuration: 0.22
@@ -333,7 +335,7 @@ MonoBehaviour:
   AnchorThrowCooldown: 3
   RageThreshold: 0.5
   RoarChargeDuration: 1.2
-  RoarCooldown: 7
+  RoarCooldown: 2
   RoarRange: 12
   RoarAngle: 120
   RoarDamage: 100
@@ -417,7 +419,7 @@ Transform:
   m_GameObject: {fileID: 5170584164047842558}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.09, y: 0.315, z: -0.716}
+  m_LocalPosition: {x: -0.09, y: 0.315, z: 0.716}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

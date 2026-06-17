@@ -60,6 +60,10 @@ public class HunterBossBehaviorController : MonoBehaviour
     /// </summary>
     public LineRenderer RoarWaveRenderer;
 
+    [Header("Debug")]
+    [SerializeField, Tooltip("Draw the melee damage cylinder in the Scene view.")]
+    private bool _drawMeleeHitboxGizmo = true;
+
     [HideInInspector]
     public GameObject AnchorProjectilePrefab;
     [HideInInspector]
@@ -78,6 +82,8 @@ public class HunterBossBehaviorController : MonoBehaviour
     public float MeleeAttackInterval = 2.4f;
     [HideInInspector]
     public float MeleeAttackRadius = 2.2f;
+    [HideInInspector]
+    public float MeleeAttackHeight = 6f;
     [HideInInspector]
     public float MeleeDamage = 18f;
     [HideInInspector]
@@ -111,7 +117,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     [HideInInspector]
     public float RoarChargeDuration = 3f;
     [HideInInspector]
-    public float RoarCooldown = 7f;
+    public float RoarCooldown = 2f;
     [HideInInspector]
     public float RoarRange = 12f;
     [HideInInspector]
@@ -157,6 +163,9 @@ public class HunterBossBehaviorController : MonoBehaviour
     private TracerAnchorVortexVfx _tracerAnchorVfx;
     private Renderer[] _cachedRenderers;
     private Color[] _originalRendererColors;
+    private readonly System.Collections.Generic.HashSet<Transform> _meleeDamagedRoots = new System.Collections.Generic.HashSet<Transform>();
+    private const int MeleeHitboxGizmoSegments = 32;
+    private bool _isMovingThisFrame;
 
     /// <summary>
     /// Boss 怒吼后的防御力场是否处于激活状态。
@@ -209,6 +218,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         MeleeAttackRange = _config.MeleeAttackRange;
         MeleeAttackInterval = _config.MeleeAttackInterval;
         MeleeAttackRadius = _config.MeleeAttackRadius;
+        MeleeAttackHeight = _config.MeleeAttackHeight;
         MeleeDamage = _config.MeleeDamage;
         MeleeKnockbackStrength = _config.MeleeKnockbackStrength;
         MeleeVisualDuration = _config.MeleeVisualDuration;
@@ -250,6 +260,7 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
+        _isMovingThisFrame = false;
         HandleRageRoar(distanceToPlayer);
         TickForceFieldElementalState();
 
@@ -300,31 +311,42 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         LookAtPlayer();
+        if (IsCurrentTargetWithinMeleeCylinder())
+        {
+            EnterMeleeAttack(MeleeAttackInterval);
+            return;
+        }
+
         MoveTowardsPlayer();
 
-        if (distanceToPlayer <= MeleeAttackRange)
+        if (IsCurrentTargetWithinMeleeCylinder())
         {
-            CurrentState = BossState.MeleeAttack;
-            _meleeTimer = MeleeAttackInterval;
+            EnterMeleeAttack(MeleeAttackInterval);
             return;
         }
     }
 
     private void TickMelee(float distanceToPlayer)
     {
-        if (distanceToPlayer > MeleeAttackRange + 1f)
+        if (distanceToPlayer > LoseRange)
         {
             CurrentState = BossState.Chase;
             return;
         }
 
         LookAtPlayer();
+        if (!IsCurrentTargetWithinMeleeCylinder())
+        {
+            CurrentState = BossState.Chase;
+            return;
+        }
+
         _meleeTimer += Time.deltaTime;
         if (_meleeTimer >= MeleeAttackInterval)
         {
             _meleeTimer = 0f;
-            bool didHitPlayer = PerformMeleeAttack();
-            if (didHitPlayer)
+            bool didHitTarget = PerformMeleeAttack();
+            if (didHitTarget)
             {
                 _meleeHitCounter++;
             }
@@ -390,13 +412,24 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void TickCooldown(float distanceToPlayer)
     {
+        if (distanceToPlayer > LoseRange)
+        {
+            CurrentState = BossState.Chase;
+            return;
+        }
+
+        LookAtPlayer();
+        if (!IsCurrentTargetWithinMeleeCylinder())
+        {
+            MoveTowardsPlayer();
+        }
+
         _cooldownTimer += Time.deltaTime;
         if (_cooldownTimer >= _currentCooldownDuration)
         {
-            if (distanceToPlayer <= MeleeAttackRange)
+            if (IsCurrentTargetWithinMeleeCylinder())
             {
-                CurrentState = BossState.MeleeAttack;
-                _meleeTimer = 0f;
+                EnterMeleeAttack(0f);
                 return;
             }
 
@@ -413,41 +446,252 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
     }
 
+    private void EnterMeleeAttack(float initialTimer)
+    {
+        CurrentState = BossState.MeleeAttack;
+        _meleeTimer = initialTimer;
+    }
+
     private bool PerformMeleeAttack()
     {
         _animatorDriver?.TriggerAttack();
-        // 追猎者近战只检测玩家，命中后累计漩涡触发次数。
-        bool didHitPlayer = false;
+        // 横扫用通用战斗伤害接口结算，玩家和 Agent 走同一套命中逻辑。
+        bool didHitTarget = false;
         _meleeVisualTimer = MeleeVisualDuration;
         _tracerAnchorVfx?.PlayMeleeSweep();
         float totalDamage = 0f;
         Vector3 center = MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.4f;
-        Collider[] hits = Physics.OverlapSphere(center, MeleeAttackRadius);
+        _meleeDamagedRoots.Clear();
+        Collider[] hits = Physics.OverlapBox(
+            center,
+            GetMeleeCylinderQueryHalfExtents(MeleeAttackRadius, MeleeAttackHeight),
+            Quaternion.identity,
+            ~0,
+            QueryTriggerInteraction.Collide);
         foreach (Collider hit in hits)
         {
-            if (!PlayerTargetResolver.IsPlayerTarget(hit.transform))
+            if (!IsColliderWithinMeleeCylinder(hit, center))
             {
                 continue;
             }
 
-            PlayerMovementController playerMovement = hit.GetComponentInParent<PlayerMovementController>();
-            if (PlayerTargetResolver.TryGetDamageReceiver(hit, out ICombatDamageReceiver damageReceiver))
+            if (!CombatDamageUtility.TryGetDamageReceiver(hit, out ICombatDamageReceiver damageReceiver))
             {
-                Vector3 hitPoint = hit.ClosestPoint(center);
-                Vector3 hitDirection = hitPoint - transform.position;
-                totalDamage += damageReceiver.TakeCombatDamage(MeleeDamage, hitPoint, hitDirection, gameObject);
-                didHitPlayer = true;
+                continue;
             }
 
-            if (playerMovement != null)
+            Vector3 hitPoint = hit.ClosestPoint(center);
+            Vector3 hitDirection = hitPoint - transform.position;
+            totalDamage += ApplyMeleeDamageOnce(damageReceiver, hitPoint, hitDirection, out bool didApplyDamage);
+            if (!didApplyDamage)
             {
-                Vector3 pushDirection = hit.transform.position - transform.position;
-                playerMovement.ApplyExternalImpulse(pushDirection, MeleeKnockbackStrength);
+                continue;
+            }
+
+            didHitTarget = true;
+            ApplyMeleeKnockback(hit, damageReceiver);
+        }
+
+        if (_combatDamageReceiver != null &&
+            PlayerTransform != null &&
+            IsPointWithinMeleeCylinder(PlayerTransform.position, center))
+        {
+            Vector3 hitPoint = PlayerTransform.position;
+            Vector3 hitDirection = hitPoint - transform.position;
+            totalDamage += ApplyMeleeDamageOnce(_combatDamageReceiver, hitPoint, hitDirection, out bool didApplyDamage);
+            if (didApplyDamage)
+            {
+                didHitTarget = true;
+                ApplyMeleeKnockback(null, _combatDamageReceiver);
             }
         }
 
         EnemySkillDamageLogger.LogSkillDamage(this, "Anchor Sweep", totalDamage);
-        return didHitPlayer;
+        return didHitTarget;
+    }
+
+    private static Vector3 GetMeleeCylinderQueryHalfExtents(float radius, float height)
+    {
+        float safeRadius = Mathf.Max(0.05f, radius);
+        return new Vector3(safeRadius, GetMeleeCylinderHalfHeight(height), safeRadius);
+    }
+
+    private float GetMeleeCylinderHalfHeight()
+    {
+        return GetMeleeCylinderHalfHeight(MeleeAttackHeight);
+    }
+
+    private static float GetMeleeCylinderHalfHeight(float height)
+    {
+        return Mathf.Max(0.05f, height * 0.5f);
+    }
+
+    private bool IsColliderWithinMeleeCylinder(Collider hit, Vector3 center)
+    {
+        if (hit == null)
+        {
+            return false;
+        }
+
+        Bounds bounds = hit.bounds;
+        float halfHeight = GetMeleeCylinderHalfHeight();
+        if (bounds.max.y < center.y - halfHeight || bounds.min.y > center.y + halfHeight)
+        {
+            return false;
+        }
+
+        Vector3 samplePoint = new Vector3(
+            center.x,
+            Mathf.Clamp(center.y, bounds.min.y, bounds.max.y),
+            center.z);
+        Vector3 closestPoint = hit.ClosestPoint(samplePoint);
+        return IsPointHorizontallyWithinMeleeCylinder(closestPoint, center);
+    }
+
+    private bool IsPointWithinMeleeCylinder(Vector3 point, Vector3 center)
+    {
+        return Mathf.Abs(point.y - center.y) <= GetMeleeCylinderHalfHeight() &&
+            IsPointHorizontallyWithinMeleeCylinder(point, center);
+    }
+
+    private bool IsPointHorizontallyWithinMeleeCylinder(Vector3 point, Vector3 center)
+    {
+        float radius = Mathf.Max(0.05f, MeleeAttackRadius);
+        float deltaX = point.x - center.x;
+        float deltaZ = point.z - center.z;
+        return deltaX * deltaX + deltaZ * deltaZ <= radius * radius;
+    }
+
+    private bool IsCurrentTargetWithinMeleeCylinder()
+    {
+        Vector3 center = GetMeleeHitboxCenter();
+        if (_combatDamageReceiver != null &&
+            _combatDamageReceiver.IsCombatDamageReceiverAlive &&
+            IsDamageReceiverWithinMeleeCylinder(_combatDamageReceiver, center))
+        {
+            return true;
+        }
+
+        return PlayerTransform != null && IsPointWithinMeleeCylinder(PlayerTransform.position, center);
+    }
+
+    private bool IsDamageReceiverWithinMeleeCylinder(ICombatDamageReceiver damageReceiver, Vector3 center)
+    {
+        Transform damageRoot = ResolveDamageRoot(damageReceiver);
+        if (damageRoot == null)
+        {
+            return false;
+        }
+
+        Collider[] colliders = damageRoot.GetComponentsInChildren<Collider>();
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider targetCollider = colliders[i];
+            if (targetCollider == null ||
+                !targetCollider.enabled ||
+                !targetCollider.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            if (IsColliderWithinMeleeCylinder(targetCollider, center))
+            {
+                return true;
+            }
+        }
+
+        return IsPointWithinMeleeCylinder(damageRoot.position, center);
+    }
+
+    private float ApplyMeleeDamageOnce(
+        ICombatDamageReceiver damageReceiver,
+        Vector3 hitPoint,
+        Vector3 hitDirection,
+        out bool didApplyDamage)
+    {
+        didApplyDamage = false;
+        if (damageReceiver == null || !damageReceiver.IsCombatDamageReceiverAlive)
+        {
+            return 0f;
+        }
+
+        Transform damageRoot = ResolveDamageRoot(damageReceiver);
+        if (damageRoot != null &&
+            (damageRoot == transform || damageRoot.IsChildOf(transform) || !_meleeDamagedRoots.Add(damageRoot)))
+        {
+            return 0f;
+        }
+
+        didApplyDamage = true;
+        return CombatDamageUtility.ApplyDamageTo(
+            damageReceiver,
+            MeleeDamage,
+            hitPoint,
+            hitDirection,
+            gameObject);
+    }
+
+    private void ApplyMeleeKnockback(Collider hitCollider, ICombatDamageReceiver damageReceiver)
+    {
+        if (MeleeKnockbackStrength <= 0f)
+        {
+            return;
+        }
+
+        Transform hitTransform = hitCollider != null ? hitCollider.transform : ResolveDamageRoot(damageReceiver);
+        if (hitTransform == null)
+        {
+            return;
+        }
+
+        Vector3 pushDirection = hitTransform.position - transform.position;
+        PlayerMovementController playerMovement = hitTransform.GetComponentInParent<PlayerMovementController>();
+        if (playerMovement != null)
+        {
+            playerMovement.ApplyExternalImpulse(pushDirection, MeleeKnockbackStrength);
+            return;
+        }
+
+        IExternalMovementReceiver movementReceiver = ResolveExternalMovementReceiver(damageReceiver, hitCollider);
+        movementReceiver?.ApplyExternalImpulse(pushDirection, MeleeKnockbackStrength);
+    }
+
+    private static IExternalMovementReceiver ResolveExternalMovementReceiver(
+        ICombatDamageReceiver damageReceiver,
+        Collider hitCollider)
+    {
+        Transform damageRoot = ResolveDamageRoot(damageReceiver);
+        if (damageRoot != null)
+        {
+            IExternalMovementReceiver rootMovement = damageRoot.GetComponent<IExternalMovementReceiver>();
+            if (rootMovement != null)
+            {
+                return rootMovement;
+            }
+
+            rootMovement = damageRoot.GetComponentInParent<IExternalMovementReceiver>();
+            if (rootMovement != null)
+            {
+                return rootMovement;
+            }
+        }
+
+        return hitCollider != null ? hitCollider.GetComponentInParent<IExternalMovementReceiver>() : null;
+    }
+
+    private static Transform ResolveDamageRoot(ICombatDamageReceiver damageReceiver)
+    {
+        if (damageReceiver == null)
+        {
+            return null;
+        }
+
+        if (damageReceiver.DamageRootTransform != null)
+        {
+            return damageReceiver.DamageRootTransform;
+        }
+
+        return damageReceiver is Component receiverComponent ? receiverComponent.transform : null;
     }
 
     private void SpawnOrMoveVortexField()
@@ -642,11 +886,12 @@ public class HunterBossBehaviorController : MonoBehaviour
 
         float speedMultiplier = _isForceFieldFrozen ? ForceFieldFrozenMoveSpeedMultiplier : 1f;
         transform.position += direction.normalized * ChaseSpeed * speedMultiplier * Time.deltaTime;
+        _isMovingThisFrame = true;
     }
 
     private void UpdateAnimatorSpeed()
     {
-        float speed = CurrentState == BossState.Chase ? ChaseSpeed : 0f;
+        float speed = _isMovingThisFrame ? ChaseSpeed : 0f;
         _animatorDriver?.SetSpeed(speed);
     }
 
@@ -859,6 +1104,11 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        DrawMeleeHitboxGizmo();
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
@@ -869,6 +1119,81 @@ public class HunterBossBehaviorController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, VortexTriggerDistance);
         Gizmos.color = new Color(1f, 0.6f, 0.1f, 1f);
         Gizmos.DrawWireSphere(transform.position, RoarRange);
+    }
+
+    private void DrawMeleeHitboxGizmo()
+    {
+        if (!_drawMeleeHitboxGizmo)
+        {
+            return;
+        }
+
+        float radius = GetGizmoMeleeAttackRadius();
+        float height = GetGizmoMeleeAttackHeight();
+        Vector3 center = GetMeleeHitboxCenter();
+        Vector3 halfExtents = GetMeleeCylinderQueryHalfExtents(radius, height);
+
+        Color previousColor = Gizmos.color;
+        Gizmos.color = new Color(1f, 0.2f, 0.05f, 0.08f);
+        Gizmos.DrawCube(center, halfExtents * 2f);
+        Gizmos.color = new Color(1f, 0.28f, 0.05f, 0.9f);
+        DrawWireCylinder(center, radius, height);
+        Gizmos.color = new Color(1f, 0.95f, 0.25f, 0.95f);
+        Gizmos.DrawLine(center, center + transform.forward * radius);
+        Gizmos.color = previousColor;
+    }
+
+    private Vector3 GetMeleeHitboxCenter()
+    {
+        return MeleeOrigin != null ? MeleeOrigin.position : transform.position + transform.forward * 1.4f;
+    }
+
+    private float GetGizmoMeleeAttackRadius()
+    {
+        if (!Application.isPlaying && _config != null)
+        {
+            return _config.MeleeAttackRadius;
+        }
+
+        return MeleeAttackRadius;
+    }
+
+    private float GetGizmoMeleeAttackHeight()
+    {
+        if (!Application.isPlaying && _config != null)
+        {
+            return _config.MeleeAttackHeight;
+        }
+
+        return MeleeAttackHeight;
+    }
+
+    private static void DrawWireCylinder(Vector3 center, float radius, float height)
+    {
+        float safeRadius = Mathf.Max(0.05f, radius);
+        float halfHeight = GetMeleeCylinderHalfHeight(height);
+        Vector3 topCenter = center + Vector3.up * halfHeight;
+        Vector3 bottomCenter = center - Vector3.up * halfHeight;
+
+        Vector3 previousTop = topCenter + new Vector3(safeRadius, 0f, 0f);
+        Vector3 previousBottom = bottomCenter + new Vector3(safeRadius, 0f, 0f);
+        for (int i = 1; i <= MeleeHitboxGizmoSegments; i++)
+        {
+            float angle = i * Mathf.PI * 2f / MeleeHitboxGizmoSegments;
+            Vector3 offset = new Vector3(Mathf.Cos(angle) * safeRadius, 0f, Mathf.Sin(angle) * safeRadius);
+            Vector3 currentTop = topCenter + offset;
+            Vector3 currentBottom = bottomCenter + offset;
+
+            Gizmos.DrawLine(previousTop, currentTop);
+            Gizmos.DrawLine(previousBottom, currentBottom);
+            if (i % 8 == 0)
+            {
+                Gizmos.DrawLine(currentTop, currentBottom);
+            }
+
+            previousTop = currentTop;
+            previousBottom = currentBottom;
+        }
     }
 
     private GameObject CreateAnchorProjectile(Vector3 direction)

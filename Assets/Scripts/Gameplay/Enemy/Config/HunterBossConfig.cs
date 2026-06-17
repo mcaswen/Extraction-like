@@ -26,6 +26,9 @@ public sealed class HunterBossConfig : EnemyHealthConfigBase
     [SerializeField, Min(0.1f), Tooltip("Radius of the melee sweep damage check.")]
     private float _meleeAttackRadius = 2.2f;
 
+    [SerializeField, Min(0.1f), Tooltip("Total vertical height of the melee sweep damage cylinder.")]
+    private float _meleeAttackHeight = 6f;
+
     [SerializeField, Min(0f), Tooltip("Damage dealt by the melee sweep.")]
     private float _meleeDamage = 18f;
 
@@ -80,7 +83,7 @@ public sealed class HunterBossConfig : EnemyHealthConfigBase
     private float _roarChargeDuration = 3f;
 
     [SerializeField, Min(0.05f), Tooltip("Cooldown after the roar.")]
-    private float _roarCooldown = 7f;
+    private float _roarCooldown = 2f;
 
     [SerializeField, Min(0.1f), Tooltip("Maximum distance affected by the roar.")]
     private float _roarRange = 12f;
@@ -148,6 +151,11 @@ public sealed class HunterBossConfig : EnemyHealthConfigBase
     /// 近战挥锚的范围检测半径。
     /// </summary>
     public float MeleeAttackRadius => _meleeAttackRadius;
+
+    /// <summary>
+    /// 近战挥锚的圆柱检测总高度。
+    /// </summary>
+    public float MeleeAttackHeight => _meleeAttackHeight;
 
     /// <summary>
     /// 近战挥锚命中的伤害。
@@ -311,6 +319,7 @@ public sealed class HunterBossConfig : EnemyHealthConfigBase
         _meleeAttackRange = Mathf.Max(0.1f, _meleeAttackRange);
         _meleeAttackInterval = Mathf.Max(0.05f, _meleeAttackInterval);
         _meleeAttackRadius = Mathf.Max(0.1f, _meleeAttackRadius);
+        _meleeAttackHeight = Mathf.Max(0.1f, _meleeAttackHeight);
         _meleeDamage = Mathf.Max(0f, _meleeDamage);
         _meleeKnockbackStrength = Mathf.Max(0f, _meleeKnockbackStrength);
         _meleeVisualDuration = Mathf.Max(0.05f, _meleeVisualDuration);
