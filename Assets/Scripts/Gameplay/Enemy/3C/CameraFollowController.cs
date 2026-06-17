@@ -1,15 +1,14 @@
 using UnityEngine;
+
 /// <summary>
-/// 2.5D摄像机控制
+/// 2.5D camera follower. Locks the initial rear view when a target is bound,
+/// then follows position without rotating around the target every frame.
 /// </summary>
 public class CameraFollowController : MonoBehaviour
 {
-    public Transform TargetTransform; // 拖入玩家 Player
+    public Transform TargetTransform;
 
-    // 摄像机相对于玩家朝向的偏移量（z < 0 表示在目标背后）
-    public Vector3 Offset = new Vector3(0, 10f, -10f);//2.5D偏移量
-
-    // 摄像机跟随的平滑度，数字越大跟得越紧
+    public Vector3 Offset = new Vector3(0f, 10f, -10f);
     public float SmoothSpeed = 5f;
 
     [Header("Rotation")]
@@ -18,35 +17,64 @@ public class CameraFollowController : MonoBehaviour
     public Vector3 LookAtOffset = new Vector3(0f, 1.5f, 0f);
     public float RotationSmoothSpeed = 8f;
 
-    /// <summary>
-    /// 摄像机控制专用控制update
-    /// </summary>
-    void LateUpdate()
+    private Transform _lockedTarget;
+    private Vector3 _lockedOffset;
+    private Quaternion _lockedRotation;
+    private bool _hasLockedInitialView;
+
+    private void LateUpdate()
     {
-        if (TargetTransform != null)//玩家组件
+        if (TargetTransform == null)
         {
-            // 计算摄像机应该在的位置
-            Vector3 desiredPosition = TargetTransform.position + ResolveOffset();//人物位置加摄像机偏移量（以人物位置为中心）
+            _lockedTarget = null;
+            _hasLockedInitialView = false;
+            return;
+        }
 
-            // 用 Lerp 做一个平滑移动的效果，让镜头有顺滑的电影感
-            transform.position = Vector3.Lerp(transform.position, desiredPosition, SmoothSpeed * Time.deltaTime);
+        if (!_hasLockedInitialView || _lockedTarget != TargetTransform)
+        {
+            LockInitialView();
+        }
 
-            if (LookAtTarget)
-            {
-                Vector3 lookTarget = TargetTransform.position + LookAtOffset;
-                Vector3 lookDirection = lookTarget - transform.position;
-                if (lookDirection.sqrMagnitude > 0.0001f)
-                {
-                    Quaternion desiredRotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, RotationSmoothSpeed * Time.deltaTime);
-                }
-            }
+        Vector3 desiredPosition = TargetTransform.position + _lockedOffset;
+        transform.position = Vector3.Lerp(
+            transform.position,
+            desiredPosition,
+            SmoothSpeed * Time.deltaTime);
+
+        if (LookAtTarget)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                _lockedRotation,
+                RotationSmoothSpeed * Time.deltaTime);
+        }
+    }
+
+    private void LockInitialView()
+    {
+        _lockedTarget = TargetTransform;
+        _lockedOffset = ResolveOffset();
+        _lockedRotation = transform.rotation;
+        _hasLockedInitialView = true;
+
+        if (!LookAtTarget || TargetTransform == null)
+        {
+            return;
+        }
+
+        Vector3 cameraPosition = TargetTransform.position + _lockedOffset;
+        Vector3 lookTarget = TargetTransform.position + LookAtOffset;
+        Vector3 lookDirection = lookTarget - cameraPosition;
+        if (lookDirection.sqrMagnitude > 0.0001f)
+        {
+            _lockedRotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
         }
     }
 
     private Vector3 ResolveOffset()
     {
-        if (!FollowTargetYaw)
+        if (!FollowTargetYaw || TargetTransform == null)
         {
             return Offset;
         }
@@ -57,6 +85,7 @@ public class CameraFollowController : MonoBehaviour
         {
             forward = Vector3.forward;
         }
+
         forward.Normalize();
 
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
