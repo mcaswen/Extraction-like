@@ -18,6 +18,7 @@ public class SplitUIController : MonoBehaviour, IDragHandler
     private DraggableItemUI _targetItem;
     private RectTransform _rectTransform;
     private Canvas _parentCanvas;
+    private int _openedFrame = -1;
 
     private void Awake()
     {
@@ -56,6 +57,7 @@ public class SplitUIController : MonoBehaviour, IDragHandler
 
         _targetItem = item;
         gameObject.SetActive(true);
+        _openedFrame = Time.frameCount;
         transform.SetAsLastSibling();
         PositionNextToItem(item);
 
@@ -63,6 +65,23 @@ public class SplitUIController : MonoBehaviour, IDragHandler
         SplitSlider.maxValue = item.CurrentAmount - 1;
         SplitSlider.value = Mathf.FloorToInt(item.CurrentAmount / 2f);
         UpdateAmountText();
+    }
+
+    private void Update()
+    {
+        if (_targetItem == null ||
+            Time.frameCount == _openedFrame ||
+            !Input.GetMouseButtonDown(0))
+        {
+            return;
+        }
+
+        if (IsPointerInsideWindow())
+        {
+            return;
+        }
+
+        CloseWindow();
     }
 
     /// <summary>
@@ -103,6 +122,35 @@ public class SplitUIController : MonoBehaviour, IDragHandler
         }
 
         CloseWindow();
+    }
+
+    private bool IsPointerInsideWindow()
+    {
+        if (_rectTransform == null)
+        {
+            return false;
+        }
+
+        Camera eventCamera = ResolveEventCamera();
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            _rectTransform,
+            Input.mousePosition,
+            eventCamera);
+    }
+
+    private Camera ResolveEventCamera()
+    {
+        if (_parentCanvas == null)
+        {
+            _parentCanvas = GetComponentInParent<Canvas>();
+        }
+
+        if (_parentCanvas == null || _parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        return _parentCanvas.worldCamera != null ? _parentCanvas.worldCamera : Camera.main;
     }
 
     // 根据当前滑条值刷新面板上的拆分数量显示

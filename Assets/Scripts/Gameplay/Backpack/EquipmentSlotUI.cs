@@ -111,6 +111,7 @@ public class EquipmentSlotUI : MonoBehaviour
         itemRect.anchorMax = new Vector2(0f, 1f);
         itemRect.pivot = new Vector2(0f, 1f);
         itemRect.anchoredPosition = Vector2.zero;
+        item.UpdateItemNameText();
 
         if (AcceptedEquipmentKind == EquipmentSlotKind.None)
         {

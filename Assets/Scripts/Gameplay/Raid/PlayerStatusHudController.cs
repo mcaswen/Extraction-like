@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public sealed class PlayerStatusHudController : MonoBehaviour
 {
     private const string HudPrefabAssetPath = "Assets/Resources/HUD/Pfb_PlayerStatusHud.prefab";
+    private const string HudPrefabResourcePath = "HUD/Pfb_PlayerStatusHud";
 
     private static PlayerStatusHudController _instance;
 
@@ -47,13 +48,26 @@ public sealed class PlayerStatusHudController : MonoBehaviour
             return _instance;
         }
 
-        _instance = FindObjectOfType<PlayerStatusHudController>();
+        _instance = FindObjectOfType<PlayerStatusHudController>(true);
         if (_instance != null)
         {
+            if (!_instance.gameObject.activeSelf)
+            {
+                _instance.gameObject.SetActive(true);
+            }
+
             return _instance;
         }
 
-        Debug.LogError($"Missing player status HUD prefab instance. Place {HudPrefabAssetPath} in the scene.");
+        PlayerStatusHudController prefab = Resources.Load<PlayerStatusHudController>(HudPrefabResourcePath);
+        if (prefab != null)
+        {
+            _instance = Instantiate(prefab);
+            _instance.name = prefab.name;
+            return _instance;
+        }
+
+        Debug.LogError($"Missing player status HUD prefab instance and fallback prefab. Place {HudPrefabAssetPath} in the scene or Resources path.");
         return _instance;
     }
 

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// 负责拖拽交互与基础显示，不直接管理网格规则本身
 /// </summary>
 [RequireComponent(typeof(Image))]
-public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Ownership")]
     public InventoryUIController CurrentGrid;
@@ -18,6 +18,10 @@ public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHa
 
     [Header("Stack")]
     public Text AmountText;
+
+    [Header("Label")]
+    public Text ItemNameText;
+
     public bool AutoTickSearchProgress = true;
 
     public Vector2Int _originalGridIndex;
@@ -55,6 +59,13 @@ public partial class DraggableItemUI : MonoBehaviour, IBeginDragHandler, IDragHa
     private static Sprite _defaultSearchSprite;
     private static Sprite _defaultItemBackgroundSprite;
     private const float RevealAnimationDuration = 0.32f;
+    private const string ItemNameTextObjectName = "ItemNameText";
+    private const float ItemNameTextHeight = 14f;
+    private const float ItemNameTextHorizontalPadding = 3f;
+    private const float ItemNameTextBottomPadding = 2f;
+    private const float ItemNameTextAmountReserveWidth = 20f;
+    private const int ItemNameTextMaxFontSize = 10;
+    private const int ItemNameTextMinFontSize = 7;
 
     public static DraggableItemUI CurrentlyDraggedItem;
 

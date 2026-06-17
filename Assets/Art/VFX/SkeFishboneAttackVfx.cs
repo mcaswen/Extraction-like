@@ -58,6 +58,8 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
     private Coroutine _activeAttack;
     private float _nextAttackTimer;
     private float _targetRefreshTimer;
+    private bool _autoAttackWhenTargetInRange = true;
+    private bool _suppressGameplayEffects;
 
     private Material _boneMaterial;
     private Material _shadowMaterial;
@@ -116,7 +118,7 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
             }
         }
 
-        if (_activeAttack != null || _targetCandidate == null)
+        if (_activeAttack != null || _targetCandidate == null || !_autoAttackWhenTargetInRange)
         {
             return;
         }
@@ -166,6 +168,40 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
 
         _nextAttackTimer = Mathf.Max(0.15f, _attackInterval);
         _activeAttack = StartCoroutine(isMelee ? PlayMeleeAttack() : PlayRangedBiteAttack());
+    }
+
+    public void ConfigureAsEnemyDrivenVisual(Transform target, Transform origin)
+    {
+        _target = target;
+        _targetCandidate = target;
+        _fishboneOrigin = origin;
+        _autoAttackWhenTargetInRange = false;
+        _allowKeyboardPreview = false;
+        _suppressGameplayEffects = true;
+    }
+
+    public void PlayMeleeSweepVisual(Transform target)
+    {
+        if (_activeAttack != null)
+        {
+            return;
+        }
+
+        _target = target;
+        _targetCandidate = target;
+        BeginAttack(true);
+    }
+
+    public void PlayRangedBiteVisual(Transform target)
+    {
+        if (_activeAttack != null)
+        {
+            return;
+        }
+
+        _target = target;
+        _targetCandidate = target;
+        BeginAttack(false);
     }
 
     private IEnumerator PlayMeleeAttack()
@@ -421,6 +457,11 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
 
     private void ApplyMeleeDamage(Vector3 origin, Vector3 forward)
     {
+        if (_suppressGameplayEffects)
+        {
+            return;
+        }
+
         Vector3 center = origin + forward * (_meleeAttackRange * 0.62f);
         HashSet<ICombatDamageReceiver> damagedReceivers = new HashSet<ICombatDamageReceiver>();
         Collider[] hits = Physics.OverlapSphere(
@@ -459,6 +500,11 @@ public sealed class SkeFishboneAttackVfx : MonoBehaviour
 
     private void ApplyBiteDamage(Vector3 origin, Vector3 endpoint)
     {
+        if (_suppressGameplayEffects)
+        {
+            return;
+        }
+
         HashSet<ICombatDamageReceiver> damagedReceivers = new HashSet<ICombatDamageReceiver>();
         Vector3 direction = endpoint - origin;
         float distance = direction.magnitude;

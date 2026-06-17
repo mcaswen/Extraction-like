@@ -22,6 +22,7 @@ namespace Gameplay.Agent.Combat
         private AgentCombatShooter _shooter;
         private AgentTalentRuntimeController _talentController;
         private AgentCombatRuntimeStats _runtimeStats = new AgentCombatRuntimeStats(1, 0f, 0f);
+        private global::TotemModifierSet _totemModifiers;
 
         /// <summary>
         /// 当前使用的战斗风格配置
@@ -41,13 +42,15 @@ namespace Gameplay.Agent.Combat
         /// <summary>
         /// 普通攻击射程
         /// </summary>
-        public float AttackRange => _styleConfig != null ? _styleConfig.NormalAttackRange : 0f;
+        public float AttackRange => _styleConfig != null
+            ? _totemModifiers.ApplyAttackRange(_styleConfig.NormalAttackRange)
+            : 0f;
 
         /// <summary>
         /// 普通攻击伤害
         /// </summary>
         public float AttackDamage => _styleConfig != null
-            ? _styleConfig.CalculateNormalAttackDamage(EffectiveRuntimeStats)
+            ? _totemModifiers.ApplyNormalAttackDamage(_styleConfig.CalculateNormalAttackDamage(EffectiveRuntimeStats))
             : EffectiveRuntimeStats.Attack;
 
         /// <summary>
@@ -79,10 +82,12 @@ namespace Gameplay.Agent.Combat
         /// <param name="runtimeStats"></param>
         public void ApplyConfig(
             AgentCombatStyleConfig styleConfig,
-            AgentCombatRuntimeStats runtimeStats)
+            AgentCombatRuntimeStats runtimeStats,
+            global::TotemModifierSet totemModifiers = default)
         {
             if (_styleConfig == styleConfig &&
                 _runtimeStats.Equals(runtimeStats) &&
+                _totemModifiers.Equals(totemModifiers) &&
                 _runtimeSkills.Count > 0)
             {
                 return;
@@ -90,6 +95,7 @@ namespace Gameplay.Agent.Combat
 
             _styleConfig = styleConfig;
             _runtimeStats = runtimeStats;
+            _totemModifiers = totemModifiers;
             RebuildRuntimeSkills();
         }
 
@@ -127,8 +133,18 @@ namespace Gameplay.Agent.Combat
             return false;
         }
 
-        private AgentCombatRuntimeStats EffectiveRuntimeStats =>
-            _talentController != null ? _talentController.ApplyStatModifiers(_runtimeStats) : _runtimeStats;
+        private AgentCombatRuntimeStats EffectiveRuntimeStats
+        {
+            get
+            {
+                AgentCombatRuntimeStats stats =
+                    _talentController != null ? _talentController.ApplyStatModifiers(_runtimeStats) : _runtimeStats;
+                return new AgentCombatRuntimeStats(
+                    _totemModifiers.ApplyMaxHealth(stats.MaxHealth),
+                    stats.Attack,
+                    stats.Defense);
+            }
+        }
 
         private AgentCombatSkillContext CreateSkillContext(
             AgentCombatSkillBase skill,
@@ -138,6 +154,14 @@ namespace Gameplay.Agent.Combat
                 _talentController != null && skill != null && skill.Config != null
                     ? _talentController.CreateSkillModifiers(skill.Config.SkillId)
                     : default;
+
+            if (skill != null && skill.Config != null)
+            {
+                skillModifiers = new AgentCombatSkillModifiers(
+                    skillModifiers.DamageMultiplier * _totemModifiers.GetSkillDamageMultiplier(skill.Config.Element),
+                    skillModifiers.DurationBonusSeconds,
+                    skillModifiers.SlowDurationBonusSeconds);
+            }
 
             return new AgentCombatSkillContext(
                 transform,
@@ -184,7 +208,7 @@ namespace Gameplay.Agent.Combat
             _shooter.ConfigureProjectileElement(
                 _styleConfig.Element,
                 AgentCombatProjectileStatus.None,
-                _styleConfig.NormalAttackRange);
+                AttackRange);
         }
 
         private void CacheComponents()

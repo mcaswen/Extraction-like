@@ -142,6 +142,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
     private bool _openingWaterJetPending;
+    private MudTidalAberrationVfx _mudVfx;
 
     /// <summary>
     /// 视野检测使用的节点。
@@ -191,7 +192,11 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         EnsurePlayerReferences();
         InitializePatrolRoute();
 
-        EnsureLineRenderers();
+        EnsureMudVfx();
+        if (_mudVfx == null)
+        {
+            EnsureLineRenderers();
+        }
         SetNextPatrolDestination();
         QueueOpeningWaterJetIfTargetInRange();
     }
@@ -476,6 +481,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _electricTickTimer = 0f;
         _meleeTotalDamage = 0f;
         _isMeleeLatched = true;
+        PlayMudTentacleVfx();
 
         _meleeTotalDamage += CombatDamageUtility.ApplyDamageTo(
             _combatDamageReceiver,
@@ -514,6 +520,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         _rangedVisualTimer = 0f;
         _nextRangedAttackTime = Time.time + Mathf.Max(0.05f, RangedAttackInterval);
         _isRangedCasting = true;
+        PlayMudWaterJetVfx();
 
         Vector3 origin = RangedOrigin != null ? RangedOrigin.position : transform.position + Vector3.up * 1.2f;
         Vector3 direction = (PlayerTransform.position + Vector3.up * 0.8f) - origin;
@@ -627,6 +634,11 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void EnsureLineRenderers()
     {
+        if (_mudVfx != null)
+        {
+            return;
+        }
+
         if (ElectricTentacleRenderer == null)
         {
             ElectricTentacleRenderer = CreateLineRenderer("ElectricTentacle", new Color(1f, 0.9f, 0.32f, 0.95f), new Color(1f, 0.64f, 0.08f, 0.55f), 0.09f, 0.04f);
@@ -672,6 +684,16 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void UpdateMeleeVisual()
     {
+        if (_mudVfx != null)
+        {
+            if (ElectricTentacleRenderer != null)
+            {
+                ElectricTentacleRenderer.enabled = false;
+            }
+
+            return;
+        }
+
         if (ElectricTentacleRenderer == null)
         {
             return;
@@ -697,6 +719,16 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void UpdateRangedVisual()
     {
+        if (_mudVfx != null)
+        {
+            if (WaterJetRenderer != null)
+            {
+                WaterJetRenderer.enabled = false;
+            }
+
+            return;
+        }
+
         if (WaterJetRenderer == null)
         {
             return;
@@ -832,6 +864,45 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         return _externalMovementReceiver ?? _playerMovementController;
+    }
+
+    private void EnsureMudVfx()
+    {
+        if (_mudVfx == null)
+        {
+            _mudVfx = GetComponentInChildren<MudTidalAberrationVfx>(true);
+        }
+
+        if (_mudVfx == null)
+        {
+            _mudVfx = gameObject.AddComponent<MudTidalAberrationVfx>();
+        }
+
+        ConfigureMudVfx();
+    }
+
+    private void ConfigureMudVfx()
+    {
+        _mudVfx?.ConfigureAsEnemyDrivenVisual(
+            PlayerTransform,
+            MeleeOrigin,
+            RangedOrigin,
+            MeleeLatchDuration,
+            WaterJetDuration);
+    }
+
+    private void PlayMudTentacleVfx()
+    {
+        EnsureMudVfx();
+        ConfigureMudVfx();
+        _mudVfx?.PlayTentacleContactVisual(PlayerTransform);
+    }
+
+    private void PlayMudWaterJetVfx()
+    {
+        EnsureMudVfx();
+        ConfigureMudVfx();
+        _mudVfx?.PlayWaterJetVisual(PlayerTransform);
     }
 
     private void LookAtPlayer()

@@ -57,6 +57,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     private float _beamTotalDamage;
     private float _activeStateTimer;
     private bool _isBeamFiring;
+    private RobotAnchorBeamVfx _anchorBeamVfx;
 
     private void Start()
     {
@@ -68,7 +69,11 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         EnsurePlayerReferences();
         _animatorDriver = new EnemyAnimatorDriver(this);
         ApplyHealthConfig();
-        EnsureBeamRenderers();
+        EnsureAnchorBeamVfx();
+        if (_anchorBeamVfx == null)
+        {
+            EnsureBeamRenderers();
+        }
         UpdateBeamVisuals();
     }
 
@@ -230,6 +235,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         {
             CurrentState = SentinelState.Locking;
             _stateTimer = 0f;
+            PlayAnchorBeamVfx();
         }
     }
 
@@ -243,6 +249,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         CurrentState = SentinelState.Locking;
         _stateTimer = 0f;
         _activeStateTimer = 0f;
+        PlayAnchorBeamVfx();
     }
 
     private bool IsPlayerOutOfRange()
@@ -279,6 +286,11 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void EnsureBeamRenderers()
     {
+        if (_anchorBeamVfx != null)
+        {
+            return;
+        }
+
         if (LockBeamRenderer == null)
         {
             LockBeamRenderer = CreateLineRenderer(
@@ -333,6 +345,21 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
 
     private void UpdateBeamVisuals()
     {
+        if (_anchorBeamVfx != null)
+        {
+            if (LockBeamRenderer != null)
+            {
+                LockBeamRenderer.enabled = false;
+            }
+
+            if (FiringBeamRenderer != null)
+            {
+                FiringBeamRenderer.enabled = false;
+            }
+
+            return;
+        }
+
         Vector3 origin = EyeOrigin != null ? EyeOrigin.position : transform.position + Vector3.up * 1.8f;
         Vector3 target = PlayerTransform != null
             ? PlayerTransform.position + Vector3.up * 0.9f
@@ -364,6 +391,38 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
                 FiringBeamRenderer.SetPosition(1, target);
             }
         }
+    }
+
+    private void EnsureAnchorBeamVfx()
+    {
+        if (_anchorBeamVfx == null)
+        {
+            _anchorBeamVfx = GetComponentInChildren<RobotAnchorBeamVfx>(true);
+        }
+
+        if (_anchorBeamVfx == null)
+        {
+            _anchorBeamVfx = gameObject.AddComponent<RobotAnchorBeamVfx>();
+        }
+
+        ConfigureAnchorBeamVfx();
+    }
+
+    private void ConfigureAnchorBeamVfx()
+    {
+        _anchorBeamVfx?.ConfigureAsEnemyDrivenVisual(
+            PlayerTransform,
+            EyeOrigin,
+            0.05f,
+            FiringDuration,
+            CooldownDuration);
+    }
+
+    private void PlayAnchorBeamVfx()
+    {
+        EnsureAnchorBeamVfx();
+        ConfigureAnchorBeamVfx();
+        _anchorBeamVfx?.PlayBeamSequenceVisual(PlayerTransform);
     }
 
     private void OnDrawGizmosSelected()

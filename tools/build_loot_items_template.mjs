@@ -25,6 +25,12 @@ const headers = [
   "RunePatternPoints",
   "Enabled",
   "SellPrice",
+  "CarryWeight",
+  "ItemBackgroundSpritePath",
+  "IncludeInRuntimeDatabase",
+  "IncludeInTotemShop",
+  "TotemQuality",
+  "TotemModifiers",
   "Notes",
 ];
 
@@ -47,6 +53,12 @@ const descriptions = [
   "At least 1.",
   "Use Yes or No. No rows are ignored by import.",
   "Non-negative whole number used by future sell-item systems.",
+  "Non-negative carry weight. Optional importer column.",
+  "Optional Sprite asset path used as the item UI background.",
+  "Use Yes or No. No keeps the asset on disk but inactive.",
+  "Use Yes or No. No keeps a totem out of the shop pool.",
+  "None, Green, Blue, or Gold.",
+  "Semicolon list such as MaxHealth=0.1;MoveSpeed=-0.05.",
   "Designer notes. Not imported.",
 ];
 
@@ -75,12 +87,104 @@ const lootRows = [
   { itemId: "equip_face_blue", itemName: "蓝色面部装备", type: "Equipment", equipmentKind: "Face", rarity: "Rare", width: 1, height: 1, sellPrice: 300 },
   { itemId: "equip_headphone_green", itemName: "绿色耳机", type: "Equipment", equipmentKind: "Headphone", rarity: "Uncommon", width: 2, height: 1, sellPrice: 100 },
   { itemId: "equip_headphone_blue", itemName: "蓝色耳机", type: "Equipment", equipmentKind: "Headphone", rarity: "Rare", width: 2, height: 1, sellPrice: 300 },
-  { itemId: "equip_totem_green", itemName: "绿色图腾", type: "Equipment", equipmentKind: "Totem", rarity: "Uncommon", width: 1, height: 2, sellPrice: 100 },
-  { itemId: "equip_totem_blue", itemName: "蓝色图腾", type: "Equipment", equipmentKind: "Totem", rarity: "Rare", width: 1, height: 2, sellPrice: 300 },
-  { itemId: "equip_totem_gold", itemName: "金色图腾", type: "Equipment", equipmentKind: "Totem", rarity: "Legendary", width: 1, height: 2, sellPrice: 800 },
 ];
 
-const sampleRows = lootRows.map((row) => [
+const backgroundSpritePaths = {
+  Green: "Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png",
+  Blue: "Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png",
+  Gold: "Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png",
+};
+
+const qualityConfigs = [
+  { suffix: "green", quality: "Green", rarity: "Uncommon", sellPrice: 100 },
+  { suffix: "blue", quality: "Blue", rarity: "Rare", sellPrice: 300 },
+  { suffix: "gold", quality: "Gold", rarity: "Legendary", sellPrice: 800 },
+];
+
+const totemGroups = [
+  {
+    slug: "life",
+    name: "生命图腾",
+    modifiers: {
+      green: "MaxHealth=0.1",
+      blue: "MaxHealth=0.2",
+      gold: "MaxHealth=0.3;MoveSpeed=-0.05",
+    },
+  },
+  {
+    slug: "sniper",
+    name: "狙击图腾",
+    modifiers: {
+      green: "AttackRange=0.1;TargetDiscoveryRange=0.1",
+      blue: "AttackRange=0.15;TargetDiscoveryRange=0.15",
+      gold: "AttackRange=0.3;TargetDiscoveryRange=0.3",
+    },
+  },
+  {
+    slug: "frost",
+    name: "冰霜图腾",
+    modifiers: {
+      green: "IceSkillDamage=0.1",
+      blue: "IceSkillDamage=0.2",
+      gold: "IceSkillDamage=0.3",
+    },
+  },
+  {
+    slug: "earth",
+    name: "地鸣图腾",
+    modifiers: {
+      green: "EarthSkillDamage=0.1",
+      blue: "EarthSkillDamage=0.2",
+      gold: "EarthSkillDamage=0.3",
+    },
+  },
+  {
+    slug: "assault",
+    name: "进击图腾",
+    modifiers: {
+      green: "NormalAttackDamage=0.1",
+      blue: "NormalAttackDamage=0.2",
+      gold: "NormalAttackDamage=0.4;AttackRange=-0.1",
+    },
+  },
+  {
+    slug: "lightness",
+    name: "轻盈图腾",
+    modifiers: {
+      green: "MoveSpeed=0.15",
+      blue: "MoveSpeed=0.25",
+      gold: "MoveSpeed=0.4",
+    },
+  },
+];
+
+function buildTotemRows() {
+  const rows = [];
+  for (const group of totemGroups) {
+    for (const quality of qualityConfigs) {
+      rows.push({
+        itemId: `equip_totem_${group.slug}_${quality.suffix}`,
+        itemName: group.name,
+        type: "Equipment",
+        equipmentKind: "Totem",
+        rarity: quality.rarity,
+        width: 1,
+        height: 2,
+        sellPrice: quality.sellPrice,
+        itemBackgroundSpritePath: backgroundSpritePaths[quality.quality],
+        includeInRuntimeDatabase: "Yes",
+        includeInTotemShop: "Yes",
+        totemQuality: quality.quality,
+        totemModifiers: group.modifiers[quality.suffix],
+        notes: "Generated from 局外图腾系统.xlsx",
+      });
+    }
+  }
+
+  return rows;
+}
+
+const sampleRows = [...lootRows, ...buildTotemRows()].map((row) => [
   row.itemId,
   row.itemName,
   row.type ?? "Other",
@@ -99,6 +203,12 @@ const sampleRows = lootRows.map((row) => [
   row.runePatternPoints ?? 1,
   row.enabled ?? "Yes",
   row.sellPrice ?? 0,
+  row.carryWeight ?? 1,
+  row.itemBackgroundSpritePath ?? "",
+  row.includeInRuntimeDatabase ?? "Yes",
+  row.includeInTotemShop ?? "Yes",
+  row.totemQuality ?? "",
+  row.totemModifiers ?? "",
   row.notes ?? "",
 ]);
 
@@ -182,6 +292,8 @@ async function main() {
   sheet.getRange("B:B").format.numberFormat = "@";
   sheet.getRange("L:L").format.numberFormat = "@";
   sheet.getRange("R:R").format.numberFormat = "0";
+  sheet.getRange("S:S").format.numberFormat = "0.##";
+  sheet.getRange("T:X").format.numberFormat = "@";
   sheet.freezePanes.freezeRows(2);
 
   sheet.getRange(columnRange("C", 3, maxRows)).dataValidation = {
@@ -196,7 +308,7 @@ async function main() {
     allowBlank: false,
     list: { inCellDropDown: true, source: ["Common", "Uncommon", "Rare", "Epic", "Legendary"] },
   };
-  for (const column of ["H", "M", "Q"]) {
+  for (const column of ["H", "M", "Q", "U", "V"]) {
     sheet.getRange(columnRange(column, 3, maxRows)).dataValidation = {
       allowBlank: false,
       list: { inCellDropDown: true, source: ["Yes", "No"] },
@@ -217,6 +329,11 @@ async function main() {
         "SpaceHourglass",
       ],
     },
+  };
+
+  sheet.getRange(columnRange("W", 3, maxRows)).dataValidation = {
+    allowBlank: true,
+    list: { inCellDropDown: true, source: ["None", "Green", "Blue", "Gold"] },
   };
 
   for (const column of ["F", "G"]) {
@@ -263,6 +380,16 @@ async function main() {
     },
   };
 
+  sheet.getRange(columnRange("S", 3, maxRows)).dataValidation = {
+    allowBlank: false,
+    rule: { type: "decimal", operator: "greaterThanOrEqual", formula1: 0 },
+    errorAlert: {
+      style: "stop",
+      title: "Invalid carry weight",
+      message: "Enter a non-negative number.",
+    },
+  };
+
   const rarityRange = sheet.getRange(`E3:E${maxRows}`);
   for (const [rarity, color] of Object.entries(rarityColors)) {
     rarityRange.conditionalFormats.addCustom(`=$E3="${rarity}"`, {
@@ -272,7 +399,7 @@ async function main() {
   }
 
   lists.getRange("A1:B1").values = [["List", "Value"]];
-  lists.getRange("A2:B26").values = [
+  lists.getRange("A2:B30").values = [
     ["Type", "Bag"],
     ["Type", "Rig"],
     ["Type", "Equipment"],
@@ -298,8 +425,12 @@ async function main() {
     ["MagicUnlock", "TravelerBoots"],
     ["MagicUnlock", "TimeHourglass"],
     ["MagicUnlock", "SpaceHourglass"],
+    ["TotemQuality", "None"],
+    ["TotemQuality", "Green"],
+    ["TotemQuality", "Blue"],
+    ["TotemQuality", "Gold"],
   ];
-  lists.getRange("A1:B26").format.autofitColumns();
+  lists.getRange("A1:B30").format.autofitColumns();
 
   const tsv = `${toTsv([headers, ...sampleRows])}\r\n`;
   await fs.writeFile(tsvPath, tsv, "utf8");

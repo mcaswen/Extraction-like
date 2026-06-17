@@ -14,6 +14,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 {
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
+    private const float AttackHoldRangeBuffer = 0.8f;
 
     /// <summary>
     /// 现代搁浅者的主行为状态。
@@ -111,6 +112,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private EnemyHealthController _healthController;
     private Collider _bodyCollider;
     private Collider _ignoredPlayerBodyCollider;
+    private Collider _playerBodyCollider;
     private EnemyPatrolRouteFollower _patrolRouteFollower;
     private EnemyPatrolAwarenessController _patrolAwareness;
     private Gameplay.Agent.Core.AgentHealthController _agentHealthController;
@@ -121,9 +123,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private EnemyPatrolMode _patrolMode = EnemyPatrolMode.RandomRadius;
     private EnemyAwarenessPreset _awarenessPreset = EnemyAwarenessPreset.FullSuspicion;
     private float _waitTimer;
-    private float _attackTimer;
     private float _latchTimer;
     private float _tentacleTotalDamage;
+    private float _nextTentacleAttackTime;
     private float _directDamageForcedChaseEndTime = -1f;
     private float _directDamageCounterCooldownEndTime = -1f;
     private float _activeTentacleLatchRange;
@@ -136,6 +138,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
     private ModernStranderTentacleHitbox _tentacleHitbox;
+    private ZombieTentacleCorrosionVfx _corrosionVfx;
 
     /// <summary>
     /// 视野检测使用的节点。
@@ -179,6 +182,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         EnsurePlayerReferences();
         InitializePatrolRoute();
 
+        EnsureCorrosionVfx();
         EnsureTentacleRenderer();
         EnsureTentacleHitbox();
         SetNextPatrolDestination();
@@ -240,7 +244,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return;
         }
 
-        float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
+        float distanceToPlayer = GetCombatDistanceToPlayer();
         switch (CurrentState)
         {
             case EnemyState.Patrol:
@@ -344,7 +348,6 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         if (distanceToPlayer <= AttackRange)
         {
             CurrentState = EnemyState.Attack;
-            _attackTimer = AttackInterval;
             SetAgentStopped(true);
             return;
         }
@@ -426,8 +429,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return;
         }
 
-        _attackTimer += Time.deltaTime;
-        if (_attackTimer >= AttackInterval)
+        if (Time.time >= _nextTentacleAttackTime)
         {
             BeginTentacleStrike();
         }
@@ -441,8 +443,12 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
     private void BeginTentacleStrike(float latchRange, bool isDirectDamageCounterStrike)
     {
         // 每次触手攻击从“伸出命中盒”开始，首次命中后才切换为吸附。
+        if (_isTentacleStriking || _isTentacleLatched || Time.time < _nextTentacleAttackTime)
+        {
+            return;
+        }
+
         _animatorDriver?.TriggerAttack();
-        _attackTimer = 0f;
         _latchTimer = 0f;
         _tentacleTotalDamage = 0f;
         _activeTentacleLatchRange = Mathf.Max(AttackRange, latchRange);
@@ -452,6 +458,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         _hasAppliedInitialLatchDamage = false;
         _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(true);
+        PlayTentacleVfx();
         TryLatchCurrentCombatTarget();
     }
 
@@ -472,9 +479,15 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         _hasAddedTentacleCorrosionDamage = false;
         SetTentacleHitboxEnabled(false);
 
+        if (hadActiveTentacle)
+        {
+            _nextTentacleAttackTime = Time.time + Mathf.Max(0.05f, AttackInterval);
+        }
+
         if (hadLatchedPlayer)
         {
             // 只有成功吸附过目标才在目标脚下留下腐蚀黏液池。
+            _corrosionVfx?.PlaySlimePoolVisual(puddlePosition, PuddleRadius, PuddleLifetime);
             SpawnCorrosivePuddle(puddlePosition);
         }
 
@@ -520,6 +533,14 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return;
         }
 
+        if (PlayerTransform != null &&
+            GetCombatDistanceToPlayer() <= GetCurrentAttackHoldRange())
+        {
+            CurrentState = EnemyState.Attack;
+            SetAgentStopped(true);
+            return;
+        }
+
         CurrentState = EnemyState.Chase;
         SetAgentStopped(false);
         TrySetChaseDestination();
@@ -545,6 +566,8 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             PlayerTargetResolver.TryGetAgentHealth(damageReceiver.DamageRootTransform, out _agentHealthController);
         }
         PlayerTransform = damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform : PlayerTransform;
+        _playerBodyCollider = ResolveTargetBodyCollider(PlayerTransform);
+        IgnorePlayerBodyCollision(_playerBodyCollider);
         _playerMovementController = playerMovementController;
         _externalMovementReceiver = ResolveExternalMovementReceiver(damageReceiver, playerMovementController);
         _isTentacleLatched = true;
@@ -583,7 +606,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         if (!_isTentacleStriking ||
             _combatDamageReceiver == null ||
             PlayerTransform == null ||
-            Vector3.Distance(transform.position, PlayerTransform.position) > GetCurrentTentacleLatchRange() + 0.75f)
+            GetCombatDistanceToPlayer() > GetCurrentTentacleLatchRange() + 0.75f)
         {
             return;
         }
@@ -598,13 +621,14 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             !context.IsDirectPlayerDamage ||
             _isTentacleStriking ||
             _isTentacleLatched ||
+            Time.time < _nextTentacleAttackTime ||
             Time.time < _directDamageCounterCooldownEndTime)
         {
             return false;
         }
 
         float counterRange = Mathf.Max(AttackRange, DirectDamageCounterAttackRange);
-        if (Vector3.Distance(transform.position, PlayerTransform.position) > counterRange ||
+        if (GetCombatDistanceToPlayer() > counterRange ||
             !EnemyVisionUtility.HasLineOfSight(transform, PlayerTransform, LineOfSightBlockMask, EyeHeight, TargetHeight))
         {
             return false;
@@ -630,9 +654,10 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
     private float GetCurrentAttackHoldRange()
     {
-        return _isDirectDamageCounterStrike
+        float baseRange = _isDirectDamageCounterStrike
             ? Mathf.Max(AttackRange, _activeTentacleLatchRange)
             : AttackRange;
+        return baseRange + AttackHoldRangeBuffer;
     }
 
     private float GetCurrentTentacleLatchRange()
@@ -640,6 +665,36 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         return _activeTentacleLatchRange > 0f
             ? _activeTentacleLatchRange
             : AttackRange;
+    }
+
+    private float GetCombatDistanceToPlayer()
+    {
+        if (PlayerTransform == null)
+        {
+            return float.PositiveInfinity;
+        }
+
+        if (_bodyCollider == null)
+        {
+            _bodyCollider = GetComponent<Collider>();
+        }
+
+        if (!IsUsableBodyCollider(_playerBodyCollider))
+        {
+            _playerBodyCollider = ResolveTargetBodyCollider(PlayerTransform);
+        }
+
+        Vector3 targetPosition = PlayerTransform.position;
+        Vector3 enemyPoint = IsUsableBodyCollider(_bodyCollider)
+            ? _bodyCollider.ClosestPoint(targetPosition)
+            : transform.position;
+        Vector3 playerPoint = IsUsableBodyCollider(_playerBodyCollider)
+            ? _playerBodyCollider.ClosestPoint(enemyPoint)
+            : targetPosition;
+
+        enemyPoint.y = 0f;
+        playerPoint.y = 0f;
+        return Vector3.Distance(enemyPoint, playerPoint);
     }
 
     private IExternalMovementReceiver ResolveExternalMovementReceiver(
@@ -785,6 +840,28 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         SkillEffectLayerUtility.ApplyToRoot(defaultPuddleObject);
         CorrosiveSlimePuddle defaultPuddle = defaultPuddleObject.AddComponent<CorrosiveSlimePuddle>();
         defaultPuddle.Configure(PuddleRadius, PuddleLifetime, PuddleDamagePerSecond, PuddleCorrosionDuration, PuddleTickInterval);
+    }
+
+    private void EnsureCorrosionVfx()
+    {
+        if (_corrosionVfx == null)
+        {
+            _corrosionVfx = GetComponentInChildren<ZombieTentacleCorrosionVfx>(true);
+        }
+
+        if (_corrosionVfx == null)
+        {
+            _corrosionVfx = gameObject.AddComponent<ZombieTentacleCorrosionVfx>();
+        }
+
+        _corrosionVfx.ConfigureAsEnemyDrivenVisual(PlayerTransform, TentacleOrigin, TentacleLatchDuration);
+    }
+
+    private void PlayTentacleVfx()
+    {
+        EnsureCorrosionVfx();
+        _corrosionVfx?.ConfigureAsEnemyDrivenVisual(PlayerTransform, TentacleOrigin, TentacleLatchDuration);
+        _corrosionVfx?.PlayTentacleAttackVisual(PlayerTransform);
     }
 
     private void InitializePatrolRoute()
@@ -1087,6 +1164,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         PlayerTransform = target;
         PlayerTargetResolver.TryGetAgentHealth(target, out _agentHealthController);
+        _playerBodyCollider = ResolveTargetBodyCollider(target);
 
         _playerMovementController = target.GetComponent<PlayerMovementController>();
         if (_playerMovementController == null)
@@ -1108,6 +1186,13 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             if (receiver.DamageRootTransform != null)
             {
                 PlayerTransform = receiver.DamageRootTransform;
+                Collider receiverCollider = ResolveTargetBodyCollider(PlayerTransform);
+                if (receiverCollider != null)
+                {
+                    _playerBodyCollider = receiverCollider;
+                    IgnorePlayerBodyCollision(_playerBodyCollider);
+                }
+
                 _externalMovementReceiver = ResolveExternalMovementReceiver(receiver, _playerMovementController);
             }
 
@@ -1115,28 +1200,28 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         }
 
         _combatDamageReceiver = null;
+        _playerBodyCollider = null;
         return false;
     }
 
     private void IgnorePlayerBodyCollision(Transform target)
+    {
+        IgnorePlayerBodyCollision(ResolveTargetBodyCollider(target));
+    }
+
+    private void IgnorePlayerBodyCollision(Collider playerBodyCollider)
     {
         if (_bodyCollider == null)
         {
             _bodyCollider = GetComponent<Collider>();
         }
 
-        if (_bodyCollider == null || target == null)
+        if (_bodyCollider == null || playerBodyCollider == null)
         {
             return;
         }
 
-        Collider playerBodyCollider = target.GetComponent<Collider>();
-        if (playerBodyCollider == null)
-        {
-            playerBodyCollider = target.GetComponentInParent<Collider>();
-        }
-
-        if (playerBodyCollider == null || playerBodyCollider == _ignoredPlayerBodyCollider)
+        if (playerBodyCollider == _ignoredPlayerBodyCollider)
         {
             return;
         }
@@ -1148,6 +1233,42 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
         Physics.IgnoreCollision(_bodyCollider, playerBodyCollider, true);
         _ignoredPlayerBodyCollider = playerBodyCollider;
+    }
+
+    private static Collider ResolveTargetBodyCollider(Transform target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        Collider collider = target.GetComponent<Collider>();
+        if (IsUsableBodyCollider(collider))
+        {
+            return collider;
+        }
+
+        collider = target.GetComponentInParent<Collider>();
+        if (IsUsableBodyCollider(collider))
+        {
+            return collider;
+        }
+
+        Collider[] childColliders = target.GetComponentsInChildren<Collider>();
+        for (int i = 0; i < childColliders.Length; i++)
+        {
+            if (IsUsableBodyCollider(childColliders[i]))
+            {
+                return childColliders[i];
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsUsableBodyCollider(Collider collider)
+    {
+        return collider != null && collider.enabled && !collider.isTrigger;
     }
 
     private void OnDrawGizmosSelected()

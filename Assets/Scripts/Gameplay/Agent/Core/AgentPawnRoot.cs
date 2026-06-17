@@ -27,6 +27,7 @@ namespace Gameplay.Agent.Core
         private const float ExternalImpulseMovementOverrideDuration = 0.45f;
         private const float ExternalImpulseDamping = 10f;
         private const float StopFromMaxSpeedDuration = 0.5f;
+        private const float TotemModifierRefreshInterval = 0.25f;
         private const int RangeGizmoSegmentCount = 64;
         private static readonly Color TargetDiscoveryRangeGizmoColor = new Color(0.1f, 0.65f, 1f, 0.85f);
         private static readonly Color AttackRangeGizmoColor = new Color(1f, 0.28f, 0.18f, 0.85f);
@@ -56,6 +57,8 @@ namespace Gameplay.Agent.Core
         private float _externalImpulseMovementOverrideRemaining;
         private float _speedDebuffDurationRemaining;
         private float _speedDebuffMultiplier = 1f;
+        private float _nextTotemModifierRefreshTime;
+        private global::TotemModifierSet _totemModifiers;
 
         /// <summary>
         /// Agent 的强类型运行时 ID
@@ -131,7 +134,7 @@ namespace Gameplay.Agent.Core
         /// <summary>
         /// 目标发现半径
         /// </summary>
-        public float TargetDiscoveryRange => _pawnConfig != null ? _pawnConfig.TargetDiscoveryRange : 0f;
+        public float TargetDiscoveryRange => ResolveTargetDiscoveryRange();
 
         /// <summary>
         /// 目标发现扫描间隔
@@ -176,8 +179,8 @@ namespace Gameplay.Agent.Core
             if (!_showRangeGizmos || _pawnConfig == null)
                 return;
 
-            DrawRangeCircle(transform.position, _pawnConfig.TargetDiscoveryRange, TargetDiscoveryRangeGizmoColor);
-            DrawRangeCircle(transform.position, _pawnConfig.AttackRange, AttackRangeGizmoColor);
+            DrawRangeCircle(transform.position, ResolveTargetDiscoveryRange(), TargetDiscoveryRangeGizmoColor);
+            DrawRangeCircle(transform.position, ResolveAttackRange(), AttackRangeGizmoColor);
         }
 
         private void Update()
@@ -191,6 +194,7 @@ namespace Gameplay.Agent.Core
             double timeSeconds = Time.timeAsDouble;
 
             // 每帧先把身体层事实同步给 Brain
+            RefreshEquippedTotemModifiers(force: false);
             SyncHealthMaxToStats();
             SyncBodyFactsToBlackboard(timeSeconds);
 
@@ -248,9 +252,11 @@ namespace Gameplay.Agent.Core
 
             if (_combatController != null)
             {
+                RefreshEquippedTotemModifiers(force: true);
                 _combatController.ApplyConfig(
                     _pawnConfig.CombatStyleConfig,
-                    _pawnConfig.CreateCombatRuntimeStats());
+                    _pawnConfig.CreateCombatRuntimeStats(),
+                    _totemModifiers);
             }
 
             if (_healthController == null)
@@ -552,7 +558,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.MoveStoppingDistance, _pawnConfig.MoveStoppingDistance, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.InteractionDistance, _pawnConfig.InteractionDistance, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.AttackRange, _pawnConfig.AttackRange, timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackRange, ResolveAttackRange(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackDamage, ResolveAttackDamage(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackInterval, _pawnConfig.AttackInterval, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasPendingDirective, false, timeSeconds);
@@ -580,6 +586,7 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.AgentHealthRatio, HealthRatio, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, needRecovery, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);
+            _brainController.SetFact(AgentBlackboardKeys.AttackRange, ResolveAttackRange(), timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.AttackDamage, attackDamage, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionAttack, attackDamage, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.DecisionDefense, defense, timeSeconds);
@@ -591,6 +598,36 @@ namespace Gameplay.Agent.Core
                 return;
 
             _healthController.SyncMaxHealth(ResolveMaxHealth());
+        }
+
+        private void RefreshEquippedTotemModifiers(bool force)
+        {
+            if (!force && Time.time < _nextTotemModifierRefreshTime)
+            {
+                return;
+            }
+
+            _nextTotemModifierRefreshTime = Time.time + TotemModifierRefreshInterval;
+            global::TotemModifierSet nextModifiers = default;
+            global::InventoryScreenController inventory = global::InventoryScreenController.Instance;
+            if (inventory != null)
+            {
+                inventory.TryBuildEquippedTotemModifierSet(AgentIdValue, out nextModifiers);
+            }
+
+            if (_totemModifiers.Equals(nextModifiers))
+            {
+                return;
+            }
+
+            _totemModifiers = nextModifiers;
+            if (_combatController != null && _pawnConfig != null)
+            {
+                _combatController.ApplyConfig(
+                    _pawnConfig.CombatStyleConfig,
+                    _pawnConfig.CreateCombatRuntimeStats(),
+                    _totemModifiers);
+            }
         }
 
         private void TickExternalMovementStatus(float deltaTime)
@@ -640,7 +677,8 @@ namespace Gameplay.Agent.Core
         private float GetEffectiveMoveSpeed()
         {
             float baseMoveSpeed = _pawnConfig != null ? _pawnConfig.MoveSpeed : 0f;
-            return baseMoveSpeed * (_speedDebuffDurationRemaining > 0f ? _speedDebuffMultiplier : 1f);
+            float totemMoveSpeed = _totemModifiers.ApplyMoveSpeed(baseMoveSpeed);
+            return totemMoveSpeed * (_speedDebuffDurationRemaining > 0f ? _speedDebuffMultiplier : 1f);
         }
 
         private static Vector3 DecayVelocity(Vector3 velocity, float deceleration, float deltaTime)
@@ -693,6 +731,21 @@ namespace Gameplay.Agent.Core
             return _talentController != null
                 ? _talentController.ApplyMaxHealthModifier(_pawnConfig.MaxHealth)
                 : _pawnConfig.MaxHealth;
+        }
+
+        private float ResolveAttackRange()
+        {
+            if (_combatController != null)
+                return _combatController.AttackRange;
+
+            return _pawnConfig != null ? _totemModifiers.ApplyAttackRange(_pawnConfig.AttackRange) : 0f;
+        }
+
+        private float ResolveTargetDiscoveryRange()
+        {
+            return _pawnConfig != null
+                ? _totemModifiers.ApplyTargetDiscoveryRange(_pawnConfig.TargetDiscoveryRange)
+                : 0f;
         }
 
         private float ResolveAttackDamage()

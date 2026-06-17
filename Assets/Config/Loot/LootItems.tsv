@@ -1,28 +1,43 @@
-ItemID	ItemName	Type	EquipmentKind	Rarity	Width	Height	IsStackable	MaxStack	ContainerColumns	ContainerRows	BlockedCells	RequiresSearchInLootContainer	SearchDurationOverride	MagicUnlock	RunePatternPoints	Enabled	SellPrice	Notes
-book	书	Other	None	Common	1	1	No	1				Yes	-1	None	1	Yes	10
-notebook	笔记	Other	None	Common	1	1	No	1				Yes	-1	None	1	Yes	20
-organic_fiber	有机纤维	Other	None	Common	2	2	No	1				Yes	-1	None	1	Yes	30
-military_radio	军用对讲机	Other	None	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	40
-uphone_phone	uphone手机	Other	None	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	60
-lesser_organic_fiber	次级有机纤维	Other	None	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	80
-usb_drive	u盘	Other	None	Rare	1	1	No	1				Yes	-1	None	1	Yes	80
-intel_file	情报文件	Other	None	Rare	1	2	No	1				Yes	-1	None	1	Yes	100
-advanced_organic_fiber	高级有机纤维	Other	None	Rare	2	2	No	1				Yes	-1	None	1	Yes	120
-pocket_watch	怀表	Other	None	Epic	1	1	No	1				Yes	-1	None	1	Yes	400
-pure_gold_ring	纯金戒指	Other	None	Epic	1	1	No	1				Yes	-1	None	1	Yes	300
-top_organic_fiber	顶级有机纤维	Other	None	Epic	2	3	No	1				Yes	-1	None	1	Yes	500
-graphics_card	显示卡	Other	None	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500
-saluzzo_aged_wine	萨卢佐醇酿	Other	None	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500
-wizard_hat	巫师帽	Other	None	Legendary	3	3	No	1				Yes	-1	None	1	Yes	2000
-equip_head_green	绿色头部装备	Equipment	Head	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	100
-equip_head_blue	蓝色头部装备	Equipment	Head	Rare	2	2	No	1				Yes	-1	None	1	Yes	300
-equip_body_green	绿色身体装备	Equipment	Body	Uncommon	2	3	No	1				Yes	-1	None	1	Yes	100
-equip_body_blue	蓝色身体装备	Equipment	Body	Rare	2	3	No	1				Yes	-1	None	1	Yes	300
-equip_body_gold	金色身体装备	Equipment	Body	Legendary	2	3	No	1				Yes	-1	None	1	Yes	800
-equip_face_green	绿色面部装备	Equipment	Face	Uncommon	1	1	No	1				Yes	-1	None	1	Yes	100
-equip_face_blue	蓝色面部装备	Equipment	Face	Rare	1	1	No	1				Yes	-1	None	1	Yes	300
-equip_headphone_green	绿色耳机	Equipment	Headphone	Uncommon	2	1	No	1				Yes	-1	None	1	Yes	100
-equip_headphone_blue	蓝色耳机	Equipment	Headphone	Rare	2	1	No	1				Yes	-1	None	1	Yes	300
-equip_totem_green	绿色图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100
-equip_totem_blue	蓝色图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300
-equip_totem_gold	金色图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800
+ItemID	ItemName	Type	EquipmentKind	Rarity	Width	Height	IsStackable	MaxStack	ContainerColumns	ContainerRows	BlockedCells	RequiresSearchInLootContainer	SearchDurationOverride	MagicUnlock	RunePatternPoints	Enabled	SellPrice	CarryWeight	ItemBackgroundSpritePath	IncludeInRuntimeDatabase	IncludeInTotemShop	TotemQuality	TotemModifiers	Notes
+book	书	Other	None	Common	1	1	No	1				Yes	-1	None	1	Yes	10	1		Yes	Yes
+notebook	笔记	Other	None	Common	1	1	No	1				Yes	-1	None	1	Yes	20	1		Yes	Yes
+organic_fiber	有机纤维	Other	None	Common	2	2	No	1				Yes	-1	None	1	Yes	30	1		Yes	Yes
+military_radio	军用对讲机	Other	None	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	40	1		Yes	Yes
+uphone_phone	uphone手机	Other	None	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	60	1		Yes	Yes
+lesser_organic_fiber	次级有机纤维	Other	None	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	80	1		Yes	Yes
+usb_drive	u盘	Other	None	Rare	1	1	No	1				Yes	-1	None	1	Yes	80	1		Yes	Yes
+intel_file	情报文件	Other	None	Rare	1	2	No	1				Yes	-1	None	1	Yes	100	1		Yes	Yes
+advanced_organic_fiber	高级有机纤维	Other	None	Rare	2	2	No	1				Yes	-1	None	1	Yes	120	1		Yes	Yes
+pocket_watch	怀表	Other	None	Epic	1	1	No	1				Yes	-1	None	1	Yes	400	1		Yes	Yes
+pure_gold_ring	纯金戒指	Other	None	Epic	1	1	No	1				Yes	-1	None	1	Yes	300	1		Yes	Yes
+top_organic_fiber	顶级有机纤维	Other	None	Epic	2	3	No	1				Yes	-1	None	1	Yes	500	1		Yes	Yes
+graphics_card	显示卡	Other	None	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500	1		Yes	Yes
+saluzzo_aged_wine	萨卢佐醇酿	Other	None	Legendary	1	2	No	1				Yes	-1	None	1	Yes	1500	1		Yes	Yes
+wizard_hat	巫师帽	Other	None	Legendary	3	3	No	1				Yes	-1	None	1	Yes	2000	1		Yes	Yes
+equip_head_green	绿色头部装备	Equipment	Head	Uncommon	2	2	No	1				Yes	-1	None	1	Yes	100	1		Yes	Yes
+equip_head_blue	蓝色头部装备	Equipment	Head	Rare	2	2	No	1				Yes	-1	None	1	Yes	300	1		Yes	Yes
+equip_body_green	绿色身体装备	Equipment	Body	Uncommon	2	3	No	1				Yes	-1	None	1	Yes	100	1		Yes	Yes
+equip_body_blue	蓝色身体装备	Equipment	Body	Rare	2	3	No	1				Yes	-1	None	1	Yes	300	1		Yes	Yes
+equip_body_gold	金色身体装备	Equipment	Body	Legendary	2	3	No	1				Yes	-1	None	1	Yes	800	1		Yes	Yes
+equip_face_green	绿色面部装备	Equipment	Face	Uncommon	1	1	No	1				Yes	-1	None	1	Yes	100	1		Yes	Yes
+equip_face_blue	蓝色面部装备	Equipment	Face	Rare	1	1	No	1				Yes	-1	None	1	Yes	300	1		Yes	Yes
+equip_headphone_green	绿色耳机	Equipment	Headphone	Uncommon	2	1	No	1				Yes	-1	None	1	Yes	100	1		Yes	Yes
+equip_headphone_blue	蓝色耳机	Equipment	Headphone	Rare	2	1	No	1				Yes	-1	None	1	Yes	300	1		Yes	Yes
+equip_totem_life_green	生命图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png	Yes	Yes	Green	MaxHealth=0.1	Generated from 局外图腾系统.xlsx
+equip_totem_life_blue	生命图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png	Yes	Yes	Blue	MaxHealth=0.2	Generated from 局外图腾系统.xlsx
+equip_totem_life_gold	生命图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png	Yes	Yes	Gold	MaxHealth=0.3;MoveSpeed=-0.05	Generated from 局外图腾系统.xlsx
+equip_totem_sniper_green	狙击图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png	Yes	Yes	Green	AttackRange=0.1;TargetDiscoveryRange=0.1	Generated from 局外图腾系统.xlsx
+equip_totem_sniper_blue	狙击图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png	Yes	Yes	Blue	AttackRange=0.15;TargetDiscoveryRange=0.15	Generated from 局外图腾系统.xlsx
+equip_totem_sniper_gold	狙击图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png	Yes	Yes	Gold	AttackRange=0.3;TargetDiscoveryRange=0.3	Generated from 局外图腾系统.xlsx
+equip_totem_frost_green	冰霜图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png	Yes	Yes	Green	IceSkillDamage=0.1	Generated from 局外图腾系统.xlsx
+equip_totem_frost_blue	冰霜图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png	Yes	Yes	Blue	IceSkillDamage=0.2	Generated from 局外图腾系统.xlsx
+equip_totem_frost_gold	冰霜图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png	Yes	Yes	Gold	IceSkillDamage=0.3	Generated from 局外图腾系统.xlsx
+equip_totem_earth_green	地鸣图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png	Yes	Yes	Green	EarthSkillDamage=0.1	Generated from 局外图腾系统.xlsx
+equip_totem_earth_blue	地鸣图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png	Yes	Yes	Blue	EarthSkillDamage=0.2	Generated from 局外图腾系统.xlsx
+equip_totem_earth_gold	地鸣图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png	Yes	Yes	Gold	EarthSkillDamage=0.3	Generated from 局外图腾系统.xlsx
+equip_totem_assault_green	进击图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png	Yes	Yes	Green	NormalAttackDamage=0.1	Generated from 局外图腾系统.xlsx
+equip_totem_assault_blue	进击图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png	Yes	Yes	Blue	NormalAttackDamage=0.2	Generated from 局外图腾系统.xlsx
+equip_totem_assault_gold	进击图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png	Yes	Yes	Gold	NormalAttackDamage=0.4;AttackRange=-0.1	Generated from 局外图腾系统.xlsx
+equip_totem_lightness_green	轻盈图腾	Equipment	Totem	Uncommon	1	2	No	1				Yes	-1	None	1	Yes	100	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Common.png	Yes	Yes	Green	MoveSpeed=0.15	Generated from 局外图腾系统.xlsx
+equip_totem_lightness_blue	轻盈图腾	Equipment	Totem	Rare	1	2	No	1				Yes	-1	None	1	Yes	300	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Uncommon.png	Yes	Yes	Blue	MoveSpeed=0.25	Generated from 局外图腾系统.xlsx
+equip_totem_lightness_gold	轻盈图腾	Equipment	Totem	Legendary	1	2	No	1				Yes	-1	None	1	Yes	800	1	Assets/Art/Sprites/UI design/Bag/S_ItemIcon_Rarity_Epic.png	Yes	Yes	Gold	MoveSpeed=0.4	Generated from 局外图腾系统.xlsx

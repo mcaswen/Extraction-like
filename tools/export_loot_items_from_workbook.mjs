@@ -55,7 +55,7 @@ for (const column of ["J", "K", "L"]) {
   range.dataValidation = null;
 }
 
-const rawValues = sheet.getRange(`A1:S${maxRows}`).values;
+const rawValues = sheet.getRange(`A1:Y${maxRows}`).values;
 const headers = rawValues[0].map(cleanCell);
 const dataRows = rawValues
   .slice(dataStartRow - 1)

@@ -87,6 +87,7 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
     private ParticleSystem _originParticles;
     private ParticleSystem _impactParticles;
     private ParticleSystem _driftParticles;
+    private bool _suppressGameplayEffects;
 
     private void Awake()
     {
@@ -257,6 +258,31 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
 
         _state = BeamState.Cooldown;
         _stateTimer = 0f;
+    }
+
+    public void ConfigureAsEnemyDrivenVisual(
+        Transform target,
+        Transform beamOrigin,
+        float lockDuration,
+        float beamDuration,
+        float cooldownDuration)
+    {
+        _target = target;
+        _targetCandidate = target;
+        _beamOrigin = beamOrigin;
+        _lockDuration = Mathf.Max(0.05f, lockDuration);
+        _beamDuration = Mathf.Max(0.05f, beamDuration);
+        _cooldownDuration = Mathf.Max(0.05f, cooldownDuration);
+        _autoActivateOnPlayerRange = false;
+        _allowKeyboardPreview = false;
+        _suppressGameplayEffects = true;
+    }
+
+    public void PlayBeamSequenceVisual(Transform target)
+    {
+        _target = target;
+        _targetCandidate = target;
+        BeginLocking();
     }
 
     private void ResolveTargetIfNeeded(bool force = false)
@@ -544,6 +570,11 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
 
     private void TickBeamDamage(Vector3 origin, Vector3 target)
     {
+        if (_suppressGameplayEffects)
+        {
+            return;
+        }
+
         float tickInterval = Mathf.Max(0.02f, _damageTickInterval);
         _damageTickTimer += Time.deltaTime;
         while (_damageTickTimer >= tickInterval)

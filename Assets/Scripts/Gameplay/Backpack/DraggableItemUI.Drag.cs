@@ -16,6 +16,11 @@ public partial class DraggableItemUI
             return;
         }
 
+        if (!InventoryGridInteractionPolicy.CanBeginDragFrom(CurrentGrid))
+        {
+            return;
+        }
+
         EnsureComponents();
         DestroyDragPlaceholder();
         _isDragActive = false;
@@ -536,6 +541,7 @@ public partial class DraggableItemUI
 
         _rectTransform.localEulerAngles = Vector3.zero;
         UpdateItemIconStretch(width, height);
+        ConfigureItemNameTextLayout();
         ResizeSearchOverlay();
     }
 
@@ -608,7 +614,48 @@ public partial class DraggableItemUI
             }
         }
 
+        if (TryGetVisibleGridByBounds(eventData, out InventoryUIController fallbackGrid))
+        {
+            return fallbackGrid;
+        }
+
         return null;
+    }
+
+    private static bool TryGetVisibleGridByBounds(PointerEventData eventData, out InventoryUIController grid)
+    {
+        grid = null;
+        InventoryScreenController screen = InventoryScreenController.Instance;
+        if (screen == null)
+        {
+            return false;
+        }
+
+        return TryUseGridIfPointerInside(screen.ActiveExternalGrid, eventData, out grid) ||
+            TryUseGridIfPointerInside(screen.BackpackGrid, eventData, out grid) ||
+            TryUseGridIfPointerInside(screen.PocketGrid, eventData, out grid) ||
+            TryUseGridIfPointerInside(screen.TacticalRigGrid, eventData, out grid) ||
+            TryUseGridIfPointerInside(screen.LootChestGrid, eventData, out grid);
+    }
+
+    private static bool TryUseGridIfPointerInside(
+        InventoryUIController candidate,
+        PointerEventData eventData,
+        out InventoryUIController grid)
+    {
+        grid = null;
+        if (candidate == null || !candidate.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        if (!IsPointerInsideGrid(candidate, eventData))
+        {
+            return false;
+        }
+
+        grid = candidate;
+        return true;
     }
 
     // 只把真正落在格子区域内的射线结果当作有效网格，避免外层面板截走跨容器拖放
@@ -619,12 +666,17 @@ public partial class DraggableItemUI
             return false;
         }
 
-        RectTransform hitArea = grid.ItemContainer != null
-            ? grid.ItemContainer
-            : grid.transform as RectTransform;
+        Camera eventCamera = eventData.pressEventCamera;
+        return IsPointerInsideRect(grid.ItemContainer, eventData.position, eventCamera) ||
+            IsPointerInsideRect(grid.GridBackground as RectTransform, eventData.position, eventCamera) ||
+            IsPointerInsideRect(grid.transform as RectTransform, eventData.position, eventCamera);
+    }
 
-        return hitArea != null &&
-            RectTransformUtility.RectangleContainsScreenPoint(hitArea, eventData.position, eventData.pressEventCamera);
+    private static bool IsPointerInsideRect(RectTransform rectTransform, Vector2 screenPosition, Camera eventCamera)
+    {
+        return rectTransform != null &&
+            rectTransform.gameObject.activeInHierarchy &&
+            RectTransformUtility.RectangleContainsScreenPoint(rectTransform, screenPosition, eventCamera);
     }
 
     // 优先通过显式矩形检测命中装备槽，失败后再回退到普通 UI 射线

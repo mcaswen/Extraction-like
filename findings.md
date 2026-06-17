@@ -529,3 +529,143 @@ Non-contradictions verified:
 - Implemented fix: `PlayerHealthController` now caches/looks up same-object `AgentPawnRoot` and combines Agent defense mitigation with the existing rune-pattern defense multiplier before subtracting health.
 - Implemented fix: `AgentPawnRoot` now exposes `Defense` and applies the same mitigation in both `TakeCombatDamage(...)` and `ApplyDamage(...)`.
 - Validation passed: runtime/editor `dotnet build` completed with 0 warnings and 0 errors. Formula spot-check: with minimum multiplier `0.2`, raw 20 damage becomes 20 at defense 0, 10 at defense 100, and 4 at defense 400.
+
+## 2026-06-14 Enemy VFX Integration Audit Findings
+
+- Enemy-directed VFX scripts under `Assets/Art/VFX` are `MudTidalAberrationVfx`, `RobotAnchorBeamVfx`, `SkeFishboneAttackVfx`, `TracerAnchorVortexVfx`, and `ZombieTentacleCorrosionVfx`.
+- `PlayerElementalSkillVfx` and `SimpleMagicRangedAttack` are mounted on `Assets/Prefabs/Character/Ai Idle.prefab` and are player/agent-style input preview scripts, not current enemy-system integrations.
+- `ZombieTentacleCorrosionVfx` is mounted on `Assets/Prefabs/Character/Zombie Idle (2).prefab`, while the formal Modern Strander prefab `Assets/Prefabs/Enemy/Pawn/Common/Pfb_Enemy_Common_ModernStrander.prefab` uses the same `Zombie Idle (2).fbx` source but does not reference the VFX script.
+- `SkeFishboneAttackVfx` is mounted on `Assets/Prefabs/Character/Ske Idle.prefab`, while the formal Ancient Strander prefab uses `Assets/Art/Animations/Ske Idle.fbx` but does not reference the VFX script.
+- `RobotAnchorBeamVfx` is mounted on `Assets/Prefabs/Character/Robot.prefab`, while the formal Anchor Sentinel prefab uses the Robot/AI model source but does not reference the VFX script.
+- `MudTidalAberrationVfx` is not mounted on the formal Tidal Aberration prefab; it appears only in obsolete scene content, while `Pfb_Enemy_Common_TidalAberration.prefab` still uses runtime `LineRenderer` placeholders for electric tentacle and water jet.
+- `TracerAnchorVortexVfx` is already mounted on `Assets/Prefabs/Enemy/Pawn/Boss/Pfb_Enemy_HunterBoss.prefab`; `HunterBossBehaviorController` resolves it with `GetComponentInChildren<TracerAnchorVortexVfx>(true)` and calls `PlayMeleeSweep`, `PlayVortexAnchorCombo`, and `PlayAnchorThrow`.
+- The unintegrated VFX scripts often include their own automatic target search, input preview, and damage/effect application. Proper enemy integration should disable or bypass duplicate auto gameplay and drive visuals from the existing enemy controller state transitions.
+
+## 2026-06-14 Enemy VFX Integration Findings
+
+- The integration keeps gameplay authority in the existing enemy controllers. VFX scripts now expose enemy-driven visual APIs that disable their auto target search, keyboard preview, and duplicated damage/effect application when controlled by enemies.
+- Modern Strander now auto-adds or finds `ZombieTentacleCorrosionVfx`, plays the tentacle visual when `BeginTentacleStrike()` starts, and plays the slime pool visual when a latched attack ends. The existing `CorrosiveSlimePuddle` still owns real corrosion gameplay, but its simple cylinder visual is suppressed when the new VFX is present.
+- Tidal Aberration now auto-adds or finds `MudTidalAberrationVfx`, playing mud tentacle contact on melee and high-pressure water jet on ranged attack. Existing controller damage, silence, knockback, and slow remain the source of truth.
+- Ancient Strander now auto-adds or finds `SkeFishboneAttackVfx`, playing fishbone sweep for melee and fishbone bite for ranged strike. Existing overlap/hitbox damage remains the source of truth.
+- Anchor Sentinel now auto-adds or finds `RobotAnchorBeamVfx`, playing the robot beam sequence when the sentinel enters each beam cycle. Existing beam damage ticks remain the source of truth.
+- Hunter Boss was left unchanged because `TracerAnchorVortexVfx` was already integrated.
+
+## 2026-06-14 Modern Strander VFX Correction Findings
+
+- User reported that the Modern Strander VFX hookup made the attack animation look twitchy and no effect was visible.
+- The initial integration disabled Modern Strander's old `LineRenderer` whenever a `ZombieTentacleCorrosionVfx` component existed. Because the formal enemy prefab does not serialize that VFX component, the runtime-added component could leave the attack with no visible fallback if the generated VFX did not render clearly.
+- The artist sample prefab `Assets/Prefabs/Character/Zombie Idle (2).prefab` only serializes the `ZombieTentacleCorrosionVfx` script settings; it does not provide a separate reusable particle prefab. Runtime component hookup is therefore valid, but it must be driven from the formal enemy's `TentacleOrigin` and keep a fallback visible path.
+- The current `Scene_lyl_test.unity` serialized ModernStrander prefab instance is overridden inactive (`m_IsActive: 0`), so scene-level no-VFX tests can also be affected by that state. The user may be testing a different scene or an unsaved active editor state because they observed attack animation playback.
+
+## 2026-06-14 Modern Strander Attack Loop Findings
+
+- User reported that Modern Strander repeatedly plays a raise/lower hand attack animation while trying to attack at melee range.
+- The likely loop path is direct player damage during counterattack cooldown: `NotifyDirectDamage(...)` failed to counterattack, then forced `CurrentState = Chase`; the next `ChaseBehavior(...)` saw the player inside `AttackRange`, re-entered `Attack`, and reset the old `_attackTimer` to `AttackInterval`, causing an immediate new `BeginTentacleStrike()` and Animator `Attack` trigger.
+- This bypassed the intended 5-second tentacle cooldown whenever the player's frequent automatic attacks kept notifying direct damage.
+- The fix should make tentacle readiness an absolute next-ready time, keep close-range direct-damage reactions in `Attack` without retriggering, and add a small hold-range buffer so tiny distance oscillations do not bounce the enemy between `Chase` and `Attack`.
+
+## 2026-06-14 Modern Strander Combat Distance Findings
+
+- User clarified that normal walking already has the hands raised, so the visible raise/lower loop likely comes from state switching rather than the attack clip itself.
+- Remaining risky path: `Update`, close-range direct-damage handling, direct counterattack range checks, and immediate latch checks still used root-to-root `Vector3.Distance(transform.position, PlayerTransform.position)`.
+- For the current Agent/player setup, the visible mesh, root transform, NavMeshAgent, and body capsule can disagree enough that a visually close target may be treated as outside attack hold range, pushing ModernStrander back to `Chase`.
+- The correction uses planar closest-point distance between ModernStrander's body collider and the cached player body collider for Chase/Attack switching, direct counterattack gating, and latch checks, so state changes and hit resolution share the same physical distance.
+
+## 2026-06-14 Enemy Scale Normalization Findings
+
+- Measured the current Agent player and formal enemy prefabs. The player root is `3,3,3`, and its renderer height is about `10.22`.
+- Ancient Strander was effectively about twice the player height before the change. I normalized `Pfb_Enemy_Common_AncientStrander.prefab` root scale from `3` to `1.5`, which brings its world size back in line with the player baseline.
+- Modern Strander was also oversized at the root. I normalized `Pfb_Enemy_Common_ModernStrander.prefab` root scale from `6` to `3` so its body/VFX placement matches the same player-sized baseline.
+- Ancient Strander already drives its fishbone attack through `MeleeOrigin`, `BiteOrigin`, and `SkeFishboneAttackVfx` on the prefab hierarchy, so the root-scale correction realigns animation and VFX without changing controller code. This is an inference from the current wiring.
+- Tidal Aberration, Anchor Sentinel, and Hunter Boss were left unchanged because their current sizes are either intentional boss proportions or already closer to the player baseline.
+
+## 2026-06-15 Code Ownership Summary Findings
+
+- Current Git identity is `Lin <392960892@qq.com>`.
+- Commit count on `origin/dev` by this author: `30` total, `24` excluding merge commits.
+- Repo-wide history by this author across all refs: `33` total, `26` excluding merge commits.
+- Directly related code for the requested scope totals `145` tracked source/tool files and `41,645` physical lines, excluding `.meta` files, `Assets/Scripts/Obsolete/BoardGame/**`, planning notes, and unrelated ThirdParty assets.
+- Main active code folders for the scope are `Assets/Scripts/Gameplay/Enemy`, `Assets/Scripts/Gameplay/Backpack`, `Assets/Scripts/Gameplay/Raid`, `Assets/Scripts/Gameplay/Agent/Animation`, `Assets/Scripts/Gameplay/Agent/AI`, `Assets/Scripts/Core/BehaviorTree`, `Assets/Scripts/Core/StateMachine`, `Assets/Scripts/Gameplay/Visual Effect`, `Assets/Art/VFX`, `Assets/Scripts/Gameplay/SkillEffect`, `Assets/Scripts/Editor`, and `tools`.
+- No dedicated AnimatorController generator was found; the animation/state-machine side is implemented through runtime Animator bridges plus the Agent state-machine / behavior-tree architecture.
+
+## 2026-06-17 Storage Warehouse UI Findings
+
+- The current backpack UI prefab is `Assets/Prefabs/Canvas.prefab`.
+- The existing backpack/loot screen already uses `InventoryScreenSessionContext` to represent a left player inventory plus a right external container.
+- `LootBoxEntity.CreateInventorySessionContext()` is the existing right-panel container entry point, and `InventoryScreenController.OpenInventorySession(...)` loads that context into `LootChestGrid`.
+- Quick transfer currently routes between `LootChestGrid` and `BackpackGrid`, so reusing `LootChestGrid` for the warehouse preserves current drag, stack, swap, and double-click behavior.
+- No general persistent save service was found for backpack containers. Existing loot boxes keep runtime snapshots on scene objects, and character inventory snapshots are held in memory by `InventoryScreenController`.
+- `InventoryItemData` has a stable `ItemID`, but the runtime project does not yet expose a reusable `ItemID -> InventoryItemData` resolver. Warehouse persistence should add one before writing JSON.
+- Implemented storage session keeps the left backpack route unchanged and treats the right warehouse as `InventoryExternalContainerKind.Storage`, so future storage-only restrictions can branch on the session kind without changing ordinary loot boxes.
+- `StorageCanvas.prefab` is an asset-level copy with its own `.meta` GUID and no nested prefab instance records. Editing this prefab will not mutate `Canvas.prefab`.
+- `StorageCanvasTest.unity` intentionally instantiates `StorageCanvas.prefab`, providing the requested independent scene test surface.
+- Storage persistence writes `player_storage.json` under `Application.persistentDataPath`, keyed by agent id with `default_player` fallback. It uses `InventoryItemDatabase` in `Resources/Inventory` to restore item references by `ItemID`.
+- Storage items are sanitized on save/load so `RequiresSearch=false`, `IsSearched=true`, and search timers are zeroed. This removes the loot search flow from the warehouse while preserving the shared item UI and drag behavior.
+- The storage grows by maintaining at least one trailing blank page after the configured minimum 10 pages. When the last page receives items, the service appends a new empty page.
+- The warehouse sort button sorts only the currently loaded page because each page is loaded into `StorageGrid` independently before `InventoryUIController.AutoSort()` runs.
+- Unity edit-mode rebuild warnings from grid-cell destruction were fixed by switching to `DestroyImmediate` when not playing. Runtime grid rebuilds still use `Destroy`.
+- Unity hot-reload serialization warnings from recursive storage save records were fixed by marking the service's runtime JSON cache fields as `[NonSerialized]`.
+- Follow-up play-mode report showed three UI issues: the left backpack grid could be blank after opening the storage scene, the warehouse page shape needed to be 6 columns by 10 rows, and page buttons were receiving clicks while not rendering visibly.
+- The backpack grid issue was consistent with an external-session opening order that did not force the linked backpack grid/background cells to refresh after the storage session was projected into the UI.
+- The page selector issue was consistent with copied scroll viewport masking/graphics from the original canvas hiding generated children. Runtime repair now disables the old `Mask`, adds `RectMask2D`, restores the scroll background alpha, and normalizes generated button visuals.
+- Warehouse save records do not need recursive container contents because container-with-contents items are out of scope for this storage flow. Flattening records also avoids recursive `JsonUtility` depth warnings.
+- The second follow-up showed the backpack grid could still be logically present but visually blank. The safer fix is to refresh the 5x6 background cells unconditionally when showing the warehouse instead of relying on `NeedsBackgroundCellRefresh()`.
+- The selector overflow came from anchoring the storage panel near the screen edge and then anchoring an 86px-wide selector to the panel's right side. A single-column 42px selector plus a larger right inset keeps the page buttons visible without changing the warehouse grid size.
+
+## 2026-06-17 Totem Shop UI Findings
+
+- The shop can reuse `PlayerStorageService` for warehouse persistence without changing ordinary storage behavior.
+- No existing gold/currency service was found in active gameplay scripts, so the shop needs a new per-agent economy save service.
+- `InventoryItemData.SellPrice` already exists and is used by run-revenue calculations. Values `<= 0` should be treated as missing for shop fallback pricing.
+- Totem items are identified by `InventoryItemData.EquipmentKind == EquipmentSlotKind.Totem`; current table totems are green, blue, and gold equipment entries.
+- Current totem dimensions are `1x2`. The shop's 4x4 right grid should therefore follow normal placement and show at most eight items, preserving the user-confirmed real-grid rule.
+- `DraggableItemUI.OnPointerClick` only handles `Ctrl+LeftClick` quick transfer by default, so shop-specific normal-left-click behavior can be layered through separate click-catcher components instead of altering the existing item script.
+- `ShopCanvas.prefab` is an asset-level copy with its own prefab GUID and no nested prefab instance records. `ShopCanvasTest.unity` references the new shop prefab GUID and does not reference the original `Canvas.prefab` or `StorageCanvas.prefab` GUIDs.
+- The shop uses a small opt-in grid interaction policy and an existing placement-policy hook so the right shop grid cannot be used as a drag source or drop target, while ordinary inventory/storage grids remain unaffected unless they explicitly add the policy components.
+
+## 2026-06-17 Extraction Storage Settlement Findings
+
+- The settled inventory definition is backpack contents plus the six equipment slots: head, body, face, headphone, totem A, and totem B.
+- Default backpack, backpack item body, rig/chest-rig body, and rig contents are excluded from settlement.
+- Extracted agents settle immediately when their extraction timer completes, before the pawn is destroyed. Later mission failure does not roll back already settled agents.
+- Failed or dead agents discard the same extractable inventory without writing it to storage.
+- Settlement writes to the shared `default_player` warehouse and can create a hidden runtime `PlayerStorageService` when no storage UI service exists in the raid scene.
+
+## 2026-06-17 Out-of-Raid Totem Expansion Planning Findings
+
+- Designer workbook `C:/Users/Lenovo/Downloads/局外图腾系统.xlsx` contains one sheet with six base totems: 生命, 狙击, 冰霜, 地鸣, 进击, 轻盈. Columns are `图腾`, `具体作用`, `1级图腾数值`, `2级图腾数值`, and `3级图腾数值`.
+- User intent: level 1/2/3 correspond to the currently existing green/blue/gold totem quality baselines, producing 6 base totems x 3 qualities = 18 totem items.
+- Existing totems are `equip_totem_green`, `equip_totem_blue`, and `equip_totem_gold` in `Assets/SO/ItemData/Table`, with `Type=Equipment`, `EquipmentKind=Totem`, dimensions `1x2`, non-stackable, carry weight `1`, search enabled, `MagicUnlock=None`, `RunePatternPoints=1`, and sell prices `100/300/800`.
+- Existing color baselines map to rarities `Uncommon`, `Rare`, and `Legendary`, not Common/Rare/Epic. Item icon references are generic rarity sprites: Uncommon, Rare, Legendary.
+- `InventoryItemData` currently has no structured totem effect fields. It only stores generic item/equipment data, economy, carry weight, search data, and magic unlock data.
+- `LootItemTsvImporterWindow` can import generic item fields and an optional `CarryWeight` column, but currently cannot import totem effect kind/value/secondary penalties.
+- `WorldPrefab` should not be blindly copied from the three baseline totems for new IDs because existing world pickup prefabs serialize `WorldLootItem.ItemData` to the specific old item asset.
+- `InventoryItemInfoPanelController` currently does not display totem effect text, so generated effect data would need UI display support if players should understand each totem.
+- Totem shop generation repopulates `TotemShopPool` from every `InventoryItemData` with `EquipmentKind=Totem` and defaults buy price to `SellPrice * 2`; old generic totems must be deliberately retired or they will remain shop candidates.
+- Equipped totem snapshots are currently captured in `InventoryScreenController` for UI persistence, extraction settlement, and discard logic, but no active bridge was found that applies equipped item modifiers into `AgentPawnRoot` or `AgentCombatController`.
+- User confirmed the old generic green/blue/gold totem assets should remain on disk for reference safety but be removed from active TSV/database/shop output.
+- User confirmed all three quality variants of a base totem should share the same player-facing name.
+- User confirmed composite effects: 生命 level 3 = max health +30% and move speed -5%; 进击 level 3 = staff/normal attack damage +40% and range -10%; same-effect equipped totems may stack.
+- User confirmed gold data quality should still use `Legendary`. Current item UI background tint maps `Legendary` to red, while the Bag sprite set has green/blue/gold visual assets as `S_ItemIcon_Rarity_Common`, `S_ItemIcon_Rarity_Uncommon`, and `S_ItemIcon_Rarity_Epic`; implementation should separate gameplay rarity from totem quality visuals if gold totems must look gold.
+- Implementation uses separate fields for gameplay/data rarity and visual totem quality. The green/blue/gold variants keep the old rarity/economy baselines `Uncommon/100`, `Rare/300`, and `Legendary/800`, while their item backgrounds use `S_ItemIcon_Rarity_Common`, `S_ItemIcon_Rarity_Uncommon`, and `S_ItemIcon_Rarity_Epic`.
+- The old generic totem assets remain in `Assets/SO/ItemData/Table`, but `IncludeInRuntimeDatabase=0` and `IncludeInTotemShop=0` prevent them from entering generated runtime database or shop output.
+- Runtime totem effects are additive across the two equipped totem slots. `InventoryScreenController` builds a `TotemModifierSet` from live equipment slots or saved agent snapshots; `AgentPawnRoot` refreshes it periodically and passes it into `AgentCombatController`.
+- Current runtime effect coverage includes max health, move speed, attack range, target discovery range, normal/staff attack damage, ice skill damage, and earth skill damage. Effects not represented by these modifier types would need additional enum/runtime handling before designers add them to TSV.
+
+## 2026-06-17 Element Selection Menu Art Findings
+
+- User request: update `Scene_ElementSelectionMenu` with separated UI art from `Png_Item_attribute selection`, using `Png_Item_ background` for the scene background, `Png_Item_ button` for attribute buttons, `Png_Item_ fire` and similarly named sprites for element icons, `Png_Item_ panel` for the right rounded panel, `Font/Title` for right-panel text, and `supplement/IMG_0826` plus `Font/Text` for the center start button.
+- The existing scene was a minimal Canvas that displayed only the old composite `IMG_0828` background through sprite GUID `e61f6a20073056f429751081f2c2dd6c`.
+- The replacement asset GUIDs are: background `0d1f662e7823d43c7b13401e05a6b7eb`, button `d772d1f6dc373483598e05c312e11f1e`, panel `aa082b7802c524bd3bb051fd2db89eb4`, fire `3118f45a9e30d4e65b52006c1b5d2abc`, ice `f628dd4105cd94e81a54a9672e1b74f8`, earth `b89f63428688e4c71991b2c3a915d113`, water `5b8fc751a3b54450190d3da3e45267a6`, metal `7d85d537512e64668ba4f5c337c78a43`, start background `ec8fe7059c114ce4ca89b7d3a7460720`, Title font `59cd6b90a673496449300d960d81089c`, and Text font `522a197589a7c2d438a889334d081de7`.
+- The `Png_Item_ button` sprite is a 1920x1080 transparent layer whose visible button is located at the original Fire-row position. Reusing it for the other four rows requires full-canvas duplicated Images with vertical offsets.
+- Unity batchmode could not rebuild the scene because another Unity instance already had this project open, so the scene YAML was updated directly while keeping the same hierarchy and references generated by the editor builder.
+
+## 2026-06-17 Shop Return / Background Findings
+
+- The independent shop UI is still driven by `Assets/Prefabs/ShopCanvas.prefab`, `Assets/Scenes/ShopCanvasTest.unity`, `Assets/Scripts/Gameplay/Backpack/ShopScreenController.cs`, and `Assets/Scripts/Editor/ShopCanvasPrefabBuilder.cs`.
+- The requested return button art exists at `Assets/Art/Sprites/UI/Button/IMG_0494.PNG` with sprite GUID `2e9b38a3b2076e44aadbb83e41faa772`.
+- Existing scene navigation uses simple `SceneManager.LoadScene(...)` calls in menu/preparation controllers; a small reusable button component can keep the shop button independent from the existing shop/storage controllers.
+- `ShopCanvasTest.unity` currently uses the same dark camera clear color as the earlier test UI scenes, so the preparation interface background must be inspected before syncing `StorageCanvasTest`.
+- `Scene_PreparationInterface.unity` uses camera clear color `{0.54, 0.72, 0.82, 1}` and a full-canvas background sprite at `Assets/Art/Sprites/Png_Item_preparation interface/Png_Item_background.PNG` with GUID `9eeecfe495e0d4ced9a0ba4f67d8d57d`.
+- `StorageCanvasTest.unity` now has a low sorting-order `PreparationBackgroundCanvas` referencing the same background sprite, plus the same camera clear color. This keeps the storage UI prefab independent while matching the preparation interface background in the test scene.
+- `Scene_PreparationInterface.unity`, `Scene_ElementSelectionMenu.unity`, and `ShopCanvasTest.unity` are already present in `ProjectSettings/EditorBuildSettings.asset`, so the shop return button can use `SceneManager.LoadScene("Scene_PreparationInterface")`.

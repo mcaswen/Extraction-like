@@ -127,7 +127,7 @@ public class CorrosiveSlimePuddle : MonoBehaviour
     /// <param name="damagePerSecond">每秒腐蚀伤害。</param>
     /// <param name="corrosionDuration">腐蚀状态持续时间。</param>
     /// <param name="tickInterval">腐蚀结算间隔。</param>
-    public void Configure(float radius, float lifeTime, float damagePerSecond, float corrosionDuration, float tickInterval)
+    public void Configure(float radius, float lifeTime, float damagePerSecond, float corrosionDuration, float tickInterval, bool createVisual = true)
     {
         _radius = Mathf.Max(0.2f, radius);
         _lifeTime = Mathf.Max(0.1f, lifeTime);
@@ -135,7 +135,18 @@ public class CorrosiveSlimePuddle : MonoBehaviour
         _corrosionDuration = Mathf.Max(0f, corrosionDuration);
         _tickInterval = Mathf.Max(0.05f, tickInterval);
 
-        EnsureVisual();
+        if (createVisual)
+        {
+            EnsureVisual();
+        }
+        else
+        {
+            Transform visual = transform.Find("Visual");
+            if (visual != null)
+            {
+                visual.gameObject.SetActive(false);
+            }
+        }
         EnsureTrigger();
         SkillEffectLayerUtility.ApplyToRoot(gameObject);
         Destroy(gameObject, _lifeTime);

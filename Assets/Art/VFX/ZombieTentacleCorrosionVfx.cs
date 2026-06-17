@@ -63,10 +63,14 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
     private Material _particleMaterial;
 
     private Coroutine _attackRoutine;
+    private TentacleInstance _activeTentacleVisual;
     private Transform _cachedPlayerTarget;
+    private Transform _tentacleOriginOverride;
     private float _nextAttackTimer;
     private float _targetRefreshTimer;
     private float _noiseSeed;
+    private float _enemyDrivenVisualDuration = -1f;
+    private bool _suppressGameplayEffects;
 
     private void Awake()
     {
@@ -84,6 +88,8 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             StopCoroutine(_attackRoutine);
             _attackRoutine = null;
         }
+
+        ClearActiveTentacleVisual();
 
         for (int i = _activeSlimePools.Count - 1; i >= 0; i--)
         {
@@ -133,24 +139,74 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
 
     public void TriggerTentacleAttack()
     {
-        TriggerTentacleAttack(FindNearbyTarget(true));
+        TriggerTentacleAttack(FindNearbyTarget(true), !_suppressGameplayEffects, true);
     }
 
     public void TriggerTentacleAttack(Transform target)
     {
+        TriggerTentacleAttack(target, !_suppressGameplayEffects, true);
+    }
+
+    public void ConfigureAsEnemyDrivenVisual(Transform preferredTarget)
+    {
+        ConfigureAsEnemyDrivenVisual(preferredTarget, null, -1f);
+    }
+
+    public void ConfigureAsEnemyDrivenVisual(Transform preferredTarget, Transform tentacleOrigin, float visualDuration)
+    {
+        _preferredTarget = preferredTarget;
+        _tentacleOriginOverride = tentacleOrigin;
+        _enemyDrivenVisualDuration = visualDuration;
+        _autoAttackNearbyTarget = false;
+        _allowKeyboardPreview = false;
+        _suppressGameplayEffects = true;
+        enabled = true;
+    }
+
+    public void PlayTentacleAttackVisual(Transform target)
+    {
+        TriggerTentacleAttack(target != null ? target : _preferredTarget, false, false, true);
+    }
+
+    public void PlaySlimePoolVisual(Vector3 position, float radius, float duration)
+    {
+        EnsureRuntimeMaterials();
+        SpawnSlimePool(ProjectToGround(position), radius, duration, false);
+    }
+
+    private void TriggerTentacleAttack(Transform target, bool applyGameplayEffects, bool spawnSlimePool)
+    {
+        TriggerTentacleAttack(target, applyGameplayEffects, spawnSlimePool, false);
+    }
+
+    private void TriggerTentacleAttack(Transform target, bool applyGameplayEffects, bool spawnSlimePool, bool restartActiveVisual)
+    {
         if (_attackRoutine != null || target == null)
+        {
+            if (!restartActiveVisual || target == null)
+            {
+                return;
+            }
+
+            StopCoroutine(_attackRoutine);
+            _attackRoutine = null;
+            ClearActiveTentacleVisual();
+        }
+
+        if (!isActiveAndEnabled)
         {
             return;
         }
 
         _nextAttackTimer = Mathf.Max(0.2f, _attackInterval);
-        _attackRoutine = StartCoroutine(PlayTentacleAttack(target));
+        _attackRoutine = StartCoroutine(PlayTentacleAttack(target, applyGameplayEffects, spawnSlimePool));
     }
 
-    private IEnumerator PlayTentacleAttack(Transform target)
+    private IEnumerator PlayTentacleAttack(Transform target, bool applyGameplayEffects, bool spawnSlimePool)
     {
         PullTargetHandle targetHandle = new PullTargetHandle(target);
         TentacleInstance tentacle = new TentacleInstance(this);
+        _activeTentacleVisual = tentacle;
         Vector3 slimePosition = ProjectToGround(targetHandle.Position);
         bool slimeCreated = false;
 
@@ -168,30 +224,35 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             yield return null;
         }
 
-        if (targetHandle.IsValid)
+        if (spawnSlimePool && targetHandle.IsValid)
         {
             slimeCreated = true;
             slimePosition = ProjectToGround(targetHandle.Position);
-            SpawnSlimePool(slimePosition);
+            SpawnSlimePool(slimePosition, _slimeRadius, _slimeDuration, applyGameplayEffects);
         }
 
-        float pullDuration = Mathf.Max(0.05f, _pullDuration);
+        float pullDuration = Mathf.Max(0.05f, _suppressGameplayEffects && _enemyDrivenVisualDuration > 0f
+            ? _enemyDrivenVisualDuration
+            : _pullDuration);
         timer = 0f;
         while (timer < pullDuration && targetHandle.IsValid)
         {
             timer += Time.deltaTime;
             float normalized = Mathf.Clamp01(timer / pullDuration);
-            PullTargetTowardZombie(targetHandle);
+            if (applyGameplayEffects)
+            {
+                PullTargetTowardZombie(targetHandle);
+            }
 
             Vector3 origin = ResolveTentacleOrigin();
             Vector3 attachPoint = ResolveTargetAttachPoint(targetHandle);
             tentacle.UpdatePath(BuildTentaclePath(origin, attachPoint, normalized + 1f), 1f - normalized * 0.12f, normalized + 1f);
 
-            if (!slimeCreated && normalized > 0.1f)
+            if (spawnSlimePool && !slimeCreated && normalized > 0.1f)
             {
                 slimeCreated = true;
                 slimePosition = ProjectToGround(targetHandle.Position);
-                SpawnSlimePool(slimePosition);
+                SpawnSlimePool(slimePosition, _slimeRadius, _slimeDuration, applyGameplayEffects);
             }
 
             yield return null;
@@ -207,6 +268,11 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             Vector3 endpoint = targetHandle.IsValid ? ResolveTargetAttachPoint(targetHandle) : slimePosition + Vector3.up * _targetAttachHeight;
             tentacle.UpdatePath(BuildTentaclePath(origin, endpoint, normalized + 2f), 1f - normalized, normalized + 2f);
             yield return null;
+        }
+
+        if (_activeTentacleVisual == tentacle)
+        {
+            _activeTentacleVisual = null;
         }
 
         tentacle.Destroy();
@@ -377,7 +443,23 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
 
     private Vector3 ResolveTentacleOrigin()
     {
+        if (_tentacleOriginOverride != null)
+        {
+            return _tentacleOriginOverride.position;
+        }
+
         return transform.position + Vector3.up * _originHeight + ResolveForward() * _originForwardOffset;
+    }
+
+    private void ClearActiveTentacleVisual()
+    {
+        if (_activeTentacleVisual == null)
+        {
+            return;
+        }
+
+        _activeTentacleVisual.Destroy();
+        _activeTentacleVisual = null;
     }
 
     private Vector3 ResolveTargetAttachPoint(PullTargetHandle targetHandle)
@@ -424,7 +506,12 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
 
     private void SpawnSlimePool(Vector3 position)
     {
-        SlimePoolInstance slimePool = new SlimePoolInstance(this, position, _slimeRadius);
+        SpawnSlimePool(position, _slimeRadius, _slimeDuration, !_suppressGameplayEffects);
+    }
+
+    private void SpawnSlimePool(Vector3 position, float radius, float duration, bool applyDamage)
+    {
+        SlimePoolInstance slimePool = new SlimePoolInstance(this, position, radius, duration, applyDamage);
         _activeSlimePools.Add(slimePool);
     }
 
@@ -824,16 +911,20 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
         private readonly ParticleSystem _splashParticles;
         private readonly Vector3 _center;
         private readonly float _radius;
+        private readonly float _duration;
+        private readonly bool _applyDamage;
         private readonly Mesh _diskMesh;
 
         private float _elapsed;
         private float _damageTickTimer;
 
-        public SlimePoolInstance(ZombieTentacleCorrosionVfx owner, Vector3 center, float radius)
+        public SlimePoolInstance(ZombieTentacleCorrosionVfx owner, Vector3 center, float radius, float duration, bool applyDamage)
         {
             _owner = owner;
             _center = center;
             _radius = Mathf.Max(0.25f, radius);
+            _duration = Mathf.Max(0.05f, duration);
+            _applyDamage = applyDamage;
 
             _rootObject = new GameObject("ZombieCorrosiveSlimePool");
             _rootObject.layer = owner.gameObject.layer;
@@ -861,12 +952,12 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
         public bool Tick(float deltaTime, Transform playerTarget)
         {
             _elapsed += deltaTime;
-            float normalized = Mathf.Clamp01(_elapsed / Mathf.Max(0.05f, _owner._slimeDuration));
+            float normalized = Mathf.Clamp01(_elapsed / _duration);
             float alpha = 1f - Mathf.SmoothStep(0.78f, 1f, normalized);
 
             UpdateRings(alpha);
             TickDamage(deltaTime, playerTarget);
-            return _elapsed >= _owner._slimeDuration;
+            return _elapsed >= _duration;
         }
 
         public void Destroy()
@@ -884,6 +975,11 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
 
         private void TickDamage(float deltaTime, Transform playerTarget)
         {
+            if (!_applyDamage)
+            {
+                return;
+            }
+
             _damageTickTimer -= deltaTime;
             if (_damageTickTimer > 0f)
             {

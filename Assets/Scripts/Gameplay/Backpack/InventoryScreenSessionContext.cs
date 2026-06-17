@@ -17,6 +17,7 @@ public sealed class InventoryScreenSessionContext
     public List<ContainerCellStateSaveData> PlayerCellStates { get; set; } = new List<ContainerCellStateSaveData>();
 
     public string ExternalContainerName { get; set; } = string.Empty;
+    public InventoryExternalContainerKind ExternalContainerKind { get; set; } = InventoryExternalContainerKind.Loot;
     public int ExternalColumns { get; set; } = 1;
     public int ExternalRows { get; set; } = 1;
     public List<Vector2Int> ExternalBlockedCells { get; set; } = new List<Vector2Int>();
@@ -25,6 +26,12 @@ public sealed class InventoryScreenSessionContext
 
     public Action BeforeOpen { get; set; }
     public Action<InventoryScreenSessionResult> OnClose { get; set; }
+}
+
+public enum InventoryExternalContainerKind
+{
+    Loot,
+    Storage
 }
 
 /// <summary>

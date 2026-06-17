@@ -10,7 +10,25 @@ using UnityEngine.UI;
 /// </summary>
 public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
 {
-    public static InventoryItemInfoPanelController Instance { get; private set; }
+    private static InventoryItemInfoPanelController _instance;
+
+    public static InventoryItemInfoPanelController Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<InventoryItemInfoPanelController>(true);
+                if (_instance != null)
+                {
+                    _instance.EnsureInitialized();
+                }
+            }
+
+            return _instance;
+        }
+        private set => _instance = value;
+    }
 
     [Header("View References")]
     public Image BackgroundImage;
@@ -60,29 +78,21 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
     private RectTransform _rectTransform;
     private Canvas _parentCanvas;
     private DraggableItemUI _targetItem;
+    private bool _isInitialized;
+    private int _shownFrame = -1;
 
     private void Awake()
     {
         Instance = this;
-        _rectTransform = transform as RectTransform;
-        _parentCanvas = GetComponentInParent<Canvas>();
+        EnsureInitialized();
 
-        if (SplitButton != null)
-        {
-            SplitButton.onClick.AddListener(OnSplitClicked);
-        }
-
-        if (CloseButton != null)
-        {
-            CloseButton.onClick.AddListener(Hide);
-        }
-
-        gameObject.SetActive(false);
+        if (_targetItem == null)
+            gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
+        if (_instance == this)
         {
             Instance = null;
         }
@@ -95,6 +105,8 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
     /// <param name="eventData">当前指针事件，用于定位面板。</param>
     public void Show(DraggableItemUI item, PointerEventData eventData)
     {
+        EnsureInitialized();
+
         if (item == null || item.ItemData == null)
         {
             Hide();
@@ -104,6 +116,7 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
         _targetItem = item;
         ApplyItemData(item);
         gameObject.SetActive(true);
+        _shownFrame = Time.frameCount;
         transform.SetAsLastSibling();
         PositionNextToItem(item, eventData);
     }
@@ -115,6 +128,81 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
     {
         _targetItem = null;
         gameObject.SetActive(false);
+    }
+
+    public void HideIfTarget(DraggableItemUI item)
+    {
+        if (_targetItem == item)
+        {
+            Hide();
+        }
+    }
+
+    private void Update()
+    {
+        if (_targetItem == null ||
+            Time.frameCount == _shownFrame ||
+            !Input.GetMouseButtonDown(0))
+        {
+            return;
+        }
+
+        if (IsPointerInsideRect(_rectTransform) ||
+            IsPointerInsideRect(_targetItem.GetComponent<RectTransform>()))
+        {
+            return;
+        }
+
+        Hide();
+    }
+
+    private void EnsureInitialized()
+    {
+        if (_isInitialized)
+        {
+            return;
+        }
+
+        _rectTransform = transform as RectTransform;
+        _parentCanvas = GetComponentInParent<Canvas>();
+
+        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        DisableRaycastTarget(BackgroundImage);
+        DisableRaycastTarget(MarkerImage);
+        DisableRaycastTarget(ItemIconImage);
+        DisableRaycastTarget(NameText);
+        DisableRaycastTarget(RarityText);
+        DisableRaycastTarget(DetailText);
+
+        if (SplitButton != null)
+        {
+            SplitButton.onClick.RemoveListener(OnSplitClicked);
+            SplitButton.onClick.AddListener(OnSplitClicked);
+        }
+
+        if (CloseButton != null)
+        {
+            CloseButton.onClick.RemoveListener(Hide);
+            CloseButton.gameObject.SetActive(false);
+        }
+
+        _isInitialized = true;
+    }
+
+    private static void DisableRaycastTarget(Graphic graphic)
+    {
+        if (graphic != null)
+        {
+            graphic.raycastTarget = false;
+        }
     }
 
     /// <summary>
@@ -151,7 +239,12 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
 
         if (RarityText != null)
         {
-            RarityText.text = GetRarityLabel(data.Rarity);
+            string qualityLabel = data.TotemQuality != TotemQuality.None
+                ? InventoryItemData.GetTotemQualityLabel(data.TotemQuality)
+                : string.Empty;
+            RarityText.text = !string.IsNullOrWhiteSpace(qualityLabel)
+                ? qualityLabel
+                : GetRarityLabel(data.Rarity);
             RarityText.color = GetRarityTextColor(data.Rarity);
         }
 
@@ -180,6 +273,11 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
 
         AppendLine("占格", $"{Mathf.Max(1, data.Width)} x {Mathf.Max(1, data.Height)}");
 
+        if (data.TotemQuality != TotemQuality.None)
+        {
+            AppendLine("图腾品质", InventoryItemData.GetTotemQualityLabel(data.TotemQuality));
+        }
+
         int amount = Mathf.Max(1, item.CurrentAmount);
         if (data.IsStackable)
         {
@@ -201,6 +299,12 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
         {
             AppendLine("魔法解锁", data.MagicUnlock.ToString());
             AppendLine("符文点数", Mathf.Max(1, data.RunePatternPoints).ToString());
+        }
+
+        string totemEffectSummary = data.GetTotemEffectSummary();
+        if (!string.IsNullOrWhiteSpace(totemEffectSummary))
+        {
+            AppendLine("图腾效果", totemEffectSummary);
         }
 
         if (data.RequiresSearchInLootContainer)
@@ -321,6 +425,35 @@ public class InventoryItemInfoPanelController : MonoBehaviour, IDragHandler
         }
 
         return _parentCanvas != null ? _parentCanvas.transform as RectTransform : null;
+    }
+
+    private bool IsPointerInsideRect(RectTransform rectTransform)
+    {
+        if (rectTransform == null)
+        {
+            return false;
+        }
+
+        Camera eventCamera = ResolveEventCamera();
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            rectTransform,
+            Input.mousePosition,
+            eventCamera);
+    }
+
+    private Camera ResolveEventCamera()
+    {
+        if (_parentCanvas == null)
+        {
+            _parentCanvas = GetComponentInParent<Canvas>();
+        }
+
+        if (_parentCanvas == null || _parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        return _parentCanvas.worldCamera != null ? _parentCanvas.worldCamera : Camera.main;
     }
 
     private string GetItemTypeLabel(ItemType type)

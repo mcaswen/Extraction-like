@@ -292,6 +292,11 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
                 RunePatternPointsText = GetCell(cells, headerIndexes, "RunePatternPoints").Trim(),
                 CarryWeightText = GetOptionalCell(cells, headerIndexes, "CarryWeight", "1").Trim(),
                 SellPriceText = GetCell(cells, headerIndexes, "SellPrice").Trim(),
+                ItemBackgroundSpritePath = GetOptionalCell(cells, headerIndexes, "ItemBackgroundSpritePath", string.Empty).Trim(),
+                IncludeInRuntimeDatabaseText = GetOptionalCell(cells, headerIndexes, "IncludeInRuntimeDatabase", "Yes").Trim(),
+                IncludeInTotemShopText = GetOptionalCell(cells, headerIndexes, "IncludeInTotemShop", "Yes").Trim(),
+                TotemQualityText = GetOptionalCell(cells, headerIndexes, "TotemQuality", string.Empty).Trim(),
+                TotemModifiersText = GetOptionalCell(cells, headerIndexes, "TotemModifiers", string.Empty).Trim(),
                 Notes = GetCell(cells, headerIndexes, "Notes").Trim()
             };
             rows.Add(row);
@@ -459,6 +464,27 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         {
             report.Errors.Add($"Row {row.RowNumber}: SellPrice must be a non-negative whole number.");
         }
+
+        if (!TryParseBoolean(row.IncludeInRuntimeDatabaseText, out row.IncludeInRuntimeDatabase))
+        {
+            report.Errors.Add($"Row {row.RowNumber}: IncludeInRuntimeDatabase must be Yes/No.");
+        }
+
+        if (!TryParseBoolean(row.IncludeInTotemShopText, out row.IncludeInTotemShop))
+        {
+            report.Errors.Add($"Row {row.RowNumber}: IncludeInTotemShop must be Yes/No.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(row.TotemQualityText) &&
+            !Enum.TryParse(row.TotemQualityText, ignoreCase: true, out row.TotemQuality))
+        {
+            report.Errors.Add($"Row {row.RowNumber}: Invalid TotemQuality '{row.TotemQualityText}'.");
+        }
+
+        if (!TryParseTotemModifiers(row.TotemModifiersText, out row.TotemModifiers, out string totemModifierError))
+        {
+            report.Errors.Add($"Row {row.RowNumber}: {totemModifierError}");
+        }
     }
 
     private static void ImportRow(
@@ -485,9 +511,21 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         }
 
         bool hadNonDefaultIcon = itemData.ItemIcon != null && itemData.ItemIcon != defaultIcon;
+        Sprite itemBackgroundSprite = null;
+        if (!string.IsNullOrWhiteSpace(row.ItemBackgroundSpritePath))
+        {
+            itemBackgroundSprite = AssetDatabase.LoadAssetAtPath<Sprite>(row.ItemBackgroundSpritePath);
+            if (itemBackgroundSprite == null)
+            {
+                report.Warnings.Add($"Row {row.RowNumber}: ItemBackgroundSpritePath could not be loaded: {row.ItemBackgroundSpritePath}");
+            }
+        }
 
         itemData.ItemID = row.ItemId;
         itemData.ItemName = row.ItemName;
+        itemData.ItemBackgroundSprite = itemBackgroundSprite;
+        itemData.IncludeInRuntimeDatabase = row.IncludeInRuntimeDatabase;
+        itemData.IncludeInTotemShop = row.IncludeInTotemShop;
         itemData.Type = row.Type;
         itemData.EquipmentKind = row.EquipmentKind;
         itemData.Rarity = row.Rarity;
@@ -504,6 +542,8 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         itemData.RunePatternPoints = row.RunePatternPoints;
         itemData.CarryWeight = row.CarryWeight;
         itemData.SellPrice = row.SellPrice;
+        itemData.TotemQuality = row.TotemQuality;
+        itemData.TotemModifiers = CloneTotemModifiers(row.TotemModifiers);
 
         if (!hadNonDefaultIcon && defaultIcon != null)
         {
@@ -799,6 +839,78 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out result);
     }
 
+    private static bool TryParseTotemModifiers(
+        string value,
+        out List<TotemStatModifier> modifiers,
+        out string error)
+    {
+        modifiers = new List<TotemStatModifier>();
+        error = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        string[] entries = value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < entries.Length; i++)
+        {
+            string entry = entries[i].Trim();
+            string[] parts = entry.Split('=');
+            if (parts.Length != 2)
+            {
+                error = "TotemModifiers must use Type=0.1;Other=-0.05 format.";
+                return false;
+            }
+
+            if (!Enum.TryParse(parts[0].Trim(), ignoreCase: true, out TotemModifierType type))
+            {
+                error = $"Invalid TotemModifierType '{parts[0].Trim()}'.";
+                return false;
+            }
+
+            if (!float.TryParse(parts[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float percent))
+            {
+                error = $"Invalid TotemModifier percent '{parts[1].Trim()}'.";
+                return false;
+            }
+
+            modifiers.Add(new TotemStatModifier
+            {
+                Type = type,
+                Percent = percent
+            });
+        }
+
+        return true;
+    }
+
+    private static List<TotemStatModifier> CloneTotemModifiers(List<TotemStatModifier> source)
+    {
+        List<TotemStatModifier> clone = new List<TotemStatModifier>();
+        if (source == null)
+        {
+            return clone;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            TotemStatModifier modifier = source[i];
+            if (modifier == null)
+            {
+                continue;
+            }
+
+            clone.Add(new TotemStatModifier
+            {
+                Type = modifier.Type,
+                Percent = modifier.Percent
+            });
+        }
+
+        return clone;
+    }
+
     private static bool TryParseBlockedCells(
         string value,
         int columns,
@@ -1057,6 +1169,11 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public string RunePatternPointsText;
         public string CarryWeightText;
         public string SellPriceText;
+        public string ItemBackgroundSpritePath;
+        public string IncludeInRuntimeDatabaseText;
+        public string IncludeInTotemShopText;
+        public string TotemQualityText;
+        public string TotemModifiersText;
         public string Notes;
         public ItemType Type;
         public EquipmentSlotKind EquipmentKind;
@@ -1074,6 +1191,10 @@ public sealed class LootItemTsvImporterWindow : EditorWindow
         public int RunePatternPoints;
         public float CarryWeight = 1f;
         public int SellPrice;
+        public bool IncludeInRuntimeDatabase = true;
+        public bool IncludeInTotemShop = true;
+        public TotemQuality TotemQuality = TotemQuality.None;
+        public List<TotemStatModifier> TotemModifiers = new List<TotemStatModifier>();
     }
 
     private sealed class LootImportReport

@@ -23,6 +23,7 @@ public partial class DraggableItemUI
             _isRevealAnimating = true;
             _revealAnimationTimer = 0f;
             UpdateAmountText();
+            UpdateItemNameText();
         }
 
         UpdateSearchVisualState();
@@ -41,6 +42,8 @@ public partial class DraggableItemUI
         {
             _isRevealAnimating = false;
             _revealAnimationTimer = 0f;
+            UpdateAmountText();
+            UpdateItemNameText();
         }
 
         UpdateSearchVisualState();
@@ -67,6 +70,8 @@ public partial class DraggableItemUI
         overlayRootObject.transform.SetParent(transform, false);
         _searchOverlayRoot = overlayRootObject.GetComponent<RectTransform>();
         _searchOverlayCanvasGroup = overlayRootObject.AddComponent<CanvasGroup>();
+        _searchOverlayCanvasGroup.interactable = false;
+        _searchOverlayCanvasGroup.blocksRaycasts = false;
         _searchOverlayRoot.anchorMin = Vector2.zero;
         _searchOverlayRoot.anchorMax = Vector2.one;
         _searchOverlayRoot.offsetMin = Vector2.zero;
@@ -84,6 +89,7 @@ public partial class DraggableItemUI
         _searchBackdropImage.sprite = _defaultSearchSprite;
         _searchBackdropImage.type = Image.Type.Simple;
         _searchBackdropImage.color = new Color(0.02f, 0.03f, 0.04f, 0.78f);
+        _searchBackdropImage.raycastTarget = false;
 
         GameObject outerTrackObject = new GameObject("OuterTrack", typeof(Image));
         outerTrackObject.transform.SetParent(_searchOverlayRoot, false);
@@ -96,6 +102,7 @@ public partial class DraggableItemUI
         _searchOuterTrackImage.sprite = _defaultSearchSprite;
         _searchOuterTrackImage.type = Image.Type.Simple;
         _searchOuterTrackImage.color = new Color(0.15f, 0.18f, 0.22f, 0.9f);
+        _searchOuterTrackImage.raycastTarget = false;
 
         GameObject progressObject = new GameObject("Progress", typeof(Image));
         progressObject.transform.SetParent(_searchOverlayRoot, false);
@@ -111,6 +118,7 @@ public partial class DraggableItemUI
         _searchProgressImage.fillOrigin = 2;
         _searchProgressImage.fillClockwise = false;
         _searchProgressImage.color = new Color(0.98f, 0.92f, 0.52f, 0.95f);
+        _searchProgressImage.raycastTarget = false;
 
         GameObject pulseRingObject = new GameObject("PulseRing", typeof(Image));
         pulseRingObject.transform.SetParent(_searchOverlayRoot, false);
@@ -123,6 +131,7 @@ public partial class DraggableItemUI
         _searchPulseRingImage.sprite = _defaultSearchSprite;
         _searchPulseRingImage.type = Image.Type.Simple;
         _searchPulseRingImage.color = new Color(1f, 1f, 1f, 0.15f);
+        _searchPulseRingImage.raycastTarget = false;
 
         GameObject sweepObject = new GameObject("Sweep", typeof(Image));
         sweepObject.transform.SetParent(_searchOverlayRoot, false);
@@ -135,6 +144,7 @@ public partial class DraggableItemUI
         _searchSweepImage.sprite = _defaultSearchSprite;
         _searchSweepImage.type = Image.Type.Simple;
         _searchSweepImage.color = new Color(0.96f, 0.99f, 1f, 0.18f);
+        _searchSweepImage.raycastTarget = false;
 
         GameObject centerGlowObject = new GameObject("CenterGlow", typeof(Image));
         centerGlowObject.transform.SetParent(_searchOverlayRoot, false);
@@ -147,6 +157,7 @@ public partial class DraggableItemUI
         _searchCenterGlowImage.sprite = _defaultSearchSprite;
         _searchCenterGlowImage.type = Image.Type.Simple;
         _searchCenterGlowImage.color = new Color(1f, 1f, 1f, 0.08f);
+        _searchCenterGlowImage.raycastTarget = false;
 
         GameObject revealFlashObject = new GameObject("RevealFlash", typeof(Image));
         revealFlashObject.transform.SetParent(_searchOverlayRoot, false);
@@ -159,6 +170,7 @@ public partial class DraggableItemUI
         _searchRevealFlashImage.sprite = _defaultSearchSprite;
         _searchRevealFlashImage.type = Image.Type.Simple;
         _searchRevealFlashImage.color = new Color(1f, 1f, 1f, 0f);
+        _searchRevealFlashImage.raycastTarget = false;
 
         _searchOverlayRoot.gameObject.SetActive(false);
     }

@@ -6,8 +6,23 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Scene_MainMenu.unity
+    guid: e15b75e1f9e442809a6fddbf3c2ea822
+  - enabled: 1
+    path: Assets/Scenes/Scene_PreparationInterface.unity
+    guid: 6fe418dd9b7a4d4c8b76dfc6fdd7bfaa
+  - enabled: 1
     path: Assets/Scenes/Scene_StartMenu.unity
     guid: c197fbb47f8365241b1dd5a2aa26ee25
+  - enabled: 1
+    path: Assets/Scenes/Scene_ElementSelectionMenu.unity
+    guid: b44da168d1e74c3c999ad9aec199252d
+  - enabled: 1
+    path: Assets/Scenes/ShopCanvasTest.unity
+    guid: 0b084e11859d2274b8d62836b56c1f32
+  - enabled: 1
+    path: Assets/Scenes/Scene_lyl_test2 1.unity
+    guid: 7a2ad697f2df7df47bd8e8c243878216
   - enabled: 1
     path: Assets/Scenes/Scene_sdw_test2.unity
     guid: 703c2055ded731249b1901d97a1f680e

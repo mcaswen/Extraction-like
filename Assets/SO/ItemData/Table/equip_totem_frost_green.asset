@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7c8e8af64c58443a9af35d041f773d, type: 3}
+  m_Name: equip_totem_frost_green
+  m_EditorClassIdentifier: 
+  ContainerColumns: 0
+  ContainerRows: 0
+  BlockedCells: []
+  ItemID: equip_totem_frost_green
+  ItemName: "冰霜图腾"
+  ItemIcon: {fileID: 21300000, guid: 3e9f13d7437614afeb375fd6cca060ae, type: 3}
+  ItemBackgroundSprite: {fileID: 21300000, guid: a4f2db1f9f5f47dca96be7d8af6f0c11, type: 3}
+  IncludeInRuntimeDatabase: 1
+  IncludeInTotemShop: 1
+  Type: 6
+  Rarity: 1
+  EquipmentKind: 5
+  Width: 1
+  Height: 2
+  IsStackable: 0
+  MaxStack: 1
+  WorldPrefab: {fileID: 6518552856748930934, guid: e39a1b4e69fbf0dd9691cf76124778ec, type: 3}
+  SellPrice: 100
+  CarryWeight: 1
+  RequiresSearchInLootContainer: 1
+  SearchDurationOverride: -1
+  MagicUnlock: 0
+  RunePatternPoints: 1
+  TotemQuality: 1
+  TotemModifiers:
+  - Type: 5
+    Percent: 0.1

@@ -18,6 +18,9 @@ MonoBehaviour:
   ItemID: equip_totem_green
   ItemName: "\u7EFF\u8272\u56FE\u817E"
   ItemIcon: {fileID: 21300000, guid: c48a245dd5c94721b8a25cc0f6c2ed31, type: 3}
+  ItemBackgroundSprite: {fileID: 0}
+  IncludeInRuntimeDatabase: 0
+  IncludeInTotemShop: 0
   Type: 6
   Rarity: 1
   EquipmentKind: 5
@@ -33,3 +36,5 @@ MonoBehaviour:
   SearchDurationOverride: -1
   MagicUnlock: 0
   RunePatternPoints: 1
+  TotemQuality: 0
+  TotemModifiers: []

@@ -71,6 +71,18 @@ Out of scope:
 | 44. Anchor Sentinel health and damage fix | Done | Make Anchor Sentinel health tuning affect runtime survivability and make its beam reliably damage the current Player/Agent target | Rune hits now damage the sentinel body, rune completion no longer bypasses HP while alive, range detection activates the beam, and runtime dotnet build passes with 0 warnings/errors |
 | 45. Anchor Sentinel standard enemy conversion | Done | Remove rune puzzle logic and prefab rune cubes so Anchor Sentinel is damaged directly and attacks from player detection | Rune scripts/config/prefab data removed; direct body damage and detection-driven beam attack validated by runtime/editor builds |
 | 46. Player defense damage mitigation fix | Done | Make player defense from Agent pawn settings reduce incoming enemy damage | Agent defense now feeds player damage mitigation; runtime/editor builds pass with 0 warnings/errors |
+| 47. Enemy VFX integration audit | Done | Identify artist-provided enemy VFX assets/scripts that still need enemy-system hookup | Compared VFX assets, formal enemy prefabs, controller call sites, and GUID references; integration list prepared |
+| 48. Enemy VFX integration | Done | Hook Modern Strander, Tidal Aberration, Ancient Strander, and Anchor Sentinel to artist VFX without duplicating gameplay damage | Added visual-only VFX trigger APIs, called them from enemy controllers, and verified Unity script compilation |
+| 49. Modern Strander VFX correction | Done | Fix Modern Strander tentacle VFX visibility/regression after initial enemy VFX integration | `dotnet build`, `git diff --check`, and Unity batchmode compile passed |
+| 50. Modern Strander attack loop fix | Done | Stop repeated raise/lower attack animation loops while Modern Strander is in melee range | `dotnet build`, `git diff --check`, and Unity batchmode compile passed |
+| 51. Modern Strander combat-distance correction | Done | Stop Chase/Attack state flapping caused by root-position distance mismatch and restore tentacle VFX/damage trigger | `dotnet build`, `git diff --check`, and Unity batchmode compile passed |
+| 52. Enemy scale normalization and Ancient Strander alignment | Done | Normalize formal enemy model scale against the current Agent player size and realign Ancient Strander animation/VFX | Unity prefab YAML check, scale report, and `dotnet build` pass |
+| 53. Storage warehouse UI | Done | Independent `StorageCanvas.prefab`, storage test scene, paged 6x10 warehouse UI, current-page storage sort, and persistent player storage data flow | Runtime/editor `dotnet build` pass; prefab has unique GUID, no nested prefab instances, no missing scripts, refreshed backpack grid, in-bounds single-column page selector, and test scene references only `StorageCanvas.prefab` |
+| 54. Totem shop UI | Done | Independent `ShopCanvas.prefab`, `ShopCanvasTest.unity`, persistent per-agent gold, 30-minute real-time totem stock refresh, warehouse sell flow, and totem purchase flow | Runtime/editor `dotnet build` pass; prefab has independent GUID, left storage grid, right 4x4 totem shop grid, gold display, refresh countdown, no missing-script entries, and test scene references only `ShopCanvas.prefab` |
+| 55. Extraction storage settlement | Done | Successful extracted agents append backpack loot and equipped gear to the shared warehouse; failed agents discard extractable inventory | Runtime/editor `dotnet build` pass; static scans confirm settlement, discard, and storage append call sites |
+| 56. Out-of-raid totem expansion | Done | Six named totems x three qualities as active equipment totems, old generic totems retired from active lists, TSV/XLSX/importer/shop/database/runtime modifier support updated | Workbook inspection, TSV/database/shop/prefab static checks, `git diff --check`, and runtime/editor `dotnet build` pass; Unity batchmode unavailable on this machine |
+| 57. Element selection menu art hookup | Done | Rebuilt `Scene_ElementSelectionMenu` Canvas with separated background, panel, repeated button layers, element icons, Title font labels, and IMG_0826/Text start button | Static scene GUID checks pass, editor `dotnet build` passes, and a local preview image was generated; Unity batchmode scene rebuild was blocked by an already-open project instance |
+| 58. Shop scene spacing, back button, and storage-test background | Done | Moved shop/storage panels toward center, added IMG_0494 return button to `Scene_PreparationInterface`, and synced `StorageCanvasTest` background with preparation interface | Runtime/editor `dotnet build` pass; targeted `git diff --check` pass; YAML duplicate fileID scan pass |
 
 ## TSV Columns
 
@@ -93,6 +105,12 @@ Out of scope:
 | `RunePatternPoints` | Yes | At least 1. |
 | `Enabled` | Yes | Disabled rows are skipped. |
 | `SellPrice` | Yes | Non-negative integer sale value for future sell-item systems. |
+| `CarryWeight` | No | Optional non-negative carry weight. Defaults to `1` when absent. |
+| `ItemBackgroundSpritePath` | No | Optional Sprite path used as the item UI background. |
+| `IncludeInRuntimeDatabase` | No | `Yes`/`No`; `No` keeps an asset on disk but removes it from runtime lookup output. |
+| `IncludeInTotemShop` | No | `Yes`/`No`; `No` prevents a totem from being generated into the shop pool. |
+| `TotemQuality` | No | `None`, `Green`, `Blue`, or `Gold`. |
+| `TotemModifiers` | No | Semicolon-separated percent modifiers, for example `MaxHealth=0.1;MoveSpeed=-0.05`. |
 | `Notes` | No | Designer-only notes, not imported. |
 
 ## Import Rules
@@ -128,4 +146,10 @@ Out of scope for this phase:
 - Production animation blending for head/torso bones.
 - Designer-authored audio propagation through portals or rooms.
 - Large prefab reauthoring beyond script-side runtime component setup.
+
+## Phase 6 - Backpack system DOCX deliverable
+- [x] Draft the detailed Chinese Word document covering the backpack system.
+- [x] Export the document to `backpack_system_detailed_zh.docx`.
+- [ ] Render and visually inspect the DOCX.
+- [ ] Deliver the final document path to the user.
 

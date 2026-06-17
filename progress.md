@@ -762,3 +762,185 @@ Implementation steps for this restart:
 - Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
 - Ran `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
 - Ran formula spot-check: raw 20 damage at defense 0/50/100/300/400 resolves to 20/13.33/10/5/4 with the current 0.2 minimum multiplier.
+
+## 2026-06-14 Enemy VFX Integration Audit
+
+- User asked which artist-provided VFX assets still need to be connected to the enemy system.
+- Inspected `Assets/Art/VFX`, `Assets/Prefabs/Character`, formal enemy pawn prefabs, current scene/final scene references, enemy controllers, and VFX script GUID usage.
+- Found four unintegrated enemy VFX candidates: `ZombieTentacleCorrosionVfx` for Modern Strander, `MudTidalAberrationVfx` for Tidal Aberration, `SkeFishboneAttackVfx` for Ancient Strander, and `RobotAnchorBeamVfx` for Anchor Sentinel.
+- Confirmed `TracerAnchorVortexVfx` is already integrated into `Pfb_Enemy_HunterBoss.prefab` and called by `HunterBossBehaviorController`.
+- Confirmed `PlayerElementalSkillVfx` and `SimpleMagicRangedAttack` are not current enemy-system integration targets.
+
+## 2026-06-14 Enemy VFX Integration
+
+- Added enemy-driven visual-only APIs to `ZombieTentacleCorrosionVfx`, `MudTidalAberrationVfx`, `SkeFishboneAttackVfx`, and `RobotAnchorBeamVfx`.
+- Routed Modern Strander tentacle strike and slime pool visuals through `ZombieTentacleCorrosionVfx`, while preserving existing latch, pull, initial damage, corrosion, and puddle trigger behavior.
+- Routed Tidal Aberration electric tentacle and Water Jet visuals through `MudTidalAberrationVfx`, while preserving existing damage, silence, knockback, and slow behavior.
+- Routed Ancient Strander melee fishbone sweep and ranged fishbone bite visuals through `SkeFishboneAttackVfx`, while preserving existing melee overlap and bite hitbox damage behavior.
+- Routed Anchor Sentinel beam-cycle visuals through `RobotAnchorBeamVfx`, while preserving existing beam tick damage behavior.
+- Updated `CorrosiveSlimePuddle.Configure(...)` with an optional `createVisual` flag so the old simple cylinder visual is hidden when the new Modern Strander VFX is driving the visuals.
+- `dotnet build Assembly-CSharp.csproj --no-restore` could not run because the generated `.csproj` still references removed/moved files `Assets/Scripts/UI/StartMenuController.cs` and `Assets/Scripts/Gameplay/Enemy/Player/PlayerHealthController.cs`; this predates the VFX integration.
+- Ran Unity 2022.3.62f2c1 batchmode compile to `Logs/EnemyVfxIntegrationCompile.log`. The log reports `Tundra build success`, `LogAssemblyErrors (0ms)`, and batchmode exit 0. Unity also logged unrelated TextMesh Pro `Bangers SDF.asset` `KeyNotFoundException` messages during asset import/pre-render.
+- Unity generated 101 untracked third-party `.meta` files during refresh; removed those generated files and left the pre-existing `.codex-backups/` directory untouched.
+
+## 2026-06-14 Modern Strander VFX Correction
+
+- Investigated the user-reported Modern Strander regression after VFX integration.
+- Confirmed the first integration disabled the old Modern Strander line visual as soon as a `ZombieTentacleCorrosionVfx` existed, which could leave no visible attack effect if the runtime-generated VFX failed to render clearly.
+- Updated `ZombieTentacleCorrosionVfx` so enemy-driven playback can use the formal enemy's `TentacleOrigin`, align visual duration with the controller latch duration, and clean up/restart an active runtime tentacle visual instead of silently skipping a new trigger.
+- Updated `ModernStranderBehaviorController` so the original `LineRenderer` and simple puddle visual remain as a fallback while the artist VFX plays on top.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `git diff --check` on the changed Modern Strander/VFX/planning files: no whitespace errors, only existing line-ending warnings.
+- Ran Unity 2022.3.62f2c1 batchmode compile to `Logs/ModernStranderVfxCorrectionCompile.log`: process exited 0, `LogAssemblyErrors (0ms)`, and the final Tundra pass reports build success. The intermediate `ExitCode: 4` was followed by `Tundra requires additional run`, then a successful second run.
+- Unity generated 101 untracked third-party `.meta` files during refresh; removed only those untracked `Assets/ThirdParty/**/*.meta` files.
+
+## 2026-06-14 Modern Strander Attack Loop Fix
+
+- Investigated the user screenshot/report that Modern Strander continuously played the raise/lower attack animation while trying to attack.
+- Found the likely loop: frequent direct player damage could push the enemy back to `Chase`; on the next frame, close-range `ChaseBehavior` re-entered `Attack` and reset the old timer to immediate, repeatedly firing `BeginTentacleStrike()` and the Animator `Attack` trigger.
+- Replaced the local incrementing `_attackTimer` with an absolute `_nextTentacleAttackTime`, set only after an active tentacle strike finishes.
+- Prevented direct-damage reactions from bouncing a close Modern Strander out of `Attack` while the tentacle is cooling down.
+- Added a small attack hold-range buffer so minor root-distance oscillation near melee range does not flip the state machine between `Chase` and `Attack`.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran targeted `git diff --check`: no whitespace errors, only existing line-ending warnings.
+- Ran Unity 2022.3.62f2c1 batchmode compile to `Logs/ModernStranderAttackLoopFixCompile.log`: process exited 0, `LogAssemblyErrors (0ms)`, and the final Tundra pass reports build success. Unity again generated 101 untracked third-party `.meta` files during refresh; removed only those untracked `Assets/ThirdParty/**/*.meta` files.
+
+## 2026-06-14 Modern Strander Combat Distance Correction
+
+- Re-investigated the follow-up report that the enemy still alternates between raised-hand walk and lowered attack/idle states while no VFX or damage appears.
+- Found remaining root-position distance checks in ModernStrander's main update, close-range direct-damage reaction, direct counterattack gating, and immediate latch check.
+- Added cached player body-collider resolution and a shared planar closest-point combat distance helper.
+- Routed Chase/Attack switching, attack hold checks, direct counterattack range checks, and latch checks through that physical combat distance instead of root-to-root distance.
+- Increased the attack hold buffer from `0.35m` to `0.8m` to absorb small boundary oscillations after entering attack state.
+- Ran `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`: success, 0 warnings, 0 errors.
+- Ran `git diff --check`: no whitespace errors, only existing line-ending warnings.
+- Ran Unity 2022.3.62f2c1 batchmode compile to `Logs/ModernStranderCombatDistanceFixCompile.log`: process exited 0, `LogAssemblyErrors (0ms)`, and the final Tundra pass reports build success. Unity generated 101 untracked third-party `.meta` files during refresh; removed only those untracked `Assets/ThirdParty/**/*.meta` files.
+
+## 2026-06-14 Enemy Scale Normalization and Ancient Strander Alignment
+
+- Measured the current Agent player and formal enemy prefabs with a temporary editor report to compare root scale and effective renderer size.
+- Normalized `Pfb_Enemy_Common_AncientStrander.prefab` root scale from `3` to `1.5`, which brings Ancient Strander back to the player-sized baseline and keeps its `MeleeOrigin`/`BiteOrigin` hierarchy aligned with the attack animation and fishbone VFX.
+- Normalized `Pfb_Enemy_Common_ModernStrander.prefab` root scale from `6` to `3` so it matches the same player-scale baseline.
+- Left Tidal Aberration, Anchor Sentinel, and Hunter Boss unchanged because their current sizes are already intentional or close to the player baseline.
+- Verified the prefab edits with YAML inspection and `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`, which completed with 0 warnings and 0 errors.
+
+## 2026-06-15 Code Ownership Summary
+
+- Inspected the repository structure and filtered the code down to the user-owned scopes: enemy, backpack/loot, HUD, VFX/effects, animation/state machine, and supporting editor/tool scripts.
+- Counted the current author history on `origin/dev` and across all refs.
+- Summarized the directly related code surface as `145` files and `41,645` lines.
+- Noted that animation/state-machine generation is represented by runtime bridge code and shared state-machine/behavior-tree infrastructure rather than a dedicated AnimatorController builder.
+
+## 2026-06-15 Backpack DOCX Draft
+
+- Started a dedicated Word document for the backpack system highlight.
+- Re-read the core backpack runtime, UI, loot, interaction, and persistence classes to support a detailed system-level explanation.
+- Selected a compact reference style for the document so the final Word file can hold dense technical content without becoming hard to scan.
+- Exported the first draft to `backpack_system_detailed_zh.docx`.
+- Render/visual QA could not be completed because `soffice` is not available in the current Windows environment PATH or common install locations.
+
+## 2026-06-17 Storage Warehouse UI
+
+- Started Phase 53 for the independent warehouse interface.
+- User approved the implementation plan: copy `Assets/Prefabs/Canvas.prefab` into an independent `StorageCanvas.prefab`, keep the left backpack unchanged, convert the right loot panel into a paged warehouse, use 10x6 cells per page initially, default to 10 pages, dynamically add pages as data grows, persist per-character storage, and create a standalone test scene.
+- Confirmed the current working tree already contains unrelated unstaged changes, including `Assets/Prefabs/Canvas.prefab` and several backpack scripts. This task will treat the current files as the baseline and will not revert existing work.
+- Added `InventoryItemDatabase`, `PlayerStorageService`, and `StorageScreenController` for item-id lookup, persistent per-agent warehouse JSON, paged storage loading, and current-page saving/sorting.
+- Added `InventoryExternalContainerKind.Storage` to distinguish the storage session from normal loot sessions while still reusing the existing `LootChestGrid` drag/drop/stack/swap/quick-transfer path.
+- Added `StorageCanvasPrefabBuilder` with `Tools/Backpack/Rebuild Storage Canvas`, which copies `Canvas.prefab` to `StorageCanvas.prefab`, unpacks nested prefab instances, configures the right panel as a paged warehouse, builds page buttons on the right side, creates a warehouse sort button, generates the item database asset, and writes `StorageCanvasTest.unity`.
+- Generated `Assets/Prefabs/StorageCanvas.prefab`, `Assets/Scenes/StorageCanvasTest.unity`, and `Assets/Resources/Inventory/InventoryItemDatabase.asset` with 34 `InventoryItemData` references.
+- Added `StorageSortButton` on the storage header. It is bound at runtime through `StorageScreenController.SortCurrentPage()`, so it sorts only the currently loaded storage page and immediately saves the current page state.
+- Fixed `InventoryUIController.RebuildBackgroundCells()` to use `DestroyImmediate` outside play mode, avoiding edit-mode warnings when the storage prefab builder rebuilds grid cells.
+- Marked `PlayerStorageService` runtime cache fields as `[NonSerialized]` so Unity domain reload does not try to serialize the recursive JSON cache shape.
+- First parallel `dotnet build Assembly-CSharp.csproj` attempt hit `CS2012` because the runtime output DLL was locked by another build process. Reran serial/cleanly and both runtime/editor builds passed with 0 warnings and 0 errors.
+- Verification passed: `StorageCanvas.prefab` has a unique prefab GUID distinct from `Canvas.prefab`, no `!u!1001` nested prefab instances, no nonzero `m_PrefabInstance` references, no missing-script entries, 10 columns, 6 rows, minimum 10 pages, 42px storage cells, `StorageSortButton`, `StoragePageScrollView`, and `OpenOnStart` for standalone testing.
+- Verification passed: `StorageCanvasTest.unity` references the new `StorageCanvas.prefab` GUID, not the original `Canvas.prefab` GUID.
+- `git diff --check` on the storage-related files passed with only existing line-ending warnings.
+
+## 2026-06-17 Storage Warehouse UI Bugfix
+
+- Responded to the play-mode report that the left backpack grid disappeared, the storage grid needed row/column dimensions swapped, and the right-side page selector was clickable but invisible.
+- Changed the warehouse page shape to 6 columns by 10 rows in `PlayerStorageService`, `StorageScreenController`, and `StorageCanvasPrefabBuilder`, preserving 60 cells per page.
+- Added an explicit external-session backpack refresh path so opening the warehouse forces the left backpack grid active, rebuilds/refills missing background cells, and refreshes its header.
+- Repaired the storage page selector viewport by replacing the old mask behavior with `RectMask2D`, restoring a visible scroll background, and forcing generated page button images/text colors to visible values.
+- Removed nested item serialization from warehouse item records so storage save JSON stores only the item id, stack, position, and rotation expected for warehouse contents.
+- Rebuilt `Assets/Prefabs/StorageCanvas.prefab` and `Assets/Scenes/StorageCanvasTest.unity` after the bugfix; prefab inspection now shows 6 columns, 10 rows, visible `StoragePageScrollView`, and a `RectMask2D` viewport.
+- Ran runtime/editor `dotnet build` after the bugfix; both completed with 0 warnings and 0 errors.
+- Ran targeted `git diff --check`; no whitespace errors were reported, only the existing `InventoryScreenController.cs` line-ending warning.
+
+## 2026-06-17 Storage Warehouse UI Layout Follow-up
+
+- Responded to the follow-up screenshot showing the left backpack grid background still blank and the page selector extending beyond the Game view.
+- Changed `InventoryScreenController.EnsureBackpackGridVisible()` so external sessions explicitly activate the backpack grid parent chain, the grid background layer, and the item container, then refresh the 5x6 background cells every time the storage screen opens.
+- Preserved backpack items when the backpack grid shape ever needs rebuilding, avoiding a blank-grid fix that would silently drop current item views.
+- Changed the storage page selector to a single-column 42px-wide strip with 34x28 page buttons, and moved the storage panel farther from the right edge so the selector stays inside a 16:9 Game view.
+- Mirrored the page-selector sizing and storage-panel inset in `StorageCanvasPrefabBuilder`, and patched the existing `StorageCanvas.prefab` layout values directly because Unity batchmode was blocked by an already-open editor instance for this project.
+- Re-ran runtime/editor `dotnet build`; both completed with 0 warnings and 0 errors.
+- Verified `StorageCanvas.prefab` has the updated right inset, 42x420 selector size, single-column page grid, 6 columns, 10 rows, and no missing-script entries.
+
+## 2026-06-17 Totem Shop UI
+
+- Started Phase 54 for an independent shop scene/page.
+- User confirmed the implementation boundaries: create a new scene containing a new independent prefab, copy the warehouse panel from `StorageCanvas` for the left side, copy the loot panel style from `Canvas` for the right side, sell all warehouse items, show persistent per-agent gold above the warehouse, generate a 4x4 real-grid totem shop stock, refresh stock every 30 real-time minutes, keep sold slots empty until refresh, and use `SellPrice`/temporary fallback values for economy tests.
+- Confirmed the right shop grid uses real inventory occupancy rules. Current totems are `1x2`, so a 4x4 shop grid can display up to 8 totem items.
+- Added persistent per-agent economy, configurable totem shop pool, real-time 30-minute stock persistence, shop price fallback utility, shop item click targets, and an independent shop screen controller.
+- Added `ShopCanvasPrefabBuilder` and generated `Assets/Prefabs/ShopCanvas.prefab`, `Assets/Scenes/ShopCanvasTest.unity`, and `Assets/Resources/Shop/TotemShopPool.asset`.
+- The generated shop prefab keeps the left warehouse as a 6x10 paged storage grid, places `金币：1,000` above it, places a right-side 4x4 `售卖处` grid with a refresh countdown, and uses shop-only click overlays/placement policies to prevent dragging shop stock directly.
+- Runtime/editor `dotnet build` passed with 0 warnings and 0 errors after adding the new files to the generated C# project lists.
+- Unity batchmode first pass refreshed scripts and later reported another Unity instance was already open for this project, but the shop prefab, shop test scene, and shop pool assets were generated. Static YAML checks found the expected script GUIDs, independent shop prefab GUID, no missing-script records, no nested prefab records in `ShopCanvas.prefab`, and no references from `ShopCanvasTest.unity` to the original `Canvas.prefab` or `StorageCanvas.prefab` GUIDs.
+
+## 2026-06-17 Extraction Storage Settlement
+
+- Implemented `InventoryScreenController.TryCollectExtractableItemsForAgent(...)` and `DiscardExtractableItemsForAgent(...)` so settlement can collect backpack contents plus equipped gear while preserving the default backpack and ignoring rigs.
+- Added `PlayerStorageService.TryAppendItemsToAgentStorage(...)`, which places items from page 1 onward using the storage grid model, appends pages as needed, and saves the shared warehouse file.
+- Routed `RaidFlowController` extraction completion through immediate per-agent settlement before destroying the extracted pawn, with duplicate-settlement protection and settled summary totals for the success screen.
+- Routed player/agent death through discard-only cleanup for extractable inventory.
+- Validation passed: runtime and editor `dotnet build` completed with 0 warnings and 0 errors; targeted static scans found the new collection, discard, storage append, and raid settlement call sites.
+
+## 2026-06-17 Out-of-Raid Totem Expansion Planning
+
+- Read the user-provided designer workbook and confirmed it defines six base totems with three level/quality values each.
+- Inspected current totem TSV rows, the three existing totem `InventoryItemData` assets, existing world pickup prefabs, the item database, the totem shop pool, and the loot TSV importer.
+- Confirmed current data supports generic equipment totems but has no structured effect model for the six designer effects.
+- Identified implementation risks to include in the user-facing plan: old generic totem retirement, naming/ID policy, composite level-3 effects, world prefab references, item info display, shop pool/database refresh, and optional runtime stat application.
+
+## 2026-06-17 Out-of-Raid Totem Expansion Implementation
+
+- Added structured totem configuration to `InventoryItemData`: quality, effect modifiers, active database/shop flags, and optional item background sprite.
+- Extended the TSV importer, workbook builder, and workbook exporter to support `CarryWeight`, `ItemBackgroundSpritePath`, `IncludeInRuntimeDatabase`, `IncludeInTotemShop`, `TotemQuality`, and `TotemModifiers`.
+- Generated 18 active equipment totems from the approved six base names and three qualities: `life`, `sniper`, `frost`, `earth`, `assault`, and `lightness`, each with green/blue/gold variants sharing the same display name per base totem.
+- Kept `equip_totem_green`, `equip_totem_blue`, and `equip_totem_gold` on disk but marked them inactive for runtime database and shop generation.
+- Refreshed `Assets/Config/Loot/LootItems.tsv`, `Assets/Config/Loot/LootItems_Template.xlsx`, `Assets/Resources/Inventory/InventoryItemDatabase.asset`, and `Assets/Resources/Shop/TotemShopPool.asset`.
+- Added runtime additive totem modifier application for max health, move speed, attack range, target discovery range, normal/staff attack damage, ice skill damage, and earth skill damage.
+- Updated item UI so totems can use the Bag rarity background sprites and display totem quality/effect summaries.
+- Verification passed: workbook inspection and formula-error scan, `git diff --check`, `dotnet build Assembly-CSharp.csproj --no-restore /nologo /verbosity:minimal`, and `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal`.
+- Static resource validation passed: TSV has 18 active totem rows and 0 old generic totem rows; item database and shop pool each reference all 18 new totems and none of the old three; all 18 world prefabs reference their matching item assets.
+- Unity batchmode was not run because no `Unity.exe` installation was discoverable from PATH or common `C:\Program Files\Unity` locations in this environment.
+
+## 2026-06-17 Element Selection Menu Art Hookup
+
+- Started Phase 57 for the user's requested `Scene_ElementSelectionMenu` visual asset update.
+- Restored planning context before touching Unity assets.
+- Updated `Assets/Scripts/Editor/ElementSelectionMenuSceneBuilder.cs` so future rebuilds create the separated-asset scene: full-screen background/panel, five offset button layers, element icon Images, Title-font labels, and an IMG_0826/Text-font Start button.
+- Unity batchmode scene rebuild could not run because the project was already open in another Unity instance; instead, `Assets/Scenes/Scene_ElementSelectionMenu.unity` was generated directly from the same object structure and verified by GUID scans.
+- Generated `outputs/element_selection_menu_preview.png` as a quick local composition preview of the separated art layout.
+- Verification passed: `dotnet build Assembly-CSharp-Editor.csproj --no-restore /nologo /verbosity:minimal` completed with 0 warnings and 0 errors; scene scan confirms old `IMG_0828` GUID is absent and the new background/button/panel/icons/fonts are referenced at the expected counts.
+- Follow-up selection polish: replaced the flat rectangular selection overlay with sprite-shaped cyan glow layers using the attribute button art, added a subtle unscaled-time pulse animation, and changed the Start-ready state to glow with `IMG_0826`.
+- Validation passed after the selection polish: runtime and editor `dotnet build` both completed with 0 warnings and 0 errors after rerunning the editor build serially; scene scan found no missing script/sprite/font references.
+- Follow-up exaggeration pass: increased selected/start glow opacity and pulse scale, added wider glow rings, and added a bright cyan rail plus double-diamond selection marker on each selected element button so the selected state reads clearly even without watching the animation closely.
+- Validation passed after the exaggeration pass: editor and runtime `dotnet build` both completed with 0 warnings and 0 errors after rerunning the runtime build serially; scene scan found no missing script/sprite/font references.
+- Follow-up restraint pass: removed the rail and double-diamond marker because the selected state was too strong, narrowed the wide glow, and reduced selected/start alpha plus pulse scale to a middle-ground readable but less theatrical effect.
+- Validation passed after the restraint pass: runtime/editor `dotnet build` completed with 0 warnings and 0 errors; scene scan found no missing script/sprite/font references.
+- Follow-up hover pass: added a separate unselected-hover tint effect for element buttons. Hovering an unselected option now shows the button-shaped layer shifting between pale blue-white and cyan; selected options keep only the selected glow so the states do not stack visually.
+- Validation passed after the hover pass: runtime/editor `dotnet build` completed with 0 warnings and 0 errors; scene scan found no missing script/sprite/font references.
+- Follow-up hover strength pass: raised hover tint/glow opacity, increased the color-shift amount and pulse scale slightly, and added four directional edge-glow copies so hovering an unselected option reads more clearly without reintroducing strong selection markers.
+- Validation passed after the hover strength pass: runtime/editor `dotnet build` completed with 0 warnings and 0 errors; scene scan found no missing script/sprite/font references.
+
+## 2026-06-17 Shop Scene Layout / Return Button
+
+- Started Phase 58 for the user's request to move the shop scene's left and right panels closer together, add an IMG_0494 return button to `Scene_PreparationInterface`, and make `StorageCanvasTest` use the same background as `Scene_PreparationInterface`.
+- Restored planning context, found the independent shop prefab/scene, found the IMG_0494 sprite asset and GUID, and confirmed project scene navigation already uses `SceneManager.LoadScene(...)` patterns.
+- Updated `ShopScreenController` so the storage panel and shop panel both move inward to 220px insets, and added a return button that loads `Scene_PreparationInterface`.
+- Updated `ShopCanvasPrefabBuilder` so future shop prefab rebuilds keep the 220px panel insets, assign `IMG_0494` as the return button sprite, and create the `ShopReturnButton` node.
+- Patched `Assets/Prefabs/ShopCanvas.prefab` directly with the new panel positions, `ReturnButtonSprite`, `ReturnSceneName`, and an actual `ShopReturnButton` using `IMG_0494`.
+- Updated `StorageCanvasPrefabBuilder` and `Assets/Scenes/StorageCanvasTest.unity` so the storage test scene uses the same preparation-interface background sprite and camera color.
+- Verification passed: runtime/editor `dotnet build` completed with 0 warnings and 0 errors; targeted `git diff --check` passed; `ShopCanvas.prefab` and `StorageCanvasTest.unity` have no duplicate YAML file IDs.

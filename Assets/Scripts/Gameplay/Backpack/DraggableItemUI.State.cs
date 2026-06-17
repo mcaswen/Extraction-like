@@ -43,6 +43,7 @@ public partial class DraggableItemUI
         }
 
         UpdateAmountText();
+        UpdateItemNameText();
         UpdateSearchVisualState();
     }
 
@@ -63,6 +64,7 @@ public partial class DraggableItemUI
 
         ApplyItemVisual(ItemData);
         UpdateAmountText();
+        UpdateItemNameText();
         UpdateSearchVisualState();
     }
 
@@ -84,6 +86,7 @@ public partial class DraggableItemUI
         _currentPreviewIsRotated = isRotated;
         _rectTransform.anchoredPosition = CurrentGrid.GetLocalPosition(index.x, index.y);
         UpdateVisualSize(isRotated);
+        UpdateItemNameText();
     }
 
     /// <summary>
@@ -126,6 +129,30 @@ public partial class DraggableItemUI
         {
             AmountText.text = CurrentAmount.ToString();
         }
+
+        ConfigureItemNameTextLayout();
+    }
+
+    /// <summary>
+    /// Refreshes the compact item name label shown in the lower-right corner.
+    /// </summary>
+    public void UpdateItemNameText()
+    {
+        EnsureItemNameText();
+        if (ItemNameText == null)
+        {
+            return;
+        }
+
+        string itemName = ResolveDisplayItemName(ItemData);
+        bool shouldShow = CurrentGrid != null && !string.IsNullOrEmpty(itemName) && CanInteractWithItem();
+        ItemNameText.gameObject.SetActive(shouldShow);
+        if (shouldShow)
+        {
+            ItemNameText.text = itemName;
+        }
+
+        ConfigureItemNameTextLayout();
     }
 
     /// <summary>
@@ -155,10 +182,22 @@ public partial class DraggableItemUI
         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
             ExecuteQuickTransfer();
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!CanInteractWithItem() || CurrentlyDraggedItem != null || eventData.dragging)
+        {
             return;
         }
 
         InventoryItemInfoPanelController.Instance?.Show(this, eventData);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        InventoryItemInfoPanelController.Instance?.HideIfTarget(this);
     }
 
     /// <summary>
@@ -237,6 +276,7 @@ public partial class DraggableItemUI
             _isRevealAnimating = true;
             _revealAnimationTimer = 0f;
             UpdateAmountText();
+            UpdateItemNameText();
         }
 
         if (!Mathf.Approximately(previousProgress, SearchProgressSeconds) || completed)
@@ -265,6 +305,15 @@ public partial class DraggableItemUI
         if (targetGrid == null || ItemData == null)
         {
             return false;
+        }
+
+        IInventoryGridPlacementPolicy[] policies = targetGrid.GetComponents<IInventoryGridPlacementPolicy>();
+        for (int i = 0; i < policies.Length; i++)
+        {
+            if (policies[i] != null && !policies[i].CanAcceptItem(this))
+            {
+                return false;
+            }
         }
 
         if (IsBackpackGrid(targetGrid) && IsContainerItem(ItemData.Type) && !IsContainerCompletelyEmpty())
@@ -352,8 +401,113 @@ public partial class DraggableItemUI
         _itemImage.preserveAspect = true;
         _itemImage.raycastTarget = false;
 
+        EnsureItemNameText();
+        if (ItemNameText != null)
+        {
+            ItemNameText.transform.SetAsLastSibling();
+        }
+
         if (AmountText != null)
+        {
+            AmountText.raycastTarget = false;
             AmountText.transform.SetAsLastSibling();
+        }
+    }
+
+    private void EnsureItemNameText()
+    {
+        if (ItemNameText == null)
+        {
+            Transform labelTransform = transform.Find(ItemNameTextObjectName);
+            if (labelTransform == null)
+            {
+                GameObject labelObject = new GameObject(
+                    ItemNameTextObjectName,
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Text));
+                labelTransform = labelObject.transform;
+                labelTransform.SetParent(transform, false);
+            }
+
+            ItemNameText = labelTransform.GetComponent<Text>();
+            if (ItemNameText == null)
+            {
+                ItemNameText = labelTransform.gameObject.AddComponent<Text>();
+            }
+        }
+
+        ItemNameText.font = ResolveItemLabelFont();
+        ItemNameText.fontSize = ItemNameTextMaxFontSize;
+        ItemNameText.resizeTextForBestFit = true;
+        ItemNameText.resizeTextMinSize = ItemNameTextMinFontSize;
+        ItemNameText.resizeTextMaxSize = ItemNameTextMaxFontSize;
+        ItemNameText.alignment = TextAnchor.LowerRight;
+        ItemNameText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        ItemNameText.verticalOverflow = VerticalWrapMode.Truncate;
+        ItemNameText.color = new Color(1f, 1f, 1f, 0.92f);
+        ItemNameText.raycastTarget = false;
+
+        Shadow shadow = ItemNameText.GetComponent<Shadow>();
+        if (shadow == null)
+        {
+            shadow = ItemNameText.gameObject.AddComponent<Shadow>();
+        }
+
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.72f);
+        shadow.effectDistance = new Vector2(1f, -1f);
+        shadow.useGraphicAlpha = true;
+
+        ConfigureItemNameTextLayout();
+    }
+
+    private void ConfigureItemNameTextLayout()
+    {
+        if (ItemNameText == null)
+        {
+            return;
+        }
+
+        RectTransform labelRect = ItemNameText.rectTransform;
+        labelRect.anchorMin = new Vector2(0f, 0f);
+        labelRect.anchorMax = new Vector2(1f, 0f);
+        labelRect.pivot = new Vector2(1f, 0f);
+        labelRect.localScale = Vector3.one;
+        labelRect.localRotation = Quaternion.identity;
+
+        float rightInset = ItemNameTextHorizontalPadding;
+        if (AmountText != null && AmountText.gameObject.activeSelf)
+        {
+            rightInset += ItemNameTextAmountReserveWidth;
+        }
+
+        labelRect.offsetMin = new Vector2(ItemNameTextHorizontalPadding, ItemNameTextBottomPadding);
+        labelRect.offsetMax = new Vector2(-rightInset, ItemNameTextBottomPadding + ItemNameTextHeight);
+    }
+
+    private Font ResolveItemLabelFont()
+    {
+        if (AmountText != null && AmountText.font != null)
+        {
+            return AmountText.font;
+        }
+
+        return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+    }
+
+    private static string ResolveDisplayItemName(InventoryItemData data)
+    {
+        if (data == null)
+        {
+            return string.Empty;
+        }
+
+        if (!string.IsNullOrWhiteSpace(data.ItemName))
+        {
+            return data.ItemName.Trim();
+        }
+
+        return !string.IsNullOrWhiteSpace(data.name) ? data.name.Trim() : string.Empty;
     }
 
     // 按物品稀有度刷新底色和图标；底色保持不透明，图标保持原始颜色
@@ -361,15 +515,18 @@ public partial class DraggableItemUI
     {
         EnsureComponents();
 
-        if (_itemBackgroundImage != null)
-            _itemBackgroundImage.color = ResolveRarityBackgroundColor(data != null ? data.Rarity : ItemRarity.Common);
+        ApplyItemBackgroundVisual(data);
 
         if (_itemImage == null)
+        {
+            UpdateItemNameText();
             return;
+        }
 
         _itemImage.sprite = data != null ? data.ItemIcon : null;
         _itemImage.enabled = _itemImage.sprite != null;
         _itemImage.color = Color.white;
+        UpdateItemNameText();
     }
 
     // 按物品当前显示格子的宽高比轻微拉伸图标，避免长条物品图标缩得过小
@@ -415,6 +572,27 @@ public partial class DraggableItemUI
     }
 
     // 深拷贝容器中的物品快照，避免不同运行时对象共享同一份列表引用
+    private void ApplyItemBackgroundVisual(InventoryItemData data)
+    {
+        if (_itemBackgroundImage == null)
+        {
+            return;
+        }
+
+        Sprite backgroundSprite = data != null ? data.ItemBackgroundSprite : null;
+        if (backgroundSprite != null)
+        {
+            _itemBackgroundImage.sprite = backgroundSprite;
+            _itemBackgroundImage.type = Image.Type.Simple;
+            _itemBackgroundImage.color = Color.white;
+            return;
+        }
+
+        _itemBackgroundImage.sprite = _defaultItemBackgroundSprite;
+        _itemBackgroundImage.type = Image.Type.Simple;
+        _itemBackgroundImage.color = ResolveRarityBackgroundColor(data != null ? data.Rarity : ItemRarity.Common);
+    }
+
     private static List<ContainerItemSaveData> CloneSaveDataList(List<ContainerItemSaveData> source)
     {
         List<ContainerItemSaveData> clone = new List<ContainerItemSaveData>();

@@ -595,9 +595,15 @@ public class InventoryUIController : MonoBehaviour
             return;
         }
 
+        List<GameObject> oldCells = new List<GameObject>();
         foreach (Transform child in GridBackground)
         {
-            Destroy(child.gameObject);
+            oldCells.Add(child.gameObject);
+        }
+
+        foreach (GameObject oldCell in oldCells)
+        {
+            DestroyGridCell(oldCell);
         }
 
         GridLayoutGroup layout = GridBackground.GetComponent<GridLayoutGroup>();
@@ -632,6 +638,24 @@ public class InventoryUIController : MonoBehaviour
                 image.enabled = !blockedSet.Contains(new Vector2Int(x, y));
             }
         }
+    }
+
+    private static void DestroyGridCell(GameObject cell)
+    {
+        if (cell == null)
+        {
+            return;
+        }
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            DestroyImmediate(cell);
+            return;
+        }
+#endif
+
+        Destroy(cell);
     }
 
     // 强制刷新布局，确保运行时改尺寸后 UI 立即稳定

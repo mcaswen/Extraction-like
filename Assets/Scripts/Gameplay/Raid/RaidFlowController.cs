@@ -11,6 +11,10 @@ public class RaidFlowController : MonoBehaviour
 {
     private const string LegacyPlayerExtractionId = "Player";
     private const string SuccessScreenResourcePath = "UI/Pfb_RaidExtractionSuccessScreen";
+    private const string SharedStorageAgentId = "default_player";
+    private const int SettlementStorageColumns = 6;
+    private const int SettlementStorageRows = 10;
+    private const int SettlementStorageMinimumPageCount = 10;
 
     public static RaidFlowController Instance { get; private set; }
 
@@ -34,11 +38,16 @@ public class RaidFlowController : MonoBehaviour
     private readonly HashSet<string> _extractedAgentIds = new HashSet<string>();
     private readonly HashSet<string> _requiredExtractionAgentIds =
         new HashSet<string>(System.StringComparer.Ordinal);
+    private readonly HashSet<string> _settledExtractionAgentIds =
+        new HashSet<string>(System.StringComparer.Ordinal);
     private readonly List<string> _completedExtractionAgentIds = new List<string>();
     private bool _requiredExtractionAgentsCaptured;
     private float _missionStartTime;
     private bool _successScreenShown;
     private RaidExtractionSuccessScreen _successScreenInstance;
+    private bool _hasSettledExtractionInventory;
+    private int _settledExtractionItemCount;
+    private int _settledExtractionTotalValue;
 
     public bool IsInputLocked => _isMissionCompleted || _isMissionFailed;
     public int RemainingEnemyCount => Mathf.Max(0, _initialEnemyCount - _enemiesKilledCount);
@@ -114,6 +123,7 @@ public class RaidFlowController : MonoBehaviour
             return;
         }
 
+        DiscardAgentExtractionInventory(LegacyPlayerExtractionId);
         _isMissionFailed = true;
         _missionFailureDetail = "Player is down";
         Time.timeScale = 0f;
@@ -131,7 +141,10 @@ public class RaidFlowController : MonoBehaviour
         }
 
         if (agent != null)
+        {
+            DiscardAgentExtractionInventory(agent.AgentIdValue);
             ClearAgentExtractionProgress(agent.AgentIdValue);
+        }
 
         AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
         if (registry != null && registry.TryGetPrimaryHandle(out _))
@@ -251,6 +264,7 @@ public class RaidFlowController : MonoBehaviour
             _activeExtractionProgressByAgentId.Remove(completedAgentId);
             _extractedAgentIds.Add(completedAgentId);
 
+            SettleExtractedAgentInventory(completedAgentId);
             // 先判断是否全部撤离，再销毁当前智能体，避免注册表变更影响完成判定
             bool allRequiredAgentsExtracted = AreAllRequiredAgentsExtracted();
             DestroyExtractedAgent(completedAgentId);
@@ -358,6 +372,14 @@ public class RaidFlowController : MonoBehaviour
     private RaidExtractionSummary CreateExtractionSummary()
     {
         float elapsedSeconds = Mathf.Max(0f, Time.time - _missionStartTime);
+        if (_hasSettledExtractionInventory)
+        {
+            return new RaidExtractionSummary(
+                elapsedSeconds,
+                _settledExtractionItemCount,
+                _settledExtractionTotalValue);
+        }
+
         int lootItemCount = _lootCollectedCount;
         int totalValue = 0;
 
@@ -412,6 +434,11 @@ public class RaidFlowController : MonoBehaviour
 
     private static void EnsureMinimapExists()
     {
+        if (FindObjectOfType<StorageScreenController>(true) != null)
+        {
+            return;
+        }
+
         if (FindObjectOfType<RaidMinimapController>() != null)
         {
             return;
@@ -419,6 +446,85 @@ public class RaidFlowController : MonoBehaviour
 
         GameObject minimapObject = new GameObject("RaidMinimapController");
         minimapObject.AddComponent<RaidMinimapController>();
+    }
+
+    private void SettleExtractedAgentInventory(string agentId)
+    {
+        string normalizedAgentId = NormalizeExtractionAgentId(agentId);
+        if (string.IsNullOrEmpty(normalizedAgentId) ||
+            _settledExtractionAgentIds.Contains(normalizedAgentId))
+        {
+            return;
+        }
+
+        InventoryScreenController inventory = InventoryScreenController.Instance;
+        if (inventory == null ||
+            !inventory.TryCollectExtractableItemsForAgent(
+                normalizedAgentId,
+                out List<ContainerItemSaveData> settlementItems,
+                out int itemCount,
+                out int totalValue))
+        {
+            _settledExtractionAgentIds.Add(normalizedAgentId);
+            return;
+        }
+
+        bool storageSucceeded = true;
+        if (settlementItems.Count > 0)
+        {
+            PlayerStorageService storageService = EnsureSettlementStorageService();
+            storageSucceeded =
+                storageService != null &&
+                storageService.TryAppendItemsToAgentStorage(
+                    SharedStorageAgentId,
+                    settlementItems,
+                    out itemCount,
+                    out totalValue);
+        }
+
+        if (!storageSucceeded)
+        {
+            Debug.LogError(
+                $"[RaidFlowController] Failed to append extraction inventory for agent '{normalizedAgentId}' to storage.",
+                this);
+            return;
+        }
+
+        _hasSettledExtractionInventory = true;
+        _settledExtractionItemCount += itemCount;
+        _settledExtractionTotalValue += totalValue;
+        inventory.DiscardExtractableItemsForAgent(normalizedAgentId);
+        _settledExtractionAgentIds.Add(normalizedAgentId);
+    }
+
+    private void DiscardAgentExtractionInventory(string agentId)
+    {
+        string normalizedAgentId = NormalizeExtractionAgentId(agentId);
+        if (string.IsNullOrEmpty(normalizedAgentId) ||
+            _settledExtractionAgentIds.Contains(normalizedAgentId))
+        {
+            return;
+        }
+
+        InventoryScreenController.Instance?.DiscardExtractableItemsForAgent(normalizedAgentId);
+    }
+
+    private static PlayerStorageService EnsureSettlementStorageService()
+    {
+        PlayerStorageService storageService = PlayerStorageService.Instance;
+        if (storageService == null)
+        {
+            GameObject storageObject = new GameObject("RuntimeExtractionStorageService");
+            storageObject.hideFlags = HideFlags.HideAndDontSave;
+            storageService = storageObject.AddComponent<PlayerStorageService>();
+        }
+
+        storageService.FallbackAgentId = SharedStorageAgentId;
+        storageService.Configure(
+            SettlementStorageColumns,
+            SettlementStorageRows,
+            SettlementStorageMinimumPageCount);
+        return storageService;
     }
 
     private void ClearAgentExtractionProgress(string agentId)

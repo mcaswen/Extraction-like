@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4477c7797defc1f4f9dab4680a3114b1, type: 3}
+  m_Name: TotemShopPool
+  m_EditorClassIdentifier: 
+  _entries:
+  - ItemData: {fileID: 11400000, guid: 292a8a539d1a0f5423c4761f39189664, type: 2}
+    BuyPrice: 600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: c3644cfa864aa97ae5c933254c1f2419, type: 2}
+    BuyPrice: 1600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: fe030fa6d4f26f46abd035cf59404d7f, type: 2}
+    BuyPrice: 200
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 00095249560ff2253155f8171e5204d7, type: 2}
+    BuyPrice: 600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 3e3e309756e6618b53f5339a08ae7c75, type: 2}
+    BuyPrice: 1600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: aac2eddff4e36bfee54f1f19b8d3df01, type: 2}
+    BuyPrice: 200
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 28474415110c207b7e77f62a45b0bfd8, type: 2}
+    BuyPrice: 600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 439d3fad5ef8d701f7963d530a27ee74, type: 2}
+    BuyPrice: 1600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: c4a1f893020ec8feeec090824e1877c6, type: 2}
+    BuyPrice: 200
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 5aa31c7630ad03688db59f9b50d0d59e, type: 2}
+    BuyPrice: 600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: eb061c99dddc26bfc7aff085cad92fff, type: 2}
+    BuyPrice: 1600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 55d425813284a32b9ceabd8ca86eec8d, type: 2}
+    BuyPrice: 200
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 62618c1c17f777a48fa2155913695c80, type: 2}
+    BuyPrice: 600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 47c5100a3543275d270a7e7571d1bb5f, type: 2}
+    BuyPrice: 1600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 5937406ff660674138714e966d8d690f, type: 2}
+    BuyPrice: 200
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: 19a9ebb58f2e4985899eae19cd9f596a, type: 2}
+    BuyPrice: 600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: b718986ebdb48ac084ce5b862b1ec090, type: 2}
+    BuyPrice: 1600
+    Weight: 1
+  - ItemData: {fileID: 11400000, guid: c342619eea1bdc56773641a7b48bb534, type: 2}
+    BuyPrice: 200
+    Weight: 1

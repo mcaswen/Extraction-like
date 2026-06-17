@@ -3,6 +3,7 @@ using System;
 using System.Text;
 using Gameplay.Agent.Runtime;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 背包模块总控制器
@@ -12,16 +13,32 @@ public class InventoryScreenController : MonoBehaviour
 {
     public static InventoryScreenController Instance { get; private set; }
 
+    private const int BackpackColumns = 5;
+    private const int BackpackRows = 6;
     private const float LootPanelHorizontalPadding = 24f;
     private const float LootPanelVerticalPadding = 20f;
     private const float LootHeaderHeight = 56f;
     private const float LootHeaderGap = 10f;
+    private const string RunRevenueWidgetName = "RunRevenueWidget";
+    private const string BackpackHeaderTextName = "BackpackHeaderText";
+    private const string DefaultBackpackHeaderLabel = "背包";
 
     [Header("Agent Focus")]
     [SerializeField] private bool _syncWithFocusedAgent = true;
 
     [Header("Debug")]
     [SerializeField] private bool _logInventoryDebug;
+
+    [Header("Run Revenue")]
+    [SerializeField] private bool _showRunRevenueOnInventory = true;
+    [SerializeField] private string _runRevenueLabel = "本局收益";
+    [SerializeField] private Vector2 _runRevenueWidgetOffset = new Vector2(0f, 34f);
+    [SerializeField] private Vector2 _runRevenueWidgetSize = new Vector2(284f, 34f);
+    [SerializeField, Min(0.02f)] private float _runRevenueRefreshInterval = 0.12f;
+
+    [Header("Backpack Header")]
+    public Text BackpackHeaderText;
+    [SerializeField] private string _backpackHeaderLabel = DefaultBackpackHeaderLabel;
 
     public bool IsInventoryOpen { get; private set; }
 
@@ -68,6 +85,13 @@ public class InventoryScreenController : MonoBehaviour
     private float _timeScaleBeforeInventoryPause = 1f;
     private float _fixedDeltaTimeBeforeInventoryPause = 0.02f;
     private bool _missingBackpackLinkedGridLogged;
+    private RectTransform _runRevenueWidgetRoot;
+    private Text _runRevenueText;
+    private int _lastDisplayedRunRevenue = int.MinValue;
+    private float _nextRunRevenueRefreshTime;
+    private int _lastBackpackHeaderOccupied = int.MinValue;
+    private int _lastBackpackHeaderTotal = int.MinValue;
+    private string _lastBackpackHeaderLabel;
 
     public InventoryScreenSessionContext ActiveSessionContext => _activeSessionContext;
     public bool HasActiveExternalContainer => _activeSessionContext != null;
@@ -106,6 +130,353 @@ public class InventoryScreenController : MonoBehaviour
     public float GetBackpackCapacityRatio()
     {
         return Mathf.Clamp01(GetCurrentBackpackOccupiedCells() / GetMaxBackpackUsableCells());
+    }
+
+    public int GetCurrentRunRevenueValue()
+    {
+        TryGetCurrentInventoryRevenue(out _, out int totalValue);
+        return totalValue;
+    }
+
+    private bool TryGetCurrentInventoryRevenue(out int lootItemCount, out int totalValue)
+    {
+        lootItemCount = 0;
+        totalValue = 0;
+
+        if (BackpackSlot == null &&
+            BackpackGrid == null &&
+            RigSlot == null &&
+            TacticalRigGrid == null &&
+            HeadSlot == null &&
+            BodySlot == null &&
+            FaceSlot == null &&
+            HeadphoneSlot == null &&
+            TotemSlotA == null &&
+            TotemSlotB == null)
+        {
+            return false;
+        }
+
+        CharacterInventorySnapshot snapshot = CreateCharacterInventorySnapshot();
+        AccumulateExtractionInventorySummary(snapshot, ref lootItemCount, ref totalValue);
+        return true;
+    }
+
+    private void RefreshBackpackHeaderDisplay(bool force = false)
+    {
+        EnsureBackpackHeaderText();
+        if (BackpackHeaderText == null)
+        {
+            return;
+        }
+
+        string label = string.IsNullOrWhiteSpace(_backpackHeaderLabel)
+            ? DefaultBackpackHeaderLabel
+            : _backpackHeaderLabel.Trim();
+
+        if (BackpackGrid == null)
+        {
+            if (force || !string.Equals(BackpackHeaderText.text, label, StringComparison.Ordinal))
+            {
+                BackpackHeaderText.text = label;
+                _lastBackpackHeaderOccupied = int.MinValue;
+                _lastBackpackHeaderTotal = int.MinValue;
+                _lastBackpackHeaderLabel = label;
+            }
+
+            return;
+        }
+
+        int occupiedCells = Mathf.Max(0, Mathf.RoundToInt(GetGridOccupiedCellCount(BackpackGrid)));
+        int totalCells = Mathf.Max(0, Mathf.RoundToInt(GetGridUsableCellCount(BackpackGrid)));
+
+        if (!force &&
+            occupiedCells == _lastBackpackHeaderOccupied &&
+            totalCells == _lastBackpackHeaderTotal &&
+            string.Equals(label, _lastBackpackHeaderLabel, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _lastBackpackHeaderOccupied = occupiedCells;
+        _lastBackpackHeaderTotal = totalCells;
+        _lastBackpackHeaderLabel = label;
+        BackpackHeaderText.text = $"{label} ({occupiedCells}/{totalCells})";
+    }
+
+    private void EnsureBackpackHeaderText()
+    {
+        if (BackpackHeaderText != null || InventoryPanel == null)
+        {
+            return;
+        }
+
+        Text[] texts = InventoryPanel.GetComponentsInChildren<Text>(true);
+        foreach (Text text in texts)
+        {
+            if (text != null && string.Equals(text.name, BackpackHeaderTextName, StringComparison.Ordinal))
+            {
+                BackpackHeaderText = text;
+                return;
+            }
+        }
+
+        foreach (Text text in texts)
+        {
+            if (IsBackpackHeaderTextCandidate(text))
+            {
+                BackpackHeaderText = text;
+                return;
+            }
+        }
+    }
+
+    private static bool IsBackpackHeaderTextCandidate(Text text)
+    {
+        string value = text != null && text.text != null ? text.text.Trim() : string.Empty;
+        return string.Equals(value, DefaultBackpackHeaderLabel, StringComparison.Ordinal) ||
+               value.StartsWith($"{DefaultBackpackHeaderLabel} (", StringComparison.Ordinal);
+    }
+
+    private void RefreshRunRevenueDisplay(bool force = false)
+    {
+        if (!_showRunRevenueOnInventory)
+        {
+            if (_runRevenueWidgetRoot != null)
+            {
+                _runRevenueWidgetRoot.gameObject.SetActive(false);
+            }
+
+            return;
+        }
+
+        EnsureRunRevenueWidget();
+        if (_runRevenueWidgetRoot == null || _runRevenueText == null)
+        {
+            return;
+        }
+
+        bool shouldShow = IsInventoryOpen && InventoryPanel != null && InventoryPanel.activeInHierarchy;
+        _runRevenueWidgetRoot.gameObject.SetActive(shouldShow);
+        if (!shouldShow)
+        {
+            _lastDisplayedRunRevenue = int.MinValue;
+            _nextRunRevenueRefreshTime = 0f;
+            return;
+        }
+
+        if (!force && DraggableItemUI.CurrentlyDraggedItem != null)
+        {
+            _nextRunRevenueRefreshTime = 0f;
+            return;
+        }
+
+        if (!force)
+        {
+            float now = Time.unscaledTime;
+            if (now < _nextRunRevenueRefreshTime)
+            {
+                return;
+            }
+
+            _nextRunRevenueRefreshTime = now + Mathf.Max(0.02f, _runRevenueRefreshInterval);
+        }
+
+        int totalValue = GetCurrentRunRevenueValue();
+        if (!force && totalValue == _lastDisplayedRunRevenue)
+        {
+            return;
+        }
+
+        _lastDisplayedRunRevenue = totalValue;
+        string label = string.IsNullOrWhiteSpace(_runRevenueLabel) ? "本局收益" : _runRevenueLabel.Trim();
+        _runRevenueText.text = $"￥ {label}：{totalValue:N0}";
+    }
+
+    private void EnsureRunRevenueWidget()
+    {
+        if (!_showRunRevenueOnInventory || InventoryPanel == null)
+        {
+            return;
+        }
+
+        if (_runRevenueWidgetRoot == null)
+        {
+            Transform existing = InventoryPanel.transform.Find(RunRevenueWidgetName);
+            if (existing != null)
+            {
+                _runRevenueWidgetRoot = existing as RectTransform;
+            }
+        }
+
+        if (_runRevenueWidgetRoot == null)
+        {
+            GameObject widgetObject = new GameObject(
+                RunRevenueWidgetName,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            widgetObject.transform.SetParent(InventoryPanel.transform, false);
+            _runRevenueWidgetRoot = widgetObject.GetComponent<RectTransform>();
+        }
+
+        ConfigureRunRevenueWidgetRoot();
+        ConfigureRunRevenueWidgetBackground();
+        EnsureRunRevenueIcon();
+        EnsureRunRevenueText();
+    }
+
+    private void ConfigureRunRevenueWidgetRoot()
+    {
+        if (_runRevenueWidgetRoot == null)
+        {
+            return;
+        }
+
+        _runRevenueWidgetRoot.anchorMin = new Vector2(0.5f, 1f);
+        _runRevenueWidgetRoot.anchorMax = new Vector2(0.5f, 1f);
+        _runRevenueWidgetRoot.pivot = new Vector2(0.5f, 1f);
+        _runRevenueWidgetRoot.anchoredPosition = new Vector2(
+            0f,
+            Mathf.Max(34f, _runRevenueWidgetOffset.y));
+        _runRevenueWidgetRoot.sizeDelta = new Vector2(
+            Mathf.Max(284f, _runRevenueWidgetSize.x),
+            Mathf.Max(34f, _runRevenueWidgetSize.y));
+        _runRevenueWidgetRoot.localScale = Vector3.one;
+        _runRevenueWidgetRoot.localRotation = Quaternion.identity;
+        _runRevenueWidgetRoot.SetAsLastSibling();
+
+        LayoutElement layoutElement = _runRevenueWidgetRoot.GetComponent<LayoutElement>();
+        if (layoutElement == null)
+        {
+            layoutElement = _runRevenueWidgetRoot.gameObject.AddComponent<LayoutElement>();
+        }
+
+        layoutElement.ignoreLayout = true;
+
+        CanvasGroup canvasGroup = _runRevenueWidgetRoot.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = _runRevenueWidgetRoot.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+    }
+
+    private void ConfigureRunRevenueWidgetBackground()
+    {
+        if (_runRevenueWidgetRoot == null)
+        {
+            return;
+        }
+
+        Image background = _runRevenueWidgetRoot.GetComponent<Image>();
+        if (background == null)
+        {
+            background = _runRevenueWidgetRoot.gameObject.AddComponent<Image>();
+        }
+
+        background.color = new Color(0.03f, 0.04f, 0.04f, 0.62f);
+        background.raycastTarget = false;
+    }
+
+    private void EnsureRunRevenueIcon()
+    {
+        if (_runRevenueWidgetRoot == null)
+        {
+            return;
+        }
+
+        const string iconName = "RunRevenueIcon";
+        Text iconText = FindChildText(_runRevenueWidgetRoot, iconName);
+        if (iconText == null)
+        {
+            GameObject iconObject = new GameObject(iconName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            iconObject.transform.SetParent(_runRevenueWidgetRoot, false);
+            iconText = iconObject.GetComponent<Text>();
+        }
+
+        RectTransform iconRect = iconText.rectTransform;
+        iconRect.anchorMin = new Vector2(0f, 0.5f);
+        iconRect.anchorMax = new Vector2(0f, 0.5f);
+        iconRect.pivot = new Vector2(0f, 0.5f);
+        iconRect.anchoredPosition = new Vector2(9f, 0f);
+        iconRect.sizeDelta = new Vector2(18f, 22f);
+        iconRect.localScale = Vector3.one;
+        iconRect.localRotation = Quaternion.identity;
+
+        iconText.font = ResolveInventoryFont();
+        iconText.fontSize = 18;
+        iconText.fontStyle = FontStyle.Bold;
+        iconText.alignment = TextAnchor.MiddleCenter;
+        iconText.color = new Color(0.92f, 1f, 1f, 0.95f);
+        iconText.raycastTarget = false;
+        iconText.text = string.Empty;
+        iconText.gameObject.SetActive(false);
+    }
+
+    private void EnsureRunRevenueText()
+    {
+        if (_runRevenueWidgetRoot == null)
+        {
+            return;
+        }
+
+        const string textName = "RunRevenueText";
+        _runRevenueText = FindChildText(_runRevenueWidgetRoot, textName);
+        if (_runRevenueText == null)
+        {
+            GameObject textObject = new GameObject(textName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            textObject.transform.SetParent(_runRevenueWidgetRoot, false);
+            _runRevenueText = textObject.GetComponent<Text>();
+        }
+
+        RectTransform textRect = _runRevenueText.rectTransform;
+        textRect.anchorMin = new Vector2(0f, 0f);
+        textRect.anchorMax = new Vector2(1f, 1f);
+        textRect.pivot = new Vector2(0.5f, 0.5f);
+        textRect.offsetMin = new Vector2(12f, 3f);
+        textRect.offsetMax = new Vector2(-12f, -3f);
+        textRect.localScale = Vector3.one;
+        textRect.localRotation = Quaternion.identity;
+
+        _runRevenueText.font = ResolveInventoryFont();
+        _runRevenueText.fontSize = 18;
+        _runRevenueText.fontStyle = FontStyle.Bold;
+        _runRevenueText.alignment = TextAnchor.MiddleCenter;
+        _runRevenueText.color = new Color(0.94f, 1f, 0.98f, 1f);
+        _runRevenueText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        _runRevenueText.verticalOverflow = VerticalWrapMode.Truncate;
+        _runRevenueText.resizeTextForBestFit = true;
+        _runRevenueText.resizeTextMinSize = 13;
+        _runRevenueText.resizeTextMaxSize = 18;
+        _runRevenueText.raycastTarget = false;
+    }
+
+    private Font ResolveInventoryFont()
+    {
+        if (InventoryPanel != null)
+        {
+            Text existingText = InventoryPanel.GetComponentInChildren<Text>(true);
+            if (existingText != null && existingText.font != null)
+            {
+                return existingText.font;
+            }
+        }
+
+        return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+    }
+
+    private static Text FindChildText(RectTransform root, string childName)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        Transform child = root.Find(childName);
+        return child != null ? child.GetComponent<Text>() : null;
     }
 
     public bool TryGetExtractionInventorySummary(
@@ -149,6 +520,74 @@ public class InventoryScreenController : MonoBehaviour
         return foundSnapshot;
     }
 
+    public bool TryCollectExtractableItemsForAgent(
+        string agentId,
+        out List<ContainerItemSaveData> extractableItems,
+        out int itemCount,
+        out int totalValue)
+    {
+        extractableItems = new List<ContainerItemSaveData>();
+        itemCount = 0;
+        totalValue = 0;
+
+        if (!TryGetSettlementSnapshot(agentId, out _, out CharacterInventorySnapshot snapshot))
+        {
+            return false;
+        }
+
+        CollectSettlementItems(snapshot, extractableItems, ref itemCount, ref totalValue);
+        return true;
+    }
+
+    public bool TryBuildEquippedTotemModifierSet(string agentId, out TotemModifierSet modifiers)
+    {
+        modifiers = default;
+        string normalizedAgentId = string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
+
+        if (IsLiveInventoryAgent(normalizedAgentId))
+        {
+            AddTotemModifierFromSlot(TotemSlotA, ref modifiers);
+            AddTotemModifierFromSlot(TotemSlotB, ref modifiers);
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(normalizedAgentId) &&
+            _inventorySnapshotsByAgentId.TryGetValue(normalizedAgentId, out CharacterInventorySnapshot snapshot))
+        {
+            AddTotemModifierFromSnapshot(snapshot.TotemAItem, ref modifiers);
+            AddTotemModifierFromSnapshot(snapshot.TotemBItem, ref modifiers);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool DiscardExtractableItemsForAgent(string agentId)
+    {
+        if (!TryGetSettlementSnapshot(agentId, out string normalizedAgentId, out CharacterInventorySnapshot snapshot))
+        {
+            return false;
+        }
+
+        ClearSettlementItems(snapshot);
+        _inventorySnapshotsByAgentId[normalizedAgentId] = snapshot;
+
+        if (IsActiveSettlementAgent(normalizedAgentId))
+        {
+            LoadCharacterInventorySnapshot(snapshot);
+            if (IsInventoryOpen)
+            {
+                RefreshVisibleStateForCurrentContext();
+            }
+            else
+            {
+                RefreshCharacterContainerState(false);
+            }
+        }
+
+        return true;
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -178,6 +617,8 @@ public class InventoryScreenController : MonoBehaviour
     private void Update()
     {
         BindToFocusedAgentIfNeeded();
+        RefreshRunRevenueDisplay();
+        RefreshBackpackHeaderDisplay();
 
         if (Input.GetKeyDown(KeyCode.I))
         {
@@ -320,6 +761,11 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void InitializeRuntimeScreen()
     {
+        EnsureBackpackHeaderText();
+        RefreshBackpackHeaderDisplay(true);
+        EnsureRunRevenueWidget();
+        RefreshRunRevenueDisplay(true);
+
         if (InventoryPanel != null)
         {
             InventoryPanel.SetActive(false);
@@ -781,6 +1227,8 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         RefreshVisibleStateForCurrentContext();
+        RefreshRunRevenueDisplay(true);
+        RefreshBackpackHeaderDisplay(true);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -918,7 +1366,17 @@ public class InventoryScreenController : MonoBehaviour
             return;
         }
 
+        SetTransformChainActive(BackpackGrid.transform, InventoryPanel != null ? InventoryPanel.transform : null);
         BackpackGrid.gameObject.SetActive(true);
+        if (BackpackGrid.GridBackground != null)
+        {
+            BackpackGrid.GridBackground.gameObject.SetActive(true);
+        }
+
+        if (BackpackGrid.ItemContainer != null)
+        {
+            BackpackGrid.ItemContainer.gameObject.SetActive(true);
+        }
 
         InventoryGridController gridController = BackpackGrid.GetGridController();
         if (gridController == null)
@@ -926,16 +1384,43 @@ public class InventoryScreenController : MonoBehaviour
             return;
         }
 
-        if (gridController.Columns != 5 || gridController.Rows != 6)
+        if (gridController.Columns != BackpackColumns || gridController.Rows != BackpackRows)
         {
-            BackpackGrid.RebuildGridUI(5, 6, new List<Vector2Int>());
+            List<ContainerItemSaveData> currentItems = CloneSaveDataList(BackpackGrid.ExtractSaveData());
+            List<ContainerCellStateSaveData> currentCellStates = CloneCellStateList(BackpackGrid.ExtractCellStateData());
+            BackpackGrid.RebuildGridUI(BackpackColumns, BackpackRows, new List<Vector2Int>());
+            if ((currentItems.Count > 0 || currentCellStates.Count > 0) && InventoryItemFactory.Instance != null)
+            {
+                BackpackGrid.LoadFromRuntimeState(currentItems, currentCellStates);
+            }
+
             return;
         }
 
-        if (BackpackGrid.NeedsBackgroundCellRefresh())
+        BackpackGrid.RefreshBackgroundCellsFromCurrentConfig();
+    }
+
+    private static void SetTransformChainActive(Transform child, Transform stopAt)
+    {
+        Transform current = child;
+        while (current != null)
         {
-            BackpackGrid.RefreshBackgroundCellsFromCurrentConfig();
+            current.gameObject.SetActive(true);
+            if (current == stopAt)
+            {
+                return;
+            }
+
+            current = current.parent;
         }
+    }
+
+    public void RefreshBackpackGridForExternalSession()
+    {
+        EnsureDefaultBackpackEquipped();
+        RefreshCharacterContainerState(true);
+        EnsureBackpackGridVisible();
+        RefreshBackpackHeaderDisplay(true);
     }
 
     // 根据当前会话模式刷新界面显隐：普通模式展示角色装备联动格，自定义模式只保留玩家格子和外部容器
@@ -1661,7 +2146,34 @@ public class InventoryScreenController : MonoBehaviour
             return 0f;
         }
 
-        return GetSavedItemsOccupiedCellCount(grid.ExtractSaveData());
+        InventoryGridController gridController = grid.GetGridController();
+        if (gridController == null)
+        {
+            return 0f;
+        }
+
+        gridController.InitializeGridIfNeeded();
+        GridCellData[,] cells = gridController._grid;
+        if (cells == null)
+        {
+            return 0f;
+        }
+
+        int occupiedCells = 0;
+        int columns = cells.GetLength(0);
+        int rows = cells.GetLength(1);
+        for (int x = 0; x < columns; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                if (cells[x, y] != null && cells[x, y].State == GridState.OccupiedItem)
+                {
+                    occupiedCells++;
+                }
+            }
+        }
+
+        return occupiedCells;
     }
 
     private static float GetSavedItemsOccupiedCellCount(List<ContainerItemSaveData> items)
@@ -1727,6 +2239,193 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         return uniqueCells.Count;
+    }
+
+    private bool TryGetSettlementSnapshot(
+        string agentId,
+        out string normalizedAgentId,
+        out CharacterInventorySnapshot snapshot)
+    {
+        normalizedAgentId = string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
+        snapshot = null;
+
+        if (!string.IsNullOrEmpty(_activeInventoryAgentId))
+        {
+            EndCurrentDragIfNeeded();
+
+            if (_activeSessionContext != null)
+            {
+                CloseActiveSessionIfNeeded();
+            }
+
+            SyncCharacterContainerRuntimeState();
+            SaveInventorySnapshot(_activeInventoryAgentId);
+
+            if (string.IsNullOrEmpty(normalizedAgentId))
+            {
+                normalizedAgentId = _activeInventoryAgentId;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(normalizedAgentId) &&
+            _inventorySnapshotsByAgentId.TryGetValue(normalizedAgentId, out snapshot))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrEmpty(_activeInventoryAgentId) &&
+            (string.IsNullOrEmpty(normalizedAgentId) ||
+             string.Equals(normalizedAgentId, "Player", StringComparison.Ordinal)))
+        {
+            normalizedAgentId = string.IsNullOrEmpty(normalizedAgentId) ? "Player" : normalizedAgentId;
+            snapshot = CreateCharacterInventorySnapshot();
+            _inventorySnapshotsByAgentId[normalizedAgentId] = snapshot;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool IsActiveSettlementAgent(string normalizedAgentId)
+    {
+        if (string.IsNullOrWhiteSpace(normalizedAgentId))
+        {
+            return false;
+        }
+
+        return string.Equals(_activeInventoryAgentId, normalizedAgentId, StringComparison.Ordinal) ||
+               (string.IsNullOrEmpty(_activeInventoryAgentId) &&
+                string.Equals(normalizedAgentId, "Player", StringComparison.Ordinal));
+    }
+
+    private bool IsLiveInventoryAgent(string normalizedAgentId)
+    {
+        if (!string.IsNullOrEmpty(_activeInventoryAgentId))
+        {
+            return string.Equals(_activeInventoryAgentId, normalizedAgentId, StringComparison.Ordinal);
+        }
+
+        return string.IsNullOrEmpty(normalizedAgentId) ||
+               string.Equals(normalizedAgentId, "Player", StringComparison.Ordinal);
+    }
+
+    private static void AddTotemModifierFromSlot(EquipmentSlotUI slot, ref TotemModifierSet modifiers)
+    {
+        if (slot == null || !slot.HasEquippedItem || slot.EquippedItemState == null)
+        {
+            return;
+        }
+
+        modifiers.AddItem(slot.EquippedItemState.ItemData);
+    }
+
+    private static void AddTotemModifierFromSnapshot(ContainerItemSaveData item, ref TotemModifierSet modifiers)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        modifiers.AddItem(item.ItemData);
+    }
+
+    private static void CollectSettlementItems(
+        CharacterInventorySnapshot snapshot,
+        List<ContainerItemSaveData> extractableItems,
+        ref int itemCount,
+        ref int totalValue)
+    {
+        if (snapshot == null || extractableItems == null)
+        {
+            return;
+        }
+
+        if (snapshot.BackpackItem != null)
+        {
+            CollectSettlementItems(snapshot.BackpackItem.InternalItems, extractableItems, ref itemCount, ref totalValue);
+        }
+        else
+        {
+            CollectSettlementItems(snapshot.BackpackLooseItems, extractableItems, ref itemCount, ref totalValue);
+        }
+
+        CollectSettlementItem(snapshot.HeadItem, extractableItems, ref itemCount, ref totalValue);
+        CollectSettlementItem(snapshot.BodyItem, extractableItems, ref itemCount, ref totalValue);
+        CollectSettlementItem(snapshot.FaceItem, extractableItems, ref itemCount, ref totalValue);
+        CollectSettlementItem(snapshot.HeadphoneItem, extractableItems, ref itemCount, ref totalValue);
+        CollectSettlementItem(snapshot.TotemAItem, extractableItems, ref itemCount, ref totalValue);
+        CollectSettlementItem(snapshot.TotemBItem, extractableItems, ref itemCount, ref totalValue);
+    }
+
+    private static void CollectSettlementItems(
+        List<ContainerItemSaveData> items,
+        List<ContainerItemSaveData> extractableItems,
+        ref int itemCount,
+        ref int totalValue)
+    {
+        if (items == null)
+        {
+            return;
+        }
+
+        foreach (ContainerItemSaveData item in items)
+        {
+            CollectSettlementItem(item, extractableItems, ref itemCount, ref totalValue);
+        }
+    }
+
+    private static void CollectSettlementItem(
+        ContainerItemSaveData item,
+        List<ContainerItemSaveData> extractableItems,
+        ref int itemCount,
+        ref int totalValue)
+    {
+        if (item == null || item.ItemData == null)
+        {
+            return;
+        }
+
+        if (IsContainerItem(item.ItemData.Type))
+        {
+            CollectSettlementItems(item.InternalItems, extractableItems, ref itemCount, ref totalValue);
+            return;
+        }
+
+        ContainerItemSaveData copy = item.DeepCopy();
+        copy.RequiresSearch = false;
+        copy.IsSearched = true;
+        copy.SearchProgressSeconds = 0f;
+        copy.SearchDurationSeconds = 0f;
+        copy.InternalItems = new List<ContainerItemSaveData>();
+        copy.InternalCellStates = new List<ContainerCellStateSaveData>();
+        extractableItems.Add(copy);
+
+        int amount = Mathf.Max(1, copy.Amount);
+        itemCount += amount;
+        totalValue += Mathf.Max(0, copy.ItemData.SellPrice) * amount;
+    }
+
+    private static void ClearSettlementItems(CharacterInventorySnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        if (snapshot.BackpackItem != null)
+        {
+            snapshot.BackpackItem.InternalItems = new List<ContainerItemSaveData>();
+            snapshot.BackpackItem.InternalCellStates = new List<ContainerCellStateSaveData>();
+        }
+
+        snapshot.BackpackLooseItems = new List<ContainerItemSaveData>();
+        snapshot.BackpackLooseCellStates = new List<ContainerCellStateSaveData>();
+        snapshot.HeadItem = null;
+        snapshot.BodyItem = null;
+        snapshot.FaceItem = null;
+        snapshot.HeadphoneItem = null;
+        snapshot.TotemAItem = null;
+        snapshot.TotemBItem = null;
     }
 
     private CharacterInventorySnapshot CreateCharacterInventorySnapshot()
@@ -1934,9 +2633,6 @@ public class InventoryScreenController : MonoBehaviour
         if (snapshot.BackpackItem != null)
             AccumulateExtractionItems(snapshot.BackpackItem.InternalItems, ref lootItemCount, ref totalValue);
 
-        if (snapshot.RigItem != null)
-            AccumulateExtractionItems(snapshot.RigItem.InternalItems, ref lootItemCount, ref totalValue);
-
         AccumulateExtractionItem(snapshot.HeadItem, true, ref lootItemCount, ref totalValue);
         AccumulateExtractionItem(snapshot.BodyItem, true, ref lootItemCount, ref totalValue);
         AccumulateExtractionItem(snapshot.FaceItem, true, ref lootItemCount, ref totalValue);
@@ -1972,9 +2668,16 @@ public class InventoryScreenController : MonoBehaviour
 
         if (countSelf && item.ItemData != null)
         {
-            int amount = Mathf.Max(1, item.Amount);
-            lootItemCount += amount;
-            totalValue += Mathf.Max(0, item.ItemData.SellPrice) * amount;
+            if (IsContainerItem(item.ItemData.Type))
+            {
+                countSelf = false;
+            }
+            else
+            {
+                int amount = Mathf.Max(1, item.Amount);
+                lootItemCount += amount;
+                totalValue += Mathf.Max(0, item.ItemData.SellPrice) * amount;
+            }
         }
 
         AccumulateExtractionItems(item.InternalItems, ref lootItemCount, ref totalValue);

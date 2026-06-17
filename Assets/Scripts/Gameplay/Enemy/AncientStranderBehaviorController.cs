@@ -130,6 +130,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     private bool _hasDirectDamageFallbackPosition;
     private bool _hasWarnedMissingFixedRoute;
     private AncientStranderBiteHitbox _biteHitbox;
+    private SkeFishboneAttackVfx _fishboneVfx;
     private readonly System.Collections.Generic.HashSet<Transform> _meleeDamagedRoots = new System.Collections.Generic.HashSet<Transform>();
 
     /// <summary>
@@ -181,7 +182,11 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
             MinimumRangedDistance = MeleeAttackRange + 1f;
         }
 
-        EnsureLineRenderers();
+        EnsureFishboneVfx();
+        if (_fishboneVfx == null)
+        {
+            EnsureLineRenderers();
+        }
         EnsureBiteHitbox();
         SetNextPatrolDestination();
     }
@@ -410,6 +415,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
     {
         _animatorDriver?.TriggerAttack();
         _nextMeleeAttackTime = Time.time + Mathf.Max(0.05f, MeleeAttackInterval);
+        PlayFishboneMeleeVfx();
         // 横扫用 OverlapSphere 结算范围伤害，可同时命中玩家或多个 Agent 目标。
         _meleeVisualTimer = MeleeVisualDuration;
         float totalDamage = 0f;
@@ -472,6 +478,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         _isBiteStriking = true;
         _hasAppliedBiteDamage = false;
         SetBiteHitboxEnabled(true);
+        PlayFishboneBiteVfx();
     }
 
     /// <summary>
@@ -543,6 +550,11 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void EnsureLineRenderers()
     {
+        if (_fishboneVfx != null)
+        {
+            return;
+        }
+
         if (MeleeSwingRenderer == null)
         {
             MeleeSwingRenderer = CreateLineRenderer("FishboneMeleeSwing", new Color(0.95f, 0.92f, 0.78f, 0.92f), new Color(0.78f, 0.76f, 0.6f, 0.38f), 0.14f, 0.04f);
@@ -626,6 +638,16 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void UpdateMeleeVisual()
     {
+        if (_fishboneVfx != null)
+        {
+            if (MeleeSwingRenderer != null)
+            {
+                MeleeSwingRenderer.enabled = false;
+            }
+
+            return;
+        }
+
         if (MeleeSwingRenderer == null)
         {
             return;
@@ -651,6 +673,16 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private void UpdateBiteVisual()
     {
+        if (_fishboneVfx != null)
+        {
+            if (FishboneBiteRenderer != null)
+            {
+                FishboneBiteRenderer.enabled = false;
+            }
+
+            return;
+        }
+
         if (FishboneBiteRenderer == null)
         {
             return;
@@ -670,6 +702,35 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         float pulse = 0.5f + Mathf.Sin(Time.time * 20f) * 0.5f;
         FishboneBiteRenderer.startWidth = 0.09f + pulse * 0.04f;
         FishboneBiteRenderer.endWidth = 0.035f + pulse * 0.015f;
+    }
+
+    private void EnsureFishboneVfx()
+    {
+        if (_fishboneVfx == null)
+        {
+            _fishboneVfx = GetComponentInChildren<SkeFishboneAttackVfx>(true);
+        }
+
+        if (_fishboneVfx == null)
+        {
+            _fishboneVfx = gameObject.AddComponent<SkeFishboneAttackVfx>();
+        }
+
+        _fishboneVfx.ConfigureAsEnemyDrivenVisual(PlayerTransform, BiteOrigin != null ? BiteOrigin : MeleeOrigin);
+    }
+
+    private void PlayFishboneMeleeVfx()
+    {
+        EnsureFishboneVfx();
+        _fishboneVfx?.ConfigureAsEnemyDrivenVisual(PlayerTransform, MeleeOrigin);
+        _fishboneVfx?.PlayMeleeSweepVisual(PlayerTransform);
+    }
+
+    private void PlayFishboneBiteVfx()
+    {
+        EnsureFishboneVfx();
+        _fishboneVfx?.ConfigureAsEnemyDrivenVisual(PlayerTransform, BiteOrigin);
+        _fishboneVfx?.PlayRangedBiteVisual(PlayerTransform);
     }
 
     private void LookAtPlayer()

@@ -56,6 +56,8 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
     private readonly List<SimpleMagicRangedAttack> _silencedSimpleMagicScripts = new List<SimpleMagicRangedAttack>();
     private readonly List<bool> _silencedSimpleMagicEnabledStates = new List<bool>();
 
+    private Transform _tentacleOriginOverride;
+    private Transform _waterJetOriginOverride;
     private Transform _targetCandidate;
     private Coroutine _tentacleRoutine;
     private Coroutine _waterJetRoutine;
@@ -68,6 +70,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
     private float _waterJetTimer;
     private float _noiseSeed;
     private int _targetRefreshFrame;
+    private bool _suppressGameplayEffects;
 
     private void Awake()
     {
@@ -160,6 +163,39 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
         _waterJetTimer = Mathf.Max(0.2f, _waterJetInterval);
         _waterJetRoutine = StartCoroutine(PlayWaterJet());
+    }
+
+    public void ConfigureAsEnemyDrivenVisual(
+        Transform target,
+        Transform tentacleOrigin,
+        Transform waterJetOrigin,
+        float tentacleDuration,
+        float waterJetDuration)
+    {
+        _target = target;
+        _targetCandidate = target;
+        _tentacleOriginOverride = tentacleOrigin;
+        _waterJetOriginOverride = waterJetOrigin;
+        _tentacleContactDuration = Mathf.Max(0.05f, tentacleDuration);
+        _waterJetDuration = Mathf.Max(0.05f, waterJetDuration);
+        _enableTentacleContactDamage = false;
+        _autoWaterJetWhenPlayerDetected = false;
+        _allowKeyboardPreview = false;
+        _suppressGameplayEffects = true;
+    }
+
+    public void PlayTentacleContactVisual(Transform target)
+    {
+        _target = target;
+        _targetCandidate = target;
+        TriggerTentacleContact();
+    }
+
+    public void PlayWaterJetVisual(Transform target)
+    {
+        _target = target;
+        _targetCandidate = target;
+        TriggerWaterJet();
     }
 
     private void TickTentacleContact()
@@ -299,6 +335,11 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
     private void ApplyTentacleHit(Vector3 hitPoint, float damage)
     {
+        if (_suppressGameplayEffects)
+        {
+            return;
+        }
+
         if (_targetCandidate == null)
         {
             return;
@@ -399,6 +440,11 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
     private void ApplyWaterJetHit(Vector3 origin, Vector3 direction, float distance)
     {
+        if (_suppressGameplayEffects)
+        {
+            return;
+        }
+
         bool hitApplied = false;
         int hitCount = Physics.SphereCastNonAlloc(origin, Mathf.Max(0.02f, _waterJetRadius), direction, s_waterJetHits, distance, _hitMask, QueryTriggerInteraction.Collide);
         for (int i = 0; i < hitCount; i++)
@@ -444,6 +490,11 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
     private void ApplyWaterJetKnockback(Vector3 direction)
     {
+        if (_suppressGameplayEffects)
+        {
+            return;
+        }
+
         if (_targetCandidate == null)
         {
             return;
@@ -543,6 +594,11 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
     private Vector3 ResolveTentacleOrigin(int index)
     {
+        if (_tentacleOriginOverride != null)
+        {
+            return _tentacleOriginOverride.position;
+        }
+
         float angle = (index / 6f) * Mathf.PI * 2f + Time.time * 0.25f;
         Vector3 radial = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * _tentacleSpreadRadius;
         return transform.position + radial + Vector3.up * _tentacleOriginHeight;
@@ -550,6 +606,11 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
     private Vector3 ResolveWaterJetOrigin()
     {
+        if (_waterJetOriginOverride != null)
+        {
+            return _waterJetOriginOverride.position;
+        }
+
         return transform.TransformPoint(_waterJetOriginLocalOffset);
     }
 
