@@ -35,6 +35,11 @@ namespace Gameplay.Targets.Authoring
         private const int ResourceApproachDirectionCount = 16;
 
         private readonly List<Vector3> _navigationCandidateBuffer = new List<Vector3>();
+        private readonly List<Collider> _colliderBuffer = new List<Collider>();
+        private readonly Dictionary<GameObject, List<Vector3>> _navigationCandidatesByResource =
+            new Dictionary<GameObject, List<Vector3>>();
+        private readonly HashSet<GameObject> _initializedNavigationDebugObjects = new HashSet<GameObject>();
+        private NavMeshPath _navigationPath;
 
         /// <summary>
         /// 当前资源群统一使用的资源等级
@@ -117,6 +122,23 @@ namespace Gameplay.Targets.Authoring
             _resourceMembers ??= new List<GameplayTargetEntityMember>();
             ApplyResourceTierToMembers();
             base.OnEnable();
+            InitializeNavigationCandidateDebugMarkers();
+        }
+
+        protected override void OnDisable()
+        {
+            _navigationCandidatesByResource.Clear();
+            _initializedNavigationDebugObjects.Clear();
+            _navigationPath = null;
+            base.OnDisable();
+        }
+
+        private NavMeshPath GetNavigationPath()
+        {
+            if (_navigationPath == null)
+                _navigationPath = new NavMeshPath();
+
+            return _navigationPath;
         }
 
         /// <summary>
@@ -218,7 +240,7 @@ namespace Gameplay.Targets.Authoring
                 return resourceObject != null;
             }
 
-            NavMeshPath path = new NavMeshPath();
+            NavMeshPath path = GetNavigationPath();
             float nearestPathLength = float.MaxValue;
             float nearestDistanceSqr = float.MaxValue;
 
@@ -232,7 +254,6 @@ namespace Gameplay.Targets.Authoring
                         member.EntityObject,
                         member.Position,
                         agentPosition,
-                        navMeshAgent,
                         startPosition,
                         areaMask,
                         path,
@@ -425,7 +446,7 @@ namespace Gameplay.Targets.Authoring
                 member.Position,
                 agentPosition,
                 _navigationCandidateBuffer);
-            RefreshNavigationCandidateDebugMarkers(member.EntityObject, _navigationCandidateBuffer);
+            EnsureNavigationCandidateDebugMarkers(member.EntityObject, _navigationCandidateBuffer);
 
             int sampledCount = 0;
             int completeCount = 0;
@@ -546,10 +567,11 @@ namespace Gameplay.Targets.Authoring
 
         private static Vector3 GetPathEndPosition(NavMeshPath path, Vector3 fallbackPosition)
         {
-            if (path == null || path.corners == null || path.corners.Length <= 0)
+            Vector3[] corners = path != null ? path.corners : null;
+            if (corners == null || corners.Length <= 0)
                 return fallbackPosition;
 
-            return path.corners[path.corners.Length - 1];
+            return corners[corners.Length - 1];
         }
 
         private static bool TryResolveNavMeshStartPosition(
@@ -588,7 +610,6 @@ namespace Gameplay.Targets.Authoring
             GameObject resourceObject,
             Vector3 fallbackPosition,
             Vector3 agentPosition,
-            NavMeshAgent navMeshAgent,
             Vector3 startPosition,
             int areaMask,
             NavMeshPath path,
@@ -599,20 +620,17 @@ namespace Gameplay.Targets.Authoring
             pathLength = float.MaxValue;
 
             // 资源对象的 pivot 通常不在可站立面上，先围绕碰撞体生成一组可尝试停靠点
-            FillResourceNavigationCandidates(
+            List<Vector3> navigationCandidates = GetOrBuildResourceNavigationCandidates(
                 resourceObject,
                 fallbackPosition,
-                agentPosition,
-                _navigationCandidateBuffer);
-            RefreshNavigationCandidateDebugMarkers(resourceObject, _navigationCandidateBuffer);
+                agentPosition);
+            EnsureNavigationCandidateDebugMarkers(resourceObject, navigationCandidates);
 
-            bool foundReachablePosition = false;
-            for (int i = 0; i < _navigationCandidateBuffer.Count; i++)
+            for (int i = 0; i < navigationCandidates.Count; i++)
             {
                 // 只接受 PathComplete，避免 Agent 追向无法最终到达的 partial 终点
                 if (!TryCalculateCompletePathToCandidate(
-                        _navigationCandidateBuffer[i],
-                        navMeshAgent,
+                        navigationCandidates[i],
                         startPosition,
                         areaMask,
                         path,
@@ -622,19 +640,16 @@ namespace Gameplay.Targets.Authoring
                     continue;
                 }
 
-                if (candidatePathLength >= pathLength)
-                    continue;
-
-                // 同一个资源可能有多个可达边缘点，保留路径最短的停靠点
+                // Candidate points are ordered from closest/simple to fallback, so the first complete path is enough for discovery.
                 navigationPosition = candidateNavigationPosition;
                 pathLength = candidatePathLength;
-                foundReachablePosition = true;
+                return true;
             }
 
-            return foundReachablePosition;
+            return false;
         }
 
-        private static void FillResourceNavigationCandidates(
+        private void FillResourceNavigationCandidates(
             GameObject resourceObject,
             Vector3 fallbackPosition,
             Vector3 agentPosition,
@@ -648,13 +663,14 @@ namespace Gameplay.Targets.Authoring
             }
 
             // 先收集所有有效实体碰撞体，并用离 Agent 最近的碰撞体点作为候选
-            Collider[] colliders = resourceObject.GetComponentsInChildren<Collider>();
+            _colliderBuffer.Clear();
+            resourceObject.GetComponentsInChildren<Collider>(false, _colliderBuffer);
             Bounds combinedBounds = default;
             bool hasBounds = false;
 
-            for (int i = 0; i < colliders.Length; i++)
+            for (int i = 0; i < _colliderBuffer.Count; i++)
             {
-                Collider resourceCollider = colliders[i];
+                Collider resourceCollider = _colliderBuffer[i];
                 if (resourceCollider == null ||
                     !resourceCollider.enabled ||
                     !resourceCollider.gameObject.activeInHierarchy ||
@@ -699,13 +715,68 @@ namespace Gameplay.Targets.Authoring
             }
         }
 
-        private void RefreshNavigationCandidateDebugMarkers(
+        private List<Vector3> GetOrBuildResourceNavigationCandidates(
             GameObject resourceObject,
-            List<Vector3> candidates)
+            Vector3 fallbackPosition,
+            Vector3 agentPosition)
         {
+            if (resourceObject == null)
+            {
+                _navigationCandidateBuffer.Clear();
+                AddUniqueCandidate(_navigationCandidateBuffer, fallbackPosition);
+                return _navigationCandidateBuffer;
+            }
+
+            if (!_navigationCandidatesByResource.TryGetValue(
+                    resourceObject,
+                    out List<Vector3> navigationCandidates) ||
+                navigationCandidates == null)
+            {
+                navigationCandidates = new List<Vector3>();
+                _navigationCandidatesByResource[resourceObject] = navigationCandidates;
+                FillResourceNavigationCandidates(
+                    resourceObject,
+                    fallbackPosition,
+                    agentPosition,
+                    navigationCandidates);
+            }
+
+            return navigationCandidates;
+        }
+
+        private void InitializeNavigationCandidateDebugMarkers()
+        {
+            _initializedNavigationDebugObjects.Clear();
             if (!_showNavigationCandidateDebugObjects)
             {
                 SetNavigationCandidateDebugObjectsActive(false);
+            }
+
+            for (int i = 0; i < _resourceMembers.Count; i++)
+            {
+                GameplayTargetEntityMember member = _resourceMembers[i];
+                GameObject resourceObject = member?.EntityObject;
+                if (resourceObject == null)
+                    continue;
+
+                List<Vector3> navigationCandidates = GetOrBuildResourceNavigationCandidates(
+                    resourceObject,
+                    member.Position,
+                    CenterPosition);
+
+                if (_showNavigationCandidateDebugObjects)
+                    EnsureNavigationCandidateDebugMarkers(resourceObject, navigationCandidates);
+            }
+        }
+
+        private void EnsureNavigationCandidateDebugMarkers(
+            GameObject resourceObject,
+            List<Vector3> candidates)
+        {
+            if (!_showNavigationCandidateDebugObjects ||
+                resourceObject == null ||
+                _initializedNavigationDebugObjects.Contains(resourceObject))
+            {
                 return;
             }
 
@@ -714,6 +785,7 @@ namespace Gameplay.Targets.Authoring
                 return;
 
             root.gameObject.SetActive(true);
+            _initializedNavigationDebugObjects.Add(resourceObject);
 
             int candidateCount = candidates != null ? candidates.Count : 0;
             for (int i = 0; i < candidateCount; i++)
@@ -761,7 +833,9 @@ namespace Gameplay.Targets.Authoring
             if (root != null && index < root.childCount)
             {
                 GameObject existingMarker = root.GetChild(index).gameObject;
-                existingMarker.name = markerName;
+                if (existingMarker.name != markerName)
+                    existingMarker.name = markerName;
+
                 StripNavigationCandidateDebugComponents(existingMarker);
                 return existingMarker;
             }
@@ -838,7 +912,6 @@ namespace Gameplay.Targets.Authoring
 
         private static bool TryCalculateCompletePathToCandidate(
             Vector3 candidatePosition,
-            NavMeshAgent navMeshAgent,
             Vector3 startPosition,
             int areaMask,
             NavMeshPath path,
@@ -858,35 +931,31 @@ namespace Gameplay.Targets.Authoring
                 return false;
             }
 
-            // Agent 自身在 NavMesh 上时优先使用实例路径计算，避免 transform 高度偏移污染起点
-            bool calculated =
-                navMeshAgent != null &&
-                navMeshAgent.enabled &&
-                navMeshAgent.isOnNavMesh
-                    ? navMeshAgent.CalculatePath(targetHit.position, path)
-                    : NavMesh.CalculatePath(
-                        startPosition,
-                        targetHit.position,
-                        areaMask,
-                        path);
+            // Use the resolved NavMesh start position to avoid per-agent path object allocations in the scan loop.
+            bool calculated = NavMesh.CalculatePath(
+                startPosition,
+                targetHit.position,
+                areaMask,
+                path);
             if (!calculated || path.status != NavMeshPathStatus.PathComplete)
                 return false;
 
             // 返回可实际 SetPath 的 NavMesh 点和完整路径长度，供外层做最近目标选择
             navigationPosition = targetHit.position;
-            pathLength = CalculatePathLength(path);
+            pathLength = GetPlanarDistanceSqr(startPosition, targetHit.position);
             return true;
         }
 
         private static float CalculatePathLength(NavMeshPath path)
         {
-            if (path == null || path.corners == null || path.corners.Length < 2)
+            Vector3[] corners = path != null ? path.corners : null;
+            if (corners == null || corners.Length < 2)
                 return 0f;
 
             float length = 0f;
-            for (int i = 1; i < path.corners.Length; i++)
+            for (int i = 1; i < corners.Length; i++)
             {
-                length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+                length += Vector3.Distance(corners[i - 1], corners[i]);
             }
 
             return length;
