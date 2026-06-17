@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// 玩家靠近后按阶段切换树木模型的生长演示组件
+/// </summary>
 public class TreeGrowth_OnlyModel : MonoBehaviour
 {
     [Header("核心配置")]
@@ -57,6 +60,7 @@ public class TreeGrowth_OnlyModel : MonoBehaviour
 
     private IEnumerator GrowTreeStepByStep()
     {
+        // 用三个阶段切换模型，避免同时缩放多套树模型造成穿插
         yield return new WaitForSeconds(totalGrowDuration / 3);
         if (seedling != null) seedling.SetActive(false);
         if (smallTree != null) smallTree.SetActive(true);

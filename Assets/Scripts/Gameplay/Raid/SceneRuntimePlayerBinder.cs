@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Binds scene-level support objects to a dynamically spawned Player at runtime.
+/// 在运行时把场景级支持对象绑定到动态生成的玩家或聚焦智能体
 /// </summary>
 public class SceneRuntimePlayerBinder : MonoBehaviour
 {
@@ -99,6 +99,7 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
             return;
         }
 
+        // 动态生成的玩家可能缺少交互组件，这里统一补齐并接上场景界面
         PlayerInteraction interaction = playerTransform.GetComponent<PlayerInteraction>();
         if (interaction == null)
         {
@@ -134,6 +135,7 @@ public class SceneRuntimePlayerBinder : MonoBehaviour
     {
         if (PreferFocusedAgent)
         {
+            // 多智能体模式优先使用当前聚焦对象，让镜头和交互界面跟随玩家控制目标
             AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
             if (registry != null &&
                 registry.TryGetFocusedHandle(out AgentRuntimeHandle focusedHandle) &&

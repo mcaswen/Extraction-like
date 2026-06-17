@@ -2,8 +2,8 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// 在当前场景中一键生成树屋白模。
-/// 生成完成后会自动选中根节点，方便直接拖动到目标位置。
+/// 在当前场景中一键生成树屋白模
+/// 生成完成后会自动选中根节点，方便直接拖动到目标位置
 /// </summary>
 public static class TreehouseWhiteboxBuilder
 {

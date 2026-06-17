@@ -4,12 +4,21 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>
+/// 撤离成功结算页需要展示的统计数据
+/// </summary>
 public struct RaidExtractionSummary
 {
     public readonly float ElapsedSeconds;
     public readonly int LootItemCount;
     public readonly int TotalValue;
 
+    /// <summary>
+    /// 创建撤离结算统计数据，并把负数输入夹到有效范围
+    /// </summary>
+    /// <param name="elapsedSeconds">本局用时秒数</param>
+    /// <param name="lootItemCount">撤离携带物品数量</param>
+    /// <param name="totalValue">撤离物品总价值</param>
     public RaidExtractionSummary(float elapsedSeconds, int lootItemCount, int totalValue)
     {
         ElapsedSeconds = Mathf.Max(0f, elapsedSeconds);
@@ -18,6 +27,9 @@ public struct RaidExtractionSummary
     }
 }
 
+/// <summary>
+/// 撤离成功后的结算界面控制器
+/// </summary>
 public sealed class RaidExtractionSuccessScreen : MonoBehaviour
 {
     [Header("Copy")]
@@ -56,6 +68,11 @@ public sealed class RaidExtractionSuccessScreen : MonoBehaviour
         SetImmediateHidden();
     }
 
+    /// <summary>
+    /// 显示结算页并绑定确认按钮回调
+    /// </summary>
+    /// <param name="summary">本次撤离统计数据</param>
+    /// <param name="confirmAction">确认按钮触发回调</param>
     public void Show(RaidExtractionSummary summary, Action confirmAction)
     {
         _confirmAction = confirmAction;
@@ -139,6 +156,7 @@ public sealed class RaidExtractionSuccessScreen : MonoBehaviour
         SetRowsAlpha(0f);
         SetConfirmInteractable(false);
 
+        // 先白闪再逐行显示数据，让结算页在暂停时间下仍能播放节奏
         yield return FadeWhite(0f, 1f, _whiteFadeInSeconds);
 
         SetContentAlpha(1f);
@@ -290,6 +308,7 @@ public sealed class RaidExtractionSuccessScreen : MonoBehaviour
         if (EventSystem.current != null)
             return;
 
+        // 结算页可能由运行时动态生成，缺少事件系统时按钮无法接收输入
         GameObject eventSystemObject = new GameObject("EventSystem");
         eventSystemObject.AddComponent<EventSystem>();
         eventSystemObject.AddComponent<StandaloneInputModule>();

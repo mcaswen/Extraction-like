@@ -1,9 +1,15 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 敌人巡逻路线组件的检视面板扩展
+/// </summary>
 [CustomEditor(typeof(EnemyPatrolRoute))]
 public sealed class EnemyPatrolRouteEditor : Editor
 {
+    /// <summary>
+    /// 绘制巡逻路线检视面板，并提供一键创建或同步路点的按钮
+    /// </summary>
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();

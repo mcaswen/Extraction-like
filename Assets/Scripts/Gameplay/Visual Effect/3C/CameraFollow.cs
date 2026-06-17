@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 简易相机跟随控制器，支持目标自动查找、边界限制和视角翻转
+/// </summary>
 public class CameraFollow : MonoBehaviour
 {
     [Header("跟随目标设置")]
@@ -32,7 +35,7 @@ public class CameraFollow : MonoBehaviour
     [Tooltip("旋转平滑系数（值越大旋转越快，建议0.05-0.2）")]
     public float rotateSmoothSpeed = 0.1f;
 
-    // 私有变量：记录当前旋转状态（是否已旋转180度）
+    // 记录当前视角是否处于翻转状态
     private bool isRotated = false;
     // 记录初始旋转
     private Quaternion originalRotation;
@@ -44,6 +47,7 @@ public class CameraFollow : MonoBehaviour
     {
         if (target == null)
         {
+            // 作为演示脚本时允许不手动拖引用，启动时按玩家标签兜底寻找目标
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null)
             {
@@ -77,6 +81,7 @@ public class CameraFollow : MonoBehaviour
 
         if (limitCameraBounds)
         {
+            // 只限制水平面位置，高度仍由偏移值控制
             desiredPosition.x = Mathf.Clamp(desiredPosition.x, minX, maxX);
             desiredPosition.z = Mathf.Clamp(desiredPosition.z, minZ, maxZ);
         }

@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 根据当前选区生成龙骨礁撤离区域白模
+/// </summary>
 public static class DragonboneReefExtractionBuilder
 {
     private const float FloorThickness = 0.2f;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Config asset that drives editor-side random population for the whitebox raid MVP.
+/// 驱动白盒局内原型场景随机布置的编辑器配置资产
 /// </summary>
 [CreateAssetMenu(fileName = "RaidMvpPopulationProfile", menuName = "Raid/MVP Population Profile")]
 public class RaidMvpPopulationProfile : ScriptableObject
@@ -80,6 +80,11 @@ public class RaidMvpPopulationProfile : ScriptableObject
         new RaidRegionPrefabPool { Purpose = RaidRegionPurpose.Transit }
     };
 
+    /// <summary>
+    /// 按区域密度查找刷怪和箱子数量规则
+    /// </summary>
+    /// <param name="density">区域密度</param>
+    /// <returns>匹配的密度规则，未配置时返回空值</returns>
     public RaidDensitySpawnRule GetDensityRule(RaidSpawnDensity density)
     {
         for (int i = 0; i < DensityRules.Count; i++)
@@ -93,6 +98,11 @@ public class RaidMvpPopulationProfile : ScriptableObject
         return null;
     }
 
+    /// <summary>
+    /// 按区域用途查找预制体池，特殊区域会回退到资源区池
+    /// </summary>
+    /// <param name="purpose">区域用途</param>
+    /// <returns>匹配的预制体池，未配置时返回空值</returns>
     public RaidRegionPrefabPool GetRegionPool(RaidRegionPurpose purpose)
     {
         for (int i = 0; i < RegionPools.Count; i++)
@@ -117,6 +127,9 @@ public class RaidMvpPopulationProfile : ScriptableObject
     }
 }
 
+/// <summary>
+/// 单种区域密度对应的敌人和箱子数量区间
+/// </summary>
 [Serializable]
 public class RaidDensitySpawnRule
 {
@@ -125,6 +138,9 @@ public class RaidDensitySpawnRule
     public Vector2Int ChestCountRange = new Vector2Int(1, 2);
 }
 
+/// <summary>
+/// 单种区域用途对应的敌人和箱子预制体池
+/// </summary>
 [Serializable]
 public class RaidRegionPrefabPool
 {
@@ -133,6 +149,9 @@ public class RaidRegionPrefabPool
     public List<RaidSpawnPrefabEntry> ChestPrefabs = new List<RaidSpawnPrefabEntry>();
 }
 
+/// <summary>
+/// 带权重和摆放参数的局内生成预制体条目
+/// </summary>
 [Serializable]
 public class RaidSpawnPrefabEntry
 {

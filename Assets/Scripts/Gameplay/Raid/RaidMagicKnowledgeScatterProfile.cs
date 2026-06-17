@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 魔法知识可投放的局内区域用途掩码
+/// </summary>
 [Flags]
 public enum RaidRegionPurposeMask
 {
@@ -15,6 +18,9 @@ public enum RaidRegionPurposeMask
     All = ~0
 }
 
+/// <summary>
+/// 单类魔法知识拾取物的投放配置
+/// </summary>
 [Serializable]
 public class RaidMagicKnowledgeSpawnEntry
 {
@@ -32,7 +38,7 @@ public class RaidMagicKnowledgeSpawnEntry
 }
 
 /// <summary>
-/// Data profile used by editor scatter tools to place magic books/relics in raid scenes.
+/// 编辑器散布工具使用的魔法知识投放配置资产
 /// </summary>
 [CreateAssetMenu(fileName = "SO_RaidMagicKnowledgeScatterProfile", menuName = "Raid/Magic Knowledge Scatter Profile")]
 public class RaidMagicKnowledgeScatterProfile : ScriptableObject

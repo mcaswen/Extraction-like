@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 按对象命名规则为当前场景白盒物体应用高对比配色
+/// </summary>
 public static class WhiteboxPaletteApplier
 {
     [MenuItem("Tools/Whitebox/Apply High Contrast Palette To Active Scene")]

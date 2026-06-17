@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 根据选中的梯子对象创建上下双向传送点
+/// </summary>
 public static class TeleportPadPairBuilder
 {
     [MenuItem("Tools/Whitebox/Create Teleport Pair For Selected Ladder")]

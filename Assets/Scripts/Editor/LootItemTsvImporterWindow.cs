@@ -7,6 +7,9 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 从制表符分隔表导入战利品道具资产和对应世界预制体的编辑器窗口
+/// </summary>
 public sealed class LootItemTsvImporterWindow : EditorWindow
 {
     private const string DefaultTsvPath = "Assets/Config/Loot/LootItems.tsv";

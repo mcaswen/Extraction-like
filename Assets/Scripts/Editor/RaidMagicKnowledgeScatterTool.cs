@@ -6,6 +6,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 在局内白盒场景中生成并散布魔法知识拾取物的编辑器工具
+/// </summary>
 public static class RaidMagicKnowledgeScatterTool
 {
     private const string DefaultProfilePath = "Assets/Settings/MagicKnowledge/SO_RaidMagicKnowledgeScatterProfile.asset";
@@ -203,8 +206,8 @@ public static class RaidMagicKnowledgeScatterTool
     }
 
     /// <summary>
-    /// Public entry point for Unity batchmode:
-    /// -executeMethod RaidMagicKnowledgeScatterTool.GenerateAndScatterForSceneLylIslandWhitebox
+    /// 编辑器批处理模式入口
+    /// 可通过执行方法参数调用魔法知识散布流程
     /// </summary>
     public static void GenerateAndScatterForSceneLylIslandWhitebox()
     {

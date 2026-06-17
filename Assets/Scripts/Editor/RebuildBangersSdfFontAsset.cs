@@ -6,12 +6,18 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 
+/// <summary>
+/// 重建字体资产的编辑器窗口
+/// </summary>
 public sealed class RebuildBangersSdfFontAssetWindow : EditorWindow
 {
     private const string WindowTitle = "Bangers SDF";
     private string _lastResult = "Ready.";
     private MessageType _lastResultType = MessageType.Info;
 
+    /// <summary>
+    /// 打开字体资产重建窗口
+    /// </summary>
     [MenuItem("Tools/TextMesh Pro/Bangers SDF Rebuilder")]
     public static void Open()
     {
@@ -61,11 +67,17 @@ public sealed class RebuildBangersSdfFontAssetWindow : EditorWindow
     }
 }
 
+/// <summary>
+/// 负责覆盖重建指定字体资产并保持资源引用不变的工具类
+/// </summary>
 public static class BangersSdfFontAssetRebuilder
 {
     public const string FontAssetPath = "Assets/ThirdParty/TextMesh Pro/Examples & Extras/Resources/Fonts & Materials/Bangers SDF.asset";
     public const string SourceFontPath = "Assets/ThirdParty/TextMesh Pro/Examples & Extras/Fonts/Bangers.ttf";
 
+    /// <summary>
+    /// 菜单入口，立即重建字体资产
+    /// </summary>
     [MenuItem("Tools/TextMesh Pro/Rebuild Bangers SDF Now")]
     public static void RebuildFromMenu()
     {
@@ -81,6 +93,9 @@ public static class BangersSdfFontAssetRebuilder
         }
     }
 
+    /// <summary>
+    /// 执行字体资产覆盖重建并校验基础字符表
+    /// </summary>
     public static void Rebuild()
     {
         EditorUtility.DisplayProgressBar("Bangers SDF", "Loading font assets...", 0.1f);

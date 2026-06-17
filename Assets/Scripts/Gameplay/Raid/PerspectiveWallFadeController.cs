@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 2.5D 透视墙体淡出控制器。
-/// 摄像机到玩家之间的墙体会自动半透明。
+/// 摄像机到玩家之间的遮挡墙体检测器，统一驱动墙体半透明
 /// </summary>
 public class PerspectiveWallFadeController : MonoBehaviour
 {
@@ -52,6 +51,7 @@ public class PerspectiveWallFadeController : MonoBehaviour
         RaycastHit[] hits = Physics.RaycastAll(origin, direction.normalized, distance, OccluderMask, QueryTriggerInteraction.Ignore);
         foreach (RaycastHit hit in hits)
         {
+            // 通过父级查找允许碰撞体挂在墙体子物体上
             PerspectiveFadeWall fadeWall = hit.collider.GetComponentInParent<PerspectiveFadeWall>();
             if (fadeWall != null)
             {

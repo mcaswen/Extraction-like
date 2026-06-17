@@ -3,6 +3,9 @@ using Gameplay.Agent.Combat;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 生成智能体默认战斗技能配置、材质、网格和特效预制体的编辑器工具
+/// </summary>
 public static class AgentCombatContentGenerator
 {
     private const string ResourceRoot = "Assets/Resources/Agent/Combat";
@@ -14,6 +17,7 @@ public static class AgentCombatContentGenerator
     [InitializeOnLoadMethod]
     private static void AutoGenerateMissingContent()
     {
+        // 延迟到编辑器初始化完成后再检查资源，避免资源数据库尚未可用
         EditorApplication.delayCall += () =>
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -26,6 +30,9 @@ public static class AgentCombatContentGenerator
         };
     }
 
+    /// <summary>
+    /// 生成或刷新智能体默认战斗内容资源
+    /// </summary>
     [MenuItem("Tools/Agent/Combat/Generate Default Combat Content")]
     public static void GenerateDefaultCombatContent()
     {

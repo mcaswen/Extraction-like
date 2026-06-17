@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// Runtime-generated minimap + fullscreen map for the raid whitebox MVP.
+/// 白盒原型运行时生成的小地图和全屏地图控制器
 /// </summary>
 public class RaidMinimapController : MonoBehaviour
 {
@@ -82,6 +82,7 @@ public class RaidMinimapController : MonoBehaviour
     {
         EnsureSharedResources();
 
+        // 小地图完全由运行时生成，避免每个白盒场景都维护一份界面预制体实例
         GameObject canvasObject = new GameObject("RaidMinimapCanvas");
         canvasObject.transform.SetParent(transform, false);
         _canvas = canvasObject.AddComponent<Canvas>();
@@ -109,6 +110,7 @@ public class RaidMinimapController : MonoBehaviour
     {
         HashSet<int> aliveIds = new HashSet<int>();
 
+        // 周期性全量扫描可显示目标，再用实例标识维护图标增删
         if (ShowEnemyMarkers)
         {
             EnemyHealthController[] enemies = FindObjectsOfType<EnemyHealthController>(true);
@@ -166,6 +168,7 @@ public class RaidMinimapController : MonoBehaviour
         List<int> toRemove = new List<int>();
         foreach (KeyValuePair<int, MarkerVisual> pair in _markers)
         {
+            // 目标消失或禁用时同步销毁对应大小地图图标
             if (!aliveIds.Contains(pair.Key))
             {
                 if (pair.Value.MiniIcon != null)
@@ -259,6 +262,7 @@ public class RaidMinimapController : MonoBehaviour
 
             if (marker.MiniIcon != null)
             {
+                // 小地图以玩家为中心，只显示固定世界范围内的标记
                 Vector2 delta = new Vector2(worldPosition.x - _playerTransform.position.x, worldPosition.z - _playerTransform.position.z);
                 Vector2 halfSpan = SmallMapWorldSpan * 0.5f;
                 bool insideMini = Mathf.Abs(delta.x) <= halfSpan.x && Mathf.Abs(delta.y) <= halfSpan.y;
@@ -307,6 +311,7 @@ public class RaidMinimapController : MonoBehaviour
         RaidRegionMarker[] markers = FindObjectsOfType<RaidRegionMarker>(true);
         if (markers.Length > 0)
         {
+            // 有区域标记时以设计区域为全屏地图范围，保证生成内容都落在地图内
             Bounds bounds = markers[0].GetWorldBounds();
             for (int i = 1; i < markers.Length; i++)
             {
@@ -322,6 +327,7 @@ public class RaidMinimapController : MonoBehaviour
         Bounds fallbackBounds = new Bounds(Vector3.zero, Vector3.one * 100f);
         for (int i = 0; i < renderers.Length; i++)
         {
+            // 没有区域标记的旧场景退回到可见渲染器包围盒
             Renderer rendererComponent = renderers[i];
             if (rendererComponent == null || rendererComponent is ParticleSystemRenderer || rendererComponent is TrailRenderer || rendererComponent is LineRenderer)
             {

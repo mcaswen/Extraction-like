@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 从敌人预制体字段迁移生成运行时敌人配置资产的编辑器工具
+/// </summary>
 public static class EnemyConfigMigrationTool
 {
     private const string ConfigFolder = "Assets/SO/Enemies";
@@ -47,6 +50,9 @@ public static class EnemyConfigMigrationTool
             typeof(HunterBossConfig))
     };
 
+    /// <summary>
+    /// 为已登记敌人预制体创建或刷新对应运行时配置资产
+    /// </summary>
     [MenuItem("Tools/Enemies/Create Runtime Enemy Config Assets")]
     public static void CreateRuntimeEnemyConfigAssets()
     {

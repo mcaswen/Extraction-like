@@ -2,6 +2,9 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 生成玩家状态界面图片配置资产的编辑器工具
+/// </summary>
 public static class PlayerStatusHudSpriteSetBuilder
 {
     private const string SpriteSetPath = "Assets/Resources/HUD/PlayerStatusHudSpriteSet.asset";
@@ -12,6 +15,9 @@ public static class PlayerStatusHudSpriteSetBuilder
     private const string CarryIconPath = "Assets/Art/Sprites/UI/Main_character, progress_bar, status_bar/IMG_0586.PNG";
     private const string ProgressBarPath = "Assets/Art/Sprites/UI/Main_character, progress_bar, status_bar/IMG_0587.PNG";
 
+    /// <summary>
+    /// 重建玩家状态界面图片集合资产
+    /// </summary>
     [MenuItem("Tools/Raid/Rebuild Player Status HUD Sprite Set")]
     public static void Rebuild()
     {

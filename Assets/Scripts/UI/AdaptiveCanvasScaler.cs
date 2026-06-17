@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Keeps screen-space UI readable across aspect ratios and smaller windows.
+/// 让屏幕空间界面在不同比例和小窗口下保持可读尺寸
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CanvasScaler))]
@@ -18,6 +18,15 @@ public sealed class AdaptiveCanvasScaler : MonoBehaviour
     private CanvasScaler _scaler;
     private Vector2Int _lastScreenSize = new Vector2Int(-1, -1);
 
+    /// <summary>
+    /// 为指定画布缩放器创建或更新自适应缩放组件
+    /// </summary>
+    /// <param name="scaler">目标画布缩放器</param>
+    /// <param name="referenceResolution">设计参考分辨率</param>
+    /// <param name="matchWidthOrHeight">宽高匹配权重</param>
+    /// <param name="minimumScale">最小缩放倍率</param>
+    /// <param name="maximumScale">最大缩放倍率</param>
+    /// <returns>创建或复用的自适应缩放组件</returns>
     public static AdaptiveCanvasScaler Configure(
         CanvasScaler scaler,
         Vector2 referenceResolution,
@@ -79,6 +88,10 @@ public sealed class AdaptiveCanvasScaler : MonoBehaviour
     }
 #endif
 
+    /// <summary>
+    /// 立即把当前屏幕尺寸对应的缩放参数写回画布缩放器
+    /// </summary>
+    /// <param name="force">是否跳过屏幕尺寸变化判断并强制应用</param>
     public void ApplyNow(bool force)
     {
         if (!force && !HasScreenSizeChanged())
@@ -99,6 +112,7 @@ public sealed class AdaptiveCanvasScaler : MonoBehaviour
 
         if (_clampScale)
         {
+            // 画布缩放器只能通过参考分辨率间接夹住缩放值，这里把目标缩放反推回有效参考分辨率
             float unclampedScale = CalculateScale(screenSize, baseReferenceResolution, match);
             float targetScale = Mathf.Clamp(
                 unclampedScale,

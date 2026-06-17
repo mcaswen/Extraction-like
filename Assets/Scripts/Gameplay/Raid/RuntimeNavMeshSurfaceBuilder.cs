@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// Builds scene NavMesh data at runtime for procedurally assembled whitebox scenes.
-/// This should be used scene-wide instead of rebuilding per enemy spawn.
+/// 为运行时拼装的白盒场景统一构建导航网格数据
 /// </summary>
 [DefaultExecutionOrder(-250)]
 [RequireComponent(typeof(NavMeshSurface))]
@@ -59,6 +58,9 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
         BuildNow();
     }
 
+    /// <summary>
+    /// 请求按冷却限制重建当前场景导航网格
+    /// </summary>
     public void RequestRebuild()
     {
         if (!RebuildOnRequest)
@@ -79,6 +81,9 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
         BuildNow();
     }
 
+    /// <summary>
+    /// 立即应用导航网格表面默认参数并同步构建导航网格
+    /// </summary>
     public void BuildNow()
     {
         if (_surface == null)
@@ -104,6 +109,7 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
             return;
         }
 
+        // 白盒场景通常由编辑器工具临时拼装，收集全场对象比局部体积更稳定
         if (ForceCollectAllObjects)
         {
             _surface.collectObjects = CollectObjects.All;

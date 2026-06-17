@@ -9,6 +9,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// 重建开始菜单场景和相关界面图片资产的编辑器工具
+/// </summary>
 public static class StartMenuSceneBuilder
 {
     private const string MenuScenePath = "Assets/Scenes/Scene_StartMenu.unity";
@@ -18,6 +21,9 @@ public static class StartMenuSceneBuilder
     private const string ButtonFramePath = OutputFolder + "/StartMenu_ButtonFrame.png";
     private const string CharacterPath = "Assets/Art/Sprites/UI design/Battle/Jpg_protagonist.PNG";
 
+    /// <summary>
+    /// 重建开始菜单场景并更新构建设置
+    /// </summary>
     [MenuItem("Tools/UI/Rebuild Start Menu Scene")]
     public static void RebuildStartMenuScene()
     {
@@ -51,6 +57,9 @@ public static class StartMenuSceneBuilder
         Debug.Log("Start menu scene rebuilt: " + MenuScenePath);
     }
 
+    /// <summary>
+    /// 命令行入口，复用开始菜单重建流程
+    /// </summary>
     public static void RebuildStartMenuSceneFromCommandLine()
     {
         RebuildStartMenuScene();

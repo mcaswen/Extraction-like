@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 检测玩家靠近后让物体漂浮到目标高度的视觉演示组件
+/// </summary>
 public class FloatOnDetectPlayer : MonoBehaviour
 {
     [Header("检测设置")]
@@ -41,6 +44,7 @@ public class FloatOnDetectPlayer : MonoBehaviour
        
         CheckPlayerRangeStatus();
 
+        // 玩家进入范围时关闭重力并上浮，离开后恢复刚体状态
         if (isPlayerInRange)
         {
             StartFloatLogic();
@@ -56,6 +60,7 @@ public class FloatOnDetectPlayer : MonoBehaviour
     {
         bool playerDetected = false;
 
+        // 使用球形范围作为演示触发器，不依赖额外触发器配置
         Collider[] colliders = Physics.OverlapSphere(transform.position, detectRange);
 
         foreach (Collider col in colliders)

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 
 
+/// <summary>
+/// 玩家进入触发区域时临时提高移动速度的区域组件
+/// </summary>
 public class SpeedUpPlane : MonoBehaviour
 {
     [Header("加速设置")]
@@ -17,6 +20,7 @@ public class SpeedUpPlane : MonoBehaviour
     private void Start()
     {
     
+        // 保留网格碰撞作为实体表面，再额外补一个盒形碰撞体作为速度触发器
         MeshCollider physicsCollider = GetComponent<MeshCollider>();
         if (physicsCollider == null)
         {
@@ -46,6 +50,7 @@ public class SpeedUpPlane : MonoBehaviour
                     playerOriginalSpeeds[other.gameObject] = playerMove.moveSpeed;
                 }
                
+                // 从记录的原始速度叠加，避免反复进入时速度持续累加
                 playerMove.moveSpeed = playerOriginalSpeeds[other.gameObject] + speedIncrease;
             }
         }

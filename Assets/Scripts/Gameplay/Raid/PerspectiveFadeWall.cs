@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// 2.5D 视角墙体淡出组件。
-/// 当墙体挡住玩家时，会自动降低透明度。
+/// 视角遮挡墙体淡出组件，墙体挡住玩家时自动降低透明度
 /// </summary>
 public class PerspectiveFadeWall : MonoBehaviour
 {
@@ -34,6 +33,10 @@ public class PerspectiveFadeWall : MonoBehaviour
         ApplyAlphaImmediate(_currentAlpha);
     }
 
+    /// <summary>
+    /// 设置当前墙体是否处于遮挡状态
+    /// </summary>
+    /// <param name="isOccluded">是否遮挡玩家视线</param>
     public void SetOccluded(bool isOccluded)
     {
         _targetAlpha = isOccluded ? OccludedAlpha : VisibleAlpha;
@@ -106,6 +109,7 @@ public class PerspectiveFadeWall : MonoBehaviour
             return;
         }
 
+        // 同时兼容通用渲染管线和内置管线材质的透明设置
         if (material.HasProperty("_Surface"))
         {
             material.SetFloat("_Surface", 1f);

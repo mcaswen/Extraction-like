@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Adds chase and boss indicator sprite bindings to enemy pawn prefabs.
+/// 给敌人角色预制体补齐追击和首领指示器图片绑定
 /// </summary>
 public static class EnemyChaseIndicatorPrefabBinder
 {
@@ -15,6 +15,9 @@ public static class EnemyChaseIndicatorPrefabBinder
     private const string BossCanvasName = "BossIndicatorCanvas";
     private const string BossImageName = "BossIndicatorImage";
 
+    /// <summary>
+    /// 扫描敌人角色预制体并写入追击指示器绑定
+    /// </summary>
     [MenuItem("Tools/Enemy/Bind Chase Indicators")]
     public static void BindAllEnemyPawnPrefabs()
     {

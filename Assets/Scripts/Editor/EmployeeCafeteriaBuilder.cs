@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Builds a cafeteria-style combat space inside the currently selected region.
+/// 根据当前选区生成员工餐厅战斗空间白模
 /// </summary>
 public static class EmployeeCafeteriaBuilder
 {

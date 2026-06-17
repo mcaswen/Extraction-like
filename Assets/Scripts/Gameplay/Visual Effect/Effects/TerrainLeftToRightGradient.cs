@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 根据横轴位置把地形高度重写为从左到右的渐变
+/// </summary>
 [RequireComponent(typeof(Terrain))]
 public class TerrainLeftToRightGradient : MonoBehaviour
 {
@@ -41,7 +44,7 @@ public class TerrainLeftToRightGradient : MonoBehaviour
     }
 
     /// <summary>
-    /// 手动调用更新地形渐变（运行时也可调用）
+    /// 手动调用更新地形渐变，运行时也可调用
     /// </summary>
     [ContextMenu("更新地形渐变")]
     public void UpdateTerrainGradient()
@@ -57,7 +60,7 @@ public class TerrainLeftToRightGradient : MonoBehaviour
         float terrainWidth = _terrainData.size.x;
         float terrainHeight = _terrainData.size.y;
 
-        // 3. 遍历高度图，计算每个点的高度
+        // 遍历高度图时只按横轴取曲线值，让同一列共享高度
         for (int x = 0; x < heightmapResolution; x++)
         {
             float normalizedX = (float)x / (heightmapResolution - 1);
@@ -76,8 +79,8 @@ public class TerrainLeftToRightGradient : MonoBehaviour
         _terrainData.SetHeights(0, 0, heights);
     }
 
-    /// <summary
-    /// 重置为默认线性渐变（左20右0，直线平滑）
+    /// <summary>
+    /// 重置为默认线性渐变，左 20 右 0
     /// </summary>
     [ContextMenu("重置为默认线性渐变")]
     public void ResetToDefault()

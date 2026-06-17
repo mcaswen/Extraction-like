@@ -1,14 +1,26 @@
 using UnityEngine;
 
+/// <summary>
+/// 白盒角色和传送点等临时对象的材质染色工具
+/// </summary>
 public static class WhiteboxCharacterVisualUtility
 {
     private static readonly Color CharacterWhite = new Color(0.96f, 0.96f, 0.98f, 1f);
 
+    /// <summary>
+    /// 把目标对象的可渲染材质统一染成角色白色
+    /// </summary>
+    /// <param name="target">需要染色的根对象</param>
     public static void ApplyCharacterWhite(GameObject target)
     {
         ApplySolidColor(target, CharacterWhite);
     }
 
+    /// <summary>
+    /// 把目标对象的可渲染材质统一染成指定颜色
+    /// </summary>
+    /// <param name="target">需要染色的根对象</param>
+    /// <param name="color">目标颜色</param>
     public static void ApplySolidColor(GameObject target, Color color)
     {
         if (target == null)
@@ -51,6 +63,7 @@ public static class WhiteboxCharacterVisualUtility
 
     private static Material CreateSolidColorMaterial(Material sourceMaterial, Color color)
     {
+        // 优先复用源材质着色器，缺失时按通用渲染管线和内置管线顺序兜底
         Shader shader = sourceMaterial != null && sourceMaterial.shader != null
             ? sourceMaterial.shader
             : Shader.Find("Universal Render Pipeline/Lit");

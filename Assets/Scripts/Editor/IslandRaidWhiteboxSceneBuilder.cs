@@ -6,8 +6,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// 根据 2026-04-05 的红线草图生成大比例岛图白模场景。
-/// 该版本优先保证整体墙体框架正确，便于后续逐区细化。
+/// 根据 2026-04-05 的红线草图生成大比例岛图白模场景
+/// 该版本优先保证整体墙体框架正确，便于后续逐区细化
 /// </summary>
 public static class IslandRaidWhiteboxSceneBuilder
 {

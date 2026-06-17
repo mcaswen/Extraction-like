@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+/// <summary>
+/// 从源场景导入核心玩法支持对象到当前白盒场景的编辑器工具
+/// </summary>
 public static class SceneLylSupportMigrator
 {
     private const string SourceScenePath = "Assets/Scenes/Scene_lyl.unity";
@@ -32,6 +35,11 @@ public static class SceneLylSupportMigrator
         }
     }
 
+    /// <summary>
+    /// 确保目标场景拥有相机跟随、背包、交互提示和运行时玩家绑定支持
+    /// </summary>
+    /// <param name="targetScene">目标场景</param>
+    /// <returns>发生导入或配置变更时返回真值</returns>
     public static bool EnsureCoreGameplaySupport(Scene targetScene)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode || Application.isPlaying)

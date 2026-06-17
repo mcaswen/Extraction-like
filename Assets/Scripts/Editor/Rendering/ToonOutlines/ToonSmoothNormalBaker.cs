@@ -4,8 +4,14 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 为卡通描边烘焙平滑法线数据的编辑器工具
+/// </summary>
 public static class ToonSmoothNormalBaker
 {
+    /// <summary>
+    /// 平滑法线写入目标通道
+    /// </summary>
     public enum SmoothNormalTarget
     {
         Tangent,
@@ -14,6 +20,9 @@ public static class ToonSmoothNormalBaker
 
     private const string DefaultOutputDirectory = "Assets/Art/Generated/ToonSmoothNormalMeshes";
 
+    /// <summary>
+    /// 将当前选择的网格平滑法线烘焙到切线通道
+    /// </summary>
     [MenuItem("Tools/Rendering/Toon Outlines/Bake Smooth Normals To Tangent")]
     private static void BakeSelectionToTangent()
     {
@@ -33,6 +42,10 @@ public static class ToonSmoothNormalBaker
         return Selection.gameObjects.Length > 0 || Selection.objects.Length > 0;
     }
 
+    /// <summary>
+    /// 为当前选择的网格资源烘焙平滑法线
+    /// </summary>
+    /// <param name="target">平滑法线写入目标</param>
     public static void BakeSelection(SmoothNormalTarget target)
     {
         Directory.CreateDirectory(DefaultOutputDirectory);
@@ -54,6 +67,12 @@ public static class ToonSmoothNormalBaker
         Debug.Log($"ToonSmoothNormalBaker: baked {bakedCount} mesh asset(s) to {DefaultOutputDirectory}.");
     }
 
+    /// <summary>
+    /// 为指定网格生成带平滑法线数据的新网格
+    /// </summary>
+    /// <param name="source">源网格</param>
+    /// <param name="target">平滑法线写入目标</param>
+    /// <returns>烘焙后的新网格实例</returns>
     public static Mesh Bake(Mesh source, SmoothNormalTarget target)
     {
         if (source == null)
@@ -127,8 +146,8 @@ public static class ToonSmoothNormalBaker
         Dictionary<VertexKey, Vector3> normalByPosition = new Dictionary<VertexKey, Vector3>(vertices.Length);
         Vector3[] faceAccumulated = new Vector3[vertices.Length];
 
-        // Area-weighted face normals keep large silhouette faces from being overruled
-        // by tiny bevel triangles, which is important for stable anime-style outlines.
+        // 使用面积加权面法线，避免大型轮廓面被细小倒角三角面过度影响
+        // 这样能让卡通描边更稳定
         for (int i = 0; i < triangles.Length; i += 3)
         {
             int i0 = triangles[i];
@@ -179,8 +198,7 @@ public static class ToonSmoothNormalBaker
         List<Vector4> uv2 = new List<Vector4>(smoothed.Length);
         for (int i = 0; i < smoothed.Length; i++)
         {
-            // UV channels are usually imported as 0..1 data, so encode the signed
-            // object-space normal instead of writing raw -1..1 values.
+            // 贴图坐标通道通常按零到一数据导入，所以把带符号的物体空间法线编码后写入
             Vector3 encoded = smoothed[i] * 0.5f + Vector3.one * 0.5f;
             uv2.Add(new Vector4(encoded.x, encoded.y, encoded.z, 1f));
         }
@@ -203,16 +221,30 @@ public static class ToonSmoothNormalBaker
             _z = Mathf.RoundToInt(position.z * Precision);
         }
 
+        /// <summary>
+        /// 判断两个量化后的顶点位置是否相同
+        /// </summary>
+        /// <param name="other">另一个顶点键</param>
+        /// <returns>位置键完全相同时返回真值</returns>
         public bool Equals(VertexKey other)
         {
             return _x == other._x && _y == other._y && _z == other._z;
         }
 
+        /// <summary>
+        /// 判断对象是否为相同的顶点键
+        /// </summary>
+        /// <param name="obj">待比较对象</param>
+        /// <returns>对象表示相同顶点键时返回真值</returns>
         public override bool Equals(object obj)
         {
             return obj is VertexKey other && Equals(other);
         }
 
+        /// <summary>
+        /// 获取量化顶点键的哈希值
+        /// </summary>
+        /// <returns>基于三个坐标分量计算的哈希值</returns>
         public override int GetHashCode()
         {
             unchecked

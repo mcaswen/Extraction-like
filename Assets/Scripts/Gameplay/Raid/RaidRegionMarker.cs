@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 局内区域的玩法用途
+/// </summary>
 public enum RaidRegionPurpose
 {
     Spawn,
@@ -10,6 +13,9 @@ public enum RaidRegionPurpose
     Transit
 }
 
+/// <summary>
+/// 局内区域的刷怪密度等级
+/// </summary>
 public enum RaidSpawnDensity
 {
     None,
@@ -20,7 +26,7 @@ public enum RaidSpawnDensity
 }
 
 /// <summary>
-/// Scene marker that defines a logical raid region for MVP population.
+/// 场景中的局内逻辑区域标记，用于编辑器生成敌人、箱子和撤离点
 /// </summary>
 public class RaidRegionMarker : MonoBehaviour
 {
@@ -38,6 +44,10 @@ public class RaidRegionMarker : MonoBehaviour
     public Vector2Int EnemyCountRangeOverride = new Vector2Int(0, 0);
     public Vector2Int ChestCountRangeOverride = new Vector2Int(0, 0);
 
+    /// <summary>
+    /// 获取区域在世界空间中的包围盒
+    /// </summary>
+    /// <returns>以标记位置为中心的区域包围盒</returns>
     public Bounds GetWorldBounds()
     {
         return new Bounds(transform.position, RegionSize);

@@ -5,6 +5,9 @@ using Gameplay.MapGraph.Config;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 将场景中的地图图结构组件转换为可复用资产的编辑器工具
+/// </summary>
 public static class MapGraphDefinitionConverter
 {
     private const string OutputFolder = "Assets/SO/MapGraph";

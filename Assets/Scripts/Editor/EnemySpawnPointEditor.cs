@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 敌人出生点组件的检视面板扩展
+/// </summary>
 [CustomEditor(typeof(EnemySpawnPoint))]
 public sealed class EnemySpawnPointEditor : Editor
 {
@@ -13,6 +16,9 @@ public sealed class EnemySpawnPointEditor : Editor
         _patrolRoute = serializedObject.FindProperty("_patrolRoute");
     }
 
+    /// <summary>
+    /// 绘制敌人出生点检视面板，并提示旧配置兜底用途
+    /// </summary>
     public override void OnInspectorGUI()
     {
         serializedObject.Update();

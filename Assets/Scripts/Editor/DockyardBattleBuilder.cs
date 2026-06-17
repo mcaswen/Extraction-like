@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 根据当前选区生成码头战斗区域白模
+/// </summary>
 public static class DockyardBattleBuilder
 {
     private const float FloorThickness = 0.22f;

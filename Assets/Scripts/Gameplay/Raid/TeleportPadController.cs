@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Simple bidirectional teleport pad used for fast traversal inside whitebox combat spaces.
+/// 白盒战斗空间使用的双向传送点控制器
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class TeleportPadController : MonoBehaviour
@@ -42,6 +42,7 @@ public class TeleportPadController : MonoBehaviour
             return;
         }
 
+        // 传送后同步目标传送点冷却，避免玩家在两个点之间来回触发
         Transform target = other.transform;
         Vector3 destinationPosition = DestinationPoint.position + ArrivalOffset;
         target.position = destinationPosition;
@@ -55,6 +56,10 @@ public class TeleportPadController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 接收另一端传送点同步过来的冷却时间
+    /// </summary>
+    /// <param name="teleportTime">本次传送发生的游戏时间</param>
     public void NotifyRemoteTeleport(float teleportTime)
     {
         _lastTeleportTime = teleportTime;

@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Scene pickup used for magic books/relics that unlock player magic progression.
-/// Place this on world objects scattered in the island.
+/// 魔法知识拾取物，用于解锁玩家魔法或增加符文点数
 /// </summary>
 public class MagicKnowledgePickup : MonoBehaviour, IInteractable
 {
@@ -42,6 +41,10 @@ public class MagicKnowledgePickup : MonoBehaviour, IInteractable
         UpdateHighlightVisual();
     }
 
+    /// <summary>
+    /// 获取交互提示文本
+    /// </summary>
+    /// <returns>当前显示给玩家的交互提示</returns>
     public string GetPromptText()
     {
         if (_consumed)
@@ -53,6 +56,9 @@ public class MagicKnowledgePickup : MonoBehaviour, IInteractable
         return $"[F] {actionText} {PickupName}";
     }
 
+    /// <summary>
+    /// 执行拾取交互并尝试解锁魔法进度
+    /// </summary>
     public void Interact()
     {
         if (_consumed)
@@ -112,6 +118,7 @@ public class MagicKnowledgePickup : MonoBehaviour, IInteractable
             return;
         }
 
+        // 用正弦脉冲混合高亮颜色，保留原材质基础色
         float pulse = 0.5f + Mathf.Sin(Time.time * Mathf.Max(0.1f, HighlightPulseSpeed)) * 0.5f;
         float strength = Mathf.Clamp01(HighlightStrength) * (0.5f + pulse * 0.5f);
         for (int i = 0; i < _cachedRenderers.Length; i++)

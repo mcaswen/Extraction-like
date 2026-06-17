@@ -6,6 +6,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 创建地图图界面相关预制体的编辑器工厂
+/// </summary>
 public static class MapGraphUguiPrefabFactory
 {
     private const string OutputFolder = "Assets/Prefabs/MapGraph/UI";
@@ -23,6 +26,9 @@ public static class MapGraphUguiPrefabFactory
         EditorApplication.delayCall += CreateMissingPrefabsAfterEditorLoad;
     }
 
+    /// <summary>
+    /// 生成地图图画布、面板、节点图标和连线预制体
+    /// </summary>
     [MenuItem("Tools/Map Graph/Create UGUI Prefabs")]
     public static void CreateUguiPrefabs()
     {

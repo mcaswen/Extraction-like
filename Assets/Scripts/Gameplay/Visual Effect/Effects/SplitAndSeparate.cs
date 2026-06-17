@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 玩家靠近后复制自身并向两侧分离的视觉演示组件
+/// </summary>
 public class SplitAndSeparate : MonoBehaviour
 {
     [Header("检测设置")]
@@ -30,6 +33,7 @@ public class SplitAndSeparate : MonoBehaviour
     private void DetectPlayerAndSplit()
     {
     
+        // 首次检测到玩家后只分裂一次，克隆体会关闭同脚本避免递归复制
         Collider[] colliders = Physics.OverlapSphere(transform.position, detectRange);
 
         foreach (Collider col in colliders)
@@ -63,6 +67,7 @@ public class SplitAndSeparate : MonoBehaviour
         SplitAndSeparate cloneScript = cloneObject.GetComponent<SplitAndSeparate>();
         if (cloneScript != null)
         {
+            // 防止克隆体再次触发分裂生成更多克隆
             cloneScript.enabled = false;
         }
 

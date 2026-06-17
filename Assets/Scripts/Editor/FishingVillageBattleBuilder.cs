@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Builds a fishing-village combat space inside the currently selected map region.
+/// 根据当前选区生成渔村战斗路线白模
 /// </summary>
 public static class FishingVillageBattleBuilder
 {

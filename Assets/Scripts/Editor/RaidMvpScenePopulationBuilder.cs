@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 根据局内区域标记生成白盒原型场景内容的编辑器工具
+/// </summary>
 public static class RaidMvpScenePopulationBuilder
 {
     [MenuItem("Tools/Whitebox/Create Raid Region Marker From Selection")]

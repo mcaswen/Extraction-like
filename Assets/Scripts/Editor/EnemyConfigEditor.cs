@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 敌人配置资产的通用检视面板扩展
+/// </summary>
 [CustomEditor(typeof(EnemyConfigBase), true)]
 public sealed class EnemyConfigEditor : Editor
 {
@@ -18,6 +21,9 @@ public sealed class EnemyConfigEditor : Editor
 
     private static bool _showAdvanced;
 
+    /// <summary>
+    /// 绘制敌人配置检视面板，并按通用区块和敌人专属字段分组
+    /// </summary>
     public override void OnInspectorGUI()
     {
         serializedObject.Update();

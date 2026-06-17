@@ -2,8 +2,8 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// 根据当前选中的区域生成实验室内景白模。
-/// 适用于在已搭好的大地图框架中，快速覆盖普通资源区的室内战斗空间。
+/// 根据当前选中的区域生成实验室内景白模
+/// 适用于在已搭好的大地图框架中，快速覆盖普通资源区的室内战斗空间
 /// </summary>
 public static class ResourceLabInteriorBuilder
 {

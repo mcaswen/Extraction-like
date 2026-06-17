@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// 根据当前选区生成员工宿舍战斗空间白模
+/// </summary>
 public static class EmployeeDormitoryBuilder
 {
     private const float FloorThickness = 0.22f;

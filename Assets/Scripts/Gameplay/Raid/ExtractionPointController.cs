@@ -1,6 +1,9 @@
 using Gameplay.Agent.Core;
 using UnityEngine;
 
+/// <summary>
+/// 撤离点触发器，负责向局内流程控制器汇报玩家或智能体是否处于有效撤离范围
+/// </summary>
 [RequireComponent(typeof(Collider))]
 public class ExtractionPointController : MonoBehaviour
 {
@@ -85,6 +88,10 @@ public class ExtractionPointController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 获取世界空间提示界面应显示的位置
+    /// </summary>
+    /// <returns>撤离点上方的世界坐标</returns>
     public Vector3 GetWorldPromptPosition()
     {
         Bounds effectiveBounds = GetEffectiveBounds();
@@ -120,6 +127,7 @@ public class ExtractionPointController : MonoBehaviour
             return false;
         }
 
+        // 使用收窄后的水平范围判定撤离，避免只碰到触发器边缘就开始读条
         Bounds effectiveBounds = GetEffectiveBounds();
         Vector3 playerPosition = _playerCollider.bounds.center;
         return Mathf.Abs(playerPosition.x - effectiveBounds.center.x) <= effectiveBounds.extents.x &&
@@ -146,6 +154,7 @@ public class ExtractionPointController : MonoBehaviour
         Bounds worldBounds = trigger.bounds;
         float horizontalScale = Mathf.Clamp(DetectionHorizontalScale, 0.05f, 1f);
         Vector3 effectiveSize = worldBounds.size;
+        // 只收缩水平面，保留原始高度范围以容纳不同角色胶囊体
         effectiveSize.x *= horizontalScale;
         effectiveSize.z *= horizontalScale;
         return new Bounds(worldBounds.center, effectiveSize);

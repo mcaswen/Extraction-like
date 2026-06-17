@@ -3,8 +3,8 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// 根据当前场景选中的区域生成 Boss 树屋内景白模。
-/// 适用于已经在场景中手工调整过墙体和空间分区后的二次覆盖。
+/// 根据当前场景选中的区域生成首领树屋内景白模
+/// 适用于已经在场景中手工调整过墙体和空间分区后的二次覆盖
 /// </summary>
 public static class BossTreehouseInteriorBuilder
 {

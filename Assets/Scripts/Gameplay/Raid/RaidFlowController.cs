@@ -4,6 +4,9 @@ using Gameplay.Agent.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 局内流程控制器，负责任务状态、撤离进度、失败重开和撤离结算
+/// </summary>
 public class RaidFlowController : MonoBehaviour
 {
     private const string LegacyPlayerExtractionId = "Player";
@@ -83,16 +86,27 @@ public class RaidFlowController : MonoBehaviour
         DrawMissionResult();
     }
 
+    /// <summary>
+    /// 通知流程控制器有敌人死亡
+    /// </summary>
+    /// <param name="enemyName">敌人名称</param>
     public void NotifyEnemyKilled(string enemyName)
     {
         _enemiesKilledCount++;
     }
 
+    /// <summary>
+    /// 通知流程控制器有战利品被拾取
+    /// </summary>
+    /// <param name="itemName">物品名称</param>
     public void NotifyLootCollected(string itemName)
     {
         _lootCollectedCount++;
     }
 
+    /// <summary>
+    /// 通知流程控制器玩家死亡并进入失败状态
+    /// </summary>
     public void NotifyPlayerDied()
     {
         if (_isMissionCompleted || _isMissionFailed)
@@ -105,6 +119,10 @@ public class RaidFlowController : MonoBehaviour
         Time.timeScale = 0f;
     }
 
+    /// <summary>
+    /// 通知流程控制器智能体死亡，并在所有可控智能体阵亡时判定失败
+    /// </summary>
+    /// <param name="agent">死亡的智能体根节点</param>
     public void NotifyAgentDied(AgentPawnRoot agent)
     {
         if (_isMissionCompleted || _isMissionFailed)
@@ -126,11 +144,22 @@ public class RaidFlowController : MonoBehaviour
         Time.timeScale = 0f;
     }
 
+    /// <summary>
+    /// 兼容旧玩家对象的撤离范围进入和离开通知
+    /// </summary>
+    /// <param name="extractionPoint">对应撤离点</param>
+    /// <param name="isInside">是否处于撤离范围内</param>
     public void SetPlayerInsideExtractionPoint(ExtractionPointController extractionPoint, bool isInside)
     {
         SetAgentInsideExtractionPoint(LegacyPlayerExtractionId, extractionPoint, isInside);
     }
 
+    /// <summary>
+    /// 设置指定智能体是否处于撤离点范围内
+    /// </summary>
+    /// <param name="agentId">智能体标识</param>
+    /// <param name="extractionPoint">对应撤离点</param>
+    /// <param name="isInside">是否处于撤离范围内</param>
     public void SetAgentInsideExtractionPoint(string agentId, ExtractionPointController extractionPoint, bool isInside)
     {
         if (_isMissionCompleted || _isMissionFailed || extractionPoint == null)
@@ -142,6 +171,7 @@ public class RaidFlowController : MonoBehaviour
 
         if (isInside)
         {
+            // 第一次进入撤离点时捕获本局要求撤离的智能体列表，避免后续销毁导致目标丢失
             TryCaptureRequiredExtractionAgents();
             Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance?.NotifyExtractionTouched(extractionPoint);
             if (_extractedAgentIds.Contains(normalizedAgentId))
@@ -189,6 +219,7 @@ public class RaidFlowController : MonoBehaviour
         _completedExtractionAgentIds.Clear();
         _extractionProgressSeconds = 0f;
 
+        // 允许多个智能体同时读条，用完成列表延迟移除避免遍历时修改字典
         foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
         {
             AgentExtractionProgress progress = pair.Value;
@@ -220,6 +251,7 @@ public class RaidFlowController : MonoBehaviour
             _activeExtractionProgressByAgentId.Remove(completedAgentId);
             _extractedAgentIds.Add(completedAgentId);
 
+            // 先判断是否全部撤离，再销毁当前智能体，避免注册表变更影响完成判定
             bool allRequiredAgentsExtracted = AreAllRequiredAgentsExtracted();
             DestroyExtractedAgent(completedAgentId);
 
@@ -336,6 +368,7 @@ public class RaidFlowController : MonoBehaviour
                 out int carriedItemCount,
                 out int carriedValue))
         {
+            // 撤离结算以实际携带背包为准，普通拾取计数只作为兜底
             lootItemCount = carriedItemCount;
             totalValue = carriedValue;
         }
@@ -446,6 +479,7 @@ public class RaidFlowController : MonoBehaviour
         IReadOnlyList<AgentRuntimeHandle> registeredAgents = registry.RegisteredAgents;
         for (int i = 0; i < registeredAgents.Count; i++)
         {
+            // 只捕获当前已注册且有效的智能体，防止撤离目标在运行中漂移
             AgentRuntimeHandle handle = registeredAgents[i];
             string agentId = handle.IsValid ? NormalizeExtractionAgentId(handle.AgentId.Value) : string.Empty;
             if (!string.IsNullOrEmpty(agentId))
@@ -473,6 +507,7 @@ public class RaidFlowController : MonoBehaviour
             return;
         }
 
+        // 撤离成功后从场景移除对应智能体，流程层只保留已撤离标识
         AgentSfxEmitter sfxEmitter = handle.PawnRoot.GetComponent<AgentSfxEmitter>();
         if (sfxEmitter != null)
             sfxEmitter.PlayExtract();

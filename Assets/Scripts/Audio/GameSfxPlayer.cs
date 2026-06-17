@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Lightweight runtime SFX helper backed by Resources/GameAudio/SFX clips.
+/// 运行时音效播放入口，统一从游戏音频资源目录加载并缓存音频资源
 /// </summary>
 public static class GameSfxPlayer
 {
@@ -14,6 +14,7 @@ public static class GameSfxPlayer
     private static AudioSource _uiSource;
     private static AudioSource _musicSource;
 
+    // 场景加载后自动启动玩法背景音乐，但跳过开始菜单
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void PlayGameplayBgmOnSceneLoad()
     {
@@ -24,6 +25,9 @@ public static class GameSfxPlayer
         PlayGameplayBgm();
     }
 
+    /// <summary>
+    /// 播放玩法场景循环背景音乐
+    /// </summary>
     public static void PlayGameplayBgm()
     {
         AudioClip clip = LoadBgmClip("gameplay_bgm");
@@ -41,66 +45,116 @@ public static class GameSfxPlayer
         source.Play();
     }
 
+    /// <summary>
+    /// 播放背包打开音效
+    /// </summary>
     public static void PlayInventoryOpen()
     {
         Play2D("inventory_open_wav", 0.85f);
     }
 
+    /// <summary>
+    /// 播放背包关闭音效
+    /// </summary>
     public static void PlayInventoryClose()
     {
         Play2D("inventory_close_wav", 0.85f);
     }
 
+    /// <summary>
+    /// 播放通用界面点击音效
+    /// </summary>
     public static void PlayUiClick()
     {
         Play2D("ui_click_wav", 0.65f);
     }
 
+    /// <summary>
+    /// 在指定位置播放玩家火焰攻击音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayPlayerFireAttack(Vector3 position)
     {
         PlayAt("player_fire_attack_wav", position, 0.75f);
     }
 
+    /// <summary>
+    /// 在指定位置播放冰系技能音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayIceSkill(Vector3 position)
     {
         PlayAt("skill_ice_wav", position, 0.9f);
     }
 
+    /// <summary>
+    /// 在指定位置播放土系技能音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayEarthSkill(Vector3 position)
     {
         PlayAt("skill_earth_wav", position, 0.9f);
     }
 
+    /// <summary>
+    /// 在指定位置播放冲击技能音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayImpactSkill(Vector3 position)
     {
         PlayAt("skill_impact_wav", position, 0.85f);
     }
 
+    /// <summary>
+    /// 在指定位置播放短搜索音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlaySearchShort(Vector3 position)
     {
         PlayAt("search_short_wav", position, 0.75f);
     }
 
+    /// <summary>
+    /// 在指定位置播放智能体普通攻击音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayAiBasicAttack(Vector3 position)
     {
         PlayAt("ai_basic_attack_wav", position, 0.8f);
     }
 
+    /// <summary>
+    /// 在指定位置播放智能体死亡音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayAiDeath(Vector3 position)
     {
         PlayAt("ai_death_wav", position, 0.9f);
     }
 
+    /// <summary>
+    /// 在指定位置播放智能体升级音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayAiUpgrade(Vector3 position)
     {
         PlayAt("ai_upgrade", position, 0.9f);
     }
 
+    /// <summary>
+    /// 在指定位置播放智能体撤离音效
+    /// </summary>
+    /// <param name="position">世界坐标播放位置</param>
     public static void PlayAiExtract(Vector3 position)
     {
         PlayAt("ai_extract", position, 0.9f);
     }
 
+    /// <summary>
+    /// 加载并缓存指定名称的音效片段
+    /// </summary>
+    /// <param name="clipName">音效资源名</param>
+    /// <returns>找到的音频片段，缺失时返回空值</returns>
     public static AudioClip LoadSfxClip(string clipName)
     {
         return LoadClip(SfxResourceRoot, clipName);
@@ -138,6 +192,7 @@ public static class GameSfxPlayer
         if (string.IsNullOrWhiteSpace(clipName))
             return null;
 
+        // 资源路径作为缓存键，避免音效和背景音乐同名时互相覆盖
         string cacheKey = resourceRoot + clipName;
         if (ClipCache.TryGetValue(cacheKey, out AudioClip cachedClip))
             return cachedClip;

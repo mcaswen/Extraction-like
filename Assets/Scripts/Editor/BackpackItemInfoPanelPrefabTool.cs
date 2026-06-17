@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 构建背包物品信息面板 Prefab 节点。
+/// 构建背包物品信息面板预制体节点
 /// </summary>
 public static class BackpackItemInfoPanelPrefabTool
 {
@@ -12,6 +12,9 @@ public static class BackpackItemInfoPanelPrefabTool
     private const string MarkerSpritePath = "Assets/Art/Sprites/UI/Information_Panel/IMG_0613.PNG";
     private const string PanelName = "ItemInfoPanel";
 
+    /// <summary>
+    /// 重建画布预制体中的物品信息面板节点
+    /// </summary>
     [MenuItem("Tools/Backpack/Rebuild Item Info Panel")]
     public static void RebuildCanvasPrefabItemInfoPanel()
     {

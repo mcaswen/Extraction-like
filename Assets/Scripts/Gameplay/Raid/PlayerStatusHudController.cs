@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Screen-space status HUD bound to a prefab layout.
+/// 基于预制体布局的屏幕空间玩家状态界面控制器
 /// </summary>
 public sealed class PlayerStatusHudController : MonoBehaviour
 {
@@ -36,6 +36,10 @@ public sealed class PlayerStatusHudController : MonoBehaviour
     [SerializeField] private Text _carryText;
     [SerializeField] private Text _experienceText;
 
+    /// <summary>
+    /// 获取场景中的运行时状态界面实例
+    /// </summary>
+    /// <returns>找到的状态界面控制器，缺失时返回空值</returns>
     public static PlayerStatusHudController EnsureRuntimeInstance()
     {
         if (_instance != null)
@@ -137,6 +141,7 @@ public sealed class PlayerStatusHudController : MonoBehaviour
             return;
         }
 
+        // 状态界面数据跟随当前聚焦智能体，避免多智能体场景里显示旧角色状态
         float maxHealth = Mathf.Max(1f, focusedAgent.MaxHealth);
         float currentHealth = Mathf.Max(0f, focusedAgent.CurrentHealth);
         string healthLabel = !string.IsNullOrWhiteSpace(focusedAgent.AgentIdValue)
@@ -273,6 +278,7 @@ public sealed class PlayerStatusHudController : MonoBehaviour
 
         if (markerRect != null)
         {
+            // 标记图标以自身半宽做边界，防止贴边时露出进度条外
             float halfWidth = Mathf.Max(0f, markerRect.rect.width * 0.5f);
             float targetX = Mathf.Clamp(barWidth * clampedRatio + halfWidth, halfWidth, barWidth - halfWidth);
             markerRect.anchoredPosition = new Vector2(targetX, markerRect.anchoredPosition.y);

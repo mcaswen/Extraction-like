@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 玩家进入触发区域时临时降低移动速度的区域组件
+/// </summary>
 public class SlowDownPlane : MonoBehaviour
 {
     [Header("减速设置")]
@@ -29,10 +32,10 @@ public class SlowDownPlane : MonoBehaviour
    
     private void OnTriggerEnter(Collider other)
     {
-        // 检测是否是Player标签的物体
+        // 检测是否是玩家标签的物体
         if (other.CompareTag("Player"))
         {
-            // 获取Player的移动脚本
+            // 获取玩家的移动脚本
             PlayerMovement playerMove = other.GetComponent<PlayerMovement>();
             if (playerMove != null)
             {
@@ -41,7 +44,7 @@ public class SlowDownPlane : MonoBehaviour
                 {
                     playerOriginalSpeeds[other.gameObject] = playerMove.moveSpeed;
                 }
-                // 降低速度（确保速度不会为负数）
+                // 降低速度并限制到非负值，避免减速区域把移动方向反转
                 playerMove.moveSpeed = Mathf.Max(0, playerMove.moveSpeed - speedReduction);
                 Debug.Log($"Player进入减速区域，速度从{playerOriginalSpeeds[other.gameObject]}降至{playerMove.moveSpeed}");
             }

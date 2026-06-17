@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 周期性放大和缩小物体的视觉演示组件
+/// </summary>
 public class BigandSmall: MonoBehaviour
 {
     [Header("缩放设置")]
@@ -15,7 +18,7 @@ public class BigandSmall: MonoBehaviour
     [Tooltip("缩放速度（值越大缩放越快）")]
     public float scaleSpeed = 0.5f;
 
-    // 私有变量：控制缩放状态和计时
+    // 使用计时器在放大和缩小阶段之间循环切换
     private float currentTime;       
     private bool isScalingUp = true; 
 
@@ -62,6 +65,9 @@ public class BigandSmall: MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 将缩放状态恢复到初始大小
+    /// </summary>
     public void ResetScale()
     {
         transform.localScale = Vector3.one * initialScale;
