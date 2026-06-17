@@ -436,7 +436,7 @@ MonoBehaviour:
   _skillActionLockSeconds: 0.45
   _playPrototypeSkillVfx: 1
   _suppressConfiguredSkillVfx: 1
-  _prototypeSkillVfxRangeScale: 1
+  _prototypeSkillVfxRangeScale: 1.5
 --- !u!114 &8650643972814429748
 MonoBehaviour:
   m_ObjectHideFlags: 0
