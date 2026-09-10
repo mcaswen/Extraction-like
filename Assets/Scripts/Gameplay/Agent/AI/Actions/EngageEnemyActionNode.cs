@@ -68,6 +68,11 @@ namespace Gameplay.Agent.AI.Actions
             bool canFire = TargetVisibilityQuery.Check(agent.CachedTransform, CombatAimPointResolver.Resolve(agent.CachedTransform),
                 enemyHealthController.transform, attackRange) == TargetVisibilityResult.Visible;
             AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
+            if (shooter == null || !shooter.IsConfigured)
+            {
+                FailPendingDirective(context, AgentDirectiveFailure.AttackUnavailable);
+                return Succeed();
+            }
             bool muzzleClear = shooter != null && shooter.CanShootAt(enemyHealthController, attackRange);
             canFire = canFire && muzzleClear;
             if (!canFire)
@@ -112,6 +117,8 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!TryShootEnemy(agent, enemyHealthController, attackDamage))
             {
+                if (shooter.LastShotFailure == AgentShotFailure.ProjectileUnavailable)
+                    FailPendingDirective(context, AgentDirectiveFailure.AttackUnavailable);
                 return Running();
             }
 

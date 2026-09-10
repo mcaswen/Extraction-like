@@ -57,11 +57,13 @@ namespace Gameplay.Agent.Decision
 
         private void OnEnable()
         {
+            _collector.StartObservingFailures();
             _nextScanTime = 0d;
         }
 
         private void OnDisable()
         {
+            _collector.StopObservingFailures();
             CacheComponents();
             if (_pawnRoot == null || _pawnRoot.Blackboard == null)
                 return;

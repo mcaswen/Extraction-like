@@ -13,6 +13,7 @@ namespace Gameplay.Agent.Commands
         {
             if (agent == null || agent.CachedTransform == null || agent.IsDead || !agent.CachedTransform.gameObject.activeInHierarchy)
                 return AgentDirectiveFailure.AgentUnavailable;
+            if (agent is Behaviour behaviour && !behaviour.isActiveAndEnabled) return AgentDirectiveFailure.AgentUnavailable;
             AgentDirectiveFailure targetFailure = ValidateTarget(request);
             if (targetFailure != AgentDirectiveFailure.None) return targetFailure;
             if (request.DirectiveType == AgentDirectiveType.RequestBuff) return AgentDirectiveFailure.None;
@@ -34,6 +35,8 @@ namespace Gameplay.Agent.Commands
             GameObject obj = request.TargetObject;
             if (request.TargetRef.IsConcreteObject && (obj == null || !obj.activeInHierarchy)) return AgentDirectiveFailure.InvalidTarget;
             if (obj == null) return AgentDirectiveFailure.None;
+            if (obj.TryGetComponent(out global::ExtractionPointController point) && !point.isActiveAndEnabled) return AgentDirectiveFailure.InvalidTarget;
+            if (obj.TryGetComponent(out GameplayTargetAuthoringBase authoring) && !authoring.isActiveAndEnabled) return AgentDirectiveFailure.InvalidTarget;
             if (obj.TryGetComponent(out global::EnemyHealthController enemy) && !enemy.IsAlive) return AgentDirectiveFailure.TargetCompleted;
             if (obj.TryGetComponent(out GameplayTargetAuthoringBase target) && target.HasBeenCompleted) return AgentDirectiveFailure.TargetCompleted;
             return AgentDirectiveFailure.None;

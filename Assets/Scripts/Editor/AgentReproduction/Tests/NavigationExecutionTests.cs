@@ -17,6 +17,21 @@ namespace AgentReproduction.Tests
 {
     public sealed class NavigationExecutionTests : ReproductionTestFixture
     {
+        public static float[] Distances={0f,0.05f,0.2f};
+        public static bool[] Slopes={false,true};
+        [UnityTest]
+        public IEnumerator ArrivalToleranceWorksOnFlatAndSlope([ValueSource(nameof(Distances))] float distance,[ValueSource(nameof(Slopes))] bool slope)
+        {
+            Vector3 target;
+            if(slope) target=TestNavMeshBuilder.Ramp(World);
+            else {TestNavMeshBuilder.Flat(World); target=new Vector3(6,0,0);}
+            var agent=AgentFactory.Create(World,"Tolerance",Vector3.zero);
+            var motor=new AgentNavigationMotor(agent.NavMeshAgent,2,3);
+            yield return RuntimeWait.Until(()=>motor.Move("tolerance",target,distance,4).Status==AgentNavigationStatus.Arrived,"navigation tolerance",8);
+            Assert.That(AgentNavigationQuery.Check(agent.NavMeshAgent,target,distance).Status,Is.EqualTo(AgentNavigationStatus.Arrived));
+            Assert.That(Mathf.Abs(agent.Position.y-agent.NavMeshAgent.baseOffset*agent.transform.lossyScale.y-target.y),Is.LessThan(0.5f));
+            ContractCompleted=true;
+        }
         [UnityTest]
         public IEnumerator ZeroStoppingDistanceArrivesAndNavigationLossTerminates()
         {

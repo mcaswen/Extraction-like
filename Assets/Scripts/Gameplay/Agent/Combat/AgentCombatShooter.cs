@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Gameplay.Agent.Combat
 {
+    public enum AgentShotFailure { None, InvalidTarget, OutOfRange, Occluded, ComponentUnavailable, ProjectileUnavailable }
     /// <summary>
     /// Agent 战斗射击组件
     /// 负责把行为树的攻击请求转换为可飞行子弹
@@ -11,10 +12,22 @@ namespace Gameplay.Agent.Combat
     public sealed class AgentCombatShooter : MonoBehaviour
     {
         public TargetVisibilityResult LastShotResult { get; private set; }
+        public AgentShotFailure LastShotFailure { get; private set; }
+        public bool IsConfigured => isActiveAndEnabled && (_bulletPrefab != null || _createFallbackBulletIfPrefabMissing);
         public bool CanShootAt(global::EnemyHealthController targetEnemy, float range)
         {
-            if (targetEnemy == null || !targetEnemy.IsAlive) { LastShotResult = TargetVisibilityResult.Invalid; return false; }
+            LastShotFailure = AgentShotFailure.None;
+            if (!IsConfigured)
+            {
+                LastShotResult = TargetVisibilityResult.Invalid;
+                LastShotFailure = isActiveAndEnabled ? AgentShotFailure.ProjectileUnavailable : AgentShotFailure.ComponentUnavailable;
+                return false;
+            }
+            if (targetEnemy == null || !targetEnemy.IsAlive)
+            { LastShotResult = TargetVisibilityResult.Invalid; LastShotFailure = AgentShotFailure.InvalidTarget; return false; }
             LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range);
+            if (LastShotResult != TargetVisibilityResult.Visible)
+                LastShotFailure = LastShotResult == TargetVisibilityResult.OutOfRange ? AgentShotFailure.OutOfRange : AgentShotFailure.Occluded;
             return LastShotResult == TargetVisibilityResult.Visible;
         }
         [Header("Fire Setup")]
@@ -64,7 +77,10 @@ namespace Gameplay.Agent.Combat
             Quaternion fireRotation = Quaternion.LookRotation(fireDirection.normalized, Vector3.up);
             GameObject bulletObject = CreateBulletObject(firePosition, fireRotation);
             if (bulletObject == null)
+            {
+                LastShotFailure = AgentShotFailure.ProjectileUnavailable;
                 return false;
+            }
 
             // 再写入 BulletController 参数，并忽略发射者自身碰撞
             ConfigureBulletObject(bulletObject, fireDirection.normalized, damage);

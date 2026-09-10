@@ -32,7 +32,8 @@
       "expected": [
         "RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
         "CancelAndDeathDiscardSuspendedExtraction",
-        "ManualResourceIgnoresSightButEffectiveDamageInterrupts"
+        "ManualResourceIgnoresSightButEffectiveDamageInterrupts",
+        "InvalidSuspendedExtractionFailsAfterRetaliation"
       ]
     },
     {
@@ -41,7 +42,13 @@
       "filter": "AgentReproduction.Tests.NavigationExecutionTests",
       "expected": [
         "ZeroStoppingDistanceArrivesAndNavigationLossTerminates",
-        "NoProgressFailsAndRejectedReplacementPreservesCurrentTask"
+        "NoProgressFailsAndRejectedReplacementPreservesCurrentTask",
+        "ArrivalToleranceWorksOnFlatAndSlope(0.0f,False)",
+        "ArrivalToleranceWorksOnFlatAndSlope(0.0f,True)",
+        "ArrivalToleranceWorksOnFlatAndSlope(0.05f,False)",
+        "ArrivalToleranceWorksOnFlatAndSlope(0.05f,True)",
+        "ArrivalToleranceWorksOnFlatAndSlope(0.2f,False)",
+        "ArrivalToleranceWorksOnFlatAndSlope(0.2f,True)"
       ]
     },
     {
@@ -72,11 +79,15 @@
         "DeadTargetRebinds(\"ModernStrander\")",
         "DeadTargetRebinds(\"TidalAberration\")",
         "DeadTargetRebinds(\"AncientStrander\")",
-        "VisibleFartherCandidateIsScannedDuringPatrol",
         "InvalidTargetIsNotReacquired(\"Disabled\")",
         "InvalidTargetIsNotReacquired(\"Destroyed\")",
         "InvalidTargetIsNotReacquired(\"Unregistered\")",
-        "WallUnderSharedSceneRootIsNotAnAgentDamageReceiver"
+        "WallUnderSharedSceneRootIsNotAnAgentDamageReceiver",
+        "VisibleFartherCandidateIsScannedDuringPatrol(\"Base\")",
+        "VisibleFartherCandidateIsScannedDuringPatrol(\"Ranged\")",
+        "VisibleFartherCandidateIsScannedDuringPatrol(\"ModernStrander\")",
+        "VisibleFartherCandidateIsScannedDuringPatrol(\"TidalAberration\")",
+        "VisibleFartherCandidateIsScannedDuringPatrol(\"AncientStrander\")"
       ]
     },
     {
@@ -87,11 +98,15 @@
         "PlayerProjectileHitsElevatedEnemy",
         "PlayerShooterRejectsOccludedTarget",
         "EnemyBulletStopsAtThinWallBeforeAgent",
-        "EnemyShootsAcrossHeight(-1)",
-        "EnemyShootsAcrossHeight(1)",
         "EngageCanFireAcrossDisconnectedNavigationWithoutWalking",
         "EnemyBulletWithoutWallHitsAgentExactlyOnce",
-        "WallInsertedAfterPlayerLaunchStopsProjectile"
+        "WallInsertedAfterPlayerLaunchStopsProjectile",
+        "EnemyShootsAcrossHeight(\"Ranged\",-1)",
+        "EnemyShootsAcrossHeight(\"Ranged\",1)",
+        "EnemyShootsAcrossHeight(\"AnchorSentinel\",-1)",
+        "EnemyShootsAcrossHeight(\"AnchorSentinel\",1)",
+        "BossAnchorSweepsThreeDimensionalPath(False)",
+        "BossAnchorSweepsThreeDimensionalPath(True)"
       ]
     },
     {
@@ -102,7 +117,8 @@
         "DiscoverySkipsOccludedNearestMemberAndDeduplicatesVisibleEnemies",
         "KnownAttackerBehindWallIsNotReportedAsVisible",
         "RangeUsesHeightAndTriggersDoNotOcclude",
-        "AreaSkillsRespectCastRangeAndDynamicCover"
+        "AreaSkillsRespectCastRangeAndDynamicCover",
+        "UnreachableVisibleEnemyDoesNotBlockExecutableCandidate"
       ]
     },
     {
@@ -113,7 +129,8 @@
         "ResourceSelectionAndRetentionUseSameMemberDistance",
         "DecisionUsesActualDefense",
         "DecisionCountsAllUniqueVisibleRiskMembers",
-        "DecisionFindsFarReachableExitWhenNearExitIsDisconnected"
+        "DecisionFindsFarReachableExitWhenNearExitIsDisconnected",
+        "FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry"
       ]
     },
     {
@@ -125,7 +142,36 @@
         "SkillCooldownSurvivesRefresh(\"Totem\")",
         "SkillCooldownSurvivesRefresh(\"EquivalentConfig\")",
         "CombatReentryDoesNotResetOrdinaryAttackLock",
-        "ReorderedSkillsRetainCooldownAndNewSkillStartsReady"
+        "ReorderedSkillsRetainCooldownAndNewSkillStartsReady",
+        "EquippedTotemRefreshesPawnWithoutResettingSkill",
+        "DuplicateSkillIdentityCannotCreateAnotherCooldown(False)",
+        "DuplicateSkillIdentityCannotCreateAnotherCooldown(True)"
+      ]
+    },
+    {
+      "name": "Combined",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.CombinedRegressionTests",
+      "expected": [
+        "MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Shooter\")",
+        "MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Projectile\")",
+        "ActualExtractionDestroysAAndRangedEnemyDamagesB",
+        "TwoAgentsKeepIndependentSuspendedExtractions",
+        "RuntimePathDisconnectionReleasesManualCommand",
+        "UnavailableParticipantsRejectCommands(\"DisabledAgent\")",
+        "UnavailableParticipantsRejectCommands(\"DisabledExit\")",
+        "UnavailableParticipantsRejectCommands(\"CompletedCluster\")",
+        "ShieldAbsorptionDoesNotInterruptResourceButDisplacementIsIndependent",
+        "BlockedMuzzleCannotUseDirectDamageFallback"
+      ]
+    },
+    {
+      "name": "Graphics",
+      "suite": "Graphics",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.CommandFeedbackGraphicsTests",
+      "expected": [
+        "FormalFeedbackRendersChineseAtTopAndFades"
       ]
     }
   ]

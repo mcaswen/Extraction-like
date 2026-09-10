@@ -1892,6 +1892,7 @@ public sealed class PlayerElementalSkillVfx : MonoBehaviour
 
     private void PrepareParticleSystem(ParticleSystem particles)
     {
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ParticleSystem.MainModule main = particles.main;
         main.playOnAwake = false;
         main.scalingMode = ParticleSystemScalingMode.Hierarchy;

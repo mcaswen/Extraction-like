@@ -6,7 +6,7 @@ namespace AgentReproduction.World
 {
     public static class EnemyFactory
     {
-        public static Component Formal(TestWorldBuilder world, string kind, Vector3 position)
+        public static Component Formal(TestWorldBuilder world, string kind, Vector3 position, bool stationary = false)
         {
             string path = kind == "Base" ? "Base/Enemy" : kind == "Ranged" ? "Base/Pfb_Enemy_RangedEnemy" :
                 kind == "HunterBoss" ? "Boss/Pfb_Enemy_HunterBoss" : "Common/Pfb_Enemy_Common_" + kind;
@@ -15,9 +15,13 @@ namespace AgentReproduction.World
             GameObject staging = world.Root("Enemy staging",false);
             GameObject instance = Object.Instantiate(prefab,staging.transform);
             instance.transform.position=position;
+            // Sentinel has a centered body and no navigation lift; preserve its authored ground offset.
+            if (kind == "AnchorSentinel") instance.transform.position += Vector3.up * prefab.transform.position.y;
             string controller = kind == "Base" ? "EnemyBehaviorController" : kind == "Ranged" ? "RangedEnemyBehaviorController" : kind + "BehaviorController";
             Component component = instance.GetComponent(controller);
             Assert.That(component,Is.Not.Null,controller);
+            if (stationary && instance.TryGetComponent(out UnityEngine.AI.NavMeshAgent navigation))
+            { navigation.updatePosition=false; navigation.updateRotation=false; }
             staging.SetActive(true);
             return component;
         }

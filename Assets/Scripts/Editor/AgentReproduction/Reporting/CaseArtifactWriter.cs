@@ -31,6 +31,24 @@ namespace AgentReproduction.Reporting
             File.AppendAllText(Path.Combine(Folder(), "trace.jsonl"), json + "\n");
         }
 
+        public static void Capture(Camera camera, string name)
+        {
+            var previous=RenderTexture.active;
+            var target=camera.targetTexture;
+            var pixels=new Texture2D(target.width,target.height,TextureFormat.RGB24,false);
+            try
+            {
+                Canvas.ForceUpdateCanvases();
+                camera.Render();
+                RenderTexture.active=target;
+                pixels.ReadPixels(new Rect(0,0,target.width,target.height),0,0);
+                pixels.Apply();
+                File.WriteAllBytes(Path.Combine(Folder(),name+".png"),pixels.EncodeToPNG());
+                Trace("screenshot",name+".png; "+target.width+"x"+target.height);
+            }
+            finally { RenderTexture.active=previous; UnityEngine.Object.DestroyImmediate(pixels); }
+        }
+
         public static void Complete(string execution)
         {
             var context = TestContext.CurrentContext;

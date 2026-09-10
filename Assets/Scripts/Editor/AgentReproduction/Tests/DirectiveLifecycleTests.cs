@@ -15,6 +15,31 @@ namespace AgentReproduction.Tests
 {
     public sealed class DirectiveLifecycleTests : ReproductionTestFixture
     {
+        [UnityTest]
+        public IEnumerator InvalidSuspendedExtractionFailsAfterRetaliation()
+        {
+            var agent=Create(out var original);
+            var enemy=EnemyFactory.Passive(World,new Vector3(20,0,0));
+            AgentDirectiveResult? failed=null;
+            System.Action<AgentDirectiveResult> observe=result=>
+            {
+                if(result.Request.CommandId==original.CommandId && result.Stage==AgentDirectiveStage.Failed) failed=result;
+            };
+            AgentDirectiveFeedbackChannel.Published+=observe;
+            try
+            {
+                agent.TakeCombatDamage(10,agent.Position,Vector3.left,enemy.gameObject);
+                Assert.That(agent.DirectiveLifecycle.SuspendedExtraction.HasValue,Is.True);
+                original.TargetObject.SetActive(false);
+                Object.Destroy(enemy.gameObject);
+                yield return RuntimeWait.Until(()=>failed.HasValue,"invalid extraction resume failure");
+                Assert.That(failed.Value.Reason,Is.EqualTo(AgentDirectiveFailure.InvalidTarget));
+                Assert.That(agent.DirectiveLifecycle.Active.HasValue,Is.False);
+                Assert.That(agent.DirectiveLifecycle.SuspendedExtraction.HasValue,Is.False);
+                ContractCompleted=true;
+            }
+            finally { AgentDirectiveFeedbackChannel.Published-=observe; }
+        }
         private AgentPawnRoot Create(out AgentDirectiveRequest extraction)
         {
             TestNavMeshBuilder.Flat(World);

@@ -557,7 +557,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
-        if (!IsInRangedAttackWindow(distanceToPlayer))
+        if (!IsInRangedAttackWindow(distanceToPlayer) || !CanSeePlayer())
         {
             return;
         }
@@ -576,7 +576,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         _openingWaterJetPending = false;
-        if (!IsInRangedAttackWindow(distanceToPlayer) || PlayerTransform == null)
+        if (!IsInRangedAttackWindow(distanceToPlayer) || PlayerTransform == null || !CanSeePlayer())
         {
             return false;
         }

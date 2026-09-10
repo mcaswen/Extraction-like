@@ -13,6 +13,9 @@ namespace Gameplay.Agent.Targeting
     {
         private readonly List<global::EnemyHealthController> _enemies = new List<global::EnemyHealthController>();
         private readonly HashSet<int> _seen = new HashSet<int>();
+        private readonly AgentTargetFailureMemory _failures = new AgentTargetFailureMemory();
+        public void StartObservingFailures() => _failures.StartObserving();
+        public void StopObservingFailures() => _failures.StopObserving();
         public void CollectVisibleEnemies(IAgentReadOnly agent, IReadOnlyList<GameplayTargetClusterAuthoringBase> clusters,
             float range, List<AgentTargetCandidate> results)
         {
@@ -29,7 +32,8 @@ namespace Gameplay.Agent.Targeting
                     Vector3 position=enemy.transform.position;
                     float distanceSqr=(CombatAimPointResolver.Resolve(enemy.transform)-origin).sqrMagnitude;
                     agent.Blackboard.TryGetValue(AgentBlackboardKeys.AttackRange,out float attackRange);
-                    bool canExecute=distanceSqr<=attackRange*attackRange || IsReachable(agent,position,out _);
+                    bool canExecute=(distanceSqr<=attackRange*attackRange || IsReachable(agent,position,out _)) &&
+                        !_failures.IsDeferred(agent,cluster.gameObject,enemy.gameObject,position);
                     results.Add(new AgentTargetCandidate(cluster,enemy.gameObject,position,position,
                         distanceSqr,AgentTargetKind.Enemy,enemy,canExecute));
                 }
@@ -49,7 +53,8 @@ namespace Gameplay.Agent.Targeting
                     if (resource.TryGetNearestReachableIncompleteResource(agent.Position,agent.NavMeshAgent,out GameObject member,out Vector3 navigation))
                     {
                         float distance=(member.transform.position-agent.Position).sqrMagnitude;
-                        if (distance<=range*range && IsReachable(agent,navigation,out Vector3 destination))
+                        if (distance<=range*range && IsReachable(agent,navigation,out Vector3 destination) &&
+                            !_failures.IsDeferred(agent,cluster.gameObject,member,destination))
                             results.Add(new AgentTargetCandidate(cluster,member,member.transform.position,destination,distance,AgentTargetKind.Resource));
                     }
                 }
@@ -59,7 +64,8 @@ namespace Gameplay.Agent.Targeting
                     foreach (var member in extraction.ExtractionMembers)
                     {
                         if (member == null || member.HasBeenCompleted || !member.TryGetComponent(out global::ExtractionPointController point) ||
-                            !point.isActiveAndEnabled || !IsReachable(agent,point.transform.position,out Vector3 destination)) continue;
+                            !point.isActiveAndEnabled || !IsReachable(agent,point.transform.position,out Vector3 destination) ||
+                            _failures.IsDeferred(agent,cluster.gameObject,point.gameObject,destination)) continue;
                         results.Add(new AgentTargetCandidate(cluster,point.gameObject,point.transform.position,destination,
                             (point.transform.position-agent.Position).sqrMagnitude,AgentTargetKind.Extraction));
                     }
@@ -72,7 +78,8 @@ namespace Gameplay.Agent.Targeting
                         if (point == null || !point.gameObject.activeInHierarchy) continue;
                         float distance=(point.position-agent.Position).sqrMagnitude;
                         if (distance>range*range || (nearest.HasValue && distance>=nearest.Value.DistanceSqr) ||
-                            !IsReachable(agent,point.position,out Vector3 destination)) continue;
+                            !IsReachable(agent,point.position,out Vector3 destination) ||
+                            _failures.IsDeferred(agent,cluster.gameObject,point.gameObject,destination)) continue;
                         nearest=new AgentTargetCandidate(cluster,point.gameObject,point.position,destination,distance,AgentTargetKind.EnemySource);
                     }
                     if (nearest.HasValue) results.Add(nearest.Value);

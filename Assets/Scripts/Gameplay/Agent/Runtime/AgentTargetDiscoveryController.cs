@@ -85,6 +85,9 @@ namespace Gameplay.Agent.Runtime
             }
         }
 
+        private void OnEnable() => _candidateCollector.StartObservingFailures();
+        private void OnDisable() => _candidateCollector.StopObservingFailures();
+
         private void Update()
         {
             AgentRuntimeRegistry registry = Registry;

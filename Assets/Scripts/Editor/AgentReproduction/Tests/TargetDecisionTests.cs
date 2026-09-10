@@ -14,6 +14,41 @@ namespace AgentReproduction.Tests
     public sealed class TargetDecisionTests : ReproductionTestFixture
     {
         [UnityTest]
+        public IEnumerator FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent=AgentFactory.Create(World,"Retry A",Vector3.zero,0,true,false);
+            RuntimeFixtureAccess.Configure(RuntimeFixtureAccess.Read<AgentPawnConfig>(agent,"_pawnConfig"),"_targetDiscoveryInterval",0.1f);
+            var targetA=TargetFactory.Resources(World,new Vector3(4,0,0));
+            var targetB=TargetFactory.Resources(World,new Vector3(10,0,0));
+            bool failed=false;
+            System.Action<Gameplay.Agent.Commands.AgentDirectiveResult> observe=result=>
+            {
+                if (agent == null || targetA == null) return;
+                if(result.Request.TargetAgentId.Equals(agent.AgentId) && result.Request.TargetObject==targetA.gameObject &&
+                    result.Stage==Gameplay.Agent.Commands.AgentDirectiveStage.Failed && result.Reason==Gameplay.Agent.Commands.AgentDirectiveFailure.NoProgress) failed=true;
+            };
+            Gameplay.Agent.Commands.AgentDirectiveFeedbackChannel.Published+=observe;
+            try
+            {
+                yield return RuntimeWait.Until(()=>agent.DirectiveLifecycle.Active.HasValue,"automatic resource selection");
+                Assert.That(agent.DirectiveLifecycle.Active.Value.TargetObject,Is.SameAs(targetA.gameObject));
+                yield return RuntimeWait.Until(()=>failed,"actual navigation no-progress failure",10);
+                yield return RuntimeWait.Until(()=>agent.DirectiveLifecycle.Active.HasValue && agent.DirectiveLifecycle.Active.Value.TargetObject==targetB.gameObject,"failed candidate must yield to B",2);
+                var other=AgentFactory.Create(World,"Retry B",new Vector3(0,0,1),0,true,false);
+                yield return RuntimeWait.Until(()=>other.DirectiveLifecycle.Active.HasValue,"other agent unaffected",2);
+                Assert.That(other.DirectiveLifecycle.Active.Value.TargetObject,Is.SameAs(targetA.gameObject));
+                var manual=AgentDirectiveRequest.SearchConcreteResource(targetA.gameObject,"retry",agent.AgentId,Gameplay.Agent.Runtime.AgentManualDirectiveLock.CreateCommandId("retry"),1000);
+                Assert.That(agent.TrySubmitDirective(manual).Accepted,Is.True,"Manual choice bypasses automatic deferral.");
+                agent.ClearDirective();
+                Assert.That(agent.NavMeshAgent.Warp(new Vector3(0,0,-1)),Is.True);
+                yield return RuntimeWait.Until(()=>agent.DirectiveLifecycle.Active.HasValue,"retry after changed position",2);
+                Assert.That(agent.DirectiveLifecycle.Active.Value.TargetObject,Is.SameAs(targetA.gameObject));
+                ContractCompleted=true;
+            }
+            finally { Gameplay.Agent.Commands.AgentDirectiveFeedbackChannel.Published-=observe; }
+        }
+        [UnityTest]
         public IEnumerator ResourceSelectionAndRetentionUseSameMemberDistance()
         {
             TestNavMeshBuilder.Flat(World);

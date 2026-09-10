@@ -16,6 +16,12 @@ namespace Gameplay.Targets.Input
             out AgentDirectiveRequest directiveRequest)
         {
             directiveRequest = default;
+            if (cluster != null && (!cluster.isActiveAndEnabled || cluster.HasBeenCompleted))
+            {
+                AgentDirectiveFeedbackChannel.Publish(new AgentDirectiveResult(default, AgentDirectiveStage.Rejected,
+                    cluster.HasBeenCompleted ? AgentDirectiveFailure.TargetCompleted : AgentDirectiveFailure.InvalidTarget));
+                return false;
+            }
             if (!TryResolveTargetAgent(targetAgentId, out AgentRuntimeHandle agentHandle))
             {
                 AgentDirectiveFeedbackChannel.Publish(new AgentDirectiveResult(default, AgentDirectiveStage.Rejected, AgentDirectiveFailure.NoAgent));

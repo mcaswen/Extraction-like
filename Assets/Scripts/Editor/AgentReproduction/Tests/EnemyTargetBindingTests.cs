@@ -12,6 +12,7 @@ namespace AgentReproduction.Tests
     {
         public static string[] Kinds = { "Base", "Ranged", "AnchorSentinel", "HunterBoss", "ModernStrander", "TidalAberration", "AncientStrander" };
         public static string[] Invalidations = { "Disabled", "Destroyed", "Unregistered" };
+        public static string[] PatrolKinds = { "Base", "Ranged", "ModernStrander", "TidalAberration", "AncientStrander" };
         [UnityTest]
         public IEnumerator InvalidTargetIsNotReacquired([ValueSource(nameof(Invalidations))] string mode)
         {
@@ -67,20 +68,23 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator VisibleFartherCandidateIsScannedDuringPatrol()
+        public IEnumerator VisibleFartherCandidateIsScannedDuringPatrol([ValueSource(nameof(PatrolKinds))] string kind)
         {
             TestNavMeshBuilder.Flat(World);
             var a=AgentFactory.Create(World,"Hidden A",new Vector3(0,0,5));
             var b=AgentFactory.Create(World,"Visible B",new Vector3(5,0,6));
             World.Cube("Wall",new Vector3(0,2,2.5f),new Vector3(2,5,0.4f));
-            var enemy=(RangedEnemyBehaviorController)EnemyFactory.Formal(World,"Ranged",Vector3.zero);
-            for(int i=0;i<5;i++) yield return null;
+            var controller=EnemyFactory.Formal(World,kind,Vector3.zero,true);
+            var enemy=(IEnemyVisionSource)controller;
+            yield return null;
+            enemy.VisionTransform.rotation=Quaternion.LookRotation(new Vector3(b.Position.x-enemy.VisionTransform.position.x,0,b.Position.z-enemy.VisionTransform.position.z));
             Physics.SyncTransforms();
+            CaseArtifactWriter.Trace("patrol-geometry",$"kind={kind}; origin={enemy.VisionTransform.position}; direction={enemy.VisionTransform.forward}; eye={enemy.EyeHeight}; A={a.Position}; B={b.Position}; state={RuntimeFixtureAccess.Read<object>(controller,"CurrentState")}");
             Assert.That(EnemyVisionUtility.CanSeeTarget(enemy.VisionTransform,a.transform,enemy.DetectionRange,enemy.ViewAngle,enemy.LineOfSightBlockMask,enemy.EyeHeight,enemy.TargetHeight),Is.False);
             Assert.That(EnemyVisionUtility.CanSeeTarget(enemy.VisionTransform,b.transform,enemy.DetectionRange,enemy.ViewAngle,enemy.LineOfSightBlockMask,enemy.EyeHeight,enemy.TargetHeight),Is.True);
-            for(int i=0;i<8;i++) yield return null;
+            yield return RuntimeWait.Until(()=>enemy.PlayerTransform==b.transform && RuntimeFixtureAccess.Read<object>(controller,"CurrentState").ToString()!="Patrol","visible patrol candidate",5);
             Assert.That(enemy.PlayerTransform,Is.SameAs(b.transform));
-            Assert.That(enemy.CurrentState,Is.Not.EqualTo(RangedEnemyBehaviorController.EnemyState.Patrol));
+            Assert.That(RuntimeFixtureAccess.Read<object>(controller,"CurrentState").ToString(),Is.Not.EqualTo("Patrol"));
             ContractCompleted=true;
         }
     }

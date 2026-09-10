@@ -16,6 +16,7 @@ namespace Gameplay.Targets.Presentation
                 case AgentDirectiveFailure.Unreachable: reason = "目标不可达"; break;
                 case AgentDirectiveFailure.NoProgress: reason = "移动受阻"; break;
                 case AgentDirectiveFailure.LostSight: reason = "目标失去视野或超出范围"; break;
+                case AgentDirectiveFailure.AttackUnavailable: reason = "攻击组件或弹体配置不可用"; break;
                 case AgentDirectiveFailure.TargetCompleted: reason = "目标已完成"; break;
                 case AgentDirectiveFailure.Superseded: reason = "已有优先任务"; break;
                 default: reason = "目标无效"; break;

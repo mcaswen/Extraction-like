@@ -20,6 +20,8 @@ namespace Gameplay.Agent.Combat
         [SerializeField, Min(0.01f)] private float _prototypeSkillVfxRangeScale = 1f;
 
         private readonly List<AgentCombatSkillBase> _runtimeSkills = new List<AgentCombatSkillBase>();
+        private readonly List<AgentCombatSkillConfigBase> _uniqueSkillConfigs = new List<AgentCombatSkillConfigBase>();
+        private readonly HashSet<string> _skillIds = new HashSet<string>(System.StringComparer.Ordinal);
         private AgentCombatShooter _shooter;
         private AgentTalentRuntimeController _talentController;
         private AgentCombatRuntimeStats _runtimeStats = new AgentCombatRuntimeStats(1, 0f, 0f);
@@ -177,8 +179,13 @@ namespace Gameplay.Agent.Combat
         {
             CacheComponents();
             ConfigureShooter();
-            IReadOnlyList<AgentCombatSkillConfigBase> skills=_styleConfig != null ? _styleConfig.Skills : null;
-            if (skills == null) { _runtimeSkills.Clear(); return; }
+            IReadOnlyList<AgentCombatSkillConfigBase> configured=_styleConfig != null ? _styleConfig.Skills : null;
+            if (configured == null) { _runtimeSkills.Clear(); return; }
+            // One stable identity owns one cooldown, even when an asset list accidentally repeats it.
+            _uniqueSkillConfigs.Clear(); _skillIds.Clear();
+            foreach (var config in configured)
+                if (config != null && _skillIds.Add(config.SkillId)) _uniqueSkillConfigs.Add(config);
+            IReadOnlyList<AgentCombatSkillConfigBase> skills=_uniqueSkillConfigs;
             int index=0;
             bool unchanged=true;
             foreach (var config in skills)

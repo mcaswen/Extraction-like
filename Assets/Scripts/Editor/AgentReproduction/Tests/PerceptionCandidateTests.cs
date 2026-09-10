@@ -17,6 +17,18 @@ namespace AgentReproduction.Tests
     public sealed class PerceptionCandidateTests : ReproductionTestFixture
     {
         [UnityTest]
+        public IEnumerator UnreachableVisibleEnemyDoesNotBlockExecutableCandidate()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent=AgentFactory.Create(World,"Executable",Vector3.zero,0,true,false);
+            var floating=EnemyFactory.Passive(World,new Vector3(0,20,0));
+            var reachable=EnemyFactory.Passive(World,new Vector3(20,0,0));
+            TargetFactory.Enemies(World,floating,reachable);
+            yield return RuntimeWait.Until(()=>agent.DirectiveLifecycle.Active.HasValue,"executable candidate selection");
+            Assert.That(agent.DirectiveLifecycle.Active.Value.TargetObject,Is.SameAs(reachable.gameObject));
+            ContractCompleted=true;
+        }
+        [UnityTest]
         public IEnumerator AreaSkillsRespectCastRangeAndDynamicCover()
         {
             TestNavMeshBuilder.Flat(World);

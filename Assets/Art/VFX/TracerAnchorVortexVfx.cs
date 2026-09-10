@@ -736,6 +736,7 @@ public sealed class TracerAnchorVortexVfx : MonoBehaviour
         particleObject.transform.SetParent(parent, false);
 
         ParticleSystem particles = particleObject.AddComponent<ParticleSystem>();
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ParticleSystem.MainModule main = particles.main;
         main.loop = rate > 0f;
         main.duration = 1f;

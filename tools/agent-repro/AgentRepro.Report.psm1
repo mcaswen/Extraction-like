@@ -39,6 +39,7 @@ function Write-AgentReproReport {
         }
         if ($group.timedOut -or $tests.Count -eq 0 -or $missing.Count -gt 0) { $infrastructureFailed = $true }
         if ($group.forcedShutdown) { $infrastructureFailed = $true }
+        if ($group.exitCode -ne 0 -and $failed.Count -eq 0) { $infrastructureFailed = $true }
         if ($failed.Count -gt 0) { $businessFailed = $true }
         $runs.Add([ordered]@{group=$group.name; repeat=$group.repeat; exitCode=$group.exitCode; timedOut=$group.timedOut; total=$tests.Count; failed=$failed.Count; missing=$missing; output=$group.output})
     }

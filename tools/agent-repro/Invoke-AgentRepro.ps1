@@ -34,11 +34,12 @@ try {
         foreach ($entry in $groups) {
             $groupOutput = Join-Path $output "groups/$($entry.name)-$iteration"
             New-Item -ItemType Directory -Path $groupOutput -Force | Out-Null
-            $context = @{outputPath=$output; runId=$runId; group=$entry.name; repeat=$iteration; seed=731; graphics=[bool]$IncludeGraphics; faultProbe=$FaultProbe}
+            $needsGraphics = [bool]$IncludeGraphics -or ($entry.PSObject.Properties['graphics'] -and [bool]$entry.graphics)
+            $context = @{outputPath=$output; runId=$runId; group=$entry.name; repeat=$iteration; seed=731; graphics=[bool]$needsGraphics; faultProbe=$FaultProbe}
             $context | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $workspace.Project '.agent-repro-run.json') -Encoding UTF8
             $filter = if ($TestFilter) {$TestFilter} else {$entry.filter}
             $arguments = @('-batchmode','-projectPath',$workspace.Project,'-runTests','-testPlatform','EditMode','-testFilter',$filter,'-testResults',(Join-Path $groupOutput 'test-results.xml'),'-logFile',(Join-Path $groupOutput 'Editor.log'))
-            if (!$IncludeGraphics) { $arguments += '-nographics' }
+            if (!$needsGraphics) { $arguments += '-nographics' }
             $quoted = @($arguments | ForEach-Object { '"' + $_.Replace('"','\"') + '"' })
             Write-Output "Starting $($entry.name) repeat ${iteration}: $groupOutput"
             $process = Start-Process -FilePath $editor -ArgumentList $quoted -PassThru -WindowStyle Hidden
