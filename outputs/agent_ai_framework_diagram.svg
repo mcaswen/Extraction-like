@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980">
+  <defs>
+    <style>
+      .title { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 30px; font-weight: 700; fill: #172033; }
+      .subtitle { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 15px; fill: #475569; }
+      .group-title { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #1e293b; }
+      .box-title { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 16px; font-weight: 700; fill: #111827; }
+      .box-text { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 13px; fill: #334155; }
+      .small { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 12px; fill: #64748b; }
+      .group { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.4; rx: 18; }
+      .entry { fill: #e0f2fe; stroke: #0284c7; stroke-width: 1.7; rx: 12; }
+      .brain { fill: #ede9fe; stroke: #7c3aed; stroke-width: 1.7; rx: 12; }
+      .state { fill: #fef3c7; stroke: #d97706; stroke-width: 1.7; rx: 12; }
+      .bt { fill: #dcfce7; stroke: #16a34a; stroke-width: 1.7; rx: 12; }
+      .system { fill: #fee2e2; stroke: #dc2626; stroke-width: 1.7; rx: 12; }
+      .io { fill: #f1f5f9; stroke: #64748b; stroke-width: 1.4; rx: 12; }
+      .arrow { stroke: #475569; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .soft-arrow { stroke: #94a3b8; stroke-width: 1.7; fill: none; marker-end: url(#arrowhead-soft); stroke-dasharray: 5 4; }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569" />
+    </marker>
+    <marker id="arrowhead-soft" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <rect width="1500" height="980" fill="#ffffff"/>
+  <text x="42" y="48" class="title">Agent AI Framework: HSM + Behavior Tree + Gameplay Integration</text>
+  <text x="42" y="76" class="subtitle">真实代码链路：AgentPawnRoot -> AgentBrainController -> HierarchicalStateMachine -> State-bound BehaviorTree -> ActionNode -> Gameplay Systems</text>
+
+  <!-- Groups -->
+  <rect x="35" y="115" width="250" height="745" class="group"/>
+  <text x="55" y="145" class="group-title">Scene / Inputs</text>
+
+  <rect x="320" y="115" width="245" height="745" class="group"/>
+  <text x="340" y="145" class="group-title">Agent Runtime Entry</text>
+
+  <rect x="600" y="115" width="250" height="745" class="group"/>
+  <text x="620" y="145" class="group-title">AI Brain / HSM</text>
+
+  <rect x="885" y="115" width="285" height="745" class="group"/>
+  <text x="905" y="145" class="group-title">State-bound Behavior Trees</text>
+
+  <rect x="1205" y="115" width="260" height="745" class="group"/>
+  <text x="1225" y="145" class="group-title">Gameplay Systems</text>
+
+  <!-- Inputs -->
+  <rect x="55" y="180" width="210" height="80" class="io"/>
+  <text x="73" y="207" class="box-title">PlayerInputManager</text>
+  <text x="73" y="231" class="box-text">玩家点击目标群</text>
+  <text x="73" y="251" class="small">-> ManualTargetClick 指令</text>
+
+  <rect x="55" y="292" width="210" height="92" class="io"/>
+  <text x="73" y="319" class="box-title">AgentTargetDiscoveryController</text>
+  <text x="73" y="343" class="box-text">保底自动目标发现</text>
+  <text x="73" y="363" class="small">敌人/资源按距离；无目标撤离</text>
+
+  <rect x="55" y="418" width="210" height="92" class="io"/>
+  <text x="73" y="445" class="box-title">AgentTargetDecisionController</text>
+  <text x="73" y="469" class="box-text">评分目标决策</text>
+  <text x="73" y="489" class="small">已实现；当前 prefab 默认关闭</text>
+
+  <rect x="55" y="544" width="210" height="92" class="io"/>
+  <text x="73" y="571" class="box-title">GameplayTargetRegistry</text>
+  <text x="73" y="595" class="box-text">目标群注册表</text>
+  <text x="73" y="615" class="small">Resource / Enemy / Extraction</text>
+
+  <rect x="55" y="670" width="210" height="92" class="io"/>
+  <text x="73" y="697" class="box-title">AgentRuntimeRegistry</text>
+  <text x="73" y="721" class="box-text">多 Agent 注册 / 聚焦</text>
+  <text x="73" y="741" class="small">当前场景：2 个 Agent</text>
+
+  <!-- Agent entry -->
+  <rect x="340" y="210" width="205" height="108" class="entry"/>
+  <text x="362" y="238" class="box-title">AgentPawnRoot</text>
+  <text x="362" y="264" class="box-text">IAgentReadOnly</text>
+  <text x="362" y="284" class="box-text">IAgentCommandReceiver</text>
+  <text x="362" y="304" class="small">统一身体事实与命令入口</text>
+
+  <rect x="340" y="366" width="205" height="92" class="entry"/>
+  <text x="362" y="393" class="box-title">AgentInterventionController</text>
+  <text x="362" y="417" class="box-text">SubmitDirective()</text>
+  <text x="362" y="437" class="small">写入 / 清除 PendingDirective</text>
+
+  <rect x="340" y="512" width="205" height="126" class="entry"/>
+  <text x="362" y="539" class="box-title">BehaviorBlackboard</text>
+  <text x="362" y="565" class="box-text">HasVisibleEnemy</text>
+  <text x="362" y="585" class="box-text">HasResourceTarget</text>
+  <text x="362" y="605" class="box-text">ShouldExtract</text>
+  <text x="362" y="625" class="small">PendingDirectiveRequest</text>
+
+  <!-- Brain -->
+  <rect x="620" y="190" width="210" height="92" class="brain"/>
+  <text x="642" y="218" class="box-title">AgentBrainController</text>
+  <text x="642" y="242" class="box-text">Start() / Tick()</text>
+  <text x="642" y="262" class="small">持有 Blackboard + HSM</text>
+
+  <rect x="620" y="330" width="210" height="108" class="brain"/>
+  <text x="642" y="358" class="box-title">HierarchicalStateMachine</text>
+  <text x="642" y="384" class="box-text">Root -> Raid -> Leaf State</text>
+  <text x="642" y="404" class="small">从叶子向上找最高优先级转移</text>
+  <text x="642" y="424" class="small">进入状态时启动绑定行为树</text>
+
+  <rect x="620" y="486" width="210" height="108" class="brain"/>
+  <text x="642" y="514" class="box-title">AgentBrainTransitionRules</text>
+  <text x="642" y="540" class="box-text">Search -> Combat</text>
+  <text x="642" y="560" class="box-text">Combat -> Search / Extract</text>
+  <text x="642" y="580" class="small">读取黑板事实，不直接操作场景</text>
+
+  <rect x="620" y="642" width="210" height="92" class="brain"/>
+  <text x="642" y="670" class="box-title">AgentBrainStateFactory</text>
+  <text x="642" y="694" class="box-text">创建宏状态</text>
+  <text x="642" y="714" class="small">为每个叶子状态绑定一棵 BT</text>
+
+  <!-- States + BT -->
+  <rect x="905" y="165" width="245" height="75" class="state"/>
+  <text x="925" y="193" class="box-title">Explore</text>
+  <text x="925" y="217" class="box-text">MaintainMacroStateActionNode</text>
+
+  <rect x="905" y="270" width="245" height="96" class="bt"/>
+  <text x="925" y="298" class="box-title">CombatTree</text>
+  <text x="925" y="324" class="box-text">Sequence</text>
+  <text x="925" y="344" class="small">MoveToTarget -> EngageEnemy</text>
+
+  <rect x="905" y="396" width="245" height="86" class="bt"/>
+  <text x="925" y="424" class="box-title">InvestigateEnemySourceTree</text>
+  <text x="925" y="450" class="box-text">MoveToTargetActionNode</text>
+  <text x="925" y="470" class="small">靠近敌人来源点</text>
+
+  <rect x="905" y="512" width="245" height="98" class="bt"/>
+  <text x="925" y="540" class="box-title">SearchResourceTree</text>
+  <text x="925" y="566" class="box-text">Sequence</text>
+  <text x="925" y="586" class="small">MoveToTarget -> SearchResource</text>
+
+  <rect x="905" y="640" width="245" height="75" class="bt"/>
+  <text x="925" y="668" class="box-title">InteractLootTree</text>
+  <text x="925" y="692" class="box-text">复用 SearchResourceTree</text>
+
+  <rect x="905" y="745" width="245" height="96" class="bt"/>
+  <text x="925" y="773" class="box-title">ExtractionTree</text>
+  <text x="925" y="799" class="box-text">Sequence</text>
+  <text x="925" y="819" class="small">MoveToTarget -> Extract</text>
+
+  <!-- Gameplay systems -->
+  <rect x="1225" y="185" width="220" height="80" class="system"/>
+  <text x="1246" y="213" class="box-title">NavMeshAgent</text>
+  <text x="1246" y="237" class="box-text">移动 / 停靠 / 寻路</text>
+
+  <rect x="1225" y="310" width="220" height="100" class="system"/>
+  <text x="1246" y="338" class="box-title">Combat Systems</text>
+  <text x="1246" y="364" class="box-text">AgentCombatController</text>
+  <text x="1246" y="384" class="box-text">AgentCombatShooter</text>
+  <text x="1246" y="404" class="small">EnemyHealthController</text>
+
+  <rect x="1225" y="455" width="220" height="110" class="system"/>
+  <text x="1246" y="483" class="box-title">Loot / Inventory</text>
+  <text x="1246" y="509" class="box-text">LootBoxEntity</text>
+  <text x="1246" y="529" class="box-text">WorldLootItem</text>
+  <text x="1246" y="549" class="small">InventoryScreenController</text>
+
+  <rect x="1225" y="610" width="220" height="90" class="system"/>
+  <text x="1246" y="638" class="box-title">Raid / Extraction</text>
+  <text x="1246" y="664" class="box-text">ExtractionPointController</text>
+  <text x="1246" y="684" class="small">RaidFlowController</text>
+
+  <rect x="1225" y="745" width="220" height="90" class="system"/>
+  <text x="1246" y="773" class="box-title">Target Clusters</text>
+  <text x="1246" y="799" class="box-text">Resource / Enemy</text>
+  <text x="1246" y="819" class="small">EnemySource / Extraction</text>
+
+  <!-- Main arrows -->
+  <path d="M265 220 C295 220, 307 245, 340 252" class="arrow"/>
+  <path d="M265 338 C296 338, 310 283, 340 274" class="arrow"/>
+  <path d="M265 464 C299 464, 312 300, 340 290" class="soft-arrow"/>
+  <path d="M265 716 C295 716, 304 255, 340 250" class="soft-arrow"/>
+
+  <path d="M442 318 L442 366" class="arrow"/>
+  <path d="M442 458 L442 512" class="arrow"/>
+  <path d="M545 264 C575 264, 590 236, 620 236" class="arrow"/>
+  <path d="M545 575 C575 575, 590 540, 620 540" class="soft-arrow"/>
+
+  <path d="M725 282 L725 330" class="arrow"/>
+  <path d="M725 438 L725 486" class="arrow"/>
+  <path d="M725 594 L725 642" class="soft-arrow"/>
+
+  <path d="M830 384 C858 384, 872 200, 905 200" class="arrow"/>
+  <path d="M830 384 C858 384, 872 318, 905 318" class="arrow"/>
+  <path d="M830 384 C858 384, 872 439, 905 439" class="arrow"/>
+  <path d="M830 384 C858 384, 872 561, 905 561" class="arrow"/>
+  <path d="M830 384 C858 384, 872 678, 905 678" class="arrow"/>
+  <path d="M830 384 C858 384, 872 793, 905 793" class="arrow"/>
+
+  <path d="M1150 318 C1182 318, 1195 225, 1225 225" class="arrow"/>
+  <path d="M1150 318 C1180 318, 1194 360, 1225 360" class="arrow"/>
+  <path d="M1150 561 C1182 561, 1195 510, 1225 510" class="arrow"/>
+  <path d="M1150 793 C1182 793, 1195 655, 1225 655" class="arrow"/>
+  <path d="M1150 439 C1182 439, 1195 790, 1225 790" class="soft-arrow"/>
+  <path d="M1150 561 C1182 561, 1195 790, 1225 790" class="soft-arrow"/>
+  <path d="M1150 318 C1182 318, 1195 790, 1225 790" class="soft-arrow"/>
+
+  <path d="M265 590 C305 590, 300 590, 340 590" class="soft-arrow"/>
+
+  <!-- Transition notes -->
+  <rect x="42" y="885" width="1420" height="58" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" rx="14"/>
+  <text x="62" y="911" class="box-title">状态切换由 AgentBrainTransitionRules 读取 Blackboard 决定：</text>
+  <text x="395" y="911" class="box-text">Search -> Combat：受击反击或资源目标清空后转接战；Combat -> Search：玩家手动资源指令；Search/Combat -> Extraction：ShouldExtract=true。</text>
+  <text x="62" y="934" class="small">这证明全局决策、状态生命周期、动作执行、玩法系统接入是分层的，不是把所有逻辑塞进一个 Update 里的 if-else。</text>
+</svg>
