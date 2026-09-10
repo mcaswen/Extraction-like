@@ -1,0 +1,16 @@
+{
+  "status": "Confirmed",
+  "source": "User review and implementation authorization, 2026-09-11",
+  "rules": {
+    "F1": "Interrupt extraction to retaliate, then resume the original extraction unless superseded or dead.",
+    "F2": "Replace invalid enemy targets and all associated receivers together.",
+    "F3": "Effective damage may interrupt manual resource work; visibility alone may not.",
+    "F4": "New and retained target distances use the same concrete member.",
+    "F5_R1": "Reject or terminate impossible commands, release locks, tolerate numerical arrival error, and show command feedback.",
+    "F6": "Scan all valid visible candidates during patrol.",
+    "F7": "Attribute updates preserve skill cooldown and attack cadence.",
+    "R2_R3": "Range and obstacles constrain discovery and attacks; ranged attacks support vertical separation.",
+    "R4": "Use actual defense, complete unique risk candidates, concrete positions and extraction fallback.",
+    "R5": "Recheck interaction distance after displacement."
+  }
+}

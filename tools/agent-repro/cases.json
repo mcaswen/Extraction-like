@@ -1,0 +1,10 @@
+{
+  "groups": [
+    {
+      "name": "Smoke",
+      "suite": "Smoke",
+      "filter": "AgentReproduction.Tests.HarnessSmokeTests",
+      "expected": ["PlayModeNavigationPhysicsAndIsolation"]
+    }
+  ]
+}
