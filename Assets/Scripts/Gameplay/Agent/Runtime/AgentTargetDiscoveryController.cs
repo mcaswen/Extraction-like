@@ -187,7 +187,6 @@ namespace Gameplay.Agent.Runtime
             IAgentReadOnly agent = handle.ReadOnly;
             IAgentCommandReceiver commandReceiver = handle.CommandReceiver;
             float range = Mathf.Max(0f, handle.PawnRoot.TargetDiscoveryRange);
-            float rangeSqr = range * range;
 
             if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent) ||
                 AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent))
@@ -202,46 +201,32 @@ namespace Gameplay.Agent.Runtime
             GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
-            bool hasEnemyTarget = TryFindNearestEnemyCluster(
-                    agent,
-                    rangeSqr,
-                    out ActiveEnemyClusterAuthoring enemyCluster,
-                    out global::EnemyHealthController enemy,
-                    out float enemyDistanceSqr);
-
-            bool hasResourceTarget = TryKeepCurrentResourceClusterTarget(
-                    agent,
-                    rangeSqr,
-                    out ResourceClusterAuthoring resourceCluster,
-                    out float resourceDistanceSqr);
-            if (!hasResourceTarget)
+            _candidateCollector.CollectVisibleEnemies(agent,_clusterBuffer,range,_enemyCandidates);
+            _candidateCollector.CollectWorldTargets(agent,_clusterBuffer,range,_worldCandidates);
+            AgentTargetCandidate? enemy=null,resource=null,exit=null;
+            foreach (var candidate in _enemyCandidates)
+                if (candidate.CanExecute) { enemy=candidate; break; }
+            agent.Blackboard.TryGetValue(AgentBlackboardKeys.PendingDirectiveRequest,out AgentDirectiveRequest current);
+            foreach (var candidate in _worldCandidates)
             {
-                hasResourceTarget = TryFindNearestResourceCluster(
-                    agent,
-                    rangeSqr,
-                    out resourceCluster,
-                    out resourceDistanceSqr);
+                if (candidate.Kind==AgentTargetKind.Resource && (!resource.HasValue || candidate.Cluster.gameObject==current.TargetObject)) resource=candidate;
+                if (candidate.Kind==AgentTargetKind.Extraction && !exit.HasValue) exit=candidate;
             }
-
-            if (hasEnemyTarget &&
-                (!hasResourceTarget || enemyDistanceSqr <= resourceDistanceSqr))
+            if (enemy.HasValue && (!resource.HasValue || enemy.Value.DistanceSqr<=resource.Value.DistanceSqr))
             {
-                ApplyEnemyClusterTarget(targetRegistry, handle, commandReceiver, enemyCluster, enemy);
+                ApplyEnemyClusterTarget(targetRegistry,handle,commandReceiver,(ActiveEnemyClusterAuthoring)enemy.Value.Cluster,enemy.Value.Enemy);
                 return;
             }
-
-            if (hasResourceTarget)
+            if (resource.HasValue)
             {
-                ApplyResourceClusterTarget(handle, commandReceiver, resourceCluster);
+                ApplyResourceClusterTarget(handle,commandReceiver,(ResourceClusterAuthoring)resource.Value.Cluster);
                 return;
             }
-
-            if (TryFindNearestExtractionCluster(
-                    agent.Position,
-                    float.PositiveInfinity,
-                    out ExtractionClusterAuthoring extractionCluster))
+            if (exit.HasValue)
             {
-                ApplyExtractionClusterTarget(handle, commandReceiver, extractionCluster);
+                commandReceiver.SubmitDirective(new AgentDirectiveRequest(AgentDirectiveType.Extract,
+                    AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction,exit.Value.Member,exit.Value.Cluster.TargetId),
+                    exit.Value.Cluster.TargetId,handle.AgentId));
                 return;
             }
 
@@ -267,22 +252,6 @@ namespace Gameplay.Agent.Runtime
                 handle.AgentId));
         }
 
-        private static void ApplyEnemySourceClusterTarget(
-            AgentRuntimeHandle handle,
-            IAgentCommandReceiver commandReceiver,
-            EnemySourceClusterAuthoring enemySourceCluster)
-        {
-            string targetId = enemySourceCluster.TargetId;
-            commandReceiver.SubmitDirective(new AgentDirectiveRequest(
-                AgentDirectiveType.MoveTo,
-                AgentTargetRef.FromConcreteObject(
-                    AgentTargetKind.EnemySource,
-                    enemySourceCluster.gameObject,
-                    targetId),
-                targetId,
-                handle.AgentId));
-        }
-
         private static void ApplyResourceClusterTarget(
             AgentRuntimeHandle handle,
             IAgentCommandReceiver commandReceiver,
@@ -294,30 +263,6 @@ namespace Gameplay.Agent.Runtime
                 AgentTargetRef.FromConcreteObject(
                     AgentTargetKind.Resource,
                     resourceCluster.gameObject,
-                    targetId),
-                targetId,
-                handle.AgentId));
-        }
-
-        private static void ApplyExtractionClusterTarget(
-            AgentRuntimeHandle handle,
-            IAgentCommandReceiver commandReceiver,
-            ExtractionClusterAuthoring extractionCluster)
-        {
-            if (!extractionCluster.TryGetNearestExtractionPoint(
-                    handle.ReadOnly.Position,
-                    out global::ExtractionPointController extractionPoint) ||
-                extractionPoint == null)
-            {
-                return;
-            }
-
-            string targetId = extractionCluster.TargetId;
-            commandReceiver.SubmitDirective(new AgentDirectiveRequest(
-                AgentDirectiveType.Extract,
-                AgentTargetRef.FromConcreteObject(
-                    AgentTargetKind.Extraction,
-                    extractionPoint.gameObject,
                     targetId),
                 targetId,
                 handle.AgentId));
@@ -335,17 +280,7 @@ namespace Gameplay.Agent.Runtime
 
         private readonly AgentTargetCandidateCollector _candidateCollector = new AgentTargetCandidateCollector();
         private readonly List<AgentTargetCandidate> _enemyCandidates = new List<AgentTargetCandidate>();
-        private bool TryFindNearestEnemyCluster(IAgentReadOnly agent, float rangeSqr,
-            out ActiveEnemyClusterAuthoring nearestEnemyCluster, out global::EnemyHealthController nearestEnemy, out float nearestDistanceSqr)
-        {
-            _candidateCollector.CollectVisibleEnemies(agent, _clusterBuffer, Mathf.Sqrt(rangeSqr), _enemyCandidates);
-            nearestEnemyCluster = null; nearestEnemy = null; nearestDistanceSqr = float.PositiveInfinity;
-            if (_enemyCandidates.Count == 0) return false;
-            var candidate = _enemyCandidates[0];
-            nearestEnemyCluster = (ActiveEnemyClusterAuthoring)candidate.Cluster;
-            nearestEnemy = candidate.Enemy; nearestDistanceSqr = candidate.DistanceSqr;
-            return true;
-        }
+        private readonly List<AgentTargetCandidate> _worldCandidates = new List<AgentTargetCandidate>();
 
         private static string ResolveActiveEnemyTargetId(
             GameplayTargetRegistry targetRegistry,
@@ -361,177 +296,6 @@ namespace Gameplay.Agent.Runtime
             return enemyCluster != null ? enemyCluster.TargetId : string.Empty;
         }
 
-        private bool TryFindNearestEnemySourceCluster(
-            GameplayTargetRegistry targetRegistry,
-            Vector3 agentPosition,
-            float rangeSqr,
-            out EnemySourceClusterAuthoring nearestEnemySourceCluster)
-        {
-            nearestEnemySourceCluster = null;
-            float nearestDistanceSqr = float.MaxValue;
-            targetRegistry.CopyClustersTo(_clusterBuffer);
-
-            for (int i = 0; i < _clusterBuffer.Count; i++)
-            {
-                if (!(_clusterBuffer[i] is EnemySourceClusterAuthoring enemySourceCluster) ||
-                    enemySourceCluster.HasBeenCompleted ||
-                    !enemySourceCluster.TryGetNearestSpawnPoint(agentPosition, out _))
-                {
-                    continue;
-                }
-
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemySourceCluster.CenterPosition);
-                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
-                {
-                    continue;
-                }
-
-                nearestEnemySourceCluster = enemySourceCluster;
-                nearestDistanceSqr = distanceSqr;
-            }
-
-            return nearestEnemySourceCluster != null;
-        }
-
-        private bool TryFindNearestResourceCluster(
-            IAgentReadOnly agent,
-            float rangeSqr,
-            out ResourceClusterAuthoring nearestResourceCluster,
-            out float nearestDistanceSqr)
-        {
-            nearestResourceCluster = null;
-            nearestDistanceSqr = float.MaxValue;
-            Vector3 agentPosition = agent.Position;
-
-            for (int i = 0; i < _clusterBuffer.Count; i++)
-            {
-                if (!(_clusterBuffer[i] is ResourceClusterAuthoring resourceCluster) ||
-                    resourceCluster.HasBeenCompleted)
-                {
-                    continue;
-                }
-
-                if (!resourceCluster.TryGetNearestIncompleteResource(
-                        agentPosition,
-                        out GameObject candidateResourceObject))
-                {
-                    continue;
-                }
-
-                Vector3 candidatePosition = candidateResourceObject != null
-                    ? candidateResourceObject.transform.position
-                    : resourceCluster.CenterPosition;
-                float candidateDistanceSqr = GetPlanarDistanceSqr(agentPosition, candidatePosition);
-                if (candidateDistanceSqr > rangeSqr || candidateDistanceSqr >= nearestDistanceSqr)
-                {
-                    continue;
-                }
-
-                if (!resourceCluster.TryGetNearestReachableIncompleteResource(
-                        agentPosition,
-                        agent.NavMeshAgent,
-                        out GameObject resourceObject))
-                {
-                    continue;
-                }
-
-                Vector3 targetPosition = resourceObject != null
-                    ? resourceObject.transform.position
-                    : resourceCluster.CenterPosition;
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
-                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
-                {
-                    continue;
-                }
-
-                nearestResourceCluster = resourceCluster;
-                nearestDistanceSqr = distanceSqr;
-            }
-
-            return nearestResourceCluster != null;
-        }
-
-        private static bool TryKeepCurrentResourceClusterTarget(
-            IAgentReadOnly agent,
-            float rangeSqr,
-            out ResourceClusterAuthoring resourceCluster,
-            out float distanceSqr)
-        {
-            resourceCluster = null;
-            distanceSqr = float.MaxValue;
-            if (agent == null || agent.Blackboard == null)
-            {
-                return false;
-            }
-
-            if (!agent.Blackboard.TryGetValue(
-                    AgentBlackboardKeys.PendingDirectiveRequest,
-                    out AgentDirectiveRequest directiveRequest))
-            {
-                return false;
-            }
-
-            if (directiveRequest.DirectiveType != AgentDirectiveType.Search ||
-                directiveRequest.TargetRef.Kind != AgentTargetKind.Resource)
-            {
-                return false;
-            }
-
-            if (directiveRequest.TargetObject == null ||
-                !directiveRequest.TargetObject.TryGetComponent(out resourceCluster) ||
-                resourceCluster.HasBeenCompleted ||
-                !resourceCluster.TryGetNearestReachableIncompleteResource(agent.Position, agent.NavMeshAgent, out _))
-            {
-                resourceCluster = null;
-                return false;
-            }
-
-            distanceSqr = GetPlanarDistanceSqr(agent.Position, resourceCluster.CenterPosition);
-            if (distanceSqr > rangeSqr)
-            {
-                resourceCluster = null;
-                distanceSqr = float.MaxValue;
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool TryFindNearestExtractionCluster(
-            Vector3 agentPosition,
-            float rangeSqr,
-            out ExtractionClusterAuthoring nearestExtractionCluster)
-        {
-            nearestExtractionCluster = null;
-            float nearestDistanceSqr = float.MaxValue;
-
-            for (int i = 0; i < _clusterBuffer.Count; i++)
-            {
-                if (!(_clusterBuffer[i] is ExtractionClusterAuthoring extractionCluster) ||
-                    extractionCluster.HasBeenCompleted ||
-                    !extractionCluster.TryGetNearestExtractionPoint(
-                        agentPosition,
-                        out global::ExtractionPointController extractionPoint))
-                {
-                    continue;
-                }
-
-                Vector3 targetPosition = extractionPoint != null
-                    ? extractionPoint.transform.position
-                    : extractionCluster.CenterPosition;
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, targetPosition);
-                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
-                {
-                    continue;
-                }
-
-                nearestExtractionCluster = extractionCluster;
-                nearestDistanceSqr = distanceSqr;
-            }
-
-            return nearestExtractionCluster != null;
-        }
-
         private static bool HasActiveDecisionController(AgentPawnRoot pawnRoot)
         {
             AgentTargetDecisionController decisionController =
@@ -540,11 +304,5 @@ namespace Gameplay.Agent.Runtime
             return decisionController != null && decisionController.IsDecisionModuleActive;
         }
 
-        private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)
-        {
-            float deltaX = from.x - to.x;
-            float deltaZ = from.z - to.z;
-            return deltaX * deltaX + deltaZ * deltaZ;
-        }
     }
 }

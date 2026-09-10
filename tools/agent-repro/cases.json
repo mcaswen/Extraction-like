@@ -104,6 +104,29 @@
         "RangeUsesHeightAndTriggersDoNotOcclude",
         "AreaSkillsRespectCastRangeAndDynamicCover"
       ]
+    },
+    {
+      "name": "Decision",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.TargetDecisionTests",
+      "expected": [
+        "ResourceSelectionAndRetentionUseSameMemberDistance",
+        "DecisionUsesActualDefense",
+        "DecisionCountsAllUniqueVisibleRiskMembers",
+        "DecisionFindsFarReachableExitWhenNearExitIsDisconnected"
+      ]
+    },
+    {
+      "name": "Cooldown",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.CombatCooldownTests",
+      "expected": [
+        "SkillCooldownSurvivesRefresh(\"Stats\")",
+        "SkillCooldownSurvivesRefresh(\"Totem\")",
+        "SkillCooldownSurvivesRefresh(\"EquivalentConfig\")",
+        "CombatReentryDoesNotResetOrdinaryAttackLock",
+        "ReorderedSkillsRetainCooldownAndNewSkillStartsReady"
+      ]
     }
   ]
 }

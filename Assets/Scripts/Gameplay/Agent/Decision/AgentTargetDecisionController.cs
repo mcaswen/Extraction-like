@@ -3,6 +3,7 @@ using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
+using Gameplay.Agent.Targeting;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
@@ -127,14 +128,16 @@ namespace Gameplay.Agent.Decision
 
             GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
             BuildDecisionCandidates(targetRegistry, agent, rangeSqr);
+            decisionContext = BuildDecisionContext(agent);
 
             AgentTargetDecisionService decisionService = GetDecisionService();
-            int candidateCount = _decisionCandidateBuffer.Count;
+            int candidateCount = _decisionCandidateBuffer.Count + _farExitCandidates.Count;
             int riskEnemyCount = _riskEnemyBuffer.Count;
             if (!decisionService.TryChooseTarget(
                     decisionContext,
                     _decisionCandidateBuffer,
-                    out AgentDecisionResult result))
+                    out AgentDecisionResult result) &&
+                !decisionService.TryChooseTarget(decisionContext,_farExitCandidates,out result))
             {
                 WriteDecisionFailure(agent, decisionContext, candidateCount, riskEnemyCount, result.Reason);
                 ClearTargetFacts(commandReceiver);
@@ -158,162 +161,36 @@ namespace Gameplay.Agent.Decision
         }
 
         // 收集所有范围内候选目标，让决策服务统一评分
-        private void BuildDecisionCandidates(
-            GameplayTargetRegistry targetRegistry,
-            IAgentReadOnly agent,
-            float rangeSqr)
+        private readonly AgentTargetCandidateCollector _collector=new AgentTargetCandidateCollector();
+        private readonly List<AgentTargetCandidate> _enemyCandidates=new List<AgentTargetCandidate>();
+        private readonly List<AgentTargetCandidate> _worldCandidates=new List<AgentTargetCandidate>();
+        private readonly List<AgentDecisionCandidate> _farExitCandidates=new List<AgentDecisionCandidate>();
+
+        private void BuildDecisionCandidates(GameplayTargetRegistry targetRegistry, IAgentReadOnly agent, float rangeSqr)
         {
-            _decisionCandidateBuffer.Clear();
-            _riskEnemyBuffer.Clear();
+            _decisionCandidateBuffer.Clear(); _riskEnemyBuffer.Clear(); _farExitCandidates.Clear();
             targetRegistry.CopyClustersTo(_clusterBuffer);
-
-            string currentTargetId = ResolveCurrentTargetId(agent);
-
-            for (int i = 0; i < _clusterBuffer.Count; i++)
+            _collector.CollectVisibleEnemies(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_enemyCandidates);
+            _collector.CollectWorldTargets(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_worldCandidates);
+            string currentTargetId=ResolveCurrentTargetId(agent);
+            foreach (var candidate in _enemyCandidates)
             {
-                GameplayTargetClusterAuthoringBase cluster = _clusterBuffer[i];
-                if (cluster == null || cluster.HasBeenCompleted)
-                    continue;
-
-                if (cluster is ActiveEnemyClusterAuthoring enemyCluster)
-                {
-                    TryAddActiveEnemyDecisionCandidate(
-                        targetRegistry,
-                        enemyCluster,
-                        agent.Position,
-                        rangeSqr,
-                        currentTargetId);
-                    continue;
-                }
-
-                if (cluster is EnemySourceClusterAuthoring enemySourceCluster)
-                {
-                    TryAddEnemySourceDecisionCandidate(enemySourceCluster, agent.Position, rangeSqr, currentTargetId);
-                    continue;
-                }
-
-                if (cluster is ResourceClusterAuthoring resourceCluster)
-                {
-                    TryAddResourceDecisionCandidate(resourceCluster, agent, rangeSqr, currentTargetId);
-                    continue;
-                }
-
-                if (cluster is ExtractionClusterAuthoring extractionCluster)
-                    TryAddExtractionDecisionCandidate(extractionCluster, agent.Position, rangeSqr, currentTargetId);
+                _riskEnemyBuffer.Add(candidate.Enemy);
+                if (!candidate.CanExecute) continue;
+                string id=ResolveActiveEnemyDecisionTargetId(targetRegistry,(ActiveEnemyClusterAuthoring)candidate.Cluster,candidate.Enemy);
+                _decisionCandidateBuffer.Add(new AgentDecisionCandidate(AgentDecisionTargetKind.ActiveEnemy,AgentDirectiveType.Engage,
+                    AgentTargetKind.Enemy,id,candidate.Member,candidate.Position,candidate.DistanceSqr,candidate.Enemy,IsCurrentTarget(id,currentTargetId)));
             }
-        }
-
-        private void TryAddActiveEnemyDecisionCandidate(
-            GameplayTargetRegistry targetRegistry,
-            ActiveEnemyClusterAuthoring enemyCluster,
-            Vector3 agentPosition,
-            float rangeSqr,
-            string currentTargetId)
-        {
-            if (!enemyCluster.TryGetNearestAliveEnemy(agentPosition, out global::EnemyHealthController enemy))
-                return;
-
-            AddUniqueRiskEnemy(enemy);
-
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemyCluster.CenterPosition);
-            if (distanceSqr > rangeSqr)
-                return;
-
-            string targetId = ResolveActiveEnemyDecisionTargetId(targetRegistry, enemyCluster, enemy);
-            GameObject targetObject = enemy != null ? enemy.gameObject : enemyCluster.gameObject;
-
-            _decisionCandidateBuffer.Add(new AgentDecisionCandidate(
-                AgentDecisionTargetKind.ActiveEnemy,
-                AgentDirectiveType.Engage,
-                AgentTargetKind.Enemy,
-                targetId,
-                targetObject,
-                enemy != null ? enemy.transform.position : enemyCluster.CenterPosition,
-                distanceSqr,
-                enemy,
-                IsCurrentTarget(targetId, currentTargetId)));
-        }
-
-        private void TryAddEnemySourceDecisionCandidate(
-            EnemySourceClusterAuthoring enemySourceCluster,
-            Vector3 agentPosition,
-            float rangeSqr,
-            string currentTargetId)
-        {
-            if (!enemySourceCluster.TryGetNearestSpawnPoint(agentPosition, out _))
-                return;
-
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemySourceCluster.CenterPosition);
-            if (distanceSqr > rangeSqr)
-                return;
-
-            _decisionCandidateBuffer.Add(new AgentDecisionCandidate(
-                AgentDecisionTargetKind.EnemySource,
-                AgentDirectiveType.MoveTo,
-                AgentTargetKind.EnemySource,
-                enemySourceCluster.TargetId,
-                enemySourceCluster.gameObject,
-                enemySourceCluster.CenterPosition,
-                distanceSqr,
-                null,
-                IsCurrentTarget(enemySourceCluster.TargetId, currentTargetId)));
-        }
-
-        private void TryAddResourceDecisionCandidate(
-            ResourceClusterAuthoring resourceCluster,
-            IAgentReadOnly agent,
-            float rangeSqr,
-            string currentTargetId)
-        {
-            Vector3 agentPosition = agent.Position;
-            if (!resourceCluster.TryGetNearestReachableIncompleteResource(agentPosition, agent.NavMeshAgent, out _))
-                return;
-
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, resourceCluster.CenterPosition);
-            if (distanceSqr > rangeSqr)
-                return;
-
-            _decisionCandidateBuffer.Add(new AgentDecisionCandidate(
-                AgentDecisionTargetKind.Resource,
-                AgentDirectiveType.Search,
-                AgentTargetKind.Resource,
-                resourceCluster.TargetId,
-                resourceCluster.gameObject,
-                resourceCluster.CenterPosition,
-                distanceSqr,
-                null,
-                IsCurrentTarget(resourceCluster.TargetId, currentTargetId)));
-        }
-
-        private void TryAddExtractionDecisionCandidate(
-            ExtractionClusterAuthoring extractionCluster,
-            Vector3 agentPosition,
-            float rangeSqr,
-            string currentTargetId)
-        {
-            if (!extractionCluster.TryGetNearestExtractionPoint(
-                    agentPosition,
-                    out global::ExtractionPointController extractionPoint) ||
-                extractionPoint == null)
+            foreach (var candidate in _worldCandidates)
             {
-                return;
+                string id=candidate.Cluster.TargetId;
+                bool resource=candidate.Kind==AgentTargetKind.Resource, exit=candidate.Kind==AgentTargetKind.Extraction;
+                var snapshot=new AgentDecisionCandidate(resource?AgentDecisionTargetKind.Resource:exit?AgentDecisionTargetKind.Extraction:AgentDecisionTargetKind.EnemySource,
+                    resource?AgentDirectiveType.Search:exit?AgentDirectiveType.Extract:AgentDirectiveType.MoveTo,candidate.Kind,id,
+                    resource?candidate.Cluster.gameObject:candidate.Member,candidate.Position,candidate.DistanceSqr,null,IsCurrentTarget(id,currentTargetId));
+                if (exit && candidate.DistanceSqr>rangeSqr) _farExitCandidates.Add(snapshot);
+                else _decisionCandidateBuffer.Add(snapshot);
             }
-
-            Vector3 extractionPosition = extractionPoint.transform.position;
-            float distanceSqr = GetPlanarDistanceSqr(agentPosition, extractionPosition);
-            if (distanceSqr > rangeSqr)
-                return;
-
-            _decisionCandidateBuffer.Add(new AgentDecisionCandidate(
-                AgentDecisionTargetKind.Extraction,
-                AgentDirectiveType.Extract,
-                AgentTargetKind.Extraction,
-                extractionCluster.TargetId,
-                extractionPoint.gameObject,
-                extractionPosition,
-                distanceSqr,
-                null,
-                IsCurrentTarget(extractionCluster.TargetId, currentTargetId)));
         }
 
         private AgentDecisionContext BuildDecisionContext(IAgentReadOnly agent)
@@ -327,7 +204,7 @@ namespace Gameplay.Agent.Decision
                 attack,
                 agent.CurrentHealth,
                 agent.MaxHealth,
-                _decisionConfig != null ? _decisionConfig.DefaultDefense : 0f,
+                _pawnRoot.Defense,
                 ResolveCurrentTargetId(agent),
                 _riskEnemyBuffer);
         }
@@ -356,14 +233,6 @@ namespace Gameplay.Agent.Decision
             _cachedDecisionConfig = _decisionConfig;
             _decisionService = new AgentTargetDecisionService(_decisionConfig);
             return _decisionService;
-        }
-
-        private void AddUniqueRiskEnemy(global::EnemyHealthController enemy)
-        {
-            if (enemy == null || _riskEnemyBuffer.Contains(enemy))
-                return;
-
-            _riskEnemyBuffer.Add(enemy);
         }
 
         private static string ResolveCurrentTargetId(IAgentReadOnly agent)
@@ -490,11 +359,5 @@ namespace Gameplay.Agent.Decision
             agent.Blackboard.SetValue(AgentBlackboardKeys.DecisionDefense, context.Defense, timeSeconds);
         }
 
-        private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)
-        {
-            float deltaX = from.x - to.x;
-            float deltaZ = from.z - to.z;
-            return deltaX * deltaX + deltaZ * deltaZ;
-        }
     }
 }

@@ -11,6 +11,14 @@ namespace Gameplay.Agent.Combat
     {
         private double _nextReadyTime;
 
+        // Only the controller may transfer state while replacing an equivalent skill configuration.
+        internal void PreserveCooldownFrom(AgentCombatSkillBase previous)
+        {
+            if (previous != null && previous.GetType()==GetType() && Config != null && previous.Config != null &&
+                string.Equals(Config.SkillId,previous.Config.SkillId,System.StringComparison.Ordinal))
+                _nextReadyTime=System.Math.Max(_nextReadyTime,previous._nextReadyTime);
+        }
+
         /// <summary>
         /// 创建技能运行时实例
         /// </summary>

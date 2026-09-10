@@ -13,8 +13,9 @@ namespace Gameplay.Agent.Targeting
         public float DistanceSqr { get; }
         public global::EnemyHealthController Enemy { get; }
         public AgentTargetKind Kind { get; }
+        public bool CanExecute { get; }
         public AgentTargetCandidate(GameplayTargetClusterAuthoringBase cluster, GameObject member, Vector3 position,
-            Vector3 navigationPosition, float distanceSqr, AgentTargetKind kind, global::EnemyHealthController enemy = null)
-        { Cluster=cluster; Member=member; Position=position; NavigationPosition=navigationPosition; DistanceSqr=distanceSqr; Kind=kind; Enemy=enemy; }
+            Vector3 navigationPosition, float distanceSqr, AgentTargetKind kind, global::EnemyHealthController enemy = null, bool canExecute = true)
+        { Cluster=cluster; Member=member; Position=position; NavigationPosition=navigationPosition; DistanceSqr=distanceSqr; Kind=kind; Enemy=enemy; CanExecute=canExecute; }
     }
 }

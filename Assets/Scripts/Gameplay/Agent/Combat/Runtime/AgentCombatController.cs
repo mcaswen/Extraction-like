@@ -65,7 +65,7 @@ namespace Gameplay.Agent.Combat
         private void Awake()
         {
             CacheComponents();
-            RebuildRuntimeSkills();
+            ReconcileRuntimeSkills();
         }
 
         private void Reset()
@@ -90,18 +90,10 @@ namespace Gameplay.Agent.Combat
             AgentCombatRuntimeStats runtimeStats,
             global::TotemModifierSet totemModifiers = default)
         {
-            if (_styleConfig == styleConfig &&
-                _runtimeStats.Equals(runtimeStats) &&
-                _totemModifiers.Equals(totemModifiers) &&
-                _runtimeSkills.Count > 0)
-            {
-                return;
-            }
-
             _styleConfig = styleConfig;
             _runtimeStats = runtimeStats;
             _totemModifiers = totemModifiers;
-            RebuildRuntimeSkills();
+            ReconcileRuntimeSkills();
         }
 
         /// <summary>
@@ -181,29 +173,44 @@ namespace Gameplay.Agent.Combat
                 AttackRange);
         }
 
-        private void RebuildRuntimeSkills()
+        private void ReconcileRuntimeSkills()
         {
             CacheComponents();
-            _runtimeSkills.Clear();
-
-            if (_styleConfig == null)
-                return;
-
-            // 普通攻击发射器跟随风格元素，技能则由各自配置单独创建运行时实例
             ConfigureShooter();
-            IReadOnlyList<AgentCombatSkillConfigBase> skills = _styleConfig.Skills;
-            if (skills == null)
-                return;
-
-            for (int i = 0; i < skills.Count; i++)
+            IReadOnlyList<AgentCombatSkillConfigBase> skills=_styleConfig != null ? _styleConfig.Skills : null;
+            if (skills == null) { _runtimeSkills.Clear(); return; }
+            int index=0;
+            bool unchanged=true;
+            foreach (var config in skills)
             {
-                AgentCombatSkillConfigBase skillConfig = skills[i];
-                if (skillConfig == null)
-                    continue;
+                if (config == null) continue;
+                if (index>=_runtimeSkills.Count || _runtimeSkills[index].Config!=config) unchanged=false;
+                index++;
+            }
+            if (unchanged && index==_runtimeSkills.Count) return;
 
-                AgentCombatSkillBase runtimeSkill = skillConfig.CreateRuntimeSkill();
-                if (runtimeSkill != null)
-                    _runtimeSkills.Add(runtimeSkill);
+            var previous=new List<AgentCombatSkillBase>(_runtimeSkills);
+            _runtimeSkills.Clear();
+            foreach (var config in skills)
+            {
+                if (config == null) continue;
+                var retained=previous.Find(skill=>skill.Config==config);
+                if (retained != null)
+                {
+                    previous.Remove(retained);
+                    _runtimeSkills.Add(retained);
+                    continue;
+                }
+                var created=config.CreateRuntimeSkill();
+                if (created == null) continue;
+                var equivalent=previous.Find(skill=>skill.GetType()==created.GetType() &&
+                    string.Equals(skill.Config.SkillId,config.SkillId,System.StringComparison.Ordinal));
+                if (equivalent != null)
+                {
+                    created.PreserveCooldownFrom(equivalent);
+                    previous.Remove(equivalent);
+                }
+                _runtimeSkills.Add(created);
             }
         }
 
