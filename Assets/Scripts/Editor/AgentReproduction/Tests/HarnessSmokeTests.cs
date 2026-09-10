@@ -42,6 +42,8 @@ namespace AgentReproduction.Tests
             }
             yield return null;
             Object.Destroy(data);
+            CaseArtifactWriter.Trace("contract-completed", "Coroutine continued after yielding.");
+            ContractCompleted=true;
         }
     }
 }

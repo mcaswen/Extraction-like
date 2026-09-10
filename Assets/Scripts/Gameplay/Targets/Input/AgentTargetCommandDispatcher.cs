@@ -1,4 +1,5 @@
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Commands;
 using Gameplay.Agent.Runtime;
 using Gameplay.Targets.Authoring;
 
@@ -16,7 +17,10 @@ namespace Gameplay.Targets.Input
         {
             directiveRequest = default;
             if (!TryResolveTargetAgent(targetAgentId, out AgentRuntimeHandle agentHandle))
+            {
+                AgentDirectiveFeedbackChannel.Publish(new AgentDirectiveResult(default, AgentDirectiveStage.Rejected, AgentDirectiveFailure.NoAgent));
                 return false;
+            }
 
             string commandId = AgentManualDirectiveLock.CreateCommandId(cluster != null ? cluster.TargetId : string.Empty);
             if (!TargetClusterDirectiveFactory.TryCreateDirective(
@@ -26,12 +30,11 @@ namespace Gameplay.Targets.Input
                     AgentManualDirectiveLock.ManualDirectivePriority,
                     out directiveRequest))
             {
+                AgentDirectiveFeedbackChannel.Publish(new AgentDirectiveResult(default, AgentDirectiveStage.Rejected, AgentDirectiveFailure.InvalidTarget));
                 return false;
             }
 
-            ApplyTargetFacts(agentHandle, cluster);
-            agentHandle.CommandReceiver.SubmitDirective(directiveRequest);
-            return true;
+            return agentHandle.CommandReceiver.TrySubmitDirective(directiveRequest).Accepted;
         }
 
         private static bool TryResolveTargetAgent(
@@ -40,29 +43,11 @@ namespace Gameplay.Targets.Input
         {
             AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
 
-            if (!string.IsNullOrWhiteSpace(targetAgentId) &&
-                registry.TryGetHandle(targetAgentId, out agentHandle))
-            {
-                return true;
-            }
+            if (!string.IsNullOrWhiteSpace(targetAgentId))
+                return registry.TryGetHandle(targetAgentId, out agentHandle);
 
             return registry.TryGetFocusedHandle(out agentHandle);
         }
 
-        private static void ApplyTargetFacts(
-            AgentRuntimeHandle agentHandle,
-            GameplayTargetClusterAuthoringBase cluster)
-        {
-            bool isActiveEnemy = cluster is ActiveEnemyClusterAuthoring;
-            bool isEnemySource = cluster is EnemySourceClusterAuthoring;
-            bool isResource = cluster is ResourceClusterAuthoring;
-            bool isExtraction = cluster is ExtractionClusterAuthoring;
-
-            agentHandle.CommandReceiver.SetVisibleEnemy(isActiveEnemy);
-            agentHandle.CommandReceiver.SetHasEnemySourceTarget(isEnemySource);
-            agentHandle.CommandReceiver.SetHasResourceTarget(isResource);
-            agentHandle.CommandReceiver.SetHasInteractableTarget(false);
-            agentHandle.CommandReceiver.SetShouldExtract(isExtraction);
-        }
     }
 }

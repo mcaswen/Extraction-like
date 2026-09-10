@@ -20,6 +20,12 @@ namespace Gameplay.Agent.SO
         [SerializeField] private float _moveSpeed = 4f;
         [SerializeField] private float _moveStoppingDistance = 0.25f;
         [SerializeField] private float _interactionDistance = 0f;
+        [SerializeField, Min(0.1f)] private float _navigationReadyTimeout = 2f;
+        [SerializeField, Min(0.1f)] private float _navigationProgressTimeout = 3f;
+        [SerializeField, Min(0.1f)] private float _combatLostSightTimeout = 2f;
+        public float NavigationReadyTimeout => Mathf.Max(0.1f, _navigationReadyTimeout);
+        public float NavigationProgressTimeout => Mathf.Max(0.1f, _navigationProgressTimeout);
+        public float CombatLostSightTimeout => Mathf.Max(0.1f, _combatLostSightTimeout);
 
         [Header("目标发现参数")]
         [SerializeField] private bool _enableTargetDiscovery = true;

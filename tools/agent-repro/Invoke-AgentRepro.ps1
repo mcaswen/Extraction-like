@@ -45,7 +45,19 @@ try {
             $processId = $process.Id
             $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
             $timedOut = $false
+            $shutdownDeadline = $null
+            $forcedShutdown = $false
             while (!$process.HasExited) {
+                if (!$shutdownDeadline -and (Test-Path -LiteralPath (Join-Path $groupOutput 'test-results.xml'))) {
+                    $shutdownDeadline = [DateTime]::UtcNow.AddSeconds(60)
+                }
+                if ($shutdownDeadline -and [DateTime]::UtcNow -gt $shutdownDeadline) {
+                    $forcedShutdown = $true
+                    & taskkill /PID $processId /T /F | Out-Null
+                    $process.WaitForExit(10000) | Out-Null
+                    @{execution='SHUTDOWN_TIMEOUT';processId=$processId;reason='NUnit completed but owned editor did not exit within 60 seconds.'} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $groupOutput 'shutdown-timeout.json') -Encoding UTF8
+                    break
+                }
                 if ([DateTime]::UtcNow -gt $deadline) {
                     $timedOut = $true
                     # Only this exact owned Unity process tree, never another editor.
@@ -57,7 +69,7 @@ try {
                 $process.Refresh()
             }
             $exitCode = if ($process.HasExited) {$process.ExitCode} else {-1}
-            $results.Add(@{name=$entry.name;repeat=$iteration;output=$groupOutput;expected=$(if ($TestFilter) {@()} else {@($entry.expected)});exitCode=$exitCode;timedOut=$timedOut})
+            $results.Add(@{name=$entry.name;repeat=$iteration;output=$groupOutput;expected=$(if ($TestFilter) {@()} else {@($entry.expected)});exitCode=$exitCode;timedOut=$timedOut;forcedShutdown=$forcedShutdown})
             $process.Dispose(); $process=$null
         }
     }

@@ -254,12 +254,6 @@ namespace Gameplay.Agent.Runtime
             ActiveEnemyClusterAuthoring enemyCluster,
             global::EnemyHealthController enemy)
         {
-            commandReceiver.SetVisibleEnemy(true);
-            commandReceiver.SetHasEnemySourceTarget(false);
-            commandReceiver.SetHasResourceTarget(false);
-            commandReceiver.SetHasInteractableTarget(false);
-            commandReceiver.SetShouldExtract(false);
-
             string targetId = ResolveActiveEnemyTargetId(targetRegistry, enemyCluster, enemy);
             GameObject targetObject = enemy != null ? enemy.gameObject : enemyCluster.gameObject;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
@@ -277,12 +271,6 @@ namespace Gameplay.Agent.Runtime
             IAgentCommandReceiver commandReceiver,
             EnemySourceClusterAuthoring enemySourceCluster)
         {
-            commandReceiver.SetVisibleEnemy(false);
-            commandReceiver.SetHasEnemySourceTarget(true);
-            commandReceiver.SetHasResourceTarget(false);
-            commandReceiver.SetHasInteractableTarget(false);
-            commandReceiver.SetShouldExtract(false);
-
             string targetId = enemySourceCluster.TargetId;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 AgentDirectiveType.MoveTo,
@@ -299,12 +287,6 @@ namespace Gameplay.Agent.Runtime
             IAgentCommandReceiver commandReceiver,
             ResourceClusterAuthoring resourceCluster)
         {
-            commandReceiver.SetVisibleEnemy(false);
-            commandReceiver.SetHasEnemySourceTarget(false);
-            commandReceiver.SetHasResourceTarget(true);
-            commandReceiver.SetHasInteractableTarget(false);
-            commandReceiver.SetShouldExtract(false);
-
             string targetId = resourceCluster.TargetId;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 AgentDirectiveType.Search,
@@ -328,12 +310,6 @@ namespace Gameplay.Agent.Runtime
             {
                 return;
             }
-
-            commandReceiver.SetVisibleEnemy(false);
-            commandReceiver.SetHasEnemySourceTarget(false);
-            commandReceiver.SetHasResourceTarget(false);
-            commandReceiver.SetHasInteractableTarget(false);
-            commandReceiver.SetShouldExtract(true);
 
             string targetId = extractionCluster.TargetId;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(

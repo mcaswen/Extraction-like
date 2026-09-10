@@ -123,18 +123,7 @@ namespace Gameplay.Agent.AI.Factories
 
         private static BehaviorTreeType BuildCombatTree()
         {
-            // 战斗树先统一靠近目标，再由攻击节点处理射程内的持续攻击
-            return new BehaviorTreeType(
-                "CombatTree",
-                new SequenceNode(
-                    "Combat_EngageSequence",
-                    new MoveToTargetActionNode(
-                        "Combat_MoveToEnemy",
-                        AgentDirectiveType.Engage,
-                        AgentTargetKind.Enemy,
-                        AgentBlackboardKeys.AttackRange,
-                        6f),
-                    new EngageEnemyActionNode("Combat_EngageEnemy")));
+            return new BehaviorTreeType("CombatTree", new EngageEnemyActionNode("Combat_EngageEnemy"));
         }
 
         private static BehaviorTreeType BuildInvestigateEnemySourceTree()

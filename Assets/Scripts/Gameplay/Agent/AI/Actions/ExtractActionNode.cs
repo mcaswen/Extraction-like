@@ -1,6 +1,7 @@
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Commands;
 using Gameplay.Targets.Authoring;
 using UnityEngine;
 
@@ -37,13 +38,17 @@ namespace Gameplay.Agent.AI.Actions
                     out Vector3 targetPosition,
                     out global::ExtractionPointController extractionPoint))
             {
+                FailPendingDirective(context, AgentDirectiveFailure.InvalidTarget);
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Extraction target position is invalid");
             }
 
             float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             if (!MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
+            {
+                ClearActiveExtractionPoint();
                 return Running();
+            }
 
             // 现有撤离逻辑由 RaidFlowController 计时，这里只桥接进入状态
             SetActiveExtractionPoint(agent, extractionPoint);

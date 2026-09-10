@@ -338,12 +338,6 @@ namespace Gameplay.Agent.Decision
         {
             AgentDecisionCandidate candidate = result.Candidate;
 
-            commandReceiver.SetVisibleEnemy(candidate.DecisionTargetKind == AgentDecisionTargetKind.ActiveEnemy);
-            commandReceiver.SetHasEnemySourceTarget(candidate.DecisionTargetKind == AgentDecisionTargetKind.EnemySource);
-            commandReceiver.SetHasResourceTarget(candidate.DecisionTargetKind == AgentDecisionTargetKind.Resource);
-            commandReceiver.SetHasInteractableTarget(false);
-            commandReceiver.SetShouldExtract(candidate.DecisionTargetKind == AgentDecisionTargetKind.Extraction);
-
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 candidate.DirectiveType,
                 AgentTargetRef.FromConcreteObject(

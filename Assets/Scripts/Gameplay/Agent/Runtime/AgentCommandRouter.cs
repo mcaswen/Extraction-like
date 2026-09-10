@@ -90,8 +90,7 @@ namespace Gameplay.Agent.Runtime
             if (!TryResolveTarget(targetAgentId, out handle))
                 return false;
 
-            handle.CommandReceiver.SubmitDirective(directiveRequest.WithTargetAgentId(handle.AgentId));
-            return true;
+            return handle.CommandReceiver.TrySubmitDirective(directiveRequest.WithTargetAgentId(handle.AgentId)).Accepted;
         }
 
         /// <summary>

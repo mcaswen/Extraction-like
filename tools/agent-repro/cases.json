@@ -4,7 +4,61 @@
       "name": "Smoke",
       "suite": "Smoke",
       "filter": "AgentReproduction.Tests.HarnessSmokeTests",
-      "expected": ["PlayModeNavigationPhysicsAndIsolation"]
+      "expected": [
+        "PlayModeNavigationPhysicsAndIsolation"
+      ]
+    },
+    {
+      "name": "F1",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.F1ExtractionInterruptTests",
+      "expected": [
+        "ExtractionResumesAfterRetaliation",
+        "ExtractionRemainsWithoutDamage"
+      ]
+    },
+    {
+      "name": "F5",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.F5UnreachableDirectiveTests",
+      "expected": [
+        "DisconnectedExtractionIsRejected"
+      ]
+    },
+    {
+      "name": "Lifecycle",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.DirectiveLifecycleTests",
+      "expected": [
+        "RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
+        "CancelAndDeathDiscardSuspendedExtraction",
+        "ManualResourceIgnoresSightButEffectiveDamageInterrupts"
+      ]
+    },
+    {
+      "name": "Navigation",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.NavigationExecutionTests",
+      "expected": [
+        "ZeroStoppingDistanceArrivesAndNavigationLossTerminates",
+        "NoProgressFailsAndRejectedReplacementPreservesCurrentTask"
+      ]
+    },
+    {
+      "name": "R5",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ResourceDisplacementTests",
+      "expected": [
+        "DisplacementInvalidatesInventoryCloseUntilAgentReturns"
+      ]
+    },
+    {
+      "name": "Feedback",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.CommandFeedbackTests",
+      "expected": [
+        "FormalHudReportsAcceptedAndRejectedCommandsAndFadesWhilePaused"
+      ]
     }
   ]
 }

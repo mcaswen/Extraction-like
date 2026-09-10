@@ -3,6 +3,8 @@ using Gameplay.Agent.Animation;
 using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Commands;
+using Gameplay.Perception;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
@@ -14,7 +16,8 @@ namespace Gameplay.Agent.AI.Actions
     /// </summary>
     public sealed class EngageEnemyActionNode : AgentActionNodeBase
     {
-        private double _nextAttackTime;
+        private double _lostSightSince = -1d;
+        private string _commandId;
 
         /// <summary>
         /// 创建敌人接战行为节点
@@ -27,7 +30,7 @@ namespace Gameplay.Agent.AI.Actions
 
         protected override void OnEnter(BehaviorTreeContext context)
         {
-            _nextAttackTime = 0d;
+            _lostSightSince = -1d;
         }
 
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
@@ -37,6 +40,7 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!TryGetDirective(context, AgentDirectiveType.Engage, out AgentDirectiveRequest directiveRequest))
                 return FailMissingDirective(AgentDirectiveType.Engage);
+            if (_commandId != directiveRequest.CommandId) { _commandId = directiveRequest.CommandId; _lostSightSince = -1d; }
 
             if (!TryResolveEnemyTarget(
                     directiveRequest,
@@ -61,17 +65,31 @@ namespace Gameplay.Agent.AI.Actions
             Vector3 targetPosition = enemyHealthController.transform.position;
             float attackRange = GetFloat(context, AgentBlackboardKeys.AttackRange, 6f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
-            // 攻击节点自己兜底靠近，避免目标移动后脱离射程
-            if (!MoveAgentTowards(agent, targetPosition, attackRange, moveSpeed, context.DeltaTime))
+            bool canFire = TargetVisibilityQuery.Check(agent.CachedTransform, CombatAimPointResolver.Resolve(agent.CachedTransform),
+                enemyHealthController.transform, attackRange) == TargetVisibilityResult.Visible;
+            if (!canFire)
+            {
+                if (_lostSightSince < 0d) _lostSightSince = context.TimeSeconds;
+                float timeout = agent is Gameplay.Agent.Core.AgentPawnRoot pawn ? pawn.CombatLostSightTimeout : 2f;
+                if (context.TimeSeconds - _lostSightSince >= timeout)
+                {
+                    FailPendingDirective(context, AgentDirectiveFailure.LostSight);
+                    return Succeed();
+                }
+                MoveAgentTowards(agent, targetPosition, 0.1f, moveSpeed, context.DeltaTime);
                 return Running();
+            }
+            _lostSightSince = -1d;
+            StopAgentMovement(agent);
+            AgentCombatController combat = agent.CachedTransform.GetComponent<AgentCombatController>();
 
-            if (context.TimeSeconds < _nextAttackTime)
+            if (combat != null && !combat.IsAttackReady(context.TimeSeconds))
                 return Running();
 
             if (TryCastReadySkill(agent, enemyHealthController, context.TimeSeconds, out float actionLockSeconds))
             {
                 NotifyAttackAnimation(agent, actionLockSeconds);
-                _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, actionLockSeconds);
+                combat?.LockAttack(context.TimeSeconds, actionLockSeconds);
                 if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
                 {
                     GameplayTargetRegistry.GetOrCreate().NotifyEnemyDefeated(enemyHealthController);
@@ -88,14 +106,11 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!TryShootEnemy(agent, enemyHealthController, attackDamage))
             {
-                // 子弹组件未配置时保留直接伤害兜底，避免 MVP 战斗链路被资产配置卡住
-                enemyHealthController.TakeDamage(
-                    attackDamage,
-                    CreateAgentDamageContext(agent, enemyHealthController));
+                return Running();
             }
 
             NotifyAttackAnimation(agent, attackInterval);
-            _nextAttackTime = context.TimeSeconds + Mathf.Max(0.05f, attackInterval);
+            combat?.LockAttack(context.TimeSeconds, attackInterval);
 
             if (enemyHealthController.GetCurrentHealthRatio() <= 0f)
             {

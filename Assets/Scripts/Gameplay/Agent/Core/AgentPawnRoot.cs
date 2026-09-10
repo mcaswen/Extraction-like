@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.AI;
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Combat;
+using Gameplay.Agent.Commands;
+using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
@@ -53,6 +55,9 @@ namespace Gameplay.Agent.Core
 
         private AgentBrainController _brainController;
         private AgentInterventionController _interventionController;
+        private AgentDirectiveLifecycleController _directiveLifecycle;
+        private AgentNavigationMotor _navigationMotor;
+        public AgentDirectiveLifecycleController DirectiveLifecycle => _directiveLifecycle;
         private Vector3 _externalImpulseVelocity;
         private float _externalImpulseMovementOverrideRemaining;
         private float _speedDebuffDurationRemaining;
@@ -140,6 +145,7 @@ namespace Gameplay.Agent.Core
         /// 目标发现扫描间隔
         /// </summary>
         public float TargetDiscoveryInterval => _pawnConfig != null ? _pawnConfig.TargetDiscoveryInterval : 0.5f;
+        public float CombatLostSightTimeout => _pawnConfig != null ? _pawnConfig.CombatLostSightTimeout : 2f;
 
         /// <summary>
         /// Brain 使用的运行时黑板
@@ -171,6 +177,7 @@ namespace Gameplay.Agent.Core
 
         private void OnDisable()
         {
+            _directiveLifecycle?.Cancel();
             UnregisterFromRuntime();
         }
 
@@ -199,6 +206,7 @@ namespace Gameplay.Agent.Core
             SyncBodyFactsToBlackboard(timeSeconds);
 
             // 驱动自主 Brain 更新
+            _directiveLifecycle.Tick();
             _brainController.Tick(deltaTime, timeSeconds);
             TickExternalImpulseMovement(deltaTime);
         }
@@ -271,6 +279,8 @@ namespace Gameplay.Agent.Core
 
             _brainController = new AgentBrainController(this);
             _interventionController = new AgentInterventionController(_brainController.Blackboard);
+            _navigationMotor = new AgentNavigationMotor(_navMeshAgent, _pawnConfig.NavigationReadyTimeout, _pawnConfig.NavigationProgressTimeout);
+            _directiveLifecycle = new AgentDirectiveLifecycleController(this, _interventionController, _navigationMotor);
 
             InitializeBlackboardFacts(Time.timeAsDouble);
             _brainController.Start(Time.timeAsDouble);
@@ -442,9 +452,20 @@ namespace Gameplay.Agent.Core
         /// <param name="directiveRequest"></param>
         public void SubmitDirective(AgentDirectiveRequest directiveRequest)
         {
-            AgentDirectiveRequest routedRequest = directiveRequest.WithTargetAgentId(AgentId);
-            _interventionController.SubmitDirective(routedRequest, Time.timeAsDouble);
+            TrySubmitDirective(directiveRequest);
         }
+
+        public AgentDirectiveResult TrySubmitDirective(AgentDirectiveRequest request) => _directiveLifecycle.Submit(request);
+        public bool FinishDirective(string commandId, AgentDirectiveFailure failure = AgentDirectiveFailure.None) => _directiveLifecycle.Finish(commandId, failure);
+        public AgentNavigationResult MoveDirective(Vector3 destination, float stoppingDistance, float speed)
+        {
+            if (!_directiveLifecycle.Active.HasValue) return new AgentNavigationResult(AgentNavigationStatus.Unreachable);
+            string commandId = _directiveLifecycle.Active.Value.CommandId;
+            AgentNavigationResult result = _navigationMotor.Move(commandId, destination, stoppingDistance, speed);
+            if (result.Failed) FinishDirective(commandId, result.Status == AgentNavigationStatus.Stalled ? AgentDirectiveFailure.NoProgress : AgentDirectiveFailure.Unreachable);
+            return result;
+        }
+        public void StopDirectiveMovement() => _navigationMotor.Stop();
 
         private void RecordCombatDamageInterrupt(GameObject source, double timeSeconds)
         {
@@ -465,9 +486,7 @@ namespace Gameplay.Agent.Core
                 AgentManualDirectiveLock.CombatDamageDirectivePriority);
 
             _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, timeSeconds, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.HasVisibleEnemy, true, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
-            _interventionController.SubmitDirective(directiveRequest, timeSeconds);
+            _directiveLifecycle.Submit(directiveRequest, damageInterrupt: true);
         }
 
         /// <summary>
@@ -475,7 +494,7 @@ namespace Gameplay.Agent.Core
         /// </summary>
         public void ClearDirective()
         {
-            _interventionController.ClearDirective(Time.timeAsDouble);
+            _directiveLifecycle.Cancel();
         }
 
         private AgentId ResolveRuntimeAgentId()
@@ -712,8 +731,7 @@ namespace Gameplay.Agent.Core
             _speedDebuffMultiplier = 1f;
 
             StopNavMeshForExternalMovement();
-            if (_interventionController != null)
-                _interventionController.ClearDirective(timeSeconds);
+            _directiveLifecycle?.Cancel();
             SyncBodyFactsToBlackboard(timeSeconds);
 
             AgentRuntimeRegistry.ActiveInstance?.NotifyAgentDied(this);

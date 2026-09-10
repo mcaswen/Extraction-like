@@ -1,4 +1,7 @@
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Commands;
+using Gameplay.Agent.Navigation;
+using UnityEngine;
 
 namespace Gameplay.Agent.Interfaces
 {
@@ -52,6 +55,10 @@ namespace Gameplay.Agent.Interfaces
         /// </summary>
         /// <param name="directiveRequest"></param>
         void SubmitDirective(AgentDirectiveRequest directiveRequest);
+        AgentDirectiveResult TrySubmitDirective(AgentDirectiveRequest directiveRequest);
+        bool FinishDirective(string commandId, AgentDirectiveFailure failure = AgentDirectiveFailure.None);
+        AgentNavigationResult MoveDirective(Vector3 destination, float stoppingDistance, float speed);
+        void StopDirectiveMovement();
 
         /// <summary>
         /// 清除当前待处理的Agent干预请求

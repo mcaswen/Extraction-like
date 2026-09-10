@@ -3,6 +3,8 @@ using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
+using Gameplay.Agent.Commands;
+using Gameplay.Agent.Navigation;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
@@ -79,9 +81,10 @@ namespace Gameplay.Agent.AI.Actions
             float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
 
-            if (!_hasReachedInteractionRange &&
-                !MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
+            if (!MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
             {
+                ResetWaitState();
+                _hasReachedInteractionRange = false;
                 return Running();
             }
 
@@ -117,7 +120,7 @@ namespace Gameplay.Agent.AI.Actions
                     CompleteResourceSearch(context);
                     return Succeed();
                 }
-
+                FailPendingDirective(context, AgentDirectiveFailure.Unreachable);
                 return Running();
             }
 
@@ -209,9 +212,12 @@ namespace Gameplay.Agent.AI.Actions
             float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             // 搜索前先靠近具体资源，避免远距离直接收纳箱子
-            if (!_hasReachedInteractionRange &&
-                !MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
+            if (!MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
             {
+                bool wasInRange = _hasReachedInteractionRange;
+                _hasReachedInteractionRange = false;
+                ResetWaitState();
+                if (wasInRange) CloseOwnedInventory(agent);
                 return Running();
             }
 
@@ -373,6 +379,7 @@ namespace Gameplay.Agent.AI.Actions
 
         private static string GetStableTargetId(AgentDirectiveRequest directiveRequest)
         {
+            if (!string.IsNullOrEmpty(directiveRequest.CommandId)) return directiveRequest.CommandId;
             if (!string.IsNullOrEmpty(directiveRequest.TargetId))
                 return directiveRequest.TargetId;
 
@@ -451,6 +458,13 @@ namespace Gameplay.Agent.AI.Actions
         {
             _waitingResourceObject = null;
             _hasObservedInventoryOpen = false;
+        }
+
+        private static void CloseOwnedInventory(IAgentReadOnly agent)
+        {
+            var inventory = global::InventoryScreenController.Instance;
+            if (inventory != null && inventory.IsInventoryOpen && inventory.ActiveInventoryAgentId == agent.AgentIdValue)
+                inventory.CloseInventory();
         }
 
         private void ResetSearchState()

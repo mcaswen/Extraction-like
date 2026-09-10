@@ -38,6 +38,7 @@ function Write-AgentReproReport {
             @{caseId=$caseId;execution=$execution;contract=$contract;message=$message;nunitResult=[string]$test.result} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $caseDirectory 'nunit-final.json') -Encoding UTF8
         }
         if ($group.timedOut -or $tests.Count -eq 0 -or $missing.Count -gt 0) { $infrastructureFailed = $true }
+        if ($group.forcedShutdown) { $infrastructureFailed = $true }
         if ($failed.Count -gt 0) { $businessFailed = $true }
         $runs.Add([ordered]@{group=$group.name; repeat=$group.repeat; exitCode=$group.exitCode; timedOut=$group.timedOut; total=$tests.Count; failed=$failed.Count; missing=$missing; output=$group.output})
     }

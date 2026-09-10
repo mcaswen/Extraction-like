@@ -2,6 +2,8 @@ using Core.BehaviorTree.Blackboard;
 using Core.BehaviorTree.Nodes.Leaves;
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Commands;
+using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Targets.Authoring;
 using UnityEngine;
@@ -16,12 +18,7 @@ namespace Gameplay.Agent.AI.Actions
     public abstract class AgentActionNodeBase : ActionNode
     {
         internal const float NavMeshDestinationRefreshInterval = 0.1f;
-        internal const float NavMeshTargetSampleRadius = 4f;
-        private const float NavMeshStopFromMaxSpeedDuration = 0.5f;
-
-        private float _lastNavMeshDestinationSetTime = -999f;
-        private bool _hasLastNavMeshDestination;
-
+        internal const float NavMeshTargetSampleRadius = 0.5f;
         /// <summary>
         /// 创建 Agent 行为节点基类
         /// </summary>
@@ -304,339 +301,27 @@ namespace Gameplay.Agent.AI.Actions
         /// <param name="context"></param>
         protected void ClearPendingDirective(BehaviorTreeContext context)
         {
-            // 行为完成后同时清标记和值，避免状态机继续吃旧指令
-            context.Blackboard.SetValue(
-                AgentBlackboardKeys.HasPendingDirective,
-                false,
-                context.TimeSeconds);
-
-            context.Blackboard.RemoveValue(
-                AgentBlackboardKeys.PendingDirectiveRequest,
-                context.TimeSeconds);
+            if (context.UserContext is IAgentCommandReceiver receiver &&
+                context.Blackboard.TryGetValue(AgentBlackboardKeys.PendingDirectiveRequest, out AgentDirectiveRequest request))
+                receiver.FinishDirective(request.CommandId);
         }
 
-        /// <summary>
-        /// 驱动 Agent 靠近目标位置
-        /// 优先使用 NavMesh，导航不可用时退回直线移动兜底
-        /// </summary>
-        /// <param name="agent"></param>
-        /// <param name="targetPosition"></param>
-        /// <param name="stoppingDistance"></param>
-        /// <param name="moveSpeed"></param>
-        /// <param name="deltaTime"></param>
-        /// <returns></returns>
-        protected bool MoveAgentTowards(
-            IAgentReadOnly agent,
-            Vector3 targetPosition,
-            float stoppingDistance,
-            float moveSpeed,
-            float deltaTime)
+        protected void FailPendingDirective(BehaviorTreeContext context, AgentDirectiveFailure failure)
         {
-            if (TryMoveAgentWithNavMesh(
-                    agent,
-                    targetPosition,
-                    stoppingDistance,
-                    moveSpeed,
-                    out bool hasReachedByNavMesh))
-            {
-                return hasReachedByNavMesh;
-            }
-
-            return MoveAgentDirectly(
-                agent,
-                targetPosition,
-                stoppingDistance,
-                moveSpeed,
-                deltaTime);
+            if (context.UserContext is IAgentCommandReceiver receiver &&
+                context.Blackboard.TryGetValue(AgentBlackboardKeys.PendingDirectiveRequest, out AgentDirectiveRequest request))
+                receiver.FinishDirective(request.CommandId, failure);
         }
 
-        /// <summary>
-        /// 立即停止 Agent 移动
-        /// 清掉 NavMesh 路径和残余速度，避免等待交互阶段继续滑动
-        /// </summary>
-        /// <param name="agent"></param>
+        protected bool MoveAgentTowards(IAgentReadOnly agent, Vector3 targetPosition, float stoppingDistance, float moveSpeed, float deltaTime)
+        {
+            return agent is IAgentCommandReceiver receiver &&
+                receiver.MoveDirective(targetPosition, stoppingDistance, moveSpeed).Status == AgentNavigationStatus.Arrived;
+        }
+
         protected void StopAgentMovement(IAgentReadOnly agent)
         {
-            StopNavMeshAgent(agent?.NavMeshAgent);
-            ResetNavMeshDestinationCache();
-        }
-
-        private bool TryMoveAgentWithNavMesh(
-            IAgentReadOnly agent,
-            Vector3 targetPosition,
-            float stoppingDistance,
-            float moveSpeed,
-            out bool hasReached)
-        {
-            hasReached = false;
-
-            NavMeshAgent navMeshAgent = agent.NavMeshAgent;
-            if (navMeshAgent == null || !navMeshAgent.enabled)
-                return false;
-
-            if (!EnsureNavMeshAgentReady(navMeshAgent, agent.CachedTransform.position, stoppingDistance))
-                return false;
-
-            ConfigureNavMeshAgent(navMeshAgent, stoppingDistance, moveSpeed);
-
-            if (!TrySampleNavMeshTarget(
-                    navMeshAgent,
-                    targetPosition,
-                    stoppingDistance,
-                    out Vector3 sampledTargetPosition))
-            {
-                global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
-                StopNavMeshAgent(navMeshAgent);
-                return true;
-            }
-
-            if (IsWithinWorldStoppingDistance(
-                    GetNavMeshCurrentPosition(navMeshAgent, agent.CachedTransform.position),
-                    sampledTargetPosition,
-                    stoppingDistance))
-            {
-                StopNavMeshAgent(navMeshAgent);
-                hasReached = true;
-                return true;
-            }
-
-            navMeshAgent.isStopped = false;
-            if (ShouldRefreshNavMeshDestination())
-            {
-                if (!TryCalculateCompleteNavMeshPath(
-                        navMeshAgent,
-                        sampledTargetPosition,
-                        out NavMeshPath path))
-                {
-                    global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
-                    StopNavMeshAgent(navMeshAgent);
-                    return true;
-                }
-
-                if (!navMeshAgent.SetPath(path))
-                {
-                    global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
-                    return true;
-                }
-
-                _lastNavMeshDestinationSetTime = Time.time;
-                _hasLastNavMeshDestination = true;
-                return true;
-            }
-
-            hasReached = HasReachedNavMeshDestination(
-                navMeshAgent,
-                sampledTargetPosition,
-                stoppingDistance);
-            if (hasReached)
-            {
-                StopNavMeshAgent(navMeshAgent);
-                ResetNavMeshDestinationCache();
-            }
-
-            return true;
-        }
-
-        private bool ShouldRefreshNavMeshDestination()
-        {
-            if (!_hasLastNavMeshDestination)
-                return true;
-
-            return Time.time - _lastNavMeshDestinationSetTime >= NavMeshDestinationRefreshInterval;
-        }
-
-        private void ResetNavMeshDestinationCache()
-        {
-            _hasLastNavMeshDestination = false;
-            _lastNavMeshDestinationSetTime = -999f;
-        }
-
-        private static bool EnsureNavMeshAgentReady(
-            NavMeshAgent navMeshAgent,
-            Vector3 currentPosition,
-            float stoppingDistance)
-        {
-            if (navMeshAgent.isOnNavMesh)
-                return true;
-
-            float sampleRadius = Mathf.Max(2f, stoppingDistance, navMeshAgent.radius * 2f);
-            if (NavMesh.SamplePosition(currentPosition, out NavMeshHit hit, sampleRadius, NavMesh.AllAreas))
-            {
-                navMeshAgent.Warp(hit.position);
-                return navMeshAgent.isOnNavMesh;
-            }
-
-            // 运行时白盒场景可能稍晚生成 NavMesh，请求重建后本帧保留兜底移动
-            global::RuntimeNavMeshSurfaceBuilder.Instance?.RequestRebuild();
-            return false;
-        }
-
-        private static void ConfigureNavMeshAgent(
-            NavMeshAgent navMeshAgent,
-            float stoppingDistance,
-            float moveSpeed)
-        {
-            float speed = Mathf.Max(0f, moveSpeed);
-            navMeshAgent.speed = speed;
-            navMeshAgent.acceleration = Mathf.Max(
-                navMeshAgent.acceleration,
-                speed / NavMeshStopFromMaxSpeedDuration);
-            navMeshAgent.stoppingDistance = Mathf.Max(0f, stoppingDistance);
-        }
-
-        private static bool TrySampleNavMeshTarget(
-            NavMeshAgent navMeshAgent,
-            Vector3 targetPosition,
-            float stoppingDistance,
-            out Vector3 sampledTargetPosition)
-        {
-            float sampleRadius = Mathf.Max(
-                NavMeshTargetSampleRadius,
-                stoppingDistance,
-                navMeshAgent.height,
-                navMeshAgent.radius * 4f);
-            if (NavMesh.SamplePosition(
-                    targetPosition,
-                    out NavMeshHit hit,
-                    sampleRadius,
-                    navMeshAgent.areaMask))
-            {
-                sampledTargetPosition = hit.position;
-                return true;
-            }
-
-            sampledTargetPosition = default;
-            return false;
-        }
-
-        private static bool TryCalculateCompleteNavMeshPath(
-            NavMeshAgent navMeshAgent,
-            Vector3 sampledTargetPosition,
-            out NavMeshPath path)
-        {
-            path = new NavMeshPath();
-            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
-                return false;
-
-            return navMeshAgent.CalculatePath(sampledTargetPosition, path) &&
-                   path.status == NavMeshPathStatus.PathComplete;
-        }
-
-        private static bool HasReachedNavMeshDestination(
-            NavMeshAgent navMeshAgent,
-            Vector3 sampledTargetPosition,
-            float stoppingDistance)
-        {
-            if (navMeshAgent.pathPending)
-                return false;
-
-            float effectiveStoppingDistance = Mathf.Max(
-                navMeshAgent.stoppingDistance,
-                stoppingDistance);
-
-            if (navMeshAgent.hasPath)
-            {
-                if (navMeshAgent.pathStatus != NavMeshPathStatus.PathComplete)
-                    return false;
-
-                float remainingDistance = navMeshAgent.remainingDistance;
-                if (!float.IsNaN(remainingDistance) &&
-                    !float.IsInfinity(remainingDistance))
-                {
-                    return remainingDistance <= effectiveStoppingDistance;
-                }
-            }
-
-            return IsWithinWorldStoppingDistance(
-                GetNavMeshCurrentPosition(navMeshAgent, navMeshAgent.transform.position),
-                sampledTargetPosition,
-                effectiveStoppingDistance);
-        }
-
-        private static Vector3 GetNavMeshCurrentPosition(
-            NavMeshAgent navMeshAgent,
-            Vector3 fallbackPosition)
-        {
-            if (navMeshAgent != null && navMeshAgent.enabled && navMeshAgent.isOnNavMesh)
-                return navMeshAgent.nextPosition;
-
-            return fallbackPosition;
-        }
-
-        private static void StopNavMeshAgent(NavMeshAgent navMeshAgent)
-        {
-            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
-                return;
-
-            navMeshAgent.isStopped = true;
-            navMeshAgent.velocity = Vector3.zero;
-            if (navMeshAgent.hasPath)
-                navMeshAgent.ResetPath();
-        }
-
-        private static bool MoveAgentDirectly(
-            IAgentReadOnly agent,
-            Vector3 targetPosition,
-            float stoppingDistance,
-            float moveSpeed,
-            float deltaTime)
-        {
-            Transform agentTransform = agent.CachedTransform;
-            Vector3 currentPosition = agentTransform.position;
-            // NavMesh 尚未准备好时保留直线兜底，避免 MVP 场景启动瞬间卡死
-            Vector3 planarTargetPosition = new Vector3(
-                targetPosition.x,
-                currentPosition.y,
-                targetPosition.z);
-
-            Vector3 offset = planarTargetPosition - currentPosition;
-            // 到达判定使用平方距离，避免每帧开方
-            float stoppingDistanceSqr = Mathf.Max(0f, stoppingDistance) * Mathf.Max(0f, stoppingDistance);
-            if (offset.sqrMagnitude <= stoppingDistanceSqr)
-                return true;
-
-            float stepDistance = Mathf.Max(0f, moveSpeed) * Mathf.Max(0f, deltaTime);
-            if (stepDistance <= 0f)
-                return false;
-
-            agentTransform.position = Vector3.MoveTowards(
-                currentPosition,
-                planarTargetPosition,
-                stepDistance);
-
-            if (offset.sqrMagnitude > 0.0001f)
-            {
-                // 保持朝向目标，方便后续接射击或动画表现
-                agentTransform.rotation = Quaternion.LookRotation(
-                    offset.normalized,
-                    Vector3.up);
-            }
-
-            return false;
-        }
-
-        private static bool IsWithinPlanarStoppingDistance(
-            Vector3 currentPosition,
-            Vector3 targetPosition,
-            float stoppingDistance)
-        {
-            Vector3 planarTargetPosition = new Vector3(
-                targetPosition.x,
-                currentPosition.y,
-                targetPosition.z);
-            Vector3 offset = planarTargetPosition - currentPosition;
-            float stoppingDistanceSqr = Mathf.Max(0f, stoppingDistance) * Mathf.Max(0f, stoppingDistance);
-            return offset.sqrMagnitude <= stoppingDistanceSqr;
-        }
-
-        private static bool IsWithinWorldStoppingDistance(
-            Vector3 currentPosition,
-            Vector3 targetPosition,
-            float stoppingDistance)
-        {
-            Vector3 offset = targetPosition - currentPosition;
-            float stoppingDistanceSqr = Mathf.Max(0f, stoppingDistance) * Mathf.Max(0f, stoppingDistance);
-            return offset.sqrMagnitude <= stoppingDistanceSqr;
+            if (agent is IAgentCommandReceiver receiver) receiver.StopDirectiveMovement();
         }
 
         private static float GetPlanarDistanceSqr(Vector3 from, Vector3 to)

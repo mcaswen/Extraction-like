@@ -19,14 +19,14 @@ namespace Gameplay.Agent.Runtime
         public static string CreateCommandId(string targetId)
         {
             return string.IsNullOrWhiteSpace(targetId)
-                ? $"{CommandIdPrefix}_{Time.frameCount}"
-                : $"{CommandIdPrefix}_{targetId.Trim()}_{Time.frameCount}";
+                ? $"{CommandIdPrefix}_{System.Guid.NewGuid():N}"
+                : $"{CommandIdPrefix}_{targetId.Trim()}_{System.Guid.NewGuid():N}";
         }
 
         public static string CreateCombatDamageCommandId(UnityEngine.Object source)
         {
             int sourceId = source != null ? source.GetInstanceID() : 0;
-            return $"{CombatDamageCommandIdPrefix}_{sourceId}_{Time.frameCount}";
+            return $"{CombatDamageCommandIdPrefix}_{sourceId}_{System.Guid.NewGuid():N}";
         }
 
         public static bool ShouldHoldManualDirective(IAgentReadOnly agent)

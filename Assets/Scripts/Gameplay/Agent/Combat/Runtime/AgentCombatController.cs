@@ -24,6 +24,9 @@ namespace Gameplay.Agent.Combat
         private AgentTalentRuntimeController _talentController;
         private AgentCombatRuntimeStats _runtimeStats = new AgentCombatRuntimeStats(1, 0f, 0f);
         private global::TotemModifierSet _totemModifiers;
+        private double _nextAttackTime;
+        public bool IsAttackReady(double timeSeconds) => timeSeconds >= _nextAttackTime;
+        public void LockAttack(double timeSeconds, float duration) => _nextAttackTime = System.Math.Max(_nextAttackTime, timeSeconds + Mathf.Max(0.05f, duration));
 
         /// <summary>
         /// 当前使用的战斗风格配置

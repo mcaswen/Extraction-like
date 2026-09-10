@@ -2,6 +2,7 @@ using Core.BehaviorTree.Blackboard;
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Commands;
 
 namespace Gameplay.Agent.AI.Actions
 {
@@ -77,7 +78,10 @@ namespace Gameplay.Agent.AI.Actions
             }
 
             if (!resolvedTargetPosition)
+            {
+                FailPendingDirective(context, AgentDirectiveFailure.InvalidTarget);
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Directive target position is invalid");
+            }
 
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             float stoppingDistance = GetFloat(
