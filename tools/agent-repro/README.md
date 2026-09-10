@@ -1,11 +1,59 @@
-# Agent reproduction runner
+# Agent 自动复现与回归
 
-Run from PowerShell: `./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Suite Smoke`.
+编码 Agent 负责构造、启动 Unity、读取结果、定位修复和复跑。用户无需搭场景、点击 Play Mode、拖装备或收集日志。
 
-The runner uses the exact project Unity version, an owned copy on D: and a separate persistent-data identity. It never opens or stops the user's editor. Output is under `Logs/AgentReproduction/<run-id>/`: source manifest, Unity logs, NUnit XML, per-case evidence, JSON summary and Markdown report.
+```powershell
+# 完整验收：所有组，同种子重复三次
+./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Suite All -Repeat 3
 
-`-Group`, `-TestFilter`, `-Repeat`, `-UnityPath`, `-WorkspaceRoot`, `-TimeoutSeconds` and `-IncludeGraphics` support targeted diagnosis. Diagnose exit 0 means valid execution, not correct gameplay. Regression fails on any non-passing test. Exit 2 means missing tests/results, timeout or an environment error. Every repeat is retained.
+# 定位某个子系统
+./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Group EnemyTargets
 
-Only the runner-owned workspace is mirrored. Its ownership marker and exclusive file lock protect other projects. Successful or failed workspaces are retained for investigation and import-cache reuse; no source saves or PlayerPrefs are cleared. The coding agent is responsible for launching runs, examining evidence and fixing failures.
+# 基础环境检查
+./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Suite Smoke
+```
 
-Infrastructure fault checks: `-Suite Smoke -FaultProbe Assertion` intentionally fails the smoke assertion; `-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` hangs only the first repeat, so the runner must recover its process and continue the second. These switches never run in normal gameplay regression.
+## 环境与隔离
+
+运行器读取工程版本并核对 Unity 可执行文件版本，当前为 `2022.3.62f2c1`；复用 Test Framework `1.1.33`。在带所有权标记及独占锁的 `D:/Unity-Projects/.agent-repro/AnomalySearch/Project` 副本运行，保留 Library 缓存。可用 `-UnityPath`、`-WorkspaceRoot` 覆盖位置。
+
+副本使用独立 company/product 和 persistentDataPath，源工程输入在运行前后按 SHA256 核对。只回收自己启动的进程，不操作用户编辑器或正式存档。运行期间请勿修改 Assets、Packages、ProjectSettings 和 tools；快照不一致会报告环境失败。成功及失败副本和每次证据均保留。
+
+测试通过预定义 Editor 程序集发现，命令行平台为 EditMode；协程实际进入 Play Mode，运行真实 NavMesh、Physics、MonoBehaviour。隔离副本禁用 Domain Reload，并在每例末尾检查完成标记，防止协程重载造成假通过。没有增加业务 asmdef，也不是独立 Player 构建测试。
+
+## 分组
+
+| Group | 数量 | 覆盖 |
+| --- | ---: | --- |
+| Smoke | 1 | 发现、运行态、导航、物理与存档隔离 |
+| F1 | 2 | 撤离受击反击后恢复、无伤害对照 |
+| F5 | 1 | 静态不可达拒绝 |
+| Lifecycle | 4 | 重复伤害、新命令、取消、死亡、资源受击、恢复点失效 |
+| Navigation | 8 | 零/小容差、坡面、导航丢失与无进展 |
+| R5 | 1 | 位移后重新验证背包交互 |
+| Feedback | 1 | 接收/拒绝结果、原因与反馈生命周期 |
+| EnemyTargets | 16 | 七类正式敌人换人、失效变体、五类巡逻候选 |
+| RangedSpatial | 12 | 双方高低差、枪口、三类弹体与薄墙 |
+| Perception | 5 | 范围、射线、完整候选与范围技能 |
+| Decision | 5 | 成员距离、实际防御、风险、撤离后备、失败目标短期排除 |
+| Cooldown | 8 | 属性/装备/配置刷新、技能重排、重复 SkillId、普通攻击锁 |
+| Combined | 10 | 多 Agent、实际撤离、动态路径、无效输入、护盾和缺失攻击配置 |
+| Graphics | 1 | 正式顶部反馈 prefab 的成功/失败/消退 PNG |
+
+清单以 [cases.json](cases.json) 为准，共 75 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
+
+## 结果与定位
+
+`Logs/AgentReproduction/<run-id>/` 保存 `manifest.json`、`summary.json`、`report.md`，`groups/<group>-<repeat>/` 保存 Editor.log 和原始 NUnit XML。`cases/<完整测试名哈希>/<repeat>/` 保存 `trace.jsonl`、`case.json`、`nunit-final.json`，图形用例另保存四张 PNG。
+
+NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过。`case.json` 是生命周期中的即时快照，最终结论读 `nunit-final.json`。默认每组进程硬期限 2700 秒（含导入），可用 `-TimeoutSeconds` 调整；用例内另有墙钟期限，暂停不会无限等待。
+
+- Regression：任一行为失败返回 1；缺失结果/测试、超时或环境故障返回 2；全部通过返回 0。
+- Diagnose：0 仅表示完成证据收集，行为失败仍在 XML 和报告中，不能解释为游戏无 Bug。
+- `-TestFilter` 支持临时窄筛选，此时不核对该组完整清单，不能作为全量验收。
+
+故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
+
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 75 个游戏用例。
+
+实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。

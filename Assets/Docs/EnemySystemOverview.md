@@ -4,11 +4,11 @@
 
 敌人系统现在主要服务 Raid MVP：负责敌人出生、巡逻、发现玩家、追击、攻击、死亡掉落，并把敌人相关目标同步给 Agent。它已经不是一个很轻的白模敌人脚本集合，而是由生成、目标群、生命、巡逻、视觉感知、怀疑调查、战斗行为和调试可视化组成的一套中等偏复杂系统。
 
-当前主链路可以理解为：场景或出生点产生敌人，敌人被注册到活跃敌人群，Agent 发现活跃敌人群后进入接战；如果没有活跃敌人，但还有敌人来源群，Agent 会把来源点当作侦查目标。敌人自身则按 Patrol / Chase / Attack 这类状态运行，必要时通过视野、声音刺激或调查状态打断普通巡逻。
+当前主链路是：场景或出生点产生敌人，敌人注册到活跃敌人群；Agent 比较满足感知和执行约束的敌人与资源候选，再提交接战或搜索。可选的 Decision 模块还支持敌人来源点侦查，基础 Agent 默认关闭该评分模块。敌人自身按 Patrol / Chase / Attack 等状态运行，视野、声音刺激或调查状态可以打断普通巡逻。
 
 ## 目录与资源位置
 
-敌人运行时代码主要在 `Assets/Scripts/Gameplay/Enemy`，配置类在 `Assets/Scripts/Gameplay/Enemy/Config`。敌人目标群相关代码在 `Assets/Scripts/Gameplay/Targets/Authoring` 和 `Assets/Scripts/Gameplay/Targets/Runtime`。Agent 寻敌相关逻辑主要在 `AgentTargetDiscoveryController` 和 `EngageEnemyActionNode`。敌人 prefab 主要放在 `Assets/Prefabs/EnemyPrefab`，敌人 ScriptableObject 配置资源应放在 `Assets/SO` 下。
+敌人运行时代码主要在 `Assets/Scripts/Gameplay/Enemy`，配置类在其 `Config` 目录。目标群在 `Assets/Scripts/Gameplay/Targets/Authoring` 和 `Runtime`；共同空间查询在 `Assets/Scripts/Gameplay/Perception`；Agent 候选收集在 `Assets/Scripts/Gameplay/Agent/Targeting`。正式敌人 prefab 位于 `Assets/Prefabs/Enemy/Pawn`，配置资产位于 `Assets/SO` 下。
 
 ## 生成与目标群
 
@@ -16,7 +16,7 @@
 
 生成出来的敌人不会直接归出生点管理，而是通过 `GameplayTargetRegistry.TryRegisterSpawnedEnemy` 找到包含该出生点的 `EnemySourceClusterAuthoring`。来源群再把敌人转交给绑定的 `ActiveEnemyClusterAuthoring`。这套拆分的意义是：出生点表达“敌人可能来自哪里”，活跃敌人群表达“现在场上有哪些敌人”。场景里预先放好的敌人，则可以手动放进活跃敌人群的 `Manual Enemy Members`。
 
-Agent 当前的目标发现优先级是活跃敌人群、敌人来源群、资源群、撤离点群。有存活敌人时，Agent 会优先接战；没有存活敌人但来源群未完成时，Agent 会去侦查来源点；两者都没有时才继续找资源或撤离点。
+默认 Discovery 比较可执行敌人和可达资源的具体成员距离，保持资源时使用相同口径；无普通候选时寻找可达撤离。Decision 复用同一候选集合，并把所有唯一、可见、范围内敌人作为风险输入，使用 Pawn 实际防御和成员位置评分。两条路径都先验证再提交，不在拒绝指令前改写任务事实。
 
 ## 生命、死亡与掉落
 
@@ -32,7 +32,11 @@ Agent 当前的目标发现优先级是活跃敌人群、敌人来源群、资�
 
 ## 视觉与怀疑感知
 
-视觉判定的核心是 `EnemyVisionUtility`，它只做距离、水平角度和视线遮挡判断。敌人行为脚本通过 `IEnemyVisionSource` 暴露视野 Transform、玩家 Transform、检测距离、视角、遮挡层、眼睛高度和目标高度。`EnemyVisionVisualizer` 会根据这些数据绘制视野 Mesh，`EnemyVisionDisplayController` 负责运行时开关显示，`EnemyVisionRuntimeInstaller` 和 `EnemyVisionBootstrapper` 则负责自动创建或配置可视化组件。
+`EnemyVisionUtility` 保留敌人调用入口，委托 `TargetVisibilityQuery` 做三维距离、水平角度和射线遮挡判断；Trigger 不遮挡，自身身体按对象归属过滤，不把整个场景根当作角色。敌人行为脚本通过 `IEnemyVisionSource` 暴露视野 Transform、目标、范围、视角和高度。`EnemyVisionVisualizer` 绘制视野，DisplayController、RuntimeInstaller 和 Bootstrapper 管理显示与安装。
+
+`EnemyTargetSelector` 在巡逻时逐个扫描有效 Agent，近但被挡的 A 不会阻止发现 B。`EnemyCombatTargetBinding` 原子解析 Transform、伤害和位移接收器，死亡、禁用、销毁或离场后整体失效；具体行为控制器负责取消自己的旧攻击阶段。Tidal 的开场排队与实际释放均验证可见性。
+
+玩家和敌人的远程攻击允许跨高低差：索敌使用三维射程，发射时按实际枪口/发射点瞄准，弹体按物理步扫掠到首个实体。薄墙、飞行后新增墙体仍会阻挡，失败发射不转成直接伤害。玩家 AOE/DOT 按作用原点检查范围和掩体；Boss 咆哮保留原有掩体减伤招式规则。
 
 怀疑感知是更复杂的扩展链路。`EnemySuspicionStimulusBus` 是全局刺激事件入口，枪声、脚步、弹着点、搜刮、敌人受伤、玩家最后出现位置等都可以变成刺激。`EnemySuspicionSensor` 挂在敌人身上，按范围、强度、遮挡、冷却和误差半径筛选刺激，并保存当前最强记录。`EnemyPatrolAwarenessController` 会消费这些记录，让敌人在 Patrol 之外进入 Suspicious、Investigate 或 Search 状态。
 
@@ -66,4 +70,6 @@ Agent 当前的目标发现优先级是活跃敌人群、敌人来源群、资�
 
 场景中已经存在的敌人，放进 `ActiveEnemyClusterAuthoring` 的手动成员列表即可。确认敌人 prefab 上有 `EnemyHealthController`、对应行为脚本和必要的 NavMeshAgent。需要固定路线时，在场景中配置 `EnemyPatrolRoute`，并让敌人或出生配置引用它。
 
-通过出生点生成敌人时，在 `EnemySpawnPoint` 上配置 `EnemySpawnEntry`，再用 `EnemySourceClusterAuthoring` 保存这些出生点，并绑定一个 `ActiveEnemyClusterAuthoring`。运行时生成的敌人会自动注册到活跃敌人群。验证 Agent 行为时，看 `AgentRuntimeDebugView`：有活跃敌人时目标应为 Enemy；没有活跃敌人但有来源群时目标应为 EnemySource；两者都没有时才会转向资源或撤离。
+通过出生点生成敌人时，在 `EnemySpawnPoint` 上配置 `EnemySpawnEntry`，再用 `EnemySourceClusterAuthoring` 保存出生点并绑定 `ActiveEnemyClusterAuthoring`。运行时敌人会自动注册。验证时结合 `AgentRuntimeDebugView` 检查当前指令、具体成员、可见性和执行结果；场上存在敌人本身并不保证选择它，手动任务、伤害打断、距离、墙体及可达性都参与约束。
+
+自动构造与正式预制体验证入口见 [运行器说明](../../tools/agent-repro/README.md)，实际阶段结果与边界见 [验收报告](../../outputs/implementation_validation_report.md)。用例由编码 Agent 启动并检查，无需用户自行进入 Play Mode。

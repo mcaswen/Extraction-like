@@ -1,0 +1,1610 @@
+{
+  "runId": "20260911-030638-823",
+  "unity": "2022.3.62f2c1",
+  "testFramework": "1.1.33",
+  "mode": "Regression",
+  "execution": "Editor-discovered UnityTest coroutines in real Play Mode; not standalone Player",
+  "seed": 731,
+  "caseCount": 75,
+  "repeatCount": 3,
+  "totalPassed": 225,
+  "totalFailed": 0,
+  "missing": 0,
+  "timeouts": 0,
+  "sourceInputsUnchanged": true,
+  "sourceFileCount": 4958,
+  "manifestSha256": "50cc9a0373a4ca38677240f985698aad12e075660ea6a250ff593274ed61a290",
+  "baseCommit": "e86513b8dcd6baf7b969588d86410692eb2b0a6e",
+  "includesUncommittedStageChanges": true,
+  "groups": [
+    {
+      "group": "Smoke",
+      "repeat": 1,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Smoke-1/test-results.xml",
+      "xmlSha256": "fd60d738df1578aba40aaa621e4038bc9a0b345463c8bb92ed386f88696f93e7",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.HarnessSmokeTests.PlayModeNavigationPhysicsAndIsolation",
+          "result": "Passed",
+          "seconds": 0.991066
+        }
+      ]
+    },
+    {
+      "group": "F1",
+      "repeat": 1,
+      "count": 2,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/F1-1/test-results.xml",
+      "xmlSha256": "411730b975a07ec99475f8d81a9f77a8bac584c59a89e125cb599e210ca538e7",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionRemainsWithoutDamage",
+          "result": "Passed",
+          "seconds": 1.377939
+        },
+        {
+          "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionResumesAfterRetaliation",
+          "result": "Passed",
+          "seconds": 1.01482
+        }
+      ]
+    },
+    {
+      "group": "F5",
+      "repeat": 1,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/F5-1/test-results.xml",
+      "xmlSha256": "98b4630df0fb604fef5a5ec7fb27b3d5a073cf4714369b074eac5c1441560a39",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.F5UnreachableDirectiveTests.DisconnectedExtractionIsRejected",
+          "result": "Passed",
+          "seconds": 1.027299
+        }
+      ]
+    },
+    {
+      "group": "Lifecycle",
+      "repeat": 1,
+      "count": 4,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Lifecycle-1/test-results.xml",
+      "xmlSha256": "ce925ca014e8c15cf8884260ada807f9fb54c8ae916393ad974fbed8a9f2e011",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.CancelAndDeathDiscardSuspendedExtraction",
+          "result": "Passed",
+          "seconds": 1.065806
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.InvalidSuspendedExtractionFailsAfterRetaliation",
+          "result": "Passed",
+          "seconds": 0.934419
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.ManualResourceIgnoresSightButEffectiveDamageInterrupts",
+          "result": "Passed",
+          "seconds": 0.828476
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
+          "result": "Passed",
+          "seconds": 0.850946
+        }
+      ]
+    },
+    {
+      "group": "Navigation",
+      "repeat": 1,
+      "count": 8,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Navigation-1/test-results.xml",
+      "xmlSha256": "a297812d4268714d305f8c9ba36bfdd445242c730639c818b260dd1d525833be",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.0f,False)",
+          "result": "Passed",
+          "seconds": 3.178529
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.0f,True)",
+          "result": "Passed",
+          "seconds": 3.036057
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.05f,False)",
+          "result": "Passed",
+          "seconds": 3.039742
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.05f,True)",
+          "result": "Passed",
+          "seconds": 3.025714
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.2f,False)",
+          "result": "Passed",
+          "seconds": 2.893394
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.2f,True)",
+          "result": "Passed",
+          "seconds": 2.914086
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.NoProgressFailsAndRejectedReplacementPreservesCurrentTask",
+          "result": "Passed",
+          "seconds": 3.879763
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ZeroStoppingDistanceArrivesAndNavigationLossTerminates",
+          "result": "Passed",
+          "seconds": 3.937568
+        }
+      ]
+    },
+    {
+      "group": "R5",
+      "repeat": 1,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/R5-1/test-results.xml",
+      "xmlSha256": "73806bdc42eccb8dd72949b436dbe569403ae49f3726f0ef0581f5f104fe0008",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.ResourceDisplacementTests.DisplacementInvalidatesInventoryCloseUntilAgentReturns",
+          "result": "Passed",
+          "seconds": 0.979366
+        }
+      ]
+    },
+    {
+      "group": "Feedback",
+      "repeat": 1,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Feedback-1/test-results.xml",
+      "xmlSha256": "83c910eedd3e88c8d6e1a1a79547ad27c52b4b18a0f3d3326221693f2321c08b",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CommandFeedbackTests.FormalHudReportsAcceptedAndRejectedCommandsAndFadesWhilePaused",
+          "result": "Passed",
+          "seconds": 4.649543
+        }
+      ]
+    },
+    {
+      "group": "EnemyTargets",
+      "repeat": 1,
+      "count": 16,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/EnemyTargets-1/test-results.xml",
+      "xmlSha256": "3eaaa38a29bca4c8bbbcf387238f2cccdc32f930e90e1ceb0767406bebe8c736",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Base\")",
+          "result": "Passed",
+          "seconds": 1.125027
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Ranged\")",
+          "result": "Passed",
+          "seconds": 0.75197
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AnchorSentinel\")",
+          "result": "Passed",
+          "seconds": 0.724678
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"HunterBoss\")",
+          "result": "Passed",
+          "seconds": 0.774259
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"ModernStrander\")",
+          "result": "Passed",
+          "seconds": 0.734563
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"TidalAberration\")",
+          "result": "Passed",
+          "seconds": 0.763717
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AncientStrander\")",
+          "result": "Passed",
+          "seconds": 0.720998
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Disabled\")",
+          "result": "Passed",
+          "seconds": 0.744061
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Destroyed\")",
+          "result": "Passed",
+          "seconds": 0.709227
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Unregistered\")",
+          "result": "Passed",
+          "seconds": 0.733904
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Base\")",
+          "result": "Passed",
+          "seconds": 0.6967
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Ranged\")",
+          "result": "Passed",
+          "seconds": 0.723788
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"ModernStrander\")",
+          "result": "Passed",
+          "seconds": 0.739788
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"TidalAberration\")",
+          "result": "Passed",
+          "seconds": 0.695122
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"AncientStrander\")",
+          "result": "Passed",
+          "seconds": 0.761392
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.WallUnderSharedSceneRootIsNotAnAgentDamageReceiver",
+          "result": "Passed",
+          "seconds": 0.664524
+        }
+      ]
+    },
+    {
+      "group": "RangedSpatial",
+      "repeat": 1,
+      "count": 12,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/RangedSpatial-1/test-results.xml",
+      "xmlSha256": "b5a1781992288f4604738b6d7b39e0149cda121265e290f5e3ae7a5904f374bf",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.BossAnchorSweepsThreeDimensionalPath(False)",
+          "result": "Passed",
+          "seconds": 1.419956
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.BossAnchorSweepsThreeDimensionalPath(True)",
+          "result": "Passed",
+          "seconds": 1.201473
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyBulletStopsAtThinWallBeforeAgent",
+          "result": "Passed",
+          "seconds": 1.379457
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyBulletWithoutWallHitsAgentExactlyOnce",
+          "result": "Passed",
+          "seconds": 0.761786
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"Ranged\",-1)",
+          "result": "Passed",
+          "seconds": 3.088011
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"Ranged\",1)",
+          "result": "Passed",
+          "seconds": 3.087029
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"AnchorSentinel\",-1)",
+          "result": "Passed",
+          "seconds": 5.920597
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"AnchorSentinel\",1)",
+          "result": "Passed",
+          "seconds": 5.916525
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EngageCanFireAcrossDisconnectedNavigationWithoutWalking",
+          "result": "Passed",
+          "seconds": 0.919513
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.PlayerProjectileHitsElevatedEnemy",
+          "result": "Passed",
+          "seconds": 0.829185
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.PlayerShooterRejectsOccludedTarget",
+          "result": "Passed",
+          "seconds": 0.739589
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.WallInsertedAfterPlayerLaunchStopsProjectile",
+          "result": "Passed",
+          "seconds": 1.302921
+        }
+      ]
+    },
+    {
+      "group": "Perception",
+      "repeat": 1,
+      "count": 5,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Perception-1/test-results.xml",
+      "xmlSha256": "8a807620779dced5aafa7a4cd92f5e8ecf7bff16b199baf92cd2ab3e3d578189",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.AreaSkillsRespectCastRangeAndDynamicCover",
+          "result": "Passed",
+          "seconds": 1.253385
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.DiscoverySkipsOccludedNearestMemberAndDeduplicatesVisibleEnemies",
+          "result": "Passed",
+          "seconds": 1.060907
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.KnownAttackerBehindWallIsNotReportedAsVisible",
+          "result": "Passed",
+          "seconds": 2.753832
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.RangeUsesHeightAndTriggersDoNotOcclude",
+          "result": "Passed",
+          "seconds": 0.662212
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.UnreachableVisibleEnemyDoesNotBlockExecutableCandidate",
+          "result": "Passed",
+          "seconds": 0.852319
+        }
+      ]
+    },
+    {
+      "group": "Decision",
+      "repeat": 1,
+      "count": 5,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Decision-1/test-results.xml",
+      "xmlSha256": "7826bfc3991be0936db0987e5b8dc85064f927db8d04c6e6750353544b559745",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionCountsAllUniqueVisibleRiskMembers",
+          "result": "Passed",
+          "seconds": 0.960486
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionFindsFarReachableExitWhenNearExitIsDisconnected",
+          "result": "Passed",
+          "seconds": 0.704324
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionUsesActualDefense",
+          "result": "Passed",
+          "seconds": 0.716143
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry",
+          "result": "Passed",
+          "seconds": 4.169215
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.ResourceSelectionAndRetentionUseSameMemberDistance",
+          "result": "Passed",
+          "seconds": 2.904558
+        }
+      ]
+    },
+    {
+      "group": "Cooldown",
+      "repeat": 1,
+      "count": 8,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Cooldown-1/test-results.xml",
+      "xmlSha256": "5e1ac13b484d674d8a97b51edf3c1fd4f8806fd56f6d2bd670be472393be3b0b",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.CombatReentryDoesNotResetOrdinaryAttackLock",
+          "result": "Passed",
+          "seconds": 0.977332
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.DuplicateSkillIdentityCannotCreateAnotherCooldown(False)",
+          "result": "Passed",
+          "seconds": 0.732536
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.DuplicateSkillIdentityCannotCreateAnotherCooldown(True)",
+          "result": "Passed",
+          "seconds": 0.730336
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.EquippedTotemRefreshesPawnWithoutResettingSkill",
+          "result": "Passed",
+          "seconds": 0.976719
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.ReorderedSkillsRetainCooldownAndNewSkillStartsReady",
+          "result": "Passed",
+          "seconds": 0.74271
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"Stats\")",
+          "result": "Passed",
+          "seconds": 0.68691
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"Totem\")",
+          "result": "Passed",
+          "seconds": 0.724318
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"EquivalentConfig\")",
+          "result": "Passed",
+          "seconds": 0.770733
+        }
+      ]
+    },
+    {
+      "group": "Combined",
+      "repeat": 1,
+      "count": 10,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Combined-1/test-results.xml",
+      "xmlSha256": "4c3735cd6b2b4fc8fd3209613b497c282b895d3ff572f024571d57fac241a897",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.ActualExtractionDestroysAAndRangedEnemyDamagesB",
+          "result": "Passed",
+          "seconds": 3.595849
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.BlockedMuzzleCannotUseDirectDamageFallback",
+          "result": "Passed",
+          "seconds": 2.690538
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Shooter\")",
+          "result": "Passed",
+          "seconds": 1.3763
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Projectile\")",
+          "result": "Passed",
+          "seconds": 1.303145
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.RuntimePathDisconnectionReleasesManualCommand",
+          "result": "Passed",
+          "seconds": 0.714685
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.ShieldAbsorptionDoesNotInterruptResourceButDisplacementIsIndependent",
+          "result": "Passed",
+          "seconds": 0.697972
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.TwoAgentsKeepIndependentSuspendedExtractions",
+          "result": "Passed",
+          "seconds": 0.692738
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"DisabledAgent\")",
+          "result": "Passed",
+          "seconds": 0.724164
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"DisabledExit\")",
+          "result": "Passed",
+          "seconds": 0.710651
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"CompletedCluster\")",
+          "result": "Passed",
+          "seconds": 0.676375
+        }
+      ]
+    },
+    {
+      "group": "Graphics",
+      "repeat": 1,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Graphics-1/test-results.xml",
+      "xmlSha256": "9f02ba86a9f53403c755f736c6e09f3f68bbf7b0738ccf571c0f972ba538b32b",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CommandFeedbackGraphicsTests.FormalFeedbackRendersChineseAtTopAndFades",
+          "result": "Passed",
+          "seconds": 4.765165
+        }
+      ]
+    },
+    {
+      "group": "Smoke",
+      "repeat": 2,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Smoke-2/test-results.xml",
+      "xmlSha256": "e27f87d1bbcc258f26f16d809b04af25fc7fdcb0cee39eafc56678bbe1ee73f1",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.HarnessSmokeTests.PlayModeNavigationPhysicsAndIsolation",
+          "result": "Passed",
+          "seconds": 0.913757
+        }
+      ]
+    },
+    {
+      "group": "F1",
+      "repeat": 2,
+      "count": 2,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/F1-2/test-results.xml",
+      "xmlSha256": "7fbb117f44d6860f58311323f2c898f268cf5fbbba5c6fac689866108e41e2a2",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionRemainsWithoutDamage",
+          "result": "Passed",
+          "seconds": 0.922694
+        },
+        {
+          "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionResumesAfterRetaliation",
+          "result": "Passed",
+          "seconds": 0.73162
+        }
+      ]
+    },
+    {
+      "group": "F5",
+      "repeat": 2,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/F5-2/test-results.xml",
+      "xmlSha256": "c734dbd6fc2013166937b7b98b771eab1cf507d030dc5ea988401fa08a4206bd",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.F5UnreachableDirectiveTests.DisconnectedExtractionIsRejected",
+          "result": "Passed",
+          "seconds": 0.944125
+        }
+      ]
+    },
+    {
+      "group": "Lifecycle",
+      "repeat": 2,
+      "count": 4,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Lifecycle-2/test-results.xml",
+      "xmlSha256": "466d3f1bd9f40660d09b9923ed3165c98ba4003193b9662e5a8d0da9f8dab1a8",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.CancelAndDeathDiscardSuspendedExtraction",
+          "result": "Passed",
+          "seconds": 0.922107
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.InvalidSuspendedExtractionFailsAfterRetaliation",
+          "result": "Passed",
+          "seconds": 0.706677
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.ManualResourceIgnoresSightButEffectiveDamageInterrupts",
+          "result": "Passed",
+          "seconds": 0.713959
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
+          "result": "Passed",
+          "seconds": 0.662343
+        }
+      ]
+    },
+    {
+      "group": "Navigation",
+      "repeat": 2,
+      "count": 8,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Navigation-2/test-results.xml",
+      "xmlSha256": "04ad03efe22f643e0025791cf6f447459bba91b231fb8543c82018828bd54db9",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.0f,False)",
+          "result": "Passed",
+          "seconds": 3.044659
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.0f,True)",
+          "result": "Passed",
+          "seconds": 2.933997
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.05f,False)",
+          "result": "Passed",
+          "seconds": 2.882139
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.05f,True)",
+          "result": "Passed",
+          "seconds": 2.913297
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.2f,False)",
+          "result": "Passed",
+          "seconds": 2.802597
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.2f,True)",
+          "result": "Passed",
+          "seconds": 2.830706
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.NoProgressFailsAndRejectedReplacementPreservesCurrentTask",
+          "result": "Passed",
+          "seconds": 3.743329
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ZeroStoppingDistanceArrivesAndNavigationLossTerminates",
+          "result": "Passed",
+          "seconds": 3.811536
+        }
+      ]
+    },
+    {
+      "group": "R5",
+      "repeat": 2,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/R5-2/test-results.xml",
+      "xmlSha256": "c01df8c2d0b3a0094ba33add2c0609f95fce56a033159c880e70eadcf648b214",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.ResourceDisplacementTests.DisplacementInvalidatesInventoryCloseUntilAgentReturns",
+          "result": "Passed",
+          "seconds": 1.135884
+        }
+      ]
+    },
+    {
+      "group": "Feedback",
+      "repeat": 2,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Feedback-2/test-results.xml",
+      "xmlSha256": "29876ca34b6b191fe3cfac31fac14567ccc53c8802c99b70f76ccd704e1c53e3",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CommandFeedbackTests.FormalHudReportsAcceptedAndRejectedCommandsAndFadesWhilePaused",
+          "result": "Passed",
+          "seconds": 4.681448
+        }
+      ]
+    },
+    {
+      "group": "EnemyTargets",
+      "repeat": 2,
+      "count": 16,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/EnemyTargets-2/test-results.xml",
+      "xmlSha256": "a931a1025c8e3a54dcb71f46d2870b8d6aac6a9e3dd2e46672f77fcf0e495196",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Base\")",
+          "result": "Passed",
+          "seconds": 1.182169
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Ranged\")",
+          "result": "Passed",
+          "seconds": 0.773889
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AnchorSentinel\")",
+          "result": "Passed",
+          "seconds": 0.726475
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"HunterBoss\")",
+          "result": "Passed",
+          "seconds": 0.786962
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"ModernStrander\")",
+          "result": "Passed",
+          "seconds": 0.75732
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"TidalAberration\")",
+          "result": "Passed",
+          "seconds": 0.795006
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AncientStrander\")",
+          "result": "Passed",
+          "seconds": 0.803541
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Disabled\")",
+          "result": "Passed",
+          "seconds": 0.723454
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Destroyed\")",
+          "result": "Passed",
+          "seconds": 0.782196
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Unregistered\")",
+          "result": "Passed",
+          "seconds": 0.741579
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Base\")",
+          "result": "Passed",
+          "seconds": 0.799294
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Ranged\")",
+          "result": "Passed",
+          "seconds": 0.70622
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"ModernStrander\")",
+          "result": "Passed",
+          "seconds": 0.745646
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"TidalAberration\")",
+          "result": "Passed",
+          "seconds": 0.721718
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"AncientStrander\")",
+          "result": "Passed",
+          "seconds": 0.796173
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.WallUnderSharedSceneRootIsNotAnAgentDamageReceiver",
+          "result": "Passed",
+          "seconds": 0.717112
+        }
+      ]
+    },
+    {
+      "group": "RangedSpatial",
+      "repeat": 2,
+      "count": 12,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/RangedSpatial-2/test-results.xml",
+      "xmlSha256": "8785815cf3522e0236aa2c674e0836b509f2b65bbc65c20bd883fd2f6eca2bd6",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.BossAnchorSweepsThreeDimensionalPath(False)",
+          "result": "Passed",
+          "seconds": 1.350307
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.BossAnchorSweepsThreeDimensionalPath(True)",
+          "result": "Passed",
+          "seconds": 1.196679
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyBulletStopsAtThinWallBeforeAgent",
+          "result": "Passed",
+          "seconds": 1.332876
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyBulletWithoutWallHitsAgentExactlyOnce",
+          "result": "Passed",
+          "seconds": 0.751229
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"Ranged\",-1)",
+          "result": "Passed",
+          "seconds": 3.062415
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"Ranged\",1)",
+          "result": "Passed",
+          "seconds": 3.057699
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"AnchorSentinel\",-1)",
+          "result": "Passed",
+          "seconds": 5.889271
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"AnchorSentinel\",1)",
+          "result": "Passed",
+          "seconds": 5.825304
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EngageCanFireAcrossDisconnectedNavigationWithoutWalking",
+          "result": "Passed",
+          "seconds": 0.931763
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.PlayerProjectileHitsElevatedEnemy",
+          "result": "Passed",
+          "seconds": 0.805408
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.PlayerShooterRejectsOccludedTarget",
+          "result": "Passed",
+          "seconds": 0.716923
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.WallInsertedAfterPlayerLaunchStopsProjectile",
+          "result": "Passed",
+          "seconds": 1.279618
+        }
+      ]
+    },
+    {
+      "group": "Perception",
+      "repeat": 2,
+      "count": 5,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Perception-2/test-results.xml",
+      "xmlSha256": "441d8b1f5da0f8a8a5263c30e347e6da5b367b8760437433d5f62bbf53ba74fb",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.AreaSkillsRespectCastRangeAndDynamicCover",
+          "result": "Passed",
+          "seconds": 1.368548
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.DiscoverySkipsOccludedNearestMemberAndDeduplicatesVisibleEnemies",
+          "result": "Passed",
+          "seconds": 1.129222
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.KnownAttackerBehindWallIsNotReportedAsVisible",
+          "result": "Passed",
+          "seconds": 2.699352
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.RangeUsesHeightAndTriggersDoNotOcclude",
+          "result": "Passed",
+          "seconds": 0.735915
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.UnreachableVisibleEnemyDoesNotBlockExecutableCandidate",
+          "result": "Passed",
+          "seconds": 0.81503
+        }
+      ]
+    },
+    {
+      "group": "Decision",
+      "repeat": 2,
+      "count": 5,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Decision-2/test-results.xml",
+      "xmlSha256": "97696b49ef47b08b3e186fd1ffe384ce77dc412700839aaad302d5e85c84615a",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionCountsAllUniqueVisibleRiskMembers",
+          "result": "Passed",
+          "seconds": 0.937292
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionFindsFarReachableExitWhenNearExitIsDisconnected",
+          "result": "Passed",
+          "seconds": 0.776451
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionUsesActualDefense",
+          "result": "Passed",
+          "seconds": 0.702527
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry",
+          "result": "Passed",
+          "seconds": 4.225591
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.ResourceSelectionAndRetentionUseSameMemberDistance",
+          "result": "Passed",
+          "seconds": 2.956761
+        }
+      ]
+    },
+    {
+      "group": "Cooldown",
+      "repeat": 2,
+      "count": 8,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Cooldown-2/test-results.xml",
+      "xmlSha256": "ae41f4b09049e9d23b0067641979518dbb99d60e02576f744d1d78586d966eee",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.CombatReentryDoesNotResetOrdinaryAttackLock",
+          "result": "Passed",
+          "seconds": 0.88859
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.DuplicateSkillIdentityCannotCreateAnotherCooldown(False)",
+          "result": "Passed",
+          "seconds": 0.761234
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.DuplicateSkillIdentityCannotCreateAnotherCooldown(True)",
+          "result": "Passed",
+          "seconds": 0.700418
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.EquippedTotemRefreshesPawnWithoutResettingSkill",
+          "result": "Passed",
+          "seconds": 0.961571
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.ReorderedSkillsRetainCooldownAndNewSkillStartsReady",
+          "result": "Passed",
+          "seconds": 0.75881
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"Stats\")",
+          "result": "Passed",
+          "seconds": 0.703965
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"Totem\")",
+          "result": "Passed",
+          "seconds": 0.73805
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"EquivalentConfig\")",
+          "result": "Passed",
+          "seconds": 0.739607
+        }
+      ]
+    },
+    {
+      "group": "Combined",
+      "repeat": 2,
+      "count": 10,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Combined-2/test-results.xml",
+      "xmlSha256": "9753ff1c2ebbcdf598ee28f8e2b8aec738a10648f855db3729feb486e6e5a819",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.ActualExtractionDestroysAAndRangedEnemyDamagesB",
+          "result": "Passed",
+          "seconds": 3.799911
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.BlockedMuzzleCannotUseDirectDamageFallback",
+          "result": "Passed",
+          "seconds": 2.688302
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Shooter\")",
+          "result": "Passed",
+          "seconds": 1.323957
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Projectile\")",
+          "result": "Passed",
+          "seconds": 1.289183
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.RuntimePathDisconnectionReleasesManualCommand",
+          "result": "Passed",
+          "seconds": 0.751876
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.ShieldAbsorptionDoesNotInterruptResourceButDisplacementIsIndependent",
+          "result": "Passed",
+          "seconds": 0.723156
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.TwoAgentsKeepIndependentSuspendedExtractions",
+          "result": "Passed",
+          "seconds": 0.720438
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"DisabledAgent\")",
+          "result": "Passed",
+          "seconds": 0.73128
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"DisabledExit\")",
+          "result": "Passed",
+          "seconds": 0.763221
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"CompletedCluster\")",
+          "result": "Passed",
+          "seconds": 0.696819
+        }
+      ]
+    },
+    {
+      "group": "Graphics",
+      "repeat": 2,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Graphics-2/test-results.xml",
+      "xmlSha256": "391e51fc7b9b7bfe98c3c04d10367939f5b0344dc8056d8cbf7d8fe71af442e2",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CommandFeedbackGraphicsTests.FormalFeedbackRendersChineseAtTopAndFades",
+          "result": "Passed",
+          "seconds": 4.793958
+        }
+      ]
+    },
+    {
+      "group": "Smoke",
+      "repeat": 3,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Smoke-3/test-results.xml",
+      "xmlSha256": "a87b4810533aa16f813a7d0490fda82c70a870b3601906f18664a5f455773341",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.HarnessSmokeTests.PlayModeNavigationPhysicsAndIsolation",
+          "result": "Passed",
+          "seconds": 0.902507
+        }
+      ]
+    },
+    {
+      "group": "F1",
+      "repeat": 3,
+      "count": 2,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/F1-3/test-results.xml",
+      "xmlSha256": "5dacd3d2c29c1f59d8699715ceaa9a645f9e5cc4b4097df53d1a191e1fe63725",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionRemainsWithoutDamage",
+          "result": "Passed",
+          "seconds": 1.03748
+        },
+        {
+          "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionResumesAfterRetaliation",
+          "result": "Passed",
+          "seconds": 0.81941
+        }
+      ]
+    },
+    {
+      "group": "F5",
+      "repeat": 3,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/F5-3/test-results.xml",
+      "xmlSha256": "15a2fe0c114228c22b9a692952028b487a487db05f87ea06f85a45598ef232ac",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.F5UnreachableDirectiveTests.DisconnectedExtractionIsRejected",
+          "result": "Passed",
+          "seconds": 0.994893
+        }
+      ]
+    },
+    {
+      "group": "Lifecycle",
+      "repeat": 3,
+      "count": 4,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Lifecycle-3/test-results.xml",
+      "xmlSha256": "fc9e5ebba17ce2c28f71aae4b67a07c8a733a52c7d25f0b507a934fdac78912d",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.CancelAndDeathDiscardSuspendedExtraction",
+          "result": "Passed",
+          "seconds": 0.921294
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.InvalidSuspendedExtractionFailsAfterRetaliation",
+          "result": "Passed",
+          "seconds": 0.757356
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.ManualResourceIgnoresSightButEffectiveDamageInterrupts",
+          "result": "Passed",
+          "seconds": 0.747227
+        },
+        {
+          "name": "AgentReproduction.Tests.DirectiveLifecycleTests.RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
+          "result": "Passed",
+          "seconds": 0.735687
+        }
+      ]
+    },
+    {
+      "group": "Navigation",
+      "repeat": 3,
+      "count": 8,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Navigation-3/test-results.xml",
+      "xmlSha256": "81166c2b86b50d5fe08ac9c275ec9207d23c2f8d83c9c7c0d86307fc5cd4805d",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.0f,False)",
+          "result": "Passed",
+          "seconds": 3.126098
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.0f,True)",
+          "result": "Passed",
+          "seconds": 2.971933
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.05f,False)",
+          "result": "Passed",
+          "seconds": 2.961699
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.05f,True)",
+          "result": "Passed",
+          "seconds": 3.055156
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.2f,False)",
+          "result": "Passed",
+          "seconds": 2.872116
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ArrivalToleranceWorksOnFlatAndSlope(0.2f,True)",
+          "result": "Passed",
+          "seconds": 2.872074
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.NoProgressFailsAndRejectedReplacementPreservesCurrentTask",
+          "result": "Passed",
+          "seconds": 3.797192
+        },
+        {
+          "name": "AgentReproduction.Tests.NavigationExecutionTests.ZeroStoppingDistanceArrivesAndNavigationLossTerminates",
+          "result": "Passed",
+          "seconds": 3.871457
+        }
+      ]
+    },
+    {
+      "group": "R5",
+      "repeat": 3,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/R5-3/test-results.xml",
+      "xmlSha256": "a1c120caee531c8b4bb00c153c72a47fcf22760a1e3006900299b4f3c98065ff",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.ResourceDisplacementTests.DisplacementInvalidatesInventoryCloseUntilAgentReturns",
+          "result": "Passed",
+          "seconds": 1.076645
+        }
+      ]
+    },
+    {
+      "group": "Feedback",
+      "repeat": 3,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Feedback-3/test-results.xml",
+      "xmlSha256": "8f6fa3ac963d97ba2f50eaf269e5a106387a9370afdb3bb52808aa67ed1c324f",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CommandFeedbackTests.FormalHudReportsAcceptedAndRejectedCommandsAndFadesWhilePaused",
+          "result": "Passed",
+          "seconds": 4.722001
+        }
+      ]
+    },
+    {
+      "group": "EnemyTargets",
+      "repeat": 3,
+      "count": 16,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/EnemyTargets-3/test-results.xml",
+      "xmlSha256": "c333c9912272e8d3b731df9b244994f560a3bc29c997bd8768dd4a38fb7a9a74",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Base\")",
+          "result": "Passed",
+          "seconds": 1.04436
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Ranged\")",
+          "result": "Passed",
+          "seconds": 0.816724
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AnchorSentinel\")",
+          "result": "Passed",
+          "seconds": 0.841608
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"HunterBoss\")",
+          "result": "Passed",
+          "seconds": 0.818874
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"ModernStrander\")",
+          "result": "Passed",
+          "seconds": 0.82434
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"TidalAberration\")",
+          "result": "Passed",
+          "seconds": 0.841268
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AncientStrander\")",
+          "result": "Passed",
+          "seconds": 0.859281
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Disabled\")",
+          "result": "Passed",
+          "seconds": 0.823537
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Destroyed\")",
+          "result": "Passed",
+          "seconds": 0.8364
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Unregistered\")",
+          "result": "Passed",
+          "seconds": 0.836605
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Base\")",
+          "result": "Passed",
+          "seconds": 0.851083
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Ranged\")",
+          "result": "Passed",
+          "seconds": 0.826131
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"ModernStrander\")",
+          "result": "Passed",
+          "seconds": 0.864397
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"TidalAberration\")",
+          "result": "Passed",
+          "seconds": 0.850976
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"AncientStrander\")",
+          "result": "Passed",
+          "seconds": 0.835577
+        },
+        {
+          "name": "AgentReproduction.Tests.EnemyTargetBindingTests.WallUnderSharedSceneRootIsNotAnAgentDamageReceiver",
+          "result": "Passed",
+          "seconds": 0.802665
+        }
+      ]
+    },
+    {
+      "group": "RangedSpatial",
+      "repeat": 3,
+      "count": 12,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/RangedSpatial-3/test-results.xml",
+      "xmlSha256": "1193115420bf00dd69f0e8cf27793a0b4c33e270f9c6d99dda6dd70ed2a4efe9",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.BossAnchorSweepsThreeDimensionalPath(False)",
+          "result": "Passed",
+          "seconds": 1.419542
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.BossAnchorSweepsThreeDimensionalPath(True)",
+          "result": "Passed",
+          "seconds": 1.239233
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyBulletStopsAtThinWallBeforeAgent",
+          "result": "Passed",
+          "seconds": 1.4251
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyBulletWithoutWallHitsAgentExactlyOnce",
+          "result": "Passed",
+          "seconds": 0.764104
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"Ranged\",-1)",
+          "result": "Passed",
+          "seconds": 3.072087
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"Ranged\",1)",
+          "result": "Passed",
+          "seconds": 3.129464
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"AnchorSentinel\",-1)",
+          "result": "Passed",
+          "seconds": 5.910803
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EnemyShootsAcrossHeight(\"AnchorSentinel\",1)",
+          "result": "Passed",
+          "seconds": 5.911245
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.EngageCanFireAcrossDisconnectedNavigationWithoutWalking",
+          "result": "Passed",
+          "seconds": 0.953106
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.PlayerProjectileHitsElevatedEnemy",
+          "result": "Passed",
+          "seconds": 0.870225
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.PlayerShooterRejectsOccludedTarget",
+          "result": "Passed",
+          "seconds": 0.741118
+        },
+        {
+          "name": "AgentReproduction.Tests.RangedSpatialTests.WallInsertedAfterPlayerLaunchStopsProjectile",
+          "result": "Passed",
+          "seconds": 1.338555
+        }
+      ]
+    },
+    {
+      "group": "Perception",
+      "repeat": 3,
+      "count": 5,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Perception-3/test-results.xml",
+      "xmlSha256": "8bbf0e96b6343a9390fe0b81ae9fb632036a3749406322e6ed27085ce88eade3",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.AreaSkillsRespectCastRangeAndDynamicCover",
+          "result": "Passed",
+          "seconds": 1.233476
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.DiscoverySkipsOccludedNearestMemberAndDeduplicatesVisibleEnemies",
+          "result": "Passed",
+          "seconds": 1.113956
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.KnownAttackerBehindWallIsNotReportedAsVisible",
+          "result": "Passed",
+          "seconds": 2.760713
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.RangeUsesHeightAndTriggersDoNotOcclude",
+          "result": "Passed",
+          "seconds": 0.709997
+        },
+        {
+          "name": "AgentReproduction.Tests.PerceptionCandidateTests.UnreachableVisibleEnemyDoesNotBlockExecutableCandidate",
+          "result": "Passed",
+          "seconds": 0.843657
+        }
+      ]
+    },
+    {
+      "group": "Decision",
+      "repeat": 3,
+      "count": 5,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Decision-3/test-results.xml",
+      "xmlSha256": "acbb437218e2c32990918c8a474b0e752c3c3ab5bc622b6e69405bab0898e36a",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionCountsAllUniqueVisibleRiskMembers",
+          "result": "Passed",
+          "seconds": 0.954379
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionFindsFarReachableExitWhenNearExitIsDisconnected",
+          "result": "Passed",
+          "seconds": 0.767691
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.DecisionUsesActualDefense",
+          "result": "Passed",
+          "seconds": 0.771727
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry",
+          "result": "Passed",
+          "seconds": 4.22713
+        },
+        {
+          "name": "AgentReproduction.Tests.TargetDecisionTests.ResourceSelectionAndRetentionUseSameMemberDistance",
+          "result": "Passed",
+          "seconds": 2.953263
+        }
+      ]
+    },
+    {
+      "group": "Cooldown",
+      "repeat": 3,
+      "count": 8,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Cooldown-3/test-results.xml",
+      "xmlSha256": "10b82e3b7aeb6a6d160acc61578427c33fa21666c966930f9f8ebcad8c1f9964",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.CombatReentryDoesNotResetOrdinaryAttackLock",
+          "result": "Passed",
+          "seconds": 0.944914
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.DuplicateSkillIdentityCannotCreateAnotherCooldown(False)",
+          "result": "Passed",
+          "seconds": 0.773089
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.DuplicateSkillIdentityCannotCreateAnotherCooldown(True)",
+          "result": "Passed",
+          "seconds": 0.762161
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.EquippedTotemRefreshesPawnWithoutResettingSkill",
+          "result": "Passed",
+          "seconds": 0.954228
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.ReorderedSkillsRetainCooldownAndNewSkillStartsReady",
+          "result": "Passed",
+          "seconds": 0.761921
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"Stats\")",
+          "result": "Passed",
+          "seconds": 0.773199
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"Totem\")",
+          "result": "Passed",
+          "seconds": 0.749991
+        },
+        {
+          "name": "AgentReproduction.Tests.CombatCooldownTests.SkillCooldownSurvivesRefresh(\"EquivalentConfig\")",
+          "result": "Passed",
+          "seconds": 0.742262
+        }
+      ]
+    },
+    {
+      "group": "Combined",
+      "repeat": 3,
+      "count": 10,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Combined-3/test-results.xml",
+      "xmlSha256": "1fc864b70edaefb37d31f28b4c74e7ac8b8230c5b01cb5849fd50735c62589f0",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.ActualExtractionDestroysAAndRangedEnemyDamagesB",
+          "result": "Passed",
+          "seconds": 3.632923
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.BlockedMuzzleCannotUseDirectDamageFallback",
+          "result": "Passed",
+          "seconds": 2.774009
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Shooter\")",
+          "result": "Passed",
+          "seconds": 1.372253
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.MissingAttackConfigurationTerminatesWithoutDirectDamage(\"Projectile\")",
+          "result": "Passed",
+          "seconds": 1.363468
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.RuntimePathDisconnectionReleasesManualCommand",
+          "result": "Passed",
+          "seconds": 0.75193
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.ShieldAbsorptionDoesNotInterruptResourceButDisplacementIsIndependent",
+          "result": "Passed",
+          "seconds": 0.779779
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.TwoAgentsKeepIndependentSuspendedExtractions",
+          "result": "Passed",
+          "seconds": 0.768887
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"DisabledAgent\")",
+          "result": "Passed",
+          "seconds": 0.765757
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"DisabledExit\")",
+          "result": "Passed",
+          "seconds": 0.750626
+        },
+        {
+          "name": "AgentReproduction.Tests.CombinedRegressionTests.UnavailableParticipantsRejectCommands(\"CompletedCluster\")",
+          "result": "Passed",
+          "seconds": 0.755227
+        }
+      ]
+    },
+    {
+      "group": "Graphics",
+      "repeat": 3,
+      "count": 1,
+      "processExit": 0,
+      "xml": "Logs/AgentReproduction/20260911-030638-823/groups/Graphics-3/test-results.xml",
+      "xmlSha256": "0c109055ed1670d3077626655795bb1c5c9f6651fd5152bb78f7cba489094f1c",
+      "tests": [
+        {
+          "name": "AgentReproduction.Tests.CommandFeedbackGraphicsTests.FormalFeedbackRendersChineseAtTopAndFades",
+          "result": "Passed",
+          "seconds": 4.778906
+        }
+      ]
+    }
+  ],
+  "reportFaultChecks": [
+    {
+      "expected": 0,
+      "case": "Passed",
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "expected": 2,
+      "case": "CrashAfterXml",
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "expected": 1,
+      "case": "Assertion",
+      "actual": 1,
+      "passed": true
+    },
+    {
+      "expected": 0,
+      "case": "DiagnoseFailure",
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "expected": 2,
+      "case": "Missing",
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "expected": 2,
+      "case": "Timeout",
+      "actual": 2,
+      "passed": true
+    },
+    {
+      "expected": 2,
+      "case": "Cleanup",
+      "actual": 2,
+      "passed": true
+    }
+  ]
+}

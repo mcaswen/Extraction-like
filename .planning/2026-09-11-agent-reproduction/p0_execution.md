@@ -1,6 +1,6 @@
 # P0 小规划：自动运行与取证入口
 
-- 状态：实现和测试／Review 完成，准备阶段提交。用户已确认大架构，并授权自行完成“小规划 → 实现 → 测试／Review → 调整 → 提交 → 下一阶段”。
+- 状态：实现和测试／Review 完成，已提交 `29ec57c`。用户已确认大架构，并授权自行完成“小规划 → 实现 → 测试／Review → 调整 → 提交 → 下一阶段”。
 - 目标：在本机实际发现 Editor 测试，自动进入 Play Mode，运行真实 NavMesh／Physics 冒烟，输出 NUnit XML 和独立证据。
 - 文件边界：`tools/agent-repro/` 负责工作区、进程和汇总；`Assets/Scripts/Editor/AgentReproduction/Infrastructure/` 负责测试上下文、生命周期与等待；`Reporting/` 负责落盘；`Tests/HarnessSmokeTests.cs` 只负责基础验收。不改 Gameplay。
 - Reuse：现有 UTF 1.1.33、NavMeshBuilder、Physics、既有 Editor 程序集；Wrap：受限私有字段读取；Create：下面对应文件。暂不预建后续未使用的空抽象。
@@ -36,4 +36,4 @@
 - `20260911-005252-479`：第一轮故意卡住并被 30 秒看护终止；缺失 XML 按 TIMED_OUT 记录，第二轮自动继续且 1/1 通过；总体基础设施退出码 2。
 - 所有运行源文件哈希保持一致；原先其他项目的 Unity 未被操作。证据位于 `Logs/AgentReproduction/<上述 run-id>/`。
 - Review：生产代码没有测试依赖；生命周期负责重载，报告以最终 NUnit 结果校正 teardown 前快照；私有字段接入集中；已修正 Windows PowerShell 插值与原子文件替换。临时副本按任务复用且只镜像所有权标记范围。
-- 提交：本文件随 P0 提交；下一阶段开始后记录提交哈希。
+- 提交：`29ec57c`；P1 随后修正跨重载协程的完成检查，P4 补齐异常退出报告测试，见各阶段记录。

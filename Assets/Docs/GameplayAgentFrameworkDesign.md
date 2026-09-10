@@ -1,5 +1,19 @@
 # Gameplay Agent 框架设计文档
 
+2026-09-11 已实现目标/指令/交战修复，实际验证见 [验收报告](../../outputs/implementation_validation_report.md)。当前新增责任文件如下（路径相对 `Assets/Scripts/Gameplay`）：
+
+| 文件 | 所有权与依赖 |
+| --- | --- |
+| `Agent/Commands/AgentDirectiveLifecycleController.cs` | 活动指令、唯一挂起撤离及终态；经 Validation 验证，通过既有 Intervention 存取黑板 |
+| `Agent/Commands/AgentDirectiveValidationService.cs`、`AgentDirectiveResult.cs`、`AgentDirectiveFeedbackChannel.cs` | 只读前提检查、结构化结果和事件；不绘制 UI |
+| `Agent/Navigation/AgentNavigationQuery.cs`、`AgentNavigationMotor.cs`、`AgentNavigationResult.cs` | 分离查询、移动状态与结果；不选任务，按路径端点处理到达高度 |
+| `Agent/Targeting/AgentTargetCandidate.cs`、`AgentTargetCandidateCollector.cs` | 统一具体成员事实，Discovery/Decision 各自保留策略 |
+| `Agent/Targeting/AgentTargetFailureMemory.cs` | 订阅结果的短期失败缓存；3 秒游戏时间或位置变化后重检，按 Agent 隔离，风险集合仍保留该敌人；手动选择不查此缓存 |
+| `Perception/CombatAimPointResolver.cs`、`TargetVisibilityQuery.cs`、`TargetVisibilityResult.cs`、`ProjectileSweepQuery.cs` | 双方共用的三维空间查询，只依赖 Unity 和调用方谓词，不依赖伤害/UI/测试 |
+| `Targets/Presentation/AgentCommandFeedbackInstaller.cs`、`AgentCommandFeedbackPresenter.cs`、`AgentCommandFeedbackText.cs` | 正式 prefab 安装、订阅显示、中文映射；自动发现不刷屏 |
+
+`AgentCombatController` 保留技能运行实例和普攻锁；同 SkillId 配置仅保留首次定义，重复项不生成第二份冷却。受控配置替换由 SkillBase 迁移截止时间，SO 仅保存配置。
+
 ## 0. 阅读导航
 
 1. 1 - 3 部分：主要信息、模块定位、总体架构
@@ -445,12 +459,12 @@ AgentBrainStateMachineFactory 负责：
 3. 给状态添加转移规则
 4. 返回 HierarchicalStateMachine
 
-当前转移优先级大致为：
+当前状态转移以已接受的活动指令为依据：
 
-1. 战斗优先级最高
-2. 搜索资源其次
-3. 撤离在 ShouldExtract 为 true 时进入
-4. 没有目标时回到 Explore
+1. 手动资源指令不被单纯发现敌人覆盖；有效伤害通过生命周期切换到反击。
+2. Engage 指令驱动 Combat，已知但被遮挡的攻击者不伪装为可见敌人。
+3. 撤离受有效伤害后挂起一份原任务，反击终态恢复原目标和 CommandId。
+4. 新手动命令、取消或死亡清理挂起任务；没有任务时回到 Explore。
 
 来源：
 
@@ -488,17 +502,17 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
    - 提供 Agent 上下文读取、PendingDirectiveRequest 解析、目标位置解析、移动、清理指令等通用逻辑
 3. MoveToTargetActionNode
    - 输入：AgentTargetRef
-   - 行为：优先通过 NavMeshAgent 驱动 Agent 朝目标位置移动
+   - 行为：通过 AgentNavigationMotor 驱动 NavMeshAgent，并检查路径、导航就绪和无进展期限
    - 资源目标会优先取目标 Collider 上离 Agent 最近的点，避免 Agent 挤向箱子或掉落物中心
-   - 输出：到达后返回 Success，未到达返回 Running
+   - 输出：到达后返回 Success，执行中返回 Running，导航失败提交指令终态并释放锁
 4. EngageEnemyActionNode
    - 输入：Engage 指令中的敌人目标
-   - 行为：解析 EnemyHealthController，优先通过 AgentCombatShooter 发射子弹
-   - 输出：敌人死亡或目标失效后清除战斗事实
+   - 行为：解析 EnemyHealthController，在三维射程及眼点/枪口视线允许时施法或发射子弹；可原地射击时不要求走到敌人脚下
+   - 输出：敌人死亡或目标失效后结束任务，生命周期决定是否恢复挂起撤离；不可用攻击配置产生明确失败
 5. SearchResourceActionNode
    - 输入：Search 指令中的 LootBoxEntity / WorldLootItem 或资源点
    - 行为：前往资源目标，触发资源搜索/预生成，发现战利品后等待玩家打开并关闭背包
-   - 输出：玩家关闭背包、空箱或目标失效后完成搜索
+   - 输出：有效范围内完成交互后结算；位移后撤销到达和旧背包打开记录，远处关闭不能完成搜索
 6. ExtractActionNode
    - 输入：Extract / MoveTo 指令中的撤离点目标
    - 行为：前往撤离点并把进入撤离范围的状态桥接给 RaidFlowController
@@ -508,10 +522,10 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
 
 1. 执行节点应尽量只依赖公开接口或 Agent 专用适配层
 2. 不建议在节点里堆大量 UI / 背包 / 敌人细节
-3. 移动当前优先走 NavMeshAgent，NavMesh 尚未准备好时保留直线兜底
-4. 战斗当前优先发射子弹，子弹组件不可用时保留直接伤害兜底
-5. AgentCombatShooter 发射物会接入 Skill Effect 层，避免技能物互相阻挡
-6. 当前节点已先实现 MVP 直连版本，后续可以继续把背包/撤离桥接逻辑抽成 Adapter
+3. 导航未就绪只做有期限等待；不可达、导航丢失和无进展均终止任务，不直线穿越地形。
+4. 发射器或弹体配置不可用返回 AttackUnavailable，不以直接扣血替代失败发射。
+5. 弹体使用三维方向和每物理步扫掠，忽略自身、来源身体及 Trigger，遇到首个实体停止。
+6. 节点保留背包/撤离流程桥接；任务、移动和反馈分别归 Commands、Navigation 和 Presentation。
 
 来源：
 
@@ -525,8 +539,8 @@ AgentTargetDiscoveryController 负责：
 
 1. 遍历 AgentRuntimeRegistry 中已注册的 Agent
 2. 按 AgentPawnConfig 中的 TargetDiscoveryRange 扫描附近目标
-3. 按 敌人 > 资源点 > 撤离点 的优先级选择目标
-4. 通过 IAgentCommandReceiver 写入事实与 AgentDirectiveRequest
+3. 由 AgentTargetCandidateCollector 提供成员级候选，比较可执行敌人与可达资源的距离；没有普通目标时查找可达撤离成员
+4. 通过 IAgentCommandReceiver.TrySubmitDirective 提交；校验成功后由生命周期统一写入任务事实
 
 当前目标来源：
 
@@ -538,10 +552,10 @@ AgentTargetDiscoveryController 负责：
 注意点：
 
 1. 目标发现层只负责选目标，不直接执行移动、攻击、拾取或撤离
-2. 发现层写入 HasVisibleEnemy / HasResourceTarget / HasInteractableTarget / ShouldExtract
+2. 发现层只提交选择；任务事实及真实可见事实由生命周期协调，拒绝命令不破坏当前任务
 3. 行为树节点继续从 PendingDirectiveRequest 读取具体目标
 4. 资源点会跳过已无战利品、无有效物品数据或已被标记搜刮完成的对象
-5. 当前 Search 指令里的资源目标仍有效时会优先保持该目标，避免箱子和地面掉落物之间来回切换
+5. 当前 Search 指令里的资源仍是合法候选时优先保持；保持和新选均使用同一具体成员距离，不切换到群中心口径
 
 来源：
 
@@ -829,16 +843,16 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 目标：
 
-1. 外部系统提交 Extract 指令或设置 ShouldExtract
+1. 外部系统提交带具体撤离目标的 Extract 指令
 2. Agent 进入 Extraction
 3. Agent 移动到 ExtractionPointController
-4. ExtractionPointController 通知 RaidFlowController Agent 在撤离范围内
-5. RaidFlowController 在满足战利品条件后累计进度并完成胜利
+4. ExtractActionNode 按 AgentId 向 RaidFlowController 更新撤离 presence
+5. RaidFlowController 分别计时、结算携带库存并销毁已撤离角色，按本局要求撤离集合判断结算
 
 推荐链路：
 
-1. AgentCommandRouter.TrySetShouldExtract(agentId, true)
-2. AgentCommandRouter.TrySubmitDirective(agentId, Extract)
+1. 构造包含目标和 CommandId 的 Extract 请求
+2. AgentCommandRouter.TrySubmitDirective(agentId, Extract)，生命周期先验证后接收
 3. Agent 进入 Extraction
 4. ExtractActionNode 驱动移动
 5. Agent 到达撤离点并保持在范围内
@@ -846,8 +860,8 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 边界提醒：
 
-1. 当前撤离点只识别 Player Tag
-2. 多 Agent 化前需要让撤离点支持 AgentPawnRoot 或 Agent Tag
+1. ExtractActionNode 使用 SetAgentInsideExtractionPoint(agentId, point, inside)，不依赖单一主角身份
+2. 撤离点另有保留 Player Tag 的触发器兼容路径；触发器多碰撞体组合并非本次自动验收范围
 3. ExtractActionNode 不直接设置任务完成
 
 ## 10. 边界情况、风险点与已知问题
@@ -860,18 +874,18 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 2. 状态转移规则已存在
 3. Combat / SearchResource / InteractLoot / Extraction 已绑定最小执行节点
 4. SearchResourceActionNode 当前会在发现资源后等待玩家打开并关闭背包
-5. ExtractActionNode 当前会通过 RaidFlowController.SetPlayerInsideExtractionPoint 桥接撤离进入状态
+5. ExtractActionNode 通过 RaidFlowController.SetAgentInsideExtractionPoint 桥接具体 Agent 的撤离状态，退出/中断时清理旧 presence
 
 风险：
 
 1. 搜索与撤离节点仍包含跨系统桥接逻辑
 2. 背包 UI 驱动链路较重，当前 MVP 仍需要玩家进行一次背包开关确认
-3. 撤离点仍没有真正支持多 Agent 的进入者身份
+3. 多 Agent 流程已接通，场景触发器与不同身体碰撞体布局仍需随关卡配置验证
 
 建议：
 
 1. 后续补 AgentLootInteractionService，把收纳与 Raid 通知从节点里抽走
-2. 后续补 AgentExtractionPresenceService，让撤离点识别 AgentPawnRoot
+2. 若触发器多占用需求扩大，可独立整理 presence 采集；当前计时和结算继续归 RaidFlowController
 3. 保持 AgentBrainController 只负责装配与 Tick，不把具体业务塞回 Brain
 
 ### 10.2 旧 Player 输入脚本仍需继续收敛
@@ -891,22 +905,22 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 1. 后续把敌人脚本中的 PlayerTransform 命名收敛为 TargetTransform
 2. 手控 Player 脚本保留为 legacy 或输入驱动层，不作为全局主角权威
 
-### 10.3 ExtractionPointController 只识别 Player Tag
+### 10.3 撤离 presence 与触发器兼容路径
 
 现状：
 
-1. 撤离点通过 other.CompareTag("Player") 判断进入者
+1. 撤离点触发器仍通过 other.CompareTag("Player") 筛选，并从父级 AgentPawnRoot 解析 AgentId。
+2. AI 撤离节点独立按 AgentId 更新 presence，RaidFlowController 已记录每个 Agent 的撤离状态。
 
 风险：
 
-1. Agent 如果没有 Player Tag，撤离不会触发
-2. 多 Agent 撤离时无法区分是谁进入
+1. 单个触发器仍保存一个 _playerCollider，多个进入者/子碰撞体的组合需要独立验证。
+2. 现有回归验证公开 presence 接口到计时、结算和销毁，没有声称覆盖所有触发器进入/退出顺序。
 
 建议：
 
-1. 支持 GetComponentInParent<AgentPawnRoot>
-2. 或将撤离检测抽为 AgentExtractionPresenceService
-3. RaidFlowController 后续应能记录具体 Agent 的撤离状态
+1. 场景侧若依赖触发器，应检查 Tag、碰撞体布局和同时占用行为。
+2. 后续扩展多人触发器集合时保持按 AgentId 的公开接口，不把计时复制进节点。
 
 ### 10.4 Backpack 当前偏 UI 驱动
 
@@ -958,7 +972,7 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 建议实现方式：
 
 1. 目标解析继续统一从 PendingDirectiveRequest 读取
-2. 移动逻辑从节点中下沉到 AgentMovementMotor
+2. 移动逻辑已下沉到 AgentNavigationMotor，路径与到达口径由 AgentNavigationQuery 共用
 3. 交互细节通过 Adapter 调用 Enemy / Backpack / Raid
 4. 行为树节点只保留流程控制和结果判断
 
@@ -969,16 +983,16 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 当前能力：
 
 1. 按 AgentPawnConfig.TargetDiscoveryRange 扫描目标
-2. 敌人优先于资源点，资源点优先于撤离点
+2. 可执行敌人与资源按成员距离比较；无普通候选时可选择范围外可达撤离
 3. 自动生成 AgentDirectiveRequest 并写入 Agent 命令接口
 4. 当前 Search 指令中的资源仍有效时，优先保持当前资源目标
 
 后续可扩展：
 
-1. 视野角度与遮挡检测
-2. 更完整的目标短时间记忆与丢失宽限
+1. 已有三维范围与墙体检测；敌人侧另有水平视角约束
+2. 当前接战有丢失视线期限，可按玩法继续扩展目标记忆
 3. 多 Agent 之间的目标分配
-4. 从 FindObjectsOfType 替换为运行时目标 Registry
+4. 当前已使用 Registry 和活跃群成员复制接口，可继续评估大量候选时的扫描成本
 
 边界：
 
@@ -1024,8 +1038,8 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 1. 外部系统构造 AgentDirectiveRequest
 2. 调用 AgentCommandRouter.TrySubmitDirective
 3. AgentCommandRouter 通过 AgentRuntimeRegistry 找到目标 Agent
-4. AgentPawnRoot.SubmitDirective 接收指令
-5. AgentInterventionController 写入 Blackboard
+4. AgentPawnRoot.TrySubmitDirective 转发给 AgentDirectiveLifecycleController
+5. AgentDirectiveValidationService 预检后，生命周期通过既有 Intervention 存储提交任务事实并发布结果事件
 6. AgentBrainTransitionRules 根据事实进入对应宏状态
 7. 行为树执行节点读取 PendingDirectiveRequest 并执行动作
 
@@ -1039,12 +1053,12 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 ### 12.3 敌人攻击 Agent
 
-1. Enemy 系统通过 AgentRuntimeQuery 找目标 Agent
-2. Enemy 系统计算伤害
-3. Enemy 系统构造 DamageRequest
-4. Enemy 系统调用 AgentCommandRouter.TryApplyDamage
-5. AgentPawnRoot.ApplyDamage 更新生命值
-6. AgentPawnRoot 同步生命值事实到 Blackboard
+1. EnemyTargetSelector 扫描合法候选，EnemyCombatTargetBinding 同时绑定目标、伤害和位移接收器
+2. 攻击按自身招式范围、视线或实体弹道判定命中
+3. 通过 ICombatDamageReceiver.TakeCombatDamage 传递伤害与敌人来源
+4. AgentPawnRoot 计算实际防御、护盾和有效伤害
+5. 只有有效敌人伤害触发反击；零伤害或护盾完全吸收不抢占资源/撤离
+6. 死亡、离场、禁用和销毁都会使绑定失效，敌人重新选择合法角色
 
 ### 12.4 Agent 攻击敌人
 
@@ -1053,8 +1067,8 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 3. EngageEnemyActionNode 解析 EnemyHealthController
 4. 优先通过 AgentCombatShooter 发射子弹
 5. EnemyHealthController 负责死亡、掉落、NotifyEnemyKilled
-6. 子弹配置不可用时回退为直接伤害
-7. Agent 清理战斗事实或等待下一个目标
+6. 子弹配置不可用时以 AttackUnavailable 结束任务，枪口遮挡时不发射也不直接扣血
+7. 生命周期处理终态及撤离恢复；CombatController 保留普攻锁，技能刷新保留已有冷却截止时间
 
 ### 12.5 Agent 搜索资源
 
@@ -1063,14 +1077,14 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 3. MoveToTargetActionNode 移动到资源碰撞体附近
 4. SearchResourceActionNode 识别 LootBoxEntity 或 WorldLootItem
 5. LootBoxEntity 会触发 PrecalculateLootIfNeeded
-6. 玩家打开并关闭背包后标记资源已搜刮
+6. 玩家在有效范围内完成背包交互后按资源规则标记；外部位移使旧打开记录失效
 
 ### 12.6 Agent 撤离
 
-1. 外部系统设置 ShouldExtract
-2. 外部系统提交 Extract 目标
+1. 外部系统构造带具体目标的 Extract 指令
+2. 生命周期验证并提交，统一设置 ShouldExtract
 3. Agent 进入 Extraction
 4. ExtractActionNode 移动到撤离点
-5. ExtractionPointController 识别 Agent 进入范围
-6. RaidFlowController 累计撤离进度
+5. ExtractActionNode 按 AgentId 更新到达/离开 presence
+6. RaidFlowController 分别累计撤离进度；反击中断时停止旧计时，反击结束可恢复原撤离任务
 7. RaidFlowController 完成胜利

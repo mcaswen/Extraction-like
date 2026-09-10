@@ -1,7 +1,7 @@
 # 目标选择、Agent 执行与交战：修复架构方案
 
 - 日期：2026-09-11。
-- 状态：**用户已确认本文架构，并授权按小规划自主实施、测试／Review、调整、提交并推进下一阶段。**
+- 状态：**架构已确认并完成 P0–P5 实现。最终 75 例三轮 225/225 通过，实际文件调整与验证见阶段文档和验收报告。**
 - 主规划：[task_plan.md](task_plan.md)。原始证据：[逻辑审查](../../outputs/agent_target_execution_combat_review.md)。
 - 本文负责生产代码修复架构；主规划负责构造样例、运行取证和分阶段验收，两者共同约束实施。
 
@@ -24,7 +24,7 @@
 
 本次范围包含修复，不再以“仅生成诊断报告”为完成条件。F3 原先“覆盖手动指令即 Bug”的判断按本次规则纠正，保留编号追踪受击打断链。原审查是历史静态证据，后续由真实运行结果修订。
 
-## 2. 代码调查与职责判断
+## 2. 修复前代码调查与职责判断
 
 - `AgentPawnRoot.RecordCombatDamageInterrupt` 直接覆盖指令并零散写事实；`AgentInterventionController` 只是 Blackboard 存取层，不应把完整恢复策略堆进该类。
 - `AgentActionNodeBase` 已同时承担目标解析、NavMesh 查询／移动、清理任务；增加失败监控前应抽出导航职责。资源群已有可达成员查询，应复用其候选点计算。
@@ -74,7 +74,7 @@ Assets/Resources/HUD/Pfb_AgentCommandFeedback.prefab # 新增：提示布局和�
 | `Assets/Scripts/Gameplay/Agent/Runtime/AgentRuntimeRegistry.cs` | Agent 注册、存活与身份查询，继续作为权威索引 |
 | `Assets/Scripts/Gameplay/Agent/Runtime/AgentRuntimeQuery.cs` | `CopyAgentsTo` 收集候选；不在敌人中新增场景遍历 |
 | `Assets/Scripts/Gameplay/Agent/Core/AgentInterventionController.cs` | 底层指令存取；由生命周期控制器编排，保持其职责窄小 |
-| `Assets/Scripts/Gameplay/Enemy/EnemyHealthController.cs` | 生命、伤害接口与 CombatDamageUtility；不复制活性判断或伤害结算 |
+| `Assets/Scripts/Gameplay/Enemy/EnemyHealthController.cs` | 复用生命/伤害结算；其中 CombatDamageUtility 的角色解析在 P2 作局部 Extend，删除场景根兄弟对象兜底 |
 | `Assets/Scripts/Gameplay/Targets/Authoring/ResourceClusterAuthoring.cs` | 真实资源成员、可站立点及完整路径筛选；查询层增加严格前提检查，避免无 NavMesh 的旧兜底被解释为验证成功 |
 | `Assets/Scripts/Gameplay/Targets/Authoring/ExtractionClusterAuthoring.cs` | 撤离群与具体撤离点解析 |
 | `Assets/Scripts/Gameplay/Targets/Runtime/GameplayTargetRegistry.cs` | 群注册、完成状态与成员关联 |
@@ -100,13 +100,13 @@ Assets/Resources/HUD/Pfb_AgentCommandFeedback.prefab # 新增：提示布局和�
 | Extend | `Assets/Scripts/Gameplay/Agent/AI/Actions/EngageEnemyActionNode.cs` | 反击结束报告、远程开火条件、移除遮挡失败后的直接扣血；攻击节奏状态迁入战斗控制器 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Runtime/AgentTargetDiscoveryController.cs` | 新选与保持共用成员候选；敌人必须满足感知；自动提交也走一致任务入口 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Decision/AgentTargetDecisionController.cs` | 读取 Pawn.Defense，使用共同候选和去重风险敌人，补远处撤离兜底 |
-| Extend | `Assets/Scripts/Gameplay/Agent/Decision/AgentTargetDecisionService.cs` | 消费一致位置／距离输入；保持评分算法独立，补输入边界和撤离兜底规则 |
+| Reuse | `Assets/Scripts/Gameplay/Agent/Decision/AgentTargetDecisionService.cs` | 实际无需改评分算法；Controller 修正输入和后备候选，继续使用原风险阈值与公式 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatController.cs` | 属性刷新与技能集合变更分离；保留技能状态；持有普通攻击／动作锁时间，不因节点 OnEnter 重置 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatSkillBase.cs` | 保持技能冷却权威；仅在技能集合确需重建时支持受控状态迁移 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/AgentCombatShooter.cs` | 三维瞄准、发射位置遮挡／射程复检；返回可区分拒绝原因的结果 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatSkillUtility.cs` | 面向目标技能及范围伤害复用空间约束，避免只限制普攻却仍由技能穿墙命中 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatSkillContext.cs` | 传递施法空间查询参数，不在通用查询层反查 Pawn |
-| Extend | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatSkillTarget.cs` | 保留实际三维目标及瞄准点，不压平高度 |
+| Reuse | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatSkillTarget.cs` | 现有三维目标数据足够，实际无需修改；瞄准/遮挡在共用查询和执行层处理 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Runtime/AgentCombatAreaDamageOverTime.cs` | 每次持续伤害按实际作用原点重检遮挡，动态墙不能被初次筛选缓存绕过 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Skills/AgentAreaDamageSkillConfig.cs` | 文件内实际技能执行接入范围／作用原点约束，不改伤害配置 |
 | Extend | `Assets/Scripts/Gameplay/Agent/Combat/Skills/AgentAreaDamageOverTimeSkillConfig.cs` | 文件内实际技能执行传递正确三维落点和空间上下文 |
@@ -145,8 +145,8 @@ Assets/Resources/HUD/Pfb_AgentCommandFeedback.prefab # 新增：提示布局和�
 | `Assets/Scripts/Gameplay/Agent/Targeting/AgentTargetCandidate.cs` | 群与成员身份、实际位置、导航点和比较距离，作为候选快照 |
 | `Assets/Scripts/Gameplay/Agent/Targeting/AgentTargetCandidateCollector.cs` | 收集具体成员；Discovery／Decision 共享候选定义，策略各自保留 |
 | `Assets/Scripts/Gameplay/Perception/TargetVisibilityQuery.cs` | 三维范围、水平视角、射线遮挡；只收 Unity 空间参数 |
-| `Assets/Scripts/Gameplay/Perception/TargetVisibilityResult.cs` | 是否可见、失败原因、距离、瞄准点与阻挡物，便于行为与取证共用 |
-| `Assets/Scripts/Gameplay/Perception/CombatAimPointResolver.cs` | 从有效碰撞体解析少量三维目标采样点；双方共用，不参与目标选择 |
+| `Assets/Scripts/Gameplay/Perception/TargetVisibilityResult.cs` | 实际为 Visible/Invalid/OutOfRange/OutsideView/Occluded 结果枚举，诊断几何由测试按需记录 |
+| `Assets/Scripts/Gameplay/Perception/CombatAimPointResolver.cs` | 实际取首个有效非 Trigger 碰撞体中心，缺失时回退位置加高度；双方共用，不参与目标选择 |
 | `Assets/Scripts/Gameplay/Perception/ProjectileSweepQuery.cs` | 检查上一帧至下一位置的飞行段，返回最早有效碰撞；不造成伤害 |
 | `Assets/Scripts/Gameplay/Enemy/EnemyCombatTargetBinding.cs` | 同一目标的 Transform／伤害／位移引用及活性检查，防止半更新 |
 | `Assets/Scripts/Gameplay/Enemy/EnemyTargetSelector.cs` | 查询已注册候选、过滤有效性与视野并稳定排序；不承载敌人状态机 |
@@ -161,12 +161,12 @@ Assets/Resources/HUD/Pfb_AgentCommandFeedback.prefab # 新增：提示布局和�
 
 ### 4.1 提交必须有明确结果
 
-拟定关键接口：
+实际接口按同一职责收敛为：
 
-- `TrySubmitDirective(request, out AgentDirectiveResult result)`：验证后接受；失败保持原有效指令与事实。
-- `CompleteDirective(commandId)`／`FailDirective(commandId, reason)`：只操作 ID 匹配的当前任务；旧节点延迟回调不能清掉新指令。
-- `InterruptForCombat(enemy, time)`：唯一受击反击入口，保存必要恢复信息并同步当前任务。
-- `CancelDirective(commandId)`：显式取消，同时使关联挂起记录失效；死亡清理所有任务。
+- `TrySubmitDirective(request) → AgentDirectiveResult`：验证后接受；失败保持原有效指令与事实。
+- `FinishDirective(commandId, failure = None) → bool`：统一完成/失败，仅操作 ID 匹配的当前任务，旧回调不能清掉新任务。
+- Pawn 的实际伤害入口调用生命周期 `Submit(request, damageInterrupt: true)`，保存一份挂起撤离并同步任务事实。
+- `ClearDirective()` 转发生命周期 `Cancel()`，清理活动及挂起任务；死亡同样取消。
 
 旧的 void Submit／Clear 接口保留兼容适配，但所有本次涉及的正式调用点迁入新接口。`ClearPendingDirective` 不再绕过生命周期直接改 Blackboard。
 
@@ -181,7 +181,7 @@ Assets/Resources/HUD/Pfb_AgentCommandFeedback.prefab # 新增：提示布局和�
 5. 新的人工指令覆盖、显式取消、角色死亡：撤销挂起记录；新命令不能被旧反击完成回调覆盖。
 6. 恢复时撤离目标已不可用：清理原任务，返回明确失败原因，不无限挂起。
 
-拟定工程默认值：丢失视线追踪宽限 2 秒、连续无导航进展 3 秒、导航初始就绪等待 2 秒、到达数值容差 0.1m，均可配置且需通过场景用例校验。它们是本方案建议的参数，不冒充用户给定的精确数值；暂停、准备导航与正常交互等待不计入“应移动但无进展”。
+实际工程默认值：丢失视线追踪宽限 2 秒、连续无导航进展 3 秒、导航初始就绪等待 2 秒、到达数值容差 0.1m。导航参数经 PawnConfig 配置，丢失视线宽限在 Engage 节点中；这些是工程选定值，不是用户指定数值。暂停、准备导航与正常交互等待不计入“应移动但无进展”。
 
 F3 只明确“可受击中断”。本轮保持反击结束后进入正常自主选择，不额外承诺恢复原资源任务；只有 F1 撤离具备用户明确要求的恢复语义。护盾完全吸收、无效伤害来源与死亡命中分别测试，不扩大成“所有接触均反击”。
 
@@ -189,7 +189,7 @@ F3 只明确“可受击中断”。本轮保持反击结束后进入正常自�
 
 - 接受前：资源／撤离必须有可执行交互点和完整合法路径；导航未就绪属于明确可诊断的状态，不能当作直线穿越成功。
 - 远程 Engage 例外：若当前位置已满足三维射程与无遮挡攻击条件，无需能走到目标脚下；若必须靠近，验证的是合法攻击位置，而非一律要求站到敌人原点。
-- 执行中：区分计算中、正常移动、已到达、目标失效、路径不可达、持续无进展。明确失败释放当前任务和锁；短期排除同一自动失败候选，不能每次扫描立刻重新接回同一个失败任务。临时排除归候选收集器，按目标身份与失败位置记录，路径／位置变化后可重新验证；不做全局永久黑名单。
+- 执行中：区分计算中、正常移动、已到达、目标失效、路径不可达、持续无进展。明确失败释放任务和锁；Collector 组合 AgentTargetFailureMemory，短期排除同 Agent 的失败目标。3 秒游戏时间到期后重检路径，Agent 或目的地移动超过 0.5m 可提前解除；不做全局永久黑名单，手动选择不受该缓存阻挡。
 - R1：在实际可交互点上应用统一到达容差，同时核查高度和完整路径；不能只按 XZ 距离让楼上楼下隔板交互。资源 0 配置可用；不是无差别加大交互范围或强行完成任务。
 - R5：每次继续交互前检查当前距离与目标有效性；离开后撤销到达状态和本节点的背包开关观察记录，再重新靠近，不能把一次关闭动作误记为搜完。只有确认属于同一 Agent／资源的 UI 会话才通过现有 API 关闭，不干扰其他 Agent 的背包。原资源成员仍有效时保留任务身份。
 
@@ -214,7 +214,7 @@ F3 只明确“可受击中断”。本轮保持反击结束后进入正常自�
 
 - 自动敌人发现：存活 → 三维距离范围 → 水平视角（Agent 默认 360°、敌人保留各自角度）→ 碰撞体采样点射线无遮挡。
 - 不额外加入“必须同高度”或“必须同一 NavMesh 岛”的远程索敌条件。高度进入真实距离和瞄准向量；上下层无墙且射程内可交战，楼板属于有效遮挡。
-- 目标采样取真实有效碰撞体中心及少量预定点；明确排除自身／目标根、非阻挡 Trigger 和纯 VFX。墙体 Mask 必须覆盖真实场景障碍，不用 `mask=0` 规避问题。
+- 目标采样取真实有效碰撞体中心；没有碰撞体时采用固定高度回退。排除自身/目标身体和 Trigger，射线及弹道仍检查实体墙；不通过 `mask=0` 规避问题。多采样点暴露度判定未作为本轮必须算法扩展。
 - 开火前从实际发射点复检；视觉起点能看见但枪口被近墙挡住时不能造成伤害。
 - 发射后沿真实三维方向运动，取消 Y 压平；以飞行段扫掠补充碰撞回调，按最早有效撞击处理墙和目标，避免薄墙／高速穿透及同帧重复伤害。
 - 发现时无遮挡、发射前／弹体飞行中新增墙体也是回归用例，不能仅在选目标时测一次射线。
@@ -227,7 +227,7 @@ F3 只明确“可受击中断”。本轮保持反击结束后进入正常自�
 
 F4／R4：共享候选保存具体成员身份、实际位置、可执行导航点和比较距离；新选／保持／Decision 不混用群中心与成员距离。策略可以有各自评分，但输入事实必须相同。风险收集遍历所有符合感知规则的存活敌人成员并按实体去重，不以“每群最近一个”代替整群。防御从 Pawn 实际值读取；没有正常任务时，从有效可达撤离点中选兜底，不受敌人发现半径裁掉。默认发现与 Decision 分别验证，保持互斥启用。
 
-F7：同一技能集合仅更新属性／图腾修正时不调用清空重建；技能和普通攻击的运行时冷却由战斗层持有。确需变更技能集合时，按稳定 SkillId 和运行类型匹配保留仍存在技能的状态，拒绝重复身份歧义；新增技能按初始化规则、删除技能释放。不得把冷却复制到 SO 或静态全局字典。攻击节点进入／退出不重置攻击时间，修复 F1 同时覆盖攻击节奏侧效应。
+F7：同一技能集合仅更新属性／图腾修正时不清空重建；技能和普通攻击的运行时冷却由战斗层持有。集合变化时，按稳定 SkillId 和运行类型保留仍存在技能的状态；同一列表重复 SkillId 仅保留首次定义，避免第二份冷却。新增技能正常初始化、删除技能移出集合，不把冷却放入 SO 或静态全局字典；节点重入不重置攻击时间。
 
 ## 7. 自动测试增量与代理执行闭环
 
@@ -236,8 +236,8 @@ F7：同一技能集合仅更新属性／图腾修正时不调用清空重建；
 | 文件 | 职责 |
 | --- | --- |
 | `Assets/Scripts/Editor/AgentReproduction/Tests/CommandFeedbackTests.cs` | 接受／拒绝／动态失败、原因文本、事件去重、取消后旧回调、顶部位置和淡入淡出 |
-| `Assets/Scripts/Editor/AgentReproduction/Tests/CommandLifecycleTests.cs` | 撤离挂起恢复、新手动命令覆盖、死亡取消、多次受击不叠栈和延迟完成保护 |
-| `Assets/Scripts/Editor/AgentReproduction/Tests/PerceptionContractTests.cs` | 共享范围／视角／射线查询，自己／目标／Trigger／墙／楼板的过滤与高差边界 |
+| `Assets/Scripts/Editor/AgentReproduction/Tests/DirectiveLifecycleTests.cs` | 撤离挂起恢复、新手动命令覆盖、死亡取消、多次受击不叠栈和延迟完成保护 |
+| `Assets/Scripts/Editor/AgentReproduction/Tests/PerceptionCandidateTests.cs` | 共享范围/射线、Trigger/墙、完整候选与范围技能；高差和弹道见 RangedSpatialTests |
 
 UI 自动验收分两层：普通 Play Mode 断言结果事件、文字、RectTransform 顶部锚点、CanvasGroup alpha 和 unscaled 动画；图形模式单独自动启动、输出淡入／显示／淡出截图，由编码 Agent 检查截图。用户无需点 Play 或判断截图，`-nographics` 不冒充真实 UI 渲染验证。
 
@@ -256,11 +256,23 @@ UI 自动验收分两层：普通 Play Mode 断言结果事件、文字、RectTr
 
 按主规划 P0–P5 执行：最小自动运行闭环 → 指令／导航／提示 → 感知／敌人绑定／三维攻击 → 候选／评分／冷却 → 综合回归及图形证据 → 文档和架构审查。每阶段都包含“复现 → 修复 → 验证”，不先建完所有基础设施再开始定位业务问题。
 
-本次需要 Review 的新架构是：
+本次已获用户确认并实施的架构是：
 
 1. `Agent/Commands` 统一当前任务、撤离挂起恢复和结果；新增 CommandReceiver 结果／终态接口。
 2. `Agent/Navigation` 从 Action 基类抽出查询和执行，接受预检与实际执行共用规则。
 3. `Gameplay/Perception` 供双方共用；候选选择分别属于 Agent Targeting 和 Enemy，保持依赖方向。
 4. `Targets/Presentation` 单向订阅结果，正式提示预制体独立于测试。
 
-这些边界是新增方案，不将“用户已明确要修 Bug”记录成对尚未展示架构的确认。依据用户提供的 AGENTS.md“规划完成后，必须先提交目录结构、文件职责、依赖关系和关键架构决策供人类 Review，确认后再进入实现”，本轮先形成上述可评审方案。规则无需重复确认；完成这一次架构确认后，由编码 Agent 持续执行定位、修复和运行验证，普通用例失败不再转交用户手工操作。
+用户在阅读方案后明确回复“ok”，授权自行按小规划、实现、测试/review、调整、提交推进全部阶段。因此正常定位与边界内增补由 Agent 持续完成；各次文件判断、失败与修正记录在阶段文档中，最终审查见 [architecture_review.md](architecture_review.md)。
+
+### 实际实现中的文件增补
+
+| 具体文件 | 归属及原因 |
+| --- | --- |
+| `Assets/Scripts/Gameplay/Agent/AI/Factories/AgentBrainStateFactory.cs` | Combat 树直接执行 Engage，避免先走到敌人脚下阻断高差原地攻击 |
+| `Assets/Scripts/Gameplay/Enemy/Player/PlayerTargetResolver.cs` | 与 CombatDamageUtility 一致，只沿命中对象所属角色解析，删除场景根兄弟对象回退 |
+| `Assets/Scripts/Gameplay/Targets/Authoring/ActiveEnemyClusterAuthoring.cs` | CopyAliveEnemiesTo 对外复制初始和动态存活成员，封装内部集合 |
+| `Assets/Art/VFX/RobotAnchorBeamVfx.cs`、`MudTidalAberrationVfx.cs`、`TracerAnchorVortexVfx.cs`、`PlayerElementalSkillVfx.cs` | 正式控制器集成测试暴露粒子 duration 配置时序 Assert；在既有粒子创建责任点先 Stop，再配置 |
+| `Assets/Scripts/Gameplay/Agent/Targeting/AgentTargetFailureMemory.cs` | P4 Review 追加，短期失败缓存独立于候选扫描算法；依既有结果事件更新，Commands 不反向引用 |
+
+具体测试文件、合并的草案文件、实际接口及证据格式见 [主规划第 8–9 节](task_plan.md#8-实际目录结构与文件职责)。

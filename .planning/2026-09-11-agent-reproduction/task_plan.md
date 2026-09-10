@@ -1,8 +1,8 @@
 # Agent 目标选择、执行与交战：自动复现、修复与回归实施规划
 
 - 日期：2026-09-11
-- 状态：**用户已确认大架构并授权自主完成各阶段“小规划 → 实现 → 测试／Review → 调整 → 提交”闭环。P0 已提交，P1 已实现并通过阶段测试，继续 P2。**
-- 执行记录：[P0 自动运行](p0_execution.md)；[P1 指令／导航／提示](p1_execution.md)；[P2 空间交战与目标绑定](p2_execution.md)。
+- 状态：**P0–P5 全部完成。已按用户授权执行小规划 → 实现 → 测试／Review → 调整 → 提交；最终 75 例三轮 225/225 通过，报告层故障构造 7/7 通过。**
+- 执行记录：[P0 自动运行](p0_execution.md)；[P1 指令／导航／提示](p1_execution.md)；[P2 空间交战与目标绑定](p2_execution.md)；[P3 候选／冷却](p3_execution.md)；[P4 综合回归](p4_execution.md)；[P5 文档与审查](p5_execution.md)。
 - 关联审查：[目标选择、执行与交战逻辑审查](../../outputs/agent_target_execution_combat_review.md)
 - 修复设计：[生产文件职责、接口与修复方案](repair_design.md)。本文与修复设计共同构成当前方案。
 - 调查基线：`810c99d1224f7166f325d3e985e27929f0fe26c6`。执行时另记录实际提交、工作区文件哈希和测试配置哈希。
@@ -10,7 +10,7 @@
 
 ## 1. 问题、目标与验收标准
 
-目前 F1–F7 和 R1–R5 缺少真实运行的连续证据。用户已明确修复范围和行为要求，包括撤离受击反击后恢复、资源任务可被伤害中断、不可达提示、双方跨高低差远程索敌，以及 R4／R5 必须修复。静态判断仍须用运行证据验证，但不能再把已确认规则标成“待人工决定”。
+规划起点是 F1–F7 和 R1–R5 缺少真实运行的连续证据。用户明确要求撤离受击反击后恢复、资源任务可被伤害中断、不可达提示、双方跨高低差远程索敌，以及 R4／R5 修复。阶段结果见第 11 节及 [验收报告](../../outputs/implementation_validation_report.md)；以下第 6–7 节保留构造设计，实际参数矩阵以 cases.json 和最终报告为准。
 
 目标是由编码 Agent 执行完整工作链：
 
@@ -132,25 +132,25 @@ flowchart TD
 
 1. 解析 `ProjectVersion.txt`，按显式 `-UnityPath`、已安装编辑器目录等顺序寻找完全匹配版本，读取文件版本验证。
 2. 记录提交、dirty 状态、用例配置哈希；对待复制资源检查 Git LFS 指针缺失。环境不满足时输出 `ENVIRONMENT_ERROR`，不弹窗、不等待人工选择。
-3. 将当前工作区的 `Assets`、`Packages`、`ProjectSettings` 和测试配置复制到 `%TEMP%/AnomalySearch-AgentRepro/<run-id>/Project`；包括尚未提交的实现文件，排除 Library／Temp／Logs／构建产物。记录逐文件清单，复制前后确认源输入没有发生变化。
+3. 将 `Assets`、`Packages`、`ProjectSettings` 和 `tools/agent-repro` 镜像到带所有权标记和独占锁的 `D:/Unity-Projects/.agent-repro/AnomalySearch/Project`；包含尚未提交的实现文件，复用隔离 Library。逐文件记录 SHA256，运行前后确认源输入未变；每次 run-id 的证据独立保留。
 4. **只在副本中**设置专用 companyName／productName，例如 `AnomalySearch.Automation`／`AgentRepro_<run-id>`。随后检查运行时实际 persistentDataPath 与源产品路径不同，且归属于本次运行。测试不备份覆盖正式存档，也不对正式 PlayerPrefs 执行 DeleteAll。
-5. 启动预检与 Smoke；校验新测试确实被发现，进入／退出 Play Mode、NavMesh 与碰撞最小用例能运行，结果文件能写出。
+5. 按 suite 选择清单；Smoke 验证测试发现、进入／退出 Play Mode、NavMesh、碰撞和落盘。所有 suite 均含 Smoke，显式 Group 则仅运行该组。
 6. 按 Case Group 串行启动 Unity 测试进程；独立组之间可在上组崩溃后继续。默认不并行运行多个占用导航、静态状态和资源的测试进程。
 7. 为每组设置进程级墙钟期限；超时只回收启动器创建并记录身份的进程树。不得关闭其他项目的 Unity。
 8. 汇总所有预定 Case 的完成情况、NUnit XML 与证据文件；即使 Unity 未产出完整 XML，也为缺失用例生成未执行／中断记录。
-9. 校验源工程未被改变。默认保留失败工程副本与证据；成功副本可自动清理。任何递归清理都要验证绝对路径在本次 run-id 根内，且所有权标记匹配。
+9. 校验源工程未被改变。当前实现保留成功/失败副本及全部证据，不自动清除存档或缓存；下次仅镜像拥有目录中的输入文件。
 
 不依赖当前编辑器是否打开，不抢占当前场景。初次导入耗时单独记录，不计入行为观察窗口。复制快照的磁盘与导入成本是本方案用来换取隔离的明确代价。
 
 ### 4.2 每用例生命周期
 
-1. 从磁盘运行清单恢复 CaseId／输出路径，创建空场景；启用正常 Domain Reload／Scene Reload。
-2. 自动进入 Play Mode，随后重新读取上下文；不依赖跨重载的静态变量、非持久 SO 或旧 C# 对象引用。
+1. 从磁盘运行清单读取上下文并创建空场景；隔离副本启用 Scene Reload、禁用 Domain Reload。P1 曾复现重载导致测试协程未真正跑完，故采用此运行方式。
+2. 自动进入 Play Mode；每例显式初始化时间/seed/世界并检查最终完成标记，组之间另用新进程隔离。
 3. 创建 inactive staging root，在激活前配置唯一 AgentId、SO 副本、敌人配置、群成员及碰撞体；激活后等待真实 Awake／OnEnable／Start 完成。
 4. 校验注册数量、生命、目标身份、真实空间关系、资源非空、导航连通性等。任何一项不符合预期都停止该用例并报告准备错误。
 5. 执行刺激事件；使用公共生产接口。需要只读访问私有缓存时通过集中 Adapter，禁止直接写“目标已切换”“搜索已到达”等结果字段。
-6. 采样状态，达到证据条件或期限后输出 `case.json` 和 `trace.jsonl`，再执行 NUnit 断言，确保断言失败仍有证据。
-7. `UnityTearDown` 恢复 timeScale／fixedDeltaTime／随机状态，移除创建的 NavMeshData、对象和配置副本，退出 Play Mode。清理失败单独记录，不掩盖原始失败。
+6. 按步骤写 trace.jsonl 并执行 NUnit 断言；teardown 写 case.json，即使断言失败仍保留前面的轨迹。外层从最终 XML 生成 nunit-final.json。
+7. `UnityTearDown` 将 timeScale/fixedDeltaTime 置回夹具默认，移除本例导航、对象与 SO，退出 Play Mode；下例重新初始化 seed。源编辑器全局设置不参与此副本生命周期。
 
 无法完成 teardown 的硬崩溃由外部启动器接管；下一组使用新的 Unity 进程。普通断言失败依靠 Test Framework 继续执行同组其他用例。
 
@@ -164,17 +164,17 @@ flowchart TD
 - 默认固定随机种子；`-Repeat 3` 以同一输入重复三次，检查可重复性。额外种子矩阵另列参数，避免把不同输入混称为同一用例的重复运行。保留每次结果，失败后重试成功也记为不稳定，不覆盖原失败。
 - 不使用批处理不可靠的截图等待作为行为验收；`-nographics` 默认仅验证逻辑。VFX 依赖导致运行问题时报告环境／夹具问题，不能静默跳过核心逻辑。
 
-拟定默认硬期限：初次导入／编译 45 分钟、每组测试进程 15 分钟、单 Case 墙钟 120 秒。行为窗口另按配置计算，F5 默认观察 10 秒游戏时间；首次导入、准备和清理不占行为窗口。所有预算写入运行清单并允许显式覆盖；墙钟期限始终生效，不能通过反复续期形成无限等待。这些是保护预算，不是预计执行耗时。
+实际外层硬期限默认每组 2700 秒，包含导入/编译，可由 `-TimeoutSeconds` 覆盖。各行为使用 RuntimeWait 的短墙钟期限和明确游戏时间条件；Sentinel 正式 5 秒锁定另留足 20 秒观察预算。外层覆盖准备/清理卡死，内层覆盖游戏暂停等行为卡死，不能通过反复续期无限等待。
 
 ## 5. 结果语义与已确认行为契约
 
-每个 Case 同时输出三组结果：
+最初规划要求区分执行、症状和契约；实际实现按下表归属，不创建第二套通用症状判定器：
 
 | 维度 | 值 | 含义 |
 | --- | --- | --- |
-| execution | COMPLETED / SETUP_FAILED / TIMED_OUT / CRASHED / CLEANUP_FAILED / NOT_RUN | 样例是否有效执行完毕；未开始的预定用例也必须有记录 |
-| observation | REPRODUCED / NOT_REPRODUCED / INCONCLUSIVE | 是否观察到定义的症状；NOT_REPRODUCED 只针对本样例和窗口 |
-| contract | PASS / FAIL / UNSPECIFIED | 是否满足已选行为契约；本次用户已确认的规则不得用 UNSPECIFIED 跳过 |
+| execution | COMPLETED / SETUP_FAILED / CLEANUP_FAILED；缺失用例 TIMED_OUT / NOT_RUN | nunit-final.json 或 missing/ 记录，外层汇总环境完整性 |
+| observation | 复现、夹具前提错误、修复结果与局限 | 由编码 Agent 读取真实轨迹/断言后写入阶段文档与验收报告，不虚构自动分类字段 |
+| contract | PASS / FAIL；缺失记录 UNSPECIFIED | NUnit 最终结果是权威，缺失始终使整批失败，不能当作放宽契约 |
 
 运行模式：
 
@@ -183,7 +183,7 @@ flowchart TD
 
 NUnit XML 保留真实断言失败，不使用 Ignore／ExpectedFailure 把已知 Bug 隐藏。外层报告分别给出“执行是否完成”和“业务是否通过”。
 
-建议 CLI 退出码：`0` 表示当前模式的执行条件满足；`1` 为 Regression 行为失败／不稳定；`2` 为环境、夹具、崩溃、数据缺失或执行完整性错误；`3` 为 Regression 必需契约尚未确定。Diagnose 的 0 只代表有效诊断完成，报告必须同时显示发现多少问题，不能解释为无 Bug。
+实际 CLI 退出码：`0` 表示当前模式的执行条件满足；`1` 为 Regression 行为失败；`2` 为环境、准备/清理失败、结果缺失、超时或强制退出故障。所有产品契约已确认，不实现未决规则退出码 3。Diagnose 的 0 只代表有效诊断完成，不能解释为无 Bug。
 
 ### 5.1 按用户 Review 固定契约
 
@@ -279,15 +279,12 @@ NUnit XML 保留真实断言失败，不使用 Ignore／ExpectedFailure 把已�
 
 每组至少有前提与对照，并进入严格回归。F2／F6 的目标选择样例同时覆盖遮挡的 A 与可见的 B；不能只验证空间工具而遗漏控制器调用。
 
-## 8. 建议目录结构与文件职责
+## 8. 实际目录结构与文件职责
 
-以下为测试／运行工具的拟新增文件；生产修改、新目录和提示资产详见 [修复设计第 3 节](repair_design.md#3-分层目录与依赖)。本次实际改动仅规划与审查文档。暂不迁移业务程序集、不升级 Packages；测试副本的存档身份修改不回写正式 ProjectSettings。
+生产目录见 [修复设计](repair_design.md)，各阶段增补见 P0–P4 小规划。测试采用现有 Editor 程序集，不升级 Packages 或迁移业务程序集。以下为已落地文件，而非最初草案目录。
 
 ```text
 Assets/Scripts/Editor/AgentReproduction/
-├─ Model/
-│  ├─ ReproductionCase.cs
-│  └─ ReproductionResult.cs
 ├─ Infrastructure/
 │  ├─ TestRunContext.cs
 │  ├─ ReproductionTestFixture.cs
@@ -298,129 +295,119 @@ Assets/Scripts/Editor/AgentReproduction/
 │  ├─ TestNavMeshBuilder.cs
 │  ├─ AgentFactory.cs
 │  ├─ EnemyFactory.cs
-│  ├─ TargetFactory.cs
-│  ├─ InventoryFixture.cs
-│  └─ RaidFixture.cs
-├─ Observation/
-│  ├─ RuntimeSnapshot.cs
-│  └─ RuntimeTraceRecorder.cs
-├─ Assertions/
-│  ├─ ReproductionAssertions.cs
-│  └─ ReproductionEvidenceClassifier.cs
+│  └─ TargetFactory.cs
 ├─ Reporting/
 │  └─ CaseArtifactWriter.cs
 └─ Tests/
    ├─ HarnessSmokeTests.cs
-   ├─ CommandLifecycleTests.cs
-   ├─ CommandFeedbackTests.cs
-   ├─ PerceptionContractTests.cs
    ├─ F1ExtractionInterruptTests.cs
-   ├─ F2EnemyRetargetTests.cs
-   ├─ F3ManualResourceTests.cs
-   ├─ F4DiscoveryStabilityTests.cs
    ├─ F5UnreachableDirectiveTests.cs
-   ├─ F6PatrolPerceptionTests.cs
-   ├─ F7TotemCooldownTests.cs
-   ├─ NavigationInteractionRiskTests.cs
-   ├─ CombatGeometryRiskTests.cs
-   └─ DecisionInputRiskTests.cs
+   ├─ DirectiveLifecycleTests.cs
+   ├─ NavigationExecutionTests.cs
+   ├─ ResourceDisplacementTests.cs
+   ├─ CommandFeedbackTests.cs
+   ├─ CommandFeedbackGraphicsTests.cs
+   ├─ EnemyTargetBindingTests.cs
+   ├─ RangedSpatialTests.cs
+   ├─ PerceptionCandidateTests.cs
+   ├─ TargetDecisionTests.cs
+   ├─ CombatCooldownTests.cs
+   └─ CombinedRegressionTests.cs
 tools/agent-repro/
 ├─ Invoke-AgentRepro.ps1
 ├─ AgentRepro.Workspace.psm1
 ├─ AgentRepro.Report.psm1
+├─ Test-AgentReproReport.ps1
 ├─ cases.json
 ├─ contracts.json
 └─ README.md
 .planning/2026-09-11-agent-reproduction/
-├─ task_plan.md
-├─ repair_design.md
-└─ architecture_review.md       # 完成实现后生成
-Logs/AgentReproduction/<run-id>/ # 运行产物，已被现有 gitignore 排除
+├─ task_plan.md / repair_design.md / architecture_review.md
+└─ p0_execution.md … p5_execution.md
+outputs/
+├─ agent_target_execution_combat_review.md
+├─ implementation_validation_report.md
+├─ agent_repro_validation.json       # 最终逐例结果及原始证据哈希
+└─ feedback/                         # 原始渲染 PNG
+Logs/AgentReproduction/<run-id>/      # 忽略跟踪的完整原始证据
 ```
 
-### 8.1 每个文件独立存在的理由
+### 8.1 每个文件的职责与独立理由
 
-| 文件 | 职责／独立理由 |
+| 具体文件（测试路径相对 AgentReproduction） | 职责 / 独立理由 |
 | --- | --- |
-| Model/ReproductionCase.cs | Case、参数、预算、契约引用的 DTO；与具体场景及 NUnit 生命周期解耦 |
-| Model/ReproductionResult.cs | 三维结果、时间、证据索引、异常信息；统一报告格式 |
-| Infrastructure/TestRunContext.cs | 读取运行清单与输出位置，跨 Domain Reload 恢复上下文；不创建场景 |
-| Infrastructure/ReproductionTestFixture.cs | UnitySetUp／UnityTearDown、对象所有权与环境恢复；不放具体 Bug 步骤 |
-| Infrastructure/RuntimeFixtureAccess.cs | 序列化配置注入和必要私有字段只读访问；集中名称／类型校验，禁止零散反射 |
-| Infrastructure/RuntimeWait.cs | 条件等待、帧数与墙钟／游戏时间截止；不承担行为判定 |
-| World/TestWorldBuilder.cs | 空场景、地面、墙、staging root、对象清单；不负责导航算法 |
-| World/TestNavMeshBuilder.cs | 构建／移除本用例导航数据、验证初始连通性；隔离 NavMesh 生命周期 |
-| World/AgentFactory.cs | Agent 预制体、配置副本、唯一 ID 与组件激活顺序 |
-| World/EnemyFactory.cs | 正式敌人类型、配置副本和感知／攻击对照准备；统一类型差异 |
-| World/TargetFactory.cs | 真实资源／敌人／撤离群及成员装配；保证非空和有效身份 |
-| World/InventoryFixture.cs | 实际 Inventory／装备槽／物品的程序装配与公共操作，隔离 UI 依赖复杂度 |
-| World/RaidFixture.cs | 真实撤离流程准备、presence 驱动、结算完成观察；不复制结算算法 |
-| Observation/RuntimeSnapshot.cs | Agent、Enemy、导航、生命与指令的只读采样结构 |
-| Observation/RuntimeTraceRecorder.cs | 采样节奏、事件时间线与逐步落盘；不决定测试结果 |
-| Assertions/ReproductionAssertions.cs | 已确认契约和共用不变量；失败信息必须包含证据索引 |
-| Assertions/ReproductionEvidenceClassifier.cs | 从轨迹识别振荡、覆盖、无进展、过早施法等症状；与 PASS／FAIL 分开 |
-| Reporting/CaseArtifactWriter.cs | 写单用例 JSON、轨迹与元数据，断言前及清理后均可更新；不汇总整个批次 |
-| Tests/HarnessSmokeTests.cs | 发现／重载／配置激活／存档隔离／导航／碰撞／落盘的基础验收 |
-| Tests/CommandLifecycleTests.cs | 挂起／恢复、取消、重复受击、旧 CommandId 延迟回调不覆盖新命令 |
-| Tests/CommandFeedbackTests.cs | 指令结果、原因文字、顶部位置、去重、淡入淡出与暂停下动画 |
-| Tests/PerceptionContractTests.cs | 三维距离、水平视角、射线遮挡、自身／目标／Trigger 过滤和高度边界 |
-| Tests/F1ExtractionInterruptTests.cs | F1 场景、刺激、窗口和对照 |
-| Tests/F2EnemyRetargetTests.cs | F2 敌人参数化、死亡与实际撤离变体 |
-| Tests/F3ManualResourceTests.cs | F3 允许有效伤害中断、仅可见不打断及旧锁释放 |
-| Tests/F4DiscoveryStabilityTests.cs | F4 固定空间布局和连续扫描稳定性 |
-| Tests/F5UnreachableDirectiveTests.cs | F5 静态不连通、动态阻断、解除阻断对照 |
-| Tests/F6PatrolPerceptionTests.cs | F6 多 Agent 视野候选与单目标对照 |
-| Tests/F7TotemCooldownTests.cs | F7 属性刷新、装备链和冷却时间验证 |
-| Tests/NavigationInteractionRiskTests.cs | R1／R5，复用导航与交互夹具，分别独立 Case |
-| Tests/CombatGeometryRiskTests.cs | R2／R3，复用墙体、弹道和碰撞证据 |
-| Tests/DecisionInputRiskTests.cs | R4 候选、风险与实际属性输入 |
-| tools/agent-repro/Invoke-AgentRepro.ps1 | 参数解析、串行调度、进程期限、完整性判定和退出码 |
-| tools/agent-repro/AgentRepro.Workspace.psm1 | 版本定位、源快照、LFS 检查、存档隔离、路径所有权与清理 |
-| tools/agent-repro/AgentRepro.Report.psm1 | 合并 XML／case JSON、识别缺失用例、汇总重复运行并生成 Markdown |
-| tools/agent-repro/cases.json | CaseId、参数、类别、种子、期限、依赖与预期数量；不包含测试算法 |
-| tools/agent-repro/contracts.json | 本次已确认行为契约与用户 Review 依据；建议数值参数另标来源 |
-| tools/agent-repro/README.md | 一条命令用法、结果字段、环境错误与重跑方式 |
-| 本 task_plan.md | 架构、范围和各阶段实施结果的权威记录 |
-| repair_design.md | 生产修复具体文件、接口、依赖和行为方案 |
-| architecture_review.md | 实现完成后的边界、依赖、可重复性及资源清理审查记录 |
+| Infrastructure/TestRunContext.cs | 读取隔离运行标识、输出目录、组、repeat、seed、图形/故障探针；不创建世界 |
+| Infrastructure/ReproductionTestFixture.cs | 自动进入/退出 Play Mode、环境与对象收尾、用例最终完成检查点 |
+| Infrastructure/RuntimeFixtureAccess.cs | 仅测试配置注入及私有字段只读观察，字段找不到即失败；不调用私有业务流程 |
+| Infrastructure/RuntimeWait.cs | 条件同步与墙钟期限；不替代行为断言 |
+| World/TestWorldBuilder.cs | 对象/SO 所有权、墙体、staging 与释放 |
+| World/TestNavMeshBuilder.cs | 实际平地、坡面、多岛 NavMesh 构建及生命周期 |
+| World/AgentFactory.cs | 正式 Agent prefab 的激活前配置副本、ID、注册/NavMesh 前提 |
+| World/EnemyFactory.cs | 七种正式敌人及被动受击对照，按 prefab 布局准备而非模拟 AI |
+| World/TargetFactory.cs | 真实资源/敌人/撤离群及成员装配 |
+| Reporting/CaseArtifactWriter.cs | 逐步 JSONL、即时 case JSON、真实渲染 PNG；最终 NUnit 结论由外层汇总 |
+| Tests/HarnessSmokeTests.cs | 实际运行态、导航/物理、存档隔离与故障探针 |
+| Tests/F1ExtractionInterruptTests.cs | 撤离反击恢复及无伤害对照 |
+| Tests/F5UnreachableDirectiveTests.cs | 静态不连通时拒绝指令 |
+| Tests/DirectiveLifecycleTests.cs | 重复伤害、旧 ID、替换、取消/死亡、资源伤害打断 |
+| Tests/NavigationExecutionTests.cs | 平地/坡面零与小容差、导航丢失、无进展和拒绝替换 |
+| Tests/ResourceDisplacementTests.cs | 实际背包打开、位移、远处关闭与返回交互 |
+| Tests/CommandFeedbackTests.cs | 正式反馈结果和暂停下消退 |
+| Tests/CommandFeedbackGraphicsTests.cs | 正式 prefab 的字体、锚点、成功/失败/半透明/消失 PNG |
+| Tests/EnemyTargetBindingTests.cs | 正式控制器目标失效、同源接收器、巡逻扫描和场景根回归 |
+| Tests/RangedSpatialTests.cs | 双方高低差、动态墙体及三类弹体的正反对照 |
+| Tests/PerceptionCandidateTests.cs | 完整候选、范围、遮挡、不可执行敌人与范围技能 |
+| Tests/TargetDecisionTests.cs | 成员距离稳定性、实际防御、唯一风险集合、远处可达撤离 |
+| Tests/CombatCooldownTests.cs | 属性/配置及真实图腾装备刷新、技能重排、普攻重入 |
+| Tests/CombinedRegressionTests.cs | 实际撤离与换人伤害、多 Agent 独立恢复、动态断路、无效输入、护盾、枪口和配置缺失 |
+| tools/agent-repro/Invoke-AgentRepro.ps1 | 参数、串行组/重复、拥有进程、硬期限与结束完整性 |
+| tools/agent-repro/AgentRepro.Workspace.psm1 | 版本、LFS、文件哈希、所有权及独占锁、镜像与存档隔离 |
+| tools/agent-repro/AgentRepro.Report.psm1 | 原始 NUnit 解析、清单缺失检查、nunit-final、汇总与退出码 |
+| tools/agent-repro/Test-AgentReproReport.ps1 | 独立 XML/退出码/缺失故障构造，验证报告不会掩盖异常 |
+| tools/agent-repro/cases.json | 组、suite、filter、完整预期测试名和 graphics；不复制测试算法 |
+| tools/agent-repro/contracts.json | 用户已确认的产品规则与来源 |
+| tools/agent-repro/README.md | 已实现命令、数量、隔离、证据与故障判读 |
+| task_plan.md / repair_design.md / p0_execution.md–p5_execution.md | 总体范围、生产边界、阶段设计调整和实际运行 |
+| architecture_review.md / outputs/implementation_validation_report.md | 最终边界审查、行为到证据映射、完整验收统计与局限 |
 
-新增 Unity 文件配套 `.meta` 由匹配版本编辑器生成并随实现保留；不创建源工程内的永久测试关卡。正式指令提示预制体属于产品资产，需要落到源工程。暂不新增 `.asmdef`。`outputs/agent_target_execution_combat_review.md` 已增加规则变更说明，获得运行证据后再更新修复结论与报告链接。
+最初草案中的 Model DTO、Observation、通用 Assertions/EvidenceClassifier 未另建：NUnit 作为断言权威，TestRunContext/cases.json 保存输入，CaseArtifactWriter 记录实际轨迹，外层报告核对最终结论，避免第二套判定器。InventoryFixture/RaidFixture 未抽成单例工具：专属装配暂在使用它们的测试中，实际业务仍走 EquipmentSlotUI/RaidFlowController 公开接口。测试按子系统归并，F2/F6 共用 EnemyTargetBindingTests，F3 在 Lifecycle，F4/R4 在 Decision，F7 在 Cooldown，不按问题编号复制工厂和文件。
 
-## 9. 关键接口、数据流与输出
+P4 Review 补建 `Assets/Scripts/Gameplay/Agent/Targeting/AgentTargetFailureMemory.cs`，把短期失败缓存与成员收集算法分开；生命周期只发布结果，Discovery/Decision 通过 Collector 管理订阅，业务不反向依赖测试。
 
-接口意图如下，具体签名在实现阶段按相同职责收敛：
+Unity 新文件均保留 .meta；不创建永久测试关卡，正式顶部提示 prefab 属于产品资产。以上是阶段实现后的收敛，不表示所有最初拟定文件都已创建。
+
+## 9. 实际接口、控制流与输出
 
 | 接口 | 输入 → 输出 | 约束 |
 | --- | --- | --- |
-| TestRunContext.Load | run manifest + CaseId → 配置、契约、输出目录 | 重载后可恢复，读取失败即环境错误 |
-| AgentFactory.Create / EnemyFactory.Create | 预制体／配置副本 + 布局 → 真实组件句柄 | 不返回替代 AI 实现 |
-| TargetFactory.CreateResourceCluster | 成员定义 → 真实群与非空资源 | 不伪造完成状态或缓存中心 |
-| RuntimeFixtureAccess.Configure | 测试对象 + 已知字段 → 校验过的实例配置 | 不修改项目资产；找不到字段不吞异常 |
-| RuntimeWait.Until | 条件 + 游戏时间／墙钟预算 → 条件满足或有证据的期限错误 | 不无限等待 |
-| RuntimeSnapshot.Capture | 当前实际对象 → 不可变采样 DTO | 不影响选目标、状态或导航 |
-| ReproductionEvidenceClassifier.Evaluate | Case 规则 + 轨迹 → 症状结果与证据区间 | 不以“预期有 Bug”为通过标准 |
-| CaseArtifactWriter.Write | 结果 + 轨迹索引 → 原子更新的 case.json | 出错前保留已有轨迹；不覆盖其他 Case |
-
-每次运行至少输出：
+| TestRunContext.Load | .agent-repro-run.json → 运行上下文 | 缺失即拒绝，防止误在源工程直接跑 |
+| AgentFactory.Create / EnemyFactory.Formal | 正式 prefab + 配置副本 + 布局 → 实际组件 | 激活前配置，随后校验注册和导航 |
+| TargetFactory.Resources / Enemies / Extraction | 世界与实体 → 实际 Authoring 群 | 使用真实成员与 Registry |
+| RuntimeFixtureAccess.Configure / Read | 已知对象和字段 → 配置或只读值 | 不篡改目标选择、指令终态及伤害结果 |
+| RuntimeWait.Until | 条件、阶段说明、墙钟预算 → 满足或失败 | 游戏时间窗口在条件中表达，墙钟始终约束等待 |
+| CaseArtifactWriter.Trace / Complete / Capture | 实际事件、NUnit 当前状态、Camera → JSONL/JSON/PNG | 逐步落盘、隔离目录、恢复渲染状态 |
+| Write-AgentReproReport | 组预期与 XML → 最终逐例/汇总文件 | NUnit 最终结论优先于 teardown 中的即时状态 |
 
 ```text
 Logs/AgentReproduction/<run-id>/
-├─ manifest.json         # 源提交、dirty 文件清单、哈希、Unity/包版本、种子、运行模式
-├─ summary.json          # execution / observation / contract 分项统计、覆盖率
-├─ report.md             # 按 F/R 编号汇总，链接原始证据与重跑命令
-├─ groups/<group-id>/
+├─ manifest.json                 # commit、dirty、源文件 SHA256、Unity、组
+├─ summary.json / report.md       # 实际总数、失败、缺失、超时、模式退出码
+├─ groups/<group>-<repeat>/
 │  ├─ Editor.log
-│  └─ test-results.xml   # NUnit 原始结果，不伪造“全绿”
-└─ cases/<case-id>/<repeat>/
-   ├─ case.json          # 前提、刺激、契约状态、实际结果、异常与清理情况
-   └─ trace.jsonl        # frame/time、指令、事实、锁、宏状态、导航、目标引用、HP
+│  └─ test-results.xml            # 原始 NUnit 结果
+├─ missing/<group>-<repeat>/      # 若有缺失，生成未执行/超时证据
+└─ cases/<完整测试名 SHA256 前16位>/<repeat>/
+   ├─ case.json                  # 生命周期内即时结果，不覆盖最终 XML
+   ├─ nunit-final.json           # 最终 execution / contract / message
+   ├─ trace.jsonl                # 各测试按需记录实际状态和步骤
+   └─ *.png                      # 仅图形用例
 ```
 
-报告必须区分：已执行／计划总数、已确认契约通过率、复现数量、未定规则、前提失败、超时与不稳定数量。禁止只展示“已执行且成功的子集”。
+报告保留所有重复及失败。没有另行自动推导所有症状的 observation 分类器：是否复现及根因由编码 Agent 结合前提、轨迹、原始断言写入验收报告；不以推测填充已复现数量。
 
-## 10. 拟定命令与无人值守体验
+## 10. 已实现命令与无人值守体验
 
-以下是**拟实现接口**，当前脚本尚不存在；实现后由编码 Agent 主动运行，不要求用户自行执行：
+以下入口已实现并由编码 Agent 实际运行，不要求用户自行执行：
 
 ```powershell
 # 默认：匹配编辑器、隔离工作区、诊断全部 F1–F7
@@ -433,20 +420,20 @@ Logs/AgentReproduction/<run-id>/
 ./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Diagnose -Suite Core -Repeat 3
 
 # 针对单组重跑
-./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Diagnose -Group F2
+./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Diagnose -Group EnemyTargets
 
 # 已确认契约的修复后回归
 ./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Suite Core
 
 # 全部修复项，包含 R1–R5 以及真实图形模式提示检查
-./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Suite All -IncludeGraphics
+./tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Suite All -Repeat 3
 ```
 
 内部调用 Unity 采用参数数组，包含 `-batchmode -nographics -runTests -testPlatform EditMode -testFilter ... -testResults ... -logFile ...`。不使用 `-runSynchronously`，它会过滤需要多帧的 UnityTest；不附加会让异步测试提前退出的 `-quit`。测试结束由 Test Framework 正常收尾，进程期限由外部脚本兜底。
 
 Windows 后台启动使用隐藏窗口。自定义配置通过启动器生成的运行清单传入，避免长命令行拼接或把测试逻辑塞进 shell 字符串。
 
-`-IncludeGraphics` 单独启动去掉 `-nographics` 的 UI 组，自动保存淡入／显示／淡出截图并记录图形环境。Agent 读取图片完成视觉检查；逻辑组继续使用无图形模式。图形组失败必须由 Agent 查日志、检查环境或修正 UI 后重跑，不能让用户手动验证后补一个“通过”。
+Graphics 组依清单自动去掉 `-nographics` 并保存显示/消退图片，逻辑组默认无图形；`-IncludeGraphics` 可强制全部选中组保留渲染。Agent 读取图片检查，图形失败由 Agent 定位重跑，不让用户手动验证后补“通过”。
 
 不得用后一次成功覆盖前一次失败；不得把环境失败当作“需要人点一下”的隐式步骤。报告应直接说明需要修复的环境条件和已完成的其他用例。
 
@@ -465,33 +452,33 @@ Windows 后台启动使用隐藏窗口。自定义配置通过启动器生成的
 - 修复：修复设计中的 Commands／Navigation、新结果接口、对应动作节点及 Presentation／正式提示预制体。
 - 验收：反击结束恢复原撤离，新命令／死亡正确取消；资源可被有效受击打断；不可达拒绝或执行失败释放锁；零容差可达时完成；位移后重新靠近；成功／失败原因和淡入淡出正确。
 - 本阶段远程“可原地攻击则不要求步行到达”的校验入口先固定接口，P2 接入完整空间查询后完成上下层场景验收。
-- **实施结果：未开始。**
+- **实施结果：已完成并提交 `1700e67`。指令、导航、资源位移与反馈定向验证通过，详见 [P1](p1_execution.md)。**
 
 ### P2：敌人候选、身份绑定、感知与三维远程（F2、F6、R2、R3）
 
 - 复现：死亡／销毁绑定残留、巡逻漏 B、墙体和高差射击、被拒绝发射后的直伤兜底。
 - 修复：共用 Perception、EnemyTargetSelector／Binding、七类敌人控制器、Agent 交战／发射、三类弹体与技能空间约束。
 - 验收：有效目标能重绑且接收器同源；可见 B 被扫描到；双方无遮挡高差远程命中，墙体／楼板／射程有效；飞行中插墙和薄墙也不穿透；失败发射不转成直接伤害。连同 P1 指令验收重跑。
-- **实施结果：未开始。**
+- **实施结果：已完成并提交 `26512c9`。七类敌人目标绑定、感知和三维交战通过；扩展矩阵见 P4，详见 [P2](p2_execution.md)。**
 
 ### P3：目标选择、评分和战斗运行状态（F4、R4、F7）
 
 - 复现：成员／中心距离振荡、默认防御／风险漏计／撤离缺失、换装提前施法。
 - 修复：Agent Targeting 候选、Discovery／Decision 接入、实际防御和撤离兜底、CombatController 属性与运行状态分离。
 - 验收：固定输入连续六次扫描稳定；风险人数和防御一致；远处合法撤离可用；真实换装不清空冷却，状态重入不重置普通攻击间隔；已失效目标不会被旧评分结果重新提交。
-- **实施结果：未开始。**
+- **实施结果：已完成并提交 `e86513b`。成员候选/评分 4 例、冷却 5 例通过；真实装备和 Review 边界在 P4 继续补充，详见 [P3](p3_execution.md)。**
 
 ### P4：全量回归、重复性与图形证据
 
 - 交付：F1–F7／R1–R5 全部参数矩阵、正式提示截图、多 Agent 连续受击与动态路径变化组合、重复运行汇总。
 - 验收：所有已确认契约通过；同种子重复三次稳定；原配置与生成夹具结果一致；游戏暂停下提示仍能消退；图形证据由 Agent 检查。任何失败由 Agent 继续定位和修复，不能用重试覆盖。
-- **实施结果：未开始。**
+- **实施结果：已完成并提交 `c840e20`。** 原 71 例三轮证据保留；Review 补齐失败候选缓存、重复 SkillId 和恢复点失效。最终 75 例三轮 225/225 通过，0 失败/缺失/超时，见 [P4](p4_execution.md)。
 
 ### P5：验收、文档回写与架构审查
 
 - 交付：运行说明、完整诊断报告、审查文档的证据更新、本规划各阶段实际结果和 `architecture_review.md`。
 - 验收：复现、定位、代码修复、回归和报告均由 Agent 完成；测试无源工程输入／正式存档残留修改，修复 diff 均在计划内；所有计划 Case 有状态；未复现或被新规则改变的审查结论明确修正；无业务对测试代码依赖。
-- **实施结果：未开始。**
+- **实施结果：已完成。** README、两份系统文档、原审查、实际文件清单和阶段结果已更新；逐例结果、证据哈希、正式 HUD PNG 已保存，架构/链接/元数据审查通过，见 [P5](p5_execution.md)。
 
 修复前基线允许且应如实揭示失败；最终完成要求已确认行为的修复后回归通过，或者明确报告仍未完成的具体问题，不能以“工具已能复现”替代修复交付。各阶段由 Agent 按证据循环推进，无需用户运行 Play Mode。
 
@@ -510,15 +497,15 @@ Windows 后台启动使用隐藏窗口。自定义配置通过启动器生成的
 | 导航／物理浮点和帧率差异 | 条件同步、明确容差、稳定采样与重复运行 | 平台参数单列；不通过反复重试直到通过隐藏不稳定 |
 | 模式退出码被误读 | 报告与 CLI 分别显示运行完成、发现问题、回归结论 | CI 只用 Regression 作质量门禁 |
 
-## 13. 已确认范围与待 Review 的新增架构
+## 13. 已确认范围与架构
 
 用户已确认第 5.1 节的行为与实际修复目标；不再重复征询这些规则，也不要求用户执行 Play Mode。
 
-本次新增需 Review 的目录、文件、接口和依赖，已在 [修复设计](repair_design.md) 逐项列明：
+本次目录、文件、接口和依赖已在 [修复设计](repair_design.md) 列明并获得用户确认：
 
 1. `Agent/Commands` 统一任务生命周期与撤离恢复，扩展 CommandReceiver 的提交结果与终态接口。
 2. `Agent/Navigation` 承接现有 Action 基类的导航职责，并共用预检／执行规则。
 3. `Gameplay/Perception` 提供双方空间检测；Agent Targeting 与 Enemy 保留各自选择策略。
 4. `Targets/Presentation` 仅订阅结果，新增正式顶部提示预制体。
 
-测试继续使用 Editor 目录与现有 Test Framework，不调整业务程序集；隔离副本只服务运行安全与可重复性。根据用户提供的 AGENTS.md，新增架构先提交 Review，确认后由 Agent 连续实施各阶段的复现、修复与回归。最终将职责、依赖、反射边界、重复逻辑、结果真实性和资源清理审查写入同目录 `architecture_review.md`。
+测试使用 Editor 目录与现有 Test Framework，不调整业务程序集；隔离副本用于真实自动运行。用户已授权按小规划持续实现、测试、审查、调整并提交。最终职责、依赖、反射边界、重复逻辑、结果真实性和资源清理审查位于 `architecture_review.md`。
