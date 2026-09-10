@@ -368,7 +368,7 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
             return;
         }
 
-        if (distanceToPlayer > GetCurrentAttackHoldRange())
+        if (distanceToPlayer > GetCurrentAttackHoldRange() || !EnemyVisionUtility.HasLineOfSight(VisionTransform, PlayerTransform, LineOfSightBlockMask, EyeHeight, TargetHeight))
         {
             StopTentacleAttack();
             CurrentState = EnemyState.Chase;
@@ -557,6 +557,9 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
         {
             return;
         }
+
+        if (Gameplay.Perception.TargetVisibilityQuery.Check(transform, transform.position + Vector3.up * EyeHeight,
+            damageReceiver.DamageRootTransform, GetCurrentAttackHoldRange()) != Gameplay.Perception.TargetVisibilityResult.Visible) return;
 
         _combatDamageReceiver = damageReceiver;
         _agentHealthController = damageReceiver as Gameplay.Agent.Core.AgentHealthController;
@@ -1136,72 +1139,39 @@ public class ModernStranderBehaviorController : MonoBehaviour, IEnemyVisionSourc
 
     private bool EnsurePlayerReferences()
     {
-        if (PlayerTransform == null)
-        {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
-        }
-
-        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
-        {
-            return true;
-        }
-
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer) &&
-            AssignCombatTarget(currentPlayer))
-        {
-            return true;
-        }
-
-        return false;
+        if (CurrentState == EnemyState.Patrol && EnemyTargetSelector.TrySelectVisible(
+            VisionTransform, DetectionRange, ViewAngle, LineOfSightBlockMask, EyeHeight, out Transform visible))
+            return AssignCombatTarget(visible);
+        if (AssignCombatTarget(PlayerTransform)) return true;
+        return EnemyTargetSelector.TrySelectNearest(transform, out Transform next) && AssignCombatTarget(next);
     }
 
     private bool AssignCombatTarget(Transform target)
     {
-        if (target == null)
+        bool valid = EnemyCombatTargetBinding.TryCreate(target, out var binding);
+        if (!ReferenceEquals(PlayerTransform, null) && (!valid || PlayerTransform != binding.Target))
         {
+            StopTentacleAttack();
+            CurrentState = EnemyState.Patrol;
+        }
+        if (!valid)
+        {
+            PlayerTransform = null;
+            _combatDamageReceiver = null;
+            _playerMovementController = null;
+            _externalMovementReceiver = null;
+            _agentHealthController = null;
+            _playerBodyCollider = null;
             return false;
         }
-
-        PlayerTransform = target;
-        PlayerTargetResolver.TryGetAgentHealth(target, out _agentHealthController);
-        _playerBodyCollider = ResolveTargetBodyCollider(target);
-
-        _playerMovementController = target.GetComponent<PlayerMovementController>();
-        if (_playerMovementController == null)
-        {
-            _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
-        }
-
-        IgnorePlayerBodyCollision(target);
-
-        _externalMovementReceiver = target.GetComponent<IExternalMovementReceiver>();
-        if (_externalMovementReceiver == null)
-        {
-            _externalMovementReceiver = target.GetComponentInParent<IExternalMovementReceiver>();
-        }
-
-        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
-        {
-            _combatDamageReceiver = receiver;
-            if (receiver.DamageRootTransform != null)
-            {
-                PlayerTransform = receiver.DamageRootTransform;
-                Collider receiverCollider = ResolveTargetBodyCollider(PlayerTransform);
-                if (receiverCollider != null)
-                {
-                    _playerBodyCollider = receiverCollider;
-                    IgnorePlayerBodyCollision(_playerBodyCollider);
-                }
-
-                _externalMovementReceiver = ResolveExternalMovementReceiver(receiver, _playerMovementController);
-            }
-
-            return true;
-        }
-
-        _combatDamageReceiver = null;
-        _playerBodyCollider = null;
-        return false;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
+        _playerMovementController = binding.Target.GetComponent<PlayerMovementController>();
+        _externalMovementReceiver = binding.MovementReceiver;
+        PlayerTargetResolver.TryGetAgentHealth(binding.Target, out _agentHealthController);
+        _playerBodyCollider = ResolveTargetBodyCollider(binding.Target);
+        IgnorePlayerBodyCollision(_playerBodyCollider);
+        return true;
     }
 
     private void IgnorePlayerBodyCollision(Transform target)

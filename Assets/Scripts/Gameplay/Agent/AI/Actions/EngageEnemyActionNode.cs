@@ -67,11 +67,17 @@ namespace Gameplay.Agent.AI.Actions
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             bool canFire = TargetVisibilityQuery.Check(agent.CachedTransform, CombatAimPointResolver.Resolve(agent.CachedTransform),
                 enemyHealthController.transform, attackRange) == TargetVisibilityResult.Visible;
+            AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
+            bool muzzleClear = shooter != null && shooter.CanShootAt(enemyHealthController, attackRange);
+            canFire = canFire && muzzleClear;
             if (!canFire)
             {
-                if (_lostSightSince < 0d) _lostSightSince = context.TimeSeconds;
+                bool observed = context.Blackboard.TryGetValue(AgentBlackboardKeys.HasVisibleEnemy, out bool visible) && visible;
+                bool obstructed = shooter != null && shooter.LastShotResult == TargetVisibilityResult.Occluded;
+                if (observed && !obstructed) _lostSightSince = -1d;
+                else if (_lostSightSince < 0d) _lostSightSince = context.TimeSeconds;
                 float timeout = agent is Gameplay.Agent.Core.AgentPawnRoot pawn ? pawn.CombatLostSightTimeout : 2f;
-                if (context.TimeSeconds - _lostSightSince >= timeout)
+                if (_lostSightSince >= 0d && context.TimeSeconds - _lostSightSince >= timeout)
                 {
                     FailPendingDirective(context, AgentDirectiveFailure.LostSight);
                     return Succeed();

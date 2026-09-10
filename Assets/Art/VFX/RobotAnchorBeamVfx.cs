@@ -816,6 +816,7 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         particleObject.layer = gameObject.layer;
 
         ParticleSystem particleSystem = particleObject.AddComponent<ParticleSystem>();
+        particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ParticleSystem.MainModule main = particleSystem.main;
         main.loop = true;
         main.duration = 1f;

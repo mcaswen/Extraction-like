@@ -26,7 +26,8 @@ namespace Gameplay.Agent.Combat
             AgentCombatSkillModifiers skillModifiers = default,
             bool playPrototypeSkillVfx = false,
             bool suppressConfiguredSkillVfx = false,
-            float prototypeSkillVfxRangeScale = 1f)
+            float prototypeSkillVfxRangeScale = 1f,
+            float castRange = -1f)
         {
             CasterTransform = casterTransform;
             StyleConfig = styleConfig;
@@ -37,12 +38,14 @@ namespace Gameplay.Agent.Combat
             PlayPrototypeSkillVfx = playPrototypeSkillVfx;
             SuppressConfiguredSkillVfx = suppressConfiguredSkillVfx;
             PrototypeSkillVfxRangeScale = Mathf.Max(0.01f, prototypeSkillVfxRangeScale);
+            CastRange = castRange >= 0f ? castRange : styleConfig != null ? styleConfig.NormalAttackRange : 30f;
         }
 
         /// <summary>
         /// 技能施法者 Transform
         /// </summary>
         public Transform CasterTransform { get; }
+        public float CastRange { get; }
 
         /// <summary>
         /// 技能来源对象

@@ -177,7 +177,8 @@ namespace Gameplay.Agent.Combat
                 skillModifiers,
                 _playPrototypeSkillVfx,
                 _suppressConfiguredSkillVfx,
-                _prototypeSkillVfxRangeScale);
+                _prototypeSkillVfxRangeScale,
+                AttackRange);
         }
 
         private void RebuildRuntimeSkills()

@@ -298,7 +298,7 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
 
     private void AttackBehavior(float distanceToPlayer)
     {
-        if (distanceToPlayer > AttackRange)
+        if (distanceToPlayer > AttackRange || !EnemyVisionUtility.HasLineOfSight(transform,PlayerTransform,LineOfSightBlockMask,EyeHeight,TargetHeight))
         {
             CurrentState = EnemyState.Chase;
             SetAgentStopped(false);
@@ -604,47 +604,30 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
 
     private bool EnsurePlayerReferences()
     {
-        if (PlayerTransform == null)
-        {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
-        }
-
-        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
-        {
-            return true;
-        }
-
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer) &&
-            AssignCombatTarget(currentPlayer))
-        {
-            return true;
-        }
-
-        return false;
+        if (CurrentState == EnemyState.Patrol && EnemyTargetSelector.TrySelectVisible(
+            VisionTransform, DetectionRange, ViewAngle, LineOfSightBlockMask, EyeHeight, out Transform visible))
+            return AssignCombatTarget(visible);
+        if (AssignCombatTarget(PlayerTransform)) return true;
+        return EnemyTargetSelector.TrySelectNearest(transform, out Transform next) && AssignCombatTarget(next);
     }
 
     private bool AssignCombatTarget(Transform target)
     {
-        if (target == null)
+        bool valid = EnemyCombatTargetBinding.TryCreate(target, out var binding);
+        if (!ReferenceEquals(PlayerTransform, null) && (!valid || PlayerTransform != binding.Target))
         {
+            _attackTimer = 0f;
+            CurrentState = EnemyState.Patrol;
+        }
+        if (!valid)
+        {
+            PlayerTransform = null;
+            _combatDamageReceiver = null;
             return false;
         }
-
-        PlayerTransform = target;
-
-        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
-        {
-            _combatDamageReceiver = receiver;
-            if (receiver.DamageRootTransform != null)
-            {
-                PlayerTransform = receiver.DamageRootTransform;
-            }
-
-            return true;
-        }
-
-        _combatDamageReceiver = null;
-        return false;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
+        return true;
     }
 
     private void OnDrawGizmosSelected()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Gameplay.SkillEffect;
+using Gameplay.Perception;
 using UnityEngine;
 
 namespace Gameplay.Agent.Combat
@@ -91,16 +92,22 @@ namespace Gameplay.Agent.Combat
         /// <param name="hitPosition"></param>
         /// <param name="sourceType"></param>
         /// <param name="statusEffect"></param>
-        public static void ApplyDamageAndStatus(
+        public static bool ApplyDamageAndStatus(
             global::EnemyHealthController enemyHealth,
             float damage,
             AgentCombatSkillContext context,
             Vector3 hitPosition,
             global::EnemyDamageSourceType sourceType,
-            AgentCombatStatusEffectDefinition statusEffect)
+            AgentCombatStatusEffectDefinition statusEffect,
+            Vector3? effectOrigin = null)
         {
             if (enemyHealth == null || damage <= 0f)
-                return;
+                return false;
+
+            Vector3 origin = effectOrigin ?? CombatAimPointResolver.Resolve(context.CasterTransform);
+            if (!enemyHealth.IsAlive || !TargetVisibilityQuery.ClearSegment(context.CasterTransform, enemyHealth.transform,
+                    origin, CombatAimPointResolver.Resolve(enemyHealth.transform),
+                    ignore: effectOrigin.HasValue ? IsEnemyBody : (System.Predicate<Collider>)null)) return false;
 
             Vector3 sourcePosition = context.Position;
             global::EnemyDamageContext damageContext = global::EnemyDamageContext.FromAttacker(
@@ -112,7 +119,11 @@ namespace Gameplay.Agent.Combat
 
             enemyHealth.TakeDamage(damage, damageContext);
             statusEffect.ApplyTo(enemyHealth, context.SkillModifiers.SlowDurationBonusSeconds);
+            return true;
         }
+
+        // Area effects are blocked by cover, not by the body at the impact center.
+        private static bool IsEnemyBody(Collider collider) => collider.GetComponentInParent<global::EnemyHealthController>() != null;
 
         /// <summary>
         /// 解析技能目标位置，缺少显式目标时落在施法者前方

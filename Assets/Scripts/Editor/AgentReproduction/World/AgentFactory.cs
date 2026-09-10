@@ -1,6 +1,7 @@
 using AgentReproduction.Infrastructure;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.SO;
+using Gameplay.Agent.Combat;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace AgentReproduction.World
 {
     public static class AgentFactory
     {
-        public static AgentPawnRoot Create(TestWorldBuilder world, string id, Vector3 position, float moveSpeed=0, bool discovery=false)
+        public static AgentPawnRoot Create(TestWorldBuilder world, string id, Vector3 position, float moveSpeed=0, bool discovery=false, bool skills=true)
         {
             GameObject prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PlayerPrefab/Agent.prefab");
             Assert.That(prefab,Is.Not.Null);
@@ -23,6 +24,12 @@ namespace AgentReproduction.World
             RuntimeFixtureAccess.Configure(config,"_moveSpeed",moveSpeed);
             RuntimeFixtureAccess.Configure(config,"_maxHealth",10000);
             RuntimeFixtureAccess.Configure(config,"_defense",0f);
+            if (!skills && config.CombatStyleConfig != null)
+            {
+                var style=world.Own(Object.Instantiate(config.CombatStyleConfig));
+                RuntimeFixtureAccess.Configure(style,"_skills",new AgentCombatSkillConfigBase[0]);
+                RuntimeFixtureAccess.Configure(config,"_combatStyleConfig",style);
+            }
             RuntimeFixtureAccess.Configure(pawn,"_pawnConfig",config);
             Assert.That(pawn.TryAssignAgentId(id),Is.True);
             pawn.transform.position=position;

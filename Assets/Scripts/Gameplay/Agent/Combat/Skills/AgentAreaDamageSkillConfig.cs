@@ -110,14 +110,14 @@ namespace Gameplay.Agent.Combat
                 if (enemyHealth == null)
                     continue;
 
-                hitAnyTarget = true;
-                AgentCombatSkillUtility.ApplyDamageAndStatus(
+                hitAnyTarget |= AgentCombatSkillUtility.ApplyDamageAndStatus(
                     enemyHealth,
                     damage,
                     context,
                     enemyHealth.transform.position,
                     global::EnemyDamageSourceType.Magic,
-                    _config.StatusEffect);
+                    _config.StatusEffect,
+                    center + Vector3.up * 0.1f);
             }
 
             // 只有命中目标时播放视觉反馈，避免空放时制造误导性范围特效

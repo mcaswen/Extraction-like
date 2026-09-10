@@ -164,7 +164,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
     private void TickDormantState()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
-        if (distanceToPlayer <= DetectionRange)
+        if (distanceToPlayer <= DetectionRange && CanSeeCurrentTarget())
         {
             ActivateSentinel();
         }
@@ -259,7 +259,7 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
             return true;
         }
 
-        return Vector3.Distance(transform.position, PlayerTransform.position) > DetectionRange;
+        return !CanSeeCurrentTarget();
     }
 
     private void ReturnToDormantState()
@@ -436,25 +436,28 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         }
     }
 
+    private bool CanSeeCurrentTarget()
+    {
+        Vector3 origin = EyeOrigin != null ? EyeOrigin.position : transform.position + Vector3.up * 1.8f;
+        return Gameplay.Perception.TargetVisibilityQuery.Check(transform, origin, PlayerTransform, DetectionRange) == Gameplay.Perception.TargetVisibilityResult.Visible;
+    }
+
     private bool EnsurePlayerReferences()
     {
-        if (PlayerTransform == null)
+        Transform candidate = PlayerTransform;
+        if (CurrentState == SentinelState.Dormant && EnemyTargetSelector.TrySelectVisible(transform, DetectionRange, 360f, Physics.DefaultRaycastLayers, 1.2f, out Transform visible))
+            candidate = visible;
+        if (!EnemyCombatTargetBinding.TryCreate(candidate, out var binding))
         {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
+            EnemyTargetSelector.TrySelectNearest(transform, out candidate);
+            EnemyCombatTargetBinding.TryCreate(candidate, out binding);
         }
-
-        if (PlayerTransform != null &&
-            CombatDamageUtility.TryGetDamageReceiver(PlayerTransform, out ICombatDamageReceiver receiver))
+        if (!ReferenceEquals(PlayerTransform, null) && PlayerTransform != binding.Target)
         {
-            _combatDamageReceiver = receiver;
-            if (receiver.DamageRootTransform != null)
-            {
-                PlayerTransform = receiver.DamageRootTransform;
-            }
+            ReturnToDormantState();
         }
-
-        return PlayerTransform != null &&
-               _combatDamageReceiver != null &&
-               _combatDamageReceiver.IsCombatDamageReceiverAlive;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
+        return binding.Target != null;
     }
 }

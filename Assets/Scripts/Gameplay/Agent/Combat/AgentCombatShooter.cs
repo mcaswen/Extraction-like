@@ -1,4 +1,5 @@
 using Gameplay.SkillEffect;
+using Gameplay.Perception;
 using UnityEngine;
 
 namespace Gameplay.Agent.Combat
@@ -9,6 +10,13 @@ namespace Gameplay.Agent.Combat
     /// </summary>
     public sealed class AgentCombatShooter : MonoBehaviour
     {
+        public TargetVisibilityResult LastShotResult { get; private set; }
+        public bool CanShootAt(global::EnemyHealthController targetEnemy, float range)
+        {
+            if (targetEnemy == null || !targetEnemy.IsAlive) { LastShotResult = TargetVisibilityResult.Invalid; return false; }
+            LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range);
+            return LastShotResult == TargetVisibilityResult.Visible;
+        }
         [Header("Fire Setup")]
         [SerializeField] private Transform _firePoint;
         [SerializeField] private GameObject _bulletPrefab;
@@ -39,15 +47,16 @@ namespace Gameplay.Agent.Combat
         /// <returns></returns>
         public bool TryShootAt(global::EnemyHealthController targetEnemy, float damage)
         {
-            if (targetEnemy == null)
+            float range = _projectileMaxTravelDistance >= 0f ? _projectileMaxTravelDistance : _bulletMoveSpeed * _bulletLifeTime;
+            if (!CanShootAt(targetEnemy, range))
                 return false;
 
-            // 先朝向目标并计算水平弹道，避免子弹因高度差向地面或空中偏移
-            Vector3 aimPosition = ResolveAimPosition(targetEnemy);
+            Vector3 aimPosition = CombatAimPointResolver.Resolve(targetEnemy.transform);
             FaceTarget(aimPosition);
+            // Rotation can move an offset muzzle into cover: validate the actual post-turn origin.
+            if (!CanShootAt(targetEnemy, range)) return false;
 
             Vector3 firePosition = ResolveFirePosition();
-            aimPosition.y = firePosition.y;
             Vector3 fireDirection = aimPosition - firePosition;
             if (fireDirection.sqrMagnitude <= 0.0001f)
                 fireDirection = transform.forward;

@@ -147,6 +147,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     private EnemyAnimatorDriver _animatorDriver;
     private ICombatDamageReceiver _combatDamageReceiver;
     private PlayerMovementController _playerMovementController;
+    private IExternalMovementReceiver _externalMovementReceiver;
     private float _meleeTimer;
     private float _vortexTimer;
     private float _cooldownTimer;
@@ -297,7 +298,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void TickIdle(float distanceToPlayer)
     {
-        if (distanceToPlayer <= DetectionRange)
+        if (distanceToPlayer <= DetectionRange && Gameplay.Perception.TargetVisibilityQuery.Check(transform, transform.position + Vector3.up * 1.2f, PlayerTransform, DetectionRange) == Gameplay.Perception.TargetVisibilityResult.Visible)
         {
             CurrentState = BossState.Chase;
         }
@@ -616,6 +617,9 @@ public class HunterBossBehaviorController : MonoBehaviour
         }
 
         Transform damageRoot = ResolveDamageRoot(damageReceiver);
+        if (damageRoot == null || !Gameplay.Perception.TargetVisibilityQuery.ClearSegment(
+                transform, damageRoot, Gameplay.Perception.CombatAimPointResolver.Resolve(transform),
+                Gameplay.Perception.CombatAimPointResolver.Resolve(damageRoot))) return 0f;
         if (damageRoot != null &&
             (damageRoot == transform || damageRoot.IsChildOf(transform) || !_meleeDamagedRoots.Add(damageRoot)))
         {
@@ -825,7 +829,7 @@ public class HunterBossBehaviorController : MonoBehaviour
             return;
         }
 
-        _playerMovementController?.ApplyMoveSpeedDebuff(TrembleMoveSpeedMultiplier, TrembleDuration);
+        _externalMovementReceiver?.ApplyMoveSpeedDebuff(TrembleMoveSpeedMultiplier, TrembleDuration);
         PlayerShootingController playerShootingController = PlayerTransform != null
             ? PlayerTransform.GetComponent<PlayerShootingController>()
             : PlayerShootingController.Instance;
@@ -1241,34 +1245,22 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private bool EnsurePlayerReferences()
     {
-        if (PlayerTransform == null)
+        Transform candidate = PlayerTransform;
+        if (CurrentState == BossState.Idle && EnemyTargetSelector.TrySelectVisible(transform, DetectionRange, 360f, Physics.DefaultRaycastLayers, 1.2f, out Transform visible))
+            candidate = visible;
+        if (!EnemyCombatTargetBinding.TryCreate(candidate, out var binding))
         {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
+            EnemyTargetSelector.TrySelectNearest(transform, out candidate);
+            EnemyCombatTargetBinding.TryCreate(candidate, out binding);
         }
-
-        if (PlayerTransform != null)
+        if (!ReferenceEquals(PlayerTransform, null) && PlayerTransform != binding.Target)
         {
-            if (_combatDamageReceiver == null)
-            {
-                if (CombatDamageUtility.TryGetDamageReceiver(PlayerTransform, out ICombatDamageReceiver receiver))
-                {
-                    _combatDamageReceiver = receiver;
-                    if (receiver.DamageRootTransform != null)
-                        PlayerTransform = receiver.DamageRootTransform;
-                }
-            }
-
-            if (_playerMovementController == null)
-            {
-                _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-            }
+            ClearVortexField(); _meleeTimer = 0f; _meleeVisualTimer = 0f; CurrentState = BossState.Idle;
         }
-
-        if (_playerMovementController == null && PlayerTransform != null)
-        {
-            _playerMovementController = PlayerTransform.GetComponent<PlayerMovementController>();
-        }
-
-        return PlayerTransform != null && _combatDamageReceiver != null;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
+        _playerMovementController = binding.Target != null ? binding.Target.GetComponent<PlayerMovementController>() : null;
+        _externalMovementReceiver = binding.MovementReceiver;
+        return binding.Target != null;
     }
 }

@@ -26,4 +26,15 @@
 
 ## 实际结果
 
-- 待 P1 提交后开始。
+- P1 提交：`1700e67`。
+- 首轮基线 `20260911-012745-579`：Ranged 存在空接收器；AnchorSentinel/TidalAberration 被真实 VFX 运行时 Assert 阻断。修复前记录保留。测试中的 Transform 身份断言改用 SameAs，避免 NUnit 将 Transform 当可枚举集合比较而丢失身份语义，修正后再跑基线。
+- 附带小修边界：Extend `Assets/Art/VFX/RobotAnchorBeamVfx.cs` 的 `CreateParticleSystem`、`Assets/Art/VFX/MudTidalAberrationVfx.cs` 的 `ConfigureParticleSystem`，先 StopEmittingAndClear 再配置 duration。责任仍是各自 VFX 创建，不改控制器和技能规则。由真实预制体自动运行暴露，不能通过忽略 Assert 让测试虚假通过。
+- 远程基线 `20260911-012851-912`：跨高度玩家弹体未伤害目标、枪口发射未拒绝墙后目标。薄墙用例将补空路命中对照，未将一次无伤害直接当作阻墙已正确。
+- 修正身份断言后的基线 `20260911-013032-036`：明确复现 Ranged、AnchorSentinel、HunterBoss 死亡留场不换目标，以及 F6 最近目标遮挡；其他四种死亡分支控制组通过。
+- 绑定与射击首轮：`20260911-013515-306` EnemyTargets 8/8；`20260911-013602-683` RangedSpatial 3/3。继续补正反控制与空间/技能集成。
+- 文件边界补充：Extend `Assets/Scripts/Gameplay/Targets/Authoring/ActiveEnemyClusterAuthoring.cs`，新增只读 `CopyAliveEnemiesTo`，由持有初始/运行时成员的 Authoring 负责枚举，不让 CandidateCollector 反射私有成员或只看 InitialEnemies。
+- 归属补充：`Assets/Scripts/Gameplay/Enemy/EnemyHealthController.cs` 内现有 CombatDamageUtility 的接收器解析使用 parent/当前 target 子树，移除 scene root 的跨兄弟子树回退；`PlayerTargetResolver.cs` 同步。避免墙和其他无接收器 Collider 在共同场景父节点下误绑定第一个 Agent。仍由既有伤害解析层负责，不混入空间算法。
+- 审查补齐：七类控制器换目标时撤销旧攻击阶段/缠绕，不转移旧锁定；近战与持续缠绕也重检遮挡。范围技能的遮挡查询允许调用方提供 Collider 排除谓词，业务层排除敌人躯体（避免爆心处敌人挡住整个 AOE），墙体仍阻挡；Perception 不依赖 Enemy 类型。
+- `20260911-015217-842` 远程扩展 8/8 通过；`20260911-015451-642` 目标绑定扩展 12/12 通过，包含禁用、销毁、离场及共用场景父节点。先前小平台 NavMesh 构造失败与两处编译错误已经修正，均保留失败日志。
+- `20260911-015358-302` 空路 DOT 对照暴露爆心处敌人躯体遮挡其他范围受害者；修正上述排除策略。发现目标测试在 NavMesh 首帧定位之前查询地板中的眼点，补真实一帧初始化后断言。
+- 最终感知/技能回归 `20260911-015641-271` 4/4 通过：范围技能射程、爆心遮挡、DOT 动态墙正反对照、发现候选去重、已知攻击者不冒充可见、三维范围及 Trigger 排除。P2 共 24 个用例通过，进入 P3。

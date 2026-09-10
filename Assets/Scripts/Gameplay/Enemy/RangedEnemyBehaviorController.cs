@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using Gameplay.Perception;
 
 /// <summary>
 /// 基础远程敌人行为控制器。
@@ -347,9 +348,13 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
             return;
         }
 
+        if (TargetVisibilityQuery.Check(transform, FirePoint.position, PlayerTransform, AttackRange) != TargetVisibilityResult.Visible) return;
+        Vector3 direction = CombatAimPointResolver.Resolve(PlayerTransform) - FirePoint.position;
+        if (direction.sqrMagnitude < 0.0001f) return;
+
         _animatorDriver?.TriggerAttack();
         // 子弹携带 SourceEnemy，命中后能在日志和伤害来源中追溯到发射者。
-        GameObject bulletObject = Instantiate(EnemyBulletPrefab, FirePoint.position, FirePoint.rotation);
+        GameObject bulletObject = Instantiate(EnemyBulletPrefab, FirePoint.position, Quaternion.LookRotation(direction.normalized, Vector3.up));
         EnemyBulletController bullet = bulletObject.GetComponent<EnemyBulletController>();
         if (bullet != null)
         {
@@ -635,40 +640,29 @@ public class RangedEnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, 
 
     private bool EnsurePlayerTransform()
     {
-        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
-        {
-            return true;
-        }
-
-        if (!PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer))
-        {
-            return false;
-        }
-
-        PlayerTransform = currentPlayer;
-        return AssignCombatTarget(PlayerTransform);
+        if (CurrentState == EnemyState.Patrol && EnemyTargetSelector.TrySelectVisible(
+            VisionTransform, DetectionRange, ViewAngle, LineOfSightBlockMask, EyeHeight, out Transform visible))
+            return AssignCombatTarget(visible);
+        if (AssignCombatTarget(PlayerTransform)) return true;
+        return EnemyTargetSelector.TrySelectNearest(transform, out Transform next) && AssignCombatTarget(next);
     }
 
     private bool AssignCombatTarget(Transform target)
     {
-        if (target == null)
+        bool valid = EnemyCombatTargetBinding.TryCreate(target, out var binding);
+        if (!ReferenceEquals(PlayerTransform, null) && (!valid || PlayerTransform != binding.Target))
         {
+            _attackTimer = 0f;
+            CurrentState = EnemyState.Patrol;
+        }
+        if (!valid)
+        {
+            PlayerTransform = null;
+            _combatDamageReceiver = null;
             return false;
         }
-
-        PlayerTransform = target;
-        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
-        {
-            _combatDamageReceiver = receiver;
-            if (receiver.DamageRootTransform != null)
-            {
-                PlayerTransform = receiver.DamageRootTransform;
-            }
-
-            return true;
-        }
-
-        _combatDamageReceiver = null;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
         return true;
     }
 

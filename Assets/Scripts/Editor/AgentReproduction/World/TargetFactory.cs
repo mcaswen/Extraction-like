@@ -8,6 +8,16 @@ namespace AgentReproduction.World
 {
     public static class TargetFactory
     {
+        public static ActiveEnemyClusterAuthoring Enemies(TestWorldBuilder world, params EnemyHealthController[] enemies)
+        {
+            GameObject root=world.Root("Enemy cluster",false);
+            var cluster=root.AddComponent<ActiveEnemyClusterAuthoring>();
+            var members=new List<GameplayTargetEntityMember>();
+            foreach(var enemy in enemies) members.Add(new GameplayTargetEntityMember(enemy.GetInstanceID().ToString(),enemy.gameObject));
+            RuntimeFixtureAccess.Configure(cluster,"_initialEnemies",members);
+            root.SetActive(true);
+            return cluster;
+        }
         public static ExtractionClusterAuthoring Extraction(TestWorldBuilder world, Vector3 position)
         {
             GameObject point=world.Root("Test extraction",false);

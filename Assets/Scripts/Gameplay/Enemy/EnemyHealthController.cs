@@ -300,13 +300,7 @@ public static class CombatDamageUtility
             target.GetComponentInParent<Gameplay.Agent.Core.AgentHealthController>();
         if (agentHealth == null)
         {
-            Transform root = target.root;
-            if (root != null)
-            {
-                agentHealth = root.GetComponent<Gameplay.Agent.Core.AgentHealthController>();
-                if (agentHealth == null)
-                    agentHealth = root.GetComponentInChildren<Gameplay.Agent.Core.AgentHealthController>();
-            }
+            agentHealth = target.GetComponentInChildren<Gameplay.Agent.Core.AgentHealthController>();
         }
 
         if (agentHealth == null || !agentHealth.IsCombatDamageReceiverAlive)

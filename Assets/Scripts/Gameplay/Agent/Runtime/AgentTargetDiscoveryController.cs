@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Targeting;
 using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Targets.Authoring;
@@ -202,7 +203,7 @@ namespace Gameplay.Agent.Runtime
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
             bool hasEnemyTarget = TryFindNearestEnemyCluster(
-                    agent.Position,
+                    agent,
                     rangeSqr,
                     out ActiveEnemyClusterAuthoring enemyCluster,
                     out global::EnemyHealthController enemy,
@@ -332,38 +333,18 @@ namespace Gameplay.Agent.Runtime
             commandReceiver.ClearDirective();
         }
 
-        private bool TryFindNearestEnemyCluster(
-            Vector3 agentPosition,
-            float rangeSqr,
-            out ActiveEnemyClusterAuthoring nearestEnemyCluster,
-            out global::EnemyHealthController nearestEnemy,
-            out float nearestDistanceSqr)
+        private readonly AgentTargetCandidateCollector _candidateCollector = new AgentTargetCandidateCollector();
+        private readonly List<AgentTargetCandidate> _enemyCandidates = new List<AgentTargetCandidate>();
+        private bool TryFindNearestEnemyCluster(IAgentReadOnly agent, float rangeSqr,
+            out ActiveEnemyClusterAuthoring nearestEnemyCluster, out global::EnemyHealthController nearestEnemy, out float nearestDistanceSqr)
         {
-            nearestEnemyCluster = null;
-            nearestEnemy = null;
-            nearestDistanceSqr = float.MaxValue;
-
-            for (int i = 0; i < _clusterBuffer.Count; i++)
-            {
-                if (!(_clusterBuffer[i] is ActiveEnemyClusterAuthoring enemyCluster) ||
-                    enemyCluster.HasBeenCompleted ||
-                    !enemyCluster.TryGetNearestAliveEnemy(agentPosition, out global::EnemyHealthController enemy))
-                {
-                    continue;
-                }
-
-                float distanceSqr = GetPlanarDistanceSqr(agentPosition, enemy.transform.position);
-                if (distanceSqr > rangeSqr || distanceSqr >= nearestDistanceSqr)
-                {
-                    continue;
-                }
-
-                nearestEnemyCluster = enemyCluster;
-                nearestEnemy = enemy;
-                nearestDistanceSqr = distanceSqr;
-            }
-
-            return nearestEnemyCluster != null;
+            _candidateCollector.CollectVisibleEnemies(agent, _clusterBuffer, Mathf.Sqrt(rangeSqr), _enemyCandidates);
+            nearestEnemyCluster = null; nearestEnemy = null; nearestDistanceSqr = float.PositiveInfinity;
+            if (_enemyCandidates.Count == 0) return false;
+            var candidate = _enemyCandidates[0];
+            nearestEnemyCluster = (ActiveEnemyClusterAuthoring)candidate.Cluster;
+            nearestEnemy = candidate.Enemy; nearestDistanceSqr = candidate.DistanceSqr;
+            return true;
         }
 
         private static string ResolveActiveEnemyTargetId(

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Gameplay.Perception;
 
 namespace Gameplay.Agent.Combat
 {
@@ -51,6 +52,15 @@ namespace Gameplay.Agent.Combat
             actionLockSeconds = 0f;
             if (!IsReady(timeSeconds) || context.CasterTransform == null)
                 return false;
+
+            Vector3 origin = CombatAimPointResolver.Resolve(context.CasterTransform);
+            if (target.EnemyTarget != null)
+            {
+                if (!target.EnemyTarget.IsAlive || TargetVisibilityQuery.Check(context.CasterTransform, origin,
+                    target.EnemyTarget.transform, context.CastRange) != TargetVisibilityResult.Visible) return false;
+            }
+            else if (!target.HasPosition || (target.Position-origin).sqrMagnitude > context.CastRange*context.CastRange ||
+                !TargetVisibilityQuery.ClearSegment(context.CasterTransform,null,origin,target.Position)) return false;
 
             if (!CanCast(context, target))
                 return false;

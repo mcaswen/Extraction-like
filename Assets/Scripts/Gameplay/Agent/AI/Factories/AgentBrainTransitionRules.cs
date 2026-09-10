@@ -26,7 +26,7 @@ namespace Gameplay.Agent.AI.Factories
 
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-            return !isDead && hasVisibleEnemy && HasPendingEnemyEngageDirective(context);
+            return !isDead && HasPendingEnemyEngageDirective(context);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Gameplay.Agent.AI.Factories
             bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && !hasVisibleEnemy && !hasEnemySourceTarget && !shouldExtract;
+            return !isDead && !HasPendingEnemyEngageDirective(context) && !hasEnemySourceTarget && !shouldExtract;
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace Gameplay.Agent.AI.Factories
             bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
-            return !isDead && hasVisibleEnemy && HasPendingEnemyEngageDirective(context);
+            return !isDead && HasPendingEnemyEngageDirective(context);
         }
 
         /// <summary>

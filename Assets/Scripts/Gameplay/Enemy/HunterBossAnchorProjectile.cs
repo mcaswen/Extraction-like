@@ -1,4 +1,5 @@
 using Gameplay.SkillEffect;
+using Gameplay.Perception;
 using UnityEngine;
 
 /// <summary>
@@ -35,6 +36,14 @@ public class HunterBossAnchorProjectile : MonoBehaviour
 
     private Rigidbody _rigidbody;
     private bool _hasHitTarget;
+
+    private void FixedUpdate()
+    {
+        if (_hasHitTarget || _rigidbody == null) return;
+        Vector3 from=_rigidbody.position;
+        if (ProjectileSweepQuery.TryFirstHit(transform,SourceEnemy != null ? SourceEnemy.transform : null,from,from+_rigidbody.velocity*Time.fixedDeltaTime,0.15f,out Collider hit))
+            HandleHit(hit);
+    }
 
     private void Awake()
     {
@@ -78,12 +87,7 @@ public class HunterBossAnchorProjectile : MonoBehaviour
 
     private void HandleHit(Collider other)
     {
-        if (_hasHitTarget || other == null)
-        {
-            return;
-        }
-
-        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
+        if (_hasHitTarget || !ProjectileSweepQuery.IsBlocking(other,transform,SourceEnemy != null ? SourceEnemy.transform : null))
         {
             return;
         }
@@ -93,6 +97,8 @@ public class HunterBossAnchorProjectile : MonoBehaviour
                 out ICombatDamageReceiver damageReceiver,
                 out PlayerMovementController playerMovement))
         {
+            _hasHitTarget=true;
+            Destroy(gameObject);
             return;
         }
 
@@ -106,10 +112,12 @@ public class HunterBossAnchorProjectile : MonoBehaviour
             totalDamage = damageReceiver.TakeCombatDamage(Damage, hitPoint, hitDirection, SourceEnemy);
         }
 
-        if (playerMovement != null)
+        IExternalMovementReceiver movement = damageReceiver?.DamageRootTransform != null
+            ? damageReceiver.DamageRootTransform.GetComponent<IExternalMovementReceiver>() : playerMovement;
+        if (movement != null)
         {
             Vector3 pushDirection = other.transform.position - transform.position;
-            playerMovement.ApplyExternalImpulse(pushDirection, KnockbackStrength);
+            movement.ApplyExternalImpulse(pushDirection, KnockbackStrength);
         }
 
         EnemySkillDamageLogger.LogSkillDamage(SourceEnemy != null ? SourceEnemy : gameObject, SkillName, totalDamage);

@@ -30,6 +30,18 @@ namespace Gameplay.Targets.Authoring
         public IReadOnlyList<GameplayTargetEntityMember> InitialEnemies => _initialEnemies;
         public bool HasRegisteredEnemy => CountRegisteredEnemies() > 0;
 
+        public void CopyAliveEnemiesTo(List<global::EnemyHealthController> results)
+        {
+            results.Clear();
+            AppendAliveEnemies(_initialEnemies, results);
+            AppendAliveEnemies(_runtimeEnemies, results);
+        }
+        private static void AppendAliveEnemies(List<GameplayTargetEntityMember> members, List<global::EnemyHealthController> results)
+        {
+            foreach (var member in members)
+                if (TryGetAliveEnemy(member, out var enemy) && enemy.isActiveAndEnabled && !results.Contains(enemy)) results.Add(enemy);
+        }
+
         /// <summary>
         /// 复用敌人来源群的范围显示配置，为运行时生成的活跃敌人群创建独立 LineRenderer
         /// </summary>

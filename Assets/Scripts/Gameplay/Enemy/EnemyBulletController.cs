@@ -1,4 +1,5 @@
 using Gameplay.SkillEffect;
+using Gameplay.Perception;
 using UnityEngine;
 
 /// <summary>
@@ -33,6 +34,15 @@ public class EnemyBulletController : MonoBehaviour
     public string SkillName = "Ranged Shot";
 
     private Rigidbody _rigidbody;
+    private bool _hasHitTarget;
+
+    private void FixedUpdate()
+    {
+        if (_hasHitTarget || _rigidbody == null) return;
+        Vector3 from=_rigidbody.position;
+        if (ProjectileSweepQuery.TryFirstHit(transform,SourceEnemy != null ? SourceEnemy.transform : null,from,from+_rigidbody.velocity*Time.fixedDeltaTime,0.06f,out Collider hit))
+            OnTriggerEnter(hit);
+    }
 
     private void Awake()
     {
@@ -54,18 +64,16 @@ public class EnemyBulletController : MonoBehaviour
     /// <param name="other">命中的碰撞体。</param>
     private void OnTriggerEnter(Collider other)
     {
-        if (other == null)
+        if (_hasHitTarget || !ProjectileSweepQuery.IsBlocking(other,transform,SourceEnemy != null ? SourceEnemy.transform : null))
         {
             return;
         }
 
-        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
-        {
-            return;
-        }
+        _hasHitTarget=true;
 
         if (!TryGetPlayerDamageReceiver(other, out ICombatDamageReceiver damageReceiver))
         {
+            Destroy(gameObject);
             return;
         }
 

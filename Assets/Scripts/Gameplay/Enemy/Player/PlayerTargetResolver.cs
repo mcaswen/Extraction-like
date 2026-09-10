@@ -6,51 +6,7 @@ public static class PlayerTargetResolver
 {
     public static bool TryGetCurrentPlayerTransform(Transform seeker, out Transform target)
     {
-        target = null;
-
-        if (TryGetNearestRegisteredAgent(seeker, out target))
-        {
-            return true;
-        }
-
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        if (playerObject == null)
-            return false;
-
-        target = playerObject.transform;
-        return true;
-    }
-
-    private static bool TryGetNearestRegisteredAgent(Transform seeker, out Transform target)
-    {
-        target = null;
-        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry == null)
-            return false;
-
-        float bestDistanceSqr = float.PositiveInfinity;
-        var registeredAgents = registry.RegisteredAgents;
-        for (int i = 0; i < registeredAgents.Count; i++)
-        {
-            AgentRuntimeHandle handle = registeredAgents[i];
-            if (!handle.IsAlive || handle.CachedTransform == null)
-                continue;
-
-            if (seeker == null)
-            {
-                target = handle.CachedTransform;
-                return true;
-            }
-
-            float distanceSqr = (handle.CachedTransform.position - seeker.position).sqrMagnitude;
-            if (distanceSqr >= bestDistanceSqr)
-                continue;
-
-            bestDistanceSqr = distanceSqr;
-            target = handle.CachedTransform;
-        }
-
-        return target != null;
+        return EnemyTargetSelector.TrySelectNearest(seeker, out target);
     }
 
     public static bool TryGetDamageReceiver(Transform target, out ICombatDamageReceiver receiver)
@@ -81,15 +37,7 @@ public static class PlayerTargetResolver
         if (healthController != null)
             return true;
 
-        Transform root = target.root;
-        if (root == null)
-            return false;
-
-        healthController = root.GetComponent<AgentHealthController>();
-        if (healthController != null)
-            return true;
-
-        healthController = root.GetComponentInChildren<AgentHealthController>();
+        healthController = target.GetComponentInChildren<AgentHealthController>();
         return healthController != null;
     }
 

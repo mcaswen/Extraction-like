@@ -1,4 +1,5 @@
 using Gameplay.SkillEffect;
+using Gameplay.Perception;
 using UnityEngine;
 
 /// <summary>
@@ -73,6 +74,15 @@ public class BulletController : MonoBehaviour
     public bool ReportImpactStimulus = true;
 
     private Rigidbody _rigidbody;
+    private bool _hasHitTarget;
+
+    private void FixedUpdate()
+    {
+        if (_hasHitTarget || _rigidbody == null) return;
+        Vector3 from = _rigidbody.position;
+        if (ProjectileSweepQuery.TryFirstHit(transform, SourceTransform, from, from + _rigidbody.velocity * Time.fixedDeltaTime, 0.06f, out Collider hit))
+            HandleHit(hit);
+    }
 
     private void Awake()
     {
@@ -110,12 +120,7 @@ public class BulletController : MonoBehaviour
 
     private void HandleHit(Collider other)
     {
-        if (other == null)
-        {
-            return;
-        }
-
-        if (SkillEffectLayerUtility.IsSkillEffectObject(other.gameObject))
+        if (_hasHitTarget || !ProjectileSweepQuery.IsBlocking(other, transform, SourceTransform))
         {
             return;
         }
@@ -124,8 +129,12 @@ public class BulletController : MonoBehaviour
         bool hitEnemyTarget = enemyHealthController != null || IsEnemyCollider(other);
         if (!hitEnemyTarget)
         {
+            _hasHitTarget = true;
+            Destroy(gameObject);
             return;
         }
+
+        _hasHitTarget = true;
 
         if (enemyHealthController != null)
         {

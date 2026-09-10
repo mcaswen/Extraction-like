@@ -27,22 +27,9 @@ public static class EnemyVisionUtility
         float eyeHeight,
         float targetHeight)
     {
-        if (viewer == null || target == null)
-        {
-            return false;
-        }
-
-        if (!IsTargetInHorizontalRange(viewer.position, target.position, viewRange))
-        {
-            return false;
-        }
-
-        if (!IsTargetInHorizontalAngle(viewer, target.position, viewAngle))
-        {
-            return false;
-        }
-
-        return HasLineOfSight(viewer, target, lineOfSightBlockMask, eyeHeight, targetHeight);
+        return Gameplay.Perception.TargetVisibilityQuery.Check(viewer,
+            viewer != null ? GetEyePosition(viewer, eyeHeight) : Vector3.zero,
+            target, Mathf.Max(0f, viewRange), viewAngle, lineOfSightBlockMask) == Gameplay.Perception.TargetVisibilityResult.Visible;
     }
 
     /// <summary>
@@ -114,48 +101,8 @@ public static class EnemyVisionUtility
         float eyeHeight,
         float targetHeight)
     {
-        if (viewer == null || target == null)
-        {
-            return false;
-        }
-
-        Vector3 origin = GetEyePosition(viewer, eyeHeight);
-        Vector3 targetPosition = GetTargetPosition(target, targetHeight);
-        Vector3 direction = targetPosition - origin;
-        float distance = direction.magnitude;
-        if (distance <= 0.001f)
-        {
-            return true;
-        }
-
-        Ray ray = new Ray(origin, direction / distance);
-        RaycastHit[] hits = Physics.RaycastAll(
-            ray,
-            distance,
-            lineOfSightBlockMask,
-            QueryTriggerInteraction.Ignore);
-
-        if (hits == null || hits.Length == 0)
-        {
-            return true;
-        }
-
-        // RaycastAll 不保证顺序，先按距离排序才能稳定跳过自身和目标碰撞体。
-        System.Array.Sort(hits, CompareHitDistance);
-        for (int i = 0; i < hits.Length; i++)
-        {
-            Collider hitCollider = hits[i].collider;
-            if (hitCollider == null ||
-                hitCollider.transform.IsChildOf(viewer) ||
-                hitCollider.transform.IsChildOf(target))
-            {
-                continue;
-            }
-
-            return false;
-        }
-
-        return true;
+        return viewer != null && target != null && Gameplay.Perception.TargetVisibilityQuery.ClearSegment(
+            viewer, target, GetEyePosition(viewer, eyeHeight), Gameplay.Perception.CombatAimPointResolver.Resolve(target), lineOfSightBlockMask);
     }
 
     /// <summary>

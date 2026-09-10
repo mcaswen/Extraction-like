@@ -3,6 +3,7 @@ using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Runtime;
+using Gameplay.Perception;
 using UnityEngine;
 
 namespace Gameplay.Agent.Commands
@@ -77,6 +78,8 @@ namespace Gameplay.Agent.Commands
             AgentDirectiveFailure failure = AgentDirectiveValidationService.ValidateTarget(_active.Value);
             if (failure != AgentDirectiveFailure.None)
                 Finish(_active.Value.CommandId, _active.Value.DirectiveType == AgentDirectiveType.Engage ? AgentDirectiveFailure.None : failure);
+            if (_active.HasValue)
+                _agent.Blackboard.SetValue(AgentBlackboardKeys.HasVisibleEnemy, IsVisible(_active.Value), Time.timeAsDouble);
         }
 
         private void Activate(AgentDirectiveRequest request)
@@ -98,7 +101,14 @@ namespace Gameplay.Agent.Commands
             board.SetValue(AgentBlackboardKeys.HasResourceTarget, request.DirectiveType == AgentDirectiveType.Search, now);
             board.SetValue(AgentBlackboardKeys.HasInteractableTarget, false, now);
             board.SetValue(AgentBlackboardKeys.HasEnemySourceTarget, request.TargetRef.Kind == AgentTargetKind.EnemySource, now);
-            board.SetValue(AgentBlackboardKeys.HasVisibleEnemy, request.DirectiveType == AgentDirectiveType.Engage, now);
+            board.SetValue(AgentBlackboardKeys.HasVisibleEnemy, IsVisible(request), now);
+        }
+        private bool IsVisible(AgentDirectiveRequest request)
+        {
+            if (request.DirectiveType != AgentDirectiveType.Engage || request.TargetObject == null) return false;
+            float range = _agent is AgentPawnRoot pawn ? pawn.TargetDiscoveryRange : 30f;
+            return TargetVisibilityQuery.Check(_agent.CachedTransform, CombatAimPointResolver.Resolve(_agent.CachedTransform),
+                request.TargetObject.transform, range) == TargetVisibilityResult.Visible;
         }
         private AgentDirectiveRequest WithIdentity(AgentDirectiveRequest request) => new AgentDirectiveRequest(
             request.DirectiveType, request.TargetRef, request.PayloadId, _agent.AgentId,

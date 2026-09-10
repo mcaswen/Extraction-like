@@ -140,8 +140,7 @@ namespace Gameplay.Agent.Combat
                     continue;
                 }
 
-                hitAnyTarget = true;
-                AgentCombatSkillUtility.ApplyDamageAndStatus(
+                hitAnyTarget |= AgentCombatSkillUtility.ApplyDamageAndStatus(
                     enemyHealth,
                     damage,
                     context,

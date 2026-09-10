@@ -751,6 +751,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
     private void ConfigureParticleSystem(ParticleSystem particles, float size, float lifetime, float speed, float rate)
     {
+        particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ParticleSystem.MainModule main = particles.main;
         main.loop = rate > 0f;
         main.duration = 1f;

@@ -17,19 +17,28 @@ namespace Gameplay.Perception
             return ClearSegment(viewer, target, origin, aim, mask) ? TargetVisibilityResult.Visible : TargetVisibilityResult.Occluded;
         }
 
-        public static bool ClearSegment(Transform viewer, Transform target, Vector3 from, Vector3 to, int mask = Physics.DefaultRaycastLayers)
+        public static bool ClearSegment(Transform viewer, Transform target, Vector3 from, Vector3 to,
+            int mask = Physics.DefaultRaycastLayers, System.Predicate<Collider> ignore = null)
         {
+            // Vision transforms can be bones/eye children. Resolve only the nearest body collider,
+            // never transform.root (which may be a whole level container).
+            if (viewer != null)
+            {
+                Collider body = viewer.GetComponentInParent<Collider>();
+                if (body != null) viewer = body.transform;
+            }
             Vector3 offset = to - from;
             if (offset.sqrMagnitude < 0.000001f) return true;
             foreach (RaycastHit hit in Physics.RaycastAll(from, offset.normalized, offset.magnitude, mask, QueryTriggerInteraction.Ignore))
             {
                 Transform root = hit.collider.transform;
-                if (BelongsTo(root, viewer) || BelongsTo(root, target)) continue;
+                if (BelongsTo(root, viewer) || BelongsTo(root, target) || (ignore != null && ignore(hit.collider))) continue;
                 return false;
             }
             // Raycasts do not report a collider containing the ray origin.
             foreach (Collider collider in Physics.OverlapSphere(from, 0.02f, mask, QueryTriggerInteraction.Ignore))
-                if (!BelongsTo(collider.transform, viewer) && !BelongsTo(collider.transform, target)) return false;
+                if (!BelongsTo(collider.transform, viewer) && !BelongsTo(collider.transform, target) &&
+                    (ignore == null || !ignore(collider))) return false;
             return true;
         }
 

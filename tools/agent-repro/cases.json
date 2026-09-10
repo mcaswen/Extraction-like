@@ -59,6 +59,51 @@
       "expected": [
         "FormalHudReportsAcceptedAndRejectedCommandsAndFadesWhilePaused"
       ]
+    },
+    {
+      "name": "EnemyTargets",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.EnemyTargetBindingTests",
+      "expected": [
+        "DeadTargetRebinds(\"Base\")",
+        "DeadTargetRebinds(\"Ranged\")",
+        "DeadTargetRebinds(\"AnchorSentinel\")",
+        "DeadTargetRebinds(\"HunterBoss\")",
+        "DeadTargetRebinds(\"ModernStrander\")",
+        "DeadTargetRebinds(\"TidalAberration\")",
+        "DeadTargetRebinds(\"AncientStrander\")",
+        "VisibleFartherCandidateIsScannedDuringPatrol",
+        "InvalidTargetIsNotReacquired(\"Disabled\")",
+        "InvalidTargetIsNotReacquired(\"Destroyed\")",
+        "InvalidTargetIsNotReacquired(\"Unregistered\")",
+        "WallUnderSharedSceneRootIsNotAnAgentDamageReceiver"
+      ]
+    },
+    {
+      "name": "RangedSpatial",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.RangedSpatialTests",
+      "expected": [
+        "PlayerProjectileHitsElevatedEnemy",
+        "PlayerShooterRejectsOccludedTarget",
+        "EnemyBulletStopsAtThinWallBeforeAgent",
+        "EnemyShootsAcrossHeight(-1)",
+        "EnemyShootsAcrossHeight(1)",
+        "EngageCanFireAcrossDisconnectedNavigationWithoutWalking",
+        "EnemyBulletWithoutWallHitsAgentExactlyOnce",
+        "WallInsertedAfterPlayerLaunchStopsProjectile"
+      ]
+    },
+    {
+      "name": "Perception",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.PerceptionCandidateTests",
+      "expected": [
+        "DiscoverySkipsOccludedNearestMemberAndDeduplicatesVisibleEnemies",
+        "KnownAttackerBehindWallIsNotReportedAsVisible",
+        "RangeUsesHeightAndTriggersDoNotOcclude",
+        "AreaSkillsRespectCastRangeAndDynamicCover"
+      ]
     }
   ]
 }

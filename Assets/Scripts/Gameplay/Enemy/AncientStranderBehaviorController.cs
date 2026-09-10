@@ -454,6 +454,9 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         Transform damageRoot = damageReceiver != null && damageReceiver.DamageRootTransform != null
             ? damageReceiver.DamageRootTransform
             : null;
+        if (damageRoot == null || !Gameplay.Perception.TargetVisibilityQuery.ClearSegment(
+                transform, damageRoot, Gameplay.Perception.CombatAimPointResolver.Resolve(transform),
+                Gameplay.Perception.CombatAimPointResolver.Resolve(damageRoot))) return 0f;
         if (damageRoot != null && !_meleeDamagedRoots.Add(damageRoot))
         {
             return 0f;
@@ -491,6 +494,10 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         {
             return;
         }
+
+        Vector3 origin = BiteOrigin != null ? BiteOrigin.position : transform.position + Vector3.up * 1.1f;
+        if (Gameplay.Perception.TargetVisibilityQuery.Check(transform, origin, damageReceiver.DamageRootTransform,
+            RangedAttackRange) != Gameplay.Perception.TargetVisibilityResult.Visible) return;
 
         _hasAppliedBiteDamage = true;
         _biteTotalDamage += CombatDamageUtility.ApplyDamageTo(
@@ -1002,47 +1009,30 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private bool EnsurePlayerReferences()
     {
-        if (PlayerTransform == null)
-        {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
-        }
-
-        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
-        {
-            return true;
-        }
-
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer) &&
-            AssignCombatTarget(currentPlayer))
-        {
-            return true;
-        }
-
-        return false;
+        if (CurrentState == EnemyState.Patrol && EnemyTargetSelector.TrySelectVisible(
+            VisionTransform, DetectionRange, ViewAngle, LineOfSightBlockMask, EyeHeight, out Transform visible))
+            return AssignCombatTarget(visible);
+        if (AssignCombatTarget(PlayerTransform)) return true;
+        return EnemyTargetSelector.TrySelectNearest(transform, out Transform next) && AssignCombatTarget(next);
     }
 
     private bool AssignCombatTarget(Transform target)
     {
-        if (target == null)
+        bool valid = EnemyCombatTargetBinding.TryCreate(target, out var binding);
+        if (!ReferenceEquals(PlayerTransform, null) && (!valid || PlayerTransform != binding.Target))
         {
+            StopBiteStrike(); _rangedAttackTimer = 0f;
+            CurrentState = EnemyState.Patrol;
+        }
+        if (!valid)
+        {
+            PlayerTransform = null;
+            _combatDamageReceiver = null;
             return false;
         }
-
-        PlayerTransform = target;
-
-        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
-        {
-            _combatDamageReceiver = receiver;
-            if (receiver.DamageRootTransform != null)
-            {
-                PlayerTransform = receiver.DamageRootTransform;
-            }
-
-            return true;
-        }
-
-        _combatDamageReceiver = null;
-        return false;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
+        return true;
     }
 
     private void OnDrawGizmosSelected()

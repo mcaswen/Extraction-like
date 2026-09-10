@@ -116,7 +116,8 @@ namespace Gameplay.Agent.Combat
                     context,
                     enemyHealth.transform.position,
                     global::EnemyDamageSourceType.Magic,
-                    _statusEffect);
+                    _statusEffect,
+                    transform.position + Vector3.up * 0.1f);
             }
         }
 

@@ -374,7 +374,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             return;
         }
 
-        if (distanceToPlayer > RangedAttackRange)
+        if (distanceToPlayer > RangedAttackRange || !EnemyVisionUtility.HasLineOfSight(VisionTransform, PlayerTransform, LineOfSightBlockMask, EyeHeight, TargetHeight))
         {
             StopMeleeAttack();
             CurrentState = EnemyState.Chase;
@@ -523,7 +523,7 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         PlayMudWaterJetVfx();
 
         Vector3 origin = RangedOrigin != null ? RangedOrigin.position : transform.position + Vector3.up * 1.2f;
-        Vector3 direction = (PlayerTransform.position + Vector3.up * 0.8f) - origin;
+        Vector3 direction = Gameplay.Perception.CombatAimPointResolver.Resolve(PlayerTransform) - origin;
         direction.Normalize();
 
         if (TryGetWaterJetHit(origin, direction, out Vector3 hitPoint, out Collider hitCollider, out ICombatDamageReceiver damageReceiver))
@@ -538,7 +538,6 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
             IExternalMovementReceiver hitMovementReceiver = ResolveExternalMovementReceiver(damageReceiver, hitCollider);
             if (hitMovementReceiver != null)
             {
-                _externalMovementReceiver = hitMovementReceiver;
                 hitMovementReceiver.ApplyExternalImpulse(direction, WaterJetKnockbackStrength);
                 hitMovementReceiver.ApplyMoveSpeedDebuff(KnockbackMoveSpeedMultiplier, KnockbackSlowDuration);
             }
@@ -757,52 +756,10 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
         hitPoint = origin + direction * WaterJetMaxDistance;
         hitCollider = null;
         damageReceiver = null;
-
-        RaycastHit[] hits = Physics.SphereCastAll(
-            origin,
-            WaterJetHitRadius,
-            direction,
-            WaterJetMaxDistance,
-            Physics.DefaultRaycastLayers,
-            QueryTriggerInteraction.Ignore);
-
-        float closestDistance = float.PositiveInfinity;
-        bool foundHit = false;
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.collider == null || IsOwnCollider(hit.collider) || hit.distance >= closestDistance)
-            {
-                continue;
-            }
-
-            if (!CombatDamageUtility.TryGetDamageReceiver(hit.collider, out ICombatDamageReceiver hitReceiver) ||
-                !IsCurrentCombatTarget(hitReceiver, hit.collider))
-            {
-                continue;
-            }
-
-            hitPoint = hit.point;
-            hitCollider = hit.collider;
-            damageReceiver = hitReceiver;
-            closestDistance = hit.distance;
-            foundHit = true;
-        }
-
-        if (foundHit)
-        {
-            return true;
-        }
-
-        if (PlayerTransform == null || !CombatDamageUtility.TryGetDamageReceiver(PlayerTransform, out damageReceiver))
-        {
-            return false;
-        }
-
-        Transform damageRoot = damageReceiver.DamageRootTransform != null ? damageReceiver.DamageRootTransform : PlayerTransform;
-        hitPoint = damageRoot.position + Vector3.up * 0.8f;
-        hitCollider = damageRoot.GetComponentInChildren<Collider>();
-        return true;
+        if (!Gameplay.Perception.ProjectileSweepQuery.TryFirstHit(null, transform, origin,
+            hitPoint, WaterJetHitRadius, out hitCollider)) return false;
+        hitPoint = hitCollider.ClosestPoint(origin);
+        return CombatDamageUtility.TryGetDamageReceiver(hitCollider, out damageReceiver);
     }
 
     private bool IsCurrentCombatTarget(ICombatDamageReceiver damageReceiver, Collider hitCollider)
@@ -1159,65 +1116,36 @@ public class TidalAberrationBehaviorController : MonoBehaviour, IEnemyVisionSour
 
     private bool EnsurePlayerReferences()
     {
-        if (PlayerTransform == null)
-        {
-            PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out PlayerTransform);
-        }
-
-        if (PlayerTransform != null && AssignCombatTarget(PlayerTransform))
-        {
-            return true;
-        }
-
-        if (PlayerTargetResolver.TryGetCurrentPlayerTransform(transform, out Transform currentPlayer) &&
-            AssignCombatTarget(currentPlayer))
-        {
-            return true;
-        }
-
-        return false;
+        if (CurrentState == EnemyState.Patrol && EnemyTargetSelector.TrySelectVisible(
+            VisionTransform, DetectionRange, ViewAngle, LineOfSightBlockMask, EyeHeight, out Transform visible))
+            return AssignCombatTarget(visible);
+        if (AssignCombatTarget(PlayerTransform)) return true;
+        return EnemyTargetSelector.TrySelectNearest(transform, out Transform next) && AssignCombatTarget(next);
     }
 
     private bool AssignCombatTarget(Transform target)
     {
-        if (target == null)
+        bool valid = EnemyCombatTargetBinding.TryCreate(target, out var binding);
+        if (!ReferenceEquals(PlayerTransform, null) && (!valid || PlayerTransform != binding.Target))
         {
+            StopMeleeAttack(); StopRangedAttack(); _meleeAttackTimer = 0f;
+            CurrentState = EnemyState.Patrol;
+        }
+        if (!valid)
+        {
+            PlayerTransform = null;
+            _combatDamageReceiver = null;
+            _playerMovementController = null;
+            _externalMovementReceiver = null;
+            _playerShootingController = null;
             return false;
         }
-
-        PlayerTransform = target;
-
-        _playerMovementController = target.GetComponent<PlayerMovementController>();
-        if (_playerMovementController == null)
-        {
-            _playerMovementController = target.GetComponentInParent<PlayerMovementController>();
-        }
-
-        _externalMovementReceiver = target.GetComponent<IExternalMovementReceiver>();
-        if (_externalMovementReceiver == null)
-        {
-            _externalMovementReceiver = target.GetComponentInParent<IExternalMovementReceiver>();
-        }
-
-        _playerShootingController = target.GetComponent<PlayerShootingController>();
-        if (_playerShootingController == null)
-        {
-            _playerShootingController = target.GetComponentInParent<PlayerShootingController>();
-        }
-
-        if (CombatDamageUtility.TryGetDamageReceiver(target, out ICombatDamageReceiver receiver))
-        {
-            _combatDamageReceiver = receiver;
-            if (receiver.DamageRootTransform != null)
-            {
-                PlayerTransform = receiver.DamageRootTransform;
-            }
-
-            return true;
-        }
-
-        _combatDamageReceiver = null;
-        return false;
+        PlayerTransform = binding.Target;
+        _combatDamageReceiver = binding.DamageReceiver;
+        _playerMovementController = binding.Target.GetComponent<PlayerMovementController>();
+        _externalMovementReceiver = binding.MovementReceiver;
+        _playerShootingController = binding.Target.GetComponent<PlayerShootingController>();
+        return true;
     }
 
     private void OnDrawGizmosSelected()
