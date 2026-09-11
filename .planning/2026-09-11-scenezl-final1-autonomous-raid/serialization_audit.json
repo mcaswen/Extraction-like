@@ -1,0 +1,3353 @@
+{
+  "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+  "scene_sha256": "70da01cd5c578f74d5f655dc7028989e4e2dc20c1b367a0215d3fabad49d1087",
+  "method": "Static Unity YAML documents; GUID resolved via Assets .meta; recursively follows m_SourcePrefab for .prefab sources. Not a Unity instantiated hierarchy or runtime capture. No gameplay or asset mutations.",
+  "meta_count": 2617,
+  "direct_instances": 168,
+  "source_files_scanned": [
+    "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model (3).prefab",
+    "Assets/Config/Tower.prefab",
+    "Assets/Prefabs/Canvas.prefab",
+    "Assets/Prefabs/Cluster/BossSourceCluster.prefab",
+    "Assets/Prefabs/Cluster/EnemySourceCluster.prefab",
+    "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+    "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_AnchorSentinel.prefab",
+    "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab",
+    "Assets/Prefabs/Highlighter1.prefab",
+    "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab",
+    "Assets/Prefabs/PlayerPrefab/Agent.prefab",
+    "Assets/Prefabs/RaidFlowController.prefab",
+    "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+    "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+    "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+    "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+    "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+    "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+    "Assets/Prefabs/SceneRuntimePlayerBinder.prefab",
+    "Assets/Prefabs/TargetInputManager.prefab",
+    "Assets/Resources/HUD/Pfb_PlayerStatusHud.prefab",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "Assets/Scenes/Scene_ZL/主楼.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Ground_Cliff_Large_01.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Ground_Mound_Large_04.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_02.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_03.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_05.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Cliff_03.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Round_01.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Tree_Birch_02.prefab",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Tree_Fruit_01.prefab"
+  ],
+  "prefab_edges": [
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1772105",
+      "line": 125,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "12582023",
+      "line": 519,
+      "guid": "573093510bb39c047b41b46881c1ff8c",
+      "source_path": "Assets/Art/Models/Island/Common/FishBoat.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "16266171",
+      "line": 725,
+      "guid": "a7ab41dd803c61541b80c8c08edd9892",
+      "source_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "27217506",
+      "line": 3512,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "29187101",
+      "line": 4234,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "35345229",
+      "line": 4444,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "43132027",
+      "line": 4775,
+      "guid": "8064800ce25e39f419f1e26f76855998",
+      "source_path": "Assets/Config/Tower.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "52691505",
+      "line": 5725,
+      "guid": "fff9483b62c74bc7b603c8fe42adbc12",
+      "source_path": "Assets/Resources/HUD/Pfb_PlayerStatusHud.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "52769954",
+      "line": 5822,
+      "guid": "85d4b66433595d840b0ef5a47fa79d10",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Round_01.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "53928293",
+      "line": 6028,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "64209955",
+      "line": 6244,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "73424252",
+      "line": 6895,
+      "guid": "c7ce8bc6bce5d624cb851bf0e362ca26",
+      "source_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "77935567",
+      "line": 7530,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "78843334",
+      "line": 7619,
+      "guid": "44fa32dfed8698c49a065505fdc13a39",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Ground_Mound_Large_04.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "85232160",
+      "line": 8050,
+      "guid": "75f91281ce23f5c4781e406771f3687b",
+      "source_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "94253630",
+      "line": 9623,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "104870325",
+      "line": 10550,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "150328116",
+      "line": 12158,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "163327956",
+      "line": 12632,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "171919228",
+      "line": 12932,
+      "guid": "00c4f41824ff13f45a8812ef9853ceea",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_06.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "174849258",
+      "line": 13000,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "186605933",
+      "line": 13328,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "187720463",
+      "line": 13417,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "202635494",
+      "line": 14156,
+      "guid": "e66a95c910742497b9ff89f831f673c8",
+      "source_path": "Assets/Prefabs/Cluster/BossSourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "205914681",
+      "line": 15131,
+      "guid": "bd7baccd48ba89c4fae0f3bff540a867",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_02.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "206812183",
+      "line": 15199,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "212314257",
+      "line": 16058,
+      "guid": "0bcecd006cb144733b8aea2cba343c94",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_AnchorSentinel.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "226327345",
+      "line": 16504,
+      "guid": "adda3a291aa81654b99e5d42562a4ee1",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_05.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "233414020",
+      "line": 16929,
+      "guid": "6314b66500ef26848a4a78a399424e00",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_07.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "235432281",
+      "line": 16997,
+      "guid": "adda3a291aa81654b99e5d42562a4ee1",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_05.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "255536051",
+      "line": 17664,
+      "guid": "6314b66500ef26848a4a78a399424e00",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_07.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "264910816",
+      "line": 18207,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "286486330",
+      "line": 18959,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "311287136",
+      "line": 20004,
+      "guid": "659872d25337ad345909d120e89cf898",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Root.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "327631923",
+      "line": 20679,
+      "guid": "517a0ef8b502c5a45a192243157326bd",
+      "source_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "343723414",
+      "line": 21736,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "369643587",
+      "line": 22275,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "401000789",
+      "line": 23444,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "407009057",
+      "line": 23890,
+      "guid": "922c0062aa0f0fc4ba6f81b77c8cd38c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Background_Hill_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "477127443",
+      "line": 25915,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "483892163",
+      "line": 26870,
+      "guid": "33a094bc984468f479d24565d0cb2847",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tree2.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "485384732",
+      "line": 26953,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "487346590",
+      "line": 27042,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "492151349",
+      "line": 27131,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "502647622",
+      "line": 28281,
+      "guid": "218a50afdb0186049b604eb1e840ada6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tree1.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "503089123",
+      "line": 28364,
+      "guid": "1adbdd5ea9a76d247a3f262569b3e059",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Cliff_03.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "504507434",
+      "line": 28432,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "510895841",
+      "line": 28642,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "551982266",
+      "line": 29600,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "553772193",
+      "line": 29812,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "558994712",
+      "line": 29901,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "619874079",
+      "line": 38330,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "632161523",
+      "line": 39001,
+      "guid": "c76c9d2ab2b68b940bbf9c6edf655024",
+      "source_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "646274608",
+      "line": 39588,
+      "guid": "7c35331afba9a6a4b89be63ef9d0f64b",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_CropField_Clump_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "650893534",
+      "line": 39656,
+      "guid": "04fba9daaa137184d8bf8e429e5d6d9a",
+      "source_path": "Assets/Art/Models/Island/tripo_convert_cfc50981-c500-4787-94ae-f41149c942c9.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "657053884",
+      "line": 39767,
+      "guid": "218a50afdb0186049b604eb1e840ada6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tree1.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "672118188",
+      "line": 40146,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "687329775",
+      "line": 41356,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "718101468",
+      "line": 46062,
+      "guid": "6ef04ddd4f7919b46978162e436a59bb",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Grass_Med_Clump_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "720423942",
+      "line": 46263,
+      "guid": "d2fa2c2d440b1d7498e24b4bdf2b3c1b",
+      "source_path": "Assets/Prefabs/Canvas.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "727786568",
+      "line": 46399,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "734736398",
+      "line": 46536,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "744052743",
+      "line": 46625,
+      "guid": "218a50afdb0186049b604eb1e840ada6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tree1.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "749134458",
+      "line": 46947,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "750330080",
+      "line": 47036,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "755209169",
+      "line": 47243,
+      "guid": "922c0062aa0f0fc4ba6f81b77c8cd38c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Background_Hill_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "758658915",
+      "line": 47311,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "763616580",
+      "line": 47614,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "767002675",
+      "line": 47697,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "789869493",
+      "line": 52631,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "806267694",
+      "line": 53195,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "818820247",
+      "line": 54494,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "828749738",
+      "line": 55291,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "835888228",
+      "line": 55498,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "855841764",
+      "line": 55953,
+      "guid": "186227ddf486b294d9ec8d8c0e8dbb1c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Prop_Sword_Stone_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "859019987",
+      "line": 56041,
+      "guid": "ad4679cc68dc5634b91baef53e0c14c1",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Bush_03.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "867416771",
+      "line": 56109,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "873998147",
+      "line": 56440,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "881836448",
+      "line": 57214,
+      "guid": "25a366f9530f17847aab7e10d3457add",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_05.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "885122790",
+      "line": 57766,
+      "guid": "04fba9daaa137184d8bf8e429e5d6d9a",
+      "source_path": "Assets/Art/Models/Island/tripo_convert_cfc50981-c500-4787-94ae-f41149c942c9.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "885843734",
+      "line": 57864,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "889619526",
+      "line": 57953,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "908993973",
+      "line": 58452,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "910085658",
+      "line": 58541,
+      "guid": "f5ba9e2973c6d8d4cad295b79e2a7f45",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Tree_Fruit_01.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "911526856",
+      "line": 58742,
+      "guid": "6314b66500ef26848a4a78a399424e00",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_07.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "928391386",
+      "line": 59009,
+      "guid": "5df3ab22a0616e0499aed68e1126c3ad",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Ground_Cliff_Large_01.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "953692335",
+      "line": 60150,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "954012955",
+      "line": 60357,
+      "guid": "659872d25337ad345909d120e89cf898",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Root.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "966799161",
+      "line": 60974,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "987221958",
+      "line": 61461,
+      "guid": "4a8e8a38028d0004986346ff4104b6f3",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_CropField_Clump_02.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1001317750",
+      "line": 61650,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1016290202",
+      "line": 61978,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1017298019",
+      "line": 62067,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1025184670",
+      "line": 62516,
+      "guid": "922c0062aa0f0fc4ba6f81b77c8cd38c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Background_Hill_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1071770560",
+      "line": 64566,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1092350537",
+      "line": 65292,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1116532653",
+      "line": 69483,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1119148460",
+      "line": 69572,
+      "guid": "6314b66500ef26848a4a78a399424e00",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_07.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1163874779",
+      "line": 70711,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1167400327",
+      "line": 70921,
+      "guid": "186227ddf486b294d9ec8d8c0e8dbb1c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Prop_Sword_Stone_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1191093515",
+      "line": 71245,
+      "guid": "7ccda6cccc3b37b478c8150b94d87825",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_03.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1195628485",
+      "line": 71454,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1210738700",
+      "line": 71878,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1222767116",
+      "line": 76066,
+      "guid": "922c0062aa0f0fc4ba6f81b77c8cd38c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Background_Hill_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1235787388",
+      "line": 76299,
+      "guid": "145248c1f7a30134aaf7b4e97e61e587",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_02.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1339976869",
+      "line": 83144,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1377223076",
+      "line": 84555,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1377497911",
+      "line": 84644,
+      "guid": "44bbd64fad9366947a1c9b68c15e1261",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Tree_Birch_02.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1404318011",
+      "line": 85722,
+      "guid": "7513b043cc0e344df917893722bd7c57",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1417621543",
+      "line": 86117,
+      "guid": "218a50afdb0186049b604eb1e840ada6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tree1.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1468623076",
+      "line": 88569,
+      "guid": "d67c7b3654d02dd4594b15fe2c12df1d",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_03.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1479920358",
+      "line": 88873,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1481449956",
+      "line": 89089,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1495582350",
+      "line": 89919,
+      "guid": "33a094bc984468f479d24565d0cb2847",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tree2.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1498173158",
+      "line": 90002,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1502004264",
+      "line": 90091,
+      "guid": "922c0062aa0f0fc4ba6f81b77c8cd38c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Background_Hill_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1511711977",
+      "line": 90398,
+      "guid": "adda3a291aa81654b99e5d42562a4ee1",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_05.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1519466335",
+      "line": 94568,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1522635425",
+      "line": 95325,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1522744166",
+      "line": 95918,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1544663148",
+      "line": 96404,
+      "guid": "1f586bd17536a43b3a72abcd705a8a58",
+      "source_path": "Assets/Prefabs/SceneRuntimePlayerBinder.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1550666496",
+      "line": 96850,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1566286469",
+      "line": 98904,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1569973562",
+      "line": 99514,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1576772075",
+      "line": 99721,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1590953159",
+      "line": 100988,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1653989894",
+      "line": 102632,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1663492076",
+      "line": 103253,
+      "guid": "71189bb01f3431348b60b66e26f071e9",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Prop_StoneStack_02.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1665219613",
+      "line": 103462,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1680951179",
+      "line": 103790,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1698125062",
+      "line": 104717,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1751991592",
+      "line": 106952,
+      "guid": "adda3a291aa81654b99e5d42562a4ee1",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_05.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1756452625",
+      "line": 107392,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1769253517",
+      "line": 108083,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1798036475",
+      "line": 108293,
+      "guid": "6314b66500ef26848a4a78a399424e00",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_07.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1798513507",
+      "line": 108376,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1802906083",
+      "line": 108465,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1808262294",
+      "line": 108675,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1815880653",
+      "line": 109018,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1821012713",
+      "line": 109113,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1821968556",
+      "line": 109202,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1855942717",
+      "line": 109699,
+      "guid": "fde7fb4cd69b9204698813cfc10b0295",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Prop_StonePile_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1870339627",
+      "line": 109969,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1879525001",
+      "line": 110179,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1883719551",
+      "line": 110268,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1902632608",
+      "line": 111071,
+      "guid": "adda3a291aa81654b99e5d42562a4ee1",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Pile_05.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1910688177",
+      "line": 111139,
+      "guid": "e53df420c76f36847acc4d261dd5db75",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_大树.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1918404629",
+      "line": 111233,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1940534558",
+      "line": 112039,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1944073426",
+      "line": 112128,
+      "guid": "c46cbbfae79dcf845b5df7528890fd87",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Bush_02.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1944535353",
+      "line": 112196,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1975272009",
+      "line": 113480,
+      "guid": "10753347698b44abcb008b9637af6b41",
+      "source_path": "Assets/Prefabs/TargetInputManager.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1993477470",
+      "line": 113910,
+      "guid": "7513b043cc0e344df917893722bd7c57",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1993952240",
+      "line": 113999,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2001566871",
+      "line": 114824,
+      "guid": "e9179565111803741b6118bd8c31f6fe",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Bush_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2009893638",
+      "line": 115547,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2046761721",
+      "line": 116546,
+      "guid": "7f49dcc1a890ba04ca7db21e14565200",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Prop_StoneStack_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2050191855",
+      "line": 116755,
+      "guid": "714ba0de2c09f4a4fa1235d27b71efea",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Cliff_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2054019362",
+      "line": 116823,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2058718184",
+      "line": 116912,
+      "guid": "35f11fae10b5b994687ad2c061761202",
+      "source_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2067122320",
+      "line": 117326,
+      "guid": "922c0062aa0f0fc4ba6f81b77c8cd38c",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Background_Hill_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2079735048",
+      "line": 121782,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2102010822",
+      "line": 122619,
+      "guid": "b135c2f9e3c2141bfa302f78c76eebca",
+      "source_path": "Assets/Prefabs/RaidFlowController.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2137269402",
+      "line": 123407,
+      "guid": "ae2a3ddb12766a34baed16cb7fda99f0",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_中树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "6431064334224994841",
+      "line": 123986,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "6431064334837798866",
+      "line": 124054,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "8495978441366001893",
+      "line": 124122,
+      "guid": "80344fa5a46b42f408819a2cfecf5f9d",
+      "source_path": "Assets/Prefabs/PlayerPrefab/Agent.prefab"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "9217900615391691191",
+      "line": 124455,
+      "guid": "80344fa5a46b42f408819a2cfecf5f9d",
+      "source_path": "Assets/Prefabs/PlayerPrefab/Agent.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "230168386460629542",
+      "line": 722,
+      "guid": "fa11073033ac1a34db43c486d024c22c",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/FishBoat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "504561721062763862",
+      "line": 811,
+      "guid": "e4de742a77eefd74ebecc31132ba5db5",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Container.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "1333075389336799259",
+      "line": 900,
+      "guid": "45e819ee68bf9894080822f0ff75a583",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wardrobe.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "1411882880530494576",
+      "line": 989,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "2198010944305235325",
+      "line": 1078,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "2281500936392702130",
+      "line": 1679,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "2344291561923610362",
+      "line": 2248,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "2828167662632763437",
+      "line": 2817,
+      "guid": "636249e28250b764b88220ff191c3665",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Bed.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "3284598373970047179",
+      "line": 2906,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "3662395090778583192",
+      "line": 2995,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "6709657131411780453",
+      "line": 3084,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "6772134057392507082",
+      "line": 3173,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "7157215639637989291",
+      "line": 3774,
+      "guid": "9076e65512770f44ebbde3435e8f37d7",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/RockWall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "7464622741007359159",
+      "line": 3863,
+      "guid": "2d7fdc92aae93434ea442db7cd3ee792",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Toilet.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "7550698322565503372",
+      "line": 3952,
+      "guid": "45e819ee68bf9894080822f0ff75a583",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wardrobe.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "7666767594820027166",
+      "line": 4041,
+      "guid": "51a939e86a7734d40a4de1d723ce6785",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/CashBox.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "7698523205794664793",
+      "line": 4130,
+      "guid": "623e12483fc465749a7ce4fb0a39f3d9",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/HandWasher.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "instance_id": "9134549233298552405",
+      "line": 4219,
+      "guid": "45e819ee68bf9894080822f0ff75a583",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wardrobe.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab",
+      "instance_id": "4159089341641377678",
+      "line": 270,
+      "guid": "7513b043cc0e344df917893722bd7c57",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab",
+      "instance_id": "9038101461205495904",
+      "line": 344,
+      "guid": "0bcecd006cb144733b8aea2cba343c94",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_AnchorSentinel.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab",
+      "instance_id": "8057277267960316226",
+      "line": 119,
+      "guid": "64ddeeed8194a1d4094c72c82e86a1bf",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model (3).prefab"
+    },
+    {
+      "owner_path": "Assets/Config/Tower.prefab",
+      "instance_id": "3468402089337313063",
+      "line": 3,
+      "guid": "3f64b0030a187444eaa15f2dfd6a287d",
+      "source_path": "Assets/Art/Models/Island/Common/Tower.fbx"
+    },
+    {
+      "owner_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Round_01.prefab",
+      "instance_id": "4025496197313280831",
+      "line": 3,
+      "guid": "05396c1b920f79d49be6030c58252771",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Round_01.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "330882463195197685",
+      "line": 1440,
+      "guid": "c1667ace773ed9e42a298ca94d1f44d8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Engine.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "571392052964660114",
+      "line": 1529,
+      "guid": "f3a22a1bd05a9d141a29c55cbd1da21f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Seat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "759418397145330301",
+      "line": 1618,
+      "guid": "f3a22a1bd05a9d141a29c55cbd1da21f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Seat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "1355880979497660368",
+      "line": 1707,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "1457275922369341941",
+      "line": 2266,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "1563654483811093149",
+      "line": 2359,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "2229934683804716810",
+      "line": 2448,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "2429491008880156441",
+      "line": 2537,
+      "guid": "5fd15d7a23c89a9449ba2a1e2806725d",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Table.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "2651368219770325498",
+      "line": 2626,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "2761773394456719450",
+      "line": 2715,
+      "guid": "6f8229c7688def746a092668915cb26a",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/LargeTable.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "3107977639335455228",
+      "line": 2804,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "3447827158516208902",
+      "line": 2893,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "3479127977343440042",
+      "line": 2982,
+      "guid": "f3a22a1bd05a9d141a29c55cbd1da21f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Seat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "3541288109317187650",
+      "line": 3071,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "3619197652068517701",
+      "line": 3160,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "4024486615410039985",
+      "line": 3253,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "4151598906875186941",
+      "line": 3342,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "4626356530460313399",
+      "line": 3963,
+      "guid": "5fd15d7a23c89a9449ba2a1e2806725d",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Table.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "5019545331309573048",
+      "line": 4052,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "5270224786865063204",
+      "line": 4141,
+      "guid": "9e72593745b7d4f08987d1a500b0581d",
+      "source_path": "Assets/Scenes/Scene_ZL/主楼.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "5702444032846583787",
+      "line": 4283,
+      "guid": "f3a22a1bd05a9d141a29c55cbd1da21f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Seat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "5770612704486411288",
+      "line": 4372,
+      "guid": "6f8229c7688def746a092668915cb26a",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/LargeTable.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "6413249673764248311",
+      "line": 4461,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "6758723709803637583",
+      "line": 4554,
+      "guid": "f3a22a1bd05a9d141a29c55cbd1da21f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Seat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "7273209602299398883",
+      "line": 4643,
+      "guid": "5fd15d7a23c89a9449ba2a1e2806725d",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Table.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "7437925269579683547",
+      "line": 4732,
+      "guid": "f3a22a1bd05a9d141a29c55cbd1da21f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Seat.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "8160228860845293874",
+      "line": 4821,
+      "guid": "51a939e86a7734d40a4de1d723ce6785",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/CashBox.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "8898312246497344898",
+      "line": 4910,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "8901440597447400319",
+      "line": 5003,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "instance_id": "9198399240886201806",
+      "line": 5624,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "145336042142361753",
+      "line": 1542,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "1571276609146436883",
+      "line": 1751,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "2714552020256640594",
+      "line": 2387,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "2798391963138090427",
+      "line": 2476,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "3901516956360998781",
+      "line": 2569,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "4500757012956710412",
+      "line": 2658,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "4584885710219671984",
+      "line": 2847,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "5037391488377033609",
+      "line": 2940,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "5154994837373562205",
+      "line": 3149,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "5487988635626473765",
+      "line": 3358,
+      "guid": "b1f9bdb2bbff5d34db751939bdf87ca1",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Root2.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "5967889786178805350",
+      "line": 3447,
+      "guid": "e66a95c910742497b9ff89f831f673c8",
+      "source_path": "Assets/Prefabs/Cluster/BossSourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "6196704311290197941",
+      "line": 4021,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "7045381054958258277",
+      "line": 4230,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "7476321227712177850",
+      "line": 4319,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "8035961849605758843",
+      "line": 4412,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "8488224050112596024",
+      "line": 4621,
+      "guid": "145248c1f7a30134aaf7b4e97e61e587",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_02.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "8714499424324352812",
+      "line": 4710,
+      "guid": "ac8dcee84d6c03243a36eb97a6087c18",
+      "source_path": "Assets/Art/Models/Island/Common/GiantRoot.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "instance_id": "9154876833494840732",
+      "line": 4919,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "instance_id": "6431064334517617862",
+      "line": 210,
+      "guid": "4971d3cf12ab63c4183454288ef16c4d",
+      "source_path": "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Cluster/BossSourceCluster.prefab",
+      "instance_id": "4985676885412403235",
+      "line": 265,
+      "guid": "7513b043cc0e344df917893722bd7c57",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "33254148899168734",
+      "line": 272,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "1593618033487809804",
+      "line": 361,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "1764371602560119245",
+      "line": 951,
+      "guid": "93b97898a3d344247b22ee7400bbd2d9",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank3.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "2306748774091162086",
+      "line": 1040,
+      "guid": "93b97898a3d344247b22ee7400bbd2d9",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank3.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "2370365945577343161",
+      "line": 1129,
+      "guid": "7513b043cc0e344df917893722bd7c57",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "2439478604956001624",
+      "line": 1218,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "3113999414332053189",
+      "line": 1311,
+      "guid": "26a077633ea2aee40afcf7c4ae549ef5",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank2.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "3220191010281729668",
+      "line": 1400,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "3730372725954823838",
+      "line": 1489,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "4772586570212736933",
+      "line": 1578,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "4831671025294571524",
+      "line": 1671,
+      "guid": "26a077633ea2aee40afcf7c4ae549ef5",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank2.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "5358410572333965744",
+      "line": 1760,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "6334049275463803213",
+      "line": 1853,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "6508978035480249658",
+      "line": 1946,
+      "guid": "93b97898a3d344247b22ee7400bbd2d9",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank3.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "6649677759459276602",
+      "line": 2035,
+      "guid": "93b97898a3d344247b22ee7400bbd2d9",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank3.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "6749070995108827116",
+      "line": 2124,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "7408753115429723937",
+      "line": 2795,
+      "guid": "c37d57dff4fd60e479ccdd6e74f15461",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Bone2.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "7639884856456821284",
+      "line": 2884,
+      "guid": "c37d57dff4fd60e479ccdd6e74f15461",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Bone2.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "7756197451483710732",
+      "line": 2973,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "8438930272433951222",
+      "line": 3066,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "8728909485230622430",
+      "line": 3155,
+      "guid": "414505f986767f84e8f0c0fb701505a8",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Plank1.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "instance_id": "9092091596078475537",
+      "line": 3244,
+      "guid": "a44a31a230fcbbb45be1d26031d90012",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Bone1.fbx"
+    },
+    {
+      "owner_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Cliff_03.prefab",
+      "instance_id": "8305644428619221750",
+      "line": 17,
+      "guid": "6177f4665baace146a3dd9de9c3276b0",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_Cliff_03.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "161082908948809313",
+      "line": 894,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "1543842842745587935",
+      "line": 987,
+      "guid": "3b0cf5b4d2e77c44f85a7657bb57e7bf",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/CurveWall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "1635035460775082543",
+      "line": 1076,
+      "guid": "0cf991983eae44c4a8bde66a5168ad42",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Tower.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "1690516154174582915",
+      "line": 1179,
+      "guid": "cd16ba17ff805664bb829d049f76afea",
+      "source_path": "Assets/Art/Models/Visual Effect/Fbx_小树苗.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "2537507797015904022",
+      "line": 1268,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "3096139082456551872",
+      "line": 1887,
+      "guid": "0bcecd006cb144733b8aea2cba343c94",
+      "source_path": "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_AnchorSentinel.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "3215886766250426864",
+      "line": 1976,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "5073768755758897071",
+      "line": 2069,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "5117382552598841310",
+      "line": 2162,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "5721715572940860734",
+      "line": 2255,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "6091117234859701609",
+      "line": 2348,
+      "guid": "3b0cf5b4d2e77c44f85a7657bb57e7bf",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/CurveWall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "6223680890226626752",
+      "line": 2437,
+      "guid": "3b0cf5b4d2e77c44f85a7657bb57e7bf",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/CurveWall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "8279169879656203873",
+      "line": 2526,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "instance_id": "8809635840947226115",
+      "line": 3135,
+      "guid": "3b0cf5b4d2e77c44f85a7657bb57e7bf",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/CurveWall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Canvas.prefab",
+      "instance_id": "5896912838798129964",
+      "line": 24025,
+      "guid": "6e10bdf3e84df16448d4dd523c137638",
+      "source_path": "Assets/Prefabs/Highlighter1.prefab"
+    },
+    {
+      "owner_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_05.prefab",
+      "instance_id": "4937452615817316882",
+      "line": 17,
+      "guid": "1d7c1c3dec417d2459d06c9391939b9b",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_05.fbx"
+    },
+    {
+      "owner_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_03.prefab",
+      "instance_id": "5788734441124444409",
+      "line": 17,
+      "guid": "d67c7b3654d02dd4594b15fe2c12df1d",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_03.fbx"
+    },
+    {
+      "owner_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_02.prefab",
+      "instance_id": "3864909254163794758",
+      "line": 17,
+      "guid": "bd7baccd48ba89c4fae0f3bff540a867",
+      "source_path": "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Models/SM_Env_Rock_02.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "605136855475841911",
+      "line": 222,
+      "guid": "636249e28250b764b88220ff191c3665",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Bed.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "1269545350908799376",
+      "line": 311,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "1464824341241123966",
+      "line": 400,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "1527941528321637529",
+      "line": 489,
+      "guid": "2529721427ab0f44e86ea653ca194153",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/FileCabinet.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "2451762702914503126",
+      "line": 578,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "2493445254778801783",
+      "line": 667,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "2547457847776598572",
+      "line": 756,
+      "guid": "46ce6dfb9cdc6fd4791c622f0bcca6c4",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Desk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "2654091046969903059",
+      "line": 845,
+      "guid": "45e819ee68bf9894080822f0ff75a583",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wardrobe.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "2785447780500787518",
+      "line": 934,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "3043964824181275979",
+      "line": 1023,
+      "guid": "66661dff129c8bf45a4a8103655a1d7a",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/TechWall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "3217263957502992269",
+      "line": 1112,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "3281171574836135874",
+      "line": 1201,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "3586982225899106810",
+      "line": 1290,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "3769181786108269007",
+      "line": 1379,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "3932469915981357745",
+      "line": 1468,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "4560453917122271172",
+      "line": 1557,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "4654989547297157587",
+      "line": 1646,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "4698234348186953661",
+      "line": 1735,
+      "guid": "2529721427ab0f44e86ea653ca194153",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/FileCabinet.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "4943113452299221662",
+      "line": 1824,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "5114609209692643295",
+      "line": 1913,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "5491967704716302711",
+      "line": 2006,
+      "guid": "2529721427ab0f44e86ea653ca194153",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/FileCabinet.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "5864043301538395227",
+      "line": 2095,
+      "guid": "cb44bfe451b1b694fa29b3b6b79079df",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/Wall.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "6300421006358844050",
+      "line": 2184,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "6430581979810042326",
+      "line": 2273,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "6734258651710901065",
+      "line": 2366,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "7083967638603287828",
+      "line": 2459,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "7150007241473359001",
+      "line": 2548,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "8102076348714243513",
+      "line": 2642,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "8474830864021870235",
+      "line": 2731,
+      "guid": "3b7f01c1554484efbaade602946cc8b8",
+      "source_path": "Assets/Prefabs/Cluster/EnemySourceCluster.prefab"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "8597766204483453407",
+      "line": 3374,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "8698550790576742580",
+      "line": 3463,
+      "guid": "485308f5181df2a459bdf3448848310f",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/ExpDesk.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "8701123784056663411",
+      "line": 3552,
+      "guid": "2529721427ab0f44e86ea653ca194153",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/FileCabinet.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "9067435053994673451",
+      "line": 3641,
+      "guid": "2529721427ab0f44e86ea653ca194153",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/FileCabinet.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "9077999375117175394",
+      "line": 3730,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "instance_id": "9087530617746360777",
+      "line": 3823,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    },
+    {
+      "owner_path": "Assets/Prefabs/PlayerPrefab/Agent.prefab",
+      "instance_id": "4401007001007001001",
+      "line": 457,
+      "guid": "1010cbeeab37fe146a6cc7b3707de979",
+      "source_path": "Assets/Art/Animations/Ai Idle.fbx"
+    },
+    {
+      "owner_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model (3).prefab",
+      "instance_id": "4975811188809258571",
+      "line": 3,
+      "guid": "2e8c40876f3e6a8498d35f9102d723f6",
+      "source_path": "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model.fbx"
+    }
+  ],
+  "unresolved_source_prefabs": [],
+  "key_asset_paths": {
+    "7cc4aa7609c2440da95de0b049b474ee": "Assets/Prefabs/Cluster/ExtractionCluster.prefab",
+    "80344fa5a46b42f408819a2cfecf5f9d": "Assets/Prefabs/PlayerPrefab/Agent.prefab",
+    "a932304332ad443e9a3557f6df43bf34": "Assets/SO/Agent/SO_Agent__Ice_PawnConfig.asset",
+    "1e6887c5fe8e847ed92bbafe8721b948": "Assets/SO/Agent/SO_Agent__Earth_PawnConfig.asset",
+    "15a9948bdf7d84d159729d05db36e9b3": "Assets/Resources/Agent/Combat/SO_AgentCombatStyle_Earth.asset"
+  },
+  "script_hits": [
+    {
+      "owner_path": "Assets/Prefabs/Canvas.prefab",
+      "script": "RaidFlowController",
+      "game_object_name_yaml": "GameManager",
+      "type": 114,
+      "file_id": "976869042271210373",
+      "stripped": false,
+      "line": 14039,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 5203348240219176582}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 5e1a8f38f7fe4a744b4ad9b97cf2b3f1, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  MissionName: MVP Raid\n  RestartKey: 114\n  _successScreenPrefab: {fileID: 0}\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/RaidFlowController.prefab",
+      "script": "RaidFlowController",
+      "game_object_name_yaml": "RaidFlowController",
+      "type": 114,
+      "file_id": "8501682771764213657",
+      "stripped": false,
+      "line": 36,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 2875703200084864982}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 5e1a8f38f7fe4a744b4ad9b97cf2b3f1, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  MissionName: Large Island Wall Layout\n  RestartKey: 114\n  _successScreenPrefab: {fileID: 0}\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5458\\u5DE5\\u5BBF\\u820D\"",
+      "type": 114,
+      "file_id": "6478811322877808816",
+      "stripped": false,
+      "line": 538,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 7079672976904568059}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_f9850db9ca424819b1bf5efafbb38f79\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 3064945465666698708}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5458\\u5DE5\\u98DF\\u5802\"",
+      "type": 114,
+      "file_id": "6692875077452993065",
+      "stripped": false,
+      "line": 521,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1771246909608894776}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_40462125059f430daca09b97a66ddcac\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 8270515624142693517}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5947\\u70B9\\u5854\"",
+      "type": 114,
+      "file_id": "2638425311836981089",
+      "stripped": false,
+      "line": 758,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 6977521420414469289}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_544cae3f305443db83c2dbac04e47424\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 8807447492700923802}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5B9E\\u9A8C\\u5BA4\"",
+      "type": 114,
+      "file_id": "2588706362420184269",
+      "stripped": false,
+      "line": 135,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 6790287024264320807}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_b9ab82fccb9943929b3d6f226e5851aa\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters:\n  - {fileID: 0}\n  - {fileID: 0}\n  - {fileID: 6431816092092807037}\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 9024146368615498571}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u6E14\\u6751\"",
+      "type": 114,
+      "file_id": "5100383301846709023",
+      "stripped": false,
+      "line": 104,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1930123284171192883}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_e86cbea679c846bcaed0b67b8bdb8538\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters:\n  - {fileID: 0}\n  - {fileID: 0}\n  - {fileID: 0}\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u96E8\\u6797\"",
+      "type": 114,
+      "file_id": "5975251725602802287",
+      "stripped": false,
+      "line": 1266,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 3031210991735728386}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_007b091bd473454ca221575f8b85b65c\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u6E14\\u6751\"",
+      "type": 114,
+      "file_id": "3387003",
+      "stripped": false,
+      "line": 249,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 3387001}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_e86cbea679c846bcaed0b67b8bdb8538\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters:\n  - {fileID: 687329776}\n  - {fileID: 1566286470}\n  - {fileID: 1698125063}\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5458\\u5DE5\\u5BBF\\u820D\"",
+      "type": 114,
+      "file_id": "20146627",
+      "stripped": false,
+      "line": 3245,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 20146625}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_f9850db9ca424819b1bf5efafbb38f79\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "ExtractionPointController",
+      "game_object_name_yaml": "Extraction_A",
+      "type": 114,
+      "file_id": "162653589",
+      "stripped": false,
+      "line": 12522,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 162653587}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 60c1a7b101635cd4e9054c456d45b7e5, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  ExtractionPointName: \"\\u64A4\\u79BB\\u70B9 A\"\n  ExtractionDurationSeconds: 3.2\n  DetectionHorizontalScale: 0.08\n  WorldPromptVerticalOffset: 0.9\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u9F99\\u9AA8\\u7901\"",
+      "type": 114,
+      "file_id": "279692725",
+      "stripped": false,
+      "line": 18571,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 279692723}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_57d1f63e4e654ed887cddedc348c6089\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5947\\u70B9\\u5854\"",
+      "type": 114,
+      "file_id": "317829572",
+      "stripped": false,
+      "line": 20244,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 317829570}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_544cae3f305443db83c2dbac04e47424\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "ExtractionPointController",
+      "game_object_name_yaml": "Extraction_B",
+      "type": 114,
+      "file_id": "824603107",
+      "stripped": false,
+      "line": 54945,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 824603105}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 60c1a7b101635cd4e9054c456d45b7e5, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  ExtractionPointName: \"\\u64A4\\u79BB\\u70B9 B\"\n  ExtractionDurationSeconds: 3.2\n  DetectionHorizontalScale: 0.08\n  WorldPromptVerticalOffset: 0.9\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5458\\u5DE5\\u98DF\\u5802\"",
+      "type": 114,
+      "file_id": "922218180",
+      "stripped": false,
+      "line": 58978,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 922218178}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_40462125059f430daca09b97a66ddcac\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u5B9E\\u9A8C\\u5BA4\"",
+      "type": 114,
+      "file_id": "1279994158",
+      "stripped": false,
+      "line": 81580,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1279994156}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_b9ab82fccb9943929b3d6f226e5851aa\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters:\n  - {fileID: 2009893639}\n  - {fileID: 1550666497}\n  - {fileID: 492151350}\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "TargetZoneAuthoring",
+      "game_object_name_yaml": "\"Zone-\\u96E8\\u6797\"",
+      "type": 114,
+      "file_id": "1414847388",
+      "stripped": false,
+      "line": 86086,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1414847386}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 1fe631dca8da4447a052f9024ed9c692, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: Zone_007b091bd473454ca221575f8b85b65c\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _clusters: []\n  _rangePadding: 4\n  _fallbackRadius: 8\n  _circleSegments: 48\n  _smoothSegmentsPerEdge: 8\n  _rangeHeightOffset: 0.08\n  _drawGizmos: 1\n  _rangeColor: {r: 0.04, g: 0.45, b: 0.28, a: 0.95}\n  _rangeLineWidth: 0.18\n  _rangeLineRenderer: {fileID: 0}\n  _rangeColliderTarget: {fileID: 0}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "script": "RaidFlowController",
+      "game_object_name_yaml": "RaidFlowController",
+      "type": 114,
+      "file_id": "1578503827",
+      "stripped": false,
+      "line": 100495,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1578503825}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 5e1a8f38f7fe4a744b4ad9b97cf2b3f1, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  MissionName: Large Island Wall Layout\n  RestartKey: 114\n  _successScreenPrefab: {fileID: 0}\n"
+    }
+  ],
+  "selected_scene_documents": [
+    {
+      "type": 1,
+      "file_id": "162653587",
+      "stripped": false,
+      "line": 12486,
+      "body": "GameObject:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  serializedVersion: 6\n  m_Component:\n  - component: {fileID: 162653588}\n  - component: {fileID: 162653593}\n  - component: {fileID: 162653592}\n  - component: {fileID: 162653591}\n  - component: {fileID: 162653590}\n  - component: {fileID: 162653589}\n  m_Layer: 0\n  m_Name: Extraction_A\n  m_TagString: Untagged\n  m_Icon: {fileID: 0}\n  m_NavMeshLayer: 0\n  m_StaticEditorFlags: 0\n  m_IsActive: 1\n"
+    },
+    {
+      "type": 4,
+      "file_id": "162653588",
+      "stripped": false,
+      "line": 12507,
+      "body": "Transform:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 162653587}\n  serializedVersion: 2\n  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}\n  m_LocalPosition: {x: 206.1, y: 16.6, z: 354.2}\n  m_LocalScale: {x: 5, y: 0.35, z: 5}\n  m_ConstrainProportionsScale: 0\n  m_Children: []\n  m_Father: {fileID: 1124576284}\n  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}\n"
+    },
+    {
+      "type": 114,
+      "file_id": "162653589",
+      "stripped": false,
+      "line": 12522,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 162653587}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 60c1a7b101635cd4e9054c456d45b7e5, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  ExtractionPointName: \"\\u64A4\\u79BB\\u70B9 A\"\n  ExtractionDurationSeconds: 3.2\n  DetectionHorizontalScale: 0.08\n  WorldPromptVerticalOffset: 0.9\n"
+    },
+    {
+      "type": 1,
+      "file_id": "824603105",
+      "stripped": false,
+      "line": 54909,
+      "body": "GameObject:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  serializedVersion: 6\n  m_Component:\n  - component: {fileID: 824603106}\n  - component: {fileID: 824603111}\n  - component: {fileID: 824603110}\n  - component: {fileID: 824603109}\n  - component: {fileID: 824603108}\n  - component: {fileID: 824603107}\n  m_Layer: 0\n  m_Name: Extraction_B\n  m_TagString: Untagged\n  m_Icon: {fileID: 0}\n  m_NavMeshLayer: 0\n  m_StaticEditorFlags: 0\n  m_IsActive: 1\n"
+    },
+    {
+      "type": 4,
+      "file_id": "824603106",
+      "stripped": false,
+      "line": 54930,
+      "body": "Transform:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 824603105}\n  serializedVersion: 2\n  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}\n  m_LocalPosition: {x: 322.8, y: 0.12, z: -132.7}\n  m_LocalScale: {x: 5, y: 0.35, z: 5}\n  m_ConstrainProportionsScale: 0\n  m_Children: []\n  m_Father: {fileID: 1124576284}\n  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}\n"
+    },
+    {
+      "type": 114,
+      "file_id": "824603107",
+      "stripped": false,
+      "line": 54945,
+      "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 824603105}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 60c1a7b101635cd4e9054c456d45b7e5, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  ExtractionPointName: \"\\u64A4\\u79BB\\u70B9 B\"\n  ExtractionDurationSeconds: 3.2\n  DetectionHorizontalScale: 0.08\n  WorldPromptVerticalOffset: 0.9\n"
+    },
+    {
+      "type": 1,
+      "file_id": "1124576283",
+      "stripped": false,
+      "line": 69758,
+      "body": "GameObject:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  serializedVersion: 6\n  m_Component:\n  - component: {fileID: 1124576284}\n  m_Layer: 0\n  m_Name: Markers\n  m_TagString: Untagged\n  m_Icon: {fileID: 0}\n  m_NavMeshLayer: 0\n  m_StaticEditorFlags: 0\n  m_IsActive: 1\n"
+    },
+    {
+      "type": 4,
+      "file_id": "1124576284",
+      "stripped": false,
+      "line": 69774,
+      "body": "Transform:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1124576283}\n  serializedVersion: 2\n  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}\n  m_LocalPosition: {x: 0, y: 0, z: 0}\n  m_LocalScale: {x: 1, y: 1, z: 1}\n  m_ConstrainProportionsScale: 0\n  m_Children:\n  - {fileID: 535876632}\n  - {fileID: 107513813}\n  - {fileID: 162653588}\n  - {fileID: 824603106}\n  m_Father: {fileID: 1537201407}\n  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}\n"
+    },
+    {
+      "type": 1,
+      "file_id": "1537201406",
+      "stripped": false,
+      "line": 96013,
+      "body": "GameObject:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  serializedVersion: 6\n  m_Component:\n  - component: {fileID: 1537201407}\n  m_Layer: 0\n  m_Name: IslandWallLayoutRoot\n  m_TagString: Untagged\n  m_Icon: {fileID: 0}\n  m_NavMeshLayer: 0\n  m_StaticEditorFlags: 0\n  m_IsActive: 1\n"
+    },
+    {
+      "type": 4,
+      "file_id": "1537201407",
+      "stripped": false,
+      "line": 96029,
+      "body": "Transform:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1537201406}\n  serializedVersion: 2\n  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}\n  m_LocalPosition: {x: 0, y: 0, z: 0}\n  m_LocalScale: {x: 1, y: 1, z: 1}\n  m_ConstrainProportionsScale: 0\n  m_Children:\n  - {fileID: 1578503826}\n  - {fileID: 1972314043}\n  - {fileID: 146254463}\n  - {fileID: 1124576284}\n  - {fileID: 2086548526}\n  - {fileID: 2039451927}\n  m_Father: {fileID: 0}\n  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}\n"
+    },
+    {
+      "type": 1001,
+      "file_id": "8495978441366001893",
+      "stripped": false,
+      "line": 124122,
+      "body": "PrefabInstance:\n  m_ObjectHideFlags: 0\n  serializedVersion: 2\n  m_Modification:\n    serializedVersion: 3\n    m_TransformParent: {fileID: 0}\n    m_Modifications:\n    - target: {fileID: 51537463563271940, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 158247947290825332, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 248478328346707045, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 289494268890833048, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 566985331671650048, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 735511250429900469, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 789535231959087313, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 855377513408485602, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1097285544211070880, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1135720575714749758, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1525174522834679917, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1627632848004941700, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1648690418837136109, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1679294779513311145, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1782341115088838824, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1912743215483424676, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalScale.x\n      value: 3\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalScale.y\n      value: 3\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalScale.z\n      value: 3\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.x\n      value: 221.41153\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.y\n      value: 16.001434\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.z\n      value: 82.0318\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.w\n      value: 1\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.x\n      value: -0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.y\n      value: -0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.z\n      value: -0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalEulerAnglesHint.x\n      value: 0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalEulerAnglesHint.y\n      value: 0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalEulerAnglesHint.z\n      value: 0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2651172937199833030, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 2843305039464860722, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.x\n      value: 5.77\n      objectReference: {fileID: 0}\n    - target: {fileID: 2843305039464860722, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.z\n      value: -1.67\n      objectReference: {fileID: 0}\n    - target: {fileID: 2930413314353094930, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3312243613559890077, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3424694819848780356, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3590192837209796856, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3609217357742560163, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3710379458125866204, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4409887830359032656, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4543189705602027503, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4627525471682257326, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4706651149431116589, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4990119196938231942, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5108358022554841686, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5137759301426706474, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5224664672726123834, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5491856885365467676, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Speed\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5491856885365467676, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Radius\n      value: 1.5\n      objectReference: {fileID: 0}\n    - target: {fileID: 5928486771413278858, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6147289720459003368, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6267096640603637828, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6287857754815711406, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6462148910200642528, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6509070426059624141, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6567323404140636169, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6774194897979935005, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Name\n      value: Agent_01\n      objectReference: {fileID: 0}\n    - target: {fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 7510106751715817762, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 8342531286889493364, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 8527092223657418559, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 8769312628970739445, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: _playPrototypeSkillVfx\n      value: 1\n      objectReference: {fileID: 0}\n    - target: {fileID: 9136860868753481953, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}\n"
+    },
+    {
+      "type": 1001,
+      "file_id": "9217900615391691191",
+      "stripped": false,
+      "line": 124455,
+      "body": "PrefabInstance:\n  m_ObjectHideFlags: 0\n  serializedVersion: 2\n  m_Modification:\n    serializedVersion: 3\n    m_TransformParent: {fileID: 0}\n    m_Modifications:\n    - target: {fileID: 51537463563271940, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 158247947290825332, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 248478328346707045, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 289494268890833048, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 566985331671650048, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 735511250429900469, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 789535231959087313, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 855377513408485602, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1097285544211070880, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1135720575714749758, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1525174522834679917, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1627632848004941700, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1648690418837136109, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1679294779513311145, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1782341115088838824, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 1912743215483424676, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalScale.x\n      value: 3\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalScale.y\n      value: 3\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalScale.z\n      value: 3\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.x\n      value: 203.2\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.y\n      value: 15.851425\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalPosition.z\n      value: 23.5\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.w\n      value: 1\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.x\n      value: -0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.y\n      value: -0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalRotation.z\n      value: -0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalEulerAnglesHint.x\n      value: 0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalEulerAnglesHint.y\n      value: 0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_LocalEulerAnglesHint.z\n      value: 0\n      objectReference: {fileID: 0}\n    - target: {fileID: 2651172937199833030, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 2898261118407030116, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: _agentId\n      value: 2\n      objectReference: {fileID: 0}\n    - target: {fileID: 2898261118407030116, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: _pawnConfig\n      value: \n      objectReference: {fileID: 11400000, guid: 1e6887c5fe8e847ed92bbafe8721b948,\n        type: 2}\n    - target: {fileID: 2930413314353094930, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3312243613559890077, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3424694819848780356, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3590192837209796856, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3609217357742560163, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 3710379458125866204, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4409887830359032656, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4543189705602027503, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4627525471682257326, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4706651149431116589, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 4990119196938231942, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5108358022554841686, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5137759301426706474, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5224664672726123834, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 5928486771413278858, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6147289720459003368, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6267096640603637828, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6287857754815711406, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6462148910200642528, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6509070426059624141, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6567323404140636169, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 6774194897979935005, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Name\n      value: Agent_02\n      objectReference: {fileID: 0}\n    - target: {fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 7510106751715817762, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 8342531286889493364, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 8527092223657418559, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 8769312628970739445, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    - target: {fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: _styleConfig\n      value: \n      objectReference: {fileID: 11400000, guid: 15a9948bdf7d84d159729d05db36e9b3,\n        type: 2}\n    - target: {fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: _playPrototypeSkillVfx\n      value: 1\n      objectReference: {fileID: 0}\n    - target: {fileID: 9136860868753481953, guid: 80344fa5a46b42f408819a2cfecf5f9d,\n        type: 3}\n      propertyPath: m_Layer\n      value: 8\n      objectReference: {fileID: 0}\n    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}\n"
+    }
+  ],
+  "resolved_instance_overrides": [
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "16266171",
+      "line": 725,
+      "guid": "a7ab41dd803c61541b80c8c08edd9892",
+      "source_path": "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab",
+      "modification_count": 407,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 7079672976904568059, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}",
+          "property": "m_Name",
+          "value": "\"Zone-\\u5458\\u5DE5\\u5BBF\\u820D2\"",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 918139432888493966, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 3311994978059461478, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 4703804477956302491, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 9108064615991171283, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 3652663240257577781, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 4771735948890628251, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 851173447340472906, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    - {fileID: 5238929880182274045, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: a7ab41dd803c61541b80c8c08edd9892, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "73424252",
+      "line": 6895,
+      "guid": "c7ce8bc6bce5d624cb851bf0e362ca26",
+      "source_path": "Assets/Prefabs/Rooms/Zone-员工食堂.prefab",
+      "modification_count": 27,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 1771246909608894776, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}",
+          "property": "m_Name",
+          "value": "\"Zone-\\u5458\\u5DE5\\u98DF\\u58022\"",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 3229766782721405386, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 7982450005402379336, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 8295299630740508593, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 1799224794990826660, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 6179247963183163302, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 8627856774566133971, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 4537535809812036116, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 763033011240343907, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    - {fileID: 1812520667626668965, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: c7ce8bc6bce5d624cb851bf0e362ca26, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "85232160",
+      "line": 8050,
+      "guid": "75f91281ce23f5c4781e406771f3687b",
+      "source_path": "Assets/Prefabs/Rooms/Zone-雨林.prefab",
+      "modification_count": 217,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 3031210991735728386, guid: 75f91281ce23f5c4781e406771f3687b, type: 3}",
+          "property": "m_Name",
+          "value": "\"Zone-\\u96E8\\u67972\"",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 75f91281ce23f5c4781e406771f3687b, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "94253630",
+      "line": 9623,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 108,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 317829572}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_B",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 885843735}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1092350538}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 317829571}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "327631923",
+      "line": 20679,
+      "guid": "517a0ef8b502c5a45a192243157326bd",
+      "source_path": "Assets/Prefabs/Rooms/Zone-渔村.prefab",
+      "modification_count": 161,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 1930123284171192883, guid: 517a0ef8b502c5a45a192243157326bd, type: 3}",
+          "property": "m_Name",
+          "value": "\"Zone-\\u6E14\\u67512\"",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 8634093903956389229, guid: 517a0ef8b502c5a45a192243157326bd, type: 3}\n    - {fileID: 5253056150472995035, guid: 517a0ef8b502c5a45a192243157326bd, type: 3}\n    - {fileID: 2547570728988188632, guid: 517a0ef8b502c5a45a192243157326bd, type: 3}\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 517a0ef8b502c5a45a192243157326bd, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "632161523",
+      "line": 39001,
+      "guid": "c76c9d2ab2b68b940bbf9c6edf655024",
+      "source_path": "Assets/Prefabs/Rooms/Zone-奇点塔.prefab",
+      "modification_count": 18,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 6977521420414469289, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}",
+          "property": "m_Name",
+          "value": "\"Zone-\\u5947\\u70B9\\u58542\"",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 3924912462111932449, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 7469954281567730006, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 4826861636390246664, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 5455724286253081904, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 1080056717557562160, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 4874852126204416111, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 5379774178804181758, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 2332994522494123169, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    - {fileID: 5460035657183443599, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: c76c9d2ab2b68b940bbf9c6edf655024, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "672118188",
+      "line": 40146,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 108,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 922218180}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_B (1)",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1808262295}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 279692724}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "687329775",
+      "line": 41356,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 113,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 3387003}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_A",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 619874080}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 35345230}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 3387002}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "720423942",
+      "line": 46263,
+      "guid": "d2fa2c2d440b1d7498e24b4bdf2b3c1b",
+      "source_path": "Assets/Prefabs/Canvas.prefab",
+      "modification_count": 21,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 6700657469910866511, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b, type: 3}",
+          "property": "m_Name",
+          "value": "Canvas",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "767002675",
+      "line": 47697,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 113,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 317829572}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_A",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1498173159}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 174849259}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 343723415}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 317829571}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "806267694",
+      "line": 53195,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 124,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 20146627}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceTier",
+          "value": "1",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.size",
+          "value": "4",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[0]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 53928295}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[1]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 5051451073098777644}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[2]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 1479920360}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[3]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 1815880655}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_A",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_IsActive",
+          "value": "1",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 5051451072816224056, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 53928294}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 4586565735128494134}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1479920359}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1815880654}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 20146626}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1481449956",
+      "line": 89089,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 113,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 1414847388}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_A",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 908993974}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 20000001}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1522635425",
+      "line": 95325,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 114,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 1414847388}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_B",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 369643588}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 20000001}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1550666496",
+      "line": 96850,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 111,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 1279994158}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_B",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1821968557}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1071770561}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 749134459}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 1279994157}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1566286469",
+      "line": 98904,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 114,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 3387003}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[0]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_B",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 5051451072816224056, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 789869494}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1016290203}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 3387002}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1680951179",
+      "line": 103790,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 113,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 1414847388}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_C",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 758658916}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1001317751}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 734736399}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 20000001}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "1993952240",
+      "line": 113999,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 127,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 922218180}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.size",
+          "value": "4",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[0]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 1310821993}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[1]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 839956540}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[2]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 1532045790}"
+        },
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_resourceMembers.Array.data[3]._entityObject",
+          "value": "",
+          "object_reference": "{fileID: 629995061}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_B",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: 0\n      addedObject: {fileID: 1163874780}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: 1\n      addedObject: {fileID: 839956541}\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 2079735049}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 922218179}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2009893638",
+      "line": 115547,
+      "guid": "38d4f216b15cd4fe78905cd46307a61a",
+      "source_path": "Assets/Prefabs/Cluster/ResourceCluster.prefab",
+      "modification_count": 111,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 5466805027850277127, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "_zone",
+          "value": "",
+          "object_reference": "{fileID: 1279994158}"
+        },
+        {
+          "target": "{fileID: 7048095490111250529, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}",
+          "property": "m_Name",
+          "value": "ResourceCluster_A",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects:\n    - targetCorrespondingSourceObject: {fileID: 7259044075152671469, guid: 38d4f216b15cd4fe78905cd46307a61a,\n        type: 3}\n      insertIndex: -1\n      addedObject: {fileID: 1195628486}\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 38d4f216b15cd4fe78905cd46307a61a, type: 3}\n",
+      "parent": "{fileID: 1279994157}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2058718184",
+      "line": 116912,
+      "guid": "35f11fae10b5b994687ad2c061761202",
+      "source_path": "Assets/Prefabs/Rooms/Zone-实验室.prefab",
+      "modification_count": 79,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 6790287024264320807, guid: 35f11fae10b5b994687ad2c061761202, type: 3}",
+          "property": "m_Name",
+          "value": "\"Zone-\\u5B9E\\u9A8C\\u5BA42\"",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects:\n    - {fileID: 5349102266545005198, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n    - {fileID: 6196792474973121671, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n    - {fileID: 8276504659448771736, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n    - {fileID: 5887767400532243992, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n    - {fileID: 8159081634086188851, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n    - {fileID: 8068344305207493064, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 35f11fae10b5b994687ad2c061761202, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "2102010822",
+      "line": 122619,
+      "guid": "b135c2f9e3c2141bfa302f78c76eebca",
+      "source_path": "Assets/Prefabs/RaidFlowController.prefab",
+      "modification_count": 11,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 2875703200084864982, guid: b135c2f9e3c2141bfa302f78c76eebca, type: 3}",
+          "property": "m_Name",
+          "value": "RaidFlowController",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: b135c2f9e3c2141bfa302f78c76eebca, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "8495978441366001893",
+      "line": 124122,
+      "guid": "80344fa5a46b42f408819a2cfecf5f9d",
+      "source_path": "Assets/Prefabs/PlayerPrefab/Agent.prefab",
+      "modification_count": 64,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalScale.x",
+          "value": "3",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalScale.y",
+          "value": "3",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalScale.z",
+          "value": "3",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalPosition.x",
+          "value": "221.41153",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalPosition.y",
+          "value": "16.001434",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalPosition.z",
+          "value": "82.0318",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.w",
+          "value": "1",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.x",
+          "value": "-0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.y",
+          "value": "-0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.z",
+          "value": "-0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalEulerAnglesHint.x",
+          "value": "0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalEulerAnglesHint.y",
+          "value": "0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalEulerAnglesHint.z",
+          "value": "0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_Name",
+          "value": "Agent_01",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "_playPrototypeSkillVfx",
+          "value": "1",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}\n",
+      "parent": "{fileID: 0}"
+    },
+    {
+      "owner_path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "instance_id": "9217900615391691191",
+      "line": 124455,
+      "guid": "80344fa5a46b42f408819a2cfecf5f9d",
+      "source_path": "Assets/Prefabs/PlayerPrefab/Agent.prefab",
+      "modification_count": 63,
+      "selected_overrides": [
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalScale.x",
+          "value": "3",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalScale.y",
+          "value": "3",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalScale.z",
+          "value": "3",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalPosition.x",
+          "value": "203.2",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalPosition.y",
+          "value": "15.851425",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalPosition.z",
+          "value": "23.5",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.w",
+          "value": "1",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.x",
+          "value": "-0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.y",
+          "value": "-0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalRotation.z",
+          "value": "-0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalEulerAnglesHint.x",
+          "value": "0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalEulerAnglesHint.y",
+          "value": "0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2107845040278215411, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_LocalEulerAnglesHint.z",
+          "value": "0",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2898261118407030116, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "_agentId",
+          "value": "2",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 2898261118407030116, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "_pawnConfig",
+          "value": "",
+          "object_reference": "{fileID: 11400000, guid: 1e6887c5fe8e847ed92bbafe8721b948, type: 2}"
+        },
+        {
+          "target": "{fileID: 7015472616922862980, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "m_Name",
+          "value": "Agent_02",
+          "object_reference": "{fileID: 0}"
+        },
+        {
+          "target": "{fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "_styleConfig",
+          "value": "",
+          "object_reference": "{fileID: 11400000, guid: 15a9948bdf7d84d159729d05db36e9b3, type: 2}"
+        },
+        {
+          "target": "{fileID: 9126527795397233563, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}",
+          "property": "_playPrototypeSkillVfx",
+          "value": "1",
+          "object_reference": "{fileID: 0}"
+        }
+      ],
+      "structural_overrides_yaml": "    m_RemovedComponents: []\n    m_RemovedGameObjects: []\n    m_AddedGameObjects: []\n    m_AddedComponents: []\n  m_SourcePrefab: {fileID: 100100000, guid: 80344fa5a46b42f408819a2cfecf5f9d, type: 3}\n",
+      "parent": "{fileID: 0}"
+    }
+  ],
+  "source_sha256": {
+    "Assets/Art/Models/Island/SenceUpdate/treasure+chest+3d+model (3).prefab": "e3eea7e8e94d27e378faee4aa0ca6b31a4a0dd0e608257f24d0686a9c0dbec08",
+    "Assets/Config/Tower.prefab": "68c9e6ac9022a31486883830fc38ce80833832fa43ab291efb80c97abac50c6e",
+    "Assets/Prefabs/Canvas.prefab": "dfd7f0fce77c2d91f9d63bf2041bbcedcd3dee1408a9d89570b0aaf861c5cce2",
+    "Assets/Prefabs/Cluster/BossSourceCluster.prefab": "c31634d85740aa6276587d2f160235d135671e9bdb89cba3842ce3c762280a21",
+    "Assets/Prefabs/Cluster/EnemySourceCluster.prefab": "351c3dddc17eeb1b4140c349a2cb35bd0a54f780bcb7f95679a35cfbd474ac72",
+    "Assets/Prefabs/Cluster/ResourceCluster.prefab": "1dc067d7f58cb16f96f208cd64e29f553bc5ab2acd31e57bbf1aa033d59ae7af",
+    "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_AnchorSentinel.prefab": "ef3a3598d7f17c103c1d8b587e96030a69cb18a2d362bc1357a230b3349e8a12",
+    "Assets/Prefabs/Enemy/SpawnPoint/Common/Pfb_EnemySpawn_TidalAberration.prefab": "f185c5821eaf12c8c18966609d04c5ca509e03b98ec169a3c1eebe4a4d583772",
+    "Assets/Prefabs/Highlighter1.prefab": "002cfbee95a80e3e3ef6b061bb1d5cd0bfbbf4230e2c248a7bddf0a6109e5862",
+    "Assets/Prefabs/ItemPrefabIn3D/LootBox_1.prefab": "dbaf8406d91aa625addbfad1163019eb683e6fcabdf68dfd66c12ec898dbbc01",
+    "Assets/Prefabs/PlayerPrefab/Agent.prefab": "a1d90ed6d2c127c50462be4b701064b087feb3ff86c1ef9291408d5800aaa7ca",
+    "Assets/Prefabs/RaidFlowController.prefab": "3873730a0df4cd554633adfb1783b43bbaf7bc736aa749cc7256df9d703d3a7f",
+    "Assets/Prefabs/Rooms/Zone-员工宿舍.prefab": "0d404b64c3d24e1cb7de95343991ea07527a035d7dd06832af46fe95beaf0984",
+    "Assets/Prefabs/Rooms/Zone-员工食堂.prefab": "b86278c6a20f8b4855ce8458f00a91cebb4cb148e6cb1f88503819a07cd127cc",
+    "Assets/Prefabs/Rooms/Zone-奇点塔.prefab": "2f69bcb09ad0ff65c93a29c49293f241931ecddb69129d884263612263062a57",
+    "Assets/Prefabs/Rooms/Zone-实验室.prefab": "3887836c1ac04f0b7c251ead16aafc4d199ff9f4ae45bf9efeac0c91d2f29924",
+    "Assets/Prefabs/Rooms/Zone-渔村.prefab": "7df74e075468d630fbfe77ed26743970bbcda99743f4789ac6139db52a5e0cf6",
+    "Assets/Prefabs/Rooms/Zone-雨林.prefab": "01fb657532f788a13221cd28bd6e4d90447906defeeb3552a9aa1e85015d21ab",
+    "Assets/Prefabs/SceneRuntimePlayerBinder.prefab": "a9fa1322b9570d469875031a57652f1cfc0bccd29c0d932b2269c4fb60932285",
+    "Assets/Prefabs/TargetInputManager.prefab": "df908eaf4f2541058c60f7cadcc8658de200bf4b3c79bce2cb5a52a040ee3274",
+    "Assets/Resources/HUD/Pfb_PlayerStatusHud.prefab": "7cb3580f46c1aedee16b2f8753508a59116923b5d9675d9ff756a3e66e1d87ec",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity": "70da01cd5c578f74d5f655dc7028989e4e2dc20c1b367a0215d3fabad49d1087",
+    "Assets/Scenes/Scene_ZL/主楼.prefab": "c5f81842b791c53e65f989c15eca1f5d811f79d90cc78c4bcd9eb9e6ac0041f4",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Ground_Cliff_Large_01.prefab": "db541e0751554bf16cb4b455be8eaa3ec6188f9bbe2ee11314f10dbb10ce17c9",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Ground_Mound_Large_04.prefab": "4e2e5913355a5029d58ee49ae636e46a94e886d3c9d607b3695ee4f7de171d4f",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_02.prefab": "e10fe2709d5d9fb4600d7b8a276996a2bea2d70a5f0b6fcaa15d30410c5a1f38",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_03.prefab": "4aef084e0dcf26a43296dce4c6f78c9a11c522d603d47123294205a889824e5c",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_05.prefab": "8af1f566cc12da62a6afc8fb6f2b6285f43c03fd3fc71cf2e7055b8a7eb6591a",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Cliff_03.prefab": "3af524df95cb0c151a1a2908e7d1cd5466220aecff60183c62d4e07fa0b30a18",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Rock_Round_01.prefab": "52dce82d4b572981d63084e545df5c096fd2c03aa3d769aad33387551ac63d88",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Tree_Birch_02.prefab": "41ea3d66a03bd8b294dd75bdfb51c1f7ef58156a1a4c15c99653ebdb183b1b8c",
+    "Assets/ThirdParty/PolygonNatureBiomes/PNB_Meadow_Forest/Prefabs/SM_Env_Tree_Fruit_01.prefab": "7abaf1542f61bdcc8b6959b07ef3ca0f4b98be451772cabe4f3a08c131624620"
+  },
+  "additional_asset_sha256": {
+    "Assets/Prefabs/Cluster/ExtractionCluster.prefab": "ab94db97191636dcb498e28c32cc7186c8af63426c6872a6786a5d279604d71b",
+    "Assets/SO/Agent/SO_Agent__Ice_PawnConfig.asset": "104f43c0bf426d28cd340a232d6eff736ff325062bdca2e48befd00c72013b80",
+    "Assets/SO/Agent/SO_Agent__Earth_PawnConfig.asset": "25a9528ac4d5d155e8a9652fd149d7622ff69bca41e9ee2681d333a59f049c2d"
+  },
+  "additional_asset_documents": {
+    "Assets/Prefabs/Cluster/ExtractionCluster.prefab": [
+      {
+        "type": 114,
+        "line": 57,
+        "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 48492721302697900}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 60c1a7b101635cd4e9054c456d45b7e5, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  ExtractionPointName: Extraction Point\n  ExtractionDurationSeconds: 3\n  DetectionHorizontalScale: 1\n  WorldPromptVerticalOffset: 0.9\n"
+      },
+      {
+        "type": 114,
+        "line": 205,
+        "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 1315397997066753263}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 4309bd9920534baeb6db55ef4671d232, type: 3}\n  m_Name: \n  m_EditorClassIdentifier: \n  _targetId: ExtractionCluster_39c2d8cee6694b72bcb8e98b74ea4c84\n  _displayName: \n  _state:\n    _hasBeenTouched: 0\n    _hasBeenCompleted: 0\n  _zone: {fileID: 0}\n  _autoResolveZoneFromParent: 1\n  _rangePadding: 2\n  _fallbackRadius: 2\n  _circleSegments: 32\n  _smoothSegmentsPerEdge: 6\n  _rangeHeightOffset: 0.05\n  _drawGizmos: 1\n  _rangeColor: {r: 0.15, g: 0.85, b: 0.65, a: 0.9}\n  _rangeLineWidth: 0.08\n  _rangeLineRenderer: {fileID: 1158402609792715796}\n  _groundProbeHeight: 20\n  _groundProbeDistance: 80\n  _minGroundNormalY: 0.35\n  _extractionMembers:\n  - _entityId: ExtractionCluster_39c2d8cee6694b72bcb8e98b74ea4c84_Entity_0\n    _entityObject: {fileID: 48492721302697900}\n    _state:\n      _hasBeenTouched: 0\n      _hasBeenCompleted: 0\n  _rangeColliderTarget: {fileID: 48492721302697900}\n"
+      }
+    ],
+    "Assets/SO/Agent/SO_Agent__Ice_PawnConfig.asset": [
+      {
+        "type": 114,
+        "line": 3,
+        "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 0}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 385075814be61467585a74b0ddfa2085, type: 3}\n  m_Name: SO_Agent__Ice_PawnConfig\n  m_EditorClassIdentifier: \n  _maxHealth: 300\n  _defense: 10\n  _moveSpeed: 8\n  _moveStoppingDistance: 0.25\n  _interactionDistance: 0\n  _enableTargetDiscovery: 1\n  _targetDiscoveryRange: 200\n  _targetDiscoveryInterval: 0.5\n  _combatStyleConfig: {fileID: 11400000, guid: 67172581330eb4a7a8870e96b9f29a07, type: 2}\n  _attackRange: 10\n  _attackDamage: 30\n  _attackInterval: 0.65\n  _lowHealthRecoveryThreshold: 0.35\n"
+      }
+    ],
+    "Assets/SO/Agent/SO_Agent__Earth_PawnConfig.asset": [
+      {
+        "type": 114,
+        "line": 3,
+        "body": "MonoBehaviour:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: 0}\n  m_Enabled: 1\n  m_EditorHideFlags: 0\n  m_Script: {fileID: 11500000, guid: 385075814be61467585a74b0ddfa2085, type: 3}\n  m_Name: SO_Agent__Earth_PawnConfig\n  m_EditorClassIdentifier: \n  _maxHealth: 270\n  _defense: 80\n  _moveSpeed: 12\n  _moveStoppingDistance: 0.25\n  _interactionDistance: 0\n  _enableTargetDiscovery: 1\n  _targetDiscoveryRange: 200\n  _targetDiscoveryInterval: 0.5\n  _combatStyleConfig: {fileID: 11400000, guid: 15a9948bdf7d84d159729d05db36e9b3, type: 2}\n  _attackRange: 10\n  _attackDamage: 15\n  _attackInterval: 0.65\n  _lowHealthRecoveryThreshold: 0.35\n"
+      }
+    ]
+  }
+}

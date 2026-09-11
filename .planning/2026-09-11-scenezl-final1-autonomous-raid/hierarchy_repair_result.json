@@ -1,0 +1,157 @@
+{
+  "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+  "status": "PASS",
+  "repair": {
+    "zones": 8,
+    "clusters": 28,
+    "resources": 32,
+    "exits": 2,
+    "spawnPoints": 30,
+    "changes": [
+      "Zone-渔村[14]/ResourceCluster_A[0]:ResourceClusterAuthoring：_resourceMembers",
+      "Zone-渔村[14]/ResourceCluster_B[1]:ResourceClusterAuthoring：_resourceMembers",
+      "Zone-雨林[18]/ResourceCluster_B[2]:ResourceClusterAuthoring：_resourceMembers",
+      "Zone-雨林[18]/ResourceCluster_A[3]:ResourceClusterAuthoring：_resourceMembers",
+      "Zone-龙骨礁[21]/ResourceCluster_B (1)[4]:ResourceClusterAuthoring：_resourceMembers",
+      "Zone-渔村2[15]:TargetZoneAuthoring：_clusters",
+      "Zone-实验室[17]:TargetZoneAuthoring：_clusters",
+      "Zone-雨林[18]:TargetZoneAuthoring：_clusters",
+      "Zone-员工食堂[19]:TargetZoneAuthoring：_clusters",
+      "Zone-员工宿舍[20]:TargetZoneAuthoring：_clusters",
+      "Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-渔村[14]/ResourceCluster_A[0]:ResourceClusterAuthoring：刷新范围线/材质 points=18->18 maxDelta=0",
+      "Zone-渔村[14]/ResourceCluster_B[1]:ResourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-渔村[14]/EnemySourceCluster[2]:EnemySourceClusterAuthoring：刷新范围线/材质 points=18->18 maxDelta=0",
+      "Zone-奇点塔[16]/ResourceCluster_A[1]:ResourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-奇点塔[16]/ResourceCluster_B[2]:ResourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-奇点塔[16]/EnemySourceCluster_A[3]:EnemySourceClusterAuthoring：刷新范围线/材质 points=18->18 maxDelta=0",
+      "Zone-奇点塔[16]/EnemySourceCluster_B[4]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-实验室[17]/ResourceCluster_A[0]:ResourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-实验室[17]/ResourceCluster_B[1]:ResourceClusterAuthoring：刷新范围线/材质 points=24->24 maxDelta=0",
+      "Zone-实验室[17]/EnemySourceCluster[2]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-雨林[18]/EnemySourceCluster[0]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-雨林[18]/ResourceCluster_C[1]:ResourceClusterAuthoring：刷新范围线/材质 points=24->24 maxDelta=0",
+      "Zone-雨林[18]/ResourceCluster_B[2]:ResourceClusterAuthoring：刷新范围线/材质 points=32->32 maxDelta=0",
+      "Zone-雨林[18]/ResourceCluster_A[3]:ResourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-雨林[18]/BossSourceCluster[4]:EnemySourceClusterAuthoring：刷新范围线/材质 points=32->32 maxDelta=0",
+      "Zone-雨林[18]/EnemySourceCluster[5]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-雨林[18]/ExtractionCluster[6]:ExtractionClusterAuthoring：刷新范围线/材质 points=4->4 maxDelta=0",
+      "Zone-员工食堂[19]/EnemySourceCluster_A[2]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-员工食堂[19]/EnemySourceCluster_B[3]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-员工食堂[19]/ResourceCluster_B[4]:ResourceClusterAuthoring：刷新范围线/材质 points=24->24 maxDelta=0",
+      "Zone-员工宿舍[20]/ResourceCluster_A[2]:ResourceClusterAuthoring：刷新范围线/材质 points=24->24 maxDelta=0",
+      "Zone-员工宿舍[20]/EnemySourceCluster_A[3]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-员工宿舍[20]/EnemySourceCluster_B[4]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-龙骨礁[21]/ExtractionCluster[0]:ExtractionClusterAuthoring：刷新范围线/材质 points=4->4 maxDelta=0",
+      "Zone-龙骨礁[21]/EnemySourceCluster_B[2]:EnemySourceClusterAuthoring：刷新范围线/材质 points=18->18 maxDelta=0",
+      "Zone-龙骨礁[21]/EnemySourceCluster_A[3]:EnemySourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-龙骨礁[21]/ResourceCluster_B (1)[4]:ResourceClusterAuthoring：刷新范围线/材质 points=34->34 maxDelta=0",
+      "Zone-渔村[14]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-渔村[14]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-渔村[14]:TargetZoneAuthoring：刷新范围线/材质 points=248->248 maxDelta=0",
+      "Zone-渔村2[15]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-渔村2[15]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-渔村2[15]:TargetZoneAuthoring：刷新范围线/材质 points=48->48 maxDelta=0",
+      "Zone-奇点塔[16]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-奇点塔[16]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-奇点塔[16]:TargetZoneAuthoring：刷新范围线/材质 points=4->4 maxDelta=0",
+      "Zone-实验室[17]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-实验室[17]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-实验室[17]:TargetZoneAuthoring：刷新范围线/材质 points=4->4 maxDelta=0",
+      "Zone-雨林[18]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-雨林[18]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-雨林[18]:TargetZoneAuthoring：刷新范围线/材质 points=216->216 maxDelta=0",
+      "Zone-员工食堂[19]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-员工食堂[19]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-员工食堂[19]:TargetZoneAuthoring：刷新范围线/材质 points=4->4 maxDelta=0",
+      "Zone-员工宿舍[20]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-员工宿舍[20]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-员工宿舍[20]:TargetZoneAuthoring：刷新范围线/材质 points=4->4 maxDelta=0",
+      "Zone-龙骨礁[21]:TargetZoneAuthoring：新增 LineRenderer",
+      "Zone-龙骨礁[21]:TargetZoneAuthoring：_rangeLineRenderer",
+      "Zone-龙骨礁[21]:TargetZoneAuthoring：刷新范围线/材质 points=176->176 maxDelta=0"
+    ],
+    "warnings": []
+  },
+  "validatedTargets": 36,
+  "bindings": [
+    "Zone-渔村[14]/ResourceCluster_A[0]:ResourceClusterAuthoring -> Zone-渔村[14]:TargetZoneAuthoring members=3",
+    "Zone-渔村[14]/ResourceCluster_B[1]:ResourceClusterAuthoring -> Zone-渔村[14]:TargetZoneAuthoring members=2",
+    "Zone-渔村[14]/EnemySourceCluster[2]:EnemySourceClusterAuthoring -> Zone-渔村[14]:TargetZoneAuthoring members=3",
+    "Zone-奇点塔[16]/ResourceCluster_A[1]:ResourceClusterAuthoring -> Zone-奇点塔[16]:TargetZoneAuthoring members=2",
+    "Zone-奇点塔[16]/ResourceCluster_B[2]:ResourceClusterAuthoring -> Zone-奇点塔[16]:TargetZoneAuthoring members=2",
+    "Zone-奇点塔[16]/EnemySourceCluster_A[3]:EnemySourceClusterAuthoring -> Zone-奇点塔[16]:TargetZoneAuthoring members=3",
+    "Zone-奇点塔[16]/EnemySourceCluster_B[4]:EnemySourceClusterAuthoring -> Zone-奇点塔[16]:TargetZoneAuthoring members=2",
+    "Zone-实验室[17]/ResourceCluster_A[0]:ResourceClusterAuthoring -> Zone-实验室[17]:TargetZoneAuthoring members=2",
+    "Zone-实验室[17]/ResourceCluster_B[1]:ResourceClusterAuthoring -> Zone-实验室[17]:TargetZoneAuthoring members=4",
+    "Zone-实验室[17]/EnemySourceCluster[2]:EnemySourceClusterAuthoring -> Zone-实验室[17]:TargetZoneAuthoring members=2",
+    "Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]:EnemySourceClusterAuthoring -> Zone-实验室[17]:TargetZoneAuthoring members=2",
+    "Zone-雨林[18]/EnemySourceCluster[0]:EnemySourceClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=2",
+    "Zone-雨林[18]/ResourceCluster_C[1]:ResourceClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=4",
+    "Zone-雨林[18]/ResourceCluster_B[2]:ResourceClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=1",
+    "Zone-雨林[18]/ResourceCluster_A[3]:ResourceClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=2",
+    "Zone-雨林[18]/BossSourceCluster[4]:EnemySourceClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=1",
+    "Zone-雨林[18]/EnemySourceCluster[5]:EnemySourceClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=2",
+    "Zone-雨林[18]/ExtractionCluster[6]:ExtractionClusterAuthoring -> Zone-雨林[18]:TargetZoneAuthoring members=1",
+    "Zone-员工食堂[19]/EnemySourceCluster_A[2]:EnemySourceClusterAuthoring -> Zone-员工食堂[19]:TargetZoneAuthoring members=2",
+    "Zone-员工食堂[19]/EnemySourceCluster_B[3]:EnemySourceClusterAuthoring -> Zone-员工食堂[19]:TargetZoneAuthoring members=2",
+    "Zone-员工食堂[19]/ResourceCluster_B[4]:ResourceClusterAuthoring -> Zone-员工食堂[19]:TargetZoneAuthoring members=4",
+    "Zone-员工宿舍[20]/ResourceCluster_A[2]:ResourceClusterAuthoring -> Zone-员工宿舍[20]:TargetZoneAuthoring members=4",
+    "Zone-员工宿舍[20]/EnemySourceCluster_A[3]:EnemySourceClusterAuthoring -> Zone-员工宿舍[20]:TargetZoneAuthoring members=2",
+    "Zone-员工宿舍[20]/EnemySourceCluster_B[4]:EnemySourceClusterAuthoring -> Zone-员工宿舍[20]:TargetZoneAuthoring members=2",
+    "Zone-龙骨礁[21]/ExtractionCluster[0]:ExtractionClusterAuthoring -> Zone-龙骨礁[21]:TargetZoneAuthoring members=1",
+    "Zone-龙骨礁[21]/EnemySourceCluster_B[2]:EnemySourceClusterAuthoring -> Zone-龙骨礁[21]:TargetZoneAuthoring members=3",
+    "Zone-龙骨礁[21]/EnemySourceCluster_A[3]:EnemySourceClusterAuthoring -> Zone-龙骨礁[21]:TargetZoneAuthoring members=2",
+    "Zone-龙骨礁[21]/ResourceCluster_B (1)[4]:ResourceClusterAuthoring -> Zone-龙骨礁[21]:TargetZoneAuthoring members=2"
+  ],
+  "application": {
+    "tests": 7,
+    "status": "PASS",
+    "sceneAfter": "BBD30981FF7BA01D73DEF8476894E0C139A71B3AF1C7DB575A72109B2C2B3B04",
+    "runId": "20260911-185640-719",
+    "sceneBefore": "594CD2D51CB7F02271F300C2299E319B98A10BF6649AD31C8D9F6650546ACA82"
+  },
+  "tests": {
+    "result": "Passed",
+    "total": 7,
+    "passed": 7,
+    "cases": [
+      {
+        "name": "ExistingMemberKeepsIdentityAndStateNewMemberDoesNotCopyIt",
+        "result": "Passed"
+      },
+      {
+        "name": "NearestZoneReplacesWrongBindingAndCleansOldList",
+        "result": "Passed"
+      },
+      {
+        "name": "NestedClustersOwnOnlyTheirLootIncludingInactiveChildren",
+        "result": "Passed"
+      },
+      {
+        "name": "SharedRangeMaterialRendersVertexColor",
+        "result": "Passed"
+      },
+      {
+        "name": "SpawnCollectionDoesNotLeakAcrossNestedClusterAndRemovesStaleReferences",
+        "result": "Passed"
+      },
+      {
+        "name": "WrongRendererIsNotMutatedAndRepairIsIdempotent",
+        "result": "Passed"
+      },
+      {
+        "name": "ZoneUsesFullOutlineWhenChildCachesAreCold",
+        "result": "Passed"
+      }
+    ]
+  },
+  "evidence_directory": "Logs/TargetHierarchyRepair/20260911-185640-719",
+  "evidence_sha256": {
+    "applied.json": "93262dd36a6452136e348307d4b8bb417d56aa37d2f3b02f3d7cd9df893baa71",
+    "manifest.json": "a25461edcdcef9402cd838c9c1c1d903fb86fe00e477a418b7b66789b085ecde",
+    "range-line.png": "c403c31fb48ea6b4b0e8a85208c4ca188cc7282928a81e1d8a142ee8e872c1f8",
+    "repair-result.json": "2441bdaddd2ad377e4f57b36b777ffdb77ef1746db140d4eeb4ec2bc42eee79f",
+    "test-results.xml": "6ce4f2f98ffaca51720993524dd2f0d0d2a2c9f69af9f2a371161d80caff3467"
+  }
+}

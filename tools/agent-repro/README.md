@@ -57,3 +57,9 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 `./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 75 个游戏用例。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
+
+## 目标场景层级修复
+
+`./tools/agent-repro/Invoke-TargetHierarchyRepair.ps1` 在隔离副本中运行 7 项定向 EditMode 测试，再修复 `Scenezl_Final 1.unity`，保存并重载验证；检查源输入没有变化后回写场景和范围线共享材质。结果位于 `Logs/TargetHierarchyRepair/<run-id>/`，包含原始 XML、实际渲染 PNG、对象绑定、修改记录和修复前备份。失败时保留日志，不把未经验证的场景写回。
+
+编辑器菜单 `Tools/Gameplay Targets/Repair Active Scene From Hierarchy` 提供同一修复能力，支持 Undo，修改后场景保持 dirty 供正常保存。工具按最近所属层级收集 LootBox/撤离点/出生点，修正 Zone 双向绑定，补齐 LineRenderer 和缺失材质，复用正式轮廓算法；不每帧扫描，也不在导入或普通游戏启动时自动修场景。

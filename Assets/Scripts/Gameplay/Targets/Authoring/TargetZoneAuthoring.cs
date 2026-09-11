@@ -180,6 +180,13 @@ namespace Gameplay.Targets.Authoring
                     continue;
 
                 IReadOnlyList<Vector3> clusterRangePoints = cluster.RangePoints;
+                // 场景重载时 Zone 的 OnValidate 可能早于 Cluster；先建立子群轮廓，
+                // 避免将群中心误当成完整范围并把缩小后的线写回场景。
+                if (clusterRangePoints == null || clusterRangePoints.Count == 0)
+                {
+                    cluster.RefreshRangeShape();
+                    clusterRangePoints = cluster.RangePoints;
+                }
                 if (clusterRangePoints != null && clusterRangePoints.Count > 0)
                 {
                     for (int pointIndex = 0; pointIndex < clusterRangePoints.Count; pointIndex++)
