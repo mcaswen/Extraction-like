@@ -14,6 +14,7 @@ namespace Gameplay.Agent.Targeting
         private readonly List<global::EnemyHealthController> _enemies = new List<global::EnemyHealthController>();
         private readonly HashSet<int> _seen = new HashSet<int>();
         private readonly AgentTargetFailureMemory _failures = new AgentTargetFailureMemory();
+        private readonly AgentNavigationQuery.Buffer _navigationBuffer = new AgentNavigationQuery.Buffer();
         public void StartObservingFailures() => _failures.StartObserving();
         public void StopObservingFailures() => _failures.StopObserving();
         public void CollectVisibleEnemies(IAgentReadOnly agent, IReadOnlyList<GameplayTargetClusterAuthoringBase> clusters,
@@ -104,9 +105,9 @@ namespace Gameplay.Agent.Targeting
             }
         }
 
-        private static bool IsReachable(IAgentReadOnly agent, Vector3 point, out Vector3 destination)
+        private bool IsReachable(IAgentReadOnly agent, Vector3 point, out Vector3 destination)
         {
-            var result=AgentNavigationQuery.Check(agent.NavMeshAgent,point,0);
+            var result=AgentNavigationQuery.Check(agent.NavMeshAgent,point,0,_navigationBuffer);
             destination=result.Destination;
             return result.Status==AgentNavigationStatus.Arrived || result.Status==AgentNavigationStatus.Moving;
         }

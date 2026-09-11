@@ -180,6 +180,8 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidPerformanceTests",
       "expected": [
+        "MovementQueriesAreBoundedAndBuffersAreIndependent",
+        "ResourceQueryCacheInvalidatesOnCompletionAndMovement",
         "OutOfRangeMembersDoNotCalculatePaths",
         "DiscoveryRangeUsesMembersInsteadOfClusterCenter",
         "UnreachableNearMemberDoesNotHideReachableMember",

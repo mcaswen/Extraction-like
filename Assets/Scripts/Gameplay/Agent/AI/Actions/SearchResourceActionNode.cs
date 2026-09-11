@@ -111,7 +111,7 @@ namespace Gameplay.Agent.AI.Actions
             IAgentReadOnly agent,
             ResourceClusterAuthoring resourceCluster)
         {
-            if (!resourceCluster.TryGetNearestReachableIncompleteResource(
+            if (!ResourceNavigation.TryResolve(resourceCluster,
                     agent.Position,
                     agent.NavMeshAgent,
                     out GameObject resourceObject,

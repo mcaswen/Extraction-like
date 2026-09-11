@@ -4,6 +4,7 @@ using AgentReproduction.Infrastructure;
 using AgentReproduction.World;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Targeting;
+using Gameplay.Agent.Navigation;
 using Gameplay.Targets.Authoring;
 using NUnit.Framework;
 using UnityEngine;
@@ -13,6 +14,61 @@ namespace AgentReproduction.Tests
 {
     public sealed class SceneRaidPerformanceTests : ReproductionTestFixture
     {
+        [UnityTest]
+        public IEnumerator MovementQueriesAreBoundedAndBuffersAreIndependent()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var a = AgentFactory.Create(World, "Motor A", Vector3.zero);
+            var b = AgentFactory.Create(World, "Motor B", new Vector3(0, 0, 8));
+            yield return null;
+            var first = new AgentNavigationMotor(a.NavMeshAgent, 2, 3);
+            var second = new AgentNavigationMotor(b.NavMeshAgent, 2, 3);
+            var target = new Vector3(20, 0, 0);
+            var result = first.Move("A", target, 0, 2);
+            Assert.That(result.Status, Is.EqualTo(AgentNavigationStatus.Moving));
+            for (int i = 0; i < 100; i++) first.Move("A", target, 0, 2);
+            Assert.That(first.PathCalculationCount, Is.EqualTo(1), "An unchanged same-frame move reuses its complete path.");
+            Vector3 end = result.Path.corners[result.Path.corners.Length - 1];
+            var other = second.Move("B", new Vector3(-20, 0, 8), 0, 2);
+            Assert.That(other.Path, Is.Not.SameAs(result.Path));
+            Assert.That(result.Path.corners[result.Path.corners.Length - 1], Is.EqualTo(end));
+            first.Move("A", new Vector3(20, 0, 5), 0, 2);
+            Assert.That(first.PathCalculationCount, Is.EqualTo(2), "A changed target invalidates immediately.");
+            float start = Time.time;
+            long count = first.PathCalculationCount;
+            for (int i = 0; i < 30; i++)
+            {
+                yield return null;
+                first.Move("A", new Vector3(20, 0, 5), 0, 2);
+            }
+            Assert.That(first.PathCalculationCount - count, Is.LessThanOrEqualTo(Mathf.CeilToInt((Time.time - start) / 0.1f) + 1));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator ResourceQueryCacheInvalidatesOnCompletionAndMovement()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "Resource cache", Vector3.zero);
+            var cluster = TargetFactory.Resources(World, new Vector3(5, 0, 0), new Vector3(14, 0, 0));
+            yield return null;
+            var resolver = new AgentResourceNavigationResolver();
+            Assert.That(resolver.TryResolve(cluster, agent.Position, agent.NavMeshAgent, out var selected, out _), Is.True);
+            Assert.That(selected, Is.SameAs(cluster.ResourceMembers[0].EntityObject));
+            long count = cluster.NavigationPathCalculationCount;
+            for (int i = 0; i < 100; i++) resolver.TryResolve(cluster, agent.Position, agent.NavMeshAgent, out _, out _);
+            Assert.That(cluster.NavigationPathCalculationCount, Is.EqualTo(count));
+            cluster.MarkResourceCompleted(selected);
+            Assert.That(resolver.TryResolve(cluster, agent.Position, agent.NavMeshAgent, out selected, out _), Is.True);
+            Assert.That(selected, Is.SameAs(cluster.ResourceMembers[1].EntityObject));
+            selected.transform.position = new Vector3(32, 0, 0);
+            Assert.That(resolver.TryResolve(cluster, agent.Position, agent.NavMeshAgent, out _, out var destination), Is.True);
+            Assert.That(destination.x, Is.GreaterThan(30), "Cached candidate coordinates must move with the resource.");
+            selected.SetActive(false);
+            Assert.That(resolver.TryResolve(cluster, agent.Position, agent.NavMeshAgent, out _, out _), Is.False);
+            ContractCompleted = true;
+        }
+
         [UnityTest]
         public IEnumerator OutOfRangeMembersDoNotCalculatePaths()
         {

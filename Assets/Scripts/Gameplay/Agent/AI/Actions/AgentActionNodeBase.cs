@@ -17,6 +17,7 @@ namespace Gameplay.Agent.AI.Actions
     /// </summary>
     public abstract class AgentActionNodeBase : ActionNode
     {
+        protected readonly AgentResourceNavigationResolver ResourceNavigation = new AgentResourceNavigationResolver();
         internal const float NavMeshDestinationRefreshInterval = 0.1f;
         internal const float NavMeshTargetSampleRadius = 0.5f;
         /// <summary>
@@ -179,7 +180,7 @@ namespace Gameplay.Agent.AI.Actions
             if (targetObject != null &&
                 targetObject.TryGetComponent(out ResourceClusterAuthoring resourceCluster))
             {
-                if (resourceCluster.TryGetNearestReachableIncompleteResource(
+                if (ResourceNavigation.TryResolve(resourceCluster,
                         agentPosition,
                         navMeshAgent,
                         out GameObject resourceObject,

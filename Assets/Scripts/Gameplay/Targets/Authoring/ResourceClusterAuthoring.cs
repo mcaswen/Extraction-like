@@ -750,12 +750,11 @@ namespace Gameplay.Targets.Authoring
             {
                 navigationCandidates = new List<Vector3>();
                 _navigationCandidatesByResource[resourceObject] = navigationCandidates;
-                FillResourceNavigationCandidates(
-                    resourceObject,
-                    fallbackPosition,
-                    agentPosition,
-                    navigationCandidates);
             }
+
+            // Reuse storage, not stale coordinates: ClosestPoint depends on this agent,
+            // and members/colliders can move after the initial debug-marker build.
+            FillResourceNavigationCandidates(resourceObject, fallbackPosition, agentPosition, navigationCandidates);
 
             return navigationCandidates;
         }

@@ -40,6 +40,14 @@ Extend `Assets/Scripts/Gameplay/Targets/Authoring/TargetZoneAuthoring.cs`、必�
 
 静态不重建、成员移动/增删、Collider 变换/尺寸、保存重载/冷缓存都要验证；地表改变的失效方式在该阶段细化。保留画面配置，不通过关闭范围线或降低图形质量提速。
 
+### P4c 实现前细化
+
+- Create `Assets/Scripts/Gameplay/Targets/Runtime/GameplayTargetRangeCache.cs`：每个 Zone/Cluster 独立持有的输入快照、未投射点和投射点缓存。几何输入/配置用准确比较，静态不重建凸包。保留未投射点用于地表重投射，避免高度累计偏移。0.5 游戏秒周期重投射补获动态地表，源轮廓变化当帧重建；公开强制刷新仍立即生效。该延迟只作用于显示轮廓，不改变碰撞/感知/导航。
+- `GameplayTargetShapeUtility.cs` 增加可复用 HullBuffer，Zone/Cluster 独占 scratch 列表，避免动态轮廓的临时凸包列表 GC。
+- `TargetZoneAuthoring.cs` 每帧聚合状态、获取真实子轮廓或 Collider 世界角点，缓存判断后才 Build/Project/Apply；LineRenderer 只在轮廓/样式变化时写回。Gizmos 复用相同缓存。计数器分别记录几何重建和地表投射，不能把定期投射隐藏成“零查询”。
+- `GameplayTargetClusterAuthoringBase.cs` 对成员位置或 custom shape 使用相同缓存路径；在 LateUpdate 检查静态成员变更，保证手动移动 LootBox 后 Zone 源轮廓仍能变更，保留 completed 隐藏和冷缓存初始化。
+- `SceneRaidPerformanceTests.cs` 增加静态 30 帧不重建/不重复写线、资源成员移动、注册/注销、Collider 位置/尺寸/旋转、地表抬升在 0.5 秒内重投射；复用 `TargetHierarchyRepairTests` 的保存重载/幂等覆盖。输入缓存只在 Targets 模块内共享，无 Gameplay.Agent 反向依赖。
+
 ## 测量和剩余限制
 
 每项先做程序化必要回归，再比较相同场景、1×、4K、同采样配置的 Update/子段耗时、GC 和连续帧。当前 P1 的 12 个计数器保持解释一致；新增局部计数单独标明。完整 120 FPS 验收仍要求真实完整回合和正常退出。
@@ -47,5 +55,7 @@ Extend `Assets/Scripts/Gameplay/Targets/Authoring/TargetZoneAuthoring.cs`、必�
 P1 原生 Editor 退出故障仍是独立未解问题，不能把超时回收算正常通过。允许先做可正常退出的定向 Play Mode 优化测试；收尾 SC02 的事实、背包结果和失败日志会保留。
 
 ## 实施结果
+
+P4b 已实现独占且延迟创建的路径缓冲，移动按原 0.1 秒节奏实际重算，资源节点短期复用解析结果，资源候选坐标在真实查询时更新。首次测试暴露 Unity 原生路径不能在 MonoBehaviour 字段初始化期间创建，已修正为首次查询创建。随后 22 项中 21 项通过；R5 暴露暂停背包时不能直接把已到达结果改成 Moving，已恢复暂停时的到达/位移事实检测，暂停仍不提交移动。最后 R5 2/2 通过（`Logs/AgentReproduction/20260911-202729-655`）。其他 20 项通过证据位于 `20260911-202548-931`，含性能构造 6、Navigation 8、Decision 5、动态断路 1。均正常退出、源输入未变。同帧 101 次相同 Move 仅计算 1 次路径；两个 Motor 的 Path 不共享，资源完成/移动立即失效。
 
 P4a 已实现成员范围预筛，Discovery 按需查询出口，Decision 默认完整候选保持不变。`ScenePerformance` 4/4 通过（`Logs/AgentReproduction/20260911-202129-746`），`Decision` 5/5 通过（`Logs/AgentReproduction/20260911-202217-623`），均正常退出且源工程输入未变化。64 个范围外资源连续扫描 10 次，实际资源路径计算为 0；无范围执行入口仍能取得远资源。图形耗时在三项治理后用同一个 SC01 比较，不将该次数断言当作 FPS 验收。
