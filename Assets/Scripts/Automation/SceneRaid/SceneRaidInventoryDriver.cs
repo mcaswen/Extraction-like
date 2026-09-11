@@ -29,6 +29,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private long _order;
         private int _focusFrame;
         private bool _hadPolicyBlock;
+        private bool _triedSorting;
         public string BlockedReason { get; private set; }
         public int CompletedSessions { get; private set; }
         public readonly HashSet<string> ServedAgents = new HashSet<string>();
@@ -104,6 +105,7 @@ namespace AnomalySearch.Automation.SceneRaid
                     throw new InvalidOperationException("Formal LootBox.Interact did not open its inventory session.");
                 _blockedItems.Clear();
                 _hadPolicyBlock = false;
+                _triedSorting = false;
                 _ledger.Begin(_current.fact.AgentId, _identity.Get(_box), screen.ActiveExternalGrid.ExtractSaveData(), screen.BackpackGrid.ExtractSaveData());
                 Log("opened", "Formal LootBox.Interact");
                 return;
@@ -116,6 +118,21 @@ namespace AnomalySearch.Automation.SceneRaid
             var candidate = items.FirstOrDefault(x => !_blockedItems.Contains(x.GetInstanceID()));
             if (candidate == null)
             {
+                var capacity = InventoryLootCapacityAssessment.Evaluate(screen);
+                if (capacity == InventoryLootCapacity.CanTransferAfterSorting && !_triedSorting)
+                {
+                    _triedSorting = true;
+                    screen.BackpackGrid.AutoSort();
+                    _blockedItems.Clear();
+                    _ledger.Check("sorted", source.ExtractSaveData(), screen.BackpackGrid.ExtractSaveData());
+                    Log("sorted", "Formal backpack AutoSort");
+                    return;
+                }
+                if (capacity == InventoryLootCapacity.CapacityBlocked)
+                {
+                    Close("capacity_requires_extraction", true);
+                    return;
+                }
                 BlockedReason = (_hadPolicyBlock ? "InventoryRuleBlocked:" : "InventoryCapacityBlocked:") + _current.fact.AgentId;
                 Close("all_candidates_blocked", true);
                 return;
@@ -128,9 +145,11 @@ namespace AnomalySearch.Automation.SceneRaid
             {
                 var afterSource = source.ExtractSaveData();
                 var afterPlayer = screen.BackpackGrid.ExtractSaveData();
-                if (SceneRaidInventoryLedger.Amount(beforeSource, data) - SceneRaidInventoryLedger.Amount(afterSource, data) != amount ||
-                    SceneRaidInventoryLedger.Amount(afterPlayer, data) - SceneRaidInventoryLedger.Amount(beforePlayer, data) != amount)
+                long moved = SceneRaidInventoryLedger.Amount(beforeSource, data) - SceneRaidInventoryLedger.Amount(afterSource, data);
+                if (moved <= 0 || moved > amount ||
+                    SceneRaidInventoryLedger.Amount(afterPlayer, data) - SceneRaidInventoryLedger.Amount(beforePlayer, data) != moved)
                     throw new InvalidOperationException("Quick transfer source/destination delta mismatch.");
+                _blockedItems.Clear();
                 _ledger.Check("transferred", afterSource, afterPlayer);
                 Log("transferred", "Formal quick transfer", candidate);
             }

@@ -32,3 +32,27 @@
 P3a 修正后 `20260911-214912-023` 同 PID，28.57 秒墙钟、57.33 秒游戏时间，7 次会话；快照只有 4 和正式暂停 0，暂停恢复正确。4 条粒子断言未修；新增 27 次 Unreachable（Agent 2 为 26 次），反击目标包含根坐标高于地面的 AnchorSentinel，留待 P3d 定向处理，不将加速轮称为逻辑通过。
 
 P3b 红灯 `20260911-214901-479` 在“Plain backpack is not the waiting box”断言失败，证明普通背包会误完成当前资源。修复后 `20260911-215340-615` 5/5 真实 Play Mode 构造通过，包括普通背包、无关箱子拒绝，匹配箱子关闭完成，保留未拿物品，双角色库存隔离和 4 倍速暂停恢复。
+
+### P3c 文件、接口和验收细化
+
+| 决策 | 具体文件 | 职责 |
+| --- | --- | --- |
+| Create | `Assets/Scripts/Gameplay/Backpack/InventoryStackTransfer.cs` | 查询同物品且已搜索、无内嵌内容的可合并堆叠，执行有限数量搬运。正式快捷转移和容量查询共用，允许部分堆叠，保存源剩余 |
+| Create | `Assets/Scripts/Gameplay/Backpack/InventoryLootCapacityAssessment.cs` | 只读评估当前会话剩余物品，区分未搜索、可转移、整理后可转移、容量不足、规格/策略不兼容；复用正式网格和整理算法，不采用背包占用率阈值 |
+| Extend | `Assets/Scripts/Gameplay/Backpack/DraggableItemUI.Drag.cs`、`DraggableItemUI.State.cs` | 快捷入口先尝试合法堆叠，公开只读可交互事实，沿用原空位/旋转放置路径 |
+| Extend | `Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs`、`InventoryScreenSessionContext.cs` | 关闭清理前计算会话容量结果，写回后才提交已关闭事实；不选择撤离点 |
+| Extend | `Assets/Scripts/Gameplay/Agent/Data/AgentBlackboardKeys.cs`、`AI/Actions/SearchResourceActionNode.cs` | 匹配会话报告容量阻塞后，保存本 Agent 的本局撤离意图，结束当前搜索指令，不完成或清空资源群 |
+| Extend | `Assets/Scripts/Gameplay/Agent/Runtime/AgentTargetDiscoveryController.cs`、`Decision/AgentTargetDecisionController.cs` | 自主目标选择在容量撤离意图下仅考虑可达出口，保留手动指令和受击反击优先级，沿用既有反击后恢复撤离 |
+| Extend | `Assets/Scripts/Automation/SceneRaid/SceneRaidInventoryDriver.cs` | 全部候选尝试后调用正式整理入口（每会话至多一次），关闭容量阻塞会话后继续观察游戏；检查每次实际搬运数量，不能代发撤离 |
+| Extend | `Assets/Scripts/Automation/SceneRaid/SceneRaidReadModel.cs` | 快照公开容量撤离意图，定位选择和执行链路 |
+| Extend | `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidInventoryTests.cs`、`TargetDecisionTests.cs`、`tools/agent-repro/cases.json` | 堆叠守恒、候选扫描、规格/策略拒绝、整理、真实容量关闭→自主出口、第二角色不受影响及两种选择器回归 |
+
+容量不足定义为：真实搜索已结束，至少一个候选本身适配该背包，当前布局及正式自动整理后都没有可用位置或堆叠余量。单件尺寸超过空背包、网格策略拒绝单独返回不兼容，不能假报满包。整理只使用已有启发式算法，不声称解决任意矩形装箱；不会删除放不下的物品。角色的容量撤离意图保留到本局结束，新的显式手动指令仍可覆盖自动选择，反击优先级不变。
+
+首次编译 `20260911-215956-152` / `20260911-220007-405` 失败：Ledger.Amount 返回 long，驱动局部变量误用 int，已修正。保留 Editor 的旧入口未处理编译失败拒绝进入 Play Mode，导致 entering 等待；Extend `SceneRaidEditorEntry.cs` 对编译失败和进入取消写明确失败。为恢复这轮已经编译失败的会话，向隔离副本同步两处修正，不关闭 Editor；该轮源输入变化及失败证据照常保留，后续必须重新冻结输入复跑，不能把恢复动作记为成功回合。
+
+恢复补充：旧程序集处于 armed/entering，后台未刷新修正文件。已取消外部等待器，PID 23544 留给用户关闭，未伪造完成文件。后续使用独立 `AnomalySearchScene` 工作区，复制已退出的 NUnit 工作区的 Library 缓存；新图形 Editor 继续常驻复用。新增进入拒绝检查已经通过实际编译，旧卡住进程并未因此被宣称恢复。
+
+`20260911-220159-381` 15 项中 14 项通过，碎片化夹具的 3×2 物品可旋转成 2×3 放入，测试预设错误。修正夹具为 3×3 后，`20260911-220327-759` 全部 15 项通过（背包 9、目标决策 6），没有放宽生产规则。
+
+评估和堆叠规则各自独立文件，Agent 黑板只保存本局撤离意图。自动化合法关闭会话后继续运行，未调用撤离指令；源剩余由正式箱子回调保存。特殊格不通过旧整理入口清除，单件超规格和网格策略拒绝没有冒充容量不足。

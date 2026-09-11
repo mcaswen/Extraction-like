@@ -56,6 +56,12 @@ namespace AnomalySearch.Editor.SceneRaid
                 AssetDatabase.Refresh();
                 return;
             }
+            if (EditorUtility.scriptCompilationFailed)
+            {
+                _config = request;
+                Fail(new InvalidOperationException("Script compilation failed before Play Mode."));
+                return;
+            }
             Run();
         }
         static SceneRaidEditorEntry()
@@ -163,6 +169,8 @@ namespace AnomalySearch.Editor.SceneRaid
                 else if (phase == "readyToExit") Finish(0);
                 else if (!EditorApplication.isPlayingOrWillChangePlaymode && phase == "playing")
                     throw new InvalidOperationException("Play Mode stopped without a completed run.");
+                else if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling && phase == "entering")
+                    throw new InvalidOperationException("Play Mode entry was rejected or cancelled; inspect compilation errors.");
             }
             catch (Exception ex) { Fail(ex); }
         }

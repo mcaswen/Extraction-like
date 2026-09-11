@@ -1307,6 +1307,7 @@ public class InventoryScreenController : MonoBehaviour
     private InventoryScreenSessionResult BuildSessionResult(InventoryScreenSessionContext sessionContext)
     {
         InventoryScreenSessionResult result = new InventoryScreenSessionResult();
+        result.LootCapacity = InventoryLootCapacityAssessment.Evaluate(this);
 
         if (sessionContext != null && sessionContext.UseCustomPlayerInventory && PocketGrid != null)
         {

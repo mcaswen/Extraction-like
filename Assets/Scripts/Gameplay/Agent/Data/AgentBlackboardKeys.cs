@@ -77,6 +77,10 @@ namespace Gameplay.Agent.Data
         public static readonly BlackboardKey ShouldExtract =
             new BlackboardKey("Agent_ShouldExtract");
 
+        /// <summary>本 Agent 因实际容量不足产生的本局自主撤离意图，不标记资源完成。</summary>
+        public static readonly BlackboardKey InventoryRequiresExtraction =
+            new BlackboardKey("Agent_InventoryRequiresExtraction");
+
         /// <summary>
         /// 是否需要恢复
         /// 由生命值比例派生，供状态转移或行为节点读取

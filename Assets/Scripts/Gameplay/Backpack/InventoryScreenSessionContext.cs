@@ -43,6 +43,7 @@ public enum InventoryExternalContainerKind
 /// </summary>
 public sealed class InventoryScreenSessionResult
 {
+    public InventoryLootCapacity LootCapacity { get; internal set; }
     public List<ContainerItemSaveData> PlayerItems { get; set; } = new List<ContainerItemSaveData>();
     public List<ContainerCellStateSaveData> PlayerCellStates { get; set; } = new List<ContainerCellStateSaveData>();
     public List<ContainerItemSaveData> ExternalItems { get; set; } = new List<ContainerItemSaveData>();

@@ -32,7 +32,7 @@ namespace AnomalySearch.Automation.SceneRaid
             public string pathStatus;
             public float targetDistance3D, targetDistancePlanar, destinationDistancePlanar, transformToNavDistance, attackRange;
             public string lastShotResult, lastShotFailure;
-            public bool attackReady, hasEnemy, hasResource, hasDirectivePosition;
+            public bool attackReady, hasEnemy, hasResource, hasDirectivePosition, inventoryRequiresExtraction;
             public EnemyState enemy;
             public ResourceState resource;
         }
@@ -220,6 +220,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 bodyBoundsSize = body != null ? body.bounds.size : Vector3.zero,
                 directivePosition = targetPosition,
                 hasDirectivePosition = hasPosition, hasEnemy = enemy != null, hasResource = resourceState != null,
+                inventoryRequiresExtraction = pawn.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction),
                 targetDistance3D = hasPosition ? Vector3.Distance(pawn.Position, targetPosition) : -1,
                 targetDistancePlanar = hasPosition ? PlanarDistance(pawn.Position, targetPosition) : -1,
                 destinationDistancePlanar = onMesh && nav.hasPath ? PlanarDistance(pawn.Position, nav.destination) : -1,

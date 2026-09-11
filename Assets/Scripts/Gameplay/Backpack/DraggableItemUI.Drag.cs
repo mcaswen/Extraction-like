@@ -596,6 +596,7 @@ public partial class DraggableItemUI
         if (!InventoryGridInteractionPolicy.CanBeginDragFrom(CurrentGrid) || !InventoryGridInteractionPolicy.CanDropInto(intendedGrid) ||
             !CanBePlacedInGrid(intendedGrid))
         { failure = InventoryQuickTransferFailure.GridPolicy; return false; }
+        if (InventoryStackTransfer.TryTransfer(this, intendedGrid)) return true;
         if (!screen.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
         { failure = InventoryQuickTransferFailure.NoSpace; return false; }
 

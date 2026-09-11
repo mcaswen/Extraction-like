@@ -131,7 +131,8 @@
         "DecisionUsesActualDefense",
         "DecisionCountsAllUniqueVisibleRiskMembers",
         "DecisionFindsFarReachableExitWhenNearExitIsDisconnected",
-        "FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry"
+        "FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry",
+        "CapacityDecisionSelectsExitInsteadOfNearbyResource"
       ]
     },
     {
@@ -202,7 +203,11 @@
         "OversizedItemAndPolicyRejectionPreserveOriginalContainer",
         "DriverServesTwoWaitingAgentsWithoutCrossingInventories",
         "UnrelatedInventoryCannotCompleteTheWaitingResource",
-        "InvalidatedResourceClosesSessionAndReopeningResumesRealSearch"
+        "InvalidatedResourceClosesSessionAndReopeningResumesRealSearch",
+        "PartialStackTransferPreservesRemainderAndDetectsCapacity",
+        "CapacityChecksEveryCandidateAndRejectsOversizedOrPolicyOnly",
+        "FragmentedBackpackUsesFormalSortingBeforeCapacityFailure",
+        "FullAgentChoosesExitWhileOtherAgentKeepsSearching"
       ]
     }
   ]

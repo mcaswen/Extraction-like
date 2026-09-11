@@ -441,6 +441,14 @@ namespace Gameplay.Agent.AI.Actions
             if (_observedInventorySession == null || !_observedInventorySession.IsClosed)
                 return Running();
 
+            if (_observedInventorySession.CloseResult?.LootCapacity == global::InventoryLootCapacity.CapacityBlocked)
+            {
+                SetFact(context, AgentBlackboardKeys.InventoryRequiresExtraction, true);
+                EndReportedInteraction(AgentResourceInteractionStage.Left);
+                CompleteResourceSearch(context);
+                return Succeed();
+            }
+
             if (resourceObject.TryGetComponent(out global::LootBoxEntity lootBox) &&
                 lootBox.IsBoardGameResourcePoint)
             {

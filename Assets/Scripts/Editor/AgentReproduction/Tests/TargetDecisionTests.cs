@@ -121,6 +121,21 @@ namespace AgentReproduction.Tests
             ContractCompleted=true;
         }
 
+        [UnityTest]
+        public IEnumerator CapacityDecisionSelectsExitInsteadOfNearbyResource()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "CapacityDecision", Vector3.zero);
+            TargetFactory.Resources(World, new Vector3(2, 0, 0));
+            var exit = TargetFactory.Extraction(World, new Vector3(10, 0, 0));
+            yield return null;
+            agent.Blackboard.SetValue(AgentBlackboardKeys.InventoryRequiresExtraction, true, Time.timeAsDouble);
+            ConfigureDecision(agent.gameObject).RefreshTarget();
+            Assert.That(agent.DirectiveLifecycle.Active?.DirectiveType, Is.EqualTo(AgentDirectiveType.Extract));
+            Assert.That(agent.DirectiveLifecycle.Active.Value.TargetObject, Is.SameAs(exit.ExtractionMembers[0].EntityObject));
+            ContractCompleted = true;
+        }
+
         private AgentTargetDecisionController ConfigureDecision(GameObject agent)
         {
             var controller=agent.GetComponent<AgentTargetDecisionController>() ?? agent.AddComponent<AgentTargetDecisionController>();

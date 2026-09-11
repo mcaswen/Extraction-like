@@ -172,8 +172,16 @@ namespace Gameplay.Agent.Decision
         {
             _decisionCandidateBuffer.Clear(); _riskEnemyBuffer.Clear(); _farExitCandidates.Clear();
             targetRegistry.CopyClustersTo(_clusterBuffer);
-            _collector.CollectVisibleEnemies(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_enemyCandidates);
-            _collector.CollectWorldTargets(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_worldCandidates);
+            if (agent.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction))
+            {
+                _enemyCandidates.Clear();
+                _collector.CollectExtractionTargets(agent, _clusterBuffer, _worldCandidates);
+            }
+            else
+            {
+                _collector.CollectVisibleEnemies(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_enemyCandidates);
+                _collector.CollectWorldTargets(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_worldCandidates);
+            }
             string currentTargetId=ResolveCurrentTargetId(agent);
             foreach (var candidate in _enemyCandidates)
             {

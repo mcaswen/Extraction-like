@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public partial class DraggableItemUI
 {
+    public bool IsInteractionReady => CanInteractWithItem();
     private const float RarityBackgroundAlpha = 0.62f;
     private const float ItemIconInsetRatio = 0.03f;
     private const float ItemIconAxisStretchPerAspect = 0.12f;

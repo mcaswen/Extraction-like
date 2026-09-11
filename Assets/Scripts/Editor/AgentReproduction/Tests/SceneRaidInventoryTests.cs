@@ -185,6 +185,110 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator PartialStackTransferPreservesRemainderAndDetectsCapacity()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = CreateInventory();
+            yield return null;
+            var item = Item(5, 6);
+            var box = Box("Stack remainder", Vector3.zero, item, 5, 0);
+            box.SaveRuntimeState(new List<ContainerItemSaveData> { new ContainerItemSaveData { ItemData = item, Amount = 5 } }, new List<ContainerCellStateSaveData>());
+            screen.OpenLootBox(box);
+            Assert.That(InventoryItemFactory.Instance.SpawnItemInGrid(item, screen.BackpackGrid, 0, 0, 8), Is.Not.Null);
+            var source = SourceItem(screen);
+            Assert.That(InventoryLootCapacityAssessment.Evaluate(screen), Is.EqualTo(InventoryLootCapacity.CanTransfer));
+            Assert.That(source.TryQuickTransfer(out _), Is.True);
+            Assert.That(source.CurrentAmount, Is.EqualTo(3));
+            Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), item), Is.EqualTo(10));
+            Assert.That(source.TryQuickTransfer(out var failure), Is.False);
+            Assert.That(failure, Is.EqualTo(InventoryQuickTransferFailure.NoSpace));
+            var session = screen.ActiveSessionContext;
+            screen.CloseInventory();
+            Assert.That(session.CloseResult.LootCapacity, Is.EqualTo(InventoryLootCapacity.CapacityBlocked));
+            Assert.That(box.GetSavedItems().Single().Amount, Is.EqualTo(3));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator CapacityChecksEveryCandidateAndRejectsOversizedOrPolicyOnly()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = CreateInventory();
+            yield return null;
+            var large = Item(7, 7); var small = Item();
+            screen.OpenInventorySession(new InventoryScreenSessionContext { ExternalColumns = 8, ExternalRows = 8,
+                ExternalItems = new List<ContainerItemSaveData> {
+                    new ContainerItemSaveData { ItemData = large, Amount = 1 },
+                    new ContainerItemSaveData { ItemData = small, Amount = 1, X = 7 } } });
+            Assert.That(InventoryLootCapacityAssessment.Evaluate(screen), Is.EqualTo(InventoryLootCapacity.CanTransfer));
+            var view = screen.ActiveExternalGrid.ItemContainer.GetComponentsInChildren<DraggableItemUI>().Single(x => x.ItemData == small);
+            Assert.That(view.TryQuickTransfer(out _), Is.True);
+            Assert.That(InventoryLootCapacityAssessment.Evaluate(screen), Is.EqualTo(InventoryLootCapacity.NoCompatibleItems));
+            screen.ActiveExternalGrid.gameObject.AddComponent<InventoryGridInteractionPolicy>().AllowItemDragStart = false;
+            Assert.That(InventoryLootCapacityAssessment.Evaluate(screen), Is.EqualTo(InventoryLootCapacity.NoCompatibleItems));
+            screen.CloseInventory();
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator FragmentedBackpackUsesFormalSortingBeforeCapacityFailure()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = CreateInventory();
+            yield return null;
+            var peg = Item(); peg.IsStackable = false;
+            var large = Item(3, 3);
+            screen.OpenInventorySession(new InventoryScreenSessionContext { ExternalColumns = 4, ExternalRows = 4,
+                ExternalItems = new List<ContainerItemSaveData> { new ContainerItemSaveData { ItemData = large, Amount = 1 } } });
+            for (int y = 0; y < 6; y++) Assert.That(InventoryItemFactory.Instance.SpawnItemInGrid(peg, screen.BackpackGrid, 2, y, 1), Is.Not.Null);
+            Assert.That(SourceItem(screen).TryQuickTransfer(out _), Is.False);
+            Assert.That(InventoryLootCapacityAssessment.Evaluate(screen), Is.EqualTo(InventoryLootCapacity.CanTransferAfterSorting));
+            screen.BackpackGrid.AutoSort();
+            Assert.That(SourceItem(screen).TryQuickTransfer(out _), Is.True);
+            Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), peg), Is.EqualTo(6));
+            Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), large), Is.EqualTo(1));
+            screen.CloseInventory();
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator FullAgentChoosesExitWhileOtherAgentKeepsSearching()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var first = AgentFactory.Create(World, "1", Vector3.zero, 8, true, false);
+            var second = AgentFactory.Create(World, "2", new Vector3(0, 0, 8), 0, true, false);
+            var screen = CreateInventory();
+            var exit = TargetFactory.Extraction(World, new Vector3(10, 0, 0));
+            TargetFactory.Resources(World, new Vector3(0, 0, 9));
+            yield return null;
+            var item = Item(); item.IsStackable = false;
+            var box = Box("Full agent box", Vector3.zero, item, 1, 0);
+            Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent("1"), Is.True);
+            yield return null;
+            Assert.That(first.TrySubmitDirective(AgentDirectiveRequest.SearchConcreteResource(box.gameObject, "full", first.AgentId,
+                AgentManualDirectiveLock.CreateCommandId("full"), 1000)).Accepted, Is.True);
+            yield return new WaitForSecondsRealtime(0.2f);
+            box.Interact();
+            for (int y = 0; y < 6; y++)
+                for (int x = 0; x < 5; x++)
+                    Assert.That(InventoryItemFactory.Instance.SpawnItemInGrid(item, screen.BackpackGrid, x, y, 1), Is.Not.Null);
+            yield return RuntimeWait.Until(() => SourceItem(screen).IsInteractionReady, "real loot search", 5);
+            screen.CloseInventory();
+            yield return RuntimeWait.Until(() => first.DirectiveLifecycle.Active?.DirectiveType == AgentDirectiveType.Extract, "autonomous capacity extraction", 5);
+            Assert.That(first.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction), Is.True);
+            Assert.That(first.DirectiveLifecycle.Active.Value.TargetObject, Is.SameAs(exit.ExtractionMembers[0].EntityObject));
+            Assert.That(box.GetSavedItems().Single().Amount, Is.EqualTo(1));
+            Assert.That(box.IsResourcePointLooted, Is.False);
+            Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.False);
+            Assert.That(second.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction), Is.False);
+            yield return RuntimeWait.Until(() => second.DirectiveLifecycle.Active?.DirectiveType == AgentDirectiveType.Search, "other agent continues search", 5);
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
         public IEnumerator InvalidatedResourceClosesSessionAndReopeningResumesRealSearch()
         {
             TestNavMeshBuilder.Flat(World);

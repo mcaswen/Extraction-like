@@ -208,6 +208,12 @@ namespace Gameplay.Agent.Runtime
             GameplayTargetRegistry targetRegistry = GameplayTargetRegistry.GetOrCreate();
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
+            if (agent.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction))
+            {
+                ApplyExtractionTarget(handle, commandReceiver);
+                return;
+            }
+
             _candidateCollector.CollectVisibleEnemies(agent,_clusterBuffer,range,_enemyCandidates);
             _candidateCollector.CollectWorldTargets(agent,_clusterBuffer,range,_worldCandidates,
                 includeEnemySources:false,includeExtractions:false);
@@ -229,7 +235,12 @@ namespace Gameplay.Agent.Runtime
                 ApplyResourceClusterTarget(handle,commandReceiver,(ResourceClusterAuthoring)resource.Value.Cluster);
                 return;
             }
-            _candidateCollector.CollectExtractionTargets(agent,_clusterBuffer,_worldCandidates);
+            ApplyExtractionTarget(handle, commandReceiver);
+        }
+
+        private void ApplyExtractionTarget(AgentRuntimeHandle handle, IAgentCommandReceiver commandReceiver)
+        {
+            _candidateCollector.CollectExtractionTargets(handle.ReadOnly,_clusterBuffer,_worldCandidates);
             if (_worldCandidates.Count > 0)
             {
                 var exit = _worldCandidates[0];
