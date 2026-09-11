@@ -232,10 +232,23 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidCombatTests",
       "expected": [
+        "ConcreteEnemyDoesNotRetargetThroughItsParentCluster(False)",
+        "ConcreteEnemyDoesNotRetargetThroughItsParentCluster(True)",
         "RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor(False)",
         "RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor(True)",
         "CorrosionSplashStartsWithoutChangingDurationWhilePlaying",
         "FailureProbePreservesTargetAfterLifecycleClearsRequest"
+      ]
+    },
+    {
+      "name": "SceneTerminal",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidTerminalTests",
+      "expected": [
+        "AllAgentsResolvedAlwaysProducesTerminalState(\"DeathThenExtraction\")",
+        "AllAgentsResolvedAlwaysProducesTerminalState(\"ExtractionThenDeath\")",
+        "AllAgentsResolvedAlwaysProducesTerminalState(\"BothSameFrame\")",
+        "AllAgentsResolvedAlwaysProducesTerminalState(\"BothSequential\")"
       ]
     }
   ]

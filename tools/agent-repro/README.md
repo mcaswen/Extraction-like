@@ -41,10 +41,11 @@
 | Graphics | 1 | 正式顶部反馈 prefab 的成功/失败/消退 PNG |
 | ScenePerformance | 11 | Discovery 范围预筛，路径查询次数及所有权，资源和轮廓缓存失效，20 Hz 范围刷新及即时死亡隐藏 |
 | SceneInventory | 9 | 正式背包搜索、旋转/空间/策略、堆叠和整理，双 Agent 会话归属，容量自主撤离 |
-| SceneCombat | 4 | 偏高身体根的地表追击，断开高台拒绝，腐蚀粒子初始化，失败当帧探针 |
+| SceneCombat | 6 | 地表追击、断开高台拒绝、具体成员绑定、腐蚀粒子初始化、只读失败邻域探针 |
 | SceneStorage | 8 | 正式掉落写盘重载、异常页和特殊格、保存回滚、结算失败终态、平面物品证据 |
+| SceneTerminal | 4 | 先死亡后撤离、先撤离后死亡、双人同帧和顺序撤离的正式终态 |
 
-清单以 [cases.json](cases.json) 为准，共 111 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
+清单以 [cases.json](cases.json) 为准，共 117 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
 
 ## 结果与定位
 
@@ -58,7 +59,7 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 
 故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
 
-`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 111 个游戏用例。
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 117 个游戏用例。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
 

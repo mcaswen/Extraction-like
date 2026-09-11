@@ -146,15 +146,22 @@ public class RaidFlowController : MonoBehaviour
             ClearAgentExtractionProgress(agent.AgentIdValue);
         }
 
-        AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
-        if (registry != null && registry.TryGetPrimaryHandle(out _))
-        {
-            return;
-        }
+        TryFailWhenNoRemainingAgents();
+    }
 
+    private bool TryFailWhenNoRemainingAgents()
+    {
+        var registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry != null)
+        {
+            foreach (var handle in registry.RegisteredAgents)
+                if (handle.IsAlive && !_extractedAgentIds.Contains(handle.AgentId.Value)) return false;
+        }
         _isMissionFailed = true;
-        _missionFailureDetail = "All agents are down";
+        _missionFailureDetail = _extractedAgentIds.Count > 0
+            ? "Remaining agents are down; extracted loot retained" : "All agents are down";
         Time.timeScale = 0f;
+        return true;
     }
 
     /// <summary>
@@ -280,6 +287,8 @@ public class RaidFlowController : MonoBehaviour
                 CompleteExtraction(completionPoint);
                 return;
             }
+            // Destroy 延迟到帧末，检查时排除已提交撤离的角色，避免伤亡后永久等人。
+            if (TryFailWhenNoRemainingAgents()) return;
         }
 
         RefreshActiveExtractionPoint();

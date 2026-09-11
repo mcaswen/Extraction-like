@@ -146,6 +146,11 @@ namespace Gameplay.Agent.AI.Actions
             IAgentReadOnly agent,
             out global::EnemyHealthController enemyHealthController)
         {
+            // 明确指定的成员（或其碰撞体子物体）不能被祖先群重新选成另一只敌人。
+            enemyHealthController = directiveRequest.TargetObject != null
+                ? directiveRequest.TargetObject.GetComponentInParent<global::EnemyHealthController>() : null;
+            if (enemyHealthController != null) return true;
+
             if (TryGetTargetComponent(
                     directiveRequest.TargetRef,
                     out ActiveEnemyClusterAuthoring enemyCluster))

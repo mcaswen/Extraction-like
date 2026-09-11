@@ -30,6 +30,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _observer = new SceneRaidObserver(_writer, identity);
             _model = new SceneRaidReadModel(identity, _observer.LatestResource);
             _observer.CaptureDirective = _model.CaptureDirective;
+            _observer.CaptureNavigation = _model.CaptureNavigation;
             if (config.mode == "Autonomous") _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
             _sampler = new SceneRaidFrameSampler();
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));

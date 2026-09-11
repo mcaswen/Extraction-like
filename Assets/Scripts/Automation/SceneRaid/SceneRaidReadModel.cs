@@ -201,6 +201,14 @@ namespace AnomalySearch.Automation.SceneRaid
             return registry != null && registry.TryGetHandle(request.TargetAgentId, out var handle) && handle.IsValid
                 ? Capture(handle.PawnRoot, request) : null;
         }
+        public SceneRaidNavigationEvidence.Record CaptureNavigation(AgentDirectiveRequest request)
+        {
+            var registry = AgentRuntimeRegistry.ActiveInstance;
+            if (registry == null || !registry.TryGetHandle(request.TargetAgentId, out var handle) || !handle.IsValid) return null;
+            var motor = ReadField<object>(handle.PawnRoot, "_navigationMotor");
+            var destination = motor != null ? ReadField<Vector3>(motor, "_target") : request.TargetPosition;
+            return SceneRaidNavigationEvidence.Capture(handle.PawnRoot, destination, _identity);
+        }
         private AgentState Capture(AgentPawnRoot pawn, AgentDirectiveRequest? request = null)
         {
             var active = request ?? pawn.DirectiveLifecycle?.Active;
@@ -213,7 +221,7 @@ namespace AnomalySearch.Automation.SceneRaid
             float attackRange = pawn.Blackboard != null ? pawn.Blackboard.GetValueOrDefault<float>(AgentBlackboardKeys.AttackRange) : 0;
             Vector3 targetPosition = active.HasValue && active.Value.HasTargetPosition ? active.Value.TargetPosition : pawn.Position;
             EnemyHealthController enemy = active.HasValue && active.Value.TargetObject != null && active.Value.DirectiveType == AgentDirectiveType.Engage
-                ? active.Value.TargetObject.GetComponent<EnemyHealthController>() : null;
+                ? active.Value.TargetObject.GetComponentInParent<EnemyHealthController>() : null;
             var resourceState = CaptureResource(pawn, active?.CommandId);
             bool hasPosition = active.HasValue && active.Value.HasTargetPosition;
             return new AgentState

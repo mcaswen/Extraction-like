@@ -13,6 +13,36 @@ namespace AgentReproduction.Tests
 {
     public sealed class SceneRaidCombatTests : ReproductionTestFixture
     {
+        public static bool[] ConcreteBindings = { false, true };
+        [UnityTest]
+        public IEnumerator ConcreteEnemyDoesNotRetargetThroughItsParentCluster([ValueSource(nameof(ConcreteBindings))] bool colliderChild)
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "Bound enemy", Vector3.zero, 0, false, false);
+            var near = EnemyFactory.Passive(World, new Vector3(3, 0, 2));
+            var chosen = EnemyFactory.Passive(World, new Vector3(0, 0, 6));
+            var cluster = TargetFactory.Enemies(World, near, chosen);
+            near.transform.SetParent(cluster.transform, true);
+            chosen.transform.SetParent(cluster.transform, true);
+            World.Cube("Near member occlusion", new Vector3(1.5f, 1, 1), new Vector3(0.8f, 4, 1));
+            GameObject target = chosen.gameObject;
+            if (colliderChild)
+            {
+                target = World.Root("Chosen collider child");
+                target.transform.SetParent(chosen.transform, false);
+            }
+            yield return null; Physics.SyncTransforms();
+            float nearHealth = near.GetCurrentHealthRatio(), chosenHealth = chosen.GetCurrentHealthRatio();
+            var result = agent.TrySubmitDirective(AgentDirectiveRequest.EngageConcreteEnemy(target, "chosen", agent.AgentId,
+                AgentManualDirectiveLock.CreateCommandId("chosen-member"), 1000));
+            Assert.That(result.Accepted, Is.True);
+            yield return RuntimeWait.Until(() => chosen.GetCurrentHealthRatio() < chosenHealth,
+                "explicit cluster member receives the actual projectile", 3);
+            Assert.That(near.GetCurrentHealthRatio(), Is.EqualTo(nearHealth));
+            Assert.That(agent.DirectiveLifecycle.Active.Value.TargetObject, Is.SameAs(target));
+            ContractCompleted = true;
+        }
+
         [UnityTest]
         public IEnumerator FailureProbePreservesTargetAfterLifecycleClearsRequest()
         {
@@ -29,6 +59,18 @@ namespace AgentReproduction.Tests
             Assert.That(captured.hasEnemy, Is.True);
             Assert.That(captured.enemy.position, Is.EqualTo(enemy.transform.position));
             Assert.That(captured.enemy.health, Is.GreaterThan(0));
+            Vector3 originalPosition = agent.Position;
+            var concave = World.Cube("Probe nonconvex mesh", new Vector3(0, 0, 3), Vector3.one);
+            concave.GetComponent<BoxCollider>().enabled = false;
+            concave.AddComponent<MeshCollider>().sharedMesh = concave.GetComponent<MeshFilter>().sharedMesh;
+            Physics.SyncTransforms();
+            var navigation = model.CaptureNavigation(result.Request);
+            Assert.That(navigation.agents.Length, Is.GreaterThan(0));
+            Assert.That(navigation.bodies.Length, Is.GreaterThan(0));
+            Assert.That(navigation.colliderBufferFull, Is.False);
+            Assert.That(System.Array.Exists(navigation.bodies, x => x.type == "MeshCollider" && x.closestUsesBounds), Is.True);
+            Assert.That(agent.Position, Is.EqualTo(originalPosition));
+            Assert.That(agent.NavMeshAgent.hasPath, Is.False, "Diagnostic CalculatePath cannot set a movement path.");
             Assert.That(agent.DirectiveLifecycle.Active.HasValue, Is.False, "Observation cannot restore the old command.");
             ContractCompleted = true;
             yield return null;
