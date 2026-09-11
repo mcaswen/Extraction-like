@@ -1,10 +1,10 @@
 # Scenezl_Final 1 自主搜打撤，运行时诊断和性能治理大规划
 
-日期：2026-09-11。状态：**第 1、2、4、5、6 项已确认；用户随后授权的场景层级修复已完成，7/7 构造测试、保存/重载及幂等检查通过。其余 P0–P6 尚未开始。**
+日期：2026-09-11。状态：**用户已授权开始实施。层级修复完成；P0 原场景审计、两轮零输入 Play Mode 基线和报告故障测试完成，已复现重复 NoProgress 和 RaidFlow 胜出者变化。P1 开始细分诊断，P2–P6 尚未完成。**
 
 目标场景：`Assets/Scenes/Scene_DB/Scenezl_Final 1.unity`。源码调查基线：`c8b1a4c`。
 
-本次先交付大规划。后续实施按“小规划 → 实现 → 运行测试/Review → 调整 → 提交 → 下一阶段”推进。原始场景调查、用户 Profiler 数据和源码证据见 [scene_analysis.md](scene_analysis.md)，真实 Prefab、实例覆盖和第 3 项核对见 [prefab_configuration_audit.md](prefab_configuration_audit.md)，方案自审见 [architecture_review.md](architecture_review.md)。
+实施按“小规划 → 实现 → 运行测试/Review → 调整 → 提交 → 下一阶段”推进。当前基线已更新到用户的 `3f068d6`，包括新地形和 NavMesh；P0 实测见 [p0_execution.md](p0_execution.md) 和 [p0_baseline.json](p0_baseline.json)。原始场景调查、用户 Profiler 数据和源码证据见 [scene_analysis.md](scene_analysis.md)，真实 Prefab、实例覆盖和第 3 项核对见 [prefab_configuration_audit.md](prefab_configuration_audit.md)，方案自审见 [architecture_review.md](architecture_review.md)。
 
 ## 1. 需求、范围和完成定义
 

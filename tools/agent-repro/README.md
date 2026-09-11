@@ -63,3 +63,14 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 `./tools/agent-repro/Invoke-TargetHierarchyRepair.ps1` 在隔离副本中运行 7 项定向 EditMode 测试，再修复 `Scenezl_Final 1.unity`，保存并重载验证；检查源输入没有变化后回写场景和范围线共享材质。结果位于 `Logs/TargetHierarchyRepair/<run-id>/`，包含原始 XML、实际渲染 PNG、对象绑定、修改记录和修复前备份。失败时保留日志，不把未经验证的场景写回。
 
 编辑器菜单 `Tools/Gameplay Targets/Repair Active Scene From Hierarchy` 提供同一修复能力，支持 Undo，修改后场景保持 dirty 供正常保存。工具按最近所属层级收集 LootBox/撤离点/出生点，修正 Zone 双向绑定，补齐 LineRenderer 和缺失材质，复用正式轮廓算法；不每帧扫描，也不在导入或普通游戏启动时自动修场景。
+# Scenezl_Final 1 原场景诊断
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC00
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC01
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-repro/Test-SceneRaidReport.ps1
+```
+
+SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对象引用、成员与缺失脚本。SC01 自动进入正常 Domain Reload 的图形 Play Mode，完全零输入观察 60 秒，保留自主指令、每秒快照、连续帧和初始化日志。输出在 `Logs/SceneRaid/<runId>/`；`report.json` 的 `evidenceStatus=PASS` 只表示采集完整，`gameStatus` 单独报告问题，`performanceAcceptance` 当前始终为 false。
+
+入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity / 1×；当前 P0 开普通 Profiler，会输出较大的原始文件，不能拿其 FPS 作为最终验收。三个 Invoke 若无法直接被 Recorder 采集，明确标为 unavailable。后续自主背包和完整回合按 [大规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/task_plan.md) 分阶段实现。
