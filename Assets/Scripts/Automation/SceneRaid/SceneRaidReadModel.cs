@@ -39,7 +39,7 @@ namespace AnomalySearch.Automation.SceneRaid
         [Serializable] public sealed class EnemyState
         {
             public string identity, bodyVisibility;
-            public Vector3 position, eulerAngles, scale, aimPosition;
+            public Vector3 position, eulerAngles, scale, aimPosition, navigationPosition;
             public float health, maximumHealth, shield, distance3D, distancePlanar, aimDistance;
             public bool active, died;
         }
@@ -257,6 +257,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 shield = enemy.CurrentShield, died = ReadField<bool>(enemy, "_hasDied"), active = enemy.isActiveAndEnabled,
                 distance3D = Vector3.Distance(pawn.Position, enemy.transform.position), distancePlanar = PlanarDistance(pawn.Position, enemy.transform.position),
                 aimPosition = aim, aimDistance = Vector3.Distance(origin, aim),
+                navigationPosition = Gameplay.Agent.Navigation.AgentCombatNavigationTarget.Resolve(enemy),
                 bodyVisibility = TargetVisibilityQuery.Check(pawn.transform, origin, enemy.transform, attackRange).ToString()
             };
         }

@@ -56,3 +56,21 @@ P3b 红灯 `20260911-214901-479` 在“Plain backpack is not the waiting box”�
 `20260911-220159-381` 15 项中 14 项通过，碎片化夹具的 3×2 物品可旋转成 2×3 放入，测试预设错误。修正夹具为 3×3 后，`20260911-220327-759` 全部 15 项通过（背包 9、目标决策 6），没有放宽生产规则。
 
 评估和堆叠规则各自独立文件，Agent 黑板只保存本局撤离意图。自动化合法关闭会话后继续运行，未调用撤离指令；源剩余由正式箱子回调保存。特殊格不通过旧整理入口清除，单件超规格和网格策略拒绝没有冒充容量不足。
+
+### P3d-1 追击目的地和粒子初始化
+
+实测 AnchorSentinel 根节点 y≈3，居中 Capsule 高约 6，脚下 NavMesh y≈0；追击把根坐标交给半径约 1 的采样，反复 Unreachable。TidalAberration 还带 NavMeshAgent baseOffset。不能扩大所有导航查询的容差，否则可能把真正的高台断路当可达。
+
+- Create `Assets/Scripts/Gameplay/Agent/Navigation/AgentCombatNavigationTarget.cs`：只解析敌人的地表追击位置；导航实体扣除实际缩放后的 baseOffset，静态实体优先脚底，必要时在身体覆盖的高度内作限制水平偏移的 NavMesh 采样。目的地仍交给原完整路径检查。
+- Extend `Assets/Scripts/Gameplay/Agent/Commands/AgentDirectiveValidationService.cs`、`Targeting/AgentTargetCandidateCollector.cs`、`AI/Actions/EngageEnemyActionNode.cs`：接受、发现和追击共用该解析，射程/视线/枪口继续使用真实身体瞄准点，跨高低差射击规则不变。
+- Extend `Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs`：新建粒子后先 StopEmittingAndClear，再设置 duration，配置完成后 Play；不删除或关闭视觉效果。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidCombatTests.cs`：同地面、偏高根节点的实际追击/伤害，断开的高台仍拒绝，腐蚀粒子初始化无断言且仍播放。Extend `tools/agent-repro/cases.json` 收录该组。
+- Extend `Assets/Scripts/Automation/SceneRaid/SceneRaidReadModel.cs`：敌人快照增加地表追击目的地，避免只有身体位置无法定位。
+
+必要回归：新组、既有 Navigation 和跨高度远程组；原场景 4 倍速复跑验证，不调整 HP、装备、敌人数量或射程。
+
+构造红灯 `20260911-220647-153`：偏高根追击被错误拒绝，粒子 duration 触发断言，断开高台正确拒绝。修复后 `20260911-221008-896` SceneCombat 3 项和 RangedSpatial 12 项全部通过，`20260911-221156-191` Navigation 8 项全部通过。共 23 项，不把曾误填的不存在 NavigationTests 过滤器算作覆盖。
+
+原场景 `20260911-220657-484` 首次两人自主撤离并结算，63.72 秒墙钟、169.85 秒游戏时间、11 次背包会话，仍有 3 条粒子断言、1 次 Unreachable、1 次 Superseded 拒绝。修复后 `20260911-221156-196` 运行 180.80 秒墙钟、203.87 秒游戏时间、12 次会话，0 运行时错误、0 Unreachable、3 次 Superseded 拒绝。Agent 2 已撤离，Agent 1 撤离中死亡，missionFailed=true、timeScale=0，测试器未识别失败终态而等到期限。该轮证据 PASS，玩法 ISSUES_OBSERVED，不能算完整回合通过。
+
+后续发现：旧图腾仍出现在正式掉落中，却被运行时数据库排除；首个完成回合的仓库出现同格记录重叠和缺定义警告。P3d 后续必须验证真实存档回读、数量和布局，不能只凭 RaidFlow 的 settled 集合宣布结算正确。

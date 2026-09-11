@@ -209,6 +209,16 @@
         "FragmentedBackpackUsesFormalSortingBeforeCapacityFailure",
         "FullAgentChoosesExitWhileOtherAgentKeepsSearching"
       ]
+    },
+    {
+      "name": "SceneCombat",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidCombatTests",
+      "expected": [
+        "RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor(False)",
+        "RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor(True)",
+        "CorrosionSplashStartsWithoutChangingDurationWhilePlaying"
+      ]
     }
   ]
 }

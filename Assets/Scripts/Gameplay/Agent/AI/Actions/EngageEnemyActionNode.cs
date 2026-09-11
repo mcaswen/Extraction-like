@@ -62,7 +62,6 @@ namespace Gameplay.Agent.AI.Actions
 
             GameplayTargetRegistry.GetOrCreate().NotifyEnemyEngaged(enemyHealthController);
 
-            Vector3 targetPosition = enemyHealthController.transform.position;
             float attackRange = GetFloat(context, AgentBlackboardKeys.AttackRange, 6f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             bool canFire = TargetVisibilityQuery.Check(agent.CachedTransform, CombatAimPointResolver.Resolve(agent.CachedTransform),
@@ -87,7 +86,7 @@ namespace Gameplay.Agent.AI.Actions
                     FailPendingDirective(context, AgentDirectiveFailure.LostSight);
                     return Succeed();
                 }
-                MoveAgentTowards(agent, targetPosition, 0.1f, moveSpeed, context.DeltaTime);
+                MoveAgentTowards(agent, Gameplay.Agent.Navigation.AgentCombatNavigationTarget.Resolve(enemyHealthController), 0.1f, moveSpeed, context.DeltaTime);
                 return Running();
             }
             _lostSightSince = -1d;

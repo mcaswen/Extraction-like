@@ -1026,6 +1026,7 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             particleObject.transform.localPosition = Vector3.up * 0.04f;
 
             ParticleSystem particleSystem = particleObject.AddComponent<ParticleSystem>();
+            particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             ParticleSystem.MainModule main = particleSystem.main;
             main.loop = true;
             main.duration = 1f;
@@ -1067,6 +1068,7 @@ public sealed class ZombieTentacleCorrosionVfx : MonoBehaviour
             renderer.sortingOrder = 6;
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+            particleSystem.Play();
             return particleSystem;
         }
 

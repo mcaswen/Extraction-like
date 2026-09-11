@@ -31,11 +31,12 @@ namespace Gameplay.Agent.Targeting
                 {
                     if (!_seen.Add(enemy.GetInstanceID()) || TargetVisibilityQuery.Check(agent.CachedTransform,origin,enemy.transform,range) != TargetVisibilityResult.Visible) continue;
                     Vector3 position=enemy.transform.position;
+                    Vector3 navigationPosition = AgentCombatNavigationTarget.Resolve(enemy);
                     float distanceSqr=(CombatAimPointResolver.Resolve(enemy.transform)-origin).sqrMagnitude;
                     agent.Blackboard.TryGetValue(AgentBlackboardKeys.AttackRange,out float attackRange);
-                    bool canExecute=(distanceSqr<=attackRange*attackRange || IsReachable(agent,position,out _)) &&
-                        !_failures.IsDeferred(agent,cluster.gameObject,enemy.gameObject,position);
-                    results.Add(new AgentTargetCandidate(cluster,enemy.gameObject,position,position,
+                    bool canExecute=(distanceSqr<=attackRange*attackRange || IsReachable(agent,navigationPosition,out _)) &&
+                        !_failures.IsDeferred(agent,cluster.gameObject,enemy.gameObject,navigationPosition);
+                    results.Add(new AgentTargetCandidate(cluster,enemy.gameObject,position,navigationPosition,
                         distanceSqr,AgentTargetKind.Enemy,enemy,canExecute));
                 }
             }
