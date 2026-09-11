@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Gameplay.Targets.Data;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -40,6 +41,7 @@ namespace Gameplay.Targets.Authoring
             new Dictionary<GameObject, List<Vector3>>();
         private readonly HashSet<GameObject> _initializedNavigationDebugObjects = new HashSet<GameObject>();
         private NavMeshPath _navigationPath;
+        private readonly GameplayTargetApproachOccupancy _approachOccupancy = new GameplayTargetApproachOccupancy();
         public long NavigationPathCalculationCount { get; private set; }
 
         /// <summary>
@@ -470,6 +472,7 @@ namespace Gameplay.Targets.Authoring
             int partialCount = 0;
             int invalidCount = 0;
             int calculateFailedCount = 0;
+            int occupiedCount = 0;
             float bestCompleteLength = float.MaxValue;
             float bestPartialDistanceToTarget = float.MaxValue;
             Vector3 bestCompletePosition = default;
@@ -490,6 +493,11 @@ namespace Gameplay.Targets.Authoring
                 }
 
                 sampledCount++;
+                if (!_approachOccupancy.IsClear(navMeshAgent, targetHit.position))
+                {
+                    occupiedCount++;
+                    continue;
+                }
                 bool calculated = CalculateResourcePath(navMeshAgent, startPosition, targetHit.position, areaMask, path);
                 if (!calculated)
                     calculateFailedCount++;
@@ -531,7 +539,7 @@ namespace Gameplay.Targets.Authoring
                 $"resourceMemberCandidates[{memberIndex}]: " +
                 $"count={_navigationCandidateBuffer.Count} sampled={sampledCount} " +
                 $"complete={completeCount} partial={partialCount} " +
-                $"invalid={invalidCount} calculateFailed={calculateFailedCount}");
+                $"invalid={invalidCount} calculateFailed={calculateFailedCount} occupied={occupiedCount}");
             if (completeCount > 0)
             {
                 builder.Append(
@@ -942,6 +950,9 @@ namespace Gameplay.Targets.Authoring
             }
 
             // 复用路径对象，但必须沿用 Agent 已绑定的地面起点，不能拿带 baseOffset 的显示位置重新寻路。
+            if (!_approachOccupancy.IsClear(navMeshAgent, targetHit.position))
+                return false;
+
             NavigationPathCalculationCount++;
             bool calculated = CalculateResourcePath(navMeshAgent, startPosition, targetHit.position, areaMask, path);
             if (!calculated || path.status != NavMeshPathStatus.PathComplete)

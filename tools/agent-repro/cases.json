@@ -6,12 +6,24 @@
       "graphics": true,
       "filter": "AgentReproduction.Tests.SceneRaidResourceApproachTests",
       "expected": [
+        "TwoAgentsChooseReachableUnoccupiedApproaches(1.0f)",
+        "TwoAgentsChooseReachableUnoccupiedApproaches(4.0f)",
         "RecordedBoxApproachesArriveWithoutStalling(\"1\",1.0f)",
         "RecordedBoxApproachesArriveWithoutStalling(\"1\",4.0f)",
         "RecordedBoxApproachesArriveWithoutStalling(\"2\",1.0f)",
         "RecordedBoxApproachesArriveWithoutStalling(\"2\",4.0f)",
         "RecordedBoxApproachesArriveWithoutStalling(\"Both\",1.0f)",
         "RecordedBoxApproachesArriveWithoutStalling(\"Both\",4.0f)"
+      ]
+    },
+    {
+      "name": "TargetApproachOccupancy",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.TargetApproachOccupancyTests",
+      "expected": [
+        "ScaledBodyOccupancyTracksMovementAndHeight",
+        "OwnBodyStaticGeometryAndDisabledNavigationDoNotOccupy",
+        "FullOverlapBufferExpandsAndThenReusesStorage"
       ]
     },
     {
