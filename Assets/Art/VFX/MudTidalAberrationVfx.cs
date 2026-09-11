@@ -71,6 +71,9 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
     private float _noiseSeed;
     private int _targetRefreshFrame;
     private bool _suppressGameplayEffects;
+    private Vector3[] _tentaclePath, _jetOuterPath, _jetCorePath, _jetSprayPath;
+    private TentacleArm _attackTentacle;
+    private GameObject _waterJetRoot;
 
     private void Awake()
     {
@@ -81,6 +84,8 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
         EnsureRuntimeMaterials();
         EnsureIdleTentacles();
     }
+
+    private void OnEnable() => EnsureIdleTentacles();
 
     private void OnDisable()
     {
@@ -97,6 +102,10 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
         }
 
         RestoreSceneLocalSilence();
+        _attackTentacle?.Destroy();
+        _attackTentacle = null;
+        if (_waterJetRoot != null) Destroy(_waterJetRoot);
+        _waterJetRoot = null;
 
         for (int i = 0; i < _idleTentacles.Count; i++)
         {
@@ -243,7 +252,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
     private IEnumerator PlayTentacleContact()
     {
         FaceTarget();
-        TentacleArm attackTentacle = new TentacleArm(this, "MudContactTentacleVfx", 0.24f, 0.08f, 10);
+        _attackTentacle = new TentacleArm(this, "MudContactTentacleVfx", 0.24f, 0.08f, 10);
         bool initialHitApplied = false;
         float tickTimer = 0f;
         float duration = Mathf.Max(0.05f, _tentacleContactDuration);
@@ -256,7 +265,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
             Vector3 origin = ResolveTentacleOrigin(0);
             Vector3 targetPoint = ResolveTargetPoint();
             Vector3[] path = BuildTentaclePath(origin, targetPoint, normalized * 5f, 0.35f);
-            attackTentacle.Update(path, 1f - Mathf.SmoothStep(0.88f, 1f, normalized), normalized);
+            _attackTentacle.Update(path, 1f - Mathf.SmoothStep(0.88f, 1f, normalized), normalized);
 
             if (!initialHitApplied)
             {
@@ -275,7 +284,8 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
             yield return null;
         }
 
-        attackTentacle.Destroy();
+        _attackTentacle.Destroy();
+        _attackTentacle = null;
         _tentacleRoutine = null;
     }
 
@@ -283,6 +293,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
     {
         FaceTarget();
         GameObject jetRoot = new GameObject("MudHighPressureWaterJetVfx");
+        _waterJetRoot = jetRoot;
         jetRoot.layer = gameObject.layer;
 
         LineRenderer outerLine = CreateLine(jetRoot.transform, "WaterJetOuter", _waterMaterial, 0.42f, 12);
@@ -309,9 +320,9 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
             direction.Normalize();
             Vector3 endpoint = origin + direction * distance;
-            Vector3[] outerPath = BuildWaterJetPath(origin, endpoint, normalized, 0.08f);
-            Vector3[] corePath = BuildWaterJetPath(origin, endpoint, normalized, 0.018f);
-            Vector3[] sprayPath = BuildWaterJetPath(origin, endpoint, normalized + 0.35f, -0.12f);
+            Vector3[] outerPath = BuildWaterJetPath(origin, endpoint, normalized, 0.08f, ref _jetOuterPath);
+            Vector3[] corePath = BuildWaterJetPath(origin, endpoint, normalized, 0.018f, ref _jetCorePath);
+            Vector3[] sprayPath = BuildWaterJetPath(origin, endpoint, normalized + 0.35f, -0.12f, ref _jetSprayPath);
 
             ApplyLine(outerLine, outerPath, _waterEdgeColor, _impactFoamColor, 0.9f, 0.42f);
             ApplyLine(coreLine, corePath, _waterCoreColor, _waterCoreColor, 1f, 0.18f);
@@ -621,6 +632,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
             return;
         }
 
+        EnsureRuntimeMaterials();
         for (int i = 0; i < 6; i++)
         {
             _idleTentacles.Add(new TentacleArm(this, "MudIdleTentacleVfx", 0.14f, 0.045f, 2 + i));
@@ -654,7 +666,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
         right.Normalize();
         Vector3 up = Vector3.Cross(direction, right).normalized;
-        Vector3[] points = new Vector3[_pathPointCount];
+        Vector3[] points = EnsurePath(ref _tentaclePath);
         for (int i = 0; i < points.Length; i++)
         {
             float u = i / (float)(points.Length - 1);
@@ -667,7 +679,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
         return points;
     }
 
-    private Vector3[] BuildWaterJetPath(Vector3 origin, Vector3 endpoint, float phase, float amplitude)
+    private Vector3[] BuildWaterJetPath(Vector3 origin, Vector3 endpoint, float phase, float amplitude, ref Vector3[] buffer)
     {
         Vector3 delta = endpoint - origin;
         Vector3 direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : transform.forward;
@@ -679,7 +691,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
         right.Normalize();
         Vector3 up = Vector3.Cross(direction, right).normalized;
-        Vector3[] points = new Vector3[_pathPointCount];
+        Vector3[] points = EnsurePath(ref buffer);
         for (int i = 0; i < points.Length; i++)
         {
             float u = i / (float)(points.Length - 1);
@@ -689,6 +701,13 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
         }
 
         return points;
+    }
+
+    private Vector3[] EnsurePath(ref Vector3[] buffer)
+    {
+        int count = Mathf.Max(MinimumPathPoints, _pathPointCount);
+        if (buffer == null || buffer.Length != count) buffer = new Vector3[count];
+        return buffer;
     }
 
     private LineRenderer CreateLine(Transform parent, string objectName, Material material, float width, int sortingOrder)
@@ -881,6 +900,7 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
         private readonly LineRenderer _bodyLine;
         private readonly LineRenderer _rimLine;
         private readonly Transform[] _spikes;
+        private Vector3[] _rimPath;
 
         public TentacleArm(MudTidalAberrationVfx owner, string rootName, float bodyWidth, float rimWidth, int sortingOrder)
         {
@@ -960,7 +980,8 @@ public sealed class MudTidalAberrationVfx : MonoBehaviour
 
         private Vector3[] OffsetPath(Vector3[] path, float offset)
         {
-            Vector3[] result = new Vector3[path.Length];
+            if (_rimPath == null || _rimPath.Length != path.Length) _rimPath = new Vector3[path.Length];
+            Vector3[] result = _rimPath;
             for (int i = 0; i < path.Length; i++)
             {
                 Vector3 tangent = i < path.Length - 1 ? path[i + 1] - path[i] : path[i] - path[i - 1];

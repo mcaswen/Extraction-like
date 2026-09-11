@@ -88,6 +88,11 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
     private ParticleSystem _impactParticles;
     private ParticleSystem _driftParticles;
     private bool _suppressGameplayEffects;
+    private readonly Vector3[] _circlePath = new Vector3[CircleSegments + 1];
+    private readonly Vector3[] _trianglePath = new Vector3[4];
+    private readonly Vector3[] _crossbarPath = new Vector3[2];
+    private readonly Vector3[] _lockPath = new Vector3[3];
+    private Vector3[] _outerPath, _corePath, _wispPathA, _wispPathB;
 
     private void Awake()
     {
@@ -382,15 +387,10 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         Vector3 origin = ResolveOrigin();
         Vector3 target = ResolveTargetPoint();
         Vector3 midpoint = Vector3.Lerp(origin, target, 0.5f) + Vector3.up * (0.25f + normalized * 0.18f);
-        Vector3[] path =
-        {
-            origin,
-            midpoint,
-            target
-        };
+        _lockPath[0] = origin; _lockPath[1] = midpoint; _lockPath[2] = target;
 
         float pulse = 0.52f + Mathf.Sin(Time.time * 16f) * 0.18f;
-        ApplyLine(_lockLine, path, _runeColor, _coreBeamColor, pulse, Mathf.Lerp(0.035f, 0.11f, normalized));
+        ApplyLine(_lockLine, _lockPath, _runeColor, _coreBeamColor, pulse, Mathf.Lerp(0.035f, 0.11f, normalized));
         UpdateTargetRing(target, origin, 0.28f + normalized * 0.28f, 0.45f + pulse * 0.25f);
     }
 
@@ -399,10 +399,10 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         UpdateGlyphVisual(0.95f);
 
         float pulse = 0.82f + Mathf.Sin(Time.time * 20f + _noiseSeed) * 0.12f;
-        Vector3[] outerPath = BuildBeamPath(origin, target, 0.08f, Time.time * 12f);
-        Vector3[] corePath = BuildBeamPath(origin, target, 0.018f, Time.time * 16f + 1.7f);
-        Vector3[] wispPathA = BuildBeamPath(origin, target, 0.2f, Time.time * 7.5f + 0.6f);
-        Vector3[] wispPathB = BuildBeamPath(origin, target, -0.18f, Time.time * 8.25f + 2.4f);
+        Vector3[] outerPath = BuildBeamPath(origin, target, 0.08f, Time.time * 12f, ref _outerPath);
+        Vector3[] corePath = BuildBeamPath(origin, target, 0.018f, Time.time * 16f + 1.7f, ref _corePath);
+        Vector3[] wispPathA = BuildBeamPath(origin, target, 0.2f, Time.time * 7.5f + 0.6f, ref _wispPathA);
+        Vector3[] wispPathB = BuildBeamPath(origin, target, -0.18f, Time.time * 8.25f + 2.4f, ref _wispPathB);
 
         ApplyLine(_outerBeamLine, outerPath, _outerBeamColor, _edgeBeamColor, pulse, 0.5f);
         ApplyLine(_edgeBeamLine, outerPath, _edgeBeamColor, _outerBeamColor, 0.9f, 0.24f);
@@ -414,7 +414,7 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         UpdateParticlePositions(origin, target);
     }
 
-    private Vector3[] BuildBeamPath(Vector3 origin, Vector3 target, float amplitude, float phase)
+    private Vector3[] BuildBeamPath(Vector3 origin, Vector3 target, float amplitude, float phase, ref Vector3[] buffer)
     {
         Vector3 delta = target - origin;
         float distance = delta.magnitude;
@@ -428,7 +428,9 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         right.Normalize();
         Vector3 up = Vector3.Cross(forward, right).normalized;
 
-        Vector3[] path = new Vector3[_beamPointCount];
+        int count = Mathf.Max(MinimumBeamPoints, _beamPointCount);
+        if (buffer == null || buffer.Length != count) buffer = new Vector3[count];
+        Vector3[] path = buffer;
         for (int i = 0; i < path.Length; i++)
         {
             float u = i / (float)(path.Length - 1);
@@ -469,7 +471,8 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
         right.Normalize();
         Vector3 up = Vector3.Cross(direction, right).normalized;
         Vector3 crossbarCenter = origin + up * 0.45f;
-        ApplyLine(_crossbarLine, new[] { crossbarCenter - right * 0.46f, crossbarCenter + right * 0.46f }, runeStart, runeEnd, alpha * 0.7f, 0.045f);
+        _crossbarPath[0] = crossbarCenter - right * 0.46f; _crossbarPath[1] = crossbarCenter + right * 0.46f;
+        ApplyLine(_crossbarLine, _crossbarPath, runeStart, runeEnd, alpha * 0.7f, 0.045f);
         UpdateRuneTriangle(origin + direction * 0.018f, direction, right, up, 0.31f, alpha * 0.68f);
     }
 
@@ -506,7 +509,7 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
 
         tangent.Normalize();
         Vector3 bitangent = Vector3.Cross(normal, tangent).normalized;
-        Vector3[] points = new Vector3[CircleSegments + 1];
+        Vector3[] points = _circlePath;
         for (int i = 0; i < points.Length; i++)
         {
             float angle = phase + i / (float)CircleSegments * Mathf.PI * 2f;
@@ -518,7 +521,7 @@ public sealed class RobotAnchorBeamVfx : MonoBehaviour
 
     private void UpdateRuneTriangle(Vector3 center, Vector3 normal, Vector3 right, Vector3 up, float radius, float alpha)
     {
-        Vector3[] points = new Vector3[4];
+        Vector3[] points = _trianglePath;
         for (int i = 0; i < 3; i++)
         {
             float angle = -Mathf.PI * 0.5f + i * Mathf.PI * 2f / 3f + Time.time * 0.65f;

@@ -255,6 +255,21 @@
       ]
     },
     {
+      "name": "SceneVfx",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidVfxPerformanceTests",
+      "expected": [
+        "WarmVisualUpdatesDoNotAllocatePathArrays(\"MudIdle\")",
+        "WarmVisualUpdatesDoNotAllocatePathArrays(\"RobotGlyph\")",
+        "WarmVisualUpdatesDoNotAllocatePathArrays(\"RobotLock\")",
+        "WarmVisualUpdatesDoNotAllocatePathArrays(\"RobotBeam\")",
+        "MudPathsRemainIndependentResizeAndFollowTarget",
+        "RobotBeamPathsRemainIndependentResizeAndPreserveEndpoints",
+        "DisablingMudDuringBothAttacksDestroysOwnedVisualRoots",
+        "ReenabledMudRestoresMaterialsForRecreatedTentacles"
+      ]
+    },
+    {
       "name": "SceneTerminal",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidTerminalTests",
