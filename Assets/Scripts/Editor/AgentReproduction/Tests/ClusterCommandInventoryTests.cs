@@ -19,6 +19,7 @@ namespace AgentReproduction.Tests
     {
         public static int[] Speeds = { 1, 4 };
         public static string[] Replacements = { "Search", "Engage", "Extract" };
+        public static bool[] FocusedFirst = { true, false };
 
         private InventoryItemData Item()
         {
@@ -37,6 +38,88 @@ namespace AgentReproduction.Tests
                 { ItemData = item, Amount = 3, RequiresSearch = true, IsSearched = false, SearchDurationSeconds = duration } },
                 new List<ContainerCellStateSaveData>());
             return box;
+        }
+
+        [UnityTest]
+        public IEnumerator LateRegisteredInventoryDoesNotChangeOpenSessionOrFocus()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = InventoryFactory.Create(World);
+            var defaultBag = World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+            defaultBag.Type = ItemType.Bag; defaultBag.ContainerColumns = 5; defaultBag.ContainerRows = 6;
+            defaultBag.ItemID = "DefaultFixtureBackpack";
+            screen.DefaultBackpackItem = defaultBag;
+            yield return null;
+            var item = Item();
+            Assert.That(InventoryItemFactory.Instance.SpawnItemInGrid(item, screen.BackpackGrid, 0, 0, 2), Is.Not.Null);
+            screen.OpenInventorySession(new InventoryScreenSessionContext { ExternalColumns = 2, ExternalRows = 2 });
+            var session = screen.ActiveSessionContext;
+            AgentFactory.Create(World, "2", new Vector3(0, 0, 10));
+            yield return null;
+            Assert.That(screen.ActiveSessionContext, Is.SameAs(session));
+            Assert.That(screen.IsInventoryOpen, Is.True);
+            Assert.That(Time.timeScale, Is.Zero);
+            Assert.That(AgentRuntimeRegistry.ActiveInstance.FocusedAgentId.Value, Is.EqualTo("1"));
+            Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), item), Is.EqualTo(2));
+            var snapshots = RuntimeFixtureAccess.Read<IDictionary>(screen, "_inventorySnapshotsByAgentId");
+            Assert.That(snapshots.Contains("2"), Is.True);
+            var defaultInventory = snapshots["2"];
+            var bag = RuntimeFixtureAccess.Read<ContainerItemSaveData>(defaultInventory, "BackpackItem");
+            Assert.That(bag.ItemData, Is.SameAs(screen.DefaultBackpackItem));
+            Assert.That(bag.InternalItems, Is.Empty, "Never clone another agent's contents.");
+            screen.CloseInventory();
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator PreviouslyInitializedMissingSnapshotIsNotRecreatedAsEmpty()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            AgentFactory.Create(World, "2", new Vector3(0, 0, 10));
+            var screen = InventoryFactory.Create(World);
+            yield return null;
+            var snapshots = RuntimeFixtureAccess.Read<IDictionary>(screen, "_inventorySnapshotsByAgentId");
+            Assert.That(snapshots.Contains("2"), Is.True);
+            snapshots.Remove("2"); // 明确的存储缺失故障注入，不能变成合法默认库存。
+            yield return null;
+            Assert.That(snapshots.Contains("2"), Is.False);
+            Assert.That(screen.TryCollectExtractableItemsForAgent("2", out _, out _, out _), Is.False);
+            Assert.That(screen.TryCollectExtractableItemsForAgent("unknown", out _, out _, out _), Is.False);
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator UntouchedInventoriesSettleRegardlessOfExtractionOrder([ValueSource(nameof(FocusedFirst))] bool focusedFirst)
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero, 8, false, false);
+            AgentFactory.Create(World, "2", new Vector3(0, 0, 10), 8, false, false);
+            var screen = InventoryFactory.Create(World);
+            var a = TargetFactory.Extraction(World, new Vector3(focusedFirst ? 10 : 30, 0, 0));
+            var b = TargetFactory.Extraction(World, new Vector3(focusedFirst ? -30 : -10, 0, 10));
+            a.ExtractionMembers[0].EntityObject.GetComponent<ExtractionPointController>().ExtractionDurationSeconds = 0.1f;
+            b.ExtractionMembers[0].EntityObject.GetComponent<ExtractionPointController>().ExtractionDurationSeconds = 0.1f;
+            World.Root("Real early extraction raid").AddComponent<RaidFlowController>();
+            var model = new SceneRaidReadModel(new SceneRaidIdentityMap(), null);
+            yield return null;
+            Assert.That(AgentRuntimeRegistry.ActiveInstance.FocusedAgentId.Value, Is.EqualTo("1"));
+            Assert.That(screen.ActiveInventoryAgentId, Is.EqualTo("1"));
+            Assert.That(screen.IsInventoryOpen, Is.False);
+            Time.timeScale = 4;
+            var dispatcher = new AgentTargetCommandDispatcher();
+            Assert.That(dispatcher.TrySubmitClusterCommand(a, "1", out _), Is.True);
+            Assert.That(dispatcher.TrySubmitClusterCommand(b, "2", out _), Is.True);
+            yield return RuntimeWait.Until(() => RaidFlowController.Instance.IsInputLocked, "real early extraction terminal", 10);
+            var result = model.Capture();
+            Assert.That(result.missionCompleted, Is.True);
+            Assert.That(result.missionFailed, Is.False);
+            CollectionAssert.AreEquivalent(new[] { "1", "2" }, result.extractedAgents);
+            CollectionAssert.AreEquivalent(result.extractedAgents, result.settledAgents);
+            Assert.That(screen.IsInventoryOpen, Is.False);
+            Assert.That(Time.timeScale, Is.Zero);
+            ContractCompleted = true;
         }
 
         [UnityTest]

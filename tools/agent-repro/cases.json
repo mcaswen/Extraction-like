@@ -432,7 +432,11 @@
         "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Engage\",4)",
         "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Extract\",1)",
         "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Extract\",4)",
-        "SharedBoxContentsAreCollectedOnceAndBothCommandsRelease"
+        "SharedBoxContentsAreCollectedOnceAndBothCommandsRelease",
+        "UntouchedInventoriesSettleRegardlessOfExtractionOrder(True)",
+        "UntouchedInventoriesSettleRegardlessOfExtractionOrder(False)",
+        "LateRegisteredInventoryDoesNotChangeOpenSessionOrFocus",
+        "PreviouslyInitializedMissingSnapshotIsNotRecreatedAsEmpty"
       ]
     }
   ]

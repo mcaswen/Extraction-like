@@ -157,7 +157,8 @@ namespace AgentReproduction.Tests
                 Assert.That(state.missionCompleted, Is.False); Assert.That(state.missionFailed, Is.True);
                 Assert.That(state.extractedAgents, Is.Empty); Assert.That(state.settledAgents, Is.Empty);
                 var result = JsonUtility.FromJson<SceneRaidRunResult>(File.ReadAllText(System.IO.Path.Combine(output, "result.json")));
-                Assert.That(result.status, Is.EqualTo("BEHAVIOR_BLOCKED"));
+                Assert.That(result.status, Is.EqualTo("RAID_OBSERVED_FAILURE"));
+                Assert.That(result.errors, Is.GreaterThan(0), "Observed failure must retain the storage error, not claim normal death.");
                 Assert.That(result.reason, Does.Contain("Mission failure"));
                 Assert.That(Time.realtimeSinceStartupAsDouble - start, Is.LessThan(3));
                 Object.DestroyImmediate(runner.gameObject);

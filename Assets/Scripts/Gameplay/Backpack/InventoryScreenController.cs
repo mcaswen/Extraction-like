@@ -78,6 +78,7 @@ public class InventoryScreenController : MonoBehaviour
     private bool _backpackGridWasActive;
     private readonly Dictionary<string, CharacterInventorySnapshot> _inventorySnapshotsByAgentId =
         new Dictionary<string, CharacterInventorySnapshot>();
+    private readonly HashSet<string> _initializedInventoryAgentIds = new HashSet<string>(StringComparer.Ordinal);
     private AgentRuntimeRegistry _agentRegistry;
     private bool _isAgentFocusSubscribed;
     private string _activeInventoryAgentId;
@@ -668,6 +669,25 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         SwitchActiveInventoryAgent(focusedHandle.AgentId.Value);
+        InitializeRegisteredInventorySnapshots();
+    }
+
+    // 首次聚焦不是角色获得库存的前提，未聚焦角色也可能先撤离。
+    private void InitializeRegisteredInventorySnapshots()
+    {
+        var handles = _agentRegistry.RegisteredAgents;
+        for (int i = 0; i < handles.Count; i++)
+        {
+            var handle = handles[i];
+            string id = handle.AgentId.Value;
+            if (!handle.IsAlive || !_initializedInventoryAgentIds.Add(id)) continue;
+            if (_inventorySnapshotsByAgentId.ContainsKey(id)) continue;
+            var snapshot = new CharacterInventorySnapshot();
+            if (DefaultBackpackItem != null)
+                snapshot.BackpackItem = InventoryItemRuntimeState.Create(DefaultBackpackItem, 1)
+                    .CreateSaveDataSnapshot(Vector2Int.zero, false);
+            _inventorySnapshotsByAgentId.Add(id, snapshot);
+        }
     }
 
     private void HandleFocusedAgentChanged(
@@ -730,6 +750,7 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         _inventorySnapshotsByAgentId[agentId] = CreateCharacterInventorySnapshot();
+        _initializedInventoryAgentIds.Add(agentId);
     }
 
     private void RestoreInventorySnapshot(string agentId)
