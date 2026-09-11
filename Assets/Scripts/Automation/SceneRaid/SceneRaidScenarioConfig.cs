@@ -30,8 +30,8 @@ namespace AnomalySearch.Automation.SceneRaid
         {
             string path = ExplicitPath();
             if (path == null) return null;
-            var config = JsonUtility.FromJson<SceneRaidScenarioConfig>(File.ReadAllText(path).TrimStart('\uFEFF'));
-            if (config != null && !config.enabled) return null;
+            var config = SceneRaidRequestFile.ReadPending(path);
+            if (config == null) return null;
             if (config == null || config.schemaVersion != 1 || string.IsNullOrEmpty(config.runId) ||
                 !Path.IsPathRooted(config.outputPath) || config.observeSeconds <= 0 || config.observeSeconds > 600 ||
                 config.scenePath != "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity" ||

@@ -108,7 +108,7 @@ function Test-SceneRaidEvidence {
                 $result.quality -ne 'High Fidelity' -or $result.profilerEnabled -or $result.vSyncCount -ne 0 -or
                 $result.targetFrameRate -ne -1 -or [string]::IsNullOrWhiteSpace($result.graphicsApi) -or
                 $result.graphicsApi -eq 'Null')) { $issues.Add('player_environment_mismatch') }
-            $allowedStatus = if ($Config.mode -eq 'Observe') { @('OBSERVED') } else { @('BEHAVIOR_BLOCKED','RAID_OBSERVED_COMPLETE') }
+            $allowedStatus = if ($Config.mode -eq 'Observe') { @('OBSERVED') } else { @('BEHAVIOR_BLOCKED','RAID_OBSERVED_COMPLETE','RAID_OBSERVED_FAILURE') }
             if ($result.status -notin $allowedStatus) { $issues.Add('run_status_invalid') }
             if ($result.frames -lt 4 -or $result.renderedFrames -lt $result.frames - 2 -or $result.renderedFrames -gt $result.frames -or $result.batchMode) { $issues.Add('no_graphical_frames') }
             if ($result.screenWidth -ne $Config.width -or $result.screenHeight -ne $Config.height -or
@@ -164,7 +164,7 @@ function Test-SceneRaidEvidence {
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
         editorLifecycle=$(if ($PlayerRun) {'PLAYER_EXITED'} elseif ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
-        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') {'PASS'} else {'NOT_FULL_RAID_VALIDATED'})
+        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
         completionContracts=$completion
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries
         performanceAcceptance=$false; issues=$issues.ToArray()

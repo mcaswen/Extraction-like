@@ -91,7 +91,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 else if (_observer.ProbeFailure != null) Finish("HARNESS_FAILED", _observer.ProbeFailure);
                 else if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
                 else if (_config.mode == "Autonomous" && _missionFailed)
-                    Finish("BEHAVIOR_BLOCKED", "Mission failure observed; see final agent health and extraction state.");
+                    Finish("RAID_OBSERVED_FAILURE", "Mission failure observed; verify death terminal state and surviving agents' settlement.");
                 else if (_config.mode == "Autonomous" && _missionCompleted)
                     Finish("RAID_OBSERVED_COMPLETE", "Mission completion observed; final warehouse/coverage contracts are still required.");
                 else if (_writer.WallSeconds >= _config.observeSeconds && _updates > 3)

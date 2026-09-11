@@ -93,5 +93,51 @@ foreach ($fault in $faults) {
     if ($result.status -eq 'PASS') { throw "Invalid completion accepted: $fault" }
     $passed++
 }
+function New-DeathFixture([string]$Name, [switch]$Both, [switch]$BeforeInventory) {
+    $fixture=New-Fixture $Name
+    $fixture.result.status='RAID_OBSERVED_FAILURE'
+    $last=$fixture.events[-1].detail | ConvertFrom-Json
+    $last.missionCompleted=$false; $last.missionFailed=$true
+    $last.extractedAgents=if ($Both) {@()} else {@('2')}
+    $last.settledAgents=@($last.extractedAgents)
+    $deadIds=if ($Both) {@('1','2')} else {@('1')}
+    $last.agents=@(foreach ($id in $deadIds) { @{id=$id;health=0;position=@{x=6;z=0};hasEnemy=$false} })
+    $fixture.events[-1].detail=$last | ConvertTo-Json -Depth 10 -Compress
+    if ($Both) { $fixture.final.Players=@() }
+    else { $fixture.final.Players[0].Pages[0].Items=@($fixture.final.Players[0].Pages[0].Items[1]) }
+    Write-Json "$($fixture.path)/warehouse-final.json" $fixture.final
+    if ($BeforeInventory) {
+        $terminal=$fixture.events[-1]
+        $fixture.events.Clear(); $fixture.events.Add($terminal)
+    }
+    return $fixture
+}
+foreach ($scenario in 'one_death','both_death','early_both_death') {
+    $f=New-DeathFixture $scenario -Both:($scenario -ne 'one_death') -BeforeInventory:($scenario -eq 'early_both_death')
+    $result=Check $f
+    Write-Json "$($f.path)/contracts.json" $result
+    if ($result.status -ne 'PASS' -or $result.outcome -ne 'EXPECTED_DEATH') { throw ($result|ConvertTo-Json -Depth 8) }; $passed++
+}
+foreach ($fault in 'alive','missing_dead','duplicate_dead','dead_also_extracted','settlement_missing','false_failed_flag','death_loot_saved','survivor_loot_lost','unclosed_session','missing_ledger') {
+    $f=New-DeathFixture "death_$fault"
+    $last=$f.events[-1].detail | ConvertFrom-Json
+    switch ($fault) {
+        alive { $last.agents[0].health=1 }
+        missing_dead { $last.agents=@() }
+        duplicate_dead { $last.agents=@($last.agents[0],$last.agents[0]) }
+        dead_also_extracted { $last.extractedAgents=@('1','2'); $last.settledAgents=@('1','2') }
+        settlement_missing { $last.settledAgents=@() }
+        false_failed_flag { $last.missionFailed=$false }
+        death_loot_saved { $f.final.Players[0].Pages[0].Items[0].Amount=2 }
+        survivor_loot_lost { $f.final.Players=@() }
+        unclosed_session { [void]$f.events.RemoveAll([Predicate[object]]{param($e) $e.kind -eq 'inventory.closed'}) }
+        missing_ledger { [void]$f.events.RemoveAll([Predicate[object]]{param($e) $e.kind -eq 'inventory.ledger'}) }
+    }
+    $f.events[-1].detail=$last | ConvertTo-Json -Depth 10 -Compress
+    Write-Json "$($f.path)/warehouse-final.json" $f.final
+    $result=Check $f
+    Write-Json "$($f.path)/contracts.json" $result
+    if ($result.status -ne 'FAIL') { throw "Invalid death accepted: $fault" }; $passed++
+}
 Write-Json "$root/result.json" @{status='PASS';probes=$passed}
 Write-Output "PASS $passed completion contract probes: $root"

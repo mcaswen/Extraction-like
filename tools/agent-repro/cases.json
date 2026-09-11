@@ -1,6 +1,18 @@
 {
   "groups": [
     {
+      "name": "SceneRequest",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidRequestFileTests",
+      "expected": [
+        "OccupiedRequestCanBeRetriedWithoutChangingItsContents",
+        "PreviousCompletionCannotOverwriteNewRequest",
+        "CompletedRequestDoesNotRunAgainAfterReload",
+        "DisabledRequestRemainsInactive",
+        "InvalidRequestOrCompletionNeverCountsAsConsumed"
+      ]
+    },
+    {
       "name": "Smoke",
       "suite": "Smoke",
       "filter": "AgentReproduction.Tests.HarnessSmokeTests",

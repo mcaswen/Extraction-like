@@ -101,9 +101,10 @@ function Test-SceneRaidCompletion {
             return [pscustomobject]@{status='COVERAGE_MISSING';failures=@("missing:$name");coverage=$coverage;expected=@{};actual=@{}}
         }
     }
-    if (!$Result -or $Result.status -ne 'RAID_OBSERVED_COMPLETE') {
+    if (!$Result -or $Result.status -notin @('RAID_OBSERVED_COMPLETE','RAID_OBSERVED_FAILURE')) {
         return [pscustomobject]@{status='NOT_COMPLETE';failures=@('raid_not_completed');coverage=$coverage;expected=@{};actual=@{}}
     }
+    $deathTerminal = $Result.status -eq 'RAID_OBSERVED_FAILURE'
     try {
         $catalog = Get-Content -LiteralPath (Join-Path $OutputPath 'item-definitions.json') -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($catalog.schemaVersion -ne 1 -or $catalog.runId -ne $Config.runId) { throw 'definition_manifest_mismatch' }
@@ -119,10 +120,19 @@ function Test-SceneRaidCompletion {
         $snapshots = @($Events | Where-Object kind -eq 'snapshot' | ForEach-Object { $_.detail | ConvertFrom-Json })
         if ($snapshots.Count -eq 0) { throw 'missing_final_snapshot' }
         $last = $snapshots[-1]
-        foreach ($field in @('requiredAgents','extractedAgents','settledAgents')) {
-            if ((@($last.$field | Sort-Object) -join ',') -ne '1,2') { $failures.Add("incomplete:$field") }
+        if ((@($last.requiredAgents | Sort-Object) -join ',') -ne '1,2') { $failures.Add('incomplete:requiredAgents') }
+        $extracted = @($last.extractedAgents)
+        if ((@($extracted | Sort-Object) -join ',') -ne (@($last.settledAgents | Sort-Object) -join ',')) { $failures.Add('extraction_settlement_mismatch') }
+        if ($deathTerminal) {
+            $dead = @($last.agents)
+            $resolved = @($extracted) + @($dead | ForEach-Object { $_.id })
+            if (!$last.missionFailed -or $last.missionCompleted -or $last.timeScale -ne 0 -or $last.inventoryOpen -or
+                $dead.Count -eq 0 -or @($dead | Where-Object { $_.health -ne 0 }).Count -gt 0 -or
+                (@($resolved | Sort-Object) -join ',') -ne '1,2') { $failures.Add('invalid_death_terminal_state') }
+        } else {
+            if ((@($extracted | Sort-Object) -join ',') -ne '1,2') { $failures.Add('incomplete:extractedAgents') }
+            if (!$last.missionCompleted -or $last.missionFailed -or @($last.agents).Count -ne 0) { $failures.Add('invalid_mission_terminal_state') }
         }
-        if (!$last.missionCompleted -or $last.missionFailed -or @($last.agents).Count -ne 0) { $failures.Add('invalid_mission_terminal_state') }
         $ledgers = @($Events | Where-Object kind -eq 'inventory.ledger' | ForEach-Object { $_.detail | ConvertFrom-Json })
         $closed = @($Events | Where-Object kind -eq 'inventory.closed' | ForEach-Object { $_.detail | ConvertFrom-Json })
         $opened = @($Events | Where-Object kind -eq 'inventory.opened' | ForEach-Object { $_.detail | ConvertFrom-Json })
@@ -142,14 +152,19 @@ function Test-SceneRaidCompletion {
             $agentLedgers = @($ledgers | Where-Object agent -eq $id)
             $after = @($agentLedgers | Where-Object stage -eq 'afterClose')
             $coverage["inventory:$id"] = $after.Count -gt 0 -and @($transfers | Where-Object agent -eq $id).Count -gt 0
-            if (!$moved -or !$coverage["inventory:$id"]) { $failures.Add("missing_agent_activity:$id") }
-            if ($after.Count -eq 0) { continue }
+            if (!$deathTerminal -and (!$moved -or !$coverage["inventory:$id"])) { $failures.Add("missing_agent_activity:$id") }
+            if ($after.Count -eq 0) {
+                if ($completedSessions -gt 0 -or $agentLedgers.Count -gt 0 -or $extracted -contains $id) { $failures.Add("missing_inventory_ledger:$id") }
+                continue
+            }
             $lastInventory=$after[-1]
             if ($lastInventory.schemaVersion -ne 2 -or !$lastInventory.equipmentCaptured) { throw 'inventory_schema_or_equipment_missing' }
             $carried = Get-RaidItemQuantities $lastInventory.backpack
             $equipped = Get-RaidItemQuantities $lastInventory.equipped
             foreach ($key in $equipped.Keys) { Add-RaidQuantity $carried $key $equipped[$key] }
-            foreach ($key in $carried.Keys) { Add-RaidQuantity $expected $key $carried[$key] }
+            if ($extracted -contains $id) {
+                foreach ($key in $carried.Keys) { Add-RaidQuantity $expected $key $carried[$key] }
+            }
             $beforeClose=$null; $verified=0; $sessionInitial=$null; $verifiedTransfers=0; $lastSourceAmount=0
             foreach ($entry in $agentLedgers) {
                 if ($entry.schemaVersion -ne 2) { throw 'inventory_schema_mismatch' }
@@ -184,8 +199,8 @@ function Test-SceneRaidCompletion {
         $coverage['combatDamage']=$damaged; $coverage['pauseResume']=$resumed
         $coverage['capacityExtraction']=@($closed | Where-Object reason -eq 'capacity_requires_extraction').Count -gt 0
         $coverage['retaliationResume']=@($Events | Where-Object kind -eq 'directive.Resumed').Count -gt 0
-        if (!$damaged) { $failures.Add('missing_real_combat_damage') }
-        if (!$resumed) { $failures.Add('missing_inventory_pause_resume') }
+        if (!$deathTerminal -and !$damaged) { $failures.Add('missing_real_combat_damage') }
+        if (!$deathTerminal -and !$resumed) { $failures.Add('missing_inventory_pause_resume') }
         foreach ($event in $Events) {
             if ($event.kind -like 'directive.*') {
                 $directive=$event.detail | ConvertFrom-Json
@@ -193,6 +208,8 @@ function Test-SceneRaidCompletion {
             }
         }
     } catch { $failures.Add('invalid_completion_evidence:' + $_.Exception.Message) }
-    return [pscustomobject]@{status=$(if ($failures.Count -eq 0) {'PASS'} else {'FAIL'});failures=$failures.ToArray();coverage=$coverage;expected=$expected;actual=$actual}
+    return [pscustomobject]@{status=$(if ($failures.Count -eq 0) {'PASS'} else {'FAIL'});
+        outcome=$(if ($failures.Count -gt 0) {'UNVERIFIED'} elseif ($deathTerminal) {'EXPECTED_DEATH'} else {'ALL_EXTRACTED'});
+        failures=$failures.ToArray();coverage=$coverage;expected=$expected;actual=$actual}
 }
 Export-ModuleMember -Function Test-SceneRaidCompletion

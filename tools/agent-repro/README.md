@@ -61,7 +61,7 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 
 故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
 
-`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 140 个游戏用例。
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity。当前 cases.json 登记 145 项用例，其中 SceneRequest 的 5 项专门验证请求交接。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
 
@@ -81,6 +81,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-repro/Test-Scene
 SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对象引用、成员与缺失脚本。SC01 自动进入正常 Domain Reload 的图形 Play Mode，完全零输入观察 60 秒，保留自主指令、每秒快照、连续帧和初始化日志。输出在 `Logs/SceneRaid/<runId>/`；`report.json` 的 `evidenceStatus=PASS` 只表示采集完整，`gameStatus` 单独报告问题，`performanceAcceptance` 当前始终为 false。
 
 现在默认保留隔离 Editor：完成后退出 Play Mode、卸载测试场景，报告 `editorLifecycle=EDITOR_RETAINED`、`processExitCode=null`。下次同一命令复用同一 PID，先确认空闲，再同步文件、等待编译和进入下一轮；各轮 runId、存档产品名、输出独立。用户可以自行关闭编辑器，后续发现原 PID 已退出时才新建进程。全会话原生日志在 `Logs/SceneRaidSession/`，每轮 `Editor.log` 只截取对应字节段。
+
+启动器先归档配置，再原子发布 `.scene-raid-run.json`；Editor 只写独立的 `.completed.json` 完成标记，不改写请求。完成标记按 runId 匹配，既防止手动 Play 重跑已完成请求，也防止上一轮收尾覆盖下一轮。空闲读取暂时被占用时下一次轮询重试。
 
 仅在明确调查退出问题时使用 `-ExitEditor`，此模式仍检查退出码和超时。默认保留模式超时也保留进程供检查，缺少有效清理标记仍失败。`-ObserveSeconds 10` 可构造短生命周期复跑，只验证会话，不算完整回合或性能验收。保留的工作区不能再交给 NUnit 批处理覆盖；独立回归用 `Invoke-AgentRepro.ps1 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchRegression ...`，或者在用户关闭后使用原工作区。会话所有权、忙碌/过期状态和日志分段可通过 `Test-SceneRaidEditorSession.ps1` 验证。
 
@@ -126,6 +128,8 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 性能重算先校验完整 CSV，再取固定 10 秒预热后的连续区间，保留所有慢帧和相关事件，输出独立 `performance-warm10.json`；文件已存在时拒绝覆盖。`TIMING_THRESHOLDS_MET` 仅表示该轮时间指标满足，完整玩法、环境和重复矩阵仍单独验收。
 
 `warehouse-initial.json`、`warehouse-final.json`、`item-definitions.json` 和平面 `inventory.ledger` 支持独立数量/布局核对。`contracts.json` 核对两人的移动、真实转移、交战伤害、暂停恢复、撤离集合、箱子写回和仓库守恒。只有证据完整、无错误/失败指令且完成契约通过才报告 `gameStatus=PASS`；性能是否达标单独判定。缺少新证据的旧回合仍是 `NOT_FULL_RAID_VALIDATED`。
+
+战死为预期玩法结果，不因战死进入修复。任务失败先记录 `RAID_OBSERVED_FAILURE`，只有确认所有角色均已撤离或血量为零、实际撤离者已结算且仓库/会话正确，才报告 `gameStatus=EXPECTED_DEATH`。它和全部撤离的 `PASS` 分列；未发生的搜刮/战斗只记覆盖缺失，不能冒充完整搜打撤。Player 对两类有效终态均要求正常退出、实际渲染、无运行异常和 1× 平均 FPS >60。终态、仓库和报告分别有 44、78 项构造检查。
 
 每轮保持输入冻结，具体修复和首次失败见 [P3 实施记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p3_execution.md)。
 

@@ -88,6 +88,7 @@ namespace AnomalySearch.Editor.SceneRaid
 
         public static void Run()
         {
+            _config = null;
             try
             {
                 _config = SceneRaidScenarioConfig.LoadExplicit(false);
@@ -193,13 +194,17 @@ namespace AnomalySearch.Editor.SceneRaid
                 else if (!EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling && phase == "entering")
                     throw new InvalidOperationException("Play Mode entry was rejected or cancelled; inspect compilation errors.");
             }
+            catch (IOException) when (!SessionState.GetBool(Armed, false))
+            {
+                // 空闲交接暂时占用文件时，下次轮询重试，不结束或改写上一轮。
+            }
             catch (Exception ex) { Fail(ex); }
         }
         private static void Fail(Exception ex)
         {
             if (_config != null) File.WriteAllText(Path.Combine(_config.outputPath, "editor-error.txt"), ex.ToString());
             Debug.LogException(ex);
-            Finish(1);
+            if (_config != null) Finish(1);
         }
         private static void Finish(int exitCode)
         {
@@ -215,14 +220,12 @@ namespace AnomalySearch.Editor.SceneRaid
             EditorSettings.enterPlayModeOptions = (EnterPlayModeOptions)SessionState.GetInt("SceneRaid.OldPlayOptions", 0);
             if (_config != null && _config.keepEditorOpen)
             {
-                _config.enabled = false;
-                string path = SceneRaidScenarioConfig.ExplicitPath();
-                File.WriteAllText(path + ".tmp", JsonUtility.ToJson(_config, true));
-                File.Replace(path + ".tmp", path, null);
+                SceneRaidRequestFile.Complete(SceneRaidScenarioConfig.ExplicitPath(), _config.runId);
                 var state = CurrentState(_config.runId, exitCode);
                 WriteState(state);
                 File.WriteAllText(Path.Combine(_config.outputPath, "editor-ready.json"), JsonUtility.ToJson(state));
                 TraceShutdown("Editor.retained");
+                _config = null;
                 return;
             }
             TraceShutdown("EditorApplication.Exit.before");

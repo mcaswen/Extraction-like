@@ -74,7 +74,7 @@ try {
         completedUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'process.json') -Encoding UTF8
     $report = Test-SceneRaidEvidence $output $config $code ($unchanged -and $binaryUnchanged) -PlayerRun
     $passed = !$terminationReason -and $report.evidenceStatus -eq 'PASS' -and
-        ($ObserveOnly -or ($report.gameStatus -eq 'PASS' -and $report.diagnosticTiming.thresholdsMet))
+        ($ObserveOnly -or ($report.gameStatus -in @('PASS','EXPECTED_DEATH') -and $report.diagnosticTiming.thresholdsMet))
     $report | Add-Member -NotePropertyName runAcceptance -NotePropertyValue $(if (!$passed) {'FAIL'} elseif ($ObserveOnly) {'OBSERVATION_COMPLETE'} else {'PASS'})
     $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $output 'report.json') -Encoding UTF8
     $report | Select-Object runId,runAcceptance,evidenceStatus,gameStatus,gameErrors,behaviorFailures,stagnationSuspicions,issues,

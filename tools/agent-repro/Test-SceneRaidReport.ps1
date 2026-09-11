@@ -167,5 +167,27 @@ Remove-Item -LiteralPath "$path/Player/SceneRaid.exe"
 if ((Test-SceneRaidEvidence $path $buildConfig 0 $true).evidenceStatus -ne 'FAIL') { throw 'Missing executable accepted.' }; $passed++
 Remove-Item -LiteralPath "$path/build-result.json"
 if ((Test-SceneRaidEvidence $path $buildConfig 0 $true).evidenceStatus -ne 'FAIL') { throw 'Missing build result accepted.' }; $passed++
+foreach ($scenario in 'valid','runtime_error','live_agent','missing_warehouse','failed_directive') {
+    $path=Write-Fixture "death_$scenario"
+    Edit-Result $path 'mode' 'Autonomous'
+    Edit-Result $path 'status' 'RAID_OBSERVED_FAILURE'
+    $last=@{requiredAgents=@('1','2');extractedAgents=@();settledAgents=@();missionCompleted=$false;missionFailed=$true;
+        inventoryOpen=$false;timeScale=0;agents=@(@{id='1';health=0;hasEnemy=$false},@{id='2';health=0;hasEnemy=$false})}
+    if ($scenario -eq 'live_agent') { $last.agents[0].health=1 }
+    $stream=[Collections.Generic.List[object]]::new()
+    $stream.Add(@{sequence=1;kind='bootstrap.beforeSceneLoad'})
+    $stream.Add(@{sequence=2;kind='snapshot';detail=($last|ConvertTo-Json -Depth 8 -Compress)})
+    if ($scenario -eq 'failed_directive') { $stream.Add(@{sequence=3;kind='directive.Failed';detail='{"commandId":"Auto_probe"}'}) }
+    $stream.Add(@{sequence=($stream.Count+1);kind='run.completed'})
+    $stream | ForEach-Object { $_ | ConvertTo-Json -Compress } | Set-Content "$path/events.jsonl" -Encoding UTF8
+    Edit-Result $path 'events' $stream.Count
+    foreach ($stage in 'initial','final') { @{Version=1;Players=@()} | ConvertTo-Json | Set-Content "$path/warehouse-$stage.json" -Encoding UTF8 }
+    @{schemaVersion=1;runId='probe';columns=6;rows=10;items=@()} | ConvertTo-Json | Set-Content "$path/item-definitions.json" -Encoding UTF8
+    if ($scenario -eq 'runtime_error') { Edit-Result $path 'errors' 1 }
+    if ($scenario -eq 'missing_warehouse') { Remove-Item -LiteralPath "$path/warehouse-final.json" }
+    $report=Test-SceneRaidEvidence $path $autoConfig 0 $true
+    $expected=if ($scenario -eq 'valid') {'EXPECTED_DEATH'} elseif ($scenario -eq 'missing_warehouse') {'NOT_FULL_RAID_VALIDATED'} else {'ISSUES_OBSERVED'}
+    if ($report.evidenceStatus -ne 'PASS' -or $report.gameStatus -ne $expected) { throw "Death classification incorrect: $scenario / $($report|ConvertTo-Json -Depth 8)" }; $passed++
+}
 @{status='PASS';probes=$passed} | ConvertTo-Json | Set-Content "$root/result.json" -Encoding UTF8
 Write-Output "PASS $passed report probes: $root"

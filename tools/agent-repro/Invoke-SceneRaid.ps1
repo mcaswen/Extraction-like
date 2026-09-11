@@ -45,10 +45,11 @@ try {
     $editorLog = if ($session) { $session.Info.logPath } else { Join-Path $source "Logs/SceneRaidSession/$runId/Editor.log" }
     New-Item -ItemType Directory -Path (Split-Path $editorLog -Parent) -Force | Out-Null
     if ($session -and (Test-Path -LiteralPath $editorLog)) { $logOffset = (Get-Item -LiteralPath $editorLog).Length }
-    $config | ConvertTo-Json | Set-Content -LiteralPath ($configPath + '.tmp') -Encoding UTF8
+    $configJson = $config | ConvertTo-Json
+    $configJson | Set-Content -LiteralPath (Join-Path $output 'config.json') -Encoding UTF8
+    $configJson | Set-Content -LiteralPath ($configPath + '.tmp') -Encoding UTF8
     if (Test-Path -LiteralPath $configPath) { [IO.File]::Replace($configPath + '.tmp',$configPath,[NullString]::Value) }
     else { [IO.File]::Move($configPath + '.tmp',$configPath) }
-    Copy-Item -LiteralPath $configPath -Destination (Join-Path $output 'config.json')
     $arguments = @('-projectPath',$workspace.Project,'-executeMethod','AnomalySearch.Editor.SceneRaid.SceneRaidEditorEntry.Run',
         '-sceneRaidConfig',$configPath,'-logFile',$editorLog)
     $arguments | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'arguments.json') -Encoding UTF8
