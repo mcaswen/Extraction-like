@@ -1,0 +1,58 @@
+﻿{
+    "applied":  {
+                    "status":  "APPLIED",
+                    "sceneAfter":  "78213ED1BDF3B32EBDB122DF769C14C507B56F08465BC53D72C0B4A779C0AAE5",
+                    "runId":  "20260911-193039-332",
+                    "sceneBefore":  "BBD30981FF7BA01D73DEF8476894E0C139A71B3AF1C7DB575A72109B2C2B3B04"
+                },
+    "runtimeChecks":  [
+                          {
+                              "raidInstances":  [
+                                                    "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4] | Large Island Wall Layout | owner=True"
+                                                ],
+                              "requiredAgents":  [
+                                                     "1",
+                                                     "2"
+                                                 ],
+                              "runId":  "20260911-193222-820",
+                              "process":  {
+                                              "exitCode":  1,
+                                              "completedUtc":  "2026-09-11T11:36:35.3164751Z",
+                                              "sourceUnchanged":  true
+                                          }
+                          },
+                          {
+                              "raidInstances":  [
+                                                    "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4] | Large Island Wall Layout | owner=True"
+                                                ],
+                              "requiredAgents":  [
+                                                     "1",
+                                                     "2"
+                                                 ],
+                              "runId":  "20260911-193800-568",
+                              "process":  {
+                                              "terminationReason":  "shutdown_timeout",
+                                              "exitCode":  1,
+                                              "completedUtc":  "2026-09-11T11:40:26.3397652Z",
+                                              "sourceUnchanged":  true
+                                          }
+                          }
+                      ],
+    "performanceAcceptance":  false,
+    "repair":  {
+                   "runId":  "20260911-193039-332",
+                   "status":  "PASS",
+                   "owner":  "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+                   "mission":  "Large Island Wall Layout",
+                   "before":  3,
+                   "after":  1,
+                   "repeatedChanges":  0,
+                   "removed":  [
+                                   "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Canvas[10]/GameManager[6]",
+                                   "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/IslandWallLayoutRoot[13]/RaidFlowController[0]"
+                               ],
+                   "rebound":  [
+
+                               ]
+               }
+}

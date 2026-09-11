@@ -89,3 +89,10 @@ P0 已开始并完成真实基线。每阶段在本文件追加以下信息：
 - Writer、Sampler、Observer、ReadModel、Editor、PowerShell 分别拥有证据、时间、观察、适配、生命周期和进程职责，没有把测试塞进 Pawn。没有共享可写路径或背包状态。
 - 待改善项已进入 P1：Invoke 自动 Marker 无可用 Recorder；原始二进制 Profiler 较大；销毁后的指令目标需要提前保留身份；帧统计/进展判定和自身开销覆盖需要补齐。没有将这些限制隐藏在 PASS 后面。
 - 两轮证明同场景同种子 RaidFlow 胜出者变化，零输入重复 NoProgress；这是后续修复依据。两个撤离群存在，但龙骨礁初始路径部分可达。缺失脚本和初始化告警按原样保留，后续逐条分类处理。
+
+## 10. RaidFlow 场景所有者修复审查
+
+- 用户明确授权直接修复这类场景配置；从 P3 提前执行，具体边界、哈希和结果见 [raidflow_scene_repair_execution.md](raidflow_scene_repair_execution.md)。
+- 场景通过 Unity API 留一个根流程控制器，移除另外两处组件，保留对象与其他组件。Canvas 只增加本场景实例覆盖；共享 Prefab 未变。保存/重载后仍只有一个实例，幂等修改数 0，保护字段断言通过。
+- 新增 `SceneRaidSceneRepairEntry.cs` 拥有显式配置迁移，`Invoke-SceneRaidRepair.ps1` 拥有隔离、哈希和原子回写；观察入口仍只读。没有 Gameplay/Singleton API 变化。
+- 两轮零输入运行均核对唯一根实例、同一任务配置和 `{1,2}`，修复了此前不同 Awake 胜出者。两轮原生退出挂起属于 P1 尚待解决的进程问题，保留失败标记，未将这两轮整体标为通过。

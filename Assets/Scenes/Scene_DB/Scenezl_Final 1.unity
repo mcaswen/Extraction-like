@@ -39528,7 +39528,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 976869042271210373, guid: d2fa2c2d440b1d7498e24b4bdf2b3c1b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -73121,7 +73122,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1578503826}
-  - component: {fileID: 1578503827}
   m_Layer: 0
   m_Name: RaidFlowController
   m_TagString: Untagged
@@ -73144,21 +73144,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1537201407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1578503827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1578503825}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e1a8f38f7fe4a744b4ad9b97cf2b3f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MissionName: Large Island Wall Layout
-  RestartKey: 114
-  _successScreenPrefab: {fileID: 0}
 --- !u!21 &1579743778
 Material:
   serializedVersion: 8
