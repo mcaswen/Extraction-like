@@ -281,6 +281,16 @@
       ]
     },
     {
+      "name": "SceneEnemyConfiguration",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.SceneRaidEnemyPrefabConfigurationTests",
+      "expected": [
+        "SceneEnemySlotsResolveToPawnsInsteadOfSpawnPoints",
+        "EverySpawnedSceneEnemyBelongsToItsSourceCluster"
+      ]
+    },
+    {
       "name": "SceneRetaliation",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests",

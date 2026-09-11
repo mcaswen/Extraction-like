@@ -61,7 +61,7 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 
 故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
 
-`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 138 个游戏用例。
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 140 个游戏用例。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
 
@@ -87,6 +87,8 @@ SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对
 用户最新性能目标为 **正常速度平均 FPS >60**，4K 高画质保持，测量仍不限帧。平均值按有效帧数/实际时间计算；P99、1% Low、滑动 1 秒、最大帧仅诊断，小地图不继续优化。原始慢帧和历史报告不覆盖，最新口径见 [P4i 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4i_average_fps_scope.md)。时间指标通过与整局玩法成功分别报告。
 
 SC02 使用 **4×** 逻辑速度，默认 120 秒墙钟上限；SC03 使用 **1×**、360 秒上限，用于正常速度和性能复核。正式 UI 暂停后恢复各自速度，物理步长保持不变。驱动只操作焦点、背包和物品，Agent 自主选择目标，容量不足时自主撤离，剩余物品留在箱内。
+
+`Invoke-AgentRepro.ps1 -Group SceneEnemyConfiguration` 单独加载正式场景，验证 30 个配置槽位实际指向敌人 Pawn，以及真实生成的 30 个敌人全部具有来源群/活跃群归属。它能捕获把 SpawnPoint Prefab 填入敌人列表而产生二次出生、漏注册的场景错误；无需人工 Play Mode。
 
 当前常驻场景 Editor 使用 `-WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene`，NUnit 使用独立 `AnomalySearchRegression` 工作区。旧工作区的卡住 Editor 保留供用户关闭，不对忙碌项目强制同步。
 
