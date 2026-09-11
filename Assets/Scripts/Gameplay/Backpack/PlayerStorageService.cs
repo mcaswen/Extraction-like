@@ -120,21 +120,40 @@ public sealed class PlayerStorageService : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < sanitizedItems.Count; i++)
+        PlayerStorageSaveRecord original = _activePlayer;
+        int playerIndex = _saveFile.Players.IndexOf(original);
+        _activePlayer = JsonUtility.FromJson<PlayerStorageSaveRecord>(JsonUtility.ToJson(original));
+        _saveFile.Players[playerIndex] = _activePlayer;
+        bool committed = false;
+        try
         {
-            if (!TryAppendItemToAnyPage(sanitizedItems[i], out ContainerItemSaveData placedItem))
+            for (int i = 0; i < sanitizedItems.Count; i++)
             {
-                return false;
+                if (!TryAppendItemToAnyPage(sanitizedItems[i], out ContainerItemSaveData placedItem)) return false;
+                int amount = Mathf.Max(1, placedItem.Amount);
+                appendedItemCount += amount;
+                appendedTotalValue += Mathf.Max(0, placedItem.ItemData.SellPrice) * amount;
             }
-
-            int amount = Mathf.Max(1, placedItem.Amount);
-            appendedItemCount += amount;
-            appendedTotalValue += Mathf.Max(0, placedItem.ItemData.SellPrice) * amount;
+            EnsureTrailingBlankPage();
+            Save();
+            committed = true;
+            return true;
         }
-
-        EnsureTrailingBlankPage();
-        Save();
-        return true;
+        catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+        {
+            Debug.LogWarning($"[PlayerStorageService] Storage append was not committed: {exception.Message}", this);
+            return false;
+        }
+        finally
+        {
+            if (!committed)
+            {
+                _activePlayer = original;
+                _saveFile.Players[playerIndex] = original;
+                appendedItemCount = 0;
+                appendedTotalValue = 0;
+            }
+        }
     }
 
     public bool PageHasItems(int pageIndex)
@@ -193,7 +212,17 @@ public sealed class PlayerStorageService : MonoBehaviour
         }
 
         string json = JsonUtility.ToJson(_saveFile, true);
-        File.WriteAllText(SaveFilePath, json);
+        string temporaryPath = SaveFilePath + ".tmp";
+        try
+        {
+            File.WriteAllText(temporaryPath, json);
+            if (File.Exists(SaveFilePath)) File.Replace(temporaryPath, SaveFilePath, null);
+            else File.Move(temporaryPath, SaveFilePath);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
+        }
     }
 
     public List<ContainerItemSaveData> SanitizeStorageItems(List<ContainerItemSaveData> source)

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AgentReproduction.Infrastructure;
+using AgentReproduction.World;
+using AnomalySearch.Automation.SceneRaid;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -59,6 +61,80 @@ namespace AgentReproduction.Tests
                             Assert.That(occupied.Add(new Vector2Int(x, y)), Is.True, "Stored items overlap.");
                         }
                 }
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator DiskFailureRollsBackAppendAndRetryDoesNotDuplicateItems()
+        {
+            using (var save = new IsolatedSave())
+            {
+                var known = Resources.Load<InventoryItemDatabase>("Inventory/InventoryItemDatabase").Items.First(x => x.IncludeInRuntimeDatabase);
+                var storage = Storage();
+                Assert.That(storage.TryAppendItemsToAgentStorage("StorageProbe", Items(known), out _, out _), Is.True);
+                string before = File.ReadAllText(save.Path);
+                var next = Items(known);
+                int count = -1, value = -1;
+                bool appended = true;
+                using (new FileStream(save.Path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    Assert.DoesNotThrow(() => appended = storage.TryAppendItemsToAgentStorage("StorageProbe", next, out count, out value));
+                    Assert.That(appended, Is.False);
+                    Assert.That(count, Is.Zero); Assert.That(value, Is.Zero);
+                    Assert.That(Enumerable.Range(0, storage.PageCount).SelectMany(storage.GetPageItems).Count(), Is.EqualTo(1));
+                }
+                Assert.That(File.ReadAllText(save.Path), Is.EqualTo(before));
+                Assert.That(storage.TryAppendItemsToAgentStorage("StorageProbe", next, out count, out _), Is.True);
+                Assert.That(count, Is.EqualTo(1));
+                Object.DestroyImmediate(storage.gameObject);
+                storage = Storage();
+                var restored = Enumerable.Range(0, storage.PageCount).SelectMany(storage.GetPageItems).ToList();
+                Assert.That(restored.Count, Is.EqualTo(2));
+                Assert.That(restored.Count(x => x.RuntimeItemId == next[0].RuntimeItemId), Is.EqualTo(1));
+                CheckLayout(storage);
+                ContractCompleted = true;
+            }
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator FailedSettlementPreservesAgentInventoryAndEndsAutomationPromptly()
+        {
+            using (var save = new IsolatedSave())
+            {
+                TestNavMeshBuilder.Flat(World);
+                var agent = AgentFactory.Create(World, "1", Vector3.zero);
+                var inventory = InventoryFactory.Create(World);
+                var exit = TargetFactory.Extraction(World, new Vector3(20, 0, 0));
+                var point = exit.ExtractionMembers[0].EntityObject.GetComponent<ExtractionPointController>();
+                point.ExtractionDurationSeconds = 0.05f;
+                var raid = World.Root("Raid flow").AddComponent<RaidFlowController>();
+                string output = System.IO.Path.Combine(TestRunContext.Load().outputPath, "settlement-failure-" + Guid.NewGuid().ToString("N"));
+                var runner = World.Root("Raid observer").AddComponent<SceneRaidRunController>();
+                runner.Initialize(new SceneRaidScenarioConfig { outputPath = output, mode = "Autonomous", simulationSpeed = 4, observeSeconds = 30 });
+                yield return null;
+                inventory.OpenInventory();
+                var unknown = World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+                unknown.ItemID = "UnregisteredSettlementProbe"; unknown.Width = 1; unknown.Height = 1;
+                Assert.That(InventoryItemFactory.Instance.SpawnItemInGrid(unknown, inventory.BackpackGrid, 0, 0, 1), Is.Not.Null);
+                inventory.CloseInventory();
+                LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("Failed to append extraction inventory"));
+                raid.SetAgentInsideExtractionPoint(agent.AgentIdValue, point, true);
+                double start = Time.realtimeSinceStartupAsDouble;
+                yield return RuntimeWait.Until(() => File.Exists(System.IO.Path.Combine(output, "result.json")), "failed settlement terminal evidence", 4);
+                Assert.That(agent != null, Is.True, "Failed storage cannot destroy the character.");
+                Assert.That(inventory.TryCollectExtractableItemsForAgent("1", out var remaining, out int count, out _), Is.True);
+                Assert.That(count, Is.EqualTo(1)); Assert.That(remaining.Single().ItemData, Is.SameAs(unknown));
+                var model = new SceneRaidReadModel(new SceneRaidIdentityMap(), null);
+                var state = model.Capture();
+                Assert.That(state.missionCompleted, Is.False); Assert.That(state.missionFailed, Is.True);
+                Assert.That(state.extractedAgents, Is.Empty); Assert.That(state.settledAgents, Is.Empty);
+                var result = JsonUtility.FromJson<SceneRaidRunResult>(File.ReadAllText(System.IO.Path.Combine(output, "result.json")));
+                Assert.That(result.status, Is.EqualTo("BEHAVIOR_BLOCKED"));
+                Assert.That(result.reason, Does.Contain("Mission failure"));
+                Assert.That(Time.realtimeSinceStartupAsDouble - start, Is.LessThan(3));
+                Object.DestroyImmediate(runner.gameObject);
+                ContractCompleted = true;
             }
         }
 

@@ -218,6 +218,8 @@
       "filter": "AgentReproduction.Tests.SceneRaidStorageTests",
       "expected": [
         "EverySceneLootDefinitionRoundTripsThroughStorage",
+        "DiskFailureRollsBackAppendAndRetryDoesNotDuplicateItems",
+        "FailedSettlementPreservesAgentInventoryAndEndsAutomationPromptly",
         "UnknownInputRejectsWholeAppendWithoutChangingSavedItems",
         "ExistingPageDoesNotExposeUnavailableCells(\"Unknown\")",
         "ExistingPageDoesNotExposeUnavailableCells(\"Overlap\")",

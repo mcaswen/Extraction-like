@@ -261,10 +261,16 @@ public class RaidFlowController : MonoBehaviour
             }
 
             ExtractionPointController completionPoint = completedProgress.ExtractionPoint;
+            if (!TrySettleExtractedAgentInventory(completedAgentId))
+            {
+                _isMissionFailed = true;
+                _missionFailureDetail = "Extraction settlement failed; inventory retained";
+                Time.timeScale = 0f;
+                return;
+            }
             _activeExtractionProgressByAgentId.Remove(completedAgentId);
             _extractedAgentIds.Add(completedAgentId);
 
-            SettleExtractedAgentInventory(completedAgentId);
             // 先判断是否全部撤离，再销毁当前智能体，避免注册表变更影响完成判定
             bool allRequiredAgentsExtracted = AreAllRequiredAgentsExtracted();
             DestroyExtractedAgent(completedAgentId);
@@ -448,25 +454,27 @@ public class RaidFlowController : MonoBehaviour
         minimapObject.AddComponent<RaidMinimapController>();
     }
 
-    private void SettleExtractedAgentInventory(string agentId)
+    private bool TrySettleExtractedAgentInventory(string agentId)
     {
         string normalizedAgentId = NormalizeExtractionAgentId(agentId);
-        if (string.IsNullOrEmpty(normalizedAgentId) ||
-            _settledExtractionAgentIds.Contains(normalizedAgentId))
-        {
-            return;
-        }
+        if (string.IsNullOrEmpty(normalizedAgentId)) return false;
+        if (_settledExtractionAgentIds.Contains(normalizedAgentId)) return true;
 
         InventoryScreenController inventory = InventoryScreenController.Instance;
-        if (inventory == null ||
-            !inventory.TryCollectExtractableItemsForAgent(
+        // 无背包组件的旧白盒关卡按空库存兼容，有组件却缺角色快照不能假报结算成功。
+        if (inventory == null)
+        {
+            _settledExtractionAgentIds.Add(normalizedAgentId);
+            return true;
+        }
+        if (!inventory.TryCollectExtractableItemsForAgent(
                 normalizedAgentId,
                 out List<ContainerItemSaveData> settlementItems,
                 out int itemCount,
                 out int totalValue))
         {
-            _settledExtractionAgentIds.Add(normalizedAgentId);
-            return;
+            Debug.LogError($"[RaidFlowController] Missing extraction inventory snapshot for agent '{normalizedAgentId}'.", this);
+            return false;
         }
 
         bool storageSucceeded = true;
@@ -487,7 +495,7 @@ public class RaidFlowController : MonoBehaviour
             Debug.LogError(
                 $"[RaidFlowController] Failed to append extraction inventory for agent '{normalizedAgentId}' to storage.",
                 this);
-            return;
+            return false;
         }
 
         _hasSettledExtractionInventory = true;
@@ -495,6 +503,7 @@ public class RaidFlowController : MonoBehaviour
         _settledExtractionTotalValue += totalValue;
         inventory.DiscardExtractableItemsForAgent(normalizedAgentId);
         _settledExtractionAgentIds.Add(normalizedAgentId);
+        return true;
     }
 
     private void DiscardAgentExtractionInventory(string agentId)

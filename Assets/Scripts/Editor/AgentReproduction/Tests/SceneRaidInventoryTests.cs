@@ -6,7 +6,6 @@ using AgentReproduction.Infrastructure;
 using AgentReproduction.World;
 using AnomalySearch.Automation.SceneRaid;
 using NUnit.Framework;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Gameplay.Agent.Data;
@@ -18,12 +17,7 @@ namespace AgentReproduction.Tests
     {
         private InventoryScreenController CreateInventory()
         {
-            var staging = World.Root("Inventory fixture", false);
-            var canvas = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Canvas.prefab"), staging.transform);
-            // 夹具只需要正式背包，不带任务管理器进入合成世界。
-            foreach (var raid in canvas.GetComponentsInChildren<RaidFlowController>(true)) Object.DestroyImmediate(raid);
-            staging.SetActive(true);
-            return canvas.GetComponentInChildren<InventoryScreenController>(true);
+            return InventoryFactory.Create(World);
         }
         private InventoryItemData Item(int width = 1, int height = 1)
         {

@@ -116,3 +116,5 @@ P3b 红灯 `20260911-214901-479` 在“Plain backpack is not the waiting box”�
 - Extend `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidStorageTests.cs`：隔离存档锁定目标文件模拟真实写盘拒绝，检查旧文件、内存、数量保持不变，释放锁后重试只入库一次；构造正式背包带不可持久化物品的真实撤离计时，检查角色和物品保留，任务未成功。复用 Canvas prefab，不让测试写正式存档。
 - 新增文件仅在已有 UI 夹具需要跨测试复用时提取到 `Assets/Scripts/Editor/AgentReproduction/World/InventoryFactory.cs`，负责正式 Canvas 实例和移除无关 RaidFlow，原 `SceneRaidInventoryTests.cs` 改为调用该工厂。不把工厂放入生产代码。
 - 回归 Storage、Inventory 和 Combined 的真实撤离用例，随后原场景验证库存→仓库回读。此阶段不实现断电恢复或任意损坏历史存档迁移。
+
+红灯 `20260911-223242-523`：实际文件共享锁导致 IOException，追加未回滚；结算拒绝后角色仍被销毁。修复后 `20260911-223341-617` Storage 7、Inventory 9、Combined 实际撤离 1，共 17 项通过。文件锁释放后重试只有一次新增，文件和内存未部分提交；未知物品导致结算失败时角色、背包保留，未进入 extracted/settled，自动化在 3 秒内记录 BEHAVIOR_BLOCKED，补齐 P3d-2 的失败终态验证。无背包组件的旧白盒撤离仍能销毁角色并让另一角色继续战斗。
