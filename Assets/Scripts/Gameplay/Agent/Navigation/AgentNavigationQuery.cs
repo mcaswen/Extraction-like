@@ -14,6 +14,7 @@ namespace Gameplay.Agent.Navigation
             private NavMeshPath _path;
             internal NavMeshPath Path => _path ??= new NavMeshPath();
             internal Vector3[] Corners = new Vector3[32];
+            internal string LastFailure;
             public long CalculationCount { get; internal set; }
         }
         public static bool IsReady(NavMeshAgent agent) => agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh;
@@ -24,16 +25,20 @@ namespace Gameplay.Agent.Navigation
         public static AgentNavigationResult Check(NavMeshAgent agent, Vector3 target, float stoppingDistance, Buffer buffer)
         {
             using var markerScope = QueryMarker.Auto();
-            if (!IsReady(agent)) return new AgentNavigationResult(AgentNavigationStatus.NotReady);
+            buffer.LastFailure = null;
+            if (!IsReady(agent)) { buffer.LastFailure = "NotReady"; return new AgentNavigationResult(AgentNavigationStatus.NotReady); }
             float radius = Mathf.Max(0.5f, agent.radius * 2f);
             var filter = new NavMeshQueryFilter { agentTypeID = agent.agentTypeID, areaMask = agent.areaMask };
-            if (!NavMesh.SamplePosition(target, out NavMeshHit hit, radius, filter) ||
-                Mathf.Abs(hit.position.y - target.y) > Mathf.Max(0.5f, agent.height * 0.5f))
-                return new AgentNavigationResult(AgentNavigationStatus.Unreachable);
+            if (!NavMesh.SamplePosition(target, out NavMeshHit hit, radius, filter))
+            { buffer.LastFailure = "SampleMissing"; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
+            if (Mathf.Abs(hit.position.y - target.y) > Mathf.Max(0.5f, agent.height * 0.5f))
+            { buffer.LastFailure = "SampleHeightMismatch"; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
             var path = buffer.Path;
             buffer.CalculationCount++;
-            if (!agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete)
-                return new AgentNavigationResult(AgentNavigationStatus.Unreachable);
+            if (!agent.CalculatePath(hit.position, path))
+            { buffer.LastFailure = "CalculatePathRejected"; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
+            if (path.status != NavMeshPathStatus.PathComplete)
+            { buffer.LastFailure = path.status == NavMeshPathStatus.PathPartial ? "PathPartial" : "PathInvalid"; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
             float distance = 0f;
             // Serialized pawns use baseOffset=1. Path corners are on the surface;
             // comparing them with the elevated transform makes zero-distance arrival impossible.

@@ -6,6 +6,7 @@ using AgentReproduction.Reporting;
 using AgentReproduction.World;
 using NUnit.Framework;
 using Gameplay.Agent.Core;
+using Gameplay.Agent.Navigation;
 using Gameplay.Targets.Authoring;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -23,6 +24,43 @@ namespace AgentReproduction.Tests
         public void StopActorsBeforeNavigationCleanup()
         {
             foreach (var nav in Object.FindObjectsOfType<NavMeshAgent>()) nav.gameObject.SetActive(false);
+        }
+
+        [UnityTest]
+        public IEnumerator RecordedLaboratoryApproachUsesExecutablePath()
+        {
+            var operation = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+                new LoadSceneParameters(LoadSceneMode.Single));
+            while (!operation.isDone) yield return null;
+            yield return null;
+            yield return null;
+            yield return null;
+            var pawn = Object.FindObjectsOfType<AgentPawnRoot>().Single(x => x.AgentIdValue == "2");
+            foreach (var other in Object.FindObjectsOfType<AgentPawnRoot>())
+                if (other != pawn) other.gameObject.SetActive(false);
+            foreach (var enemy in Object.FindObjectsOfType<EnemyHealthController>()) enemy.gameObject.SetActive(false);
+            pawn.enabled = false;
+            var nav = pawn.NavMeshAgent;
+            Vector3 start = new Vector3(-430.34558f, 3.00834f, 197.98416f);
+            Vector3 target = new Vector3(-370.77042f, 0.00834f, 197.92053f);
+            Assert.That(nav.Warp(start - Vector3.up * nav.baseOffset * pawn.transform.lossyScale.y), Is.True);
+            nav.nextPosition = start;
+            Time.timeScale = 4;
+            var motor = new AgentNavigationMotor(nav, 2, 3);
+            double deadline = Time.timeAsDouble + 30;
+            bool arrived = false;
+            while (Time.timeAsDouble < deadline)
+            {
+                var query = AgentNavigationQuery.Check(nav, target, 0);
+                var result = motor.Move("recorded-laboratory", target, 0, 12);
+                CaseArtifactWriter.Trace("laboratory-path", "position=" + pawn.Position + "; query=" + query.Status +
+                    "; move=" + result.Status + "; hasPath=" + nav.hasPath + "; path=" + nav.pathStatus);
+                Assert.That(result.Failed, Is.False, "A recorded reachable target must not be rejected while following its path.");
+                if (result.Status == AgentNavigationStatus.Arrived) { arrived = true; break; }
+                yield return null;
+            }
+            Assert.That(arrived, Is.True, "The recorded laboratory path must actually reach its endpoint.");
+            ContractCompleted = true;
         }
 
         [UnityTest]

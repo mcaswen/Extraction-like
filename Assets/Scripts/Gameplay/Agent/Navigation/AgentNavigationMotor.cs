@@ -57,7 +57,11 @@ namespace Gameplay.Agent.Navigation
                 _lastPathTime = Time.time; _hasQuery = true;
             }
             AgentNavigationResult result = _lastResult;
-            if (result.Status != AgentNavigationStatus.Moving) { Stop(); _progressTime = Time.time; return result; }
+            if (result.Status != AgentNavigationStatus.Moving)
+            {
+                if (result.Failed) LogExecutionFailure(_queryBuffer.LastFailure, target);
+                Stop(); _progressTime = Time.time; return result;
+            }
             if (Time.timeScale <= 0f) { _progressTime = Time.time; return result; }
             if (Vector3.Distance(_progressPosition, _agent.nextPosition) >= 0.05f)
             { _progressPosition = _agent.nextPosition; _progressTime = Time.time; }
@@ -69,7 +73,8 @@ namespace Gameplay.Agent.Navigation
             _agent.isStopped = false;
             if (query)
             {
-                if (!_agent.SetPath(result.Path)) { _hasQuery = false; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
+                if (!_agent.SetPath(result.Path))
+                { LogExecutionFailure("SetPathRejected", target); _hasQuery = false; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
             }
             return result;
         }
@@ -79,6 +84,14 @@ namespace Gameplay.Agent.Navigation
             if (!AgentNavigationQuery.IsReady(_agent)) return;
             _agent.isStopped = true; _agent.ResetPath(); _agent.velocity = Vector3.zero;
             _progressPosition = _agent.nextPosition; _progressTime = Time.time;
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR"), System.Diagnostics.Conditional("ANOMALY_SCENE_AUTOMATION")]
+        private void LogExecutionFailure(string stage, Vector3 target)
+        {
+            Debug.LogWarning("[AgentNavigation] stage=" + stage + "; command=" + _commandId + "; actor=" + _agent.name +
+                "; position=" + _agent.nextPosition.ToString("R") + "; target=" + target.ToString("R") +
+                "; frame=" + Time.frameCount, _agent);
         }
     }
 }

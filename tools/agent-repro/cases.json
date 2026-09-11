@@ -32,6 +32,7 @@
       "graphics": true,
       "filter": "AgentReproduction.Tests.SceneRaidResourceNavigationTests",
       "expected": [
+        "RecordedLaboratoryApproachUsesExecutablePath",
         "VisualBaseOffsetDoesNotInvalidateReachableResource(0.0f)",
         "VisualBaseOffsetDoesNotInvalidateReachableResource(1.0f)",
         "VisualBaseOffsetDoesNotInvalidateReachableResource(3.0f)",
@@ -96,6 +97,7 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.NavigationExecutionTests",
       "expected": [
+        "DisconnectedMovementRecordsOriginalFailureBranch",
         "ZeroStoppingDistanceArrivesAndNavigationLossTerminates",
         "NoProgressFailsAndRejectedReplacementPreservesCurrentTask",
         "ArrivalToleranceWorksOnFlatAndSlope(0.0f,False)",

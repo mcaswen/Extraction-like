@@ -20,6 +20,20 @@ namespace AgentReproduction.Tests
         public static float[] Distances={0f,0.05f,0.2f};
         public static bool[] Slopes={false,true};
         [UnityTest]
+        public IEnumerator DisconnectedMovementRecordsOriginalFailureBranch()
+        {
+            TestNavMeshBuilder.Build(World,
+                new Bounds(new Vector3(0, -0.1f, 0), new Vector3(12, 0.2f, 12)),
+                new Bounds(new Vector3(30, -0.1f, 0), new Vector3(12, 0.2f, 12)));
+            var agent = AgentFactory.Create(World, "Disconnected", Vector3.zero);
+            yield return null;
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[AgentNavigation\] stage=PathPartial; command=branch-probe;"));
+            var motor = new AgentNavigationMotor(agent.NavMeshAgent, 2, 3);
+            Assert.That(motor.Move("branch-probe", new Vector3(30, 0, 0), 0, 8).Status, Is.EqualTo(AgentNavigationStatus.Unreachable));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
         public IEnumerator ArrivalToleranceWorksOnFlatAndSlope([ValueSource(nameof(Distances))] float distance,[ValueSource(nameof(Slopes))] bool slope)
         {
             Vector3 target;

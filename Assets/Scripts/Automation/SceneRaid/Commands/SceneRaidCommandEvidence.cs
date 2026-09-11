@@ -99,7 +99,11 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
                 _inCall = false;
             }
             attempt.commandId = request.CommandId; attempt.resolvedAgent = request.TargetAgentId.Value;
-            attempt.directive = request.DirectiveType.ToString(); attempt.targetId = request.TargetId; attempt.target = _identity.Get(request.TargetObject);
+            // 正式枚举含序列化兼容别名，ToString 不保证返回 Engage 等脚本语义名称。
+            attempt.directive = request.DirectiveType == AgentDirectiveType.Search ? "Search" :
+                request.DirectiveType == AgentDirectiveType.Engage ? "Engage" :
+                request.DirectiveType == AgentDirectiveType.Extract ? "Extract" : "None";
+            attempt.targetId = request.TargetId; attempt.target = _identity.Get(request.TargetObject);
             var outcomes = _duringCall.Where(x => (x.stage == "Accepted" || x.stage == "Rejected") &&
                 (string.IsNullOrEmpty(request.CommandId) ? string.IsNullOrEmpty(x.commandId) : x.commandId == request.CommandId)).ToArray();
             if (outcomes.Length != 1) throw new InvalidOperationException("Command attempt has no unique synchronous outcome.");

@@ -244,6 +244,7 @@ namespace AgentReproduction.Tests
             using var evidence = new SceneRaidCommandEvidence(output, "Harness", writer, observer, model, identity);
             var old = evidence.Submit(Step("old"), resource, null);
             var current = evidence.Submit(Step("current"), target, null);
+            Assert.That(current.directive, Is.EqualTo("Engage"), "Compatibility enum aliases must not enter the command script protocol.");
             Assert.That(evidence.Latest(old.commandId).stage, Is.EqualTo("Cancelled"));
             Assert.That(evidence.Latest(old.commandId).attemptId, Is.EqualTo(old.attemptId));
             yield return RuntimeWait.Until(() => evidence.Latest(current.commandId)?.stage == "Completed", "asynchronous evidence of real kill", 8);

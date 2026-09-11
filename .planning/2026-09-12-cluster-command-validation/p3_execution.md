@@ -12,4 +12,34 @@
 
 ## 实际结果
 
-尚待 P2 冒烟结束后填写。
+P2 提交 `5f4b748` 后继续执行，源码和场景输入保持。
+
+| 运行 | 脚本 | 实际结果 | 结论 |
+| --- | --- | --- | --- |
+| `Logs/SceneRaid/20260912-050012-188` | MC01-R，4×/731 | 三条预定 Search 全部接受并有动作和终态；8 次库存会话，Actor1 自然战死，Actor2 撤离 | evidence PASS、game EXPECTED_DEATH，coverage COMPLETE，0 errors/Failed/Rejected/停滞；死者不结算，存活者仓库和会话守恒通过，不做战斗修复 |
+| `Logs/SceneRaid/20260912-050551-844` | MC01-E，4×/731，类型修正后 | 两条 Engage 正式执行，Actor1 曾对近敌造成伤害，后自然战死；Actor2 撤离 | evidence PASS、game EXPECTED_DEATH，0 errors/Failed/Rejected/停滞；Actor1 第三步缺少存活/交战完成前提，coverage PARTIAL |
+| `Logs/SceneRaid/20260912-051104-552` | MC02，4×/731 | 6 次改令/重复任务，旧任务收尾、最后 Search 完成，两人撤离 | evidence/game PASS，0 errors/Failed/Rejected/停滞；Retaliating 门槛在预定期限内未发生，coverage PARTIAL；该轮与短 NUnit 导航回归并行，仅作逻辑诊断 |
+
+下一项 MC01-E `20260912-050154-739` 已启动。
+
+## P3a：敌人指令枚举别名导致驱动误判
+
+MC01-E 原始 attempt 中的类型为 `EnemyTarget`。`Assets/Scripts/Gameplay/Agent/Data/AgentDirectiveType.cs` 保留 `EnemyTarget = Engage` 的序列化兼容别名，Enum.ToString 在当前 Unity 运行时返回该旧名称。命令证据却把这个字符串作为稳定脚本协议，Driver 的 CombatCompleted 门槛和离线类型匹配要求 Engage，因而误判。
+
+文件归属：Extend `Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidCommandEvidence.cs`，在序列化边界按值明确输出 Search/Engage/Extract；Reuse 正式枚举值，保持 `AgentDirectiveType.cs` 兼容别名，不修改生产 API。Extend `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidCommandHarnessTests.cs`，已有真实击杀用例增加稳定类型断言，类型驱动属于 Automation 的协议职责。没有新增抽象或依赖。
+
+测试顺序：保留 MC01-E 真实红灯完整输出，修正后运行受影响 Harness 用例，再以原 MC01-E 脚本复跑。其他已通过脚本的记录保留，最终矩阵重新冻结。
+
+P3a 类型回归 `Logs/AgentReproduction/20260912-050400-134` 1/1 通过；原 MC01-E 实际另有两次失败：Actor1 在 6.389 秒观察到敌人，9.986 秒已丢视线，11.885 秒 LostSight；Actor2 的自主 Search 于 130.306 秒 Unreachable。后者与即时诊断中的完整路径矛盾，不能归到枚举别名或自然死亡。原脚本复跑 `050551-844` 正在进行。
+
+## P3b：实验室路径矛盾的定点构造规划
+
+先 Extend `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidResourceNavigationTests.cs`、`tools/agent-repro/cases.json`：加载实际场景，在夹具准备阶段将真实 Actor2 的 NavMesh 绑定到日志位置 `(-430.34558,3.00834,197.98416)`，保持真实尺寸、偏移、NavMesh 和几何；对目标 `(-370.77042,0.00834,197.92053)` 运行正式 `AgentNavigationQuery` 和 `AgentNavigationMotor`，记录采样、CalculatePath/SetPath 和沿路失败。与实际自主局分开标记为构造，不假装无状态改写。
+
+Reuse `AgentNavigationQuery.cs`、`AgentNavigationMotor.cs`，暂不改生产结果或加重试；若原位置不足复现，再在对应导航文件记录最窄失败分支，避免把失败后重新计算成功误当作失败时也成功。路径失败与 LostSight 分开定位，不以延长追踪时间或改场景墙体掩盖已认可的遮挡规则。
+
+定点构造 `Logs/AgentReproduction/20260912-050737-422` 1/1 通过，真实尺寸和原路径实际到达。MC01-E 类型修正后的复跑 `050551-844` 也未再出现导航失败，但这不足以认定原故障已修复。继续 Extend `AgentNavigationQuery.cs` 的调用方私有 Buffer：内部记录本次拒绝发生于采样、高度、CalculatePath 或路径状态，使用固定字符串，无公共接口变化。Extend `AgentNavigationMotor.cs`：只在实际执行失败时输出该分支，SetPath 返回 false 单独标记；日志只编译到 Editor/验证 Player，不改状态、不重试、不为候选扫描打印。Extend 原导航测试，构造断开岛验证分支日志准确。后续场景脚本保留此探针，若再现可直接定位。
+
+断开岛分支日志自检 `050951-685` 1/1 通过。文件审查将这一通用导航断言归入已有 `Assets/Scripts/Editor/AgentReproduction/Tests/NavigationExecutionTests.cs`，真实实验室坐标构造仍归 SceneRaidResourceNavigationTests；因此只扩展前者和对应 cases 清单，不把通用 Motor 验证继续放进场景专用文件。
+
+迁移后 `Logs/AgentReproduction/20260912-051104-507` 9/9 导航执行回归通过，覆盖到达容差、斜坡、导航丢失、无进展和失败分支。P3a 已修复证据协议别名；P3b 仅完成现场构造和诊断细化，原偶发 Unreachable 仍是未确认根因，不能写成已修复。LostSight 原始时序符合已有有限追踪规则，没有修改生产超时或扩大白名单，原严格报告的失败记录保留。
