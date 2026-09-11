@@ -180,6 +180,9 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidPerformanceTests",
       "expected": [
+        "MovingClusterRangeIsLimitedInRealTimeAndUsesLatestPosition",
+        "ForcedRefreshAndReenableBypassRangeInterval",
+        "DeathCompletesAndHidesClusterInsideRangeInterval",
         "StaticRangesStayCachedAndMemberChangesRefreshZone",
         "ColliderChangesRefreshRangeAndGroundChangesReproject",
         "MovementQueriesAreBoundedAndBuffersAreIndependent",

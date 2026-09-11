@@ -39,10 +39,10 @@
 | Cooldown | 8 | 属性/装备/配置刷新、技能重排、重复 SkillId、普通攻击锁 |
 | Combined | 10 | 多 Agent、实际撤离、动态路径、无效输入、护盾和缺失攻击配置 |
 | Graphics | 1 | 正式顶部反馈 prefab 的成功/失败/消退 PNG |
-| ScenePerformance | 8 | Discovery 范围预筛，路径查询次数及所有权，资源和轮廓缓存失效 |
+| ScenePerformance | 11 | Discovery 范围预筛，路径查询次数及所有权，资源和轮廓缓存失效，20 Hz 范围刷新及即时死亡隐藏 |
 | SceneInventory | 4 | 正式背包搜索、旋转/空间/策略，双 Agent 会话，失效关闭和搜索恢复 |
 
-清单以 [cases.json](cases.json) 为准，共 88 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
+清单以 [cases.json](cases.json) 为准，共 91 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
 
 ## 结果与定位
 
@@ -56,7 +56,7 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 
 故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
 
-`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 88 个游戏用例。
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 91 个游戏用例。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
 
@@ -77,7 +77,9 @@ SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对
 
 SC02 启用自动背包驱动，当前 P2 诊断配置为 2×、120 秒墙钟上限；只调用正式焦点/开箱/搜索/快捷转移/关闭入口，Agent 仍自行决定行动。每次操作在 `inventory.*` 事件中记录数量和上下文。首轮两 Agent 共完成 8 次会话，到达容量阻断，未完成整局。最新执行顺序按用户要求先治理三个热点，再延长自主回合，见 [性能优先规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4_performance_first.md)。
 
-入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity / 1×；当前关闭普通 Profiler 会话，采集 12 个具名计数器，耗时和调用次数写入 `counters.csv`，缺失不能视为零。`profile`、`binaryProfile` 可显式启用原始 Profiler，文件较大，诊断 FPS 不作最终验收。
+入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity / 1×；当前关闭普通 Profiler 会话，采集 21 个具名计数器，包含 Cluster/Range/Ground 分段，耗时和调用次数写入 `counters.csv`，缺失不能视为零。计数器尚未注册时每秒重试，全部找到后停止扫描；无样本仍明确失败并保留其余统计。`profile`、`binaryProfile` 可显式启用原始 Profiler，文件较大，诊断 FPS 不作最终验收。
+
+范围快照每秒记录各群输入/输出点数、重建/投射/写线累计次数。Cluster 的普通显示更新最多每 0.05 实际秒一次，加速模拟不加速这一显示频率；成员状态及死亡隐藏仍逐帧执行。具体无 FFT 对比见 [P4d 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4d_cluster_lateupdate.md)。
 
 快照包含 Transform/缩放、身体尺寸、NavMesh 位置、实际/期望速度、目标和路径距离、进展计时，以及当前敌人的血量/护盾/可见性/射击结果。普通快照 1 秒一次，有具体交战对象时 0.25 秒一次；资源到达/等待/离开/完成按状态变化记录。读取 `hasEnemy`、`hasResource`、`hasDirectivePosition` 后再解释对应字段，不能把 JsonUtility 产生的默认 0 当作真实血量或距离。
 

@@ -25,7 +25,9 @@ namespace AnomalySearch.Automation.SceneRaid
         {
             "PlayerLoop", "GC Allocated In Frame", "Anomaly.Discovery.Update", "Anomaly.Pawn.Update", "Anomaly.Zone.Update",
             "Anomaly.Discovery.ScanAgent", "Anomaly.Pawn.Facts", "Anomaly.Pawn.Lifecycle", "Anomaly.Pawn.Brain",
-            "Anomaly.Zone.State", "Anomaly.Zone.Shape", "Anomaly.Navigation.Check"
+            "Anomaly.Zone.State", "Anomaly.Zone.Shape", "Anomaly.Navigation.Check",
+            "Anomaly.Cluster.LateUpdate", "Anomaly.Cluster.State", "Anomaly.Cluster.Input", "Anomaly.Cluster.Range",
+            "Anomaly.Range.Geometry", "Anomaly.Range.Projection", "Anomaly.Range.Line", "Anomaly.Ground.Raycast", "Anomaly.Ground.Filter"
         };
         private readonly Stopwatch _clock = Stopwatch.StartNew();
         private readonly List<Frame> _frames = new List<Frame>(16384);
@@ -33,6 +35,8 @@ namespace AnomalySearch.Automation.SceneRaid
         private readonly string[] _descriptions = new string[CounterNames.Length];
         private readonly List<CounterFrame> _counterFrames = new List<CounterFrame>(65536);
         private double _previous;
+        private double _nextCounterDiscovery;
+        private int _discoveredCounters;
         private int _lastRenderFrame = -1;
         public int RenderedFrames { get; private set; }
         public int CameraWidth { get; private set; }
@@ -57,6 +61,8 @@ namespace AnomalySearch.Automation.SceneRaid
         }
         public void DiscoverCounters()
         {
+            if (_discoveredCounters == CounterNames.Length || _clock.Elapsed.TotalSeconds < _nextCounterDiscovery) return;
+            _nextCounterDiscovery = _clock.Elapsed.TotalSeconds + 1;
             var handles = new List<ProfilerRecorderHandle>();
             ProfilerRecorderHandle.GetAvailable(handles);
             foreach (var handle in handles)
@@ -66,7 +72,9 @@ namespace AnomalySearch.Automation.SceneRaid
                 if (slot < 0 || _recorders[slot].Valid) continue;
                 _recorders[slot] = new ProfilerRecorder(handle, 1,
                     ProfilerRecorderOptions.StartImmediately | ProfilerRecorderOptions.SumAllSamplesInFrame | ProfilerRecorderOptions.WrapAroundWhenCapacityReached);
+                if (!_recorders[slot].Valid) continue;
                 _descriptions[slot] = d.Name + " | " + d.Category.Name + " | " + d.UnitType;
+                _discoveredCounters++;
             }
         }
         // LastValue 是上一已结束的 Profiler 帧；CSV 明确命名 previous，不冒充本帧 Self 时间。

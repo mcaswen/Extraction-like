@@ -52,7 +52,7 @@ namespace AnomalySearch.Automation.SceneRaid
                     File.WriteAllText(Path.Combine(_config.outputPath, "runtime-world.json"), JsonUtility.ToJson(_model.CaptureWorld(), true));
                     _writer.Add("diagnostic.worldAudit", "durationMs=" + ((Stopwatch.GetTimestamp() - queryStart) * 1000.0 / Stopwatch.Frequency).ToString(System.Globalization.CultureInfo.InvariantCulture));
                 }
-                if (_updates == 3 || _updates == 30) _sampler.DiscoverCounters();
+                _sampler.DiscoverCounters();
                 if (_writer.WallSeconds >= _nextSnapshot)
                 {
                     var snapshot = _model.Capture();

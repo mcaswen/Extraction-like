@@ -100,7 +100,9 @@ function Test-SceneRaidEvidence {
             $describedNames = @($result.counters | ForEach-Object { ($_ -split ' \| ')[0] } | Sort-Object)
             $requiredNames = @('PlayerLoop','GC Allocated In Frame','Anomaly.Discovery.Update','Anomaly.Pawn.Update','Anomaly.Zone.Update',
                 'Anomaly.Discovery.ScanAgent','Anomaly.Pawn.Facts','Anomaly.Pawn.Lifecycle','Anomaly.Pawn.Brain',
-                'Anomaly.Zone.State','Anomaly.Zone.Shape','Anomaly.Navigation.Check') | Sort-Object
+                'Anomaly.Zone.State','Anomaly.Zone.Shape','Anomaly.Navigation.Check',
+                'Anomaly.Cluster.LateUpdate','Anomaly.Cluster.State','Anomaly.Cluster.Input','Anomaly.Cluster.Range',
+                'Anomaly.Range.Geometry','Anomaly.Range.Projection','Anomaly.Range.Line','Anomaly.Ground.Raycast','Anomaly.Ground.Filter') | Sort-Object
             if (($describedNames -join ',') -ne ($requiredNames -join ',')) { $issues.Add('required_counters_missing_or_duplicated') }
             $sampledNames = @($counterRows.name | Sort-Object -Unique)
             if (($describedNames -join ',') -ne ($sampledNames -join ',')) { $issues.Add('counter_name_mismatch') }
@@ -108,8 +110,10 @@ function Test-SceneRaidEvidence {
                 if (($_.Group.observedAtFrame -join ',') -ne ($frames.frame -join ',')) { $issues.Add('counter_frame_mismatch:' + $_.Name) }
                 $valid = @($_.Group | Where-Object { [long]$_.previousValue -ge 0 })
                 if ($valid.Count -eq 0 -or @($valid | Where-Object { [long]$_.previousCalls -gt 0 }).Count -eq 0) { $issues.Add('counter_no_samples:' + $_.Name) }
-                [pscustomobject]@{name=$_.Name;validSamples=$valid.Count;averageRaw=($valid | Measure-Object previousValue -Average).Average;
-                    maxRaw=($valid | Measure-Object previousValue -Maximum).Maximum;averageCalls=($valid | Measure-Object previousCalls -Average).Average}
+                [pscustomobject]@{name=$_.Name;validSamples=$valid.Count;
+                    averageRaw=$(if ($valid.Count -gt 0) {($valid | Measure-Object previousValue -Average).Average} else {$null});
+                    maxRaw=$(if ($valid.Count -gt 0) {($valid | Measure-Object previousValue -Maximum).Maximum} else {$null});
+                    averageCalls=$(if ($valid.Count -gt 0) {($valid | Measure-Object previousCalls -Average).Average} else {$null})}
             })
             if ((@($result.observedAgents | Sort-Object) -join ',') -ne '1,2') { $issues.Add('expected_agents_missing') }
         } catch { $issues.Add('invalid_or_missing_evidence:' + $_.Exception.Message) }

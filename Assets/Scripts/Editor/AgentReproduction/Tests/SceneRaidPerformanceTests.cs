@@ -15,6 +15,83 @@ namespace AgentReproduction.Tests
     public sealed class SceneRaidPerformanceTests : ReproductionTestFixture
     {
         [UnityTest]
+        public IEnumerator MovingClusterRangeIsLimitedInRealTimeAndUsesLatestPosition()
+        {
+            Time.timeScale = 8;
+            var enemy = EnemyFactory.Passive(World, new Vector3(3, 0, 0));
+            var cluster = TargetFactory.Enemies(World, enemy);
+            var line = cluster.gameObject.AddComponent<LineRenderer>();
+            RuntimeFixtureAccess.Configure(cluster, "_rangeLineRenderer", line);
+            yield return null;
+            cluster.RefreshRangeShape();
+            long builds = cluster.RangeGeometryBuildCount, writes = cluster.RangeLineWriteCount;
+            for (int i = 0; i < 100; i++)
+            {
+                enemy.transform.position += Vector3.right;
+                TickCluster(cluster);
+            }
+            Assert.That(cluster.RangeGeometryBuildCount, Is.EqualTo(builds), "Repeated ticks inside the window do not rebuild moving geometry.");
+            Assert.That(cluster.RangeLineWriteCount, Is.EqualTo(writes));
+            double start = Time.unscaledTimeAsDouble;
+            while (Time.unscaledTimeAsDouble - start < 0.3)
+            {
+                enemy.transform.position += Vector3.right;
+                yield return null;
+            }
+            double elapsed = Time.unscaledTimeAsDouble - start;
+            Assert.That(cluster.RangeGeometryBuildCount - builds, Is.InRange(1L, (long)System.Math.Ceiling(elapsed / 0.05)),
+                "8x simulation must still limit ordinary range rebuilding to 20 Hz in real time.");
+            yield return RuntimeWait.Until(() => Mathf.Abs(cluster.CenterPosition.x - enemy.transform.position.x) < 0.01f,
+                "range catches the latest member position", 1);
+            Assert.That(line.GetPosition(0).x, Is.EqualTo(cluster.RangePoints[0].x));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator ForcedRefreshAndReenableBypassRangeInterval()
+        {
+            var cluster = TargetFactory.Resources(World, new Vector3(3, 0, 0));
+            yield return null;
+            cluster.RefreshRangeShape();
+            var member = cluster.ResourceMembers[0].EntityObject.transform;
+            member.position = new Vector3(7, 0, 0);
+            cluster.RefreshRangeShape();
+            Assert.That(cluster.CenterPosition.x, Is.EqualTo(7).Within(0.01));
+            long builds = cluster.RangeGeometryBuildCount;
+            member.position = new Vector3(9, 0, 0);
+            TickCluster(cluster);
+            Assert.That(cluster.RangeGeometryBuildCount, Is.EqualTo(builds), "Forced refresh also resets the ordinary deadline.");
+            cluster.gameObject.SetActive(false);
+            cluster.gameObject.SetActive(true);
+            Assert.That(cluster.CenterPosition.x, Is.EqualTo(9).Within(0.01));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator DeathCompletesAndHidesClusterInsideRangeInterval()
+        {
+            var enemy = EnemyFactory.Passive(World, Vector3.zero);
+            var cluster = TargetFactory.Enemies(World, enemy);
+            var line = cluster.gameObject.AddComponent<LineRenderer>();
+            RuntimeFixtureAccess.Configure(cluster, "_rangeLineRenderer", line);
+            yield return null;
+            cluster.RefreshRangeShape();
+            Assert.That(line.positionCount, Is.GreaterThan(0));
+            long builds = cluster.RangeGeometryBuildCount;
+            enemy.TakeDamage(1000000);
+            TickCluster(cluster);
+            Assert.That(cluster.HasBeenCompleted, Is.True, "State cannot wait for the display deadline.");
+            Assert.That(line.positionCount, Is.Zero, "Completion must hide the range in the current tick.");
+            Assert.That(cluster.RangeGeometryBuildCount, Is.EqualTo(builds));
+            ContractCompleted = true;
+        }
+
+        // Invoke the actual Unity message in the current frame to construct a sub-50 ms window deterministically.
+        private static void TickCluster(GameplayTargetClusterAuthoringBase cluster) =>
+            typeof(GameplayTargetClusterAuthoringBase).GetMethod("LateUpdate",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(cluster, null);
+
+        [UnityTest]
         public IEnumerator StaticRangesStayCachedAndMemberChangesRefreshZone()
         {
             TestNavMeshBuilder.Flat(World);
@@ -32,7 +109,8 @@ namespace AgentReproduction.Tests
             Assert.That(cluster.RangeGeometryBuildCount, Is.EqualTo(memberBuild));
             Assert.That(zone.RangeLineWriteCount, Is.EqualTo(lineWrites), "Identical projected points do not rewrite the line.");
             cluster.ResourceMembers[0].EntityObject.transform.position = new Vector3(9, 0, 0);
-            for (int i = 0; i < 3; i++) yield return null;
+            yield return RuntimeWait.Until(() => Mathf.Abs(zone.CenterPosition.x - 9) < 0.01f,
+                "member range and zone follow moved loot", 1);
             Assert.That(cluster.RangeGeometryBuildCount, Is.GreaterThan(memberBuild));
             Assert.That(zone.RangeGeometryBuildCount, Is.GreaterThan(zoneBuild));
             Assert.That(zone.CenterPosition.x, Is.EqualTo(9).Within(0.01));

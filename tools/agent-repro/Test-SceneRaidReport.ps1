@@ -6,7 +6,9 @@ New-Item -ItemType Directory -Path $root -Force | Out-Null
 $config = [pscustomobject]@{runId='probe';mode='Observe';scenePath='scene.unity';width=3840;height=2160;observeSeconds=0.058}
 $fixtureCounters = @('PlayerLoop','GC Allocated In Frame','Anomaly.Discovery.Update','Anomaly.Pawn.Update','Anomaly.Zone.Update',
     'Anomaly.Discovery.ScanAgent','Anomaly.Pawn.Facts','Anomaly.Pawn.Lifecycle','Anomaly.Pawn.Brain',
-    'Anomaly.Zone.State','Anomaly.Zone.Shape','Anomaly.Navigation.Check')
+    'Anomaly.Zone.State','Anomaly.Zone.Shape','Anomaly.Navigation.Check',
+    'Anomaly.Cluster.LateUpdate','Anomaly.Cluster.State','Anomaly.Cluster.Input','Anomaly.Cluster.Range',
+    'Anomaly.Range.Geometry','Anomaly.Range.Projection','Anomaly.Range.Line','Anomaly.Ground.Raycast','Anomaly.Ground.Filter')
 function Write-Fixture([string]$Name) {
     $path = Join-Path $root $Name
     New-Item -ItemType Directory -Path $path -Force | Out-Null
@@ -28,6 +30,16 @@ $passed = 0
 $path = Write-Fixture 'valid'
 $report = Test-SceneRaidEvidence $path $config 0 $true
 if ($report.evidenceStatus -ne 'PASS' -or $report.gameStatus -ne 'NOT_FULL_RAID_VALIDATED' -or $report.performanceAcceptance) { throw 'Valid observe result incorrectly classified.' }
+$passed++
+$path = Write-Fixture 'one_counter_without_samples'
+(Get-Content "$path/counters.csv" -Raw).Replace('Anomaly.Navigation.Check,1000,1','Anomaly.Navigation.Check,-1,-1') | Set-Content "$path/counters.csv" -Encoding UTF8
+$report = Test-SceneRaidEvidence $path $config 0 $true
+$missingCounter = @($report.counterSummaries | Where-Object name -eq 'Anomaly.Navigation.Check')
+if ($report.evidenceStatus -ne 'FAIL' -or $report.issues -notcontains 'counter_no_samples:Anomaly.Navigation.Check' -or
+    @($report.issues | Where-Object {$_ -like 'invalid_or_missing_evidence:*'}).Count -gt 0 -or
+    $report.counterSummaries.Count -ne $fixtureCounters.Count -or $missingCounter[0].averageRaw -ne $null) {
+    throw 'A counter with no samples must stay unavailable without discarding all other summaries.'
+}
 $passed++
 $faults = @(
     @{name='missing_result';act={param($p) Remove-Item -LiteralPath "$p/result.json"}},

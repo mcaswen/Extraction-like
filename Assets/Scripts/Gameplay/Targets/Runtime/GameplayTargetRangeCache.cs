@@ -6,6 +6,9 @@ namespace Gameplay.Targets.Runtime
     /// <summary>Per-owner geometry/projection cache. It does not own gameplay state or spatial queries.</summary>
     public sealed class GameplayTargetRangeCache
     {
+        private static readonly Unity.Profiling.ProfilerMarker GeometryMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Range.Geometry");
+        private static readonly Unity.Profiling.ProfilerMarker ProjectionMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Range.Projection");
+        private static readonly Unity.Profiling.ProfilerMarker LineMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Range.Line");
         public struct Settings
         {
             public float Padding, Radius, HeightOffset, ProbeHeight, ProbeDistance, MinNormalY;
@@ -30,6 +33,7 @@ namespace Gameplay.Targets.Runtime
         private Color _color;
         private float _width;
         public bool HasShape { get; private set; }
+        public int InputPointCount => _inputs.Count;
         public IReadOnlyList<Vector3> Points => _points;
         public Vector3 Center { get; private set; }
         public long GeometryBuildCount { get; private set; }
@@ -44,6 +48,7 @@ namespace Gameplay.Targets.Runtime
                 _projectionOwner != projectionOwner || !_settings.Equals(settings) || !SamePoints(inputs, _inputs);
             if (rebuild)
             {
+                using var geometryScope = GeometryMarker.Auto();
                 _inputs.Clear();
                 for (int i = 0; i < inputs.Count; i++) _inputs.Add(inputs[i]);
                 _inputCenter = center; _custom = custom; _settings = settings; _projectionOwner = projectionOwner;
@@ -56,6 +61,7 @@ namespace Gameplay.Targets.Runtime
                 GeometryBuildCount++;
             }
             if (!rebuild && now < _nextProjection) return;
+            using var projectionScope = ProjectionMarker.Auto();
             bool changed = !HasShape || _points.Count != _unprojected.Count;
             Vector3 projectedCenter = Project(_unprojectedCenter);
             changed |= !Center.Equals(projectedCenter);
@@ -81,6 +87,7 @@ namespace Gameplay.Targets.Runtime
             width = Mathf.Max(0.01f, width);
             if (!force && _line == line && _lineRevision == _revision && _color.Equals(color) && _width == width &&
                 line.positionCount == _points.Count && line.loop && line.useWorldSpace) return;
+            using var lineScope = LineMarker.Auto();
             line.useWorldSpace = true; line.loop = true;
             line.startColor = color; line.endColor = color; line.widthMultiplier = width;
             line.positionCount = _points.Count;

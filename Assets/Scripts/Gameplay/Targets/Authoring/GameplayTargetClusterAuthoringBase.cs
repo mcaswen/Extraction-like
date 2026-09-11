@@ -11,6 +11,11 @@ namespace Gameplay.Targets.Authoring
     /// </summary>
     public abstract class GameplayTargetClusterAuthoringBase : GameplayTargetAuthoringBase
     {
+        private static readonly Unity.Profiling.ProfilerMarker LateMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Cluster.LateUpdate");
+        private static readonly Unity.Profiling.ProfilerMarker StateMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Cluster.State");
+        private static readonly Unity.Profiling.ProfilerMarker InputMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Cluster.Input");
+        private static readonly Unity.Profiling.ProfilerMarker RangeMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Cluster.Range");
+        private const double RangeRefreshIntervalSeconds = 0.05;
         [Header("Zone Binding")]
         [SerializeField] private TargetZoneAuthoring _zone;
         [SerializeField] private bool _autoResolveZoneFromParent = true;
@@ -35,6 +40,7 @@ namespace Gameplay.Targets.Authoring
         private readonly List<Vector3> _rangePoints = new List<Vector3>();
         private Vector3 _cachedCenterPosition;
         private readonly GameplayTargetRangeCache _rangeCache = new GameplayTargetRangeCache();
+        private double _nextRangeRefreshTime;
 
         public override GameplayTargetLevel TargetLevel => GameplayTargetLevel.Cluster;
         public TargetZoneAuthoring Zone => ResolveZone();
@@ -43,6 +49,7 @@ namespace Gameplay.Targets.Authoring
         public long RangeGeometryBuildCount => _rangeCache.GeometryBuildCount;
         public long RangeGroundProjectionCount => _rangeCache.GroundProjectionCount;
         public long RangeLineWriteCount => _rangeCache.LineWriteCount;
+        public int RangeInputPointCount => _rangeCache.InputPointCount;
 
         private GameplayTargetRangeCache.Settings RangeSettings => new GameplayTargetRangeCache.Settings
         {
@@ -89,8 +96,9 @@ namespace Gameplay.Targets.Authoring
 
         protected virtual void LateUpdate()
         {
+            using var markerScope = LateMarker.Auto();
             if (RefreshStateEveryFrame)
-                RefreshRuntimeState();
+                using (StateMarker.Auto()) RefreshRuntimeState();
 
             RefreshRangeShape(false);
         }
@@ -109,8 +117,14 @@ namespace Gameplay.Targets.Authoring
                 return;
             }
 
+            // Limit display work in real time, including accelerated simulations. State and completion stay per frame.
+            double now = Time.unscaledTimeAsDouble;
+            if (!force && Application.isPlaying && now < _nextRangeRefreshTime)
+                return;
+
             BuildRangeShape(force);
             _rangeCache.ApplyLine(_rangeLineRenderer, _rangeColor, _rangeLineWidth, force);
+            _nextRangeRefreshTime = now + RangeRefreshIntervalSeconds;
         }
 
         [ContextMenu("Attach Range Line Renderer")]
@@ -196,15 +210,20 @@ namespace Gameplay.Targets.Authoring
         // 根据成员点生成范围轮廓，并同步缓存中心点
         private void BuildRangeShape(bool force)
         {
-            _rangePoints.Clear();
-            bool custom = TryBuildCustomRangeShape(_rangePoints, out _cachedCenterPosition,
-                out Transform groundProjectionOwner) && _rangePoints.Count > 1;
-            if (!custom)
+            bool custom;
+            Transform groundProjectionOwner;
+            using (InputMarker.Auto())
             {
-                _memberPositionBuffer.Clear();
-                CollectMemberPositions(_memberPositionBuffer);
+                _rangePoints.Clear();
+                custom = TryBuildCustomRangeShape(_rangePoints, out _cachedCenterPosition,
+                    out groundProjectionOwner) && _rangePoints.Count > 1;
+                if (!custom)
+                {
+                    _memberPositionBuffer.Clear();
+                    CollectMemberPositions(_memberPositionBuffer);
+                }
             }
-            _rangeCache.Refresh(custom ? _rangePoints : _memberPositionBuffer,
+            using (RangeMarker.Auto()) _rangeCache.Refresh(custom ? _rangePoints : _memberPositionBuffer,
                 custom ? _cachedCenterPosition : transform.position, custom,
                 custom && groundProjectionOwner != null ? groundProjectionOwner : transform, RangeSettings, force);
         }

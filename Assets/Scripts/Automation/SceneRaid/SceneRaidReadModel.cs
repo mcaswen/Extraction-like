@@ -60,7 +60,17 @@ namespace AnomalySearch.Automation.SceneRaid
             public bool missionCompleted, missionFailed, requiredCaptured;
             public string[] requiredAgents, extractedAgents, settledAgents;
             public AgentState[] agents;
+            public RangeState[] ranges;
         }
+        [Serializable] public sealed class RangeState
+        {
+            public string identity, kind;
+            public int inputs, points;
+            public long builds, projections, lineWrites;
+        }
+        private readonly List<GameplayTargetClusterAuthoringBase> _rangeClusters = new List<GameplayTargetClusterAuthoringBase>();
+        private RangeState[] _rangeStates = Array.Empty<RangeState>();
+        private float _nextRangeSample;
         private static readonly Dictionary<string, FieldInfo> Fields = new Dictionary<string, FieldInfo>();
         private readonly SceneRaidIdentityMap _identity;
         private readonly Func<string, AgentResourceInteractionEvent?> _resourceFact;
@@ -159,8 +169,26 @@ namespace AnomalySearch.Automation.SceneRaid
                 requiredAgents = Sorted(RaidField<HashSet<string>>(raid, "_requiredExtractionAgentIds")),
                 extractedAgents = Sorted(RaidField<HashSet<string>>(raid, "_extractedAgentIds")),
                 settledAgents = Sorted(RaidField<HashSet<string>>(raid, "_settledExtractionAgentIds")),
-                agents = states.ToArray()
+                agents = states.ToArray(), ranges = CaptureRanges(targets)
             };
+        }
+
+        private RangeState[] CaptureRanges(GameplayTargetRegistry registry)
+        {
+            if (Time.realtimeSinceStartup < _nextRangeSample) return _rangeStates;
+            _nextRangeSample = Time.realtimeSinceStartup + 1f;
+            _rangeClusters.Clear();
+            registry?.CopyClustersTo(_rangeClusters);
+            _rangeStates = new RangeState[_rangeClusters.Count];
+            for (int i = 0; i < _rangeClusters.Count; i++)
+            {
+                var cluster = _rangeClusters[i];
+                _rangeStates[i] = new RangeState { identity = _identity.Get(cluster), kind = cluster.GetType().Name,
+                    inputs = cluster.RangeInputPointCount, points = cluster.RangePoints.Count,
+                    builds = cluster.RangeGeometryBuildCount, projections = cluster.RangeGroundProjectionCount,
+                    lineWrites = cluster.RangeLineWriteCount };
+            }
+            return _rangeStates;
         }
         private static string[] Sorted(HashSet<string> values) => values == null ? Array.Empty<string>() : values.OrderBy(x => x).ToArray();
         private AgentState Capture(AgentPawnRoot pawn)

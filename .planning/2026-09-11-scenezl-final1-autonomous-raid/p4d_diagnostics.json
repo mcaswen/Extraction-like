@@ -1,0 +1,1107 @@
+{
+  "schemaVersion": 1,
+  "scenario": "SC01 / Scenezl_Final 1 / FFT disabled by user",
+  "method": "Previous-frame recorder sum; all values raw nanoseconds except GC bytes. Steady sample wallSeconds >= 10; independent autonomous trajectories, not identical workload replay.",
+  "referenceRun": "20260911-210055-347",
+  "finalRun": "20260911-210825-662",
+  "performanceAcceptance": false,
+  "tests": {
+    "runId": "20260911-210524-598",
+    "passed": 18,
+    "failed": 0,
+    "groups": [
+      "ScenePerformance (11)",
+      "TargetHierarchyRepairTests (7)"
+    ],
+    "graphics": true
+  },
+  "reportProbes": {
+    "runId": "20260911-210520-806",
+    "passed": 36
+  },
+  "runs": [
+    {
+      "runId": "20260911-205234-571",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-205234-571",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-205234-571",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T12:55:03.2820103Z",
+        "sourceUnchanged": true
+      },
+      "evidence": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": [
+          "process_exit:1"
+        ]
+      },
+      "result": {
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "profilerEnabled": false,
+        "batchMode": false,
+        "frames": 4765,
+        "elapsedWallSeconds": 60.1351795,
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.LateUpdate | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.State | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Input | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Range | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Geometry | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Projection | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Line | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Raycast | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Filter | Scripts | TimeNanoseconds"
+        ]
+      },
+      "steadyAfterTenSeconds": {
+        "runId": "20260911-205234-571",
+        "steadyFps": 81.17998036740155,
+        "steadyP99Ms": 23.3702,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 10387055.886699507,
+            "p99Raw": 19242300,
+            "maxRaw": 25548100,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 88466.91157635469,
+            "p99Raw": 158469,
+            "maxRaw": 3305477,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 67081.77339901478,
+            "p99Raw": 2012600,
+            "maxRaw": 3527600,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 227920.5418719212,
+            "p99Raw": 579700,
+            "maxRaw": 1089000,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 595919.9261083744,
+            "p99Raw": 1421500,
+            "maxRaw": 2023200,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 49822.881773399014,
+            "p99Raw": 1980000,
+            "maxRaw": 3465500,
+            "meanCalls": 0.04876847290640394
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 45494.2118226601,
+            "p99Raw": 114000,
+            "maxRaw": 170900,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 16761.477832512315,
+            "p99Raw": 39700,
+            "maxRaw": 130100,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 162857.9064039409,
+            "p99Raw": 448700,
+            "maxRaw": 1022800,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 15480.91133004926,
+            "p99Raw": 41900,
+            "maxRaw": 76300,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 579167.4630541872,
+            "p99Raw": 1406000,
+            "maxRaw": 2003300,
+            "meanCalls": 8
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 11996.945812807882,
+            "p99Raw": 284600,
+            "maxRaw": 405100,
+            "meanCalls": 0.5970443349753695
+          },
+          "Anomaly.Cluster.LateUpdate": {
+            "meanRaw": 1044159.7290640394,
+            "p99Raw": 1836700,
+            "maxRaw": 9487100,
+            "meanCalls": 42
+          },
+          "Anomaly.Cluster.State": {
+            "meanRaw": 54748.32512315271,
+            "p99Raw": 133000,
+            "maxRaw": 302300,
+            "meanCalls": 28
+          },
+          "Anomaly.Cluster.Input": {
+            "meanRaw": 108957.56157635468,
+            "p99Raw": 260300,
+            "maxRaw": 373500,
+            "meanCalls": 42
+          },
+          "Anomaly.Cluster.Range": {
+            "meanRaw": 823839.8768472907,
+            "p99Raw": 1461900,
+            "maxRaw": 9054300,
+            "meanCalls": 42
+          },
+          "Anomaly.Range.Geometry": {
+            "meanRaw": 151583.39901477832,
+            "p99Raw": 249900,
+            "maxRaw": 773800,
+            "meanCalls": 5.826847290640394
+          },
+          "Anomaly.Range.Projection": {
+            "meanRaw": 1135834.9014778326,
+            "p99Raw": 2034400,
+            "maxRaw": 9385200,
+            "meanCalls": 7.261822660098522
+          },
+          "Anomaly.Range.Line": {
+            "meanRaw": 37417.75862068965,
+            "p99Raw": 76800,
+            "maxRaw": 167900,
+            "meanCalls": 5.826108374384236
+          },
+          "Anomaly.Ground.Raycast": {
+            "meanRaw": 293072.5369458128,
+            "p99Raw": 530800,
+            "maxRaw": 986600,
+            "meanCalls": 354.785960591133
+          },
+          "Anomaly.Ground.Filter": {
+            "meanRaw": 62925.34482758621,
+            "p99Raw": 107500,
+            "maxRaw": 338800,
+            "meanCalls": 1.9002463054187193
+          }
+        },
+        "rangeTotals": {
+          "ActiveEnemyClusterAuthoring": {
+            "count": 14,
+            "builds": 19684,
+            "projections": 20769,
+            "lineWrites": 19684,
+            "points": 432,
+            "inputs": 19
+          },
+          "EnemySourceClusterAuthoring": {
+            "count": 14,
+            "builds": 0,
+            "projections": 1884,
+            "lineWrites": 0,
+            "points": 426,
+            "inputs": 30
+          },
+          "ResourceClusterAuthoring": {
+            "count": 12,
+            "builds": 0,
+            "projections": 1554,
+            "lineWrites": 0,
+            "points": 350,
+            "inputs": 32
+          },
+          "ExtractionClusterAuthoring": {
+            "count": 2,
+            "builds": 0,
+            "projections": 211,
+            "lineWrites": 0,
+            "points": 8,
+            "inputs": 8
+          }
+        },
+        "sampleFrames": 3992
+      },
+      "directiveFailures": [],
+      "finalAgents": [
+        {
+          "id": "2",
+          "state": "SearchResource",
+          "position": {
+            "x": 205.30950927734375,
+            "y": 3.3637657165527344,
+            "z": -21.59417724609375
+          },
+          "health": 270,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        },
+        {
+          "id": "1",
+          "state": "SearchResource",
+          "position": {
+            "x": 211.88494873046875,
+            "y": 3.3416824340820312,
+            "z": -21.682518005371094
+          },
+          "health": 300,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        }
+      ],
+      "evidenceFileSha256": {
+        "manifest.json": "59a8edfb03cd373c3cebcdfadbb44c4e55c560bd65555fec4417f50ce1250145",
+        "config.json": "dccf4507da1150e4943e5909e7f39ca0d06830969d45df5379ab0b99e60f8040",
+        "frames.csv": "27e3bc454ce126a7dbcfcb82a013239d0dddc0956d3cc8de653cc79f18681782",
+        "counters.csv": "c29e150dd6b386bc73042ee457f681e23f12f2844f88ebeb907195f1fa0b93a4",
+        "events.jsonl": "cb60c7a79084f5c698ea72e447b0e48a901f9580eb72d5ab5db1b856ab310726",
+        "result.json": "47464e95d70e821e3b89d59309a5e95825621c764a860c6943db71b7144ac494",
+        "report.json": "1fcee7a73e4c36f816bf38e3c6d7c77829e723b09b3a237de70fc79f6fd0280d",
+        "process.json": "8edb7d352277b83d35a202cdab2e8bbc0f86f6318dfe5f255215dfc464a5b1ed"
+      },
+      "invalidMetric": "Anomaly.Ground.Filter marker was inside BuildConvexHull; exclude it from ground filtering attribution."
+    },
+    {
+      "runId": "20260911-210055-347",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-210055-347",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-210055-347",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "process": {
+        "terminationReason": "",
+        "exitCode": 0,
+        "completedUtc": "2026-09-11T13:02:24.0172201Z",
+        "sourceUnchanged": true
+      },
+      "evidence": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "ISSUES_OBSERVED",
+        "gameErrors": 0,
+        "behaviorFailures": 1,
+        "stagnationSuspicions": 0,
+        "issues": [
+          "counter_unavailable",
+          "counter_unit_unknown",
+          "required_counters_missing_or_duplicated",
+          "counter_name_mismatch",
+          "counter_no_samples:Anomaly.Navigation.Check",
+          "invalid_or_missing_evidence:The property 'Average' cannot be found on this object. Verify that the property exists."
+        ]
+      },
+      "result": {
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "profilerEnabled": false,
+        "batchMode": false,
+        "frames": 5286,
+        "elapsedWallSeconds": 60.1717726,
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check: unavailable",
+          "Anomaly.Cluster.LateUpdate | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.State | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Input | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Range | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Geometry | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Projection | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Line | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Raycast | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Filter | Scripts | TimeNanoseconds"
+        ]
+      },
+      "steadyAfterTenSeconds": {
+        "runId": "20260911-210055-347",
+        "steadyFps": 86.63262184612785,
+        "steadyP99Ms": 22.0376,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 9793555.701754386,
+            "p99Raw": 18017000,
+            "maxRaw": 29961200,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 88138.64566020314,
+            "p99Raw": 158276,
+            "maxRaw": 3230935,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 60693.467220683284,
+            "p99Raw": 1871700,
+            "maxRaw": 3772200,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 230127.74699907663,
+            "p99Raw": 627800,
+            "maxRaw": 1931300,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 529209.0720221606,
+            "p99Raw": 1457100,
+            "maxRaw": 2841200,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 44562.71929824561,
+            "p99Raw": 1849600,
+            "maxRaw": 3683600,
+            "meanCalls": 0.045706371191135735
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 43617.49769159741,
+            "p99Raw": 120600,
+            "maxRaw": 185100,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 15801.084949215143,
+            "p99Raw": 60100,
+            "maxRaw": 334700,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 167814.98153277932,
+            "p99Raw": 486700,
+            "maxRaw": 1869300,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 13613.227146814404,
+            "p99Raw": 41200,
+            "maxRaw": 235600,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 514388.64265927975,
+            "p99Raw": 1438200,
+            "maxRaw": 2823800,
+            "meanCalls": 8
+          },
+          "Anomaly.Cluster.LateUpdate": {
+            "meanRaw": 1032048.3148661127,
+            "p99Raw": 1822700,
+            "maxRaw": 3357000,
+            "meanCalls": 42
+          },
+          "Anomaly.Cluster.State": {
+            "meanRaw": 49704.57063711911,
+            "p99Raw": 132800,
+            "maxRaw": 302900,
+            "meanCalls": 28
+          },
+          "Anomaly.Cluster.Input": {
+            "meanRaw": 96929.40904893813,
+            "p99Raw": 240100,
+            "maxRaw": 772400,
+            "meanCalls": 42
+          },
+          "Anomaly.Cluster.Range": {
+            "meanRaw": 832202.7700831025,
+            "p99Raw": 1485700,
+            "maxRaw": 2587000,
+            "meanCalls": 42
+          },
+          "Anomaly.Range.Geometry": {
+            "meanRaw": 130869.27516158819,
+            "p99Raw": 233100,
+            "maxRaw": 387400,
+            "meanCalls": 5.75646352723915
+          },
+          "Anomaly.Range.Projection": {
+            "meanRaw": 1112921.837488458,
+            "p99Raw": 2145500,
+            "maxRaw": 3399300,
+            "meanCalls": 7.067405355493998
+          },
+          "Anomaly.Range.Line": {
+            "meanRaw": 33510.22622345337,
+            "p99Raw": 73300,
+            "maxRaw": 150700,
+            "meanCalls": 5.755309325946445
+          },
+          "Anomaly.Ground.Raycast": {
+            "meanRaw": 259755.10156971376,
+            "p99Raw": 490000,
+            "maxRaw": 1110300,
+            "meanCalls": 333.938134810711
+          },
+          "Anomaly.Ground.Filter": {
+            "meanRaw": 717429.5013850415,
+            "p99Raw": 1407400,
+            "maxRaw": 2890100,
+            "meanCalls": 594.2421514312095
+          }
+        },
+        "rangeTotals": {
+          "ActiveEnemyClusterAuthoring": {
+            "count": 14,
+            "builds": 21086,
+            "projections": 22066,
+            "lineWrites": 21086,
+            "points": 432,
+            "inputs": 19
+          },
+          "EnemySourceClusterAuthoring": {
+            "count": 14,
+            "builds": 0,
+            "projections": 1839,
+            "lineWrites": 0,
+            "points": 426,
+            "inputs": 30
+          },
+          "ResourceClusterAuthoring": {
+            "count": 12,
+            "builds": 0,
+            "projections": 1496,
+            "lineWrites": 0,
+            "points": 350,
+            "inputs": 32
+          },
+          "ExtractionClusterAuthoring": {
+            "count": 2,
+            "builds": 0,
+            "projections": 295,
+            "lineWrites": 0,
+            "points": 8,
+            "inputs": 8
+          }
+        },
+        "sampleFrames": 4273
+      },
+      "directiveFailures": [
+        {
+          "sequence": 80,
+          "wallSeconds": 24.0735822,
+          "gameSeconds": 23.017723199552957,
+          "frame": 2251,
+          "kind": "directive.Failed",
+          "detail": "{\"agent\":\"1\",\"commandId\":\"Auto_2b120c400f2b4f138939b4cbcb6efc42\",\"directive\":\"Search\",\"targetId\":\"ResourceCluster_8bfe56193a30499e8698fdcec48df21c\",\"target\":\"Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]\",\"stage\":\"Failed\",\"reason\":\"NoProgress\"}"
+        }
+      ],
+      "finalAgents": [
+        {
+          "id": "2",
+          "state": "SearchResource",
+          "position": {
+            "x": 205.30908203125,
+            "y": 3.366058349609375,
+            "z": -21.58501434326172
+          },
+          "health": 270,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        },
+        {
+          "id": "1",
+          "state": "SearchResource",
+          "position": {
+            "x": 211.8848876953125,
+            "y": 3.3416824340820312,
+            "z": -21.682519912719727
+          },
+          "health": 300,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        }
+      ],
+      "evidenceFileSha256": {
+        "manifest.json": "74300d1aad1d8670d696a5d50307ef121128921cd856a3de2fa1ed475b598ec5",
+        "config.json": "dda2be82cf4e32fceb47cdeb989d02d6994a79c1d3ab810997e1411568a12106",
+        "frames.csv": "0eb16d1fc3e72d11cf31db18adaba7ace10168daf8f7f0f2701a824c4552a606",
+        "counters.csv": "7d4d371a89c543bf9eb976325acac480dd37bf54e991e5d08d161fc02d606296",
+        "events.jsonl": "6f07aea14988e1a961f1e776af5a9c6877f341463551a3d565c5b67023a7a37f",
+        "result.json": "458589ec7faa493bfafa32258796eb110d5c361859685e85177baa35cab2780f",
+        "report.json": "0a2a8b7b790f3105683208ab42e5d3ae58740d019cf4c8510c81310e95e141a8",
+        "process.json": "4d2143338a8e5727a1cefec8de2664607c99e347241784b3a1204d91b0ce4c7f"
+      }
+    },
+    {
+      "runId": "20260911-210625-530",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-210625-530",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-210625-530",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "process": {
+        "terminationReason": "",
+        "exitCode": 0,
+        "completedUtc": "2026-09-11T13:07:55.2853470Z",
+        "sourceUnchanged": true
+      },
+      "evidence": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": [
+          "counter_unavailable",
+          "counter_unit_unknown",
+          "required_counters_missing_or_duplicated",
+          "counter_name_mismatch",
+          "counter_no_samples:Anomaly.Navigation.Check"
+        ]
+      },
+      "result": {
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "profilerEnabled": false,
+        "batchMode": false,
+        "frames": 5076,
+        "elapsedWallSeconds": 60.1543176,
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check: unavailable",
+          "Anomaly.Cluster.LateUpdate | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.State | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Input | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Range | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Geometry | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Projection | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Line | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Raycast | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Filter | Scripts | TimeNanoseconds"
+        ]
+      },
+      "steadyAfterTenSeconds": {
+        "runId": "20260911-210625-530",
+        "steadyFps": 85.50139663242884,
+        "steadyP99Ms": 20.815,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 9755766.425064297,
+            "p99Raw": 16986200,
+            "maxRaw": 26862300,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 88307.57820902501,
+            "p99Raw": 158341,
+            "maxRaw": 3237359,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 63650.05845218611,
+            "p99Raw": 2106100,
+            "maxRaw": 3551200,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 245927.9401449614,
+            "p99Raw": 695400,
+            "maxRaw": 1234100,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 233415.94575637128,
+            "p99Raw": 1059300,
+            "maxRaw": 1948500,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 48506.944119710075,
+            "p99Raw": 2075300,
+            "maxRaw": 3502300,
+            "meanCalls": 0.04629413140051438
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 44062.216506897355,
+            "p99Raw": 115300,
+            "maxRaw": 222800,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 15936.404021510405,
+            "p99Raw": 43000,
+            "maxRaw": 141100,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 182797.19429506664,
+            "p99Raw": 566200,
+            "maxRaw": 1111000,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 14587.350946925415,
+            "p99Raw": 41000,
+            "maxRaw": 71400,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 217116.71732522798,
+            "p99Raw": 1035600,
+            "maxRaw": 1927100,
+            "meanCalls": 8
+          },
+          "Anomaly.Cluster.LateUpdate": {
+            "meanRaw": 371938.274491466,
+            "p99Raw": 2158500,
+            "maxRaw": 3295700,
+            "meanCalls": 42
+          },
+          "Anomaly.Cluster.State": {
+            "meanRaw": 55446.71498714052,
+            "p99Raw": 138600,
+            "maxRaw": 261800,
+            "meanCalls": 28
+          },
+          "Anomaly.Cluster.Input": {
+            "meanRaw": 24299.29857376666,
+            "p99Raw": 199500,
+            "maxRaw": 314300,
+            "meanCalls": 8.8379705400982
+          },
+          "Anomaly.Cluster.Range": {
+            "meanRaw": 271166.96282440965,
+            "p99Raw": 1874700,
+            "maxRaw": 2795000,
+            "meanCalls": 8.8379705400982
+          },
+          "Anomaly.Range.Geometry": {
+            "meanRaw": 28666.425064297404,
+            "p99Raw": 162600,
+            "maxRaw": 214000,
+            "meanCalls": 1.198971241524433
+          },
+          "Anomaly.Range.Projection": {
+            "meanRaw": 370196.25906008884,
+            "p99Raw": 2044600,
+            "maxRaw": 2712000,
+            "meanCalls": 2.457563712882862
+          },
+          "Anomaly.Range.Line": {
+            "meanRaw": 8080.056114098667,
+            "p99Raw": 42600,
+            "maxRaw": 91000,
+            "meanCalls": 1.198503624035539
+          },
+          "Anomaly.Ground.Raycast": {
+            "meanRaw": 87644.54056581717,
+            "p99Raw": 432700,
+            "maxRaw": 734400,
+            "meanCalls": 107.99275192892215
+          },
+          "Anomaly.Ground.Filter": {
+            "meanRaw": 235165.25602057518,
+            "p99Raw": 1342100,
+            "maxRaw": 1826600,
+            "meanCalls": 195.26911386485855
+          }
+        },
+        "rangeTotals": {
+          "ActiveEnemyClusterAuthoring": {
+            "count": 14,
+            "builds": 4333,
+            "projections": 5297,
+            "lineWrites": 4333,
+            "points": 432,
+            "inputs": 19
+          },
+          "EnemySourceClusterAuthoring": {
+            "count": 14,
+            "builds": 0,
+            "projections": 1732,
+            "lineWrites": 0,
+            "points": 426,
+            "inputs": 30
+          },
+          "ResourceClusterAuthoring": {
+            "count": 12,
+            "builds": 0,
+            "projections": 1442,
+            "lineWrites": 0,
+            "points": 350,
+            "inputs": 32
+          },
+          "ExtractionClusterAuthoring": {
+            "count": 2,
+            "builds": 0,
+            "projections": 252,
+            "lineWrites": 0,
+            "points": 8,
+            "inputs": 8
+          }
+        },
+        "sampleFrames": 4215
+      },
+      "directiveFailures": [],
+      "finalAgents": [
+        {
+          "id": "1",
+          "state": "SearchResource",
+          "position": {
+            "x": 211.8839111328125,
+            "y": 3.3416824340820312,
+            "z": -21.682518005371094
+          },
+          "health": 300,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        },
+        {
+          "id": "2",
+          "state": "SearchResource",
+          "position": {
+            "x": 205.309326171875,
+            "y": 3.3646774291992188,
+            "z": -21.590530395507812
+          },
+          "health": 270,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        }
+      ],
+      "evidenceFileSha256": {
+        "manifest.json": "501f8d8ab7b9c3212f4901fc2a41e2f99bcbf7504ebe9c05654b813ed03fe286",
+        "config.json": "4a687c88b2501a23bc1de73504453d14f0b13c0f18633d3f7ee3fe7ff00bd6d5",
+        "frames.csv": "e42b79568716be6ddd409bb1ed94e5a03df187e92074a4e345f7d2f93bdd85f3",
+        "counters.csv": "8bf6b1bef91f6ac32ab4d361fac2dc935114066427ce715dc841f1ac2575192e",
+        "events.jsonl": "f8b41e113df8919b85ba1c4fd8d957b789f4103959e5b77f4ada089420b9d5de",
+        "result.json": "83667bd583b67e9bfa5f3f3b3ebd759a64f0fd66ed727985dc156980ee4e0243",
+        "report.json": "246ae55cf6d11be882436e79ed1956b55f1d4ea10f01db9b66b962019f81bacb",
+        "process.json": "91ba8d28db87c0573de1c1f52b12ab8e34d55da0a05160e10540f90ba36ce574"
+      }
+    },
+    {
+      "runId": "20260911-210825-662",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-210825-662",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-210825-662",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T13:10:54.8346419Z",
+        "sourceUnchanged": true
+      },
+      "evidence": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": [
+          "process_exit:1"
+        ]
+      },
+      "result": {
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "profilerEnabled": false,
+        "batchMode": false,
+        "frames": 5269,
+        "elapsedWallSeconds": 60.181067799999994,
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.LateUpdate | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.State | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Input | Scripts | TimeNanoseconds",
+          "Anomaly.Cluster.Range | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Geometry | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Projection | Scripts | TimeNanoseconds",
+          "Anomaly.Range.Line | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Raycast | Scripts | TimeNanoseconds",
+          "Anomaly.Ground.Filter | Scripts | TimeNanoseconds"
+        ]
+      },
+      "steadyAfterTenSeconds": {
+        "runId": "20260911-210825-662",
+        "steadyFps": 89.83690760257457,
+        "steadyP99Ms": 20.5294,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 9325758.913866013,
+            "p99Raw": 17214300,
+            "maxRaw": 23750900,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 88172.0391720454,
+            "p99Raw": 158144,
+            "maxRaw": 3230891,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 75441.62029824172,
+            "p99Raw": 1461000,
+            "maxRaw": 2814400,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 224906.27643000224,
+            "p99Raw": 610400,
+            "maxRaw": 10095500,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 238297.06209659472,
+            "p99Raw": 1152100,
+            "maxRaw": 2377100,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 58603.16047184509,
+            "p99Raw": 1437500,
+            "maxRaw": 2734600,
+            "meanCalls": 0.04406855107945693
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 44383.57444914311,
+            "p99Raw": 107200,
+            "maxRaw": 9947000,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 14732.183396394392,
+            "p99Raw": 36400,
+            "maxRaw": 88000,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 163473.93723569997,
+            "p99Raw": 514100,
+            "maxRaw": 2505500,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 14122.101046071666,
+            "p99Raw": 37200,
+            "maxRaw": 128900,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 222558.86935232583,
+            "p99Raw": 1126000,
+            "maxRaw": 2350500,
+            "meanCalls": 8
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 12505.386156243045,
+            "p99Raw": 209900,
+            "maxRaw": 379900,
+            "meanCalls": 0.532383707990207
+          },
+          "Anomaly.Cluster.LateUpdate": {
+            "meanRaw": 356107.18896060536,
+            "p99Raw": 2259500,
+            "maxRaw": 4081800,
+            "meanCalls": 42
+          },
+          "Anomaly.Cluster.State": {
+            "meanRaw": 52737.07990206988,
+            "p99Raw": 126200,
+            "maxRaw": 329400,
+            "meanCalls": 28
+          },
+          "Anomaly.Cluster.Input": {
+            "meanRaw": 23009.32561762742,
+            "p99Raw": 193200,
+            "maxRaw": 1198800,
+            "meanCalls": 8.37569552637436
+          },
+          "Anomaly.Cluster.Range": {
+            "meanRaw": 259687.69196527931,
+            "p99Raw": 1978000,
+            "maxRaw": 3687600,
+            "meanCalls": 8.37569552637436
+          },
+          "Anomaly.Range.Geometry": {
+            "meanRaw": 33156.91075005564,
+            "p99Raw": 164300,
+            "maxRaw": 259400,
+            "meanCalls": 1.2023147117738704
+          },
+          "Anomaly.Range.Projection": {
+            "meanRaw": 366727.46494547074,
+            "p99Raw": 2067500,
+            "maxRaw": 3569200,
+            "meanCalls": 2.432673046961941
+          },
+          "Anomaly.Range.Line": {
+            "meanRaw": 7996.0382817716445,
+            "p99Raw": 40100,
+            "maxRaw": 111500,
+            "meanCalls": 1.2020921433340752
+          },
+          "Anomaly.Ground.Raycast": {
+            "meanRaw": 87398.55330514134,
+            "p99Raw": 445100,
+            "maxRaw": 888600,
+            "meanCalls": 107.51079456933007
+          },
+          "Anomaly.Ground.Filter": {
+            "meanRaw": 233372.62408190517,
+            "p99Raw": 1387000,
+            "maxRaw": 2442300,
+            "meanCalls": 191.48920543066993
+          }
+        },
+        "rangeTotals": {
+          "ActiveEnemyClusterAuthoring": {
+            "count": 14,
+            "builds": 4491,
+            "projections": 5420,
+            "lineWrites": 4491,
+            "points": 432,
+            "inputs": 19
+          },
+          "EnemySourceClusterAuthoring": {
+            "count": 14,
+            "builds": 0,
+            "projections": 1715,
+            "lineWrites": 0,
+            "points": 426,
+            "inputs": 30
+          },
+          "ResourceClusterAuthoring": {
+            "count": 12,
+            "builds": 0,
+            "projections": 1424,
+            "lineWrites": 0,
+            "points": 350,
+            "inputs": 32
+          },
+          "ExtractionClusterAuthoring": {
+            "count": 2,
+            "builds": 0,
+            "projections": 346,
+            "lineWrites": 0,
+            "points": 8,
+            "inputs": 8
+          }
+        },
+        "sampleFrames": 4429
+      },
+      "directiveFailures": [],
+      "finalAgents": [
+        {
+          "id": "1",
+          "state": "SearchResource",
+          "position": {
+            "x": 211.88494873046875,
+            "y": 3.3416824340820312,
+            "z": -21.682518005371094
+          },
+          "health": 300,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        },
+        {
+          "id": "2",
+          "state": "SearchResource",
+          "position": {
+            "x": 205.30859375,
+            "y": 3.3686485290527344,
+            "z": -21.57464027404785
+          },
+          "health": 270,
+          "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "directive": "Search"
+        }
+      ],
+      "evidenceFileSha256": {
+        "manifest.json": "5d5078b871baaee5dbacff276b01ac74151faae528e9693ecefafbba48dcf7ae",
+        "config.json": "f3c4d0bd2f95e7673e89bcee481e52ab26f1a464d80cb7d8ef2026f0a6112478",
+        "frames.csv": "252f3d687c13402be6a6d8962f57714dc983ac1a7e99bd38df63b56ea7234544",
+        "counters.csv": "e51fde3069378c3fe0e7776cd31fb0c4ade27692d1a0c02fa10f2af7de2c44c2",
+        "events.jsonl": "a452ae20a9dd89100af01e8c58a4beb6757293ed40e983de58cb15c987c3c052",
+        "result.json": "be38debf9af886a779bc437fe08ff67b434e44b65f06b6f417c41d73d97078b0",
+        "report.json": "9653a64b8ae3aa7680796c094838d18362f0b915b58478beb5f640fdb5a4762d",
+        "process.json": "c6c53e9ec0ffc02a4f69a89e882f2103c7559683965f717d419f1d3c44646a1c"
+      }
+    }
+  ]
+}

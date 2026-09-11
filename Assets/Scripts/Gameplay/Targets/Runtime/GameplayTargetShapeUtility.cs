@@ -9,6 +9,8 @@ namespace Gameplay.Targets.Runtime
     /// </summary>
     public static class GameplayTargetShapeUtility
     {
+        private static readonly Unity.Profiling.ProfilerMarker RaycastMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Ground.Raycast");
+        private static readonly Unity.Profiling.ProfilerMarker FilterMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Ground.Filter");
         private const int GroundHitBufferSize = 16;
         private const float MinDirectionSqrMagnitude = 0.0001f;
         private static readonly RaycastHit[] GroundHitBuffer = new RaycastHit[GroundHitBufferSize];
@@ -96,7 +98,8 @@ namespace Gameplay.Targets.Runtime
             float safeProbeHeight = Mathf.Max(0.1f, probeHeight);
             float safeProbeDistance = Mathf.Max(safeProbeHeight + 0.1f, probeDistance);
             Vector3 origin = point + Vector3.up * safeProbeHeight;
-            int hitCount = Physics.RaycastNonAlloc(
+            int hitCount;
+            using (RaycastMarker.Auto()) hitCount = Physics.RaycastNonAlloc(
                 origin,
                 Vector3.down,
                 GroundHitBuffer,
@@ -134,6 +137,7 @@ namespace Gameplay.Targets.Runtime
             Transform ownerTransform,
             float minGroundNormalY)
         {
+            using var filterScope = FilterMarker.Auto();
             if (hitInfo.collider == null)
                 return false;
 
