@@ -176,6 +176,17 @@
       ]
     },
     {
+      "name": "ScenePerformance",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidPerformanceTests",
+      "expected": [
+        "OutOfRangeMembersDoNotCalculatePaths",
+        "DiscoveryRangeUsesMembersInsteadOfClusterCenter",
+        "UnreachableNearMemberDoesNotHideReachableMember",
+        "ExtractionCollectionRemainsAvailableBeyondDiscoveryRange"
+      ]
+    },
+    {
       "name": "SceneInventory",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidInventoryTests",

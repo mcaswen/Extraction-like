@@ -40,6 +40,7 @@ namespace Gameplay.Targets.Authoring
             new Dictionary<GameObject, List<Vector3>>();
         private readonly HashSet<GameObject> _initializedNavigationDebugObjects = new HashSet<GameObject>();
         private NavMeshPath _navigationPath;
+        public long NavigationPathCalculationCount { get; private set; }
 
         /// <summary>
         /// 当前资源群统一使用的资源等级
@@ -227,12 +228,25 @@ namespace Gameplay.Targets.Authoring
             out GameObject resourceObject,
             out Vector3 navigationPosition)
         {
+            return TryGetNearestReachableIncompleteResource(agentPosition, navMeshAgent, float.PositiveInfinity,
+                out resourceObject, out navigationPosition);
+        }
+
+        /// <summary>发现阶段先按具体成员范围预筛；执行阶段仍可调用无范围重载。</summary>
+        public bool TryGetNearestReachableIncompleteResource(
+            Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
+            float maximumMemberDistance,
+            out GameObject resourceObject,
+            out Vector3 navigationPosition)
+        {
             RefreshRuntimeState();
             resourceObject = null;
             navigationPosition = default;
 
             if (!TryResolveNavMeshStartPosition(agentPosition, navMeshAgent, out Vector3 startPosition, out int areaMask))
             {
+                if (!float.IsPositiveInfinity(maximumMemberDistance)) return false;
                 if (!TryGetNearestIncompleteResource(agentPosition, out resourceObject))
                     return false;
 
@@ -243,11 +257,13 @@ namespace Gameplay.Targets.Authoring
             NavMeshPath path = GetNavigationPath();
             float nearestPathLength = float.MaxValue;
             float nearestDistanceSqr = float.MaxValue;
+            float maximumDistanceSqr = Mathf.Max(0f, maximumMemberDistance) * Mathf.Max(0f, maximumMemberDistance);
 
             for (int i = 0; i < _resourceMembers.Count; i++)
             {
                 GameplayTargetEntityMember member = _resourceMembers[i];
-                if (!IsMemberAvailableForSearch(member))
+                if (member == null || (member.Position - agentPosition).sqrMagnitude > maximumDistanceSqr ||
+                    !IsMemberAvailableForSearch(member))
                     continue;
 
                 if (!TryFindReachableResourceNavigationPosition(
@@ -910,7 +926,7 @@ namespace Gameplay.Targets.Authoring
             candidates.Add(candidate);
         }
 
-        private static bool TryCalculateCompletePathToCandidate(
+        private bool TryCalculateCompletePathToCandidate(
             Vector3 candidatePosition,
             Vector3 startPosition,
             int areaMask,
@@ -932,6 +948,7 @@ namespace Gameplay.Targets.Authoring
             }
 
             // Use the resolved NavMesh start position to avoid per-agent path object allocations in the scan loop.
+            NavigationPathCalculationCount++;
             bool calculated = NavMesh.CalculatePath(
                 startPosition,
                 targetHit.position,

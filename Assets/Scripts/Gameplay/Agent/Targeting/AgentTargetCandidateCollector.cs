@@ -41,7 +41,7 @@ namespace Gameplay.Agent.Targeting
             results.Sort((a,b)=>a.DistanceSqr != b.DistanceSqr ? a.DistanceSqr.CompareTo(b.DistanceSqr) : a.Member.GetInstanceID().CompareTo(b.Member.GetInstanceID()));
         }
         public void CollectWorldTargets(IAgentReadOnly agent, IReadOnlyList<GameplayTargetClusterAuthoringBase> clusters,
-            float range, List<AgentTargetCandidate> results)
+            float range, List<AgentTargetCandidate> results, bool includeEnemySources = true, bool includeExtractions = true)
         {
             results.Clear();
             if (agent == null || !AgentNavigationQuery.IsReady(agent.NavMeshAgent)) return;
@@ -50,7 +50,7 @@ namespace Gameplay.Agent.Targeting
                 if (cluster == null || !cluster.isActiveAndEnabled || cluster.HasBeenCompleted) continue;
                 if (cluster is ResourceClusterAuthoring resource)
                 {
-                    if (resource.TryGetNearestReachableIncompleteResource(agent.Position,agent.NavMeshAgent,out GameObject member,out Vector3 navigation))
+                    if (resource.TryGetNearestReachableIncompleteResource(agent.Position,agent.NavMeshAgent,range,out GameObject member,out Vector3 navigation))
                     {
                         float distance=(member.transform.position-agent.Position).sqrMagnitude;
                         if (distance<=range*range && IsReachable(agent,navigation,out Vector3 destination) &&
@@ -58,19 +58,11 @@ namespace Gameplay.Agent.Targeting
                             results.Add(new AgentTargetCandidate(cluster,member,member.transform.position,destination,distance,AgentTargetKind.Resource));
                     }
                 }
-                else if (cluster is ExtractionClusterAuthoring extraction)
+                else if (includeExtractions && cluster is ExtractionClusterAuthoring extraction)
                 {
-                    // Exits remain known beyond perception range; policy decides when to use the fallback.
-                    foreach (var member in extraction.ExtractionMembers)
-                    {
-                        if (member == null || member.HasBeenCompleted || !member.TryGetComponent(out global::ExtractionPointController point) ||
-                            !point.isActiveAndEnabled || !IsReachable(agent,point.transform.position,out Vector3 destination) ||
-                            _failures.IsDeferred(agent,cluster.gameObject,point.gameObject,destination)) continue;
-                        results.Add(new AgentTargetCandidate(cluster,point.gameObject,point.transform.position,destination,
-                            (point.transform.position-agent.Position).sqrMagnitude,AgentTargetKind.Extraction));
-                    }
+                    AppendExtractionTargets(agent, extraction, results);
                 }
-                else if (cluster is EnemySourceClusterAuthoring source)
+                else if (includeEnemySources && cluster is EnemySourceClusterAuthoring source)
                 {
                     AgentTargetCandidate? nearest=null;
                     foreach (var point in source.SpawnPoints)
@@ -86,6 +78,30 @@ namespace Gameplay.Agent.Targeting
                 }
             }
             results.Sort((a,b)=>a.DistanceSqr != b.DistanceSqr ? a.DistanceSqr.CompareTo(b.DistanceSqr) : a.Member.GetInstanceID().CompareTo(b.Member.GetInstanceID()));
+        }
+
+        public void CollectExtractionTargets(IAgentReadOnly agent, IReadOnlyList<GameplayTargetClusterAuthoringBase> clusters,
+            List<AgentTargetCandidate> results)
+        {
+            results.Clear();
+            if (agent == null || !AgentNavigationQuery.IsReady(agent.NavMeshAgent)) return;
+            foreach (var cluster in clusters)
+                if (cluster is ExtractionClusterAuthoring extraction && extraction.isActiveAndEnabled && !extraction.HasBeenCompleted)
+                    AppendExtractionTargets(agent, extraction, results);
+            results.Sort((a,b)=>a.DistanceSqr != b.DistanceSqr ? a.DistanceSqr.CompareTo(b.DistanceSqr) : a.Member.GetInstanceID().CompareTo(b.Member.GetInstanceID()));
+        }
+
+        private void AppendExtractionTargets(IAgentReadOnly agent, ExtractionClusterAuthoring extraction, List<AgentTargetCandidate> results)
+        {
+            // 出口始终可作为超出发现范围的后备；仅调用者决定何时需要计算它。
+            foreach (var member in extraction.ExtractionMembers)
+            {
+                if (member == null || member.HasBeenCompleted || !member.TryGetComponent(out global::ExtractionPointController point) ||
+                    !point.isActiveAndEnabled || !IsReachable(agent,point.transform.position,out Vector3 destination) ||
+                    _failures.IsDeferred(agent,extraction.gameObject,point.gameObject,destination)) continue;
+                results.Add(new AgentTargetCandidate(extraction,point.gameObject,point.transform.position,destination,
+                    (point.transform.position-agent.Position).sqrMagnitude,AgentTargetKind.Extraction));
+            }
         }
 
         private static bool IsReachable(IAgentReadOnly agent, Vector3 point, out Vector3 destination)

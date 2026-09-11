@@ -26,6 +26,16 @@ Reuse `Assets/Scripts/Gameplay/Agent/Navigation/AgentNavigationResult.cs`；Exte
 
 ## P4c：状态和几何更新分开
 
+### P4b 实现前细化
+
+- `AgentNavigationQuery.cs` 内增加调用方持有的 Buffer（NavMeshPath 和可增长角点数组），使用 GetCornersNonAlloc；默认查询保留独立结果所有权，Motor 和 CandidateCollector 显式复用各自缓冲，返回的 Path 仅在该缓冲下次查询前有效。
+- `AgentNavigationMotor.cs` 每 0.1 游戏秒查询一次，与原 SetPath 节奏相同；命令/目标、导航参数变化，丢失路径、路径陈旧/不完整立即失效。每帧继续检测导航可用、剩余距离/到达和停滞，暂停不启动重算。公开实际查询次数供构造断言。此阶段保留原进展阈值，场景抖动根因归 P3。
+- Create `Assets/Scripts/Gameplay/Agent/Navigation/AgentResourceNavigationResolver.cs`：每个行为节点独立持有的短期资源查询结果，不决定策略。0.1 秒到期、Agent 明显移动、目标群/导航器改变、选中资源移动/失活/完成立即查询。Extend `AgentActionNodeBase.cs` 和 `SearchResourceActionNode.cs`（`Assets/Scripts/Gameplay/Agent/AI/Actions/`）调用同一封装，保留现有行为树结构。
+- Extend `ResourceClusterAuthoring.cs`：复用候选列表，但每次实际查询更新候选坐标，修正旧候选只依赖 resource 引用、仍保留首个 Agent ClosestPoint 的问题；不跨 Agent 缓存路径。
+- Extend `SceneRaidPerformanceTests.cs`：同帧多次移动只算一次、两个 Motor 缓冲互不覆盖、目标变化立即重算、资源完成/移动失效。回归 Navigation、R5、Decision 和动态断路用例。
+
+依赖保持动作节点 → 资源查询封装 → ResourceCluster；Motor → Query。无新的场景服务、全局路径缓存或 AI 策略变化。
+
 Extend `Assets/Scripts/Gameplay/Targets/Authoring/TargetZoneAuthoring.cs`、必要的 `GameplayTargetClusterAuthoringBase.cs`（同目录）、`Assets/Scripts/Gameplay/Targets/Runtime/GameplayTargetShapeUtility.cs`。Zone 状态聚合继续响应业务变化；几何以实际源轮廓、Transform、Collider 和配置变化失效，复用点缓冲和正式投射算法，避免静态输入逐帧重新构形、投射和 SetPosition。动态范围变化必须及时更新，Gizmos 使用同一缓存，不能把 Update 成本移到 OnDrawGizmos。
 
 静态不重建、成员移动/增删、Collider 变换/尺寸、保存重载/冷缓存都要验证；地表改变的失效方式在该阶段细化。保留画面配置，不通过关闭范围线或降低图形质量提速。
@@ -38,4 +48,4 @@ P1 原生 Editor 退出故障仍是独立未解问题，不能把超时回收算
 
 ## 实施结果
 
-尚未实施性能改动。
+P4a 已实现成员范围预筛，Discovery 按需查询出口，Decision 默认完整候选保持不变。`ScenePerformance` 4/4 通过（`Logs/AgentReproduction/20260911-202129-746`），`Decision` 5/5 通过（`Logs/AgentReproduction/20260911-202217-623`），均正常退出且源工程输入未变化。64 个范围外资源连续扫描 10 次，实际资源路径计算为 0；无范围执行入口仍能取得远资源。图形耗时在三项治理后用同一个 SC01 比较，不将该次数断言当作 FPS 验收。

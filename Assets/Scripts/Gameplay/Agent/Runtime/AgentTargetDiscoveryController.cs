@@ -209,15 +209,15 @@ namespace Gameplay.Agent.Runtime
             targetRegistry.CopyClustersTo(_clusterBuffer);
 
             _candidateCollector.CollectVisibleEnemies(agent,_clusterBuffer,range,_enemyCandidates);
-            _candidateCollector.CollectWorldTargets(agent,_clusterBuffer,range,_worldCandidates);
-            AgentTargetCandidate? enemy=null,resource=null,exit=null;
+            _candidateCollector.CollectWorldTargets(agent,_clusterBuffer,range,_worldCandidates,
+                includeEnemySources:false,includeExtractions:false);
+            AgentTargetCandidate? enemy=null,resource=null;
             foreach (var candidate in _enemyCandidates)
                 if (candidate.CanExecute) { enemy=candidate; break; }
             agent.Blackboard.TryGetValue(AgentBlackboardKeys.PendingDirectiveRequest,out AgentDirectiveRequest current);
             foreach (var candidate in _worldCandidates)
             {
                 if (candidate.Kind==AgentTargetKind.Resource && (!resource.HasValue || candidate.Cluster.gameObject==current.TargetObject)) resource=candidate;
-                if (candidate.Kind==AgentTargetKind.Extraction && !exit.HasValue) exit=candidate;
             }
             if (enemy.HasValue && (!resource.HasValue || enemy.Value.DistanceSqr<=resource.Value.DistanceSqr))
             {
@@ -229,11 +229,13 @@ namespace Gameplay.Agent.Runtime
                 ApplyResourceClusterTarget(handle,commandReceiver,(ResourceClusterAuthoring)resource.Value.Cluster);
                 return;
             }
-            if (exit.HasValue)
+            _candidateCollector.CollectExtractionTargets(agent,_clusterBuffer,_worldCandidates);
+            if (_worldCandidates.Count > 0)
             {
+                var exit = _worldCandidates[0];
                 commandReceiver.SubmitDirective(new AgentDirectiveRequest(AgentDirectiveType.Extract,
-                    AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction,exit.Value.Member,exit.Value.Cluster.TargetId),
-                    exit.Value.Cluster.TargetId,handle.AgentId));
+                    AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction,exit.Member,exit.Cluster.TargetId),
+                    exit.Cluster.TargetId,handle.AgentId));
                 return;
             }
 
