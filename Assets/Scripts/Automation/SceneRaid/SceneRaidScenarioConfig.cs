@@ -24,7 +24,8 @@ namespace AnomalySearch.Automation.SceneRaid
             if (config == null || config.schemaVersion != 1 || string.IsNullOrEmpty(config.runId) ||
                 !Path.IsPathRooted(config.outputPath) || config.observeSeconds <= 0 || config.observeSeconds > 600 ||
                 config.scenePath != "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity" ||
-                (config.mode != "Audit" && config.mode != "Observe") || config.simulationSpeed != 1 ||
+                (config.mode != "Audit" && config.mode != "Observe" && config.mode != "Autonomous") ||
+                (config.simulationSpeed != 1 && !(config.mode == "Autonomous" && (config.simulationSpeed == 2 || config.simulationSpeed == 4))) ||
                 Application.companyName != "AnomalySearch.Automation" ||
                 Application.productName != "AgentRepro_" + config.runId)
                 throw new InvalidOperationException("Invalid or non-isolated SceneRaid session.");
@@ -40,7 +41,8 @@ namespace AnomalySearch.Automation.SceneRaid
         public bool batchMode, profilerEnabled, performanceAcceptance;
         public int screenWidth, screenHeight, cameraWidth, cameraHeight, frames, renderedFrames, events, lostEvents, errors, warnings;
         public double elapsedWallSeconds, elapsedGameSeconds, instrumentationMilliseconds;
-        public string[] observedAgents;
+        public int inventorySessions;
+        public string[] observedAgents, inventoryAgents;
         public string[] counters;
     }
 }

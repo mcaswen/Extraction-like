@@ -72,6 +72,17 @@ if ((Test-SceneRaidEvidence $path $config 0 $false).evidenceStatus -ne 'FAIL') {
 Edit-Result $path 'errors' 1
 $report = Test-SceneRaidEvidence $path $config 0 $true
 if ($report.evidenceStatus -ne 'PASS' -or $report.gameStatus -ne 'ISSUES_OBSERVED') { throw 'Game errors hidden or confused with harness failures.' }; $passed++
+$path = Write-Fixture 'autonomous_blocked'
+$autoConfig = [pscustomobject]@{runId='probe';mode='Autonomous';scenePath='scene.unity';width=3840;height=2160;observeSeconds=600}
+Edit-Result $path 'mode' 'Autonomous'
+Edit-Result $path 'status' 'BEHAVIOR_BLOCKED'
+$report = Test-SceneRaidEvidence $path $autoConfig 0 $true
+if ($report.evidenceStatus -ne 'PASS' -or $report.gameStatus -ne 'ISSUES_OBSERVED' -or $report.performanceAcceptance) { throw 'Autonomous blockage mislabeled.' }; $passed++
+Edit-Result $path 'status' 'RAID_OBSERVED_COMPLETE'
+$report = Test-SceneRaidEvidence $path $autoConfig 0 $true
+if ($report.evidenceStatus -ne 'PASS' -or $report.gameStatus -ne 'NOT_FULL_RAID_VALIDATED' -or $report.performanceAcceptance) { throw 'Observed ending confused with final acceptance.' }; $passed++
+Edit-Result $path 'status' 'PASSED'
+if ((Test-SceneRaidEvidence $path $autoConfig 0 $true).evidenceStatus -ne 'FAIL') { throw 'Unverified autonomous success accepted.' }; $passed++
 function New-FrameSeries([double]$StepMs, [int]$SpikeAt = -1) {
     $clock = 0.0
     for ($i = 0; $i -lt 1000; $i++) {

@@ -9,7 +9,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private static void Install()
         {
             var config = SceneRaidScenarioConfig.LoadExplicit();
-            if (config == null || config.mode != "Observe") return;
+            if (config == null || config.mode == "Audit") return;
             Random.InitState(config.seed);
             var root = new GameObject("[SceneRaidAutomation]");
             Object.DontDestroyOnLoad(root);

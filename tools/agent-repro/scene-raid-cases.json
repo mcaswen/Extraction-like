@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
   "cases": [
-    { "id": "SC00", "mode": "Audit", "seed": 731, "observeSeconds": 60 },
-    { "id": "SC01", "mode": "Observe", "seed": 731, "observeSeconds": 60 }
+    { "id": "SC00", "mode": "Audit", "seed": 731, "observeSeconds": 60, "simulationSpeed": 1 },
+    { "id": "SC01", "mode": "Observe", "seed": 731, "observeSeconds": 60, "simulationSpeed": 1 },
+    { "id": "SC02", "mode": "Autonomous", "seed": 731, "observeSeconds": 120, "simulationSpeed": 2 }
   ]
 }

@@ -181,7 +181,7 @@ public partial class DraggableItemUI
 
         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
-            ExecuteQuickTransfer();
+            TryQuickTransfer(out _);
         }
     }
 

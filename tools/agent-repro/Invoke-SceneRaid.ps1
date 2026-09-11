@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('SC00','SC01')][string]$Case = 'SC01',
+    [ValidateSet('SC00','SC01','SC02')][string]$Case = 'SC01',
     [string]$UnityPath,
     [string]$WorkspaceRoot,
     [ValidateRange(120,3600)][int]$TimeoutSeconds = 900,
@@ -21,7 +21,7 @@ try {
     $caseConfig = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scene-raid-cases.json') -Raw | ConvertFrom-Json).cases | Where-Object id -eq $Case
     $profile = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scene-raid-profiles.json') -Raw | ConvertFrom-Json
     $config = [ordered]@{schemaVersion=1;runId=$runId;outputPath=$output;scenePath=$profile.scenePath;mode=$caseConfig.mode;
-        seed=$caseConfig.seed;observeSeconds=$caseConfig.observeSeconds;simulationSpeed=$profile.simulationSpeed;
+        seed=$caseConfig.seed;observeSeconds=$caseConfig.observeSeconds;simulationSpeed=$caseConfig.simulationSpeed;
         width=$profile.width;height=$profile.height;profile=$profile.profile;binaryProfile=$profile.binaryProfile}
     $before = Get-AgentReproSourceManifest $source
     @{runId=$runId;case=$Case;commit=(& git -C $source rev-parse HEAD);dirty=(& git -C $source status --porcelain);

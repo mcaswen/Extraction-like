@@ -39,6 +39,7 @@
 | Cooldown | 8 | 属性/装备/配置刷新、技能重排、重复 SkillId、普通攻击锁 |
 | Combined | 10 | 多 Agent、实际撤离、动态路径、无效输入、护盾和缺失攻击配置 |
 | Graphics | 1 | 正式顶部反馈 prefab 的成功/失败/消退 PNG |
+| SceneInventory | 4 | 正式背包搜索、旋转/空间/策略，双 Agent 会话，失效关闭和搜索恢复 |
 
 清单以 [cases.json](cases.json) 为准，共 76 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
 
@@ -72,6 +73,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-repro/Test-Scene
 ```
 
 SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对象引用、成员与缺失脚本。SC01 自动进入正常 Domain Reload 的图形 Play Mode，完全零输入观察 60 秒，保留自主指令、每秒快照、连续帧和初始化日志。输出在 `Logs/SceneRaid/<runId>/`；`report.json` 的 `evidenceStatus=PASS` 只表示采集完整，`gameStatus` 单独报告问题，`performanceAcceptance` 当前始终为 false。
+
+SC02 启用自动背包驱动，当前 P2 诊断配置为 2×、120 秒墙钟上限；只调用正式焦点/开箱/搜索/快捷转移/关闭入口，Agent 仍自行决定行动。每次操作在 `inventory.*` 事件中记录数量和上下文。首轮两 Agent 共完成 8 次会话，到达容量阻断，未完成整局。最新执行顺序按用户要求先治理三个热点，再延长自主回合，见 [性能优先规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4_performance_first.md)。
 
 入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity / 1×；当前关闭普通 Profiler 会话，采集 12 个具名计数器，耗时和调用次数写入 `counters.csv`，缺失不能视为零。`profile`、`binaryProfile` 可显式启用原始 Profiler，文件较大，诊断 FPS 不作最终验收。
 

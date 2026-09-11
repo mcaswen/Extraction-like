@@ -1,6 +1,6 @@
 # P2：正式背包链路的无人操作驱动
 
-日期：2026-09-11。状态：小规划，沿用户已确认的大规划实施。资源事件已提前进入 P1；测试只替代玩家的背包操作，目标选择、寻路、攻击、撤离仍归游戏。
+日期：2026-09-11。状态：驱动已实现，四项定向验证通过，首轮原场景已到达容量阻断点；用户要求先治理三个性能热点，后续闭环按新顺序安排。资源事件已提前进入 P1；测试只替代玩家的背包操作，目标选择、寻路、攻击、撤离仍归游戏。
 
 ## 范围和验收
 
@@ -14,7 +14,7 @@ SC02 在同一场景按 2× 游戏时间运行，物理 fixedDeltaTime 保留 0.
 | --- | --- | --- |
 | Extend | `Assets/Scripts/Gameplay/Backpack/DraggableItemUI.Drag.cs`、`DraggableItemUI.State.cs` | 将现有快捷转移整理为公开 TryQuickTransfer，点击也调用同入口，检查搜索/揭示、拖拽、会话、网格策略和实际可放位置 |
 | Create | `Assets/Scripts/Gameplay/Backpack/InventoryQuickTransferFailure.cs` | 共用失败原因枚举，独立于 UI 文本和 Automation，区分仍在搜索、无会话、非法来源、规则拒绝、无空间 |
-| Reuse | `InventoryScreenController.cs`、`InventoryGridInteractionPolicy.cs`、`InventoryUIController.cs`、`InventoryItemRuntimeState.cs`、`LootBoxEntity.cs`（均在 `Assets/Scripts/Gameplay/Backpack/`） | 正式切换/打开/关闭、布局和物品状态，不在测试复制装箱算法 |
+| Reuse | `InventoryScreenController.cs`、`InventoryGridInteractionPolicy.cs`、`InventoryUIController.cs`、`Models/InventoryItemRuntimeState.cs`、`LootBoxEntity.cs`（均在 `Assets/Scripts/Gameplay/Backpack/`） | 正式切换/打开/关闭、布局和物品状态，不在测试复制装箱算法 |
 | Create | `Assets/Scripts/Automation/SceneRaid/SceneRaidInventoryDriver.cs` | 消费实际等待事件，排队、切焦点、开箱、等待真实搜索、逐件合法转移、关闭，校验当前命令/资源/会话；不提交目标或撤离指令 |
 | Create | `Assets/Scripts/Automation/SceneRaid/SceneRaidInventoryLedger.cs` | 按物品配置身份和数量核对来源/背包/剩余箱子守恒，记录布局和运行时物品 ID；不以 UI 重建后的实例 ID 代替数量核对 |
 | Extend | `Assets/Scripts/Automation/SceneRaid/SceneRaidScenarioConfig.cs`、`SceneRaidBootstrap.cs`、`SceneRaidRunController.cs` | SC02 配置、有限运行、驱动生命周期、最终检查点和模式分离 |
@@ -39,4 +39,14 @@ Gameplay 只发布业务事实、提供普通玩家也能调用的受约束入�
 
 ## 实施结果
 
-尚未实现。每次首次失败、修复和复跑结果在此追加。
+已实现共用转移入口、Driver、Ledger 和 Autonomous 模式，首轮结果如下。初次 SC02 使用 120 秒墙钟上限，2× 游戏时间，便于在既有停滞处及时返回证据；这不是最终完整回合期限，P3 修复后按真实路程延长。
+
+`20260911-201121-279` 四项真实 Play Mode 构造通过：两角色公平开箱、按 Agent 隔离库存、2× 时间恢复；资源失效时关闭、搜索进度保存、重新打开继续自然搜索；旋转放入、未搜索拒绝；单件过大/网格策略拒绝保留来源。`20260911-201120-167` 的 35 项报告探针通过，包括自动回合提前阻断、观察到任务完成仍不能视为最终通过、伪 PASSED 终态被拒绝。
+
+测试只在准备阶段构造世界/物品/指令。SC02 不发任何 Agent 指令、不生成替代 loot、不改变装备；共用快捷转移沿用原装箱方法，增加正式可交互/会话/来源/网格规则约束。Ledger 按真实 ItemData 引用比较数量，输出 ItemID/资产名/运行 ID/位置/旋转/内嵌物品；嵌套物品参与总守恒，避免只算顶层掩盖容器内容丢失。
+
+### 原场景首轮和顺序调整
+
+SC02 `20260911-201257-921` 在约 71.91 秒墙钟、55.15 秒游戏时间内完成 8 次真实背包会话（Agent 1 两次，Agent 2 六次），最终为 `BEHAVIOR_BLOCKED / InventoryCapacityBlocked:2`。数量守恒、箱内剩余、UI 时间恢复检查均未触发异常，未下达测试撤离命令。3 条错误全部来自同一自然战斗粒子系统 duration 断言；另有 2 次指令失败。原生 Editor 退出仍超时，整轮 evidenceStatus=FAIL。结构化证据见 [p2_diagnostics.json](p2_diagnostics.json)。
+
+用户在本轮中途要求先修三个性能热点。当前有界运行已收尾，不追加慢速长回合；按 [p4_performance_first.md](p4_performance_first.md) 先处理 Discovery、Pawn、Zone。满包自主撤离、无关会话不能完成原搜索等 P3 游戏修复仍未完成，不以驱动的测试通过替代。

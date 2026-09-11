@@ -68,16 +68,18 @@ function Test-SceneRaidEvidence {
     $timing = $null
     $counterSummaries = @()
     $result = $null
-    if ($Config.mode -eq 'Observe') {
+    if ($Config.mode -eq 'Observe' -or $Config.mode -eq 'Autonomous') {
         try {
             $result = Get-Content -LiteralPath (Join-Path $OutputPath 'result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
             if ($result.schemaVersion -ne 1 -or $result.runId -ne $Config.runId -or $result.mode -ne $Config.mode -or
-                $result.scenePath -ne $Config.scenePath -or $result.status -ne 'OBSERVED') { $issues.Add('result_mismatch') }
+                $result.scenePath -ne $Config.scenePath) { $issues.Add('result_mismatch') }
+            $allowedStatus = if ($Config.mode -eq 'Observe') { @('OBSERVED') } else { @('BEHAVIOR_BLOCKED','RAID_OBSERVED_COMPLETE') }
+            if ($result.status -notin $allowedStatus) { $issues.Add('run_status_invalid') }
             if ($result.frames -lt 4 -or $result.renderedFrames -lt $result.frames - 2 -or $result.renderedFrames -gt $result.frames -or $result.batchMode) { $issues.Add('no_graphical_frames') }
             if ($result.screenWidth -ne $Config.width -or $result.screenHeight -ne $Config.height -or
                 $result.cameraWidth -ne $Config.width -or $result.cameraHeight -ne $Config.height) { $issues.Add('resolution_mismatch') }
             if ($result.lostEvents -ne 0) { $issues.Add('lost_events') }
-            if ($result.elapsedWallSeconds -lt $Config.observeSeconds) { $issues.Add('observation_truncated') }
+            if ($Config.mode -eq 'Observe' -and $result.elapsedWallSeconds -lt $Config.observeSeconds) { $issues.Add('observation_truncated') }
             $gameErrors = $result.errors
             $warnings = $result.warnings
             $events = @(Get-Content -LiteralPath (Join-Path $OutputPath 'events.jsonl') -Encoding UTF8 -ErrorAction Stop | ForEach-Object { $_ | ConvertFrom-Json })
@@ -115,7 +117,7 @@ function Test-SceneRaidEvidence {
     return [pscustomobject]@{
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
-        gameStatus=$(if ($gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0) {'ISSUES_OBSERVED'} else {'NOT_FULL_RAID_VALIDATED'})
+        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0) {'ISSUES_OBSERVED'} else {'NOT_FULL_RAID_VALIDATED'})
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries
         performanceAcceptance=$false; issues=$issues.ToArray()
     }

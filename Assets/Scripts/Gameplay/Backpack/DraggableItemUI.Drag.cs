@@ -579,24 +579,33 @@ public partial class DraggableItemUI
     }
 
     // 通过主控制器寻找快捷转移目标，并直接执行网格内搬运
-    private void ExecuteQuickTransfer()
+    public bool TryQuickTransfer(out InventoryQuickTransferFailure failure)
     {
+        failure = InventoryQuickTransferFailure.None;
+        if (!CanInteractWithItem()) { failure = InventoryQuickTransferFailure.SearchPending; return false; }
+        if (!isActiveAndEnabled || !gameObject.activeInHierarchy || _isDragActive || CurrentlyDraggedItem != null)
+        { failure = InventoryQuickTransferFailure.NotInteractive; return false; }
+        var screen = InventoryScreenController.Instance;
+        if (screen == null || !screen.IsInventoryOpen || !screen.HasActiveExternalContainer)
+        { failure = InventoryQuickTransferFailure.NoOpenSession; return false; }
+        if (CurrentGrid == null || ItemData == null ||
+            (CurrentGrid != screen.ActiveExternalGrid && CurrentGrid != screen.BackpackGrid) ||
+            !CurrentGrid.TryGetItemView(RuntimeState, out var currentView) || currentView != this)
+        { failure = InventoryQuickTransferFailure.InvalidSource; return false; }
+        var intendedGrid = CurrentGrid == screen.ActiveExternalGrid ? screen.BackpackGrid : screen.ActiveExternalGrid;
+        if (!InventoryGridInteractionPolicy.CanBeginDragFrom(CurrentGrid) || !InventoryGridInteractionPolicy.CanDropInto(intendedGrid) ||
+            !CanBePlacedInGrid(intendedGrid))
+        { failure = InventoryQuickTransferFailure.GridPolicy; return false; }
+        if (!screen.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
+        { failure = InventoryQuickTransferFailure.NoSpace; return false; }
+
         InventoryItemInfoPanelController.Instance?.Hide();
-
-        if (CurrentGrid == null || ItemData == null || InventoryScreenController.Instance == null)
-        {
-            return;
-        }
-
-        if (!InventoryScreenController.Instance.TryFindQuickTransferTarget(CurrentGrid, this, out InventoryUIController targetGrid, out Vector2Int position, out bool needsRotation))
-        {
-            return;
-        }
 
         CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
         transform.SetParent(targetGrid.ItemContainer, false);
         CurrentGrid = targetGrid;
         PlaceSuccessfully(position, needsRotation);
+        return true;
     }
 
     // 从当前 UI 射线结果里找出鼠标悬停的背包网格

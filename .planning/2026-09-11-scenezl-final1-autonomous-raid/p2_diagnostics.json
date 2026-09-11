@@ -1,0 +1,654 @@
+{
+  "runId": "20260911-201257-921",
+  "result": {
+    "schemaVersion": 1,
+    "runId": "20260911-201257-921",
+    "mode": "Autonomous",
+    "status": "BEHAVIOR_BLOCKED",
+    "reason": "InventoryCapacityBlocked:2",
+    "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "unityVersion": "2022.3.62f2c1",
+    "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+    "quality": "High Fidelity",
+    "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-201257-921",
+    "batchMode": false,
+    "profilerEnabled": false,
+    "performanceAcceptance": false,
+    "screenWidth": 3840,
+    "screenHeight": 2160,
+    "cameraWidth": 3840,
+    "cameraHeight": 2160,
+    "frames": 2384,
+    "renderedFrames": 2383,
+    "events": 359,
+    "lostEvents": 0,
+    "errors": 3,
+    "warnings": 71,
+    "elapsedWallSeconds": 71.9537577,
+    "elapsedGameSeconds": 55.14920109955297,
+    "instrumentationMilliseconds": 358.48980000000006,
+    "inventorySessions": 8,
+    "observedAgents": [
+      "1",
+      "2"
+    ],
+    "inventoryAgents": [
+      "1",
+      "2"
+    ],
+    "counters": [
+      "PlayerLoop | PlayerLoop | TimeNanoseconds",
+      "GC Allocated In Frame | Memory | Bytes",
+      "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+      "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+      "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+      "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+      "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+      "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+      "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+      "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+      "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+      "Anomaly.Navigation.Check | Scripts | TimeNanoseconds"
+    ]
+  },
+  "process": {
+    "terminationReason": "shutdown_timeout",
+    "exitCode": 1,
+    "completedUtc": "2026-09-11T12:15:39.8271257Z",
+    "sourceUnchanged": true
+  },
+  "report": {
+    "schemaVersion": 1,
+    "runId": "20260911-201257-921",
+    "mode": "Autonomous",
+    "evidenceStatus": "FAIL",
+    "gameStatus": "ISSUES_OBSERVED",
+    "gameErrors": 3,
+    "behaviorFailures": 2,
+    "warnings": 71,
+    "stagnationSuspicions": 0,
+    "diagnosticTiming": {
+      "validIntervals": 2383,
+      "averageFps": 33.50396764867001,
+      "p99Ms": 48.1694,
+      "maxMs": 707.0612,
+      "onePercentLowFps": 12.026636594730007,
+      "minimumOneSecondFps": 28,
+      "windowCount": 278,
+      "startupIncluded": true,
+      "slowFrameCount": 2383,
+      "thresholdsMet": false
+    },
+    "counterSummaries": [
+      {
+        "name": "PlayerLoop",
+        "validSamples": 2381,
+        "averageRaw": 27263231.163376734,
+        "maxRaw": 89741400,
+        "averageCalls": 2.999580008399832
+      },
+      {
+        "name": "GC Allocated In Frame",
+        "validSamples": 2381,
+        "averageRaw": 104966.83074338513,
+        "maxRaw": 1218913,
+        "averageCalls": 1
+      },
+      {
+        "name": "Anomaly.Discovery.Update",
+        "validSamples": 2381,
+        "averageRaw": 999600.5879882402,
+        "maxRaw": 36396900,
+        "averageCalls": 0.999580008399832
+      },
+      {
+        "name": "Anomaly.Pawn.Update",
+        "validSamples": 2381,
+        "averageRaw": 490196.43007139856,
+        "maxRaw": 14689600,
+        "averageCalls": 1.999160016799664
+      },
+      {
+        "name": "Anomaly.Zone.Update",
+        "validSamples": 2381,
+        "averageRaw": 3505496.2200755985,
+        "maxRaw": 7995500,
+        "averageCalls": 7.996640067198656
+      },
+      {
+        "name": "Anomaly.Discovery.ScanAgent",
+        "validSamples": 2381,
+        "averageRaw": 977231.6673666526,
+        "maxRaw": 35310600,
+        "averageCalls": 0.08525829483410331
+      },
+      {
+        "name": "Anomaly.Pawn.Facts",
+        "validSamples": 2381,
+        "averageRaw": 63667.030659386815,
+        "maxRaw": 14092600,
+        "averageCalls": 1.999160016799664
+      },
+      {
+        "name": "Anomaly.Pawn.Lifecycle",
+        "validSamples": 2381,
+        "averageRaw": 60160.268794624106,
+        "maxRaw": 991200,
+        "averageCalls": 1.999160016799664
+      },
+      {
+        "name": "Anomaly.Pawn.Brain",
+        "validSamples": 2381,
+        "averageRaw": 361968.8786224275,
+        "maxRaw": 11428400,
+        "averageCalls": 1.999160016799664
+      },
+      {
+        "name": "Anomaly.Zone.State",
+        "validSamples": 2381,
+        "averageRaw": 18572.406551868964,
+        "maxRaw": 110800,
+        "averageCalls": 7.996640067198656
+      },
+      {
+        "name": "Anomaly.Zone.Shape",
+        "validSamples": 2381,
+        "averageRaw": 3484938.9752204954,
+        "maxRaw": 7958800,
+        "averageCalls": 7.996640067198656
+      },
+      {
+        "name": "Anomaly.Navigation.Check",
+        "validSamples": 2354,
+        "averageRaw": 161514.103653356,
+        "maxRaw": 2911800,
+        "averageCalls": 3.4872557349192865
+      }
+    ],
+    "performanceAcceptance": false,
+    "issues": [
+      "process_exit:1"
+    ]
+  },
+  "eventCounts": {
+    "bootstrap.beforeSceneLoad": 1,
+    "log.Warning": 45,
+    "log.Log": 16,
+    "snapshot": 141,
+    "diagnostic.worldAudit": 1,
+    "directive.Accepted": 20,
+    "resource.Approaching": 12,
+    "resource.WaitingForInventory": 8,
+    "inventory.focus": 8,
+    "inventory.ledger": 28,
+    "inventory.opened": 8,
+    "inventory.searching": 16,
+    "inventory.transferred": 12,
+    "inventory.closed": 8,
+    "resource.Left": 11,
+    "directive.Cancelled": 12,
+    "log.Assert": 3,
+    "directive.Completed": 5,
+    "directive.Rejected": 1,
+    "directive.Failed": 1,
+    "inventory.itemBlocked": 1,
+    "run.completed": 1
+  },
+  "closedSessions": [
+    {
+      "wallSeconds": 9.019124399999999,
+      "agent": "2",
+      "commandId": "Auto_f355121d31034f68ac9c868129ae88ee",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[3]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 18.1652663,
+      "agent": "2",
+      "commandId": "Auto_c60d8c6294f0460693c7cab2cb8ace5d",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[2]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 31.8069068,
+      "agent": "1",
+      "commandId": "Auto_58cc80448afd49478e0585c35be18e81",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[0]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 35.249918,
+      "agent": "2",
+      "commandId": "Auto_fb82ba6c018e44c4a5ad5b2748ab30d0",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[2]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 42.404883999999996,
+      "agent": "2",
+      "commandId": "Auto_fb82ba6c018e44c4a5ad5b2748ab30d0",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[0]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 53.327045399999996,
+      "agent": "1",
+      "commandId": "Auto_3900d26e235647958bda071a06bd080d",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[1]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 60.5743496,
+      "agent": "2",
+      "commandId": "Auto_e4285752d35642b4ab4bfa4c13cd272b",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[1]",
+      "reason": "emptied",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    },
+    {
+      "wallSeconds": 71.90868689999999,
+      "agent": "2",
+      "commandId": "Auto_e4285752d35642b4ab4bfa4c13cd272b",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[3]",
+      "reason": "all_candidates_blocked",
+      "item": "",
+      "amount": 0,
+      "progress": 0.0,
+      "duration": 0.0
+    }
+  ],
+  "blockedItems": [
+    {
+      "wallSeconds": 71.6869925,
+      "agent": "2",
+      "commandId": "Auto_e4285752d35642b4ab4bfa4c13cd272b",
+      "resource": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[3]",
+      "reason": "NoSpace",
+      "item": "equip_head_blue",
+      "amount": 1,
+      "progress": 1.4600000381469727,
+      "duration": 1.4600000381469727
+    }
+  ],
+  "lastSnapshot": {
+    "frame": 2384,
+    "zones": 8,
+    "clusters": 42,
+    "timeScale": 1.0,
+    "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+    "mission": "Large Island Wall Layout",
+    "inventoryAgent": "2",
+    "inventoryOpen": false,
+    "missionCompleted": false,
+    "missionFailed": false,
+    "requiredCaptured": true,
+    "requiredAgents": [
+      "1",
+      "2"
+    ],
+    "extractedAgents": [],
+    "settledAgents": [],
+    "agents": [
+      {
+        "id": "1",
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+        "state": "SearchResource",
+        "commandId": "Auto_152cfe75a9ac48928d2b64dc250fc0ee",
+        "directive": "Search",
+        "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+        "targetId": "ResourceCluster_a6d4a58d6c1a47169a1404a1e4d99cf7",
+        "suspendedCommand": "",
+        "position": {
+          "x": 148.85186767578125,
+          "y": 3.0083389282226562,
+          "z": -104.9951400756836
+        },
+        "velocity": {
+          "x": 7.399036884307861,
+          "y": 0.0,
+          "z": -3.0431690216064453
+        },
+        "desiredVelocity": {
+          "x": 7.398553371429443,
+          "y": 0.0,
+          "z": -3.043255090713501
+        },
+        "destination": {
+          "x": 168.42388916015625,
+          "y": 0.00833892822265625,
+          "z": -130.75315856933594
+        },
+        "progressAnchor": {
+          "x": 148.85186767578125,
+          "y": 3.0083389282226562,
+          "z": -104.9951400756836
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 112.35889434814453,
+          "z": 0.0
+        },
+        "localScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "worldScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "nextPosition": {
+          "x": 148.85186767578125,
+          "y": 3.0083389282226562,
+          "z": -104.9951400756836
+        },
+        "steeringTarget": {
+          "x": 175.6446533203125,
+          "y": 0.00833892822265625,
+          "z": -116.01585388183594
+        },
+        "directivePosition": {
+          "x": 187.0633544921875,
+          "y": 5.204986572265625,
+          "z": -117.3521499633789
+        },
+        "bodyBoundsCenter": {
+          "x": 148.63418579101562,
+          "y": 2.8345413208007812,
+          "z": -104.90560913085938
+        },
+        "bodyBoundsSize": {
+          "x": 3.0,
+          "y": 9.064929008483887,
+          "z": 3.0
+        },
+        "health": 212,
+        "onNavMesh": true,
+        "hasPath": true,
+        "pathPending": false,
+        "stopped": false,
+        "remainingDistance": 45.97096252441406,
+        "radius": 1.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "stoppingDistance": 0.10000000149011612,
+        "progressAge": 0.0,
+        "progressTimeout": 3.0,
+        "secondsSinceSetPath": 0.0,
+        "avoidancePriority": 50,
+        "avoidance": "HighQualityObstacleAvoidance",
+        "pathStatus": "PathComplete",
+        "targetDistance3D": 40.219879150390625,
+        "targetDistancePlanar": 40.159847259521484,
+        "destinationDistancePlanar": 32.35026168823242,
+        "transformToNavDistance": 0.0,
+        "attackRange": 8.0,
+        "lastShotResult": "Visible",
+        "lastShotFailure": "None",
+        "attackReady": true,
+        "hasEnemy": false,
+        "hasResource": false,
+        "hasDirectivePosition": true,
+        "enemy": {
+          "identity": "",
+          "bodyVisibility": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "aimPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "health": 0.0,
+          "maximumHealth": 0.0,
+          "shield": 0.0,
+          "distance3D": 0.0,
+          "distancePlanar": 0.0,
+          "aimDistance": 0.0,
+          "active": false,
+          "died": false
+        },
+        "resource": {
+          "identity": "",
+          "phase": "",
+          "lootState": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "navigationPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderCenter": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderSize": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "distancePlanar": 0.0,
+          "navigationDistancePlanar": 0.0,
+          "active": false,
+          "looted": false
+        }
+      },
+      {
+        "id": "2",
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+        "state": "SearchResource",
+        "commandId": "Auto_e4285752d35642b4ab4bfa4c13cd272b",
+        "directive": "Search",
+        "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+        "targetId": "ResourceCluster_a6d4a58d6c1a47169a1404a1e4d99cf7",
+        "suspendedCommand": "",
+        "position": {
+          "x": 168.47940063476562,
+          "y": 3.0083389282226562,
+          "z": -130.7509002685547
+        },
+        "velocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "desiredVelocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "progressAnchor": {
+          "x": 168.47940063476562,
+          "y": 3.0083389282226562,
+          "z": -130.7509002685547
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 267.6614685058594,
+          "z": 0.0
+        },
+        "localScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "worldScale": {
+          "x": 3.0000011920928955,
+          "y": 3.0,
+          "z": 3.0000011920928955
+        },
+        "nextPosition": {
+          "x": 168.47940063476562,
+          "y": 3.0083389282226562,
+          "z": -130.7509002685547
+        },
+        "steeringTarget": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "directivePosition": {
+          "x": 187.0633544921875,
+          "y": 5.204986572265625,
+          "z": -117.3521499633789
+        },
+        "bodyBoundsCenter": {
+          "x": 168.47940063476562,
+          "y": 2.8345413208007812,
+          "z": -130.7509002685547
+        },
+        "bodyBoundsSize": {
+          "x": 3.0,
+          "y": 9.064929962158203,
+          "z": 3.0
+        },
+        "health": 172,
+        "onNavMesh": true,
+        "hasPath": false,
+        "pathPending": false,
+        "stopped": false,
+        "remainingDistance": -1.0,
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "stoppingDistance": 0.10000000149011612,
+        "progressAge": 0.0,
+        "progressTimeout": 3.0,
+        "secondsSinceSetPath": 0.2590179443359375,
+        "avoidancePriority": 50,
+        "avoidance": "HighQualityObstacleAvoidance",
+        "pathStatus": "PathComplete",
+        "targetDistance3D": 23.015541076660156,
+        "targetDistancePlanar": 22.91047477722168,
+        "destinationDistancePlanar": -1.0,
+        "transformToNavDistance": 0.0,
+        "attackRange": 8.0,
+        "lastShotResult": "Visible",
+        "lastShotFailure": "None",
+        "attackReady": true,
+        "hasEnemy": false,
+        "hasResource": true,
+        "hasDirectivePosition": true,
+        "enemy": {
+          "identity": "",
+          "bodyVisibility": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "aimPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "health": 0.0,
+          "maximumHealth": 0.0,
+          "shield": 0.0,
+          "distance3D": 0.0,
+          "distancePlanar": 0.0,
+          "aimDistance": 0.0,
+          "active": false,
+          "died": false
+        },
+        "resource": {
+          "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[3]",
+          "phase": "WaitingForInventory",
+          "lootState": "SearchCompleted",
+          "position": {
+            "x": 164.5633544921875,
+            "y": 5.204986572265625,
+            "z": -125.6021499633789
+          },
+          "navigationPosition": {
+            "x": 168.42388916015625,
+            "y": 0.00833892822265625,
+            "z": -130.75315856933594
+          },
+          "colliderCenter": {
+            "x": 164.71514892578125,
+            "y": 6.696534156799316,
+            "z": -125.10652160644531
+          },
+          "colliderSize": {
+            "x": 6.4512939453125,
+            "y": 7.483095645904541,
+            "z": 10.879188537597656
+          },
+          "distancePlanar": 6.468774795532227,
+          "navigationDistancePlanar": 0.05555739253759384,
+          "active": true,
+          "looted": false
+        }
+      }
+    ]
+  },
+  "tests": {
+    "playModeRun": "20260911-201121-279",
+    "playModePassed": 4,
+    "reportRun": "20260911-201120-167",
+    "reportProbesPassed": 35
+  }
+}
