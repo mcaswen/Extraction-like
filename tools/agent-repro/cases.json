@@ -1,6 +1,20 @@
 {
   "groups": [
     {
+      "name": "SceneResourceApproach",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.SceneRaidResourceApproachTests",
+      "expected": [
+        "RecordedBoxApproachesArriveWithoutStalling(\"1\",1.0f)",
+        "RecordedBoxApproachesArriveWithoutStalling(\"1\",4.0f)",
+        "RecordedBoxApproachesArriveWithoutStalling(\"2\",1.0f)",
+        "RecordedBoxApproachesArriveWithoutStalling(\"2\",4.0f)",
+        "RecordedBoxApproachesArriveWithoutStalling(\"Both\",1.0f)",
+        "RecordedBoxApproachesArriveWithoutStalling(\"Both\",4.0f)"
+      ]
+    },
+    {
       "name": "SceneResourceNavigation",
       "suite": "Core",
       "graphics": true,
