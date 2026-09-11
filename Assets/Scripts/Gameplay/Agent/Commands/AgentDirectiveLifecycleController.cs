@@ -26,7 +26,7 @@ namespace Gameplay.Agent.Commands
             request = WithIdentity(request);
             AgentDirectiveFailure failure = AgentDirectiveValidationService.Validate(_agent, request);
             // A known attacker may start a bounded pursuit even while navigation is rebuilding.
-            if (damageInterrupt && (failure == AgentDirectiveFailure.Unreachable || failure == AgentDirectiveFailure.NavigationNotReady))
+            if (damageInterrupt && failure == AgentDirectiveFailure.NavigationNotReady)
                 failure = AgentDirectiveFailure.None;
             if (failure != AgentDirectiveFailure.None) return Publish(request, AgentDirectiveStage.Rejected, failure);
             bool manual = AgentManualDirectiveLock.IsManualDirective(request);

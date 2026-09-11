@@ -475,6 +475,26 @@
         "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Unreachable\",1)",
         "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Unreachable\",4)"
       ]
+    },
+    {
+      "name": "ElevatedCombatApproach",
+      "suite": "Regression",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.ElevatedCombatApproachTests",
+      "expected": [
+        "UnmappedElevatedEnemyCanBeApproachedAndShot(False,1)",
+        "UnmappedElevatedEnemyCanBeApproachedAndShot(False,4)",
+        "UnmappedElevatedEnemyCanBeApproachedAndShot(True,1)",
+        "UnmappedElevatedEnemyCanBeApproachedAndShot(True,4)",
+        "ImpossibleAttackerKeepsExtractionThenBecomesEligible(1)",
+        "ImpossibleAttackerKeepsExtractionThenBecomesEligible(4)",
+        "ProjectedCandidatesRespectOcclusionAndRange(\"Wall\")",
+        "ProjectedCandidatesRespectOcclusionAndRange(\"MuzzleTooHigh\")",
+        "ProjectedCandidatesRespectOcclusionAndRange(\"TargetTooHigh\")",
+        "NavigationRebuildingStillAllowsBoundedRetaliation(1)",
+        "NavigationRebuildingStillAllowsBoundedRetaliation(4)",
+        "RecordedSceneSentinelCanBeDamagedFromReachableGround"
+      ]
     }
   ]
 }

@@ -484,6 +484,12 @@ namespace Gameplay.Agent.Core
                 return;
             }
 
+            _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, timeSeconds, timeSeconds);
+            var active = _directiveLifecycle.Active;
+            if (active.HasValue && AgentManualDirectiveLock.IsCombatDamageDirective(active.Value) &&
+                AgentDirectiveValidationService.ValidateTarget(active.Value) == AgentDirectiveFailure.None)
+                return;
+
             string targetId = ResolveEnemyTargetId(enemy);
             string commandId = AgentManualDirectiveLock.CreateCombatDamageCommandId(enemy);
             AgentDirectiveRequest directiveRequest = AgentDirectiveRequest.EngageConcreteEnemy(
@@ -493,7 +499,9 @@ namespace Gameplay.Agent.Core
                 commandId,
                 AgentManualDirectiveLock.CombatDamageDirectivePriority);
 
-            _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, timeSeconds, timeSeconds);
+            AgentDirectiveFailure candidateFailure = AgentDirectiveValidationService.Validate(this, directiveRequest);
+            if (candidateFailure != AgentDirectiveFailure.None && candidateFailure != AgentDirectiveFailure.NavigationNotReady)
+                return;
             _directiveLifecycle.Submit(directiveRequest, damageInterrupt: true);
         }
 

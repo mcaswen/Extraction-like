@@ -1,0 +1,54 @@
+﻿{
+    "schemaVersion":  1,
+    "baselineCommit":  "0c2bdaebaee15d2dc2bc8b7b7a8140415d71321a",
+    "runs":  [
+                 {
+                     "slot":  1,
+                     "scenario":  "MC01-R",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-061314-869",
+                     "exit":  0,
+                     "gameStatus":  "EXPECTED_DEATH",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "COMPLETE"
+                 },
+                 {
+                     "slot":  2,
+                     "scenario":  "MC01-E",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-061435-334",
+                     "exit":  0,
+                     "gameStatus":  "EXPECTED_DEATH",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  3,
+                     "scenario":  "MC01-X",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-061608-277",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  4,
+                     "scenario":  "MC02",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-061650-234",
+                     "exit":  0,
+                     "gameStatus":  "ISSUES_OBSERVED",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 }
+             ]
+}
