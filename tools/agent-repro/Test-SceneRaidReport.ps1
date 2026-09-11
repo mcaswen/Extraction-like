@@ -31,6 +31,21 @@ $path = Write-Fixture 'valid'
 $report = Test-SceneRaidEvidence $path $config 0 $true
 if ($report.evidenceStatus -ne 'PASS' -or $report.gameStatus -ne 'NOT_FULL_RAID_VALIDATED' -or $report.performanceAcceptance) { throw 'Valid observe result incorrectly classified.' }
 $passed++
+$path = Write-Fixture 'retained_editor'
+$ready = @{runId='probe';pid=731;idle=$true;phase='idle';exitCode=0}
+$ready | ConvertTo-Json | Set-Content "$path/editor-ready.json" -Encoding UTF8
+$retained = Test-SceneRaidEvidence $path $config $null $true -EditorRetained -EditorProcessId 731
+if ($retained.evidenceStatus -ne 'PASS' -or $retained.editorLifecycle -ne 'EDITOR_RETAINED' -or $null -ne $retained.processExitCode) { throw 'Retained Editor was confused with an exited process.' }; $passed++
+foreach ($field in @('runId','pid','idle','phase','exitCode')) {
+    $badReady = $ready.Clone()
+    $badReady[$field] = switch ($field) { 'runId' {'wrong'} 'pid' {732} 'idle' {$false} 'phase' {'busy'} 'exitCode' {1} }
+    $badReady | ConvertTo-Json | Set-Content "$path/editor-ready.json" -Encoding UTF8
+    if ((Test-SceneRaidEvidence $path $config $null $true -EditorRetained -EditorProcessId 731).evidenceStatus -ne 'FAIL') { throw "Invalid retained state accepted: $field" }; $passed++
+}
+$ready | ConvertTo-Json | Set-Content "$path/editor-ready.json" -Encoding UTF8
+if ((Test-SceneRaidEvidence $path $config 0 $true -EditorRetained -EditorProcessId 731).evidenceStatus -ne 'FAIL') { throw 'Retained Editor accepted a fabricated exit code.' }; $passed++
+Remove-Item -LiteralPath "$path/editor-ready.json"
+if ((Test-SceneRaidEvidence $path $config $null $true -EditorRetained -EditorProcessId 731).evidenceStatus -ne 'FAIL') { throw 'Missing retained ready state accepted.' }; $passed++
 $path = Write-Fixture 'one_counter_without_samples'
 (Get-Content "$path/counters.csv" -Raw).Replace('Anomaly.Navigation.Check,1000,1','Anomaly.Navigation.Check,-1,-1') | Set-Content "$path/counters.csv" -Encoding UTF8
 $report = Test-SceneRaidEvidence $path $config 0 $true
@@ -106,6 +121,10 @@ function New-FrameSeries([double]$StepMs, [int]$SpikeAt = -1) {
 }
 if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries 5)).thresholdsMet) { throw 'Stable 200 FPS rejected.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 5 100)).thresholdsMet) { throw 'Averaging hid 40 ms spike.' }; $passed++
-if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5)).thresholdsMet) { throw '80 FPS accepted.' }; $passed++
+if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5)).thresholdsMet) { throw 'Stable 80 FPS rejected by the 60 FPS target.' }; $passed++
+if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 20)).thresholdsMet) { throw '50 FPS accepted.' }; $passed++
+$boundary = Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/60))
+if (!$boundary.thresholdsMet -or $boundary.targetFps -ne 60 -or [Math]::Abs($boundary.frameBudgetMs - 1000.0/60) -gt 0.000001) { throw '60 FPS boundary or reported target is incorrect.' }; $passed++
+if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5) -TargetFps 120).thresholdsMet) { throw 'Explicit historical 120 FPS comparison ignored.' }; $passed++
 @{status='PASS';probes=$passed} | ConvertTo-Json | Set-Content "$root/result.json" -Encoding UTF8
 Write-Output "PASS $passed report probes: $root"

@@ -75,6 +75,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/agent-repro/Test-Scene
 
 SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对象引用、成员与缺失脚本。SC01 自动进入正常 Domain Reload 的图形 Play Mode，完全零输入观察 60 秒，保留自主指令、每秒快照、连续帧和初始化日志。输出在 `Logs/SceneRaid/<runId>/`；`report.json` 的 `evidenceStatus=PASS` 只表示采集完整，`gameStatus` 单独报告问题，`performanceAcceptance` 当前始终为 false。
 
+现在默认保留隔离 Editor：完成后退出 Play Mode、卸载测试场景，报告 `editorLifecycle=EDITOR_RETAINED`、`processExitCode=null`。下次同一命令复用同一 PID，先确认空闲，再同步文件、等待编译和进入下一轮；各轮 runId、存档产品名、输出独立。用户可以自行关闭编辑器，后续发现原 PID 已退出时才新建进程。全会话原生日志在 `Logs/SceneRaidSession/`，每轮 `Editor.log` 只截取对应字节段。
+
+仅在明确调查退出问题时使用 `-ExitEditor`，此模式仍检查退出码和超时。默认保留模式超时也保留进程供检查，缺少有效清理标记仍失败。`-ObserveSeconds 10` 可构造短生命周期复跑，只验证会话，不算完整回合或性能验收。保留的工作区不能再交给 NUnit 批处理覆盖；独立回归用 `Invoke-AgentRepro.ps1 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchRegression ...`，或者在用户关闭后使用原工作区。会话所有权、忙碌/过期状态和日志分段可通过 `Test-SceneRaidEditorSession.ps1` 验证。
+
+用户最新性能目标为 **60 FPS**，4K 高画质保持，测量仍不限帧。平均、滑动 1 秒和 1% Low 至少 60 FPS，P99 不超过 16.667 ms，卡顿上限 33.333 ms；报告明确记录目标和预算。旧 120 FPS 报告不覆盖，门槛调整及退出调查见 [P4e 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4e_60fps_shutdown.md)。
+
 SC02 启用自动背包驱动，当前 P2 诊断配置为 2×、120 秒墙钟上限；只调用正式焦点/开箱/搜索/快捷转移/关闭入口，Agent 仍自行决定行动。每次操作在 `inventory.*` 事件中记录数量和上下文。首轮两 Agent 共完成 8 次会话，到达容量阻断，未完成整局。最新执行顺序按用户要求先治理三个热点，再延长自主回合，见 [性能优先规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4_performance_first.md)。
 
 入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity / 1×；当前关闭普通 Profiler 会话，采集 21 个具名计数器，包含 Cluster/Range/Ground 分段，耗时和调用次数写入 `counters.csv`，缺失不能视为零。计数器尚未注册时每秒重试，全部找到后停止扫描；无样本仍明确失败并保留其余统计。`profile`、`binaryProfile` 可显式启用原始 Profiler，文件较大，诊断 FPS 不作最终验收。

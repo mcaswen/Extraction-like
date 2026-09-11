@@ -30,7 +30,7 @@ function Get-AgentReproSourceManifest {
 }
 
 function Initialize-AgentReproWorkspace {
-    param([string]$SourceRoot, [string]$WorkspaceRoot, [string]$RunId)
+    param([string]$SourceRoot, [string]$WorkspaceRoot, [string]$RunId, [int]$AllowedEditorPid = 0)
     $source = [IO.Path]::GetFullPath($SourceRoot).TrimEnd('\')
     $workspace = [IO.Path]::GetFullPath($WorkspaceRoot).TrimEnd('\')
     if ($workspace -eq $source -or $source.StartsWith($workspace + '\') -or $workspace.StartsWith($source + '\')) { throw 'Workspace must be outside the source project.' }
@@ -48,6 +48,18 @@ function Initialize-AgentReproWorkspace {
     catch { throw 'Another agent-repro run owns this workspace.' }
     try {
         $project = Join-Path $workspace 'Project'
+        $sessionPath = Join-Path $workspace '.scene-raid-session.json'
+        if (Test-Path -LiteralPath $sessionPath) {
+            $session = Get-Content -LiteralPath $sessionPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            $retained = Get-Process -Id $session.pid -ErrorAction SilentlyContinue
+            if ($retained) {
+                try {
+                    if ($retained.StartTime.ToUniversalTime().Ticks.ToString() -eq $session.startTicks -and $retained.Id -ne $AllowedEditorPid) {
+                        throw 'This workspace has a retained SceneRaid Editor. Reuse its session or use another regression workspace.'
+                    }
+                } finally { $retained.Dispose() }
+            }
+        }
         foreach ($directory in @('Assets','Packages','ProjectSettings','tools/agent-repro')) {
             $destination = [IO.Path]::GetFullPath((Join-Path $project $directory))
             if (!$destination.StartsWith($workspace + '\') -or $destination -eq $source) { throw "Unsafe mirror destination: $destination" }

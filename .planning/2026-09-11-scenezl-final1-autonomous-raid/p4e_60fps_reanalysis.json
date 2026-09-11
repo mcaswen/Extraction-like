@@ -1,0 +1,30 @@
+﻿{
+    "allFrames":  {
+                      "targetFps":  60,
+                      "frameBudgetMs":  16.666666666666668,
+                      "maximumBudgetMs":  33.333333333333336,
+                      "validIntervals":  5268,
+                      "averageFps":  88.870514218409255,
+                      "p99Ms":  20.4677,
+                      "maxMs":  562.3688,
+                      "onePercentLowFps":  29.784676458332221,
+                      "minimumOneSecondFps":  72,
+                      "slowFrameCount":  165,
+                      "thresholdsMet":  false
+                  },
+    "historicalReportUnchanged":  true,
+    "afterTenSeconds":  {
+                            "targetFps":  60,
+                            "frameBudgetMs":  16.666666666666668,
+                            "maximumBudgetMs":  33.333333333333336,
+                            "validIntervals":  4492,
+                            "averageFps":  89.836901525266569,
+                            "p99Ms":  20.5294,
+                            "maxMs":  27.3825,
+                            "onePercentLowFps":  43.562544923874455,
+                            "minimumOneSecondFps":  73,
+                            "slowFrameCount":  150,
+                            "thresholdsMet":  false
+                        },
+    "runId":  "20260911-210825-662"
+}

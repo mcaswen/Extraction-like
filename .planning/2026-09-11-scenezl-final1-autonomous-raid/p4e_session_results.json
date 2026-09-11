@@ -1,0 +1,425 @@
+{
+  "schemaVersion": 1,
+  "shutdownRootCause": "unconfirmed; no hung-thread stack captured; repeated shutdown investigation stopped at user request",
+  "retainedEditorPidAtCompletion": 23544,
+  "reportProbes": 47,
+  "sessionProbes": 9,
+  "performanceAcceptance": false,
+  "runs": [
+    {
+      "runId": "20260911-211804-881",
+      "process": {
+        "terminationReason": "",
+        "exitCode": 0,
+        "completedUtc": "2026-09-11T13:19:33.7706215Z",
+        "sourceUnchanged": true
+      },
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-211804-881",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-211804-881",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "evidence": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": []
+      },
+      "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-211804-881",
+      "counterCount": 21,
+      "phases": [
+        {
+          "utc": "2026-09-11T13:18:23.8854576Z",
+          "phase": "beforeAssemblyReload"
+        },
+        {
+          "utc": "2026-09-11T13:18:23.9497191Z",
+          "phase": "AppDomain.DomainUnload"
+        },
+        {
+          "utc": "2026-09-11T13:19:26.5178827Z",
+          "phase": "PlayMode.stopRequested"
+        },
+        {
+          "utc": "2026-09-11T13:19:27.0681678Z",
+          "phase": "PlayMode.stopped"
+        },
+        {
+          "utc": "2026-09-11T13:19:27.1466718Z",
+          "phase": "Scene.unloaded"
+        },
+        {
+          "utc": "2026-09-11T13:19:27.1686642Z",
+          "phase": "EditorApplication.Exit.before"
+        },
+        {
+          "utc": "2026-09-11T13:19:27.2656009Z",
+          "phase": "EditorApplication.quitting"
+        },
+        {
+          "utc": "2026-09-11T13:19:27.9486375Z",
+          "phase": "AppDomain.DomainUnload"
+        }
+      ],
+      "hashes": {
+        "config.json": "517ed4b270f028cff929f25b02c5ad1cce250bf0420f8889d1232e452726d327",
+        "frames.csv": "540de40253b6f1828b712db461cc522cc88e8f618f8a7fa6ff716cf68a3f2235",
+        "counters.csv": "fe5fe1ca7ad67b10e3b137eb358213d655c00d72b85f4ca5e2ccc71cc34ca028",
+        "events.jsonl": "113125c65883ba368021eb60c8adcfd5998f060ea12195dfcb8bc2c46cb0b4f1",
+        "result.json": "b4cebd54bb6cb7f2ed9d8e84a38b55ce42e374dbf37f2c26839a463cfff65ce6",
+        "report.json": "fe13bedd4c993cd8cdf26a44c56d010fd071581d9f7685192d45b0fc0b665490",
+        "process.json": "3a03a70e730c65df85070ad6c23c3144baaa4e8c6d99d587656c48b91a01b83e",
+        "Editor.log": "1f86a7f9a2170876b7742d01816c4fba021468e2f0754e328aae7b5cf314f1e7"
+      }
+    },
+    {
+      "runId": "20260911-212649-538",
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T13:27:26.6966583Z",
+        "pid": 23544,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-212649-538",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-212649-538",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 10,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false,
+        "enabled": true,
+        "keepEditorOpen": true
+      },
+      "evidence": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": []
+      },
+      "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-212649-538",
+      "counterCount": 21,
+      "phases": [
+        {
+          "utc": "2026-09-11T13:27:08.4077747Z",
+          "phase": "beforeAssemblyReload"
+        },
+        {
+          "utc": "2026-09-11T13:27:08.4666660Z",
+          "phase": "AppDomain.DomainUnload"
+        },
+        {
+          "utc": "2026-09-11T13:27:20.5143252Z",
+          "phase": "PlayMode.stopRequested"
+        },
+        {
+          "utc": "2026-09-11T13:27:20.9560590Z",
+          "phase": "PlayMode.stopped"
+        },
+        {
+          "utc": "2026-09-11T13:27:21.0353697Z",
+          "phase": "Scene.unloaded"
+        },
+        {
+          "utc": "2026-09-11T13:27:21.0639986Z",
+          "phase": "Editor.retained"
+        }
+      ],
+      "ready": {
+        "runId": "20260911-212649-538",
+        "utc": "2026-09-11T13:27:21.0609158Z",
+        "phase": "idle",
+        "pid": 23544,
+        "exitCode": 0,
+        "idle": true
+      },
+      "editorLifecycle": "EDITOR_RETAINED",
+      "hashes": {
+        "config.json": "1f94cbabf5e5135a90bed4e17eed86c051e06250f890e3a0d2663757bdbc6663",
+        "frames.csv": "9c1ed0d1565596c4c96ff33f8bf668cbd4e46de4a929b5a684295aeb536e2c6c",
+        "counters.csv": "2962a5e240789d178601eaa350f5c19130f170fb1fee7211d37ba95e67d56717",
+        "events.jsonl": "0735b63418a21624a71a4de5738e580cfa9eecb29321603495f5ca1528108971",
+        "result.json": "0272c2c042407090ea71ca400c0cc3ae5a4fbe6048c4c4b324e3e4c8c0e50bd5",
+        "report.json": "033174a54042d7544b12b99b9011dd1c93989f97ea49b9d60ae8d4af2aa78c20",
+        "process.json": "027af663961235dc0216d9208bc420971ce325c041fbe1538a9b6d06ec206556",
+        "Editor.log": "960626ff91f23f76ec1f3a54c772846330a9f0b148c14d77d2809a88da6bc225"
+      }
+    },
+    {
+      "runId": "20260911-212801-082",
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T13:28:25.8749995Z",
+        "pid": 23544,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-212801-082",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-212801-082",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 10,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false,
+        "enabled": true,
+        "keepEditorOpen": true
+      },
+      "evidence": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": []
+      },
+      "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-212801-082",
+      "counterCount": 21,
+      "phases": [
+        {
+          "utc": "2026-09-11T13:28:07.6091740Z",
+          "phase": "beforeAssemblyReload"
+        },
+        {
+          "utc": "2026-09-11T13:28:07.6510387Z",
+          "phase": "AppDomain.DomainUnload"
+        },
+        {
+          "utc": "2026-09-11T13:28:19.5464592Z",
+          "phase": "PlayMode.stopRequested"
+        },
+        {
+          "utc": "2026-09-11T13:28:20.0400748Z",
+          "phase": "PlayMode.stopped"
+        },
+        {
+          "utc": "2026-09-11T13:28:20.1014493Z",
+          "phase": "Scene.unloaded"
+        },
+        {
+          "utc": "2026-09-11T13:28:20.2164019Z",
+          "phase": "Editor.retained"
+        },
+        {
+          "utc": "2026-09-11T13:29:53.9069981Z",
+          "phase": "beforeAssemblyReload"
+        },
+        {
+          "utc": "2026-09-11T13:29:53.9614202Z",
+          "phase": "AppDomain.DomainUnload"
+        }
+      ],
+      "ready": {
+        "runId": "20260911-212801-082",
+        "utc": "2026-09-11T13:28:20.2134014Z",
+        "phase": "idle",
+        "pid": 23544,
+        "exitCode": 0,
+        "idle": true
+      },
+      "editorLifecycle": "EDITOR_RETAINED",
+      "hashes": {
+        "config.json": "debd7ba7c9111d9a2b96539abede95d67fb78d480aecb7d63da41dd5cafffa11",
+        "frames.csv": "a6f106d5dc6224d96aaad094c786ae6a8e48365bff5d045623e91470027d2912",
+        "counters.csv": "27c719a366cb4d60ef0d5b51ef0b3d7d2a681e72937df49e9bb127c6bc27a1d1",
+        "events.jsonl": "5018450c9c0673ac330b7a0bb01b2b14a9bff8ba77e4f4ba34fe2963b569891b",
+        "result.json": "37bbcc0c8dc464e3d92ee3c877eb438a63ca928dabc0111009580aba8b8d7f5e",
+        "report.json": "9d17caa0d29ef61098a4655a9971f9f8b9e3d8428f9f57d994a085f850f4fd00",
+        "process.json": "3eb5759ee4614b7e4465054100352d091c5e3e69bc96e752cb0af4ec286aeb43",
+        "Editor.log": "356ec8a9c8b40a6efd3afa3c6ae3a08e79e447da3c9766b64b2712340ada63dd"
+      }
+    },
+    {
+      "runId": "20260911-212946-882",
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T13:30:13.7814790Z",
+        "pid": 23544,
+        "sourceUnchanged": false,
+        "terminationReason": ""
+      },
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-212946-882",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-212946-882",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 10,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false,
+        "enabled": true,
+        "keepEditorOpen": true
+      },
+      "evidence": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": [
+          "source_changed"
+        ]
+      },
+      "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-212946-882",
+      "counterCount": 21,
+      "phases": [
+        {
+          "utc": "2026-09-11T13:29:56.4542005Z",
+          "phase": "beforeAssemblyReload"
+        },
+        {
+          "utc": "2026-09-11T13:29:56.5186288Z",
+          "phase": "AppDomain.DomainUnload"
+        },
+        {
+          "utc": "2026-09-11T13:30:08.2195303Z",
+          "phase": "PlayMode.stopRequested"
+        },
+        {
+          "utc": "2026-09-11T13:30:08.8941982Z",
+          "phase": "PlayMode.stopped"
+        },
+        {
+          "utc": "2026-09-11T13:30:08.9668020Z",
+          "phase": "Scene.unloaded"
+        },
+        {
+          "utc": "2026-09-11T13:30:09.0888556Z",
+          "phase": "Editor.retained"
+        }
+      ],
+      "ready": {
+        "runId": "20260911-212946-882",
+        "utc": "2026-09-11T13:30:09.0783606Z",
+        "phase": "idle",
+        "pid": 23544,
+        "exitCode": 0,
+        "idle": true
+      },
+      "editorLifecycle": "EDITOR_RETAINED",
+      "hashes": {
+        "config.json": "9b2fced6aa04db932c72f5666679699c6ea8f39db5657d84768e9b4eccd23d0f",
+        "frames.csv": "c33e317d181047b1af68f51c4dc815e6db41940d7cce43ada59805d8387b9938",
+        "counters.csv": "f1fd448a0f7234bf470539531d73e324f1159d4417b0aef60b07fa732fbecf35",
+        "events.jsonl": "48e60a108b8bf28118f4774801dfda77be9643e4ed412e5a9543277ac4c1d533",
+        "result.json": "bc5a57158b3913ebb5e12bec73ba1450963f2c08399f3c6c0ba4a8c76e657760",
+        "report.json": "316eb7dc9fcf30ab73933a7203db0891508d60d3b72defccb7cca73703eff462",
+        "process.json": "a9cef728c70aa32caeff28f4071ab5f258685c1d681d359b4690cb800872672a",
+        "Editor.log": "e5a35688ac3e7a4ffaadfe118f95ec3341d13a1a4f758bebb67c4cbefe9256b5"
+      }
+    },
+    {
+      "runId": "20260911-213118-863",
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T13:31:44.6275723Z",
+        "pid": 23544,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-213118-863",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-213118-863",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 10,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false,
+        "enabled": true,
+        "keepEditorOpen": true
+      },
+      "evidence": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "issues": []
+      },
+      "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-213118-863",
+      "counterCount": 21,
+      "phases": [
+        {
+          "utc": "2026-09-11T13:31:26.0224263Z",
+          "phase": "beforeAssemblyReload"
+        },
+        {
+          "utc": "2026-09-11T13:31:26.0817691Z",
+          "phase": "AppDomain.DomainUnload"
+        },
+        {
+          "utc": "2026-09-11T13:31:38.3130964Z",
+          "phase": "PlayMode.stopRequested"
+        },
+        {
+          "utc": "2026-09-11T13:31:38.8429944Z",
+          "phase": "PlayMode.stopped"
+        },
+        {
+          "utc": "2026-09-11T13:31:38.8959120Z",
+          "phase": "Scene.unloaded"
+        },
+        {
+          "utc": "2026-09-11T13:31:39.0130243Z",
+          "phase": "Editor.retained"
+        }
+      ],
+      "ready": {
+        "runId": "20260911-213118-863",
+        "utc": "2026-09-11T13:31:39.0059968Z",
+        "phase": "idle",
+        "pid": 23544,
+        "exitCode": 0,
+        "idle": true
+      },
+      "editorLifecycle": "EDITOR_RETAINED",
+      "hashes": {
+        "config.json": "fe07e36fa419fd200aaa774fe1fe8a3aa9a2242d7d6b2b35d20ed84a4dda8e3e",
+        "frames.csv": "a6e3558bb287552b1579f6d3871f05bf8b9f9e5f3a4808db314408c0ce586db7",
+        "counters.csv": "6a83a87e9546150c336a5befd5849b055c3b89f1f3b094c4cd1909bdcf02ff5f",
+        "events.jsonl": "63b78e36fdadadcb9c43ab16e7eb9ff2ad4f6dfff4e2a735f3c3afce6ea70f50",
+        "result.json": "882c2a5586bd4f6c44001e6a72744b7384d8cb0cf61f7437aebc0535d49865d6",
+        "report.json": "0ff51417cba262585b2744e5c56ee1d110d5b316113058cf3f157c7e12e17a15",
+        "process.json": "35dd28915581031b89b126682a0f20cd62c5ee1e573aa4242eceaf382918ac27",
+        "Editor.log": "53b10e617c00f68873d153db4404adf957d368f3559d7300d21dbeda0b2c8683"
+      }
+    }
+  ]
+}

@@ -1,6 +1,11 @@
 Set-StrictMode -Version Latest
 function Get-SceneRaidFrameStatistics {
-    param([object[]]$Frames)
+    param([object[]]$Frames, [ValidateRange(1,1000)][double]$TargetFps = 60)
+    $frameBudgetMs = 1000.0 / $TargetFps
+    $maximumBudgetMs = 2 * $frameBudgetMs
+    # CSV uses six decimal places for time; allow only serialization-scale rounding at the boundary.
+    $timeToleranceMs = 0.001
+    $fpsTolerance = 0.001
     if ($Frames.Count -lt 4) { throw 'Too few frame samples.' }
     $intervals = [Collections.Generic.List[double]]::new()
     $times = [Collections.Generic.List[double]]::new()
@@ -20,7 +25,7 @@ function Get-SceneRaidFrameStatistics {
             if ($ms -le 0 -or [Math]::Abs(($wall - $lastWall) * 1000 - $ms) -gt 0.02) { throw 'Inconsistent frame interval.' }
             $intervals.Add($ms)
             $times.Add($wall)
-            if ($ms -gt (1000.0/120)) { $slow.Add(@{frame=$number;wallSeconds=$wall;ms=$ms}) }
+            if ($ms -gt $frameBudgetMs + $timeToleranceMs) { $slow.Add(@{frame=$number;wallSeconds=$wall;ms=$ms}) }
         } elseif ($ms -ne -1) { throw 'First frame has no preceding interval.' }
         $lastNumber=$number; $lastWall=$wall; $lastGame=$game
     }
@@ -32,9 +37,10 @@ function Get-SceneRaidFrameStatistics {
     $windows = 0
     $left = 0; $right = 0
     for ($start = $times[0]; $start + 1 -le $times[-1]; $start += 0.25) {
-        while ($left -lt $times.Count -and $times[$left] -lt $start) { $left++ }
+        # Both ends use the same half-microsecond offset, matching the CSV's rounding precision.
+        while ($left -lt $times.Count -and $times[$left] -lt $start - 0.0000005) { $left++ }
         if ($right -lt $left) { $right=$left }
-        while ($right -lt $times.Count -and $times[$right] -lt $start + 1) { $right++ }
+        while ($right -lt $times.Count -and $times[$right] -lt $start + 1 - 0.0000005) { $right++ }
         $fps = $right-$left
         if ($null -eq $minWindow -or $fps -lt $minWindow) { $minWindow=$fps }
         $windows++
@@ -43,15 +49,25 @@ function Get-SceneRaidFrameStatistics {
     $p99 = $ordered[[Math]::Ceiling($ordered.Count * .99) - 1]
     $maximum = $ordered[-1]
     $low = 1000.0/$tailMean
-    return [pscustomobject]@{validIntervals=$intervals.Count;averageFps=$averageFps;p99Ms=$p99;maxMs=$maximum;onePercentLowFps=$low;
+    return [pscustomobject]@{targetFps=$TargetFps;frameBudgetMs=$frameBudgetMs;maximumBudgetMs=$maximumBudgetMs;
+        validIntervals=$intervals.Count;averageFps=$averageFps;p99Ms=$p99;maxMs=$maximum;onePercentLowFps=$low;
         minimumOneSecondFps=$minWindow;windowCount=$windows;startupIncluded=$true;slowFrameCount=$slow.Count;slowFrames=$slow.ToArray();
-        thresholdsMet=($averageFps -gt 120 -and $p99 -lt 1000.0/120 -and $maximum -le 1000.0/60 -and $low -gt 120 -and $windows -gt 0 -and $minWindow -gt 120)}
+        thresholdsMet=($averageFps + $fpsTolerance -ge $TargetFps -and $p99 -le $frameBudgetMs + $timeToleranceMs -and
+            $maximum -le $maximumBudgetMs + $timeToleranceMs -and $low + $fpsTolerance -ge $TargetFps -and
+            $windows -gt 0 -and $minWindow -ge $TargetFps)}
 }
 
 function Test-SceneRaidEvidence {
-    param([string]$OutputPath, [object]$Config, [int]$ExitCode, [bool]$SourceUnchanged)
+    param([string]$OutputPath, [object]$Config, [Nullable[int]]$ExitCode, [bool]$SourceUnchanged,
+        [switch]$EditorRetained, [int]$EditorProcessId)
     $issues = [Collections.Generic.List[string]]::new()
-    if ($ExitCode -ne 0) { $issues.Add("process_exit:$ExitCode") }
+    if ($EditorRetained) {
+        try {
+            $ready = Get-Content -LiteralPath (Join-Path $OutputPath 'editor-ready.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
+            if ($ready.runId -ne $Config.runId -or $ready.pid -ne $EditorProcessId -or !$ready.idle -or
+                $ready.phase -ne 'idle' -or $ready.exitCode -ne 0 -or $null -ne $ExitCode) { $issues.Add('retained_editor_not_ready') }
+        } catch { $issues.Add('retained_editor_ready_missing_or_invalid') }
+    } elseif ($null -eq $ExitCode -or $ExitCode -ne 0) { $issues.Add("process_exit:$ExitCode") }
     if (!$SourceUnchanged) { $issues.Add('source_changed') }
     $auditPath = Join-Path $OutputPath 'scene-audit.json'
     if (!(Test-Path -LiteralPath $auditPath)) { $issues.Add('missing_audit') }
@@ -120,6 +136,7 @@ function Test-SceneRaidEvidence {
     }
     return [pscustomobject]@{
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
+        editorLifecycle=$(if ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
         gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0) {'ISSUES_OBSERVED'} else {'NOT_FULL_RAID_VALIDATED'})
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries

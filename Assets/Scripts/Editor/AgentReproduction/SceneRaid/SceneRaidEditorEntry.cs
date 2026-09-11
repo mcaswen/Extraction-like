@@ -15,19 +15,86 @@ namespace AnomalySearch.Editor.SceneRaid
         private const string Armed = "SceneRaid.Armed";
         private const string Phase = "SceneRaid.Phase";
         private static SceneRaidScenarioConfig _config;
-        static SceneRaidEditorEntry() { EditorApplication.update += Poll; }
+        private static double _nextIdlePoll;
+
+        [Serializable] private sealed class EditorState
+        {
+            public string runId, utc, phase;
+            public int pid, exitCode;
+            public bool idle;
+        }
+
+        private static EditorState CurrentState(string runId, int exitCode = 0)
+        {
+            using var process = System.Diagnostics.Process.GetCurrentProcess();
+            bool idle = !EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling &&
+                !EditorApplication.isUpdating && !SessionState.GetBool(Armed, false);
+            return new EditorState { runId = runId, utc = DateTime.UtcNow.ToString("o"), pid = process.Id,
+                phase = idle ? "idle" : "busy", idle = idle, exitCode = exitCode };
+        }
+
+        private static void WriteState(EditorState state)
+        {
+            string path = SceneRaidScenarioConfig.ExplicitPath() + ".editor-state.json";
+            File.WriteAllText(path + ".tmp", JsonUtility.ToJson(state));
+            if (File.Exists(path)) File.Replace(path + ".tmp", path, null);
+            else File.Move(path + ".tmp", path);
+        }
+
+        private static void PollRetainedEditor()
+        {
+            if (!SessionState.GetBool("SceneRaid.Retained", false) || EditorApplication.timeSinceStartup < _nextIdlePoll) return;
+            _nextIdlePoll = EditorApplication.timeSinceStartup + 0.5;
+            var state = CurrentState(SessionState.GetString("SceneRaid.LastRunId", ""));
+            WriteState(state);
+            if (!state.idle) return;
+            var request = SceneRaidScenarioConfig.LoadExplicit(false);
+            if (request == null || request.runId == state.runId) return;
+            if (SessionState.GetString("SceneRaid.RefreshedRequest", "") != request.runId)
+            {
+                SessionState.SetString("SceneRaid.RefreshedRequest", request.runId);
+                AssetDatabase.Refresh();
+                return;
+            }
+            Run();
+        }
+        static SceneRaidEditorEntry()
+        {
+            EditorApplication.update += Poll;
+            EditorApplication.quitting += () => TraceShutdown("EditorApplication.quitting");
+            AssemblyReloadEvents.beforeAssemblyReload += () => TraceShutdown("beforeAssemblyReload");
+            AppDomain.CurrentDomain.DomainUnload += (_, __) => TraceShutdown("AppDomain.DomainUnload");
+            AppDomain.CurrentDomain.ProcessExit += (_, __) => TraceShutdown("AppDomain.ProcessExit");
+        }
+
+        // File-only tracing remains usable after Unity native services stop. No hooks are installed in a Player.
+        private static void TraceShutdown(string phase)
+        {
+            if (_config == null) return;
+            try
+            {
+                File.AppendAllText(Path.Combine(_config.outputPath, "shutdown-phases.jsonl"),
+                    "{\"utc\":\"" + DateTime.UtcNow.ToString("o") + "\",\"phase\":\"" + phase + "\"}\n");
+            }
+            catch (IOException) { /* The external process monitor still records a missing phase file. */ }
+        }
 
         public static void Run()
         {
             try
             {
-                _config = SceneRaidScenarioConfig.LoadExplicit();
+                _config = SceneRaidScenarioConfig.LoadExplicit(false);
                 if (_config == null) throw new InvalidOperationException("Explicit sceneRaidConfig is required.");
                 if (Application.isBatchMode) throw new InvalidOperationException("SceneRaid requires a graphical Editor.");
+                PlayerSettings.productName = "AgentRepro_" + _config.runId;
+                _config = SceneRaidScenarioConfig.LoadExplicit();
                 Directory.CreateDirectory(_config.outputPath);
                 SessionState.SetBool("SceneRaid.OldPlayOptionsEnabled", EditorSettings.enterPlayModeOptionsEnabled);
                 SessionState.SetInt("SceneRaid.OldPlayOptions", (int)EditorSettings.enterPlayModeOptions);
                 SessionState.SetBool(Armed, true);
+                SessionState.SetBool("SceneRaid.Retained", _config.keepEditorOpen);
+                SessionState.SetString("SceneRaid.LastRunId", _config.runId);
+                WriteState(CurrentState(_config.runId));
                 SessionState.SetString(Phase, "loading");
                 EditorSettings.enterPlayModeOptionsEnabled = false;
                 EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.None;
@@ -69,9 +136,9 @@ namespace AnomalySearch.Editor.SceneRaid
 
         private static void Poll()
         {
-            if (!SessionState.GetBool(Armed, false)) return;
             try
             {
+                if (!SessionState.GetBool(Armed, false)) { PollRetainedEditor(); return; }
                 if (_config == null) _config = SceneRaidScenarioConfig.LoadExplicit();
                 string phase = SessionState.GetString(Phase, "");
                 if (EditorApplication.isPlaying)
@@ -79,13 +146,16 @@ namespace AnomalySearch.Editor.SceneRaid
                     SessionState.SetString(Phase, "playing");
                     if (!File.Exists(Path.Combine(_config.outputPath, "result.json"))) return;
                     SessionState.SetString(Phase, "exiting");
+                    TraceShutdown("PlayMode.stopRequested");
                     EditorApplication.isPlaying = false;
                 }
                 else if (!EditorApplication.isPlayingOrWillChangePlaymode && phase == "exiting")
                 {
                     Profiler.enabled = false;
                     Profiler.enableBinaryLog = false;
+                    TraceShutdown("PlayMode.stopped");
                     EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                    TraceShutdown("Scene.unloaded");
                     File.WriteAllText(Path.Combine(_config.outputPath, "cleanup.json"), "{\"sceneUnloaded\":true}");
                     SessionState.SetString(Phase, "draining");
                 }
@@ -109,7 +179,21 @@ namespace AnomalySearch.Editor.SceneRaid
             Profiler.enableBinaryLog = false;
             EditorSettings.enterPlayModeOptionsEnabled = SessionState.GetBool("SceneRaid.OldPlayOptionsEnabled", false);
             EditorSettings.enterPlayModeOptions = (EnterPlayModeOptions)SessionState.GetInt("SceneRaid.OldPlayOptions", 0);
+            if (_config != null && _config.keepEditorOpen)
+            {
+                _config.enabled = false;
+                string path = SceneRaidScenarioConfig.ExplicitPath();
+                File.WriteAllText(path + ".tmp", JsonUtility.ToJson(_config, true));
+                File.Replace(path + ".tmp", path, null);
+                var state = CurrentState(_config.runId, exitCode);
+                WriteState(state);
+                File.WriteAllText(Path.Combine(_config.outputPath, "editor-ready.json"), JsonUtility.ToJson(state));
+                TraceShutdown("Editor.retained");
+                return;
+            }
+            TraceShutdown("EditorApplication.Exit.before");
             EditorApplication.Exit(exitCode);
+            TraceShutdown("EditorApplication.Exit.returned");
         }
     }
 }
