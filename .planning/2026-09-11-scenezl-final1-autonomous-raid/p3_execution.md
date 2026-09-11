@@ -94,3 +94,5 @@ P3b 红灯 `20260911-214901-479` 在“Plain backpack is not the waiting box”�
 - Extend `Assets/Scripts/Gameplay/Backpack/PlayerStorageService.cs`：批量追加前验证每个 ItemID 能回解到原定义，不允许不可持久化输入部分写入。复用原 BuildPageLayoutModel，已有记录未知、越界或重叠时不把该页当空页，保留原记录，改用后续正常页面；同时应用原格子状态。仍由该服务拥有存档和仓库布局，不向 RaidFlow 复制装箱算法。
 - Create `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidStorageTests.cs`：所有正式掉落定义真实写盘→新服务重载→数量和布局核对；批量含未知定义不能部分追加；未知/重叠旧页不得继续覆盖，特殊格必须保留。该文件独立承担持久化契约，避免把存档夹具堆入 UI 会话测试。Extend `tools/agent-repro/cases.json` 登记组。
 - 后续 P3d-4 单独处理保存失败时的事务和 RaidFlow 完成顺序，补齐整局仓库契约。P3d-3 不宣称磁盘故障、任意损坏历史存档或仓库 UI 编辑都已恢复。
+
+红灯 `20260911-222259-395`：五项全部失败，分别证实三种旧图腾不可回解、未知输入被错误接收、未知/重叠旧页继续覆盖、特殊格被忽略。修复后 `20260911-222420-091` 五项全部通过；正式掉落表共 27 个唯一物品定义均可真实写盘和新服务回读，数量、身份和布局通过。三个旧图腾的价格、属性和商店排除标记未变。

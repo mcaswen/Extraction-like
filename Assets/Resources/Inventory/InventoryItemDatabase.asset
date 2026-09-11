@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: InventoryItemDatabase
   m_EditorClassIdentifier: 
   Items:
+  - {fileID: 11400000, guid: 7b49453b6b7f96349ac8f98d3acdf6b7, type: 2}
+  - {fileID: 11400000, guid: 20c8b97ce0dfa3140958eeae1eda1a7b, type: 2}
+  - {fileID: 11400000, guid: 07b1488029b7b34439e31b036be9492e, type: 2}
   - {fileID: 11400000, guid: 100febfff941ae24a9771c1ed8636d13, type: 2}
   - {fileID: 11400000, guid: 3404f0a873c4f014080290e984402c7d, type: 2}
   - {fileID: 11400000, guid: df3d45a0689b53640b10bf740b76ca04, type: 2}

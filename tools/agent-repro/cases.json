@@ -212,6 +212,18 @@
       ]
     },
     {
+      "name": "SceneStorage",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidStorageTests",
+      "expected": [
+        "EverySceneLootDefinitionRoundTripsThroughStorage",
+        "UnknownInputRejectsWholeAppendWithoutChangingSavedItems",
+        "ExistingPageDoesNotExposeUnavailableCells(\"Unknown\")",
+        "ExistingPageDoesNotExposeUnavailableCells(\"Overlap\")",
+        "ExistingPageDoesNotExposeUnavailableCells(\"Blocked\")"
+      ]
+    },
+    {
       "name": "SceneCombat",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidCombatTests",

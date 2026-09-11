@@ -19,7 +19,7 @@ MonoBehaviour:
   ItemName: "\u84DD\u8272\u56FE\u817E"
   ItemIcon: {fileID: 21300000, guid: 93a4b9187d3948f1a7e13cb1e95a62b4, type: 3}
   ItemBackgroundSprite: {fileID: 0}
-  IncludeInRuntimeDatabase: 0
+  IncludeInRuntimeDatabase: 1
   IncludeInTotemShop: 0
   Type: 6
   Rarity: 2

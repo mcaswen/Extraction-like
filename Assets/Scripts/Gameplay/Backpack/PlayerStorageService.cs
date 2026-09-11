@@ -105,6 +105,12 @@ public sealed class PlayerStorageService : MonoBehaviour
         for (int i = 0; i < sanitizedItems.Count; i++)
         {
             ContainerItemSaveData item = sanitizedItems[i];
+            string itemId = string.IsNullOrWhiteSpace(item.ItemData.ItemID) ? item.ItemData.name : item.ItemData.ItemID.Trim();
+            if (!InventoryItemDatabase.TryResolve(itemId, out InventoryItemData definition) || definition != item.ItemData)
+            {
+                Debug.LogWarning($"[PlayerStorageService] Cannot persist item '{itemId}': runtime definition is missing or ambiguous.", this);
+                return false;
+            }
             if (!CanFitOnEmptyStoragePage(item))
             {
                 Debug.LogWarning(
@@ -250,6 +256,7 @@ public sealed class PlayerStorageService : MonoBehaviour
         }
 
         InventoryGridModel model = BuildPageLayoutModel(page);
+        if (model == null) return false;
         if (!model.FindFirstAvailableSpace(
                 Mathf.Max(1, item.ItemData.Width),
                 Mathf.Max(1, item.ItemData.Height),
@@ -272,13 +279,15 @@ public sealed class PlayerStorageService : MonoBehaviour
     {
         InventoryGridModel model = new InventoryGridModel();
         model.Configure(Columns, Rows, new List<Vector2Int>(), true);
+        model.ApplyRuntimeCellStates(page.CellStates);
 
-        List<ContainerItemSaveData> existingItems = ConvertRecordsToRuntimeItems(page.Items);
-        foreach (ContainerItemSaveData existingItem in existingItems)
+        foreach (StorageItemSaveRecord record in page.Items)
         {
+            ContainerItemSaveData existingItem = ConvertRecordToRuntimeItem(record);
             if (existingItem == null || existingItem.ItemData == null)
             {
-                continue;
+                // 缺少定义时无法确定占格，不得把未知物品所在页面当作空闲空间。
+                return null;
             }
 
             int width = existingItem.IsRotated ? existingItem.ItemData.Height : existingItem.ItemData.Width;
@@ -286,10 +295,8 @@ public sealed class PlayerStorageService : MonoBehaviour
             width = Mathf.Max(1, width);
             height = Mathf.Max(1, height);
 
-            if (model.IsSpaceAvailable(existingItem.X, existingItem.Y, width, height))
-            {
-                model.PlaceItem(null, existingItem.X, existingItem.Y, width, height, existingItem.IsRotated);
-            }
+            if (!model.IsSpaceAvailable(existingItem.X, existingItem.Y, width, height)) return null;
+            model.PlaceItem(null, existingItem.X, existingItem.Y, width, height, existingItem.IsRotated);
         }
 
         return model;
