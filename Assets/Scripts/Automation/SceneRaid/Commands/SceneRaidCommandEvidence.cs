@@ -131,8 +131,11 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
         private void Observe(AgentDirectiveResult value, long sequence)
         {
             var request = value.Request;
+            string target = _identity.Get(request.TargetObject);
+            if (string.IsNullOrEmpty(target) && !string.IsNullOrEmpty(request.CommandId) && _byCommand.TryGetValue(request.CommandId, out var attempt))
+                target = attempt.target;
             var row = new Feedback { eventSequence = sequence, agent = request.TargetAgentId.Value, commandId = request.CommandId,
-                targetId = request.TargetId, target = _identity.Get(request.TargetObject), stage = value.Stage.ToString(), reason = value.Reason.ToString() };
+                targetId = request.TargetId, target = target, stage = value.Stage.ToString(), reason = value.Reason.ToString() };
             if (_inCall) _duringCall.Add(row);
             else if (!string.IsNullOrEmpty(request.CommandId) && _byCommand.ContainsKey(request.CommandId)) Record(row);
         }

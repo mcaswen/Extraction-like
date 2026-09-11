@@ -227,6 +227,33 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator EvidencePreservesIdentityAfterTargetObjectDestroyed()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero, 8, false, false);
+            var enemy = EnemyFactory.Passive(World, new Vector3(14, 0, 0), 50);
+            var target = TargetFactory.Enemies(World, enemy);
+            yield return null;
+            string output = Output("destroyed-target-evidence");
+            using var writer = new SceneRaidEvidenceWriter(output);
+            var identity = new SceneRaidIdentityMap();
+            using var observer = new SceneRaidObserver(writer, identity);
+            using var evidence = new SceneRaidCommandEvidence(output, "Harness", writer, observer,
+                new SceneRaidReadModel(identity, observer.LatestResource), identity);
+            var attempt = evidence.Submit(Step("destroyed"), target, null);
+            Assert.That(attempt.accepted, Is.True);
+            Assert.That(attempt.target, Is.Not.Empty);
+            Object.DestroyImmediate(enemy.gameObject);
+            yield return RuntimeWait.Until(() => evidence.Latest(attempt.commandId)?.stage == "Completed", "removed target terminal evidence", 2);
+            var feedback = evidence.Latest(attempt.commandId);
+            Assert.That(feedback.target, Is.EqualTo(attempt.target));
+            writer.Flush();
+            var raw = ReadEvents(output).Single(x => x.sequence == feedback.eventSequence);
+            Assert.That(JsonUtility.FromJson<SceneRaidCommandEvidence.Feedback>(raw.detail).target, Is.EqualTo(feedback.target));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
         public IEnumerator EvidenceTracksSupersededAndAsyncCompletedCommands()
         {
             TestNavMeshBuilder.Flat(World);

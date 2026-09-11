@@ -190,7 +190,7 @@ function Test-SceneRaidClusterCommandTrace {
                 $linked=@($Events|Where-Object kind -EQ 'command.feedback'|ForEach-Object{$_.detail|ConvertFrom-Json}|Where-Object eventSequence -EQ $entry.source.sequence)
                 if ($linked.Count -ne 1 -or $linked[0].attemptId -cne $byCommand[$entry.data.commandId].attemptId -or
                     $linked[0].stage -cne $entry.data.stage -or $linked[0].reason -cne $entry.data.reason -or
-                    $linked[0].agent -cne $entry.data.agent -or $linked[0].target -cne $entry.data.target -or $linked[0].targetId -cne $entry.data.targetId) { $failures.Add('missing_or_corrupt_command_feedback') }
+                    $linked[0].agent -cne $entry.data.agent -or $linked[0].target -cne $entry.data.target -or $linked[0].targetId -cne $entry.data.targetId) { $failures.Add('invalid_command_feedback') }
             }
         }
         foreach ($entry in $Events | Where-Object kind -EQ 'command.feedback') {

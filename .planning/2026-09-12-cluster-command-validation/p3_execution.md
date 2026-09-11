@@ -19,6 +19,8 @@ P2 提交 `5f4b748` 后继续执行，源码和场景输入保持。
 | `Logs/SceneRaid/20260912-050012-188` | MC01-R，4×/731 | 三条预定 Search 全部接受并有动作和终态；8 次库存会话，Actor1 自然战死，Actor2 撤离 | evidence PASS、game EXPECTED_DEATH，coverage COMPLETE，0 errors/Failed/Rejected/停滞；死者不结算，存活者仓库和会话守恒通过，不做战斗修复 |
 | `Logs/SceneRaid/20260912-050551-844` | MC01-E，4×/731，类型修正后 | 两条 Engage 正式执行，Actor1 曾对近敌造成伤害，后自然战死；Actor2 撤离 | evidence PASS、game EXPECTED_DEATH，0 errors/Failed/Rejected/停滞；Actor1 第三步缺少存活/交战完成前提，coverage PARTIAL |
 | `Logs/SceneRaid/20260912-051104-552` | MC02，4×/731 | 6 次改令/重复任务，旧任务收尾、最后 Search 完成，两人撤离 | evidence/game PASS，0 errors/Failed/Rejected/停滞；Retaliating 门槛在预定期限内未发生，coverage PARTIAL；该轮与短 NUnit 导航回归并行，仅作逻辑诊断 |
+| `Logs/SceneRaid/20260912-051818-780` | MC03，4×/731，销毁身份修正后 | 焦点 1/2、异焦点显式 Actor1、共享资源、打开背包时改令、共享敌人共 8 个步骤触发，两人撤离 | evidence/game PASS、coverage COMPLETE，0 errors/Failed/Rejected/停滞，目标反馈身份和会话/仓库守恒通过 |
+| `Logs/SceneRaid/20260912-052011-781` | MC04-N，4×/731 | 单成员敌人命令被有效反击替换，之后自主双人撤离 | evidence/game PASS、0 errors/Failed/Rejected/停滞；没有出现原命令 CombatCompleted，后两步未触发，coverage PARTIAL。真实场景负例尚缺覆盖，P1 已完成确定性拒绝和保留旧任务验证 |
 
 下一项 MC01-E `20260912-050154-739` 已启动。
 
@@ -43,3 +45,21 @@ Reuse `AgentNavigationQuery.cs`、`AgentNavigationMotor.cs`，暂不改生产结
 断开岛分支日志自检 `050951-685` 1/1 通过。文件审查将这一通用导航断言归入已有 `Assets/Scripts/Editor/AgentReproduction/Tests/NavigationExecutionTests.cs`，真实实验室坐标构造仍归 SceneRaidResourceNavigationTests；因此只扩展前者和对应 cases 清单，不把通用 Motor 验证继续放进场景专用文件。
 
 迁移后 `Logs/AgentReproduction/20260912-051104-507` 9/9 导航执行回归通过，覆盖到达容差、斜坡、导航丢失、无进展和失败分支。P3a 已修复证据协议别名；P3b 仅完成现场构造和诊断细化，原偶发 Unreachable 仍是未确认根因，不能写成已修复。LostSight 原始时序符合已有有限追踪规则，没有修改生产超时或扩大白名单，原严格报告的失败记录保留。
+
+## P3c：目标销毁后的证据身份丢失
+
+MC03 `Logs/SceneRaid/20260912-051358-825` 八个步骤实际触发，0 errors/Failed/Rejected，死者和存活者结算正确，但 Trace 报 `missing_or_corrupt_command_feedback`。原始序号 251 的 Completed 保留敌人层级身份；相应 command.feedback 为空。Observer 已按 CommandId 缓存死亡前身份，Evidence 却再次从已销毁 Unity 对象取身份，造成两个证据流不一致。
+
+Extend `Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidCommandEvidence.cs`：销毁后身份为空时复用已有 `_byCommand` 内该 attempt 的目标身份，不创建第二份缓存、改变 Gameplay 事件或放宽离线核对。Extend `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidCommandHarnessTests.cs`：构造真实接受后目标对象先销毁、下一帧 lifecycle 完成，验证两条流的目标仍一致；构造销毁只用于采集边界测试，不冒充真实击杀/整局。
+
+Extend `tools/agent-repro/cases.json` 登记该用例；`SceneRaid.ClusterCommands.Contracts.psm1` 将损坏反馈的错误标记为 invalid 前缀，让 Report 同时报告证据失败。保持数据正确性门槛，不把原失败改判为绿灯。小阶段跑新身份用例、既有真实击杀及 PS 故障探针后，原 MC03 脚本复跑。
+
+`Logs/AgentReproduction/20260912-051717-120` 2/2 通过，新销毁边界和原真实击杀都保持目标身份、反馈序号、血量证据一致；`Logs/SceneRaidCommandProbes/20260912-051717-118` 53/53 通过。MC03 正在按原脚本复跑。
+
+MC03 复跑 `051818-780` 完整通过，8/8 步骤、两人撤离。P3c 闭环完成，原红灯 `051358-825` 保留。后续 MC04-N `052011-781` 运行中。
+
+## P3 收尾与最终验证入口
+
+六个脚本均已有实际执行记录；两项采集/驱动缺陷完成修复。MC04-N 前提未自然形成，没有对游戏强制伤害、补发命令或换种子凑负例。进入 P4 冻结输入后的 11 槽位矩阵。
+
+原 MC01-E 的单次 Unreachable 保留为未确认根因：现场定点构造使用的是诊断记录的上一移动目的地，原事件回调发生在本次移动黑板回写之前，不能确定它与失败瞬间目标完全相同。新增 Motor 日志现在直接记录失败调用的目标和分支，后续若再现即可消除这项歧义。未改行为或声称已修复，最终报告需保留该限制。原一次 LostSight 已有“观察后丢失约 2 秒”的时序证据，符合既有规则，严格报告仍保留原失败计数。

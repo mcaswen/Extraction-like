@@ -364,6 +364,7 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidCommandHarnessTests",
       "expected": [
+        "EvidencePreservesIdentityAfterTargetObjectDestroyed",
         "CatalogCaptureDoesNotChangeCommandsNavigationOrTargetState",
         "CatalogSeparatesDistanceFromReachability",
         "ScenarioRoundTripPreservesNestedSelectorsAndReferences",
