@@ -7,6 +7,7 @@ param(
     [ValidateRange(5,600)][Nullable[float]]$ObserveSeconds,
     [Nullable[int]]$Seed,
     [switch]$Profile,
+    [switch]$CaptureCommandCatalog,
     [switch]$ExitEditor
 )
 $ErrorActionPreference = 'Stop'
@@ -35,7 +36,7 @@ try {
     $config = [ordered]@{schemaVersion=1;runId=$runId;outputPath=$output;scenePath=$profileConfig.scenePath;mode=$caseConfig.mode;
         seed=$(if ($null -ne $Seed) {$Seed} else {$caseConfig.seed});observeSeconds=$(if ($null -ne $ObserveSeconds) {$ObserveSeconds} else {$caseConfig.observeSeconds});simulationSpeed=$caseConfig.simulationSpeed;
         width=$profileConfig.width;height=$profileConfig.height;profile=($Profile.IsPresent -or $profileConfig.profile);binaryProfile=$profileConfig.binaryProfile;
-        enabled=$true;keepEditorOpen=(!$ExitEditor);buildPlayer=($Case -eq 'SC07')}
+        enabled=$true;keepEditorOpen=(!$ExitEditor);buildPlayer=($Case -eq 'SC07');captureCommandCatalog=$CaptureCommandCatalog.IsPresent}
     $before = Get-AgentReproSourceManifest $source
     @{runId=$runId;case=$Case;commit=(& git -C $source rev-parse HEAD);dirty=(& git -C $source status --porcelain);
         files=$before;competingUnity=@(Get-Process Unity -ErrorAction SilentlyContinue | Select-Object Id,CPU,Path)} |

@@ -356,6 +356,15 @@
         "ManualEnemyCommandOverridesRetaliationAndDiscardsOldExtraction",
         "OtherDamageDoesNotRestartLostSightWindow"
       ]
+    },
+    {
+      "name": "SceneCommandHarness",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidCommandHarnessTests",
+      "expected": [
+        "CatalogCaptureDoesNotChangeCommandsNavigationOrTargetState",
+        "CatalogSeparatesDistanceFromReachability"
+      ]
     }
   ]
 }

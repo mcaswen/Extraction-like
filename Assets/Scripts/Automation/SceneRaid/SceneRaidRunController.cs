@@ -21,6 +21,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private float _originalScale, _originalFixed;
         private bool _complete, _missionCompleted, _missionFailed;
         private bool _screenshotRequested;
+        private bool _commandCatalogCaptured;
         public void Initialize(SceneRaidScenarioConfig config)
         {
             _config = config;
@@ -57,6 +58,21 @@ namespace AnomalySearch.Automation.SceneRaid
                 _updates++;
                 _sampler.Sample();
                 _inventory?.Tick();
+                if (_config.captureCommandCatalog && !_commandCatalogCaptured && _updates >= 3)
+                {
+                    var actors = Gameplay.Agent.Runtime.AgentRuntimeRegistry.ActiveInstance;
+                    if (actors != null && actors.RegisteredAgents.Count == 2 && actors.RegisteredAgents.All(x =>
+                        x.IsAlive && Gameplay.Agent.Navigation.AgentNavigationQuery.IsReady(x.PawnRoot.NavMeshAgent)))
+                    {
+                        long queryStart = Stopwatch.GetTimestamp();
+                        var catalog = new Commands.SceneRaidClusterCatalog(new SceneRaidIdentityMap()).Capture();
+                        File.WriteAllText(Path.Combine(_config.outputPath, "command-catalog.json"), JsonUtility.ToJson(catalog, true));
+                        _commandCatalogCaptured = true;
+                        _writer.Add("diagnostic.commandCatalog", "durationMs=" +
+                            ((Stopwatch.GetTimestamp() - queryStart) * 1000.0 / Stopwatch.Frequency).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    }
+                    else if (_writer.WallSeconds >= 10) throw new InvalidOperationException("Cluster catalog actors did not become ready.");
+                }
                 if (_updates == 3)
                 {
                     long queryStart = Stopwatch.GetTimestamp();

@@ -1,0 +1,3592 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260912-032620-897",
+  "baselineCommit": "3cbf8e4",
+  "catalogSha256": "a5ea5a661d84696e78264d10e649aa28faaa45421529f2542f1399bfaae089e4",
+  "agents": [
+    {
+      "id": "1",
+      "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+      "position": {
+        "x": 221.41152954101562,
+        "y": 15.605430603027344,
+        "z": 82.03179931640625
+      },
+      "discoveryRange": 200.0,
+      "interactionRange": 0.0,
+      "moveSpeed": 8.0,
+      "alive": true,
+      "navigationReady": true
+    },
+    {
+      "id": "2",
+      "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+      "position": {
+        "x": 203.20001220703125,
+        "y": 3.0961151123046875,
+        "z": 23.5
+      },
+      "discoveryRange": 200.0,
+      "interactionRange": 0.0,
+      "moveSpeed": 12.0,
+      "alive": true,
+      "navigationReady": true
+    }
+  ],
+  "selectionRules": "Near: interaction<distance<=R; Far: distance>=2R; stable identity tie-break. Sampled pivot paths are diagnostic, not command validation.",
+  "coverage": [
+    {
+      "agent": "1",
+      "kind": "Resource",
+      "band": "Interaction",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "1",
+      "kind": "Resource",
+      "band": "Near",
+      "count": 6,
+      "completeSampledPaths": 0,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[3]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 110.58641815185547,
+          "distance3D": 111.30763244628906,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 208.3874969482422,
+            "y": 2.95501708984375,
+            "z": -27.78499984741211
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 129.71212768554688,
+          "distance3D": 129.88766479492188,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 254.32000732421875,
+            "y": 8.854988098144531,
+            "z": 207.5
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 138.72943115234375,
+          "distance3D": 139.30502319335938,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 131.20999145507812,
+            "y": 2.95501708984375,
+            "z": -23.369998931884766
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[2]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 140.4307861328125,
+          "distance3D": 141.07583618164062,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 243.8175048828125,
+            "y": 2.1300172805786133,
+            "z": -56.599998474121094
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 154.7435760498047,
+          "distance3D": 154.8907470703125,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 253.7647705078125,
+            "y": 8.854988098144531,
+            "z": 233.35543823242188
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 173.76914978027344,
+          "distance3D": 174.26905822753906,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 168.55999755859375,
+            "y": 2.4150171279907227,
+            "z": -83.5050048828125
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Resource",
+      "band": "Middle",
+      "count": 15,
+      "completeSampledPaths": 2,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[3]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 215.2755584716797,
+          "distance3D": 215.5266571044922,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 164.5633544921875,
+            "y": 5.204986572265625,
+            "z": -125.6021499633789
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[2]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 221.23196411132812,
+          "distance3D": 221.63563537597656,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 254.5633544921875,
+            "y": 2.2349865436553955,
+            "z": -136.7021484375
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 241.70835876464844,
+          "distance3D": 242.01025390625,
+          "pathLength": 611.8920288085938,
+          "queryPosition": {
+            "x": 18.377071380615234,
+            "y": 3.5211362838745117,
+            "z": 213.18035888671875
+          },
+          "sampledPosition": {
+            "x": 18.3770751953125,
+            "y": 0.17499542236328125,
+            "z": 213.18035888671875
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 244.49029541015625,
+          "distance3D": 244.81735229492188,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 255.04283142089844,
+            "y": 2.954986572265625,
+            "z": -160.13433837890625
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 257.0111389160156,
+          "distance3D": 257.322265625,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 175.99282836914062,
+            "y": 2.954986572265625,
+            "z": -170.934326171875
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 262.0158996582031,
+          "distance3D": 262.3471984863281,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 25.957965850830078,
+            "y": 2.42498779296875,
+            "z": -92.46815490722656
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox [3]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 279.99072265625,
+          "distance3D": 280.2513732910156,
+          "pathLength": 643.2139892578125,
+          "queryPosition": {
+            "x": 3.335693359375,
+            "y": 3.5211362838745117,
+            "z": 257.6385498046875
+          },
+          "sampledPosition": {
+            "x": 3.335693359375,
+            "y": 0.17499542236328125,
+            "z": 257.6385498046875
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 288.2386169433594,
+          "distance3D": 288.4918212890625,
+          "pathLength": 543.04345703125,
+          "queryPosition": {
+            "x": -46.0138053894043,
+            "y": 3.5211362838745117,
+            "z": 189.57342529296875
+          },
+          "sampledPosition": {
+            "x": -46.01380920410156,
+            "y": 0.17499542236328125,
+            "z": 189.57342529296875
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox[2]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 298.4814453125,
+          "distance3D": 298.7259826660156,
+          "pathLength": 590.2783203125,
+          "queryPosition": {
+            "x": -35.7259635925293,
+            "y": 3.5211362838745117,
+            "z": 233.59530639648438
+          },
+          "sampledPosition": {
+            "x": -35.72596740722656,
+            "y": 0.3063316345214844,
+            "z": 233.59530639648438
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 301.0699768066406,
+          "distance3D": 301.3583679199219,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -26.452030181884766,
+            "y": 2.42498779296875,
+            "z": -88.86815643310547
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 313.2192077636719,
+          "distance3D": 313.47454833984375,
+          "pathLength": 328.22796630859375,
+          "queryPosition": {
+            "x": 26.454999923706055,
+            "y": 2.954986572265625,
+            "z": -163.11758422851562
+          },
+          "sampledPosition": {
+            "x": 28.49700927734375,
+            "y": 0.17499542236328125,
+            "z": -163.34446716308594
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 335.68505859375,
+          "distance3D": 335.92333984375,
+          "pathLength": 358.5182189941406,
+          "queryPosition": {
+            "x": -24.500001907348633,
+            "y": 2.954986572265625,
+            "z": -146.46759033203125
+          },
+          "sampledPosition": {
+            "x": -24.5,
+            "y": 0.3568763732910156,
+            "z": -146.46759033203125
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 371.28912353515625,
+          "distance3D": 371.4441223144531,
+          "pathLength": 580.2632446289062,
+          "queryPosition": {
+            "x": -130.38467407226562,
+            "y": 4.875568389892578,
+            "z": -36.69075393676758
+          },
+          "sampledPosition": {
+            "x": -130.38467407226562,
+            "y": 1.0083389282226562,
+            "z": -36.69075393676758
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_B[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_B[2]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 379.4508056640625,
+          "distance3D": 379.462158203125,
+          "pathLength": 708.5820922851562,
+          "queryPosition": {
+            "x": -132.67112731933594,
+            "y": 18.539548873901367,
+            "z": 218.44442749023438
+          },
+          "sampledPosition": {
+            "x": -132.67112731933594,
+            "y": 15.174995422363281,
+            "z": 218.44442749023438
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 395.9979248046875,
+          "distance3D": 396.14324951171875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -163.43312072753906,
+            "y": 4.875568389892578,
+            "z": -11.289878845214844
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Resource",
+      "band": "Far",
+      "count": 11,
+      "completeSampledPaths": 0,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]/LootBox[2]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 407.0874938964844,
+          "distance3D": 407.2288818359375,
+          "pathLength": 523.697265625,
+          "queryPosition": {
+            "x": -158.78994750976562,
+            "y": 4.875568389892578,
+            "z": -63.45726776123047
+          },
+          "sampledPosition": {
+            "x": -158.78994750976562,
+            "y": 1.0083389282226562,
+            "z": -63.45726776123047
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 407.6161193847656,
+          "distance3D": 407.7684020996094,
+          "pathLength": 666.8119506835938,
+          "queryPosition": {
+            "x": -151.2220458984375,
+            "y": 4.462657451629639,
+            "z": 247.244140625
+          },
+          "sampledPosition": {
+            "x": -151.2220458984375,
+            "y": 1.1749954223632812,
+            "z": 247.244140625
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 415.68499755859375,
+          "distance3D": 415.860595703125,
+          "pathLength": 646.3754272460938,
+          "queryPosition": {
+            "x": -179.238037109375,
+            "y": 3.5211362838745117,
+            "z": 192.81961059570312
+          },
+          "sampledPosition": {
+            "x": -179.238037109375,
+            "y": 0.18718719482421875,
+            "z": 192.81961059570312
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 440.190673828125,
+          "distance3D": 440.3214111328125,
+          "pathLength": 620.2493896484375,
+          "queryPosition": {
+            "x": -210.45858764648438,
+            "y": 4.875568389892578,
+            "z": -3.1505203247070312
+          },
+          "sampledPosition": {
+            "x": -210.45858764648438,
+            "y": 1.0083389282226562,
+            "z": -3.1505203247070312
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 496.947509765625,
+          "distance3D": 497.08514404296875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -259.8077087402344,
+            "y": 3.9081268310546875,
+            "z": 206.06756591796875
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 508.2616882324219,
+          "distance3D": 508.37493896484375,
+          "pathLength": 607.4951782226562,
+          "queryPosition": {
+            "x": -269.6453552246094,
+            "y": 4.875568389892578,
+            "z": -49.090599060058594
+          },
+          "sampledPosition": {
+            "x": -269.6453552246094,
+            "y": 1.0083389282226562,
+            "z": -49.090599060058594
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 516.0131225585938,
+          "distance3D": 516.1456909179688,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -291.0587158203125,
+            "y": 3.9081268310546875,
+            "z": 142.3961181640625
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[3]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 587.4642333984375,
+          "distance3D": 587.6015625,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -337.40606689453125,
+            "y": 2.9000091552734375,
+            "z": 263.2417907714844
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[2]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 595.1276245117188,
+          "distance3D": 595.2632446289062,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -362.95037841796875,
+            "y": 2.9000091552734375,
+            "z": 194.71734619140625
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[1]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 635.3746337890625,
+          "distance3D": 635.5016479492188,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -387.74737548828125,
+            "y": 2.9000091552734375,
+            "z": 262.659423828125
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 650.7817993164062,
+          "distance3D": 650.90576171875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -414.92218017578125,
+            "y": 2.9000091552734375,
+            "z": 218.39999389648438
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Enemy",
+      "band": "Interaction",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "1",
+      "kind": "Enemy",
+      "band": "Near",
+      "count": 8,
+      "completeSampledPaths": 8,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[107]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 124.45499420166016,
+          "distance3D": 125.38751220703125,
+          "pathLength": 127.08358001708984,
+          "queryPosition": {
+            "x": 208.819091796875,
+            "y": 0.34168243408203125,
+            "z": -41.78450012207031
+          },
+          "sampledPosition": {
+            "x": 208.819091796875,
+            "y": 0.34168243408203125,
+            "z": -41.78450012207031
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[104]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 136.42422485351562,
+          "distance3D": 136.54197692871094,
+          "pathLength": 138.406982421875,
+          "queryPosition": {
+            "x": 268.87884521484375,
+            "y": 6.936088562011719,
+            "z": 209.93185424804688
+          },
+          "sampledPosition": {
+            "x": 268.87884521484375,
+            "y": 6.936088562011719,
+            "z": 209.93185424804688
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[106]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Visible",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 137.4108428955078,
+          "distance3D": 137.95008850097656,
+          "pathLength": 155.5499725341797,
+          "queryPosition": {
+            "x": 210.82791137695312,
+            "y": 0.4198570251464844,
+            "z": -54.97085952758789
+          },
+          "sampledPosition": {
+            "x": 210.82791137695312,
+            "y": 0.4198570251464844,
+            "z": -54.97085952758789
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[105]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 140.85374450683594,
+          "distance3D": 140.97161865234375,
+          "pathLength": 151.56002807617188,
+          "queryPosition": {
+            "x": 253.25,
+            "y": 6.841682434082031,
+            "z": 219.239990234375
+          },
+          "sampledPosition": {
+            "x": 253.25,
+            "y": 6.841682434082031,
+            "z": 219.239990234375
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[120]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 159.55628967285156,
+          "distance3D": 159.79678344726562,
+          "pathLength": 163.2555389404297,
+          "queryPosition": {
+            "x": 265.97003173828125,
+            "y": 6.841682434082031,
+            "z": 235.239990234375
+          },
+          "sampledPosition": {
+            "x": 265.97003173828125,
+            "y": 6.841682434082031,
+            "z": 235.239990234375
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[114]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Visible",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 166.0684814453125,
+          "distance3D": 166.79931640625,
+          "pathLength": 205.2965087890625,
+          "queryPosition": {
+            "x": 128.27774047851562,
+            "y": 0.00833892822265625,
+            "z": -55.46307373046875
+          },
+          "sampledPosition": {
+            "x": 128.27774047851562,
+            "y": 0.00833892822265625,
+            "z": -55.46307373046875
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[113]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Visible",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 179.52967834472656,
+          "distance3D": 179.97108459472656,
+          "pathLength": 214.7994384765625,
+          "queryPosition": {
+            "x": 128.3013916015625,
+            "y": 0.00833892822265625,
+            "z": -71.46546173095703
+          },
+          "sampledPosition": {
+            "x": 128.3013916015625,
+            "y": 0.00833892822265625,
+            "z": -71.46546173095703
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[96]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 184.9095458984375,
+          "distance3D": 185.1171112060547,
+          "pathLength": 196.54739379882812,
+          "queryPosition": {
+            "x": 339.30999755859375,
+            "y": 6.8416595458984375,
+            "z": 224.48001098632812
+          },
+          "sampledPosition": {
+            "x": 339.30999755859375,
+            "y": 6.8416595458984375,
+            "z": 224.48001098632812
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Enemy",
+      "band": "Middle",
+      "count": 11,
+      "completeSampledPaths": 11,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[99]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 201.1918487548828,
+          "distance3D": 201.5582275390625,
+          "pathLength": 222.38980102539062,
+          "queryPosition": {
+            "x": 213.90640258789062,
+            "y": 0.4580497741699219,
+            "z": -119.02002716064453
+          },
+          "sampledPosition": {
+            "x": 213.90640258789062,
+            "y": 0.4580497741699219,
+            "z": -119.02002716064453
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[98]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 201.3292236328125,
+          "distance3D": 201.93247985839844,
+          "pathLength": 211.19131469726562,
+          "queryPosition": {
+            "x": 225.11944580078125,
+            "y": 0.00833892822265625,
+            "z": -119.2632827758789
+          },
+          "sampledPosition": {
+            "x": 225.11944580078125,
+            "y": 0.00833892822265625,
+            "z": -119.2632827758789
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[95]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 212.0380401611328,
+          "distance3D": 212.11398315429688,
+          "pathLength": 214.46994018554688,
+          "queryPosition": {
+            "x": 364.61492919921875,
+            "y": 6.929725646972656,
+            "z": 238.4060821533203
+          },
+          "sampledPosition": {
+            "x": 364.61492919921875,
+            "y": 6.929725646972656,
+            "z": 238.4060821533203
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[112]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 229.76783752441406,
+          "distance3D": 230.29661560058594,
+          "pathLength": 241.05877685546875,
+          "queryPosition": {
+            "x": 215.61474609375,
+            "y": 0.00833892822265625,
+            "z": -147.66290283203125
+          },
+          "sampledPosition": {
+            "x": 215.61474609375,
+            "y": 0.00833892822265625,
+            "z": -147.66290283203125
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[111]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 230.30567932128906,
+          "distance3D": 230.64993286132812,
+          "pathLength": 238.73001098632812,
+          "queryPosition": {
+            "x": 226.83474731445312,
+            "y": 0.00833892822265625,
+            "z": -148.21002197265625
+          },
+          "sampledPosition": {
+            "x": 226.83474731445312,
+            "y": 0.00833892822265625,
+            "z": -148.21002197265625
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[100]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 236.4573516845703,
+          "distance3D": 236.79092407226562,
+          "pathLength": 273.35296630859375,
+          "queryPosition": {
+            "x": 31.547393798828125,
+            "y": 0.041107177734375,
+            "z": -58.90679168701172
+          },
+          "sampledPosition": {
+            "x": 31.547393798828125,
+            "y": 0.041107177734375,
+            "z": -58.90679168701172
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[101]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 264.6089172363281,
+          "distance3D": 264.9085998535156,
+          "pathLength": 307.5867919921875,
+          "queryPosition": {
+            "x": -1.652587890625,
+            "y": 0.00833892822265625,
+            "z": -60.306793212890625
+          },
+          "sampledPosition": {
+            "x": -1.652587890625,
+            "y": 0.00833892822265625,
+            "z": -60.306793212890625
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[117]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 271.817626953125,
+          "distance3D": 272.1093444824219,
+          "pathLength": 303.38433837890625,
+          "queryPosition": {
+            "x": 4.747406005859375,
+            "y": 0.00833892822265625,
+            "z": -82.1067886352539
+          },
+          "sampledPosition": {
+            "x": 4.747406005859375,
+            "y": 0.00833892822265625,
+            "z": -82.1067886352539
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[109]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 289.81427001953125,
+          "distance3D": 290.0879211425781,
+          "pathLength": 331.4241943359375,
+          "queryPosition": {
+            "x": 21.791412353515625,
+            "y": 0.00833892822265625,
+            "z": -128.07321166992188
+          },
+          "sampledPosition": {
+            "x": 21.791412353515625,
+            "y": 0.00833892822265625,
+            "z": -128.07321166992188
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[110]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 303.2272644042969,
+          "distance3D": 303.4888000488281,
+          "pathLength": 327.2518005371094,
+          "queryPosition": {
+            "x": -1.90234375,
+            "y": 0.00833892822265625,
+            "z": -123.09666442871094
+          },
+          "sampledPosition": {
+            "x": -1.90234375,
+            "y": 0.00833892822265625,
+            "z": -123.09666442871094
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/BossSourceCluster[4]/BossSourceCluster_ActiveEnemyCluster[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_HunterBoss_00[97]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/BossSourceCluster[4]",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 369.5943908691406,
+          "distance3D": 369.6167907714844,
+          "pathLength": 728.0838623046875,
+          "queryPosition": {
+            "x": -123.82464599609375,
+            "y": 14.674995422363281,
+            "z": 213.98634338378906
+          },
+          "sampledPosition": {
+            "x": -123.82464599609375,
+            "y": 14.674995422363281,
+            "z": 213.98634338378906
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Enemy",
+      "band": "Far",
+      "count": 11,
+      "completeSampledPaths": 8,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[108]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 424.0179748535156,
+          "distance3D": 424.29888916015625,
+          "pathLength": 546.82177734375,
+          "queryPosition": {
+            "x": -181.0245361328125,
+            "y": 0.16827774047851562,
+            "z": -51.52143096923828
+          },
+          "sampledPosition": {
+            "x": -181.0245361328125,
+            "y": 0.16827774047851562,
+            "z": -51.52143096923828
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[102]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 434.1151123046875,
+          "distance3D": 434.2957763671875,
+          "pathLength": 658.5570068359375,
+          "queryPosition": {
+            "x": -207.3865203857422,
+            "y": 0.07958602905273438,
+            "z": 149.76788330078125
+          },
+          "sampledPosition": {
+            "x": -207.3865203857422,
+            "y": 0.07958602905273438,
+            "z": 149.76788330078125
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[118]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 438.2294616699219,
+          "distance3D": 438.50421142578125,
+          "pathLength": 524.125244140625,
+          "queryPosition": {
+            "x": -184.73907470703125,
+            "y": 0.08526611328125,
+            "z": -82.54873657226562
+          },
+          "sampledPosition": {
+            "x": -184.73907470703125,
+            "y": 0.08526611328125,
+            "z": -82.54873657226562
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[103]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 438.7027282714844,
+          "distance3D": 438.9510803222656,
+          "pathLength": 658.573974609375,
+          "queryPosition": {
+            "x": -207.68869018554688,
+            "y": 0.8416824340820312,
+            "z": 173.31748962402344
+          },
+          "sampledPosition": {
+            "x": -207.68869018554688,
+            "y": 0.8416824340820312,
+            "z": 173.31747436523438
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[122]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 451.5132141113281,
+          "distance3D": 451.6889343261719,
+          "pathLength": 677.1009521484375,
+          "queryPosition": {
+            "x": -212.58973693847656,
+            "y": 0.00833892822265625,
+            "z": 206.55923461914062
+          },
+          "sampledPosition": {
+            "x": -212.58973693847656,
+            "y": 0.00833892822265625,
+            "z": 206.55923461914062
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[123]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 458.2332763671875,
+          "distance3D": 458.4986267089844,
+          "pathLength": 685.14892578125,
+          "queryPosition": {
+            "x": -211.35919189453125,
+            "y": 0.00833892822265625,
+            "z": 232.65463256835938
+          },
+          "sampledPosition": {
+            "x": -211.35919189453125,
+            "y": 0.00833892822265625,
+            "z": 232.65463256835938
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[119]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "NoSample",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 460.38250732421875,
+          "distance3D": 460.4492492675781,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -210.81365966796875,
+            "y": 7.765434265136719,
+            "z": -76.50350952148438
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[115]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 553.431640625,
+          "distance3D": 553.6513671875,
+          "pathLength": 813.6109619140625,
+          "queryPosition": {
+            "x": -329.18438720703125,
+            "y": 0.00833892822265625,
+            "z": 137.98416137695312
+          },
+          "sampledPosition": {
+            "x": -329.18438720703125,
+            "y": 0.00833892822265625,
+            "z": 137.98416137695312
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[124]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 555.7354736328125,
+          "distance3D": 555.954345703125,
+          "pathLength": 816.0948486328125,
+          "queryPosition": {
+            "x": -331.28204345703125,
+            "y": 0.00833892822265625,
+            "z": 140.0983123779297
+          },
+          "sampledPosition": {
+            "x": -331.28204345703125,
+            "y": 0.00833892822265625,
+            "z": 140.0983123779297
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[116]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "NoSample",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 614.1255493164062,
+          "distance3D": 614.19873046875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -388.0191955566406,
+            "y": 6.127197265625,
+            "z": 157.82366943359375
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[121]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 615.156005859375,
+          "distance3D": 615.2849731445312,
+          "pathLength": 878.0829467773438,
+          "queryPosition": {
+            "x": -388.9192199707031,
+            "y": 0.00833892822265625,
+            "z": 158.92959594726562
+          },
+          "sampledPosition": {
+            "x": -388.9192199707031,
+            "y": 0.00833892822265625,
+            "z": 158.92959594726562
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Extraction",
+      "band": "Interaction",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "1",
+      "kind": "Extraction",
+      "band": "Near",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "1",
+      "kind": "Extraction",
+      "band": "Middle",
+      "count": 1,
+      "completeSampledPaths": 0,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ExtractionCluster[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ExtractionCluster[0]/ExtractionPoint[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "ExtractionPointPath",
+          "distancePlanar": 227.30845642089844,
+          "distance3D": 227.3802947998047,
+          "pathLength": 230.0475311279297,
+          "queryPosition": {
+            "x": 385.6000061035156,
+            "y": 9.890213012695312,
+            "z": 239.23001098632812
+          },
+          "sampledPosition": {
+            "x": 385.60003662109375,
+            "y": 10.508338928222656,
+            "z": 239.23001098632812
+          },
+          "sampled": true,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "1",
+      "kind": "Extraction",
+      "band": "Far",
+      "count": 1,
+      "completeSampledPaths": 1,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ExtractionCluster[6]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ExtractionCluster[6]/ExtractionPoint[0]",
+          "source": "",
+          "agent": "1",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "ExtractionPointPath",
+          "distancePlanar": 448.63519287109375,
+          "distance3D": 448.9107360839844,
+          "pathLength": 703.8764038085938,
+          "queryPosition": {
+            "x": -190.2310791015625,
+            "y": -0.120025634765625,
+            "z": 260.42437744140625
+          },
+          "sampledPosition": {
+            "x": -190.2310791015625,
+            "y": 0.00833892822265625,
+            "z": 260.42437744140625
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Resource",
+      "band": "Interaction",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "2",
+      "kind": "Resource",
+      "band": "Near",
+      "count": 9,
+      "completeSampledPaths": 0,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[3]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 51.546688079833984,
+          "distance3D": 51.54688262939453,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 208.3874969482422,
+            "y": 2.95501708984375,
+            "z": -27.78499984741211
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 85.9031982421875,
+          "distance3D": 85.9033203125,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 131.20999145507812,
+            "y": 2.95501708984375,
+            "z": -23.369998931884766
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[2]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 89.80974578857422,
+          "distance3D": 89.81494140625,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 243.8175048828125,
+            "y": 2.1300172805786133,
+            "z": -56.599998474121094
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 112.47222900390625,
+          "distance3D": 112.47428894042969,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 168.55999755859375,
+            "y": 2.4150171279907227,
+            "z": -83.5050048828125
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[3]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 154.02674865722656,
+          "distance3D": 154.0411834716797,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 164.5633544921875,
+            "y": 5.204986572265625,
+            "z": -125.6021499633789
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[2]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 168.23472595214844,
+          "distance3D": 168.23692321777344,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 254.5633544921875,
+            "y": 2.2349865436553955,
+            "z": -136.7021484375
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 190.81207275390625,
+          "distance3D": 190.8121337890625,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 255.04283142089844,
+            "y": 2.954986572265625,
+            "z": -160.13433837890625
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 190.96925354003906,
+          "distance3D": 191.05606079101562,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 254.32000732421875,
+            "y": 8.854988098144531,
+            "z": 207.5
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/ResourceCluster_A[2]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 196.32864379882812,
+          "distance3D": 196.32870483398438,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 175.99282836914062,
+            "y": 2.954986572265625,
+            "z": -170.934326171875
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Resource",
+      "band": "Middle",
+      "count": 13,
+      "completeSampledPaths": 2,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 211.80972290039062,
+          "distance3D": 211.81077575683594,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 25.957965850830078,
+            "y": 2.42498779296875,
+            "z": -92.46815490722656
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ResourceCluster_B (1)[4]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 215.86129760742188,
+          "distance3D": 215.9381103515625,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": 253.7647705078125,
+            "y": 8.854988098144531,
+            "z": 233.35543823242188
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_A[1]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 255.66905212402344,
+          "distance3D": 255.669921875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -26.452030181884766,
+            "y": 2.42498779296875,
+            "z": -88.86815643310547
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 257.0309753417969,
+          "distance3D": 257.031005859375,
+          "pathLength": 274.361083984375,
+          "queryPosition": {
+            "x": 26.454999923706055,
+            "y": 2.954986572265625,
+            "z": -163.11758422851562
+          },
+          "sampledPosition": {
+            "x": 28.49700927734375,
+            "y": 0.17499542236328125,
+            "z": -163.34446716308594
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 264.8360900878906,
+          "distance3D": 264.83642578125,
+          "pathLength": 551.2015991210938,
+          "queryPosition": {
+            "x": 18.377071380615234,
+            "y": 3.5211362838745117,
+            "z": 213.18035888671875
+          },
+          "sampledPosition": {
+            "x": 18.3770751953125,
+            "y": 0.17499542236328125,
+            "z": 213.18035888671875
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/ResourceCluster_B[2]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 284.14129638671875,
+          "distance3D": 284.1413269042969,
+          "pathLength": 304.6513366699219,
+          "queryPosition": {
+            "x": -24.500001907348633,
+            "y": 2.954986572265625,
+            "z": -146.46759033203125
+          },
+          "sampledPosition": {
+            "x": -24.5,
+            "y": 0.3568763732910156,
+            "z": -146.46759033203125
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 299.4794006347656,
+          "distance3D": 299.4797058105469,
+          "pathLength": 489.3035888671875,
+          "queryPosition": {
+            "x": -46.0138053894043,
+            "y": 3.5211362838745117,
+            "z": 189.57342529296875
+          },
+          "sampledPosition": {
+            "x": -46.01380920410156,
+            "y": 0.17499542236328125,
+            "z": 189.57342529296875
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox [3]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 307.84185791015625,
+          "distance3D": 307.8421325683594,
+          "pathLength": 582.5234375,
+          "queryPosition": {
+            "x": 3.335693359375,
+            "y": 3.5211362838745117,
+            "z": 257.6385498046875
+          },
+          "sampledPosition": {
+            "x": 3.335693359375,
+            "y": 0.17499542236328125,
+            "z": 257.6385498046875
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_C[1]/LootBox[2]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 318.1597900390625,
+          "distance3D": 318.16009521484375,
+          "pathLength": 536.5383911132812,
+          "queryPosition": {
+            "x": -35.7259635925293,
+            "y": 3.5211362838745117,
+            "z": 233.59530639648438
+          },
+          "sampledPosition": {
+            "x": -35.72596740722656,
+            "y": 0.3063316345214844,
+            "z": 233.59530639648438
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 338.97149658203125,
+          "distance3D": 338.9761657714844,
+          "pathLength": 526.5234375,
+          "queryPosition": {
+            "x": -130.38467407226562,
+            "y": 4.875568389892578,
+            "z": -36.69075393676758
+          },
+          "sampledPosition": {
+            "x": -130.38467407226562,
+            "y": 1.0083389282226562,
+            "z": -36.69075393676758
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 368.280029296875,
+          "distance3D": 368.2843322753906,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -163.43312072753906,
+            "y": 4.875568389892578,
+            "z": -11.289878845214844
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]/LootBox[2]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 372.2879333496094,
+          "distance3D": 372.29217529296875,
+          "pathLength": 469.9573974609375,
+          "queryPosition": {
+            "x": -158.78994750976562,
+            "y": 4.875568389892578,
+            "z": -63.45726776123047
+          },
+          "sampledPosition": {
+            "x": -158.78994750976562,
+            "y": 1.0083389282226562,
+            "z": -63.45726776123047
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_B[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_B[2]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 388.34619140625,
+          "distance3D": 388.65313720703125,
+          "pathLength": 654.8422241210938,
+          "queryPosition": {
+            "x": -132.67112731933594,
+            "y": 18.539548873901367,
+            "z": 218.44442749023438
+          },
+          "sampledPosition": {
+            "x": -132.67112731933594,
+            "y": 15.174995422363281,
+            "z": 218.44442749023438
+          },
+          "sampled": true,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Resource",
+      "band": "Far",
+      "count": 10,
+      "completeSampledPaths": 0,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 414.5162048339844,
+          "distance3D": 414.52001953125,
+          "pathLength": 566.5095825195312,
+          "queryPosition": {
+            "x": -210.45858764648438,
+            "y": 4.875568389892578,
+            "z": -3.1505203247070312
+          },
+          "sampledPosition": {
+            "x": -210.45858764648438,
+            "y": 1.0083389282226562,
+            "z": -3.1505203247070312
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 418.2439270019531,
+          "distance3D": 418.244140625,
+          "pathLength": 592.6355590820312,
+          "queryPosition": {
+            "x": -179.238037109375,
+            "y": 3.5211362838745117,
+            "z": 192.81961059570312
+          },
+          "sampledPosition": {
+            "x": -179.238037109375,
+            "y": 0.18718719482421875,
+            "z": 192.81961059570312
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ResourceCluster_A[3]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 419.1377258300781,
+          "distance3D": 419.13995361328125,
+          "pathLength": 613.0720825195312,
+          "queryPosition": {
+            "x": -151.2220458984375,
+            "y": 4.462657451629639,
+            "z": 247.244140625
+          },
+          "sampledPosition": {
+            "x": -151.2220458984375,
+            "y": 1.1749954223632812,
+            "z": 247.244140625
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 478.3849182128906,
+          "distance3D": 478.38824462890625,
+          "pathLength": 553.7553100585938,
+          "queryPosition": {
+            "x": -269.6453552246094,
+            "y": 4.875568389892578,
+            "z": -49.090599060058594
+          },
+          "sampledPosition": {
+            "x": -269.6453552246094,
+            "y": 1.0083389282226562,
+            "z": -49.090599060058594
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 497.7017822265625,
+          "distance3D": 497.70245361328125,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -259.8077087402344,
+            "y": 3.9081268310546875,
+            "z": 206.06756591796875
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_A[0]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 508.3581237792969,
+          "distance3D": 508.3587646484375,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -291.0587158203125,
+            "y": 3.9081268310546875,
+            "z": 142.3961181640625
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[3]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 591.380615234375,
+          "distance3D": 591.3806762695312,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -337.40606689453125,
+            "y": 2.9000091552734375,
+            "z": 263.2417907714844
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[2]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 591.47412109375,
+          "distance3D": 591.4741821289062,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -362.95037841796875,
+            "y": 2.9000091552734375,
+            "z": 194.71734619140625
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[1]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 637.5076904296875,
+          "distance3D": 637.5076904296875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -387.74737548828125,
+            "y": 2.9000091552734375,
+            "z": 262.659423828125
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/ResourceCluster_B[1]/LootBox[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "NoSample",
+          "pathMeaning": "SampledPivotOnly",
+          "distancePlanar": 648.1211547851562,
+          "distance3D": 648.1212158203125,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -414.92218017578125,
+            "y": 2.9000091552734375,
+            "z": 218.39999389648438
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Enemy",
+      "band": "Interaction",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "2",
+      "kind": "Enemy",
+      "band": "Near",
+      "count": 10,
+      "completeSampledPaths": 10,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[107]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 65.52587127685547,
+          "distance3D": 65.583740234375,
+          "pathLength": 66.39305877685547,
+          "queryPosition": {
+            "x": 208.819091796875,
+            "y": 0.34168243408203125,
+            "z": -41.78450012207031
+          },
+          "sampledPosition": {
+            "x": 208.819091796875,
+            "y": 0.34168243408203125,
+            "z": -41.78450012207031
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[106]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_B[3]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 78.84072875976562,
+          "distance3D": 78.84139251708984,
+          "pathLength": 80.51010131835938,
+          "queryPosition": {
+            "x": 210.82791137695312,
+            "y": 0.4198570251464844,
+            "z": -54.97085952758789
+          },
+          "sampledPosition": {
+            "x": 210.82791137695312,
+            "y": 0.4198570251464844,
+            "z": -54.97085952758789
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[114]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Visible",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 108.85087585449219,
+          "distance3D": 108.89466857910156,
+          "pathLength": 145.5323944091797,
+          "queryPosition": {
+            "x": 128.27774047851562,
+            "y": 0.00833892822265625,
+            "z": -55.46307373046875
+          },
+          "sampledPosition": {
+            "x": 128.27774047851562,
+            "y": 0.00833892822265625,
+            "z": -55.46307373046875
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[113]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/EnemySourceCluster_A[2]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Visible",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 120.94727325439453,
+          "distance3D": 120.94730377197266,
+          "pathLength": 154.10890197753906,
+          "queryPosition": {
+            "x": 128.3013916015625,
+            "y": 0.00833892822265625,
+            "z": -71.46546173095703
+          },
+          "sampledPosition": {
+            "x": 128.3013916015625,
+            "y": 0.00833892822265625,
+            "z": -71.46546173095703
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[99]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 142.92160034179688,
+          "distance3D": 142.92205810546875,
+          "pathLength": 144.09083557128906,
+          "queryPosition": {
+            "x": 213.90640258789062,
+            "y": 0.4580497741699219,
+            "z": -119.02002716064453
+          },
+          "sampledPosition": {
+            "x": 213.90640258789062,
+            "y": 0.4580497741699219,
+            "z": -119.02002716064453
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[98]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 144.43618774414062,
+          "distance3D": 144.4691925048828,
+          "pathLength": 154.77029418945312,
+          "queryPosition": {
+            "x": 225.11944580078125,
+            "y": 0.00833892822265625,
+            "z": -119.2632827758789
+          },
+          "sampledPosition": {
+            "x": 225.11944580078125,
+            "y": 0.00833892822265625,
+            "z": -119.2632827758789
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[112]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 171.612548828125,
+          "distance3D": 171.64031982421875,
+          "pathLength": 174.423828125,
+          "queryPosition": {
+            "x": 215.61474609375,
+            "y": 0.00833892822265625,
+            "z": -147.66290283203125
+          },
+          "sampledPosition": {
+            "x": 215.61474609375,
+            "y": 0.00833892822265625,
+            "z": -147.66290283203125
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[111]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[20]/EnemySourceCluster_B[4]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 173.32896423339844,
+          "distance3D": 173.32899475097656,
+          "pathLength": 182.37173461914062,
+          "queryPosition": {
+            "x": 226.83474731445312,
+            "y": 0.00833892822265625,
+            "z": -148.21002197265625
+          },
+          "sampledPosition": {
+            "x": 226.83474731445312,
+            "y": 0.00833892822265625,
+            "z": -148.21002197265625
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[100]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Visible",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 190.4087677001953,
+          "distance3D": 190.40878295898438,
+          "pathLength": 219.53050231933594,
+          "queryPosition": {
+            "x": 31.547393798828125,
+            "y": 0.041107177734375,
+            "z": -58.90679168701172
+          },
+          "sampledPosition": {
+            "x": 31.547393798828125,
+            "y": 0.041107177734375,
+            "z": -58.90679168701172
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[104]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]",
+          "agent": "2",
+          "distanceClass": "Near",
+          "visibility": "Occluded",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 197.66270446777344,
+          "distance3D": 197.78102111816406,
+          "pathLength": 198.84695434570312,
+          "queryPosition": {
+            "x": 268.87884521484375,
+            "y": 6.936088562011719,
+            "z": 209.93185424804688
+          },
+          "sampledPosition": {
+            "x": 268.87884521484375,
+            "y": 6.936088562011719,
+            "z": 209.93185424804688
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Enemy",
+      "band": "Middle",
+      "count": 10,
+      "completeSampledPaths": 10,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[105]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 202.03749084472656,
+          "distance3D": 202.15005493164062,
+          "pathLength": 211.99998474121094,
+          "queryPosition": {
+            "x": 253.25,
+            "y": 6.841682434082031,
+            "z": 219.239990234375
+          },
+          "sampledPosition": {
+            "x": 253.25,
+            "y": 6.841682434082031,
+            "z": 219.239990234375
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[120]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_B[2]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 220.84812927246094,
+          "distance3D": 220.87989807128906,
+          "pathLength": 223.6955108642578,
+          "queryPosition": {
+            "x": 265.97003173828125,
+            "y": 6.841682434082031,
+            "z": 235.239990234375
+          },
+          "sampledPosition": {
+            "x": 265.97003173828125,
+            "y": 6.841682434082031,
+            "z": 235.239990234375
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[101]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 221.33270263671875,
+          "distance3D": 221.3327178955078,
+          "pathLength": 253.84690856933594,
+          "queryPosition": {
+            "x": -1.652587890625,
+            "y": 0.00833892822265625,
+            "z": -60.306793212890625
+          },
+          "sampledPosition": {
+            "x": -1.652587890625,
+            "y": 0.00833892822265625,
+            "z": -60.306793212890625
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[117]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 224.80264282226562,
+          "distance3D": 224.8026580810547,
+          "pathLength": 249.5618896484375,
+          "queryPosition": {
+            "x": 4.747406005859375,
+            "y": 0.00833892822265625,
+            "z": -82.1067886352539
+          },
+          "sampledPosition": {
+            "x": 4.747406005859375,
+            "y": 0.00833892822265625,
+            "z": -82.1067886352539
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[109]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 236.39695739746094,
+          "distance3D": 236.39697265625,
+          "pathLength": 277.55731201171875,
+          "queryPosition": {
+            "x": 21.791412353515625,
+            "y": 0.00833892822265625,
+            "z": -128.07321166992188
+          },
+          "sampledPosition": {
+            "x": 21.791412353515625,
+            "y": 0.00833892822265625,
+            "z": -128.07321166992188
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[96]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 242.73214721679688,
+          "distance3D": 242.7610321044922,
+          "pathLength": 257.9234924316406,
+          "queryPosition": {
+            "x": 339.30999755859375,
+            "y": 6.8416595458984375,
+            "z": 224.48001098632812
+          },
+          "sampledPosition": {
+            "x": 339.30999755859375,
+            "y": 6.8416595458984375,
+            "z": 224.48001098632812
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[110]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[16]/EnemySourceCluster_B[4]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 252.1062469482422,
+          "distance3D": 252.10626220703125,
+          "pathLength": 273.3848876953125,
+          "queryPosition": {
+            "x": -1.90234375,
+            "y": 0.00833892822265625,
+            "z": -123.09666442871094
+          },
+          "sampledPosition": {
+            "x": -1.90234375,
+            "y": 0.00833892822265625,
+            "z": -123.09666442871094
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[95]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/EnemySourceCluster_A[3]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 268.7738952636719,
+          "distance3D": 268.8607482910156,
+          "pathLength": 275.8460388183594,
+          "queryPosition": {
+            "x": 364.61492919921875,
+            "y": 6.929725646972656,
+            "z": 238.4060821533203
+          },
+          "sampledPosition": {
+            "x": 364.61492919921875,
+            "y": 6.929725646972656,
+            "z": 238.4060821533203
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/BossSourceCluster[4]/BossSourceCluster_ActiveEnemyCluster[1]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_HunterBoss_00[97]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/BossSourceCluster[4]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 378.4576110839844,
+          "distance3D": 378.8205871582031,
+          "pathLength": 674.343994140625,
+          "queryPosition": {
+            "x": -123.82464599609375,
+            "y": 14.674995422363281,
+            "z": 213.98634338378906
+          },
+          "sampledPosition": {
+            "x": -123.82464599609375,
+            "y": 14.674995422363281,
+            "z": 213.98634338378906
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[108]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 391.48016357421875,
+          "distance3D": 391.4911193847656,
+          "pathLength": 493.08184814453125,
+          "queryPosition": {
+            "x": -181.0245361328125,
+            "y": 0.16827774047851562,
+            "z": -51.52143096923828
+          },
+          "sampledPosition": {
+            "x": -181.0245361328125,
+            "y": 0.16827774047851562,
+            "z": -51.52143096923828
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Enemy",
+      "band": "Far",
+      "count": 10,
+      "completeSampledPaths": 7,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[118]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 402.1729431152344,
+          "distance3D": 402.1842041015625,
+          "pathLength": 470.3853454589844,
+          "queryPosition": {
+            "x": -184.73907470703125,
+            "y": 0.08526611328125,
+            "z": -82.54873657226562
+          },
+          "sampledPosition": {
+            "x": -184.73907470703125,
+            "y": 0.08526611328125,
+            "z": -82.54873657226562
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[119]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "NoSample",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 425.9201965332031,
+          "distance3D": 425.94580078125,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -210.81365966796875,
+            "y": 7.765434265136719,
+            "z": -76.50350952148438
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[102]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 429.5635986328125,
+          "distance3D": 429.5635986328125,
+          "pathLength": 604.817138671875,
+          "queryPosition": {
+            "x": -207.3865203857422,
+            "y": 0.07958602905273438,
+            "z": 149.76788330078125
+          },
+          "sampledPosition": {
+            "x": -207.3865203857422,
+            "y": 0.07958602905273438,
+            "z": 149.76788330078125
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[103]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[5]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 437.3497619628906,
+          "distance3D": 437.3555603027344,
+          "pathLength": 604.8341064453125,
+          "queryPosition": {
+            "x": -207.68869018554688,
+            "y": 0.8416824340820312,
+            "z": 173.31748962402344
+          },
+          "sampledPosition": {
+            "x": -207.68869018554688,
+            "y": 0.8416824340820312,
+            "z": 173.31747436523438
+          },
+          "sampled": true,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[122]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 454.3036193847656,
+          "distance3D": 454.30364990234375,
+          "pathLength": 623.361083984375,
+          "queryPosition": {
+            "x": -212.58973693847656,
+            "y": 0.00833892822265625,
+            "z": 206.55923461914062
+          },
+          "sampledPosition": {
+            "x": -212.58973693847656,
+            "y": 0.00833892822265625,
+            "z": 206.55923461914062
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[123]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/EnemySourceCluster[0]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 464.3328552246094,
+          "distance3D": 464.3431091308594,
+          "pathLength": 631.4090576171875,
+          "queryPosition": {
+            "x": -211.35919189453125,
+            "y": 0.00833892822265625,
+            "z": 232.65463256835938
+          },
+          "sampledPosition": {
+            "x": -211.35919189453125,
+            "y": 0.00833892822265625,
+            "z": 232.65463256835938
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[115]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 544.5546264648438,
+          "distance3D": 544.5634155273438,
+          "pathLength": 759.87109375,
+          "queryPosition": {
+            "x": -329.18438720703125,
+            "y": 0.00833892822265625,
+            "z": 137.98416137695312
+          },
+          "sampledPosition": {
+            "x": -329.18438720703125,
+            "y": 0.00833892822265625,
+            "z": 137.98416137695312
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[124]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 547.0523071289062,
+          "distance3D": 547.06103515625,
+          "pathLength": 762.3549194335938,
+          "queryPosition": {
+            "x": -331.28204345703125,
+            "y": 0.00833892822265625,
+            "z": 140.0983123779297
+          },
+          "sampledPosition": {
+            "x": -331.28204345703125,
+            "y": 0.00833892822265625,
+            "z": 140.0983123779297
+          },
+          "sampled": true,
+          "completePath": true
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[116]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/EnemySourceCluster[2]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "NoSample",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 606.2862548828125,
+          "distance3D": 606.2938232421875,
+          "pathLength": -1.0,
+          "queryPosition": {
+            "x": -388.0191955566406,
+            "y": 6.127197265625,
+            "z": 157.82366943359375
+          },
+          "sampledPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "sampled": false,
+          "completePath": false
+        },
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AnchorSentinel_00[121]",
+          "source": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[17]/Env[3]/实验室[1]/EnemySourceCluster[0]",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "OutOfRange",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "EnemySurfacePathOnly",
+          "distancePlanar": 607.4096069335938,
+          "distance3D": 607.4096069335938,
+          "pathLength": 824.343017578125,
+          "queryPosition": {
+            "x": -388.9192199707031,
+            "y": 0.00833892822265625,
+            "z": 158.92959594726562
+          },
+          "sampledPosition": {
+            "x": -388.9192199707031,
+            "y": 0.00833892822265625,
+            "z": 158.92959594726562
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Extraction",
+      "band": "Interaction",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "2",
+      "kind": "Extraction",
+      "band": "Near",
+      "count": 0,
+      "completeSampledPaths": 0,
+      "candidates": []
+    },
+    {
+      "agent": "2",
+      "kind": "Extraction",
+      "band": "Middle",
+      "count": 1,
+      "completeSampledPaths": 0,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ExtractionCluster[0]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[21]/ExtractionCluster[0]/ExtractionPoint[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Middle",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathPartial",
+          "pathMeaning": "ExtractionPointPath",
+          "distancePlanar": 282.5052185058594,
+          "distance3D": 282.5868835449219,
+          "pathLength": 291.42364501953125,
+          "queryPosition": {
+            "x": 385.6000061035156,
+            "y": 9.890213012695312,
+            "z": 239.23001098632812
+          },
+          "sampledPosition": {
+            "x": 385.60003662109375,
+            "y": 10.508338928222656,
+            "z": 239.23001098632812
+          },
+          "sampled": true,
+          "completePath": false
+        }
+      ]
+    },
+    {
+      "agent": "2",
+      "kind": "Extraction",
+      "band": "Far",
+      "count": 1,
+      "completeSampledPaths": 1,
+      "candidates": [
+        {
+          "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ExtractionCluster[6]",
+          "member": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[18]/ExtractionCluster[6]/ExtractionPoint[0]",
+          "source": "",
+          "agent": "2",
+          "distanceClass": "Far",
+          "visibility": "NotEnemy",
+          "pathStatus": "PathComplete",
+          "pathMeaning": "ExtractionPointPath",
+          "distancePlanar": 459.2615661621094,
+          "distance3D": 459.2728271484375,
+          "pathLength": 650.1365356445312,
+          "queryPosition": {
+            "x": -190.2310791015625,
+            "y": -0.120025634765625,
+            "z": 260.42437744140625
+          },
+          "sampledPosition": {
+            "x": -190.2310791015625,
+            "y": 0.00833892822265625,
+            "z": 260.42437744140625
+          },
+          "sampled": true,
+          "completePath": true
+        }
+      ]
+    }
+  ],
+  "scripts": [
+    {
+      "id": "MC01-R",
+      "seed": 731,
+      "speed": 4,
+      "limitSeconds": 480,
+      "steps": [
+        "Agent1 nearest Near Resource",
+        "Agent2 nearest Far Resource",
+        "Agent1 Far Resource after first valid inventory close",
+        "Stop directives; autonomous terminal"
+      ]
+    },
+    {
+      "id": "MC01-E",
+      "seed": 731,
+      "speed": 4,
+      "limitSeconds": 480,
+      "steps": [
+        "Agent1 nearest Near Enemy",
+        "Agent2 nearest Far Enemy",
+        "Agent1 Far Enemy after first combat terminal",
+        "Stop directives; autonomous terminal"
+      ]
+    },
+    {
+      "id": "MC01-X",
+      "seed": 731,
+      "speed": 4,
+      "limitSeconds": 300,
+      "steps": [
+        "Both agents Far Extraction before inventory",
+        "Each agent reissue same exit once in Near band outside interaction",
+        "Observe real terminal and initial carried settlement"
+      ]
+    },
+    {
+      "id": "MC02",
+      "seed": 731,
+      "speed": 4,
+      "limitSeconds": 480,
+      "steps": [
+        "Search A then B while moving",
+        "Engage then Resource",
+        "Retaliation then replacement target when naturally triggered",
+        "Bounded repeat then stop directives; autonomous terminal"
+      ]
+    },
+    {
+      "id": "MC03",
+      "seed": 731,
+      "speed": 4,
+      "limitSeconds": 480,
+      "steps": [
+        "Focused Agent1 then Focused Agent2",
+        "Explicit Agent1 while focus=2",
+        "Both agents same resource",
+        "Command during actual open inventory",
+        "Both agents same enemy",
+        "Stop directives; autonomous terminal"
+      ]
+    },
+    {
+      "id": "MC04-N",
+      "seed": 731,
+      "speed": 4,
+      "limitSeconds": 480,
+      "steps": [
+        "Nearest singleton Enemy cluster",
+        "After real completion and new valid task, reject completed cluster",
+        "Stop directives; autonomous terminal"
+      ]
+    }
+  ],
+  "finalRuns": [
+    {
+      "scenario": "MC01-R",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC01-E",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC01-X",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC02",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC03",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC04-N",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC02",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor",
+      "repeat": 2
+    },
+    {
+      "scenario": "MC03",
+      "seed": 731,
+      "speed": 4,
+      "runtime": "Editor",
+      "repeat": 2
+    },
+    {
+      "scenario": "MC01-R",
+      "seed": 1731,
+      "speed": 4,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC02",
+      "seed": 731,
+      "speed": 1,
+      "runtime": "Editor"
+    },
+    {
+      "scenario": "MC01-R",
+      "seed": 731,
+      "speed": 1,
+      "runtime": "Player"
+    }
+  ],
+  "coverageGapPolicy": "No Near Extraction at spawn. Use MC01-X normal movement then reissue in Near band; no Warp. Multi-member exit fallback uses constructed scene because each actual cluster has one point. First-approach and LostSight require dedicated boundary cases because scene R=200."
+}

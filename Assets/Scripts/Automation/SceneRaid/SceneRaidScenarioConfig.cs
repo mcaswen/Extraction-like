@@ -16,6 +16,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public bool enabled = true, keepEditorOpen = true;
         public bool buildPlayer;
         public bool quitPlayerWhenComplete;
+        public bool captureCommandCatalog;
 
         public static string ExplicitPath()
         {
