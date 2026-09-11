@@ -1,0 +1,3185 @@
+{
+  "schemaVersion": 1,
+  "generatedUtc": "2026-09-11T18:43:33.168870+00:00",
+  "host": {
+    "capturedUtc": "2026-09-11T17:47:24.1645438Z",
+    "cpu": {
+      "Name": "AMD Ryzen 9 9950X3D 16-Core Processor          ",
+      "NumberOfCores": 16,
+      "NumberOfLogicalProcessors": 32
+    },
+    "memoryBytes": 134813700096,
+    "os": {
+      "Caption": "Microsoft Windows 11 专业版",
+      "Version": "10.0.26200",
+      "BuildNumber": "26200"
+    }
+  },
+  "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+  "matrixStatus": "PASS",
+  "policy": {
+    "averageFpsStrictlyGreaterThan": 60,
+    "normalSpeedOnly": true,
+    "tailMetricsDiagnosticOnly": true,
+    "minimapOptimization": false,
+    "fftDisabledByUser": true,
+    "playerDevelopmentBuild": true,
+    "deathIsExpectedGameplay": true,
+    "fullExtractionCoverageRequiredAcrossMatrix": true,
+    "automatedActions": "Inventory UI only; no gameplay target directives, health or transform writes"
+  },
+  "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+  "sourceFilesFingerprints": [
+    "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a"
+  ],
+  "automationRevisionNote": "Final matrix was restarted after P3l. Every selected run has identical source, automation, scene and asset inputs.",
+  "finalRuns": [
+    {
+      "path": "Logs/SceneRaid/20260912-022333-491",
+      "runId": "20260912-022333-491",
+      "seed": 731,
+      "simulationSpeed": 1,
+      "runtime": "Editor",
+      "status": "PASS",
+      "gameOutcome": "EXPECTED_DEATH",
+      "originalRuntimeStatus": "RAID_OBSERVED_FAILURE",
+      "originalReportGameStatus": "EXPECTED_DEATH",
+      "adjudication": null,
+      "commit": "804e78d43c074dd5f107d9391a2757413a421bb5",
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 212.3033214,
+      "frames": 20061,
+      "renderedFrames": 20060,
+      "inventorySessions": 12,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 62,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": true,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 20060,
+        "averageFps": 95.23487616092595,
+        "p99Ms": 19.1297,
+        "maxMs": 474.0043,
+        "onePercentLowFps": 42.166294424997034,
+        "minimumOneSecondFps": 59,
+        "windowCount": 837,
+        "startupIncluded": true,
+        "slowFrameCount": 643,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 20060,
+          "averageRaw": 8776844.207377866,
+          "maxRaw": 125488400,
+          "averageCalls": 2.999950149551346
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 20060,
+          "averageRaw": 35128.605732801596,
+          "maxRaw": 12643251,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 20060,
+          "averageRaw": 67930.84247258226,
+          "maxRaw": 12119200,
+          "averageCalls": 0.999950149551346
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 20060,
+          "averageRaw": 250326.61515453638,
+          "maxRaw": 9568300,
+          "averageCalls": 1.6315054835493519
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 20060,
+          "averageRaw": 301834.74576271186,
+          "maxRaw": 3200900,
+          "averageCalls": 7.999601196410768
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 20060,
+          "averageRaw": 47067.44267198405,
+          "maxRaw": 11487400,
+          "averageCalls": 0.02547357926221336
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 20060,
+          "averageRaw": 36825.26420737787,
+          "maxRaw": 457500,
+          "averageCalls": 1.6315054835493519
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 20060,
+          "averageRaw": 47225.882352941175,
+          "maxRaw": 1152100,
+          "averageCalls": 1.6315054835493519
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 20060,
+          "averageRaw": 163821.80458624128,
+          "maxRaw": 9382600,
+          "averageCalls": 1.6315054835493519
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 20060,
+          "averageRaw": 12216.525423728814,
+          "maxRaw": 122600,
+          "averageCalls": 7.999601196410768
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 20060,
+          "averageRaw": 288485,
+          "maxRaw": 3170700,
+          "averageCalls": 7.999601196410768
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 20060,
+          "averageRaw": 34390.862412761715,
+          "maxRaw": 3016900,
+          "averageCalls": 0.33504486540378864
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 20060,
+          "averageRaw": 297867.27318045864,
+          "maxRaw": 3544500,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 20060,
+          "averageRaw": 55376.02691924227,
+          "maxRaw": 316700,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 20060,
+          "averageRaw": 22454.092721834495,
+          "maxRaw": 342400,
+          "averageCalls": 7.14690927218345
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 20060,
+          "averageRaw": 197642.49750747756,
+          "maxRaw": 2991100,
+          "averageCalls": 7.14690927218345
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 20060,
+          "averageRaw": 53193.15054835493,
+          "maxRaw": 634700,
+          "averageCalls": 1.105134596211366
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 20060,
+          "averageRaw": 353374.9351944167,
+          "maxRaw": 2987200,
+          "averageCalls": 2.063310069790628
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 20060,
+          "averageRaw": 8926.674975074775,
+          "maxRaw": 163100,
+          "averageCalls": 1.1067796610169491
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 20060,
+          "averageRaw": 90478.9481555334,
+          "maxRaw": 785000,
+          "averageCalls": 115.26520438683949
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 20060,
+          "averageRaw": 213849.62612163508,
+          "maxRaw": 1934900,
+          "averageCalls": 179.77771684945165
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 17822,
+          "milliseconds": 189790.95219999878,
+          "averageFps": 93.90331727309872
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 2238,
+          "milliseconds": 20846.1674,
+          "averageFps": 107.35786377691662
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "EXPECTED_DEATH",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": true
+        },
+        "expected": {
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_head_blue": 2,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1
+        },
+        "actual": {
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_head_blue": 2,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1
+        }
+      },
+      "warehouseQuantity": 8,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "2"
+      ],
+      "settledAgents": [
+        "2"
+      ],
+      "lastObservedAgents": {
+        "2": {
+          "health": 26,
+          "position": {
+            "x": -190.2366180419922,
+            "y": 3.0083389282226562,
+            "z": 260.3243103027344
+          },
+          "state": "Extraction"
+        },
+        "1": {
+          "health": 0,
+          "position": {
+            "x": -215.2637939453125,
+            "y": 3.0083389282226562,
+            "z": 167.34396362304688
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T18:27:28.8016912Z",
+        "pid": 60224,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "732fded540dc9e8cf64283c979bf4b3a3546e8afcc7ceea8b45ebe776be4f000",
+        "manifest.json": "aa24b976082189759388d9f1de37d15d71e60fd92ca4557a10a4d1c642dc5c0a",
+        "scene-audit.json": "eb6006f0211ca44a4c39b2a8e82bb1a4316b15d4b17711147fced2838af3b618",
+        "runtime-world.json": "18fddc724b15de47bc7be8e5a61cf0e612f6c93054cdff88551f7adf970f67aa",
+        "result.json": "3732d9a7c90578e44ca9c287ac4d11122fa4611f89d30001ddbfccdbd2700828",
+        "report.json": "e0d8699b52ba26446d3d3a068e6499773cc442528fc25759a9b1962a0c111b74",
+        "contracts.json": "3ea7c1369479333de66a2b9689110332657e81f5dcf62972f1693473d842f891",
+        "process.json": "79c2adbfb5dab72813b26287b660a75717ce498820551e439dde67f11994f793",
+        "editor-ready.json": "5bade2dedb619acc19a32561fb177a0ddfd81d6c09190022c6a261dc636d40d1",
+        "events.jsonl": "4defd614aa2ec7b2e9480acc3987182c6ccd0d76cb92903b1a7c62a794fd91f0",
+        "frames.csv": "ac469b4bc081953bf913b19757c0bc7c836ad588f1e6a601ef42fae740164581",
+        "counters.csv": "5be1a82fae1a298a56a6d189e5b12c85222896d3700d55e6277550d3ac62560a",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "29da3a080d56903a38cf39f63ab4771f90ca7e311e29f5b0a8dc3d85249e6464",
+        "item-definitions.json": "f24d921d830109e579f3b1e72695fa8f5ec1d5b64b6fae547c258b90bb323506",
+        "render-final.json": "f6a8081d30b7bd47cb6261cfecf130fd51b83604b5971da9fd6e520083daa789",
+        "render-startup.json": "9cb78b756963b504168539bbbe760dba0cf22626848d0677102ee959ebee2231",
+        "Editor.log": "2668cd7159901a4b5c93973e431298b85ab10b7948649bf45538955656a3ed25",
+        "arguments.json": "beb82ce0b2e482c0534276cae6d6043764a108db0caa0f910f29410d9ab1092c",
+        "process-start.json": "2abefcdcfab19ec5161ba661359ecb3cf07fa2fcf3fdc1f2f41393fd0865e060"
+      }
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-022815-586",
+      "runId": "20260912-022815-586",
+      "seed": 2731,
+      "simulationSpeed": 4,
+      "runtime": "Editor",
+      "status": "PASS",
+      "gameOutcome": "PASS",
+      "originalRuntimeStatus": "RAID_OBSERVED_COMPLETE",
+      "originalReportGameStatus": "PASS",
+      "adjudication": null,
+      "commit": "804e78d43c074dd5f107d9391a2757413a421bb5",
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 63.7414845,
+      "frames": 5066,
+      "renderedFrames": 5065,
+      "inventorySessions": 9,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 62,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": false,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 5065,
+        "averageFps": 80.72776168003156,
+        "p99Ms": 21.9514,
+        "maxMs": 549.2668,
+        "onePercentLowFps": 27.372556596786136,
+        "minimumOneSecondFps": 64,
+        "windowCount": 245,
+        "startupIncluded": true,
+        "slowFrameCount": 480,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 5065,
+          "averageRaw": 10418018.775913129,
+          "maxRaw": 162283600,
+          "averageCalls": 2.999802566633761
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 5065,
+          "averageRaw": 39866.94057255676,
+          "maxRaw": 4138782,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 5065,
+          "averageRaw": 191415.0444225074,
+          "maxRaw": 15810000,
+          "averageCalls": 0.9998025666337611
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 5065,
+          "averageRaw": 292386.3178677196,
+          "maxRaw": 11419400,
+          "averageCalls": 1.6596248766041461
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 5065,
+          "averageRaw": 421120.03948667325,
+          "maxRaw": 4097500,
+          "averageCalls": 7.998420533070089
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 5065,
+          "averageRaw": 174214.92596248767,
+          "maxRaw": 14703900,
+          "averageCalls": 0.10760118460019744
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 5065,
+          "averageRaw": 37012.9713721619,
+          "maxRaw": 634500,
+          "averageCalls": 1.6596248766041461
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 5065,
+          "averageRaw": 26837.946692991114,
+          "maxRaw": 1704200,
+          "averageCalls": 1.6596248766041461
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 5065,
+          "averageRaw": 225860.86870681145,
+          "maxRaw": 11289500,
+          "averageCalls": 1.6596248766041461
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 5065,
+          "averageRaw": 14346.594274432378,
+          "maxRaw": 100000,
+          "averageCalls": 7.998420533070089
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 5065,
+          "averageRaw": 405496.07107601187,
+          "maxRaw": 4062300,
+          "averageCalls": 7.998420533070089
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 5065,
+          "averageRaw": 159867.81836130307,
+          "maxRaw": 3341600,
+          "averageCalls": 1.140177690029615
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 5065,
+          "averageRaw": 488194.8667324778,
+          "maxRaw": 5468100,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 5065,
+          "averageRaw": 64939.66436327739,
+          "maxRaw": 333000,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 5065,
+          "averageRaw": 28817.591312931887,
+          "maxRaw": 299300,
+          "averageCalls": 8.552418558736427
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 5065,
+          "averageRaw": 369599.5459032577,
+          "maxRaw": 4994800,
+          "averageCalls": 8.552418558736427
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 5065,
+          "averageRaw": 66411.78677196446,
+          "maxRaw": 659900,
+          "averageCalls": 1.4157946692991115
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 5065,
+          "averageRaw": 619786.456071076,
+          "maxRaw": 4944200,
+          "averageCalls": 4.362685093780849
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 5065,
+          "averageRaw": 11258.42053307009,
+          "maxRaw": 99900,
+          "averageCalls": 1.4197433366238894
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 5065,
+          "averageRaw": 151998.77591312933,
+          "maxRaw": 1054300,
+          "averageCalls": 202.0985192497532
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 5065,
+          "averageRaw": 387906.3178677196,
+          "maxRaw": 3303000,
+          "averageCalls": 338.8497532082922
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 3622,
+          "milliseconds": 46409.10810000003,
+          "averageFps": 78.04502495922773
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 1443,
+          "milliseconds": 16332.628999999992,
+          "averageFps": 88.35074867616234
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "ALL_EXTRACTED",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": false
+        },
+        "expected": {
+          "equip_body_green": 1,
+          "usb_drive": 2,
+          "advanced_organic_fiber": 1,
+          "uphone_phone": 3,
+          "equip_totem_blue": 1,
+          "book": 1,
+          "pure_gold_ring": 2,
+          "equip_face_blue": 1,
+          "organic_fiber": 4,
+          "lesser_organic_fiber": 1,
+          "equip_headphone_green": 1,
+          "equip_head_blue": 1,
+          "equip_body_blue": 1,
+          "military_radio": 1,
+          "notebook": 1
+        },
+        "actual": {
+          "organic_fiber": 4,
+          "equip_headphone_green": 1,
+          "equip_head_blue": 1,
+          "pure_gold_ring": 2,
+          "equip_body_blue": 1,
+          "military_radio": 1,
+          "notebook": 1,
+          "uphone_phone": 3,
+          "equip_body_green": 1,
+          "usb_drive": 2,
+          "advanced_organic_fiber": 1,
+          "equip_totem_blue": 1,
+          "book": 1,
+          "equip_face_blue": 1,
+          "lesser_organic_fiber": 1
+        }
+      },
+      "warehouseQuantity": 22,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "1",
+        "2"
+      ],
+      "settledAgents": [
+        "1",
+        "2"
+      ],
+      "lastObservedAgents": {
+        "2": {
+          "health": 183,
+          "position": {
+            "x": -190.232177734375,
+            "y": 3.0083389282226562,
+            "z": 260.40606689453125
+          },
+          "state": "Extraction"
+        },
+        "1": {
+          "health": 110,
+          "position": {
+            "x": -190.24847412109375,
+            "y": 3.0083389282226562,
+            "z": 260.1129455566406
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T18:29:34.5240635Z",
+        "pid": 60224,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "77d53ac624773249518c706a32b3aef8b3c8b7e3361d399cee120cd62058a73d",
+        "manifest.json": "ca2b28a092ecc1cd16384896f23cec9212625672eaffde614f2a90892fece610",
+        "scene-audit.json": "7795b8b2e89e2f7dba50c02b4b55ca39abaf8e55d401fe121005b8c76a9c3f6f",
+        "runtime-world.json": "b7638eeb28837d9a45d19228862140b7e64e24f17868a5f5714965a59dee753e",
+        "result.json": "e1d8a2d643157c8ed422b8dc6d5d45303459d4b4af3293dfc57be6b7287af22e",
+        "report.json": "299274dd7112c6c168f7e5b752017d52bad9bd9bed33974161fa4c6d7d662f14",
+        "contracts.json": "ea6594548c5689f1feeda0e44c4781687e396aef05423114feb95f3e2dde43d3",
+        "process.json": "a159a5df561049d9fd55b1e52eb41f02d7b088f7afae28f9524d86713a23a96f",
+        "editor-ready.json": "04296c9c5c54dafd8ce083e3ea30c0ec156619bf2cca3d4e789a79f017968b11",
+        "events.jsonl": "273ef3777a3b5bcf78568bdedb550acffd0ec7f34a6e583e9d10cc6cd3857002",
+        "frames.csv": "a2a05fe5596c7a1e41d1e1d2ebd480fe6d34418e14931b854f008a860c6d8a5a",
+        "counters.csv": "4c6799d43d7e2186c3e982535f60a90535216cc5851f34c85167b9b361fe329f",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "c98ac79f69f262444e2a5c01d46c84f3c7b3d9a81a9f25ba3d9362b447b1079d",
+        "item-definitions.json": "0e7b7a73ac12de305be772c69d059e9eb514073b3d2b54511045a7c1d73b16c8",
+        "render-final.json": "f5cd1f711b84afa8e5e7f203b7ff9a8e1c539dbe171212a3313cf01f27291926",
+        "render-startup.json": "9cb78b756963b504168539bbbe760dba0cf22626848d0677102ee959ebee2231",
+        "Editor.log": "0267bcb7a333275ab70a5715948b9b43c3a4811da522d004e7154e74b9eb3b2f",
+        "arguments.json": "beb82ce0b2e482c0534276cae6d6043764a108db0caa0f910f29410d9ab1092c",
+        "process-start.json": "99f5e0a768443260d3df9360ad824d462a1b7d46ffc3ccb92227d35ce89ef88e"
+      }
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-022940-945",
+      "runId": "20260912-022940-945",
+      "seed": 731,
+      "simulationSpeed": 4,
+      "runtime": "Editor",
+      "status": "PASS",
+      "gameOutcome": "EXPECTED_DEATH",
+      "originalRuntimeStatus": "RAID_OBSERVED_FAILURE",
+      "originalReportGameStatus": "EXPECTED_DEATH",
+      "adjudication": null,
+      "commit": "804e78d43c074dd5f107d9391a2757413a421bb5",
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 71.9910566,
+      "frames": 7105,
+      "renderedFrames": 7104,
+      "inventorySessions": 12,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 62,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": false,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 7104,
+        "averageFps": 99.97960382305132,
+        "p99Ms": 18.1428,
+        "maxMs": 437.8581,
+        "onePercentLowFps": 37.31550011762157,
+        "minimumOneSecondFps": 69,
+        "windowCount": 279,
+        "startupIncluded": true,
+        "slowFrameCount": 158,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 7104,
+          "averageRaw": 8416212.5,
+          "maxRaw": 129817300,
+          "averageCalls": 2.999859234234234
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 7104,
+          "averageRaw": 36531.48240427928,
+          "maxRaw": 6315878,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 7104,
+          "averageRaw": 135900.76013513515,
+          "maxRaw": 14673300,
+          "averageCalls": 0.9998592342342343
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 7104,
+          "averageRaw": 288348.9864864865,
+          "maxRaw": 9747800,
+          "averageCalls": 1.5933277027027026
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 7104,
+          "averageRaw": 336838.5135135135,
+          "maxRaw": 2615200,
+          "averageCalls": 7.998873873873874
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 7104,
+          "averageRaw": 117656.9679054054,
+          "maxRaw": 13695400,
+          "averageCalls": 0.07333896396396396
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 7104,
+          "averageRaw": 32379.60304054054,
+          "maxRaw": 510900,
+          "averageCalls": 1.5933277027027026
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 7104,
+          "averageRaw": 39676.126126126124,
+          "maxRaw": 1135500,
+          "averageCalls": 1.5933277027027026
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 7104,
+          "averageRaw": 214180.46171171172,
+          "maxRaw": 9578700,
+          "averageCalls": 1.5933277027027026
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 7104,
+          "averageRaw": 10895.80518018018,
+          "maxRaw": 168900,
+          "averageCalls": 7.998873873873874
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 7104,
+          "averageRaw": 324394.5382882883,
+          "maxRaw": 2607100,
+          "averageCalls": 7.998873873873874
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 7104,
+          "averageRaw": 79729.95495495496,
+          "maxRaw": 3375900,
+          "averageCalls": 0.850365990990991
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 7104,
+          "averageRaw": 346023.1418918919,
+          "maxRaw": 4627400,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 7104,
+          "averageRaw": 48972.49436936937,
+          "maxRaw": 205300,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 7104,
+          "averageRaw": 18985.430743243243,
+          "maxRaw": 263400,
+          "averageCalls": 6.817426801801802
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 7104,
+          "averageRaw": 258942.38457207207,
+          "maxRaw": 4332500,
+          "averageCalls": 6.817426801801802
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 7104,
+          "averageRaw": 47089.92117117117,
+          "maxRaw": 561800,
+          "averageCalls": 0.9904279279279279
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 7104,
+          "averageRaw": 463130.4054054054,
+          "maxRaw": 4372800,
+          "averageCalls": 3.1385135135135136
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 7104,
+          "averageRaw": 7194.115990990991,
+          "maxRaw": 111900,
+          "averageCalls": 0.9925394144144144
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 7104,
+          "averageRaw": 112461.72578828828,
+          "maxRaw": 998400,
+          "averageCalls": 154.62415540540542
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 7104,
+          "averageRaw": 290573.94425675675,
+          "maxRaw": 2888800,
+          "averageCalls": 256.0834740990991
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 4906,
+          "milliseconds": 50110.69659999981,
+          "averageFps": 97.90324886443544
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 2198,
+          "milliseconds": 20943.795800000025,
+          "averageFps": 104.94754728271354
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "EXPECTED_DEATH",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": true
+        },
+        "expected": {
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_head_blue": 2,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1
+        },
+        "actual": {
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_head_blue": 2,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1
+        }
+      },
+      "warehouseQuantity": 8,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "2"
+      ],
+      "settledAgents": [
+        "2"
+      ],
+      "lastObservedAgents": {
+        "2": {
+          "health": 116,
+          "position": {
+            "x": -190.2310791015625,
+            "y": 3.0083389282226562,
+            "z": 260.42437744140625
+          },
+          "state": "Extraction"
+        },
+        "1": {
+          "health": 0,
+          "position": {
+            "x": -207.72598266601562,
+            "y": 3.0083389282226562,
+            "z": 193.07272338867188
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T18:31:07.2026252Z",
+        "pid": 60224,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "1241ae037120c3af45f7bfc85ca8ade188e69a98675bd731591b6bfcb4ea95ee",
+        "manifest.json": "0427e44ef81e8bf130646a05457389afd7b6cbb353ff93231ba7e1bbe5aae2e1",
+        "scene-audit.json": "c49d7f3505d63194fb2ce6b0e7332079355d9d6e0018b5285b88d4711a77d343",
+        "runtime-world.json": "db3f34b2168fe7e175c384e36d43520447f629c3580fea6e8b28872ea5c942eb",
+        "result.json": "733a892b490ad7877d64ec7085d7881d17f15aca6f5613a6111e30224422ff96",
+        "report.json": "b3014b5fd41af177f90ac85a8a3016b17607cfaaddaef2175efae2aab97e11d2",
+        "contracts.json": "3ea7c1369479333de66a2b9689110332657e81f5dcf62972f1693473d842f891",
+        "process.json": "a08065813bcca721ea4e724177f0116ebb5a9c0b19ca87def75dbcced11af901",
+        "editor-ready.json": "effed5fc71c8e8e5cc5f90d8cd3f52149917e65489b4b3c4c7bac77f9be40fce",
+        "events.jsonl": "d873d6f76e60526e7743cb6993c8e75447b5336b57a27b35daa74e6e51b526be",
+        "frames.csv": "cb8adbe49ff143c4b3ddb6f3b5b08d8975d1cccbc889968e6abbc2d0524baf8b",
+        "counters.csv": "b3abe8f2cf4e31b383072a3b946efd0afe58f710733849a2c4243ed46cd0a21f",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "29da3a080d56903a38cf39f63ab4771f90ca7e311e29f5b0a8dc3d85249e6464",
+        "item-definitions.json": "1dfcc09653f90e0729e8169c0172102a4091c17262dda8557780936fc66d9888",
+        "render-final.json": "34b8785975fb68f616fb78ec764dd66b025e69c74a6165d348ddf35a6f00fd5d",
+        "render-startup.json": "9cb78b756963b504168539bbbe760dba0cf22626848d0677102ee959ebee2231",
+        "Editor.log": "0404e6d188e2b0764ff174b2d99e2c2be6f680bfdbd96174a8f609ebadedc4f5",
+        "arguments.json": "beb82ce0b2e482c0534276cae6d6043764a108db0caa0f910f29410d9ab1092c",
+        "process-start.json": "ae1ed0c93ad42e3360c992fca540e8e2b2e5699841f48ae23e24e4d73283a00c"
+      }
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-023121-096",
+      "runId": "20260912-023121-096",
+      "seed": 731,
+      "simulationSpeed": 4,
+      "runtime": "Editor",
+      "status": "PASS",
+      "gameOutcome": "PASS",
+      "originalRuntimeStatus": "RAID_OBSERVED_COMPLETE",
+      "originalReportGameStatus": "PASS",
+      "adjudication": null,
+      "commit": "804e78d43c074dd5f107d9391a2757413a421bb5",
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 65.9127087,
+      "frames": 7726,
+      "renderedFrames": 7725,
+      "inventorySessions": 10,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 62,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": false,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 7725,
+        "averageFps": 118.75009634514304,
+        "p99Ms": 15.3405,
+        "maxMs": 398.0863,
+        "onePercentLowFps": 44.289899194485976,
+        "minimumOneSecondFps": 93,
+        "windowCount": 255,
+        "startupIncluded": true,
+        "slowFrameCount": 42,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 7725,
+          "averageRaw": 7115645.113268608,
+          "maxRaw": 119711300,
+          "averageCalls": 2.999870550161812
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 7725,
+          "averageRaw": 37787.04970873786,
+          "maxRaw": 6318331,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 7725,
+          "averageRaw": 105722.12297734628,
+          "maxRaw": 11899900,
+          "averageCalls": 0.9998705501618123
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 7725,
+          "averageRaw": 181915.715210356,
+          "maxRaw": 8493100,
+          "averageCalls": 1.6343042071197411
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 7725,
+          "averageRaw": 268250.1229773463,
+          "maxRaw": 2949500,
+          "averageCalls": 7.998964401294498
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 7725,
+          "averageRaw": 94634.6925566343,
+          "maxRaw": 11125600,
+          "averageCalls": 0.07067961165048543
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 7725,
+          "averageRaw": 23879.89644012945,
+          "maxRaw": 276800,
+          "averageCalls": 1.6343042071197411
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 7725,
+          "averageRaw": 19216.569579288025,
+          "maxRaw": 783700,
+          "averageCalls": 1.6343042071197411
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 7725,
+          "averageRaw": 137072.50485436892,
+          "maxRaw": 8382600,
+          "averageCalls": 1.6343042071197411
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 7725,
+          "averageRaw": 8262.084142394822,
+          "maxRaw": 86300,
+          "averageCalls": 7.998964401294498
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 7725,
+          "averageRaw": 258456.81553398058,
+          "maxRaw": 2938700,
+          "averageCalls": 7.998964401294498
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 7725,
+          "averageRaw": 79870.30420711974,
+          "maxRaw": 2955800,
+          "averageCalls": 0.8561812297734628
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 7725,
+          "averageRaw": 327593.0485436893,
+          "maxRaw": 4295800,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 7725,
+          "averageRaw": 41221.773462783174,
+          "maxRaw": 256000,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 7725,
+          "averageRaw": 14605.864077669903,
+          "maxRaw": 277000,
+          "averageCalls": 6.028608414239482
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 7725,
+          "averageRaw": 255826.35598705502,
+          "maxRaw": 4073500,
+          "averageCalls": 6.028608414239482
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 7725,
+          "averageRaw": 42988.867313915856,
+          "maxRaw": 619600,
+          "averageCalls": 0.9545631067961166
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 7725,
+          "averageRaw": 414254.39482200646,
+          "maxRaw": 4891300,
+          "averageCalls": 3.047766990291262
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 7725,
+          "averageRaw": 6054.511326860841,
+          "maxRaw": 151600,
+          "averageCalls": 0.9526213592233009
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 7725,
+          "averageRaw": 99067.08090614887,
+          "maxRaw": 1001400,
+          "averageCalls": 137.53449838187703
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 7725,
+          "averageRaw": 261835.4433656958,
+          "maxRaw": 3240600,
+          "averageCalls": 226.38977346278318
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 5420,
+          "milliseconds": 47674.72000000005,
+          "averageFps": 113.68708615383571
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 2305,
+          "milliseconds": 17377.858800000013,
+          "averageFps": 132.64004654014096
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "ALL_EXTRACTED",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": false
+        },
+        "expected": {
+          "top_organic_fiber": 1,
+          "equip_head_blue": 4,
+          "equip_face_blue": 1,
+          "military_radio": 1,
+          "equip_totem_green": 3,
+          "notebook": 1,
+          "equip_body_green": 1,
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1
+        },
+        "actual": {
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_head_blue": 4,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1,
+          "top_organic_fiber": 1,
+          "equip_face_blue": 1,
+          "military_radio": 1,
+          "equip_totem_green": 3,
+          "notebook": 1,
+          "equip_body_green": 1
+        }
+      },
+      "warehouseQuantity": 18,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "1",
+        "2"
+      ],
+      "settledAgents": [
+        "1",
+        "2"
+      ],
+      "lastObservedAgents": {
+        "2": {
+          "health": 98,
+          "position": {
+            "x": -190.23109436035156,
+            "y": 3.0083389282226562,
+            "z": 260.42413330078125
+          },
+          "state": "Extraction"
+        },
+        "1": {
+          "health": 151,
+          "position": {
+            "x": -190.65333557128906,
+            "y": 3.0303382873535156,
+            "z": 252.8133087158203
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T18:32:41.7630284Z",
+        "pid": 60224,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "497bf826ed39a2364db60ea07c868d4a1771f08a393bf30db67318c4770a23c5",
+        "manifest.json": "f2d9233c7d9d0d6d6b82e1eefb90fa204b410a8b8e88fc28edae137622884c6d",
+        "scene-audit.json": "11595a7da7b2132c42e83fe90d6a5af4ce46fd7296c11f6f9bb0676c5063098e",
+        "runtime-world.json": "4db2a98a898d920360917290e84a63fc599f12808ccc680c28de18b1606904d1",
+        "result.json": "50c9c29bedaf9cea4b209fdaed5e417fd7b14544e5adfc300ba27125c92829da",
+        "report.json": "d0fdcc6c59ed26d5008d7eeea6fbc225a76932136f7c0376c584b0f4bd8b3d00",
+        "contracts.json": "d00356556af3dc73b44219c8bbe441d915061d8d8716f8a9d8fbe8dfff5577af",
+        "process.json": "712921f6bf0c06b520019655439032d84db9ce8e7e0834e42150f9865f84b5a5",
+        "editor-ready.json": "3574d347f51ff106e21030ba52a197ae1d88e8cb21f9baf8814516ad83897d50",
+        "events.jsonl": "39ae76009da0d52cd2ca00e3600a626f8e927ef5dbfcaab38459c4d2ef37881c",
+        "frames.csv": "1c8baef4b556f30e469fc780afb941e20f58bfc532c7c6ba227dc884eae06bf9",
+        "counters.csv": "a2b505806dbf95f8faa23920b39c73a770334d6678a885bae5eea3ca3b7a4967",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "cb8131ba247ae147e0f8c370a2f57050c427a8bbfe178d3b4659c199f127c5d5",
+        "item-definitions.json": "7cdc46857fb50786d477ec8812ea3ed5db894e86e59df95093433688475c08bb",
+        "render-final.json": "fbd23f730cad963766d42776f68bb436aaeb11c660ea0bb74245634f57b48fb1",
+        "render-startup.json": "9cb78b756963b504168539bbbe760dba0cf22626848d0677102ee959ebee2231",
+        "Editor.log": "5f1dc0543c03a8a63144f33af483bda7244422a9c99f1c840e171f02121ed02c",
+        "arguments.json": "beb82ce0b2e482c0534276cae6d6043764a108db0caa0f910f29410d9ab1092c",
+        "process-start.json": "767bd7d47e40dc709fd8aff7044726fd29a23b0b859278e50f316923208a4df8"
+      }
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-023254-005",
+      "runId": "20260912-023254-005",
+      "seed": 731,
+      "simulationSpeed": 4,
+      "runtime": "Editor",
+      "status": "PASS",
+      "gameOutcome": "PASS",
+      "originalRuntimeStatus": "RAID_OBSERVED_COMPLETE",
+      "originalReportGameStatus": "PASS",
+      "adjudication": null,
+      "commit": "804e78d43c074dd5f107d9391a2757413a421bb5",
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 67.97460319999999,
+      "frames": 7295,
+      "renderedFrames": 7294,
+      "inventorySessions": 10,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 62,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": false,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 7294,
+        "averageFps": 108.96996012231374,
+        "p99Ms": 18.4989,
+        "maxMs": 472.7891,
+        "onePercentLowFps": 35.76857555224721,
+        "minimumOneSecondFps": 73,
+        "windowCount": 262,
+        "startupIncluded": true,
+        "slowFrameCount": 168,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 7294,
+          "averageRaw": 7733194.721689059,
+          "maxRaw": 147671800,
+          "averageCalls": 2.9998629010145326
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 7294,
+          "averageRaw": 37927.87633671511,
+          "maxRaw": 6318400,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 7294,
+          "averageRaw": 122220.2906498492,
+          "maxRaw": 17312200,
+          "averageCalls": 0.9998629010145325
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 7294,
+          "averageRaw": 209049.30079517412,
+          "maxRaw": 11172000,
+          "averageCalls": 1.6157115437345764
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 7294,
+          "averageRaw": 295230.7375925418,
+          "maxRaw": 2842600,
+          "averageCalls": 7.99890320811626
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 7294,
+          "averageRaw": 109417.05511379216,
+          "maxRaw": 15925300,
+          "averageCalls": 0.07608993693446668
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 7294,
+          "averageRaw": 28957.992870852755,
+          "maxRaw": 681100,
+          "averageCalls": 1.6157115437345764
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 7294,
+          "averageRaw": 24692.980531944064,
+          "maxRaw": 849900,
+          "averageCalls": 1.6157115437345764
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 7294,
+          "averageRaw": 153295.887030436,
+          "maxRaw": 11119700,
+          "averageCalls": 1.6157115437345764
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 7294,
+          "averageRaw": 9215.930902111324,
+          "maxRaw": 64400,
+          "averageCalls": 7.99890320811626
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 7294,
+          "averageRaw": 284868.80998080614,
+          "maxRaw": 2832700,
+          "averageCalls": 7.99890320811626
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 7294,
+          "averageRaw": 87569.65999451604,
+          "maxRaw": 3001000,
+          "averageCalls": 0.9255552508911434
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 7294,
+          "averageRaw": 356238.53852481494,
+          "maxRaw": 5287700,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 7294,
+          "averageRaw": 47148.12174389909,
+          "maxRaw": 261400,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 7294,
+          "averageRaw": 17219.797093501507,
+          "maxRaw": 277400,
+          "averageCalls": 6.510008225939128
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 7294,
+          "averageRaw": 274282.5198793529,
+          "maxRaw": 4848700,
+          "averageCalls": 6.510008225939128
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 7294,
+          "averageRaw": 49311.65341376474,
+          "maxRaw": 830300,
+          "averageCalls": 1.0917192212777624
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 7294,
+          "averageRaw": 446278.7222374554,
+          "maxRaw": 4762900,
+          "averageCalls": 3.2511653413764736
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 7294,
+          "averageRaw": 7506.484782012613,
+          "maxRaw": 158800,
+          "averageCalls": 1.0955579928708528
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 7294,
+          "averageRaw": 106736.2763915547,
+          "maxRaw": 963200,
+          "averageCalls": 148.7910611461475
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 7294,
+          "averageRaw": 281516.6301069372,
+          "maxRaw": 3270000,
+          "averageCalls": 247.70784206196873
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 5057,
+          "milliseconds": 48804.73779999979,
+          "averageFps": 103.61698941449946
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 2237,
+          "milliseconds": 18131.140599999984,
+          "averageFps": 123.37888990833825
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "ALL_EXTRACTED",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": false
+        },
+        "expected": {
+          "top_organic_fiber": 1,
+          "equip_head_blue": 4,
+          "equip_face_blue": 1,
+          "equip_totem_green": 3,
+          "notebook": 2,
+          "military_radio": 1,
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1
+        },
+        "actual": {
+          "organic_fiber": 2,
+          "equip_head_green": 1,
+          "equip_head_blue": 4,
+          "equip_headphone_blue": 1,
+          "book": 1,
+          "pocket_watch": 1,
+          "top_organic_fiber": 1,
+          "equip_face_blue": 1,
+          "equip_totem_green": 3,
+          "notebook": 2,
+          "military_radio": 1
+        }
+      },
+      "warehouseQuantity": 18,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "1",
+        "2"
+      ],
+      "settledAgents": [
+        "1",
+        "2"
+      ],
+      "lastObservedAgents": {
+        "1": {
+          "health": 92,
+          "position": {
+            "x": -190.23501586914062,
+            "y": 3.0083389282226562,
+            "z": 260.3556823730469
+          },
+          "state": "Extraction"
+        },
+        "2": {
+          "health": 130,
+          "position": {
+            "x": -190.23452758789062,
+            "y": 3.0083389282226562,
+            "z": 260.36431884765625
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T18:34:37.9403014Z",
+        "pid": 60224,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "615c5054c278b546d49d2c738fa3a0deafd8c28fc89df878432c728bd6eef1bb",
+        "manifest.json": "99a83b949fc32cc12f7a408850e90f02f9ce014ec0b77bf93dc6f4ecfaeb2027",
+        "scene-audit.json": "ca11d8569385eecfddb062036e797b2da12733632bd745753987fb9a71a9f589",
+        "runtime-world.json": "fc238191b9cb098fd52ea01adff24d034ec20f03983d40db52dceb1e0acfed57",
+        "result.json": "bc0b8cad179cb68f3a90da64d4293fc8a8087054444232dc83ad547422edd294",
+        "report.json": "8c08c37bb37737f2d5fcbb7f67dafe21dc53bd8e33023d4938d53abd404625a8",
+        "contracts.json": "8f4a5ba0a2ad5c6f86d5c39c045e00ba90495442f4d9a7369906bc6dd313cdb6",
+        "process.json": "90bfb59ba395fa78cfd777874d7bb3dd99306269029db87f1a5d6c11f7c8803c",
+        "editor-ready.json": "55a57dae7952a81234f2ff33bc3794455dfa91d5ab628a28ed7015c7dc352604",
+        "events.jsonl": "e1b0b85df62fdf99f762bea03995c3972ac8733978fdf531e1ae2d763f7ec56d",
+        "frames.csv": "77cb70cae088110bd008a066082a596e8e40a89e82bd885e8d606353c3a63aa8",
+        "counters.csv": "fe800e8e5715c4b6450001744ca518eee906db291fa30ee1c7a515be49031053",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "793aa913f4a80bb382a45d4f8361d5e7ba1c7a9827deaf65c109921ee4539bd4",
+        "item-definitions.json": "ed767264d7fb17ea8c72c5fdb1e001f3749811d42ea047658629c64e2325056e",
+        "render-final.json": "b4df49c646ebd99393995c1bb326c8ff970641d08d5a2d3f98d90882fb59307d",
+        "render-startup.json": "9cb78b756963b504168539bbbe760dba0cf22626848d0677102ee959ebee2231",
+        "Editor.log": "0193be53ded3d7de1a2023cc5a173cb83e0d86b4a01af26f32f2b03c4b9cac06",
+        "arguments.json": "beb82ce0b2e482c0534276cae6d6043764a108db0caa0f910f29410d9ab1092c",
+        "process-start.json": "be3c640c27928c4cf0aebbbdd871f0be7bc99b5074daa2988fd390b4a44828ea"
+      }
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-023449-874",
+      "runId": "20260912-023449-874",
+      "seed": 1731,
+      "simulationSpeed": 4,
+      "runtime": "Editor",
+      "status": "PASS",
+      "gameOutcome": "PASS",
+      "originalRuntimeStatus": "RAID_OBSERVED_COMPLETE",
+      "originalReportGameStatus": "PASS",
+      "adjudication": null,
+      "commit": "804e78d43c074dd5f107d9391a2757413a421bb5",
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 80.5020471,
+      "frames": 7785,
+      "renderedFrames": 7784,
+      "inventorySessions": 14,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 62,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": false,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 7784,
+        "averageFps": 98.19169473604813,
+        "p99Ms": 19.3736,
+        "maxMs": 620.3247,
+        "onePercentLowFps": 32.58017437911795,
+        "minimumOneSecondFps": 71,
+        "windowCount": 311,
+        "startupIncluded": true,
+        "slowFrameCount": 241,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 7784,
+          "averageRaw": 8528603.776978416,
+          "maxRaw": 140761500,
+          "averageCalls": 2.9998715313463515
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 7784,
+          "averageRaw": 36394.08928571428,
+          "maxRaw": 6315782,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 7784,
+          "averageRaw": 139201.91418293936,
+          "maxRaw": 13851300,
+          "averageCalls": 0.9998715313463515
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 7784,
+          "averageRaw": 288742.0349434738,
+          "maxRaw": 15814400,
+          "averageCalls": 1.6066289825282631
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 7784,
+          "averageRaw": 314922.55909558065,
+          "maxRaw": 3865200,
+          "averageCalls": 7.998972250770812
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 7784,
+          "averageRaw": 120241.7394655704,
+          "maxRaw": 12952500,
+          "averageCalls": 0.07207091469681398
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 7784,
+          "averageRaw": 32200.950668037,
+          "maxRaw": 547000,
+          "averageCalls": 1.6066289825282631
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 7784,
+          "averageRaw": 39065.0950668037,
+          "maxRaw": 1034300,
+          "averageCalls": 1.6066289825282631
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 7784,
+          "averageRaw": 215171.95529290853,
+          "maxRaw": 15698900,
+          "averageCalls": 1.6066289825282631
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 7784,
+          "averageRaw": 11392.535971223022,
+          "maxRaw": 64000,
+          "averageCalls": 7.998972250770812
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 7784,
+          "averageRaw": 302288.1038026721,
+          "maxRaw": 3831000,
+          "averageCalls": 7.998972250770812
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 7784,
+          "averageRaw": 67048.74100719424,
+          "maxRaw": 2931300,
+          "averageCalls": 0.8263103802672148
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 7784,
+          "averageRaw": 375399.1264131552,
+          "maxRaw": 5022900,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 7784,
+          "averageRaw": 50505.202980472764,
+          "maxRaw": 432600,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 7784,
+          "averageRaw": 19387.718396711203,
+          "maxRaw": 284400,
+          "averageCalls": 6.938848920863309
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 7784,
+          "averageRaw": 286006.2307297019,
+          "maxRaw": 4607100,
+          "averageCalls": 6.938848920863309
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 7784,
+          "averageRaw": 47965.59609455293,
+          "maxRaw": 564200,
+          "averageCalls": 0.9906217882836588
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 7784,
+          "averageRaw": 470304.79188078106,
+          "maxRaw": 4819400,
+          "averageCalls": 3.29226618705036
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 7784,
+          "averageRaw": 7441.469681397739,
+          "maxRaw": 107600,
+          "averageCalls": 0.9948612538540597
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 7784,
+          "averageRaw": 112186.09969167523,
+          "maxRaw": 1050600,
+          "averageCalls": 151.54406474820144
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 7784,
+          "averageRaw": 295273.30421377183,
+          "maxRaw": 3262600,
+          "averageCalls": 252.28520041109968
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 5060,
+          "milliseconds": 54929.29039999991,
+          "averageFps": 92.11843013358877
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 2724,
+          "milliseconds": 24344.2166,
+          "averageFps": 111.89515952630819
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "ALL_EXTRACTED",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": true
+        },
+        "expected": {
+          "book": 6,
+          "notebook": 3,
+          "lesser_organic_fiber": 2,
+          "usb_drive": 1,
+          "equip_head_blue": 1,
+          "equip_face_green": 2,
+          "organic_fiber": 1,
+          "equip_head_green": 2,
+          "equip_headphone_green": 1,
+          "top_organic_fiber": 1,
+          "equip_headphone_blue": 1,
+          "pure_gold_ring": 1,
+          "advanced_organic_fiber": 1,
+          "equip_totem_green": 2,
+          "uphone_phone": 1,
+          "military_radio": 1
+        },
+        "actual": {
+          "book": 6,
+          "equip_headphone_green": 1,
+          "top_organic_fiber": 1,
+          "equip_head_green": 2,
+          "equip_headphone_blue": 1,
+          "pure_gold_ring": 1,
+          "advanced_organic_fiber": 1,
+          "equip_totem_green": 2,
+          "uphone_phone": 1,
+          "military_radio": 1,
+          "equip_face_green": 2,
+          "notebook": 3,
+          "lesser_organic_fiber": 2,
+          "usb_drive": 1,
+          "equip_head_blue": 1,
+          "organic_fiber": 1
+        }
+      },
+      "warehouseQuantity": 27,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "1",
+        "2"
+      ],
+      "settledAgents": [
+        "1",
+        "2"
+      ],
+      "lastObservedAgents": {
+        "2": {
+          "health": 58,
+          "position": {
+            "x": -190.23825073242188,
+            "y": 3.0083389282226562,
+            "z": 260.31048583984375
+          },
+          "state": "Extraction"
+        },
+        "1": {
+          "health": 10,
+          "position": {
+            "x": -190.2606964111328,
+            "y": 3.0083389282226562,
+            "z": 260.3147277832031
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "editorRetained": true,
+        "exitCode": null,
+        "completedUtc": "2026-09-11T18:36:35.1182116Z",
+        "pid": 60224,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "aa35e195f59a1c2ec7827df61326173727e8f66f2ae3815bf427865f4a91386b",
+        "manifest.json": "9299274a0b9081d628d11311399cbbdfacd01cf3597c1f3c6563ac74b75b2fca",
+        "scene-audit.json": "b39fd8312c52c8dc1e0bcd3bf40531e0848b0d571162d29e80ea0788c47c8555",
+        "runtime-world.json": "39500b1d52541c81c1c03b5fc40059260573c6d0e73f611c273cee28319496f8",
+        "result.json": "ed363f7b09d37880c1cddf11aa0251117ad1234bfad7f10fd58daf81a54c3790",
+        "report.json": "fa002f1a1fecae86bc3dd7270127ed74c0e9f20d98c51fa5fc224518bfdaf30a",
+        "contracts.json": "00b3952c52c4b1c59430bee3665ddb2f6a534f64523a94fcaf0123726bcb731c",
+        "process.json": "6087acddd468dbc445cdfe24848e44bb4ec2089ef5976dcce0344af0d0a5e7db",
+        "editor-ready.json": "aed71b2f69732d2260f6e29ba97b638989b3c97ffdd0126a2b11e2d4ffdd7c30",
+        "events.jsonl": "b0bcd3f4b1b0f9b8b8281de89f32d8273bf89a7eaf77ad9904594b9d0f9459f6",
+        "frames.csv": "15f6469e3c18d31c19e3848b8517045c14e4620f725a3014e0b26db6110eeed6",
+        "counters.csv": "48670067c4c2b1a07afc1c5550597c00548955228bca7d4adb9fd593541a8df2",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "8097fb85654e922a47775c09405edfd6f3651c89e861ff6987cb0b47cae94f6b",
+        "item-definitions.json": "a139b70880c81808640228b4705ca82492a40d0b64f7791338ce2182b245d4b2",
+        "render-final.json": "7938d418e0815e92af55ce8f08b6b7b910f25787cd1f151714658b760f851a35",
+        "render-startup.json": "9cb78b756963b504168539bbbe760dba0cf22626848d0677102ee959ebee2231",
+        "Editor.log": "6fb8a0d4617ce2450d54f5ef5efa231cc905209b86b3c177780d90351b95ee47",
+        "arguments.json": "beb82ce0b2e482c0534276cae6d6043764a108db0caa0f910f29410d9ab1092c",
+        "process-start.json": "3cdb6e508da2039892fcaa820b79ccbaf79ff3a5e5a7edbd2c4b57065df55359"
+      }
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-023645-651/PlayerRun",
+      "runId": "20260912-023645-651",
+      "seed": 731,
+      "simulationSpeed": 1,
+      "runtime": "Player",
+      "status": "PASS",
+      "gameOutcome": "PASS",
+      "originalRuntimeStatus": "RAID_OBSERVED_COMPLETE",
+      "originalReportGameStatus": "PASS",
+      "adjudication": null,
+      "commit": null,
+      "sourceFilesFingerprint": "e0b1674ca71f7906d5ba96e374bf6939da50c2761c41df8265908d90bf96fb4a",
+      "gameplayAndAssetsFingerprint": "057fcce3cbb86ef81c2a4c092e6290c85fa897fe82a6bd151aef985317127098",
+      "sceneSha256": "AAC93D4BB0DA47A24E54F73712B2C76CC70705BC0ECE812762290CF1B9E801F5",
+      "elapsedWallSeconds": 167.9007627,
+      "frames": 39332,
+      "renderedFrames": 39331,
+      "inventorySessions": 9,
+      "gameErrors": 0,
+      "behaviorFailures": 0,
+      "stagnationSuspicions": 0,
+      "warnings": 64,
+      "environment": {
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "graphicsApi": "Direct3D11",
+        "quality": "High Fidelity",
+        "developmentBuild": true,
+        "profilerEnabled": false,
+        "batchMode": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "vSyncCount": 0,
+        "targetFrameRate": -1
+      },
+      "performanceAccepted": true,
+      "timing": {
+        "targetFps": 60,
+        "frameBudgetMs": 16.666666666666668,
+        "maximumBudgetMs": 33.333333333333336,
+        "validIntervals": 39331,
+        "averageFps": 236.22329962747008,
+        "p99Ms": 8.046,
+        "maxMs": 1365.2568,
+        "onePercentLowFps": 71.46875381548367,
+        "minimumOneSecondFps": 131,
+        "windowCount": 657,
+        "startupIncluded": true,
+        "slowFrameCount": 5,
+        "acceptancePolicy": "AverageFpsGreaterThanTarget",
+        "tailMetricsDiagnosticOnly": true,
+        "thresholdsMet": true
+      },
+      "counters": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 39331,
+          "averageRaw": 4192652.2412346494,
+          "maxRaw": 387790200,
+          "averageCalls": 0.9999745747629096
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 39331,
+          "averageRaw": 14781.694795453968,
+          "maxRaw": 25176798,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 39331,
+          "averageRaw": 21246.571406778367,
+          "maxRaw": 11864500,
+          "averageCalls": 0.9999745747629096
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 39331,
+          "averageRaw": 92055.38379395388,
+          "maxRaw": 9561300,
+          "averageCalls": 1.8067681981134474
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 39331,
+          "averageRaw": 108422.16572169536,
+          "maxRaw": 2289800,
+          "averageCalls": 7.999796598103277
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 39331,
+          "averageRaw": 16199.956777096946,
+          "maxRaw": 10924000,
+          "averageCalls": 0.012890595204800286
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 39331,
+          "averageRaw": 14387.940810048054,
+          "maxRaw": 2110000,
+          "averageCalls": 1.8067681981134474
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 39331,
+          "averageRaw": 13963.855482952378,
+          "maxRaw": 974200,
+          "averageCalls": 1.8067681981134474
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 39331,
+          "averageRaw": 62509.94889527345,
+          "maxRaw": 9479900,
+          "averageCalls": 1.8067681981134474
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 39331,
+          "averageRaw": 3452.1980117464595,
+          "maxRaw": 139700,
+          "averageCalls": 7.999796598103277
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 39331,
+          "averageRaw": 103927.95250565711,
+          "maxRaw": 2280500,
+          "averageCalls": 7.999796598103277
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 39199,
+          "averageRaw": 18215.11007933876,
+          "maxRaw": 3691300,
+          "averageCalls": 0.18750478328528788
+        },
+        {
+          "name": "Anomaly.Cluster.LateUpdate",
+          "validSamples": 39331,
+          "averageRaw": 88566.68531184053,
+          "maxRaw": 3057300,
+          "averageCalls": 42
+        },
+        {
+          "name": "Anomaly.Cluster.State",
+          "validSamples": 39331,
+          "averageRaw": 20305.76135872467,
+          "maxRaw": 636900,
+          "averageCalls": 28
+        },
+        {
+          "name": "Anomaly.Cluster.Input",
+          "validSamples": 39331,
+          "averageRaw": 5516.348427449086,
+          "maxRaw": 598700,
+          "averageCalls": 3.1391523225954083
+        },
+        {
+          "name": "Anomaly.Cluster.Range",
+          "validSamples": 39331,
+          "averageRaw": 54478.792809742954,
+          "maxRaw": 2913500,
+          "averageCalls": 3.1391523225954083
+        },
+        {
+          "name": "Anomaly.Range.Geometry",
+          "validSamples": 39331,
+          "averageRaw": 14318.280745467951,
+          "maxRaw": 450200,
+          "averageCalls": 0.5196155704151941
+        },
+        {
+          "name": "Anomaly.Range.Projection",
+          "validSamples": 39331,
+          "averageRaw": 106049.62752027663,
+          "maxRaw": 4491400,
+          "averageCalls": 0.8876967277719865
+        },
+        {
+          "name": "Anomaly.Range.Line",
+          "validSamples": 39331,
+          "averageRaw": 2577.300348325748,
+          "maxRaw": 112100,
+          "averageCalls": 0.5200223742086395
+        },
+        {
+          "name": "Anomaly.Ground.Raycast",
+          "validSamples": 39331,
+          "averageRaw": 31089.2196994737,
+          "maxRaw": 1569000,
+          "averageCalls": 52.30235691947827
+        },
+        {
+          "name": "Anomaly.Ground.Filter",
+          "validSamples": 39331,
+          "averageRaw": 65431.09506496148,
+          "maxRaw": 2830900,
+          "averageCalls": 80.75314637308993
+        }
+      ],
+      "diagnosticFramePhases": {
+        "simulationRunning": {
+          "intervals": 35718,
+          "milliseconds": 151338.3870000002,
+          "averageFps": 236.0141449109006
+        },
+        "inventoryOrTerminalPause": {
+          "intervals": 3613,
+          "milliseconds": 15160.853599999984,
+          "averageFps": 238.31111989631006
+        }
+      },
+      "contracts": {
+        "status": "PASS",
+        "outcome": "ALL_EXTRACTED",
+        "failures": [],
+        "coverage": {
+          "movement:1": true,
+          "inventory:1": true,
+          "movement:2": true,
+          "inventory:2": true,
+          "combatDamage": true,
+          "pauseResume": true,
+          "capacityExtraction": true,
+          "retaliationResume": true
+        },
+        "expected": {
+          "equip_body_blue": 1,
+          "organic_fiber": 1,
+          "equip_head_green": 2,
+          "pure_gold_ring": 1,
+          "lesser_organic_fiber": 1,
+          "military_radio": 2,
+          "intel_file": 3,
+          "notebook": 2,
+          "equip_headphone_green": 1,
+          "book": 2,
+          "equip_face_blue": 1,
+          "equip_body_green": 1,
+          "equip_headphone_blue": 3,
+          "equip_totem_green": 1,
+          "usb_drive": 1
+        },
+        "actual": {
+          "book": 2,
+          "notebook": 2,
+          "equip_face_blue": 1,
+          "equip_body_green": 1,
+          "equip_head_green": 2,
+          "intel_file": 3,
+          "equip_headphone_blue": 3,
+          "military_radio": 2,
+          "equip_totem_green": 1,
+          "usb_drive": 1,
+          "equip_body_blue": 1,
+          "organic_fiber": 1,
+          "pure_gold_ring": 1,
+          "lesser_organic_fiber": 1,
+          "equip_headphone_green": 1
+        }
+      },
+      "warehouseQuantity": 23,
+      "initialRegisteredEnemyMembers": 30,
+      "extractedAgents": [
+        "1",
+        "2"
+      ],
+      "settledAgents": [
+        "1",
+        "2"
+      ],
+      "lastObservedAgents": {
+        "2": {
+          "health": 6,
+          "position": {
+            "x": -190.23715209960938,
+            "y": 3.0083389282226562,
+            "z": 260.313720703125
+          },
+          "state": "Extraction"
+        },
+        "1": {
+          "health": 300,
+          "position": {
+            "x": -190.23745727539062,
+            "y": 3.0083389282226562,
+            "z": 260.3061218261719
+          },
+          "state": "Extraction"
+        }
+      },
+      "process": {
+        "completedUtc": "2026-09-11T18:41:09.1519132Z",
+        "exitCode": 0,
+        "binaryUnchanged": true,
+        "pid": 12424,
+        "sourceUnchanged": true,
+        "terminationReason": ""
+      },
+      "evidenceSha256": {
+        "config.json": "71715a7823ca1288a349b9bbbcb38fb18b445269d20897bc9543697b4f8ba778",
+        "manifest.json": "4dc9fa2869a27761352d47e86c3d827ee98bd1b90d02423dbeb21518428bffea",
+        "scene-audit.json": "83499ce743875ac89fa497ec395bf9a81ddcf21d1441226b2ffb30c1b96ccd64",
+        "runtime-world.json": "165643d9ee9ea18374d0f63e30594cf21a14b7720ad42eb4d5abcdc560fc827f",
+        "result.json": "afd150b6b146320eebdfb5f5980637b56005905273af223e8a5c67035d5a307e",
+        "report.json": "4e7db159941011a315db34bdb52386d2502dc066b16c52732e7a171725107d66",
+        "contracts.json": "6789385bc10c20cfed86781851e3c6604c03d89094e9a12aa0e9af059bc5c73a",
+        "process.json": "926707419f67e4b04ed764653a57cb0840f9f37079e8ca5ec475566795c008c6",
+        "events.jsonl": "255d3b3bf0cec88bdc9a91a2501e301f9a4607e45ba4f8fe2f0cea77d27c9a6a",
+        "frames.csv": "371be3aa1c0f9d541aed454dc7826a637c9d90b4f75b8462ad45a54f8a22f19c",
+        "counters.csv": "c4f90d9a77379864847385445847e35924ad82a7637dd3553e652b44534477fd",
+        "warehouse-initial.json": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+        "warehouse-final.json": "1a6e2d3d1b9b64d6c343b74d5dcc85827f0f7cfff314e687dbea154204fdc984",
+        "item-definitions.json": "307d4949dc26ba0acfbd71f1b8830d7cfd79bccca168adaa5f701ceecb70258f",
+        "render-final.json": "4e52eba688eb3483cb3f415765b32f7ec57582eb254751d83fe1a9e3cbb10e69",
+        "render-startup.json": "ba2504bac9d0c98e439c31a3a662e66cb263e0a3354c7482e43791d2c423cb8e",
+        "render-check.png": "29733cbc5a4824d34c8535b581ffd3e79090fd2dea718760bd06509552e0abe2",
+        "Player.log": "b5170f1fce0363053c2c59562c4f773e1abc9bf0351f2da1f2d76b1e28178b7a",
+        "arguments.json": "84cab3cd9b3f09ab3605e147e7d61a98f29eb9494c37094b5eb01af92a0f2ca0",
+        "process-start.json": "69899e15b656c19205d97820675a56d77c64b1205b2ebe35cb5277adeb8afc46"
+      }
+    }
+  ],
+  "coverageEvidence": {
+    "capacityExtraction": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "combatDamage": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "inventory:1": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "inventory:2": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "movement:1": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "movement:2": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "pauseResume": [
+      "20260912-022333-491",
+      "20260912-022815-586",
+      "20260912-022940-945",
+      "20260912-023121-096",
+      "20260912-023254-005",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ],
+    "retaliationResume": [
+      "20260912-022333-491",
+      "20260912-022940-945",
+      "20260912-023449-874",
+      "20260912-023645-651"
+    ]
+  },
+  "priorRuns": [
+    {
+      "path": "Logs/SceneRaid/20260911-191648-254",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-192037-982",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-192117-201",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-192746-879",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-193222-820",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-193800-568",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-194055-924",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-195445-778",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-195919-537",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-201257-921",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 2,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "InventoryCapacityBlocked:2"
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-203250-166",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-205234-571",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-210055-347",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-210625-530",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-210825-662",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-211804-881",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-212649-538",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-212801-082",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-212946-882",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-213118-863",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-214640-588",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "InventoryCapacityBlocked:2"
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-214912-023",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "InventoryCapacityBlocked:2"
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-220007-405",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "INCOMPLETE",
+      "gameStatus": "NOT_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-220657-484",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-221156-196",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Autonomous raid did not complete before its wall-clock deadline."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-221944-910",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-222841-457",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-224354-827",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-224707-038",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-225442-257",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-230011-103",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Autonomous raid did not complete before its wall-clock deadline."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-230321-603",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-230512-733",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-230619-193",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Autonomous raid did not complete before its wall-clock deadline."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-230922-236",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Autonomous raid did not complete before its wall-clock deadline."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-231503-314",
+      "mode": "Autonomous",
+      "seed": 1731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-231722-756",
+      "mode": "Autonomous",
+      "seed": 2731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-231932-084",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-233616-350",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260911-234403-063",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Mission failure observed; see final agent health and extraction state."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-000153-211",
+      "mode": "Build",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "INCOMPLETE",
+      "gameStatus": "NOT_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-000352-733",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-000427-007",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-000700-938",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-001748-171",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-002215-329",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-002215-329/PlayerRun",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "INCOMPLETE",
+      "gameStatus": "NOT_VALIDATED",
+      "runtimeStatus": "HARNESS_FAILED",
+      "reason": "Evidence buffer overflow."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-003400-232",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-003400-232/PlayerRun",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "HARNESS_FAILED",
+      "reason": "No rendered game-camera frames after ten seconds; inspect render-final.json."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-003650-034",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-003834-557",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-004010-235",
+      "mode": "Autonomous",
+      "seed": 1731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-004159-072",
+      "mode": "Autonomous",
+      "seed": 2731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Mission failure observed; see final agent health and extraction state."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-004403-442",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-004403-442/PlayerRun",
+      "mode": "Observe",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": "OBSERVED",
+      "reason": "Observation deadline reached; no player input supplied."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-004617-938",
+      "mode": "Audit",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-004617-938/PlayerRun",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-005925-643",
+      "mode": "Autonomous",
+      "seed": 2731,
+      "speed": 4,
+      "evidenceStatus": "FAIL",
+      "gameStatus": "NOT_FULL_RAID_VALIDATED",
+      "runtimeStatus": null,
+      "reason": null
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-010600-466",
+      "mode": "Autonomous",
+      "seed": 2731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-010851-707",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Mission failure observed; see final agent health and extraction state."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-011111-660",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "BEHAVIOR_BLOCKED",
+      "reason": "Mission failure observed; see final agent health and extraction state."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-012410-261",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-012607-353",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-012842-945",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-014455-459",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-014638-889",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-014811-951",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-014949-927",
+      "mode": "Autonomous",
+      "seed": 1731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-015149-132",
+      "mode": "Autonomous",
+      "seed": 2731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-015924-231",
+      "mode": "Autonomous",
+      "seed": 2731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-020108-206",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "EXPECTED_DEATH",
+      "runtimeStatus": "RAID_OBSERVED_FAILURE",
+      "reason": "Mission failure observed; verify death terminal state and surviving agents' settlement."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-020245-623",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-020420-368",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-020600-930",
+      "mode": "Autonomous",
+      "seed": 1731,
+      "speed": 4,
+      "evidenceStatus": "PASS",
+      "gameStatus": "PASS",
+      "runtimeStatus": "RAID_OBSERVED_COMPLETE",
+      "reason": "Mission completion observed; final warehouse/coverage contracts are still required."
+    },
+    {
+      "path": "Logs/SceneRaid/20260912-020752-208",
+      "mode": "Autonomous",
+      "seed": 731,
+      "speed": 1,
+      "evidenceStatus": "PASS",
+      "gameStatus": "ISSUES_OBSERVED",
+      "runtimeStatus": "RAID_OBSERVED_FAILURE",
+      "reason": "Mission failure observed; verify death terminal state and surviving agents' settlement."
+    }
+  ],
+  "targetedVerification": [
+    {
+      "scope": "Continuous dual-agent occupied approaches at 1x/4x",
+      "passed": 2,
+      "path": "Logs/AgentReproduction/20260912-022152-526"
+    },
+    {
+      "scope": "Adjacent navigation, performance cache, inventory and displacement",
+      "passed": 37,
+      "path": "Logs/AgentReproduction/20260912-021920-111",
+      "note": "37 adjacent cases passed; this historical run also contains one failed transient arrival assertion and one passing approach case. The final approach fixture is validated separately."
+    },
+    {
+      "scope": "Approach scenes and occupancy boundaries",
+      "passed": 11,
+      "path": "Logs/AgentReproduction/20260912-021735-274"
+    },
+    {
+      "scope": "Scene approach/avoidance, resource navigation and enemy configuration",
+      "passed": 15,
+      "path": "Logs/AgentReproduction/20260912-015741-084"
+    },
+    {
+      "scope": "Resource navigation, displacement, inventory",
+      "passed": 18,
+      "path": "Logs/AgentReproduction/20260912-014259-772"
+    },
+    {
+      "scope": "Enemy prefab configuration",
+      "passed": 2,
+      "path": "Logs/AgentReproduction/20260912-005822-606"
+    },
+    {
+      "scope": "Retaliation and related lifecycle",
+      "passed": 21,
+      "path": "Logs/AgentReproduction/20260912-001614-642"
+    },
+    {
+      "scope": "Navigation/combat approach",
+      "passed": 52,
+      "path": "Logs/AgentReproduction/20260911-233358-411"
+    },
+    {
+      "scope": "Enemy VFX buffers",
+      "passed": 8,
+      "path": "Logs/AgentReproduction/20260911-234308-017"
+    },
+    {
+      "scope": "Cluster range/performance",
+      "passed": 18,
+      "path": "Logs/AgentReproduction/20260911-210524-598"
+    },
+    {
+      "scope": "Inventory/storage",
+      "passed": 17,
+      "path": "Logs/AgentReproduction/20260911-224207-518"
+    },
+    {
+      "scope": "Request file protocol",
+      "passed": 5,
+      "path": "Logs/AgentReproduction/20260912-012314-577"
+    },
+    {
+      "scope": "Editor session probes",
+      "passed": 9,
+      "path": "Logs/SceneRaidSessionProbes/20260912-012326-338"
+    },
+    {
+      "scope": "Completion/death/warehouse probes",
+      "passed": 44,
+      "path": "Logs/SceneRaidContractProbes/20260912-012246-373"
+    },
+    {
+      "scope": "Report probes",
+      "passed": 78,
+      "path": "Logs/SceneRaidReportProbes/20260912-012250-052"
+    }
+  ],
+  "limitations": [
+    "Finite seeds and routes; not a proof of indefinitely bug-free gameplay.",
+    "Historical Editor native shutdown/refresh hang remains unresolved; idle Editors are retained.",
+    "P3k fixes a scene radius override, and P3l fixes occupied approach selection with deterministic dual-agent scene reproductions; older transient failures are not all assigned the same cause.",
+    "Approach occupancy checks physical colliders belonging to other active NavMeshAgents; collider-free external navigation agents are outside this helper coverage.",
+    "Historical transient Search/Unreachable at the canteen was not independently reproduced; the separate high-baseOffset defect has a deterministic regression test.",
+    "Known missing scripts and scene warnings remain documented.",
+    "FFT inactive changes belong to the user working tree and are not included in the fix commits."
+  ]
+}

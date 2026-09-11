@@ -61,7 +61,7 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 
 故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
 
-`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity。当前 cases.json 登记 152 项用例，其中 SceneRequest 的 5 项验证请求交接，SceneResourceNavigation 的 7 项覆盖导航高度偏移、断开区域和实际场景记录位置。
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity。当前 cases.json 登记 163 项用例，其中 SceneRequest 的 5 项验证请求交接，SceneResourceNavigation 的 7 项覆盖导航高度偏移、断开区域和实际场景记录位置；SceneResourceApproach 的 8 项验证单人/双人箱边移动和同箱占位，TargetApproachOccupancy 的 3 项验证物理占位边界及缓冲复用。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
 
@@ -92,12 +92,12 @@ SC02 使用 **4×** 逻辑速度，默认 120 秒墙钟上限；SC03 使用 **1�
 
 `Invoke-AgentRepro.ps1 -Group SceneEnemyConfiguration` 单独加载正式场景，验证 30 个配置槽位实际指向敌人 Pawn，以及真实生成的 30 个敌人全部具有来源群/活跃群归属。它能捕获把 SpawnPoint Prefab 填入敌人列表而产生二次出生、漏注册的场景错误；无需人工 Play Mode。
 
-当前常驻场景 Editor 使用 `-WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene`，NUnit 使用独立 `AnomalySearchRegression` 工作区。旧工作区的卡住 Editor 保留供用户关闭，不对忙碌项目强制同步。
+当前常驻场景 Editor 使用 `-WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal`，NUnit 使用独立 `AnomalySearchRegression` 工作区。旧工作区的卡住 Editor 保留供用户关闭，不对忙碌项目强制同步。
 
 SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进入 Play Mode：
 
 ```powershell
-./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC07 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene -TimeoutSeconds 900
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC07 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal -TimeoutSeconds 900
 ```
 
 产物为 `Logs/SceneRaid/<runId>/Player/SceneRaid.exe`，构建结果在 `build-result.json`。当前 Mono / Development，4K / High Fidelity，仅此次构建定义 `ANOMALY_SCENE_AUTOMATION`，不启用自动连接 Profiler、Deep Profile 或脚本调试。请求与实际 BuildOptions 按整数位掩码验证，构建仍保留 Editor。SC07 只代表构建，不代表 Player 已完成搜打撤；当前阶段结果见 [P5a](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p5_player_verification.md)。
@@ -113,15 +113,15 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 `-ShowWindow` 显式显示验证窗口，用户已允许当前任务使用；默认隐藏在本机没有启动渲染管线，不能用其 Update 频率冒充 FPS。新环境可先用一个独立构建执行 `-ShowWindow -ObserveOnly -ObserveSeconds 15`，结果只标为 `OBSERVATION_COMPLETE`，不代表完成搜打撤。10 秒零渲染会明确失败；`render-startup.json`、`render-final.json` 保存管线/相机证据，实际渲染 30 帧后保存 `render-check.png`。之后完整回合需要新的 SC07 构建 runId。
 
 ```powershell
-./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
-./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal
 ./tools/agent-repro/Test-SceneRaidContracts.ps1
 ```
 
 `-Seed 1731` / `-Seed 2731` 可覆盖不同掉落组合；默认仍为 731。显式 `-Profile` 打开普通 CPU Profiler，额外输出 `cpu-hierarchy.json`，记录主/渲染线程 Total、Self、调用数和已采样最慢 60 个线程帧的局部层级。每 0.25 秒读取最新两个相邻历史帧，覆盖 Editor/游戏帧，报告跳过的 Profiler 帧数；它用于抽样归因，不能作为 FPS 验收或完整慢帧清单。读取过程中暂停 Profiler，避免递归计量自身分配。诊断期间记录 Editor 工作，结束恢复该设置，保留 Editor 进程。
 
 ```powershell
-./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -Profile -ObserveSeconds 90 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -Profile -ObserveSeconds 90 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal
 ./tools/agent-repro/Measure-SceneRaidPerformance.ps1 -RunPath Logs/SceneRaid/<runId>
 ```
 
@@ -139,4 +139,6 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 
 快照包含 Transform/缩放、身体尺寸、NavMesh 位置、实际/期望速度、目标和路径距离、进展计时，以及当前敌人的血量/护盾/可见性/射击结果。普通快照 1 秒一次，有具体交战对象时 0.25 秒一次；资源到达/等待/离开/完成按状态变化记录。读取 `hasEnemy`、`hasResource`、`hasDirectivePosition` 后再解释对应字段，不能把 JsonUtility 产生的默认 0 当作真实血量或距离。
 
-搜索节点尚未接管的前置移动期只有真实导航目的地，`hasResource=false`；不会猜测箱子或替游戏发送指令。结果出现后仍有有限退出期限，原生进程挂起会自动回收并报告失败。32 项报告故障探针和 2 项 R5 定向 Play Mode 测试已运行；最新证据及已知问题见 [P1 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p1_execution.md)。后续自动背包和完整回合按 [大规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/task_plan.md) 继续。
+搜索节点尚未接管的前置移动期只有真实导航目的地，`hasResource=false`；不会猜测箱子或替游戏发送指令。结果出现后仍有有限退出期限，Player 原生进程挂起会自动回收并报告失败，常驻 Editor 按用户约定保留。P1 阶段的 32 项报告故障探针和 2 项 R5 定向 Play Mode 测试见 [P1 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p1_execution.md)，后续自动背包、完整回合和新增回归的最终结果见下方报告及 [大规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/task_plan.md)。
+
+本轮场景和性能最终结果见 [Scenezl_Final 1 验收报告](../../outputs/scenezl_final1_validation_report.md)，逐轮输入和原始证据哈希见 [机器报告](../../outputs/scenezl_final1_validation.json)。该报告锁定测试时的完整输入，验收后的 README 更新仅同步说明。
