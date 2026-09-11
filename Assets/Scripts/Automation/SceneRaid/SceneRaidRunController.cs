@@ -25,6 +25,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _config = config;
             _originalScale = Time.timeScale; _originalFixed = Time.fixedDeltaTime;
             _writer = new SceneRaidEvidenceWriter(config.outputPath);
+            SceneRaidPersistenceEvidence.CaptureWarehouse(config.outputPath, "initial");
             var identity = new SceneRaidIdentityMap();
             _observer = new SceneRaidObserver(_writer, identity);
             _model = new SceneRaidReadModel(identity, _observer.LatestResource);
@@ -94,7 +95,12 @@ namespace AnomalySearch.Automation.SceneRaid
         {
             if (_complete) return;
             _complete = true;
-            try { _inventory?.Dispose(); _observer.Snapshot(_model.Capture()); }
+            try
+            {
+                _inventory?.Dispose(); _observer.Snapshot(_model.Capture());
+                SceneRaidPersistenceEvidence.CaptureWarehouse(_config.outputPath, "final");
+                SceneRaidPersistenceEvidence.CaptureDefinitions(_config.outputPath, _config.runId);
+            }
             catch (Exception ex) { status = "HARNESS_FAILED"; reason += "\nFinal capture/cleanup: " + ex; }
             if (_writer.Lost > 0 || _sampler.Overflow) { status = "HARNESS_FAILED"; reason = "Evidence buffer overflow."; }
             _writer.Add("run.completed", status + ": " + reason);

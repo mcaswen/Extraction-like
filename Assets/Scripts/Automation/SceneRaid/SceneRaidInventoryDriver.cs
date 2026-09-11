@@ -173,10 +173,11 @@ namespace AnomalySearch.Automation.SceneRaid
                 screen.CloseInventory();
                 if (_box != null) SceneRaidInventoryLedger.RequireSame(remaining, _box.GetSavedItems(), "LootBox close writeback");
                 SceneRaidInventoryLedger.RequireSame(backpack, screen.BackpackGrid.ExtractSaveData(), "Backpack close writeback");
+                _ledger.Check("afterClose", _box != null ? _box.GetSavedItems() : remaining, screen.BackpackGrid.ExtractSaveData());
                 if (!Mathf.Approximately(Time.timeScale, _previousScale) || !Mathf.Approximately(Time.fixedDeltaTime, _previousFixed))
                     throw new InvalidOperationException("Inventory did not restore simulation time.");
             }
-            Log("closed", reason);
+            Log(_session != null ? "closed" : "canceled", reason);
             if (completed) { CompletedSessions++; ServedAgents.Add(_current.fact.AgentId); }
             _current = null; _session = null; _box = null;
         }

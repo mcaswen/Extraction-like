@@ -15,6 +15,33 @@ namespace AgentReproduction.Tests
 {
     public sealed class SceneRaidStorageTests : ReproductionTestFixture
     {
+        [Serializable] private sealed class FlatRows { public SceneRaidItemEvidence[] items; }
+        [UnityTest]
+        public IEnumerator FlatEvidencePreservesDeepContentsWithoutRecursiveSerialization()
+        {
+            var data = World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+            data.ItemID = "EvidenceProbe";
+            var root = new ContainerItemSaveData { ItemData = data, Amount = 1 };
+            var parent = root;
+            for (int i = 1; i < 14; i++)
+            {
+                var child = new ContainerItemSaveData { ItemData = data, Amount = i + 1 };
+                parent.InternalItems = new List<ContainerItemSaveData> { child };
+                parent = child;
+            }
+            string json = JsonUtility.ToJson(new FlatRows { items = SceneRaidItemEvidence.Flatten(new[] { root }) });
+            var restored = JsonUtility.FromJson<FlatRows>(json).items;
+            Assert.That(restored.Length, Is.EqualTo(14));
+            for (int i = 0; i < restored.Length; i++)
+            {
+                Assert.That(restored[i].parentIndex, Is.EqualTo(i - 1));
+                Assert.That(restored[i].amount, Is.EqualTo(i + 1));
+            }
+            LogAssert.NoUnexpectedReceived();
+            ContractCompleted = true;
+            yield return null;
+        }
+
         private sealed class IsolatedSave : IDisposable
         {
             public readonly string Path = System.IO.Path.Combine(Application.persistentDataPath, "player_storage.json");

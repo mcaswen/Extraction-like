@@ -28,21 +28,23 @@
 | Smoke | 1 | 发现、运行态、导航、物理与存档隔离 |
 | F1 | 2 | 撤离受击反击后恢复、无伤害对照 |
 | F5 | 1 | 静态不可达拒绝 |
-| Lifecycle | 4 | 重复伤害、新命令、取消、死亡、资源受击、恢复点失效 |
+| Lifecycle | 6 | 重复伤害、新命令、取消、死亡、资源受击、恢复点失效，反击交接锁和正常搜索完成 |
 | Navigation | 8 | 零/小容差、坡面、导航丢失与无进展 |
 | R5 | 2 | 位移后重新验证背包交互 |
 | Feedback | 1 | 接收/拒绝结果、原因与反馈生命周期 |
 | EnemyTargets | 16 | 七类正式敌人换人、失效变体、五类巡逻候选 |
 | RangedSpatial | 12 | 双方高低差、枪口、三类弹体与薄墙 |
 | Perception | 5 | 范围、射线、完整候选与范围技能 |
-| Decision | 5 | 成员距离、实际防御、风险、撤离后备、失败目标短期排除 |
+| Decision | 6 | 成员距离、实际防御、风险、撤离后备、失败目标短期排除，容量撤离 |
 | Cooldown | 8 | 属性/装备/配置刷新、技能重排、重复 SkillId、普通攻击锁 |
 | Combined | 10 | 多 Agent、实际撤离、动态路径、无效输入、护盾和缺失攻击配置 |
 | Graphics | 1 | 正式顶部反馈 prefab 的成功/失败/消退 PNG |
 | ScenePerformance | 11 | Discovery 范围预筛，路径查询次数及所有权，资源和轮廓缓存失效，20 Hz 范围刷新及即时死亡隐藏 |
-| SceneInventory | 4 | 正式背包搜索、旋转/空间/策略，双 Agent 会话，失效关闭和搜索恢复 |
+| SceneInventory | 9 | 正式背包搜索、旋转/空间/策略、堆叠和整理，双 Agent 会话归属，容量自主撤离 |
+| SceneCombat | 4 | 偏高身体根的地表追击，断开高台拒绝，腐蚀粒子初始化，失败当帧探针 |
+| SceneStorage | 8 | 正式掉落写盘重载、异常页和特殊格、保存回滚、结算失败终态、平面物品证据 |
 
-清单以 [cases.json](cases.json) 为准，共 91 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
+清单以 [cases.json](cases.json) 为准，共 111 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
 
 ## 结果与定位
 
@@ -56,7 +58,7 @@ NUnit XML 是最终通过/失败权威，清单中缺失的测试不会算通过
 
 故障探针：`-Suite Smoke -FaultProbe Assertion` 故意断言失败；`-Suite Smoke -FaultProbe Timeout -Repeat 2 -TimeoutSeconds 30` 仅挂起首次，用于验证回收和第二次继续。正常回归不用这些参数。
 
-`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 91 个游戏用例。
+`./tools/agent-repro/Test-AgentReproReport.ps1` 独立构造 7 类 XML/进程结果，检查正常、异常退出、断言失败、Diagnose、缺失、超时及清理失败。它不启动 Unity，不计入 111 个游戏用例。
 
 实际证据和覆盖边界见 [验收报告](../../outputs/implementation_validation_report.md)。
 
@@ -81,9 +83,21 @@ SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对
 
 用户最新性能目标为 **60 FPS**，4K 高画质保持，测量仍不限帧。平均、滑动 1 秒和 1% Low 至少 60 FPS，P99 不超过 16.667 ms，卡顿上限 33.333 ms；报告明确记录目标和预算。旧 120 FPS 报告不覆盖，门槛调整及退出调查见 [P4e 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4e_60fps_shutdown.md)。
 
-SC02 启用自动背包驱动，当前 P2 诊断配置为 2×、120 秒墙钟上限；只调用正式焦点/开箱/搜索/快捷转移/关闭入口，Agent 仍自行决定行动。每次操作在 `inventory.*` 事件中记录数量和上下文。首轮两 Agent 共完成 8 次会话，到达容量阻断，未完成整局。最新执行顺序按用户要求先治理三个热点，再延长自主回合，见 [性能优先规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4_performance_first.md)。
+SC02 使用 **4×** 逻辑速度，默认 120 秒墙钟上限；SC03 使用 **1×**、360 秒上限，用于正常速度和性能复核。正式 UI 暂停后恢复各自速度，物理步长保持不变。驱动只操作焦点、背包和物品，Agent 自主选择目标，容量不足时自主撤离，剩余物品留在箱内。
 
-入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity / 1×；当前关闭普通 Profiler 会话，采集 21 个具名计数器，包含 Cluster/Range/Ground 分段，耗时和调用次数写入 `counters.csv`，缺失不能视为零。计数器尚未注册时每秒重试，全部找到后停止扫描；无样本仍明确失败并保留其余统计。`profile`、`binaryProfile` 可显式启用原始 Profiler，文件较大，诊断 FPS 不作最终验收。
+当前常驻场景 Editor 使用 `-WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene`，NUnit 使用独立 `AnomalySearchRegression` 工作区。旧工作区的卡住 Editor 保留供用户关闭，不对忙碌项目强制同步。
+
+```powershell
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
+./tools/agent-repro/Test-SceneRaidContracts.ps1
+```
+
+`warehouse-initial.json`、`warehouse-final.json`、`item-definitions.json` 和平面 `inventory.ledger` 支持独立数量/布局核对。`contracts.json` 核对两人的移动、真实转移、交战伤害、暂停恢复、撤离集合、箱子写回和仓库守恒。只有证据完整、无错误/失败指令且完成契约通过才报告 `gameStatus=PASS`；性能是否达标单独判定。缺少新证据的旧回合仍是 `NOT_FULL_RAID_VALIDATED`。
+
+每轮保持输入冻结，具体修复和首次失败见 [P3 实施记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p3_execution.md)。
+
+入口复用外部隔离副本，包含工作区当前资产，按输入哈希验证没有改动源项目，只管理自己启动的进程。固定 4K / High Fidelity，速度由用例配置；当前关闭普通 Profiler 会话，采集 21 个具名计数器，包含 Cluster/Range/Ground 分段，耗时和调用次数写入 `counters.csv`，缺失不能视为零。计数器尚未注册时每秒重试，全部找到后停止扫描；无样本仍明确失败并保留其余统计。`profile`、`binaryProfile` 可显式启用原始 Profiler，文件较大，诊断 FPS 不作最终验收。
 
 范围快照每秒记录各群输入/输出点数、重建/投射/写线累计次数。Cluster 的普通显示更新最多每 0.05 实际秒一次，加速模拟不加速这一显示频率；成员状态及死亡隐藏仍逐帧执行。具体无 FFT 对比见 [P4d 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4d_cluster_lateupdate.md)。
 

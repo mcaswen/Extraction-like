@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('SC00','SC01','SC02')][string]$Case = 'SC01',
+    [ValidateSet('SC00','SC01','SC02','SC03')][string]$Case = 'SC01',
     [string]$UnityPath,
     [string]$WorkspaceRoot,
     [ValidateRange(120,3600)][int]$TimeoutSeconds = 900,

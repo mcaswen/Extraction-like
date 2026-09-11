@@ -1,4 +1,5 @@
 Set-StrictMode -Version Latest
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Contracts.psm1') -Force
 function Get-SceneRaidFrameStatistics {
     param([object[]]$Frames, [ValidateRange(1,1000)][double]$TargetFps = 60)
     $frameBudgetMs = 1000.0 / $TargetFps
@@ -84,6 +85,7 @@ function Test-SceneRaidEvidence {
     $timing = $null
     $counterSummaries = @()
     $result = $null
+    $completion = $null
     if ($Config.mode -eq 'Observe' -or $Config.mode -eq 'Autonomous') {
         try {
             $result = Get-Content -LiteralPath (Join-Path $OutputPath 'result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
@@ -132,13 +134,18 @@ function Test-SceneRaidEvidence {
                     averageCalls=$(if ($valid.Count -gt 0) {($valid | Measure-Object previousCalls -Average).Average} else {$null})}
             })
             if ((@($result.observedAgents | Sort-Object) -join ',') -ne '1,2') { $issues.Add('expected_agents_missing') }
+            if ($Config.mode -eq 'Autonomous') {
+                $completion = Test-SceneRaidCompletion $OutputPath $Config $events $result
+                $completion | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8
+            }
         } catch { $issues.Add('invalid_or_missing_evidence:' + $_.Exception.Message) }
     }
     return [pscustomobject]@{
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
         editorLifecycle=$(if ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
-        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0) {'ISSUES_OBSERVED'} else {'NOT_FULL_RAID_VALIDATED'})
+        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') {'PASS'} else {'NOT_FULL_RAID_VALIDATED'})
+        completionContracts=$completion
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries
         performanceAcceptance=$false; issues=$issues.ToArray()
     }

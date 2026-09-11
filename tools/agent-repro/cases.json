@@ -218,6 +218,7 @@
       "filter": "AgentReproduction.Tests.SceneRaidStorageTests",
       "expected": [
         "EverySceneLootDefinitionRoundTripsThroughStorage",
+        "FlatEvidencePreservesDeepContentsWithoutRecursiveSerialization",
         "DiskFailureRollsBackAppendAndRetryDoesNotDuplicateItems",
         "FailedSettlementPreservesAgentInventoryAndEndsAutomationPromptly",
         "UnknownInputRejectsWholeAppendWithoutChangingSavedItems",

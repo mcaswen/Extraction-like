@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "runs": [
+    {
+      "runId": "20260911-220657-484",
+      "speed": 4,
+      "result": {
+        "status": "RAID_OBSERVED_COMPLETE",
+        "elapsedWallSeconds": 63.7234287,
+        "elapsedGameSeconds": 169.84675274044275,
+        "inventorySessions": 11,
+        "errors": 3,
+        "warnings": 86
+      },
+      "originalReport": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "ISSUES_OBSERVED",
+        "behaviorFailures": 2,
+        "stagnationSuspicions": 0
+      },
+      "independentRecheckStatus": null,
+      "hashes": {
+        "result.json": "a74265e231b1c8ed1a2854d129681d3ac2355e973c3081cb5c4a1624c84eacaa",
+        "report.json": "e82834af2f720dc86a5b7d1cb52f288f5f5c8e990a62c4db37c39766167aa4a8",
+        "events.jsonl": "708281fcaba325b50560931c7a4c3e63e67a9a547688f7443548f38338eb4e22"
+      }
+    },
+    {
+      "runId": "20260911-221156-196",
+      "speed": 4,
+      "result": {
+        "status": "BEHAVIOR_BLOCKED",
+        "elapsedWallSeconds": 180.8046695,
+        "elapsedGameSeconds": 203.8748075813055,
+        "inventorySessions": 12,
+        "errors": 0,
+        "warnings": 71
+      },
+      "originalReport": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "ISSUES_OBSERVED",
+        "behaviorFailures": 3,
+        "stagnationSuspicions": 0
+      },
+      "independentRecheckStatus": null,
+      "hashes": {
+        "result.json": "31de7246918d86766348492557969980c60bcfdd44eb6b04e7a28dc3adbada9f",
+        "report.json": "f21a401acca8933cbba54763c605136194652f4b2da8e45c70c9230cbd007785",
+        "events.jsonl": "de33de82bcd587f6d8fc6cf01206ec7abf480eaea347f3553bce51cbc84b465f"
+      }
+    },
+    {
+      "runId": "20260911-221944-910",
+      "speed": 4,
+      "result": {
+        "status": "RAID_OBSERVED_COMPLETE",
+        "elapsedWallSeconds": 76.7177533,
+        "elapsedGameSeconds": 215.87434438429773,
+        "inventorySessions": 12,
+        "errors": 0,
+        "warnings": 99
+      },
+      "originalReport": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "ISSUES_OBSERVED",
+        "behaviorFailures": 3,
+        "stagnationSuspicions": 0
+      },
+      "independentRecheckStatus": null,
+      "hashes": {
+        "result.json": "0fa7c8b5f806654aa58622b7a0b17d3dc7b7114cb581e77ff471e2c2e2e6945e",
+        "report.json": "1b04b75102871b7b3b7efd7ff954a86817f70ea9133510605787f4873f84d6e7",
+        "events.jsonl": "91eb23770eef34661e9db4d96d5da718aaf276bab1591b9a9f69a36e8d195642"
+      }
+    },
+    {
+      "runId": "20260911-222841-457",
+      "speed": 4,
+      "result": {
+        "status": "RAID_OBSERVED_COMPLETE",
+        "elapsedWallSeconds": 78.34132629999999,
+        "elapsedGameSeconds": 220.68980038166046,
+        "inventorySessions": 12,
+        "errors": 0,
+        "warnings": 71
+      },
+      "originalReport": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0
+      },
+      "independentRecheckStatus": null,
+      "hashes": {
+        "result.json": "0d7e0de70ac622b2fbde065a26942f3f505b23f0ad5f8188a53eb1897c532314",
+        "report.json": "9da87f6567f86f915b045783f289db4b746f42053f9128061b197f4f8695c97a",
+        "events.jsonl": "e417deb4c220bf1b4f2a431eb6790a67d2415955bcf734534c0acc7af9a85560"
+      }
+    },
+    {
+      "runId": "20260911-224354-827",
+      "speed": 4,
+      "result": {
+        "status": "RAID_OBSERVED_COMPLETE",
+        "elapsedWallSeconds": 68.7577007,
+        "elapsedGameSeconds": 196.24021514691412,
+        "inventorySessions": 10,
+        "errors": 0,
+        "warnings": 69
+      },
+      "originalReport": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "ISSUES_OBSERVED",
+        "behaviorFailures": 1,
+        "stagnationSuspicions": 0
+      },
+      "independentRecheckStatus": "PASS",
+      "hashes": {
+        "result.json": "daf5105616c9bdcf38fdb6a2ac013c35a3875abd2c5c4187a66b6d46b73ac81b",
+        "report.json": "2ecf5b89ddf99abe5a3ca100cff699d0490d1447d822e9d6a9e151ea71f38d8c",
+        "contracts.json": "3617f158dc11bd54635eb81a2fa815caf195b2e613ade739dfdd787d4f34cc21",
+        "contracts.recheck.json": "d19e46980d59085e2aabba782d5adafeab591cd906e098e7d008b4f1a7c55431",
+        "events.jsonl": "9292187bead73d678fdcc22d005f31e90385a51404e64d54aadca5f5494003f8",
+        "warehouse-final.json": "9a373f7753e72ba2ed320529b31dcfa2b8c0b1e2b23a56beb9fbb2142ece5dba"
+      }
+    },
+    {
+      "runId": "20260911-224707-038",
+      "speed": 1,
+      "result": {
+        "status": "RAID_OBSERVED_COMPLETE",
+        "elapsedWallSeconds": 220.6101488,
+        "elapsedGameSeconds": 200.11774329955279,
+        "inventorySessions": 11,
+        "errors": 0,
+        "warnings": 69
+      },
+      "originalReport": {
+        "evidenceStatus": "PASS",
+        "gameStatus": "ISSUES_OBSERVED",
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0
+      },
+      "independentRecheckStatus": "PASS",
+      "hashes": {
+        "result.json": "32a6421dfb22a0d4bc27f91893e87f4b808d7b83dcda4585d708028980beabb2",
+        "report.json": "720733dd737c7d107b9029bcecee79f9115d7ba3749357239f59919d0c3e1b70",
+        "contracts.json": "4fe7d3881dcf425592d880347526a1593a2dada477be9d9a5db3bd7404f8d418",
+        "contracts.recheck.json": "e09f0b702734175a5d8607f1371c22791e6e9c180fc13f57a486ea254b175dc3",
+        "events.jsonl": "375ead6d35b7cfcbd47d55a0aa10a11a47a589d706d38dafd137c68542ca263f",
+        "warehouse-final.json": "00956300a12ace084bf35b651f64d3d3d4c82a5ebaf32793ffa1b3bd20447ea2"
+      }
+    }
+  ],
+  "performanceAcceptance": false
+}

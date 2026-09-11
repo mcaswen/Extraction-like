@@ -9,17 +9,12 @@ namespace AnomalySearch.Automation.SceneRaid
     /// <summary>对照正式容器快照核对守恒；不写物品、格子或存档。</summary>
     public sealed class SceneRaidInventoryLedger
     {
-        [Serializable] private sealed class ItemRow
-        {
-            public string itemId, assetName, runtimeId;
-            public int amount, x, y;
-            public bool rotated, searched;
-            public ItemRow[] contents;
-        }
         [Serializable] private sealed class Record
         {
+            public int schemaVersion = 2;
             public string agent, resource, stage;
-            public ItemRow[] source, backpack;
+            public bool equipmentCaptured;
+            public SceneRaidItemEvidence[] source, backpack, equipped;
         }
         private readonly SceneRaidEvidenceWriter _writer;
         private Dictionary<InventoryItemData, long> _initial;
@@ -63,14 +58,15 @@ namespace AnomalySearch.Automation.SceneRaid
             if (expected == null || expected.Count != actual.Count || expected.Any(x => !actual.TryGetValue(x.Key, out long count) || count != x.Value))
                 throw new InvalidOperationException(reason + " failed.");
         }
-        private static ItemRow[] Rows(IEnumerable<ContainerItemSaveData> items) => items == null ? Array.Empty<ItemRow>() : items.Select(x => new ItemRow
+        private void RecordState(string stage, List<ContainerItemSaveData> source, List<ContainerItemSaveData> backpack)
         {
-            itemId = x.ItemData.ItemID, assetName = x.ItemData.name, runtimeId = x.RuntimeItemId, amount = x.Amount,
-            x = x.X, y = x.Y, rotated = x.IsRotated, searched = x.IsSearched, contents = Rows(x.InternalItems)
-        }).ToArray();
-        private void RecordState(string stage, List<ContainerItemSaveData> source, List<ContainerItemSaveData> backpack) =>
+            var screen = InventoryScreenController.Instance;
+            bool captured = screen != null && screen.ActiveInventoryAgentId == _agent;
             _writer.Add("inventory.ledger", JsonUtility.ToJson(new Record
-            { agent = _agent, resource = _resource, stage = stage, source = Rows(source), backpack = Rows(backpack) }));
+            { agent = _agent, resource = _resource, stage = stage, source = SceneRaidItemEvidence.Flatten(source),
+                backpack = SceneRaidItemEvidence.Flatten(backpack), equipmentCaptured = captured,
+                equipped = captured ? SceneRaidItemEvidence.Equipped(screen) : Array.Empty<SceneRaidItemEvidence>() }));
+        }
     }
 }
 #endif
