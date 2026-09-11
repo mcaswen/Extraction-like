@@ -12,6 +12,13 @@ namespace Gameplay.Targets.Runtime
         private const int GroundHitBufferSize = 16;
         private const float MinDirectionSqrMagnitude = 0.0001f;
         private static readonly RaycastHit[] GroundHitBuffer = new RaycastHit[GroundHitBufferSize];
+        private static readonly System.Comparison<Vector2> PointComparison = CompareVector2;
+        public sealed class HullBuffer
+        {
+            internal readonly List<Vector2> Points = new List<Vector2>();
+            internal readonly List<Vector2> Lower = new List<Vector2>();
+            internal readonly List<Vector2> Upper = new List<Vector2>();
+        }
 
         /// <summary>
         /// 根据一组世界坐标生成水平平滑范围轮廓
@@ -35,7 +42,8 @@ namespace Gameplay.Targets.Runtime
             int circleSegments,
             int smoothSegmentsPerEdge,
             List<Vector3> resultPoints,
-            out Vector3 center)
+            out Vector3 center,
+            HullBuffer buffer = null)
         {
             resultPoints.Clear();
 
@@ -58,7 +66,7 @@ namespace Gameplay.Targets.Runtime
                 return;
             }
 
-            List<Vector2> hull = BuildConvexHull(sourcePositions);
+            List<Vector2> hull = BuildConvexHull(sourcePositions, buffer ?? new HullBuffer());
             if (hull.Count < 3)
             {
                 BuildCircle(center, safeFallbackRadius, safeCircleSegments, resultPoints);
@@ -246,23 +254,26 @@ namespace Gameplay.Targets.Runtime
         /// </summary>
         /// <param name="sourcePositions"></param>
         /// <returns></returns>
-        private static List<Vector2> BuildConvexHull(IReadOnlyList<Vector3> sourcePositions)
+        private static List<Vector2> BuildConvexHull(IReadOnlyList<Vector3> sourcePositions, HullBuffer buffer)
         {
-            List<Vector2> points = new List<Vector2>(sourcePositions.Count);
+            List<Vector2> points = buffer.Points;
+            points.Clear();
             for (int i = 0; i < sourcePositions.Count; i++)
             {
                 Vector3 position = sourcePositions[i];
                 points.Add(new Vector2(position.x, position.z));
             }
 
-            points.Sort(CompareVector2);
-            List<Vector2> lowerHull = new List<Vector2>();
+            points.Sort(PointComparison);
+            List<Vector2> lowerHull = buffer.Lower;
+            lowerHull.Clear();
             for (int i = 0; i < points.Count; i++)
             {
                 AppendHullPoint(lowerHull, points[i]);
             }
 
-            List<Vector2> upperHull = new List<Vector2>();
+            List<Vector2> upperHull = buffer.Upper;
+            upperHull.Clear();
             for (int i = points.Count - 1; i >= 0; i--)
             {
                 AppendHullPoint(upperHull, points[i]);

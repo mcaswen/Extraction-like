@@ -34,15 +34,24 @@ namespace Gameplay.Targets.Authoring
         private readonly List<Vector3> _memberPositionBuffer = new List<Vector3>();
         private readonly List<Vector3> _rangePoints = new List<Vector3>();
         private Vector3 _cachedCenterPosition;
-        private bool _hasCachedShape;
+        private readonly GameplayTargetRangeCache _rangeCache = new GameplayTargetRangeCache();
 
         public override GameplayTargetLevel TargetLevel => GameplayTargetLevel.Cluster;
         public TargetZoneAuthoring Zone => ResolveZone();
-        public override Vector3 CenterPosition => _hasCachedShape ? _cachedCenterPosition : transform.position;
-        public IReadOnlyList<Vector3> RangePoints => _rangePoints;
+        public override Vector3 CenterPosition => _rangeCache.HasShape ? _rangeCache.Center : transform.position;
+        public IReadOnlyList<Vector3> RangePoints => _rangeCache.Points;
+        public long RangeGeometryBuildCount => _rangeCache.GeometryBuildCount;
+        public long RangeGroundProjectionCount => _rangeCache.GroundProjectionCount;
+        public long RangeLineWriteCount => _rangeCache.LineWriteCount;
+
+        private GameplayTargetRangeCache.Settings RangeSettings => new GameplayTargetRangeCache.Settings
+        {
+            Padding = _rangePadding, Radius = _fallbackRadius, CircleSegments = _circleSegments,
+            SmoothSegments = _smoothSegmentsPerEdge, HeightOffset = _rangeHeightOffset,
+            ProbeHeight = _groundProbeHeight, ProbeDistance = _groundProbeDistance, MinNormalY = _minGroundNormalY
+        };
 
         protected virtual bool RefreshStateEveryFrame => false;
-        protected virtual bool RefreshRangeEveryFrame => false;
         protected virtual bool HideRangeWhenCompleted => false;
         protected LineRenderer ConfiguredRangeLineRenderer
         {
@@ -83,15 +92,16 @@ namespace Gameplay.Targets.Authoring
             if (RefreshStateEveryFrame)
                 RefreshRuntimeState();
 
-            if (RefreshRangeEveryFrame)
-                RefreshRangeShape();
+            RefreshRangeShape(false);
         }
 
         /// <summary>
         /// 刷新群目标范围轮廓
         /// 用于编辑器预览和运行时 LineRenderer 显示
         /// </summary>
-        public void RefreshRangeShape()
+        public void RefreshRangeShape() => RefreshRangeShape(true);
+
+        private void RefreshRangeShape(bool force)
         {
             if (HideRangeWhenCompleted && HasBeenCompleted)
             {
@@ -99,8 +109,8 @@ namespace Gameplay.Targets.Authoring
                 return;
             }
 
-            BuildRangeShape();
-            ApplyRangeLineRenderer();
+            BuildRangeShape(force);
+            _rangeCache.ApplyLine(_rangeLineRenderer, _rangeColor, _rangeLineWidth, force);
         }
 
         [ContextMenu("Attach Range Line Renderer")]
@@ -184,73 +194,19 @@ namespace Gameplay.Targets.Authoring
         }
 
         // 根据成员点生成范围轮廓，并同步缓存中心点
-        private void BuildRangeShape()
+        private void BuildRangeShape(bool force)
         {
             _rangePoints.Clear();
-            bool hasCustomShape = TryBuildCustomRangeShape(
-                _rangePoints,
-                out _cachedCenterPosition,
+            bool custom = TryBuildCustomRangeShape(_rangePoints, out _cachedCenterPosition,
                 out Transform groundProjectionOwner) && _rangePoints.Count > 1;
-
-            if (!hasCustomShape)
+            if (!custom)
             {
                 _memberPositionBuffer.Clear();
                 CollectMemberPositions(_memberPositionBuffer);
-
-                GameplayTargetShapeUtility.BuildSmoothRange(
-                    _memberPositionBuffer,
-                    transform.position,
-                    _rangePadding,
-                    _fallbackRadius,
-                    _circleSegments,
-                    _smoothSegmentsPerEdge,
-                    _rangePoints,
-                    out _cachedCenterPosition);
-                groundProjectionOwner = transform;
             }
-
-            ProjectRangeShapeToGround(groundProjectionOwner != null ? groundProjectionOwner : transform);
-            _hasCachedShape = true;
-        }
-
-        private void ProjectRangeShapeToGround(Transform groundProjectionOwner)
-        {
-            _cachedCenterPosition = GameplayTargetShapeUtility.ProjectPointToGround(
-                _cachedCenterPosition,
-                groundProjectionOwner,
-                _groundProbeHeight,
-                _groundProbeDistance,
-                _minGroundNormalY);
-            _cachedCenterPosition += Vector3.up * _rangeHeightOffset;
-
-            for (int i = 0; i < _rangePoints.Count; i++)
-            {
-                Vector3 point = GameplayTargetShapeUtility.ProjectPointToGround(
-                    _rangePoints[i],
-                    groundProjectionOwner,
-                    _groundProbeHeight,
-                    _groundProbeDistance,
-                    _minGroundNormalY);
-                point.y += _rangeHeightOffset;
-                _rangePoints[i] = point;
-            }
-        }
-
-        // 如果配置了 LineRenderer，则把计算出的范围点同步到场景表现
-        private void ApplyRangeLineRenderer()
-        {
-            if (_rangeLineRenderer == null)
-                return;
-
-            ConfigureRangeLineRenderer(_rangeLineRenderer);
-            _rangeLineRenderer.startColor = _rangeColor;
-            _rangeLineRenderer.endColor = _rangeColor;
-            _rangeLineRenderer.widthMultiplier = Mathf.Max(0.01f, _rangeLineWidth);
-            _rangeLineRenderer.positionCount = _rangePoints.Count;
-            for (int i = 0; i < _rangePoints.Count; i++)
-            {
-                _rangeLineRenderer.SetPosition(i, _rangePoints[i]);
-            }
+            _rangeCache.Refresh(custom ? _rangePoints : _memberPositionBuffer,
+                custom ? _cachedCenterPosition : transform.position, custom,
+                custom && groundProjectionOwner != null ? groundProjectionOwner : transform, RangeSettings, force);
         }
 
         private void ClearRangeLineRenderer()
@@ -309,19 +265,19 @@ namespace Gameplay.Targets.Authoring
             if (!_drawGizmos)
                 return;
 
-            BuildRangeShape();
-            if (_rangePoints.Count <= 1)
+            if (!Application.isPlaying) RefreshRangeShape(false);
+            if (RangePoints.Count <= 1)
                 return;
 
             Gizmos.color = _rangeColor;
-            for (int i = 0; i < _rangePoints.Count; i++)
+            for (int i = 0; i < RangePoints.Count; i++)
             {
-                Vector3 current = _rangePoints[i];
-                Vector3 next = _rangePoints[(i + 1) % _rangePoints.Count];
+                Vector3 current = RangePoints[i];
+                Vector3 next = RangePoints[(i + 1) % RangePoints.Count];
                 Gizmos.DrawLine(current, next);
             }
 
-            Gizmos.DrawSphere(_cachedCenterPosition, 0.2f);
+            Gizmos.DrawSphere(CenterPosition, 0.2f);
         }
     }
 }

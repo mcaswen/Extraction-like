@@ -24,7 +24,6 @@ namespace Gameplay.Targets.Authoring
         public override GameplayTargetKind TargetKind => GameplayTargetKind.Enemy;
         protected override string IdPrefix => "ActiveEnemyCluster";
         protected override bool RefreshStateEveryFrame => true;
-        protected override bool RefreshRangeEveryFrame => true;
         protected override bool HideRangeWhenCompleted => true;
 
         public IReadOnlyList<GameplayTargetEntityMember> InitialEnemies => _initialEnemies;

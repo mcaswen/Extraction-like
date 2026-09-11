@@ -183,11 +183,13 @@ namespace AgentReproduction.Tests
             Add<LootBoxEntity>("loot b", b.transform).transform.position = new Vector3(8, 0, -2);
             TargetHierarchyRepair.Repair(_scene, _material);
             Vector3[] expected = zone.RangePoints.ToArray();
-            var cache = typeof(GameplayTargetClusterAuthoringBase).GetField("_rangePoints",
+            var cache = typeof(GameplayTargetClusterAuthoringBase).GetField("_rangeCache",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             // 模拟反序列化后尚未执行子群 OnValidate 的空缓存，不改目标或成员事实。
-            ((System.Collections.Generic.List<Vector3>)cache.GetValue(a)).Clear();
-            ((System.Collections.Generic.List<Vector3>)cache.GetValue(b)).Clear();
+            cache.SetValue(a, new Gameplay.Targets.Runtime.GameplayTargetRangeCache());
+            cache.SetValue(b, new Gameplay.Targets.Runtime.GameplayTargetRangeCache());
+            Assert.That(a.RangePoints, Is.Empty);
+            Assert.That(b.RangePoints, Is.Empty);
             zone.RefreshRangeShape();
             Assert.That(zone.RangePoints.Count, Is.EqualTo(expected.Length));
             for (int i = 0; i < expected.Length; i++)

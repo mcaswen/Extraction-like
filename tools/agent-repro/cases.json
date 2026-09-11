@@ -180,6 +180,8 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidPerformanceTests",
       "expected": [
+        "StaticRangesStayCachedAndMemberChangesRefreshZone",
+        "ColliderChangesRefreshRangeAndGroundChangesReproject",
         "MovementQueriesAreBoundedAndBuffersAreIndependent",
         "ResourceQueryCacheInvalidatesOnCompletionAndMovement",
         "OutOfRangeMembersDoNotCalculatePaths",

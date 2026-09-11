@@ -15,6 +15,73 @@ namespace AgentReproduction.Tests
     public sealed class SceneRaidPerformanceTests : ReproductionTestFixture
     {
         [UnityTest]
+        public IEnumerator StaticRangesStayCachedAndMemberChangesRefreshZone()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var zone = World.Root("Cached zone").AddComponent<TargetZoneAuthoring>();
+            var line = zone.gameObject.AddComponent<LineRenderer>();
+            RuntimeFixtureAccess.Configure(zone, "_rangeLineRenderer", line);
+            var cluster = TargetFactory.Resources(World, new Vector3(3, 0, 0));
+            RuntimeFixtureAccess.Configure(cluster, "_zone", zone);
+            zone.RegisterCluster(cluster);
+            for (int i = 0; i < 3; i++) yield return null;
+            long zoneBuild = zone.RangeGeometryBuildCount, memberBuild = cluster.RangeGeometryBuildCount;
+            long lineWrites = zone.RangeLineWriteCount;
+            for (int i = 0; i < 30; i++) yield return null;
+            Assert.That(zone.RangeGeometryBuildCount, Is.EqualTo(zoneBuild));
+            Assert.That(cluster.RangeGeometryBuildCount, Is.EqualTo(memberBuild));
+            Assert.That(zone.RangeLineWriteCount, Is.EqualTo(lineWrites), "Identical projected points do not rewrite the line.");
+            cluster.ResourceMembers[0].EntityObject.transform.position = new Vector3(9, 0, 0);
+            for (int i = 0; i < 3; i++) yield return null;
+            Assert.That(cluster.RangeGeometryBuildCount, Is.GreaterThan(memberBuild));
+            Assert.That(zone.RangeGeometryBuildCount, Is.GreaterThan(zoneBuild));
+            Assert.That(zone.CenterPosition.x, Is.EqualTo(9).Within(0.01));
+            var added = TargetFactory.Resources(World, new Vector3(21, 0, 0));
+            RuntimeFixtureAccess.Configure(added, "_zone", zone);
+            zone.RegisterCluster(added);
+            Assert.That(zone.CenterPosition.x, Is.GreaterThan(12));
+            zone.UnregisterCluster(added);
+            Assert.That(zone.CenterPosition.x, Is.EqualTo(9).Within(0.01));
+            Assert.That(line.positionCount, Is.EqualTo(zone.RangePoints.Count));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator ColliderChangesRefreshRangeAndGroundChangesReproject()
+        {
+            var ground = World.Cube("Movable ground", new Vector3(0, -0.5f, 0), new Vector3(100, 1, 100));
+            var shape = World.Root("Range collider").AddComponent<BoxCollider>();
+            shape.isTrigger = true; shape.size = new Vector3(8, 1, 8);
+            var zone = World.Root("Collider zone").AddComponent<TargetZoneAuthoring>();
+            RuntimeFixtureAccess.Configure(zone, "_rangeColliderTarget", shape.gameObject);
+            zone.RefreshRangeShape();
+            yield return null;
+            long count = zone.RangeGeometryBuildCount;
+            shape.transform.position = new Vector3(6, 0, 0);
+            shape.transform.rotation = Quaternion.Euler(0, 30, 0);
+            shape.size = new Vector3(12, 1, 8);
+            Physics.SyncTransforms();
+            for (int i = 0; i < 2; i++) yield return null;
+            Assert.That(zone.RangeGeometryBuildCount, Is.GreaterThan(count));
+            Assert.That(zone.CenterPosition.x, Is.EqualTo(6).Within(0.01));
+            Vector3 corner = shape.transform.TransformPoint(new Vector3(-6, 0, -4));
+            Assert.That(zone.RangePoints[0].x, Is.EqualTo(corner.x).Within(0.01));
+            count = zone.RangeGeometryBuildCount;
+            long projections = zone.RangeGroundProjectionCount;
+            ground.transform.position += Vector3.up * 2;
+            Physics.SyncTransforms();
+            yield return RuntimeWait.Until(() => zone.RangePoints[0].y > 2, "ground cache invalidation", 1);
+            Assert.That(zone.RangeGeometryBuildCount, Is.EqualTo(count), "Ground changes reuse unprojected geometry.");
+            Assert.That(zone.RangeGroundProjectionCount, Is.GreaterThan(projections));
+            Assert.That(zone.RangePoints[0].y, Is.EqualTo(2.08f).Within(0.01));
+            shape.transform.localScale = new Vector3(2, 1, 1);
+            for (int i = 0; i < 2; i++) yield return null;
+            corner = shape.transform.TransformPoint(new Vector3(-6, 0, -4));
+            Assert.That(zone.RangePoints[0].x, Is.EqualTo(corner.x).Within(0.01));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
         public IEnumerator MovementQueriesAreBoundedAndBuffersAreIndependent()
         {
             TestNavMeshBuilder.Flat(World);
