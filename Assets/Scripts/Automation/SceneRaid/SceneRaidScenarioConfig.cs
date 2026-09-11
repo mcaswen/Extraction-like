@@ -12,7 +12,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public string runId, outputPath, scenePath, mode = "Observe";
         public int seed = 731, width = 3840, height = 2160;
         public float observeSeconds = 60, simulationSpeed = 1;
-        public bool profile;
+        public bool profile, binaryProfile;
 
         public static SceneRaidScenarioConfig LoadExplicit()
         {

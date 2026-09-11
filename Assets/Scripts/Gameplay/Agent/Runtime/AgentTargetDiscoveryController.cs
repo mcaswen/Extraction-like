@@ -16,6 +16,8 @@ namespace Gameplay.Agent.Runtime
     /// </summary>
     public sealed class AgentTargetDiscoveryController : MonoBehaviour
     {
+        private static readonly Unity.Profiling.ProfilerMarker UpdateMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Discovery.Update");
+        private static readonly Unity.Profiling.ProfilerMarker ScanMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Discovery.ScanAgent");
         private static AgentTargetDiscoveryController _activeInstance;
 
         [SerializeField] private AgentRuntimeRegistry _registry;
@@ -90,6 +92,7 @@ namespace Gameplay.Agent.Runtime
 
         private void Update()
         {
+            using var markerScope = UpdateMarker.Auto();
             AgentRuntimeRegistry registry = Registry;
             if (registry == null || registry.AgentCount <= 0)
             {
@@ -187,6 +190,7 @@ namespace Gameplay.Agent.Runtime
         // 临时旧路径规则：ActiveEnemy 和 Resource 里选最近；EnemySource 不自动选择；都没有时撤离。
         private void RefreshAgentTarget(AgentRuntimeHandle handle)
         {
+            using var markerScope = ScanMarker.Auto();
             IAgentReadOnly agent = handle.ReadOnly;
             IAgentCommandReceiver commandReceiver = handle.CommandReceiver;
             float range = Mathf.Max(0f, handle.PawnRoot.TargetDiscoveryRange);

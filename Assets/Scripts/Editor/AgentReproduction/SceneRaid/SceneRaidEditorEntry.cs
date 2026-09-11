@@ -37,7 +37,7 @@ namespace AnomalySearch.Editor.SceneRaid
                 ConfigureGameView(_config.width, _config.height);
                 QualitySettings.SetQualityLevel(2, true);
                 Profiler.logFile = Path.Combine(_config.outputPath, "cpu-profile.raw");
-                Profiler.enableBinaryLog = _config.profile;
+                Profiler.enableBinaryLog = _config.profile && _config.binaryProfile;
                 Profiler.enabled = _config.profile;
                 SessionState.SetString(Phase, "entering");
                 EditorApplication.isPlaying = true;
@@ -81,7 +81,16 @@ namespace AnomalySearch.Editor.SceneRaid
                     SessionState.SetString(Phase, "exiting");
                     EditorApplication.isPlaying = false;
                 }
-                else if (!EditorApplication.isPlayingOrWillChangePlaymode && phase == "exiting") Finish(0);
+                else if (!EditorApplication.isPlayingOrWillChangePlaymode && phase == "exiting")
+                {
+                    Profiler.enabled = false;
+                    Profiler.enableBinaryLog = false;
+                    EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                    File.WriteAllText(Path.Combine(_config.outputPath, "cleanup.json"), "{\"sceneUnloaded\":true}");
+                    SessionState.SetString(Phase, "draining");
+                }
+                else if (phase == "draining") SessionState.SetString(Phase, "readyToExit");
+                else if (phase == "readyToExit") Finish(0);
                 else if (!EditorApplication.isPlayingOrWillChangePlaymode && phase == "playing")
                     throw new InvalidOperationException("Play Mode stopped without a completed run.");
             }

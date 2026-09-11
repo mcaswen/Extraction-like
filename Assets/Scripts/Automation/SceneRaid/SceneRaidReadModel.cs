@@ -5,6 +5,9 @@ using System.Linq;
 using System.Reflection;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Runtime;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Combat;
+using Gameplay.Perception;
 using Gameplay.Targets.Runtime;
 using Gameplay.Targets.Authoring;
 using UnityEngine.AI;
@@ -17,24 +20,52 @@ namespace AnomalySearch.Automation.SceneRaid
         [Serializable] public sealed class AgentState
         {
             public string id, identity, state, commandId, directive, target, targetId, suspendedCommand;
-            public Vector3 position, velocity, destination;
+            public Vector3 position, velocity, desiredVelocity, destination, progressAnchor;
+            public Vector3 eulerAngles, localScale, worldScale, nextPosition, steeringTarget, directivePosition;
+            public Vector3 bodyBoundsCenter, bodyBoundsSize;
             public int health;
             public bool onNavMesh, hasPath, pathPending, stopped;
             public float remainingDistance;
+            public float radius, height, baseOffset, stoppingDistance, progressAge, progressTimeout, secondsSinceSetPath;
+            public int avoidancePriority;
+            public string avoidance;
             public string pathStatus;
+            public float targetDistance3D, targetDistancePlanar, destinationDistancePlanar, transformToNavDistance, attackRange;
+            public string lastShotResult, lastShotFailure;
+            public bool attackReady, hasEnemy, hasResource, hasDirectivePosition;
+            public EnemyState enemy;
+            public ResourceState resource;
+        }
+        [Serializable] public sealed class EnemyState
+        {
+            public string identity, bodyVisibility;
+            public Vector3 position, eulerAngles, scale, aimPosition;
+            public float health, maximumHealth, shield, distance3D, distancePlanar, aimDistance;
+            public bool active, died;
+        }
+        [Serializable] public sealed class ResourceState
+        {
+            public string identity, phase, lootState;
+            public Vector3 position, navigationPosition, colliderCenter, colliderSize;
+            public float distancePlanar, navigationDistancePlanar;
+            public bool active, looted;
         }
         [Serializable] public sealed class Snapshot
         {
             public int frame, zones, clusters;
             public float timeScale;
             public string scene, raidOwner, mission;
+            public string inventoryAgent;
+            public bool inventoryOpen;
             public bool missionCompleted, missionFailed, requiredCaptured;
             public string[] requiredAgents, extractedAgents, settledAgents;
             public AgentState[] agents;
         }
-        private static readonly Dictionary<string, FieldInfo> RaidFields = new Dictionary<string, FieldInfo>();
+        private static readonly Dictionary<string, FieldInfo> Fields = new Dictionary<string, FieldInfo>();
         private readonly SceneRaidIdentityMap _identity;
-        public SceneRaidReadModel(SceneRaidIdentityMap identity) { _identity = identity; }
+        private readonly Func<string, AgentResourceInteractionEvent?> _resourceFact;
+        public SceneRaidReadModel(SceneRaidIdentityMap identity, Func<string, AgentResourceInteractionEvent?> resourceFact)
+        { _identity = identity; _resourceFact = resourceFact; }
 
         [Serializable] public sealed class TargetState
         { public string identity, targetId, kind, zone; public bool active, completed; }
@@ -92,13 +123,18 @@ namespace AnomalySearch.Automation.SceneRaid
         private static T RaidField<T>(RaidFlowController raid, string name)
         {
             if (raid == null) return default;
-            if (!RaidFields.TryGetValue(name, out var field))
+            return ReadField<T>(raid, name);
+        }
+        private static T ReadField<T>(object owner, string name)
+        {
+            string key = owner.GetType().FullName + "." + name;
+            if (!Fields.TryGetValue(key, out var field))
             {
-                field = typeof(RaidFlowController).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
-                if (field == null) throw new MissingFieldException(typeof(RaidFlowController).FullName, name);
-                RaidFields.Add(name, field);
+                field = owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
+                if (field == null) throw new MissingFieldException(owner.GetType().FullName, name);
+                Fields.Add(key, field);
             }
-            return (T)field.GetValue(raid);
+            return (T)field.GetValue(owner);
         }
         public Snapshot Capture()
         {
@@ -115,6 +151,8 @@ namespace AnomalySearch.Automation.SceneRaid
                 scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
                 zones = targets != null ? targets.ZoneCount : 0, clusters = targets != null ? targets.ClusterCount : 0,
                 raidOwner = _identity.Get(raid), mission = raid != null ? raid.MissionName : "",
+                inventoryAgent = InventoryScreenController.Instance != null ? InventoryScreenController.Instance.ActiveInventoryAgentId : "",
+                inventoryOpen = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen,
                 missionCompleted = RaidField<bool>(raid, "_isMissionCompleted"),
                 missionFailed = RaidField<bool>(raid, "_isMissionFailed"),
                 requiredCaptured = RaidField<bool>(raid, "_requiredExtractionAgentsCaptured"),
@@ -129,13 +167,47 @@ namespace AnomalySearch.Automation.SceneRaid
         {
             var active = pawn.DirectiveLifecycle?.Active;
             var nav = pawn.NavMeshAgent;
+            var motor = ReadField<object>(pawn, "_navigationMotor");
             bool onMesh = nav != null && nav.isActiveAndEnabled && nav.isOnNavMesh;
+            var body = pawn.GetComponent<Collider>();
+            var shooter = pawn.GetComponent<AgentCombatShooter>();
+            var combat = pawn.GetComponent<AgentCombatController>();
+            float attackRange = pawn.Blackboard != null ? pawn.Blackboard.GetValueOrDefault<float>(AgentBlackboardKeys.AttackRange) : 0;
+            Vector3 targetPosition = active.HasValue && active.Value.HasTargetPosition ? active.Value.TargetPosition : pawn.Position;
+            EnemyHealthController enemy = active.HasValue && active.Value.TargetObject != null && active.Value.DirectiveType == AgentDirectiveType.Engage
+                ? active.Value.TargetObject.GetComponent<EnemyHealthController>() : null;
+            var resourceState = CaptureResource(pawn, active?.CommandId);
+            bool hasPosition = active.HasValue && active.Value.HasTargetPosition;
             return new AgentState
             {
                 id = pawn.AgentIdValue, identity = _identity.Get(pawn), state = pawn.CurrentMacroStateName,
                 health = pawn.CurrentHealth, position = pawn.Position, onNavMesh = onMesh,
                 hasPath = onMesh && nav.hasPath, pathPending = onMesh && nav.pathPending,
                 stopped = onMesh && nav.isStopped, velocity = onMesh ? nav.velocity : Vector3.zero,
+                desiredVelocity = onMesh ? nav.desiredVelocity : Vector3.zero,
+                eulerAngles = pawn.transform.eulerAngles, localScale = pawn.transform.localScale, worldScale = pawn.transform.lossyScale,
+                nextPosition = onMesh ? nav.nextPosition : Vector3.zero,
+                steeringTarget = onMesh && nav.hasPath ? nav.steeringTarget : Vector3.zero,
+                bodyBoundsCenter = body != null ? body.bounds.center : pawn.Position,
+                bodyBoundsSize = body != null ? body.bounds.size : Vector3.zero,
+                directivePosition = targetPosition,
+                hasDirectivePosition = hasPosition, hasEnemy = enemy != null, hasResource = resourceState != null,
+                targetDistance3D = hasPosition ? Vector3.Distance(pawn.Position, targetPosition) : -1,
+                targetDistancePlanar = hasPosition ? PlanarDistance(pawn.Position, targetPosition) : -1,
+                destinationDistancePlanar = onMesh && nav.hasPath ? PlanarDistance(pawn.Position, nav.destination) : -1,
+                transformToNavDistance = onMesh ? Vector3.Distance(pawn.Position, nav.nextPosition) : -1,
+                attackRange = attackRange, attackReady = combat != null && combat.IsAttackReady(Time.timeAsDouble),
+                lastShotResult = shooter != null ? shooter.LastShotResult.ToString() : "NoShooter",
+                lastShotFailure = shooter != null ? shooter.LastShotFailure.ToString() : "NoShooter",
+                enemy = CaptureEnemy(pawn, enemy, attackRange), resource = resourceState,
+                radius = nav != null ? nav.radius : 0, height = nav != null ? nav.height : 0,
+                baseOffset = nav != null ? nav.baseOffset : 0, stoppingDistance = nav != null ? nav.stoppingDistance : 0,
+                avoidancePriority = nav != null ? nav.avoidancePriority : -1,
+                avoidance = nav != null ? nav.obstacleAvoidanceType.ToString() : "",
+                progressAge = motor != null ? Time.time - ReadField<float>(motor, "_progressTime") : -1,
+                progressTimeout = motor != null ? ReadField<float>(motor, "_progressTimeout") : -1,
+                progressAnchor = motor != null ? ReadField<Vector3>(motor, "_progressPosition") : Vector3.zero,
+                secondsSinceSetPath = motor != null ? Time.time - ReadField<float>(motor, "_lastPathTime") : -1,
                 destination = onMesh && nav.hasPath ? nav.destination : Vector3.zero,
                 remainingDistance = onMesh && nav.hasPath && !float.IsInfinity(nav.remainingDistance) ? nav.remainingDistance : -1,
                 pathStatus = onMesh ? nav.pathStatus.ToString() : "NotOnNavMesh",
@@ -144,6 +216,40 @@ namespace AnomalySearch.Automation.SceneRaid
                 suspendedCommand = pawn.DirectiveLifecycle?.SuspendedExtraction?.CommandId
             };
         }
+        private EnemyState CaptureEnemy(AgentPawnRoot pawn, EnemyHealthController enemy, float attackRange)
+        {
+            if (enemy == null) return null; // 群指令不猜测其内部选择，当前自主发现提交的是具体敌人。
+            Vector3 aim = CombatAimPointResolver.Resolve(enemy.transform);
+            Vector3 origin = CombatAimPointResolver.Resolve(pawn.transform);
+            return new EnemyState
+            {
+                identity = _identity.Get(enemy), position = enemy.transform.position, eulerAngles = enemy.transform.eulerAngles,
+                scale = enemy.transform.lossyScale, health = ReadField<float>(enemy, "_currentHealth"), maximumHealth = enemy.MaxHealth,
+                shield = enemy.CurrentShield, died = ReadField<bool>(enemy, "_hasDied"), active = enemy.isActiveAndEnabled,
+                distance3D = Vector3.Distance(pawn.Position, enemy.transform.position), distancePlanar = PlanarDistance(pawn.Position, enemy.transform.position),
+                aimPosition = aim, aimDistance = Vector3.Distance(origin, aim),
+                bodyVisibility = TargetVisibilityQuery.Check(pawn.transform, origin, enemy.transform, attackRange).ToString()
+            };
+        }
+        private ResourceState CaptureResource(AgentPawnRoot pawn, string commandId)
+        {
+            var fact = _resourceFact?.Invoke(pawn.AgentIdValue);
+            if (!fact.HasValue || fact.Value.CommandId != commandId || fact.Value.Resource == null) return null;
+            var value = fact.Value;
+            var collider = value.Resource.GetComponentInChildren<Collider>();
+            var box = value.Resource.GetComponent<LootBoxEntity>();
+            return new ResourceState
+            {
+                identity = _identity.Get(value.Resource), phase = value.Stage.ToString(), active = value.Resource.activeInHierarchy,
+                position = value.Resource.transform.position, navigationPosition = value.NavigationPosition,
+                distancePlanar = PlanarDistance(pawn.Position, value.Resource.transform.position),
+                navigationDistancePlanar = PlanarDistance(pawn.Position, value.NavigationPosition),
+                colliderCenter = collider != null ? collider.bounds.center : Vector3.zero,
+                colliderSize = collider != null ? collider.bounds.size : Vector3.zero,
+                lootState = box != null ? box.ResourceState.ToString() : "NotLootBox", looted = box != null && box.IsResourcePointLooted
+            };
+        }
+        private static float PlanarDistance(Vector3 a, Vector3 b) { a.y = b.y; return Vector3.Distance(a, b); }
     }
 }
 #endif

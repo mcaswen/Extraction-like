@@ -22,6 +22,8 @@ namespace Gameplay.Agent.AI.Actions
         private bool _hasReachedInteractionRange;
         private bool _hasObservedInventoryOpen;
         private bool _hasPlayedSearchCompleteSfx;
+        private AgentResourceInteractionEvent? _reportedInteraction;
+        private Vector3 _observedNavigationPosition;
 
         /// <summary>
         /// 创建资源搜索行为节点
@@ -212,11 +214,15 @@ namespace Gameplay.Agent.AI.Actions
             float interactionDistance = GetFloat(context, AgentBlackboardKeys.InteractionDistance, 1.5f);
             float moveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             // 搜索前先靠近具体资源，避免远距离直接收纳箱子
+            _observedNavigationPosition = targetPosition;
+            if (!_reportedInteraction.HasValue || _reportedInteraction.Value.Resource != resourceObject)
+                ReportInteraction(context, resourceObject, AgentResourceInteractionStage.Approaching);
             if (!MoveAgentTowards(agent, targetPosition, interactionDistance, moveSpeed, context.DeltaTime))
             {
                 bool wasInRange = _hasReachedInteractionRange;
                 _hasReachedInteractionRange = false;
                 ResetWaitState();
+                ReportInteraction(context, resourceObject, AgentResourceInteractionStage.Approaching);
                 if (wasInRange) CloseOwnedInventory(agent);
                 return Running();
             }
@@ -246,11 +252,14 @@ namespace Gameplay.Agent.AI.Actions
 
         protected override void OnAbort(BehaviorTreeContext context)
         {
+            EndReportedInteraction(AgentResourceInteractionStage.Left);
             ResetSearchState();
         }
 
         protected override void OnExit(BehaviorTreeContext context, BehaviorNodeResult result)
         {
+            EndReportedInteraction(result.Status == BehaviorNodeStatus.Success
+                ? AgentResourceInteractionStage.Completed : AgentResourceInteractionStage.Left);
             ResetSearchState();
         }
 
@@ -332,6 +341,8 @@ namespace Gameplay.Agent.AI.Actions
             GameObject resourceObject,
             bool clearDirectiveOnComplete)
         {
+            if (_reportedInteraction?.Resource == resourceObject)
+                EndReportedInteraction(AgentResourceInteractionStage.Completed);
             GameplayTargetRegistry.GetOrCreate().NotifyResourceCompleted(resourceObject);
             if (clearDirectiveOnComplete)
                 CompleteResourceSearch(context);
@@ -399,6 +410,8 @@ namespace Gameplay.Agent.AI.Actions
             GameObject resourceObject,
             bool clearDirectiveOnComplete)
         {
+            // 到达事实不依赖玩家当前聚焦谁；仍由下面的正式会话规则决定搜索完成。
+            ReportInteraction(context, resourceObject, AgentResourceInteractionStage.WaitingForInventory);
             // 找到战利品后不再自动拾取，等待玩家完成一次背包开关确认
             global::InventoryScreenController inventoryController =
                 global::InventoryScreenController.Instance;
@@ -456,8 +469,36 @@ namespace Gameplay.Agent.AI.Actions
 
         private void ResetWaitState()
         {
+            if (_reportedInteraction?.Stage == AgentResourceInteractionStage.WaitingForInventory)
+                EndReportedInteraction(AgentResourceInteractionStage.Left);
             _waitingResourceObject = null;
             _hasObservedInventoryOpen = false;
+        }
+
+        private void ReportInteraction(BehaviorTreeContext context, GameObject resource, AgentResourceInteractionStage stage)
+        {
+            if (!TryGetAgent(context, out IAgentReadOnly agent) ||
+                !TryGetDirective(context, AgentDirectiveType.Search, out AgentDirectiveRequest request)) return;
+            if (_reportedInteraction.HasValue)
+            {
+                var old = _reportedInteraction.Value;
+                if (old.CommandId == request.CommandId && old.Resource == resource && old.Stage == stage &&
+                    (old.NavigationPosition - _observedNavigationPosition).sqrMagnitude < 0.0625f) return;
+                if (old.CommandId != request.CommandId || old.Resource != resource)
+                    EndReportedInteraction(AgentResourceInteractionStage.Left);
+            }
+            var value = new AgentResourceInteractionEvent(agent.AgentIdValue, request.CommandId, resource, _observedNavigationPosition, stage);
+            _reportedInteraction = value;
+            AgentResourceInteractionChannel.Publish(value);
+        }
+
+        private void EndReportedInteraction(AgentResourceInteractionStage stage)
+        {
+            if (!_reportedInteraction.HasValue) return;
+            var old = _reportedInteraction.Value;
+            _reportedInteraction = null;
+            AgentResourceInteractionChannel.Publish(new AgentResourceInteractionEvent(old.AgentId, old.CommandId,
+                old.Resource, old.NavigationPosition, stage));
         }
 
         private static void CloseOwnedInventory(IAgentReadOnly agent)
@@ -469,6 +510,7 @@ namespace Gameplay.Agent.AI.Actions
 
         private void ResetSearchState()
         {
+            EndReportedInteraction(AgentResourceInteractionStage.Left);
             _activeResourceTargetId = string.Empty;
             _activeConcreteResourceObject = null;
             _hasReachedInteractionRange = false;

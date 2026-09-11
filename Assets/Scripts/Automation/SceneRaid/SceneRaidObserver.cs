@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using Gameplay.Agent.Commands;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Runtime;
 using UnityEngine;
 
 namespace AnomalySearch.Automation.SceneRaid
@@ -11,6 +13,12 @@ namespace AnomalySearch.Automation.SceneRaid
         private readonly SceneRaidEvidenceWriter _writer;
         private readonly SceneRaidIdentityMap _identity;
         private readonly Dictionary<string, int> _logCounts = new Dictionary<string, int>();
+        private readonly Dictionary<string, string> _commandTargets = new Dictionary<string, string>();
+        private readonly Dictionary<string, AgentResourceInteractionEvent> _resourceFacts = new Dictionary<string, AgentResourceInteractionEvent>();
+        [Serializable] private sealed class ResourceRecord
+        { public string agent, commandId, resource, stage; public Vector3 navigationPosition; }
+        [Serializable] private sealed class DirectiveRecord
+        { public string agent, commandId, directive, targetId, target, stage, reason; }
         public readonly HashSet<string> ObservedAgents = new HashSet<string>();
         public int Errors { get; private set; }
         public int Warnings { get; private set; }
@@ -19,6 +27,20 @@ namespace AnomalySearch.Automation.SceneRaid
             _writer = writer; _identity = identity;
             Application.logMessageReceived += Log;
             AgentDirectiveFeedbackChannel.Published += Directive;
+            AgentResourceInteractionChannel.Published += Resource;
+        }
+        public AgentResourceInteractionEvent? LatestResource(string agentId) =>
+            _resourceFacts.TryGetValue(agentId, out var fact) ? fact : (AgentResourceInteractionEvent?)null;
+        private void Resource(AgentResourceInteractionEvent value)
+        {
+            if (value.Stage == AgentResourceInteractionStage.Left || value.Stage == AgentResourceInteractionStage.Completed)
+                _resourceFacts.Remove(value.AgentId);
+            else _resourceFacts[value.AgentId] = value;
+            _writer.Add("resource." + value.Stage, JsonUtility.ToJson(new ResourceRecord
+            {
+                agent = value.AgentId, commandId = value.CommandId, resource = _identity.Get(value.Resource),
+                stage = value.Stage.ToString(), navigationPosition = value.NavigationPosition
+            }));
         }
         private void Log(string condition, string stack, LogType type)
         {
@@ -34,10 +56,17 @@ namespace AnomalySearch.Automation.SceneRaid
         private void Directive(AgentDirectiveResult result)
         {
             var request = result.Request;
-            _writer.Add("directive." + result.Stage,
-                "agent=" + request.TargetAgentId.Value + " command=" + request.CommandId +
-                " type=" + request.DirectiveType + " targetId=" + request.TargetId +
-                " target=" + _identity.Get(request.TargetObject) + " reason=" + result.Reason);
+            string key = request.TargetAgentId.Value + ":" + request.CommandId;
+            string target = _identity.Get(request.TargetObject);
+            if (!string.IsNullOrEmpty(target)) _commandTargets[key] = target;
+            else if (_commandTargets.TryGetValue(key, out var saved)) target = saved;
+            _writer.Add("directive." + result.Stage, JsonUtility.ToJson(new DirectiveRecord
+            {
+                agent = request.TargetAgentId.Value, commandId = request.CommandId, directive = request.DirectiveType.ToString(),
+                targetId = request.TargetId, target = target, stage = result.Stage.ToString(), reason = result.Reason.ToString()
+            }));
+            if (result.Stage == AgentDirectiveStage.Completed || result.Stage == AgentDirectiveStage.Cancelled ||
+                result.Stage == AgentDirectiveStage.Failed || result.Stage == AgentDirectiveStage.Rejected) _commandTargets.Remove(key);
         }
         public void Snapshot(SceneRaidReadModel.Snapshot state)
         {
@@ -48,6 +77,7 @@ namespace AnomalySearch.Automation.SceneRaid
         {
             Application.logMessageReceived -= Log;
             AgentDirectiveFeedbackChannel.Published -= Directive;
+            AgentResourceInteractionChannel.Published -= Resource;
         }
     }
 }

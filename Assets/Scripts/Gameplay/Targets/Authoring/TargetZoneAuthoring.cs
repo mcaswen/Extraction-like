@@ -12,6 +12,9 @@ namespace Gameplay.Targets.Authoring
     [DisallowMultipleComponent]
     public sealed class TargetZoneAuthoring : GameplayTargetAuthoringBase
     {
+        private static readonly Unity.Profiling.ProfilerMarker UpdateMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Zone.Update");
+        private static readonly Unity.Profiling.ProfilerMarker StateMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Zone.State");
+        private static readonly Unity.Profiling.ProfilerMarker ShapeMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Zone.Shape");
         [SerializeField] private List<GameplayTargetClusterAuthoringBase> _clusters =
             new List<GameplayTargetClusterAuthoringBase>();
 
@@ -63,8 +66,9 @@ namespace Gameplay.Targets.Authoring
 
         private void Update()
         {
-            RefreshAggregatedState();
-            RefreshRangeShape();
+            using var markerScope = UpdateMarker.Auto();
+            using (StateMarker.Auto()) RefreshAggregatedState();
+            using (ShapeMarker.Auto()) RefreshRangeShape();
         }
 
         /// <summary>

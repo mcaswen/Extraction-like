@@ -26,6 +26,10 @@ namespace Gameplay.Agent.Core
     [RequireComponent(typeof(NavMeshAgent), typeof(AgentCombatShooter), typeof(AgentCombatController))]
     public sealed class AgentPawnRoot : MonoBehaviour, IAgentReadOnly, IAgentCommandReceiver, ICombatDamageReceiver, global::IExternalMovementReceiver
     {
+        private static readonly Unity.Profiling.ProfilerMarker UpdateMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Pawn.Update");
+        private static readonly Unity.Profiling.ProfilerMarker FactsMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Pawn.Facts");
+        private static readonly Unity.Profiling.ProfilerMarker LifecycleMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Pawn.Lifecycle");
+        private static readonly Unity.Profiling.ProfilerMarker BrainMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Pawn.Brain");
         private const float ExternalImpulseMovementOverrideDuration = 0.45f;
         private const float ExternalImpulseDamping = 10f;
         private const float StopFromMaxSpeedDuration = 0.5f;
@@ -192,6 +196,7 @@ namespace Gameplay.Agent.Core
 
         private void Update()
         {
+            using var markerScope = UpdateMarker.Auto();
             if (!_isInitialized)
                 return;
 
@@ -201,13 +206,16 @@ namespace Gameplay.Agent.Core
             double timeSeconds = Time.timeAsDouble;
 
             // 每帧先把身体层事实同步给 Brain
-            RefreshEquippedTotemModifiers(force: false);
-            SyncHealthMaxToStats();
-            SyncBodyFactsToBlackboard(timeSeconds);
+            using (FactsMarker.Auto())
+            {
+                RefreshEquippedTotemModifiers(force: false);
+                SyncHealthMaxToStats();
+                SyncBodyFactsToBlackboard(timeSeconds);
+            }
 
             // 驱动自主 Brain 更新
-            _directiveLifecycle.Tick();
-            _brainController.Tick(deltaTime, timeSeconds);
+            using (LifecycleMarker.Auto()) _directiveLifecycle.Tick();
+            using (BrainMarker.Auto()) _brainController.Tick(deltaTime, timeSeconds);
             TickExternalImpulseMovement(deltaTime);
         }
 

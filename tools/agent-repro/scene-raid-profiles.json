@@ -6,6 +6,7 @@
   "height": 2160,
   "quality": "High Fidelity",
   "simulationSpeed": 1,
-  "profile": true,
+  "profile": false,
+  "binaryProfile": false,
   "performanceAcceptance": false
 }

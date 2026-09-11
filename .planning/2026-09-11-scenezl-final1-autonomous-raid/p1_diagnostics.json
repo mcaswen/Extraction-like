@@ -1,0 +1,3189 @@
+{
+  "schemaVersion": 1,
+  "runs": [
+    {
+      "runId": "20260911-193222-820",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-193222-820",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-193222-820",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false
+      },
+      "process": {
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T11:36:35.3164751Z",
+        "sourceUnchanged": true
+      },
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "errors": 0,
+      "warnings": 69,
+      "frames": 1631,
+      "instrumentationMilliseconds": 94.99969999999996,
+      "timing": {
+        "validIntervals": 1630,
+        "averageFps": 27.618778802722137,
+        "p99Ms": 73.2395,
+        "maxMs": 711.4977,
+        "onePercentLowFps": 8.613497908566707,
+        "minimumOneSecondFps": 22,
+        "windowCount": 230,
+        "startupIncluded": true,
+        "slowFrameCount": 1630,
+        "thresholdsMet": false
+      },
+      "counterSummaries": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 1628,
+          "averageRaw": 32849308.722358722,
+          "maxRaw": 89402300,
+          "averageCalls": 2.999385749385749
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 1628,
+          "averageRaw": 103661.04545454546,
+          "maxRaw": 1218735,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 1628,
+          "averageRaw": 1935759.8894348894,
+          "maxRaw": 48927400,
+          "averageCalls": 0.9993857493857494
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 1628,
+          "averageRaw": 539290.2948402949,
+          "maxRaw": 12378800,
+          "averageCalls": 1.9987714987714988
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 1628,
+          "averageRaw": 4354244.041769042,
+          "maxRaw": 43859400,
+          "averageCalls": 7.995085995085995
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 1628,
+          "averageRaw": 1908516.339066339,
+          "maxRaw": 48894700,
+          "averageCalls": 0.1375921375921376
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 1628,
+          "averageRaw": 65537.65356265356,
+          "maxRaw": 290700,
+          "averageCalls": 1.9987714987714988
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 1628,
+          "averageRaw": 23708.230958230957,
+          "maxRaw": 965800,
+          "averageCalls": 1.9987714987714988
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 1628,
+          "averageRaw": 444794.3488943489,
+          "maxRaw": 12253200,
+          "averageCalls": 1.9987714987714988
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 1628,
+          "averageRaw": 27537.960687960687,
+          "maxRaw": 73600,
+          "averageCalls": 7.995085995085995
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 1628,
+          "averageRaw": 4323162.837837838,
+          "maxRaw": 43804400,
+          "averageCalls": 7.995085995085995
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 1601,
+          "averageRaw": 287105.9337913804,
+          "maxRaw": 19908300,
+          "averageCalls": 4.8169893816364775
+        }
+      ],
+      "eventCounts": {
+        "bootstrap.beforeSceneLoad": 1,
+        "log.Warning": 43,
+        "log.Log": 7,
+        "snapshot": 59,
+        "diagnostic.worldAudit": 1,
+        "directive.Accepted": 6,
+        "directive.Cancelled": 1,
+        "directive.Completed": 1,
+        "contract.movementStagnationSuspected": 2,
+        "directive.Failed": 2,
+        "run.completed": 1
+      },
+      "errorsDetail": [],
+      "firstCombatSnapshot": null,
+      "firstResourceSnapshot": null,
+      "lastSnapshot": {
+        "wallSeconds": 60.0073118,
+        "frame": 1631,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_1a5dbb9647a34a3db9b3553b70bc14f1",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_5d198bc4de2c4184948d2abad7ef8bb4",
+            "suspendedCommand": "",
+            "position": {
+              "x": 200.8858642578125,
+              "y": 3.32745361328125,
+              "z": -33.22687911987305
+            },
+            "velocity": {
+              "x": 2.0428762435913086,
+              "y": 0.21102705597877502,
+              "z": -0.0645955502986908
+            },
+            "desiredVelocity": {
+              "x": 3.5276527404785156,
+              "y": 0.017948895692825317,
+              "z": -0.10613549500703812
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 200.8858642578125,
+              "y": 3.32745361328125,
+              "z": -33.22687911987305
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 4.429646968841553,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete"
+          },
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "SearchResource",
+            "commandId": "Auto_507a95db68b2420d85365b89f605c7fd",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_5d198bc4de2c4184948d2abad7ef8bb4",
+            "suspendedCommand": "",
+            "position": {
+              "x": 206.88214111328125,
+              "y": 3.3541030883789062,
+              "z": -33.398860931396484
+            },
+            "velocity": {
+              "x": 2.0482499599456787,
+              "y": 0.014665540307760239,
+              "z": -0.058662161231040955
+            },
+            "desiredVelocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 206.88214111328125,
+              "y": 3.3541030883789062,
+              "z": -33.398860931396484
+            },
+            "health": 270,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 1.569317102432251,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete"
+          }
+        ]
+      }
+    },
+    {
+      "runId": "20260911-193800-568",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-193800-568",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-193800-568",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T11:40:26.3397652Z",
+        "sourceUnchanged": true
+      },
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "errors": 0,
+      "warnings": 69,
+      "frames": 2141,
+      "instrumentationMilliseconds": 81.78659999999999,
+      "timing": {
+        "validIntervals": 2140,
+        "averageFps": 36.11700496657925,
+        "p99Ms": 49.8918,
+        "maxMs": 626.5571,
+        "onePercentLowFps": 12.611061896123598,
+        "minimumOneSecondFps": 33,
+        "windowCount": 231,
+        "startupIncluded": true,
+        "slowFrameCount": 2140,
+        "thresholdsMet": false
+      },
+      "counterSummaries": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 2138,
+          "averageRaw": 25373616.276894294,
+          "maxRaw": 62690500,
+          "averageCalls": 2.999532273152479
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 2138,
+          "averageRaw": 102337.33302151544,
+          "maxRaw": 930031,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 2138,
+          "averageRaw": 1171414.3592142188,
+          "maxRaw": 34918000,
+          "averageCalls": 0.999532273152479
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 2138,
+          "averageRaw": 375675.3975678204,
+          "maxRaw": 11446900,
+          "averageCalls": 1.999064546304958
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 2138,
+          "averageRaw": 3389602.2918615527,
+          "maxRaw": 5716200,
+          "averageCalls": 7.996258185219832
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 2138,
+          "averageRaw": 1154734.0505144994,
+          "maxRaw": 33797100,
+          "averageCalls": 0.10664172123479888
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 2138,
+          "averageRaw": 42157.15622076707,
+          "maxRaw": 234100,
+          "averageCalls": 1.999064546304958
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 2138,
+          "averageRaw": 16716.93171188026,
+          "maxRaw": 1053800,
+          "averageCalls": 1.999064546304958
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 2138,
+          "averageRaw": 313286.2488306829,
+          "maxRaw": 11334600,
+          "averageCalls": 1.999064546304958
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 2138,
+          "averageRaw": 17314.359214218897,
+          "maxRaw": 47800,
+          "averageCalls": 7.996258185219832
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 2138,
+          "averageRaw": 3370159.1206735265,
+          "maxRaw": 5683000,
+          "averageCalls": 7.996258185219832
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 2111,
+          "averageRaw": 167695.16816674563,
+          "maxRaw": 2950100,
+          "averageCalls": 4.20701089531028
+        }
+      ],
+      "eventCounts": {
+        "bootstrap.beforeSceneLoad": 1,
+        "log.Warning": 43,
+        "log.Log": 7,
+        "snapshot": 59,
+        "diagnostic.worldAudit": 1,
+        "directive.Accepted": 7,
+        "directive.Cancelled": 2,
+        "directive.Completed": 1,
+        "contract.movementStagnationSuspected": 3,
+        "directive.Failed": 3,
+        "run.completed": 1
+      },
+      "errorsDetail": [],
+      "firstCombatSnapshot": null,
+      "firstResourceSnapshot": null,
+      "lastSnapshot": {
+        "wallSeconds": 60.016477099999996,
+        "frame": 2141,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_ecec881bb68e4ca58b61d1758a5821b1",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_09eb8fc0c54546b488c748cce84ffc21",
+            "suspendedCommand": "",
+            "position": {
+              "x": 200.59100341796875,
+              "y": 3.1835174560546875,
+              "z": -32.837886810302734
+            },
+            "velocity": {
+              "x": 2.127614736557007,
+              "y": 0.08986572921276093,
+              "z": -0.4759555160999298
+            },
+            "desiredVelocity": {
+              "x": 3.7637641429901123,
+              "y": 0.1377291977405548,
+              "z": -0.4469776451587677
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 200.59100341796875,
+              "y": 3.1835174560546875,
+              "z": -32.837886810302734
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 4.755182266235352,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete"
+          },
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "Explore",
+            "commandId": "",
+            "directive": "",
+            "target": "",
+            "targetId": "",
+            "suspendedCommand": "",
+            "position": {
+              "x": 206.5513916015625,
+              "y": 3.3751220703125,
+              "z": -33.490177154541016
+            },
+            "velocity": {
+              "x": 2.1529736518859863,
+              "y": -0.0161663219332695,
+              "z": -0.2355211228132248
+            },
+            "desiredVelocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "progressAnchor": {
+              "x": 206.34759521484375,
+              "y": 3.3712730407714844,
+              "z": -33.46754455566406
+            },
+            "health": 270,
+            "onNavMesh": true,
+            "hasPath": false,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.10475540161132812,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 1057.65625,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete"
+          }
+        ]
+      }
+    },
+    {
+      "runId": "20260911-194055-924",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-194055-924",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-194055-924",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": true,
+        "binaryProfile": false
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T11:43:24.6613149Z",
+        "sourceUnchanged": true
+      },
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "errors": 1,
+      "warnings": 69,
+      "frames": 2106,
+      "instrumentationMilliseconds": 77.31830000000006,
+      "timing": {
+        "validIntervals": 2105,
+        "averageFps": 35.55123150496163,
+        "p99Ms": 45.8145,
+        "maxMs": 617.8547,
+        "onePercentLowFps": 12.724639778461706,
+        "minimumOneSecondFps": 29,
+        "windowCount": 231,
+        "startupIncluded": true,
+        "slowFrameCount": 2105,
+        "thresholdsMet": false
+      },
+      "counterSummaries": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 2103,
+          "averageRaw": 25466330.099857345,
+          "maxRaw": 64166200,
+          "averageCalls": 2.9995244888254873
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 2103,
+          "averageRaw": 103256.72610556347,
+          "maxRaw": 1261532,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 2103,
+          "averageRaw": 1207712.7912505944,
+          "maxRaw": 35136200,
+          "averageCalls": 0.9995244888254874
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 2103,
+          "averageRaw": 356000.42796005704,
+          "maxRaw": 10957200,
+          "averageCalls": 1.9990489776509748
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 2103,
+          "averageRaw": 3331376.5572990966,
+          "maxRaw": 6403400,
+          "averageCalls": 7.996195910603899
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 2103,
+          "averageRaw": 1190372.5630052306,
+          "maxRaw": 34184300,
+          "averageCalls": 0.10651450309082264
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 2103,
+          "averageRaw": 44491.20304327152,
+          "maxRaw": 541700,
+          "averageCalls": 1.9990489776509748
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 2103,
+          "averageRaw": 15362.957679505469,
+          "maxRaw": 1525300,
+          "averageCalls": 1.9990489776509748
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 2103,
+          "averageRaw": 293036.8521160247,
+          "maxRaw": 10844100,
+          "averageCalls": 1.9990489776509748
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 2103,
+          "averageRaw": 14762.910128388017,
+          "maxRaw": 61000,
+          "averageCalls": 7.996195910603899
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 2103,
+          "averageRaw": 3314400.951022349,
+          "maxRaw": 6375400,
+          "averageCalls": 7.996195910603899
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 2076,
+          "averageRaw": 162944.99036608863,
+          "maxRaw": 2906800,
+          "averageCalls": 4.158477842003854
+        }
+      ],
+      "eventCounts": {
+        "bootstrap.beforeSceneLoad": 1,
+        "log.Warning": 43,
+        "log.Log": 7,
+        "snapshot": 60,
+        "diagnostic.worldAudit": 1,
+        "directive.Accepted": 9,
+        "directive.Cancelled": 3,
+        "log.Assert": 1,
+        "directive.Completed": 1,
+        "contract.movementStagnationSuspected": 1,
+        "directive.Failed": 3,
+        "run.completed": 1
+      },
+      "errorsDetail": [
+        {
+          "sequence": 66,
+          "wallSeconds": 8.5750201,
+          "gameSeconds": 7.183299599552967,
+          "frame": 247,
+          "kind": "log.Assert",
+          "detail": "count=1 Setting the duration while system is still playing is not supported. Please wait until the system has stopped and all particles have expired or call Stop with ParticleSystemStopBehavior.StopEmittingAndClear to completely stop the system.\nUnityEngine.ParticleSystem/MainModule:set_duration (single)\nZombieTentacleCorrosionVfx/SlimePoolInstance:CreateSplashParticles () (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:1031)\nZombieTentacleCorrosionVfx/SlimePoolInstance:.ctor (ZombieTentacleCorrosionVfx,UnityEngine.Vector3,single,single,bool) (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:948)\nZombieTentacleCorrosionVfx:SpawnSlimePool (UnityEngine.Vector3,single,single,bool) (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:514)\nZombieTentacleCorrosionVfx:PlaySlimePoolVisual (UnityEngine.Vector3,single,single) (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:174)\nModernStranderBehaviorController:StopTentacleAttack () (at Assets/Scripts/Gameplay/Enemy/ModernStranderBehaviorController.cs:490)\nModernStranderBehaviorController:AttackBehavior (single) (at Assets/Scripts/Gameplay/Enemy/ModernStranderBehaviorController.cs:415)\nModernStranderBehaviorController:Update () (at Assets/Scripts/Gameplay/Enemy/ModernStranderBehaviorController.cs:257)\n"
+        }
+      ],
+      "firstCombatSnapshot": null,
+      "firstResourceSnapshot": null,
+      "lastSnapshot": {
+        "wallSeconds": 60.013656,
+        "frame": 2106,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_33df35c289f04145aa1e00b4fb28539d",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_b8b8111918244037922b0f0ab7920f2a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 200.471923828125,
+              "y": 3.1790199279785156,
+              "z": -32.30178451538086
+            },
+            "velocity": {
+              "x": -0.492197185754776,
+              "y": -0.02076456882059574,
+              "z": 0.037376224994659424
+            },
+            "desiredVelocity": {
+              "x": 7.2973833084106445,
+              "y": 0.0,
+              "z": -1.7069311141967773
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 200.48324584960938,
+              "y": 3.179546356201172,
+              "z": -32.25518798828125
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 4.964722633361816,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.6154289245605469,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.02480316162109375,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete"
+          },
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "SearchResource",
+            "commandId": "Auto_2553731d4f08434c8dd05050f8cba2d9",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_b8b8111918244037922b0f0ab7920f2a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 206.3304443359375,
+              "y": 3.3826560974121094,
+              "z": -33.57265853881836
+            },
+            "velocity": {
+              "x": -0.4478994309902191,
+              "y": 0.011228248476982117,
+              "z": 0.11674302071332932
+            },
+            "desiredVelocity": {
+              "x": -4.435512065887451,
+              "y": -0.17560581862926483,
+              "z": 0.9768279790878296
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 206.33425903320312,
+              "y": 3.3829193115234375,
+              "z": -33.598758697509766
+            },
+            "health": 182,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 1.0418596267700195,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 1.4222908020019531,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.02480316162109375,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete"
+          }
+        ]
+      }
+    },
+    {
+      "runId": "20260911-195445-778",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-195445-778",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-195445-778",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": true,
+        "binaryProfile": true
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T11:57:11.7552740Z",
+        "sourceUnchanged": true
+      },
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "errors": 0,
+      "warnings": 69,
+      "frames": 2226,
+      "instrumentationMilliseconds": 83.96899999999985,
+      "timing": {
+        "validIntervals": 2225,
+        "averageFps": 37.51744557003571,
+        "p99Ms": 48.1093,
+        "maxMs": 515.2234,
+        "onePercentLowFps": 14.111586944278802,
+        "minimumOneSecondFps": 34,
+        "windowCount": 232,
+        "startupIncluded": true,
+        "slowFrameCount": 2225,
+        "thresholdsMet": false
+      },
+      "counterSummaries": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 2223,
+          "averageRaw": 24291413.765182186,
+          "maxRaw": 60369100,
+          "averageCalls": 2.999550157444894
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 2223,
+          "averageRaw": 103381.6383265857,
+          "maxRaw": 1263132,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 2223,
+          "averageRaw": 1079214.52991453,
+          "maxRaw": 31369300,
+          "averageCalls": 0.9995501574448943
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 2223,
+          "averageRaw": 315772.8744939271,
+          "maxRaw": 10889200,
+          "averageCalls": 1.9991003148897886
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 2223,
+          "averageRaw": 3335538.641475484,
+          "maxRaw": 5294700,
+          "averageCalls": 7.996401259559154
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 2223,
+          "averageRaw": 1065273.8191632929,
+          "maxRaw": 30530600,
+          "averageCalls": 0.10256410256410256
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 2223,
+          "averageRaw": 36569.54565901934,
+          "maxRaw": 686700,
+          "averageCalls": 1.9991003148897886
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 2223,
+          "averageRaw": 13646.46873594242,
+          "maxRaw": 1026900,
+          "averageCalls": 1.9991003148897886
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 2223,
+          "averageRaw": 263220.8277103014,
+          "maxRaw": 10727800,
+          "averageCalls": 1.9991003148897886
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 2223,
+          "averageRaw": 13169.140800719748,
+          "maxRaw": 53800,
+          "averageCalls": 7.996401259559154
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 2223,
+          "averageRaw": 3320149.2127755284,
+          "maxRaw": 5265000,
+          "averageCalls": 7.996401259559154
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 2196,
+          "averageRaw": 146483.33333333334,
+          "maxRaw": 2811500,
+          "averageCalls": 4.11384335154827
+        }
+      ],
+      "eventCounts": {
+        "bootstrap.beforeSceneLoad": 1,
+        "log.Warning": 43,
+        "log.Log": 7,
+        "snapshot": 66,
+        "diagnostic.worldAudit": 1,
+        "directive.Accepted": 9,
+        "resource.Approaching": 3,
+        "resource.WaitingForInventory": 2,
+        "directive.Cancelled": 3,
+        "resource.Left": 3,
+        "directive.Completed": 1,
+        "contract.movementStagnationSuspected": 2,
+        "directive.Failed": 3,
+        "run.completed": 1
+      },
+      "errorsDetail": [],
+      "firstCombatSnapshot": {
+        "wallSeconds": 7.8406496,
+        "frame": 246,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "inventoryAgent": "1",
+        "inventoryOpen": false,
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "Combat",
+            "commandId": "Auto_994ef4b741b44854a67fb53626c35430",
+            "directive": "EnemyTarget",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[100]",
+            "targetId": "EnemySourceCluster_63f28297955b4338ab9841c3edada5b2",
+            "suspendedCommand": "",
+            "position": {
+              "x": 205.22103881835938,
+              "y": 3.34912109375,
+              "z": -33.378944396972656
+            },
+            "velocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "desiredVelocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "progressAnchor": {
+              "x": 205.22103881835938,
+              "y": 3.34912109375,
+              "z": -33.378944396972656
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 137.41160583496094,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000014305114746,
+              "y": 3.0,
+              "z": 3.0000014305114746
+            },
+            "nextPosition": {
+              "x": 205.22103881835938,
+              "y": 3.34912109375,
+              "z": -33.378944396972656
+            },
+            "steeringTarget": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "directivePosition": {
+              "x": 207.5562744140625,
+              "y": 0.3741874694824219,
+              "z": -38.1865234375
+            },
+            "bodyBoundsCenter": {
+              "x": 205.22103881835938,
+              "y": 3.175323486328125,
+              "z": -33.378944396972656
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929962158203,
+              "z": 3.0
+            },
+            "health": 270,
+            "onNavMesh": true,
+            "hasPath": false,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 1005.6405029296875,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 6.116892337799072,
+            "targetDistancePlanar": 5.344730377197266,
+            "destinationDistancePlanar": -1.0,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": false,
+            "enemy": {
+              "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[100]",
+              "bodyVisibility": "Visible",
+              "position": {
+                "x": 207.5562744140625,
+                "y": 0.3741874694824219,
+                "z": -38.1865234375
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 334.09228515625,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 3.0,
+                "y": 3.0,
+                "z": 3.0
+              },
+              "aimPosition": {
+                "x": 207.5562744140625,
+                "y": 3.374187469482422,
+                "z": -38.1865234375
+              },
+              "health": 210.0,
+              "maximumHealth": 250.0,
+              "shield": 0.0,
+              "distance3D": 6.116892337799072,
+              "distancePlanar": 5.344730377197266,
+              "aimDistance": 5.348428726196289,
+              "active": true,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          },
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_de83d11714384ec0a3c9528226a7c986",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_9639f2012646402aaf9b85bfa0d95a3a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 213.58819580078125,
+              "y": 3.495433807373047,
+              "z": 35.04076385498047
+            },
+            "velocity": {
+              "x": -1.3137238025665283,
+              "y": -1.0836793184280396,
+              "z": -7.89133882522583
+            },
+            "desiredVelocity": {
+              "x": -1.313808798789978,
+              "y": -0.024886159226298332,
+              "z": -7.891342639923096
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 213.58819580078125,
+              "y": 3.495433807373047,
+              "z": 35.04076385498047
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 189.45233154296875,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000011920928955,
+              "y": 3.0,
+              "z": 3.0000011920928955
+            },
+            "nextPosition": {
+              "x": 213.58819580078125,
+              "y": 3.495433807373047,
+              "z": 35.04076385498047
+            },
+            "steeringTarget": {
+              "x": 203.97799682617188,
+              "y": 0.34168243408203125,
+              "z": -22.682518005371094
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 213.623291015625,
+              "y": 3.3505859375,
+              "z": 35.2515754699707
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929008483887,
+              "z": 3.0
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.05346250534057617,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 94.02198028564453,
+            "targetDistancePlanar": 94.02042388916016,
+            "destinationDistancePlanar": 68.8886947631836,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          }
+        ]
+      },
+      "firstResourceSnapshot": {
+        "wallSeconds": 10.9571192,
+        "frame": 360,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "inventoryAgent": "1",
+        "inventoryOpen": false,
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "SearchResource",
+            "commandId": "Auto_a22a458bbf40435cb6aa5cba0ce54824",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_9639f2012646402aaf9b85bfa0d95a3a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 205.22103881835938,
+              "y": 3.34912109375,
+              "z": -33.378944396972656
+            },
+            "velocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "desiredVelocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "progressAnchor": {
+              "x": 205.22103881835938,
+              "y": 3.34912109375,
+              "z": -33.378944396972656
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 154.09228515625,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "nextPosition": {
+              "x": 205.22103881835938,
+              "y": 3.34912109375,
+              "z": -33.378944396972656
+            },
+            "steeringTarget": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 205.22103881835938,
+              "y": 3.175323486328125,
+              "z": -33.378944396972656
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929008483887,
+              "z": 3.0
+            },
+            "health": 270,
+            "onNavMesh": true,
+            "hasPath": false,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 1008.7581787109375,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 37.45579528808594,
+            "targetDistancePlanar": 37.4537239074707,
+            "destinationDistancePlanar": -1.0,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[3]",
+              "phase": "WaitingForInventory",
+              "lootState": "Unsearched",
+              "position": {
+                "x": 208.3874969482422,
+                "y": 2.95501708984375,
+                "z": -27.78499984741211
+              },
+              "navigationPosition": {
+                "x": 205.31365966796875,
+                "y": 0.34168243408203125,
+                "z": -33.34918212890625
+              },
+              "colliderCenter": {
+                "x": 208.53929138183594,
+                "y": 4.446564674377441,
+                "z": -27.289363861083984
+              },
+              "colliderSize": {
+                "x": 6.4512939453125,
+                "y": 7.483095645904541,
+                "z": 10.879190444946289
+              },
+              "distancePlanar": 6.427960395812988,
+              "navigationDistancePlanar": 0.09728521853685379,
+              "active": true,
+              "looted": false
+            }
+          },
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_de83d11714384ec0a3c9528226a7c986",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_9639f2012646402aaf9b85bfa0d95a3a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 209.49212646484375,
+              "y": 3.1749954223632812,
+              "z": 10.438310623168945
+            },
+            "velocity": {
+              "x": -1.3134154081344604,
+              "y": 0.0,
+              "z": -7.891293525695801
+            },
+            "desiredVelocity": {
+              "x": -1.3137809038162231,
+              "y": 0.03949013724923134,
+              "z": -7.891287326812744
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 209.49212646484375,
+              "y": 3.1749954223632812,
+              "z": 10.438310623168945
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 189.45217895507812,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000014305114746,
+              "y": 3.0,
+              "z": 3.0000014305114746
+            },
+            "nextPosition": {
+              "x": 209.49212646484375,
+              "y": 3.1749954223632812,
+              "z": 10.438310623168945
+            },
+            "steeringTarget": {
+              "x": 203.97799682617188,
+              "y": 0.34168243408203125,
+              "z": -22.682518005371094
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 209.5234375,
+              "y": 3.0011978149414062,
+              "z": 10.626434326171875
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929008483887,
+              "z": 3.0
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 71.58885955810547,
+            "targetDistancePlanar": 71.5885238647461,
+            "destinationDistancePlanar": 43.98640441894531,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          }
+        ]
+      },
+      "lastSnapshot": {
+        "wallSeconds": 60.0152845,
+        "frame": 2226,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "inventoryAgent": "1",
+        "inventoryOpen": false,
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "SearchResource",
+            "commandId": "Auto_5c37707ea6bf4ef194f6a42d4af23dc4",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_9639f2012646402aaf9b85bfa0d95a3a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 207.15884399414062,
+              "y": 3.3806838989257812,
+              "z": -35.676368713378906
+            },
+            "velocity": {
+              "x": 0.15138816833496094,
+              "y": -0.039554424583911896,
+              "z": 2.8191776275634766
+            },
+            "desiredVelocity": {
+              "x": -7.298044681549072,
+              "y": 0.0,
+              "z": 9.52435302734375
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 207.15884399414062,
+              "y": 3.3806838989257812,
+              "z": -35.676368713378906
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 254.14666748046875,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 2.999999523162842,
+              "y": 3.0,
+              "z": 2.999999523162842
+            },
+            "nextPosition": {
+              "x": 207.15884399414062,
+              "y": 3.3806838989257812,
+              "z": -35.676368713378906
+            },
+            "steeringTarget": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 207.15478515625,
+              "y": 3.20794677734375,
+              "z": -35.751953125
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.06492805480957,
+              "z": 3.0
+            },
+            "health": 270,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 2.970189094543457,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0821380615234375,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 34.516780853271484,
+            "targetDistancePlanar": 34.514156341552734,
+            "destinationDistancePlanar": 2.969933032989502,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "OutOfRange",
+            "lastShotFailure": "OutOfRange",
+            "attackReady": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          },
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_de83d11714384ec0a3c9528226a7c986",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_9639f2012646402aaf9b85bfa0d95a3a",
+            "suspendedCommand": "",
+            "position": {
+              "x": 202.10198974609375,
+              "y": 3.248088836669922,
+              "z": -32.453643798828125
+            },
+            "velocity": {
+              "x": -0.544086754322052,
+              "y": -0.021342316642403603,
+              "z": 1.7206175327301025
+            },
+            "desiredVelocity": {
+              "x": 2.7119691371917725,
+              "y": 0.09072747081518173,
+              "z": -0.6583189964294434
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 202.1165771484375,
+              "y": 3.2486610412597656,
+              "z": -32.49977493286133
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 95.58908081054688,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000009536743164,
+              "y": 3.0,
+              "z": 3.0000009536743164
+            },
+            "nextPosition": {
+              "x": 202.10198974609375,
+              "y": 3.248088836669922,
+              "z": -32.453643798828125
+            },
+            "steeringTarget": {
+              "x": 204.97799682617188,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 202.1165771484375,
+              "y": 3.0748634338378906,
+              "z": -32.49977493286133
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929008483887,
+              "z": 3.0
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 3.3493258953094482,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0268096923828125,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0821380615234375,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 40.493709564208984,
+            "targetDistancePlanar": 40.49264907836914,
+            "destinationDistancePlanar": 3.334188461303711,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "runId": "20260911-195919-537",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-195919-537",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-195919-537",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T12:01:49.6687147Z",
+        "sourceUnchanged": true
+      },
+      "evidenceStatus": "FAIL",
+      "gameStatus": "ISSUES_OBSERVED",
+      "errors": 1,
+      "warnings": 69,
+      "frames": 2056,
+      "instrumentationMilliseconds": 103.57000000000004,
+      "timing": {
+        "validIntervals": 2055,
+        "averageFps": 34.70530631737636,
+        "p99Ms": 45.2696,
+        "maxMs": 582.3151,
+        "onePercentLowFps": 12.940117265807448,
+        "minimumOneSecondFps": 31,
+        "windowCount": 231,
+        "startupIncluded": true,
+        "slowFrameCount": 2055,
+        "thresholdsMet": false
+      },
+      "counterSummaries": [
+        {
+          "name": "PlayerLoop",
+          "validSamples": 2053,
+          "averageRaw": 26347385.87433025,
+          "maxRaw": 63080000,
+          "averageCalls": 2.9995129079396006
+        },
+        {
+          "name": "GC Allocated In Frame",
+          "validSamples": 2053,
+          "averageRaw": 103225.8339016074,
+          "maxRaw": 939355,
+          "averageCalls": 1
+        },
+        {
+          "name": "Anomaly.Discovery.Update",
+          "validSamples": 2053,
+          "averageRaw": 1355061.8606916708,
+          "maxRaw": 35376300,
+          "averageCalls": 0.9995129079396006
+        },
+        {
+          "name": "Anomaly.Pawn.Update",
+          "validSamples": 2053,
+          "averageRaw": 452366.00097418413,
+          "maxRaw": 12405500,
+          "averageCalls": 1.9990258158792011
+        },
+        {
+          "name": "Anomaly.Zone.Update",
+          "validSamples": 2053,
+          "averageRaw": 3291802.9225523626,
+          "maxRaw": 5394800,
+          "averageCalls": 7.996103263516805
+        },
+        {
+          "name": "Anomaly.Discovery.ScanAgent",
+          "validSamples": 2053,
+          "averageRaw": 1334276.3760350705,
+          "maxRaw": 34313100,
+          "averageCalls": 0.10959571358986848
+        },
+        {
+          "name": "Anomaly.Pawn.Facts",
+          "validSamples": 2053,
+          "averageRaw": 54889.917194349735,
+          "maxRaw": 265700,
+          "averageCalls": 1.9990258158792011
+        },
+        {
+          "name": "Anomaly.Pawn.Lifecycle",
+          "validSamples": 2053,
+          "averageRaw": 22109.20603994155,
+          "maxRaw": 1743800,
+          "averageCalls": 1.9990258158792011
+        },
+        {
+          "name": "Anomaly.Pawn.Brain",
+          "validSamples": 2053,
+          "averageRaw": 370951.72917681444,
+          "maxRaw": 12241600,
+          "averageCalls": 1.9990258158792011
+        },
+        {
+          "name": "Anomaly.Zone.State",
+          "validSamples": 2053,
+          "averageRaw": 17506.91670725767,
+          "maxRaw": 108800,
+          "averageCalls": 7.996103263516805
+        },
+        {
+          "name": "Anomaly.Zone.Shape",
+          "validSamples": 2053,
+          "averageRaw": 3272456.7949342425,
+          "maxRaw": 5357200,
+          "averageCalls": 7.996103263516805
+        },
+        {
+          "name": "Anomaly.Navigation.Check",
+          "validSamples": 2026,
+          "averageRaw": 181278.28232971372,
+          "maxRaw": 2534700,
+          "averageCalls": 4.250740375123396
+        }
+      ],
+      "eventCounts": {
+        "bootstrap.beforeSceneLoad": 1,
+        "log.Warning": 43,
+        "log.Log": 7,
+        "snapshot": 67,
+        "diagnostic.worldAudit": 1,
+        "directive.Accepted": 8,
+        "directive.Cancelled": 3,
+        "log.Assert": 1,
+        "directive.Completed": 1,
+        "resource.Approaching": 2,
+        "resource.WaitingForInventory": 1,
+        "resource.Left": 2,
+        "contract.movementStagnationSuspected": 2,
+        "directive.Failed": 2,
+        "run.completed": 1
+      },
+      "errorsDetail": [
+        {
+          "sequence": 70,
+          "wallSeconds": 8.5098842,
+          "gameSeconds": 7.145070699552964,
+          "frame": 245,
+          "kind": "log.Assert",
+          "detail": "count=1 Setting the duration while system is still playing is not supported. Please wait until the system has stopped and all particles have expired or call Stop with ParticleSystemStopBehavior.StopEmittingAndClear to completely stop the system.\nUnityEngine.ParticleSystem/MainModule:set_duration (single)\nZombieTentacleCorrosionVfx/SlimePoolInstance:CreateSplashParticles () (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:1031)\nZombieTentacleCorrosionVfx/SlimePoolInstance:.ctor (ZombieTentacleCorrosionVfx,UnityEngine.Vector3,single,single,bool) (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:948)\nZombieTentacleCorrosionVfx:SpawnSlimePool (UnityEngine.Vector3,single,single,bool) (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:514)\nZombieTentacleCorrosionVfx:PlaySlimePoolVisual (UnityEngine.Vector3,single,single) (at Assets/Art/VFX/ZombieTentacleCorrosionVfx.cs:174)\nModernStranderBehaviorController:StopTentacleAttack () (at Assets/Scripts/Gameplay/Enemy/ModernStranderBehaviorController.cs:490)\nModernStranderBehaviorController:AttackBehavior (single) (at Assets/Scripts/Gameplay/Enemy/ModernStranderBehaviorController.cs:415)\nModernStranderBehaviorController:Update () (at Assets/Scripts/Gameplay/Enemy/ModernStranderBehaviorController.cs:257)\n"
+        }
+      ],
+      "firstCombatSnapshot": {
+        "wallSeconds": 6.9343243999999995,
+        "frame": 191,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "inventoryAgent": "1",
+        "inventoryOpen": false,
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_d50ca2169a23487ead836608df6c7ad3",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_2f515f0e982940a39e563339fe7f1d14",
+            "suspendedCommand": "",
+            "position": {
+              "x": 215.13265991210938,
+              "y": 5.645256042480469,
+              "z": 44.317325592041016
+            },
+            "velocity": {
+              "x": -1.31282377243042,
+              "y": -3.1008715629577637,
+              "z": -7.886233806610107
+            },
+            "desiredVelocity": {
+              "x": -1.3130162954330444,
+              "y": -0.27960702776908875,
+              "z": -7.886559009552002
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 215.13265991210938,
+              "y": 5.645256042480469,
+              "z": 44.317325592041016
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 189.45233154296875,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000011920928955,
+              "y": 3.0,
+              "z": 3.0000011920928955
+            },
+            "nextPosition": {
+              "x": 215.13265991210938,
+              "y": 5.645256042480469,
+              "z": 44.317325592041016
+            },
+            "steeringTarget": {
+              "x": 203.97799682617188,
+              "y": 0.34168243408203125,
+              "z": -22.682518005371094
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 215.16607666015625,
+              "y": 5.550388336181641,
+              "z": 44.518062591552734
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929962158203,
+              "z": 3.0
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.07724714279174805,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 102.81446075439453,
+            "targetDistancePlanar": 102.77925872802734,
+            "destinationDistancePlanar": 78.28472900390625,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "hasEnemy": false,
+            "hasResource": false,
+            "hasDirectivePosition": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          },
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "Combat",
+            "commandId": "Auto_d7427a415c6749cf8dc66ca3593a9bd3",
+            "directive": "EnemyTarget",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[109]",
+            "targetId": "EnemySourceCluster_b18dcbc7c67048589edec9feade9a9c8",
+            "suspendedCommand": "",
+            "position": {
+              "x": 204.837158203125,
+              "y": 3.3443870544433594,
+              "z": -33.2696533203125
+            },
+            "velocity": {
+              "x": 4.222616672515869,
+              "y": -0.07793017476797104,
+              "z": -2.457348346710205
+            },
+            "desiredVelocity": {
+              "x": 3.801795482635498,
+              "y": -0.07177717238664627,
+              "z": -2.1752161979675293
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "progressAnchor": {
+              "x": 204.837158203125,
+              "y": 3.3443870544433594,
+              "z": -33.2696533203125
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 153.13021850585938,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000007152557373,
+              "y": 3.0,
+              "z": 3.0000007152557373
+            },
+            "nextPosition": {
+              "x": 204.837158203125,
+              "y": 3.3443870544433594,
+              "z": -33.2696533203125
+            },
+            "steeringTarget": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "directivePosition": {
+              "x": 209.17706298828125,
+              "y": 0.34168243408203125,
+              "z": -36.00132369995117
+            },
+            "bodyBoundsCenter": {
+              "x": 204.72967529296875,
+              "y": 3.1725730895996094,
+              "z": -33.20710372924805
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929008483887,
+              "z": 3.0
+            },
+            "health": 270,
+            "onNavMesh": true,
+            "hasPath": false,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 1004.5305786132812,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 5.942476749420166,
+            "targetDistancePlanar": 5.128040313720703,
+            "destinationDistancePlanar": -1.0,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": false,
+            "hasEnemy": true,
+            "hasResource": false,
+            "hasDirectivePosition": true,
+            "enemy": {
+              "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_ModernStrander_00[109]",
+              "bodyVisibility": "Visible",
+              "position": {
+                "x": 209.17706298828125,
+                "y": 0.34168243408203125,
+                "z": -36.00132369995117
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 43.102718353271484,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 3.0,
+                "y": 3.0,
+                "z": 3.0
+              },
+              "aimPosition": {
+                "x": 209.1519775390625,
+                "y": 3.3423995971679688,
+                "z": -36.02802658081055
+              },
+              "health": 250.0,
+              "maximumHealth": 250.0,
+              "shield": 0.0,
+              "distance3D": 5.942476749420166,
+              "distancePlanar": 5.128040313720703,
+              "aimDistance": 5.248161792755127,
+              "active": true,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          }
+        ]
+      },
+      "firstResourceSnapshot": {
+        "wallSeconds": 10.6466949,
+        "frame": 316,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "inventoryAgent": "1",
+        "inventoryOpen": false,
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_d50ca2169a23487ead836608df6c7ad3",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_2f515f0e982940a39e563339fe7f1d14",
+            "suspendedCommand": "",
+            "position": {
+              "x": 210.20742797851562,
+              "y": 3.1076507568359375,
+              "z": 14.734458923339844
+            },
+            "velocity": {
+              "x": -1.3136074542999268,
+              "y": -0.010471627116203308,
+              "z": -7.8912434577941895
+            },
+            "desiredVelocity": {
+              "x": -1.3137849569320679,
+              "y": 0.04902810603380203,
+              "z": -7.891233444213867
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 210.20742797851562,
+              "y": 3.1076507568359375,
+              "z": 14.734458923339844
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 189.4522705078125,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.000000476837158,
+              "y": 3.0,
+              "z": 3.000000476837158
+            },
+            "nextPosition": {
+              "x": 210.20742797851562,
+              "y": 3.1076507568359375,
+              "z": 14.734458923339844
+            },
+            "steeringTarget": {
+              "x": 203.97799682617188,
+              "y": 0.34168243408203125,
+              "z": -22.682518005371094
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 210.24188232421875,
+              "y": 2.9341278076171875,
+              "z": 14.941436767578125
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929962158203,
+              "z": 3.0
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.026228904724121094,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 75.39225006103516,
+            "targetDistancePlanar": 75.39209747314453,
+            "destinationDistancePlanar": 48.332035064697266,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "hasEnemy": false,
+            "hasResource": false,
+            "hasDirectivePosition": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          },
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "SearchResource",
+            "commandId": "Auto_d938fb7b5a55450aaace4b8e1321f61b",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_2f515f0e982940a39e563339fe7f1d14",
+            "suspendedCommand": "",
+            "position": {
+              "x": 205.22186279296875,
+              "y": 3.3439559936523438,
+              "z": -33.358280181884766
+            },
+            "velocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "desiredVelocity": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "progressAnchor": {
+              "x": 205.22186279296875,
+              "y": 3.3439559936523438,
+              "z": -33.358280181884766
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 105.62969970703125,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 2.999999761581421,
+              "y": 3.0,
+              "z": 2.999999761581421
+            },
+            "nextPosition": {
+              "x": 205.22186279296875,
+              "y": 3.3439559936523438,
+              "z": -33.358280181884766
+            },
+            "steeringTarget": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 205.22186279296875,
+              "y": 3.1701583862304688,
+              "z": -33.358280181884766
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.06492805480957,
+              "z": 3.0
+            },
+            "health": 239,
+            "onNavMesh": true,
+            "hasPath": false,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": -1.0,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.0,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.9999847412109375,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 37.46791076660156,
+            "targetDistancePlanar": 37.46589279174805,
+            "destinationDistancePlanar": -1.0,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "hasEnemy": false,
+            "hasResource": true,
+            "hasDirectivePosition": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]/LootBox[3]",
+              "phase": "WaitingForInventory",
+              "lootState": "Unsearched",
+              "position": {
+                "x": 208.3874969482422,
+                "y": 2.95501708984375,
+                "z": -27.78499984741211
+              },
+              "navigationPosition": {
+                "x": 205.31365966796875,
+                "y": 0.34168243408203125,
+                "z": -33.34918212890625
+              },
+              "colliderCenter": {
+                "x": 208.53929138183594,
+                "y": 4.446564674377441,
+                "z": -27.289363861083984
+              },
+              "colliderSize": {
+                "x": 6.4512939453125,
+                "y": 7.483095645904541,
+                "z": 10.879190444946289
+              },
+              "distancePlanar": 6.409578323364258,
+              "navigationDistancePlanar": 0.0922466292977333,
+              "active": true,
+              "looted": false
+            }
+          }
+        ]
+      },
+      "lastSnapshot": {
+        "wallSeconds": 60.0268437,
+        "frame": 2056,
+        "zones": 8,
+        "clusters": 42,
+        "timeScale": 1.0,
+        "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "raidOwner": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4]",
+        "mission": "Large Island Wall Layout",
+        "inventoryAgent": "1",
+        "inventoryOpen": false,
+        "missionCompleted": false,
+        "missionFailed": false,
+        "requiredCaptured": true,
+        "requiredAgents": [
+          "1",
+          "2"
+        ],
+        "extractedAgents": [],
+        "settledAgents": [],
+        "agents": [
+          {
+            "id": "1",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "state": "SearchResource",
+            "commandId": "Auto_d50ca2169a23487ead836608df6c7ad3",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_2f515f0e982940a39e563339fe7f1d14",
+            "suspendedCommand": "",
+            "position": {
+              "x": 200.39617919921875,
+              "y": 3.1753387451171875,
+              "z": -32.74856948852539
+            },
+            "velocity": {
+              "x": 0.37723594903945923,
+              "y": 0.010846452787518501,
+              "z": -0.09430898725986481
+            },
+            "desiredVelocity": {
+              "x": 3.9888830184936523,
+              "y": 0.1461704820394516,
+              "z": -0.5287872552871704
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 200.39923095703125,
+              "y": 3.175495147705078,
+              "z": -32.723419189453125
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 97.6354751586914,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.000000476837158,
+              "y": 3.0,
+              "z": 3.000000476837158
+            },
+            "nextPosition": {
+              "x": 200.39617919921875,
+              "y": 3.1753387451171875,
+              "z": -32.74856948852539
+            },
+            "steeringTarget": {
+              "x": 204.97799682617188,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 200.38052368164062,
+              "y": 3.0010910034179688,
+              "z": -32.74465560913086
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929962158203,
+              "z": 3.0
+            },
+            "health": 300,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 4.959671974182129,
+            "radius": 1.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 0.5620269775390625,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0821685791015625,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 41.70555877685547,
+            "targetDistancePlanar": 41.70497512817383,
+            "destinationDistancePlanar": 4.954023361206055,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "Visible",
+            "lastShotFailure": "None",
+            "attackReady": true,
+            "hasEnemy": false,
+            "hasResource": false,
+            "hasDirectivePosition": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          },
+          {
+            "id": "2",
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "state": "SearchResource",
+            "commandId": "Auto_d5d4d870e8e8435a9d8a1c1ae459ad30",
+            "directive": "Search",
+            "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[19]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_2f515f0e982940a39e563339fe7f1d14",
+            "suspendedCommand": "",
+            "position": {
+              "x": 206.34552001953125,
+              "y": 3.3736839294433594,
+              "z": -33.47719955444336
+            },
+            "velocity": {
+              "x": 0.3787066638469696,
+              "y": 0.009283828549087048,
+              "z": -0.03741107136011124
+            },
+            "desiredVelocity": {
+              "x": -11.902458190917969,
+              "y": 0.0,
+              "z": 1.4813283681869507
+            },
+            "destination": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "progressAnchor": {
+              "x": 206.36480712890625,
+              "y": 3.3779144287109375,
+              "z": -33.49412155151367
+            },
+            "eulerAngles": {
+              "x": 0.0,
+              "y": 277.17449951171875,
+              "z": 0.0
+            },
+            "localScale": {
+              "x": 3.0,
+              "y": 3.0,
+              "z": 3.0
+            },
+            "worldScale": {
+              "x": 3.0000007152557373,
+              "y": 3.0,
+              "z": 3.0000007152557373
+            },
+            "nextPosition": {
+              "x": 206.34552001953125,
+              "y": 3.3736839294433594,
+              "z": -33.47719955444336
+            },
+            "steeringTarget": {
+              "x": 205.31365966796875,
+              "y": 0.34168243408203125,
+              "z": -33.34918212890625
+            },
+            "directivePosition": {
+              "x": 234.6074981689453,
+              "y": 2.95501708984375,
+              "z": -56.599998474121094
+            },
+            "bodyBoundsCenter": {
+              "x": 206.32980346679688,
+              "y": 3.1995010375976562,
+              "z": -33.47564697265625
+            },
+            "bodyBoundsSize": {
+              "x": 3.0,
+              "y": 9.064929962158203,
+              "z": 3.0
+            },
+            "health": 182,
+            "onNavMesh": true,
+            "hasPath": true,
+            "pathPending": false,
+            "stopped": false,
+            "remainingDistance": 1.0402635335922241,
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "stoppingDistance": 0.10000000149011612,
+            "progressAge": 1.4128646850585938,
+            "progressTimeout": 3.0,
+            "secondsSinceSetPath": 0.0821685791015625,
+            "avoidancePriority": 50,
+            "avoidance": "HighQualityObstacleAvoidance",
+            "pathStatus": "PathComplete",
+            "targetDistance3D": 36.51819610595703,
+            "targetDistancePlanar": 36.51579284667969,
+            "destinationDistancePlanar": 1.0397711992263794,
+            "transformToNavDistance": 0.0,
+            "attackRange": 8.0,
+            "lastShotResult": "OutOfRange",
+            "lastShotFailure": "OutOfRange",
+            "attackReady": true,
+            "hasEnemy": false,
+            "hasResource": false,
+            "hasDirectivePosition": true,
+            "enemy": {
+              "identity": "",
+              "bodyVisibility": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "eulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "scale": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "aimPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "health": 0.0,
+              "maximumHealth": 0.0,
+              "shield": 0.0,
+              "distance3D": 0.0,
+              "distancePlanar": 0.0,
+              "aimDistance": 0.0,
+              "active": false,
+              "died": false
+            },
+            "resource": {
+              "identity": "",
+              "phase": "",
+              "lootState": "",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "navigationPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderCenter": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "colliderSize": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "distancePlanar": 0.0,
+              "navigationDistancePlanar": 0.0,
+              "active": false,
+              "looted": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "resourceProbeRun": "20260911-195819-616",
+  "resourceProbeResult": "2/2 Passed; source unchanged, process exit 0",
+  "reportProbeRun": "20260911-200234-691",
+  "reportProbeResult": "32/32 Passed",
+  "performanceAcceptance": false
+}

@@ -14,6 +14,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private SceneRaidObserver _observer;
         private SceneRaidReadModel _model;
         private SceneRaidFrameSampler _sampler;
+        private readonly SceneRaidContracts _contracts = new SceneRaidContracts();
         private double _nextSnapshot, _nextFlush, _instrumentation;
         private int _updates;
         private float _originalScale, _originalFixed;
@@ -25,7 +26,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _writer = new SceneRaidEvidenceWriter(config.outputPath);
             var identity = new SceneRaidIdentityMap();
             _observer = new SceneRaidObserver(_writer, identity);
-            _model = new SceneRaidReadModel(identity);
+            _model = new SceneRaidReadModel(identity, _observer.LatestResource);
             _sampler = new SceneRaidFrameSampler();
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));
             _writer.Flush();
@@ -50,8 +51,10 @@ namespace AnomalySearch.Automation.SceneRaid
                 if (_updates == 3 || _updates == 30) _sampler.DiscoverCounters();
                 if (_writer.WallSeconds >= _nextSnapshot)
                 {
-                    _observer.Snapshot(_model.Capture());
-                    _nextSnapshot = _writer.WallSeconds + 1;
+                    var snapshot = _model.Capture();
+                    _observer.Snapshot(snapshot);
+                    _contracts.Observe(snapshot, _writer);
+                    _nextSnapshot = _writer.WallSeconds + (snapshot.agents.Any(x => x.enemy != null) ? 0.25 : 1);
                 }
                 if (_writer.WallSeconds >= _nextFlush)
                 {

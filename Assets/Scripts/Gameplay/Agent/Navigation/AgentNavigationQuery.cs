@@ -6,11 +6,13 @@ namespace Gameplay.Agent.Navigation
     /// <summary>Side-effect-free path checks shared by command acceptance and movement.</summary>
     public static class AgentNavigationQuery
     {
+        private static readonly Unity.Profiling.ProfilerMarker QueryMarker = new Unity.Profiling.ProfilerMarker("Anomaly.Navigation.Check");
         public const float ArrivalTolerance = 0.1f;
         public static bool IsReady(NavMeshAgent agent) => agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh;
 
         public static AgentNavigationResult Check(NavMeshAgent agent, Vector3 target, float stoppingDistance)
         {
+            using var markerScope = QueryMarker.Auto();
             if (!IsReady(agent)) return new AgentNavigationResult(AgentNavigationStatus.NotReady);
             float radius = Mathf.Max(0.5f, agent.radius * 2f);
             if (!NavMesh.SamplePosition(target, out NavMeshHit hit, radius, agent.areaMask) ||

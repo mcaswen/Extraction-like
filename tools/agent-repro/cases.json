@@ -56,7 +56,8 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.ResourceDisplacementTests",
       "expected": [
-        "DisplacementInvalidatesInventoryCloseUntilAgentReturns"
+        "DisplacementInvalidatesInventoryCloseUntilAgentReturns",
+        "WaitingProbeUsesActualResourceWithoutInventoryAndDeduplicates"
       ]
     },
     {
