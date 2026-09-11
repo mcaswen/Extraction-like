@@ -15,6 +15,11 @@ namespace AnomalySearch.Automation.SceneRaid
         private SceneRaidReadModel _model;
         private SceneRaidFrameSampler _sampler;
         private SceneRaidInventoryDriver _inventory;
+        private Commands.SceneRaidCommandEvidence _commandEvidence;
+        private Commands.SceneRaidClusterCommandDriver _commands;
+        private StreamWriter _carriedFile;
+        private int _inventoryRevision = -1;
+        private bool _initialInventoryCaptured;
         private readonly SceneRaidContracts _contracts = new SceneRaidContracts();
         private double _nextSnapshot, _nextFlush, _instrumentation;
         private int _updates;
@@ -33,7 +38,17 @@ namespace AnomalySearch.Automation.SceneRaid
             _model = new SceneRaidReadModel(identity, _observer.LatestResource);
             _observer.CaptureDirective = _model.CaptureDirective;
             _observer.CaptureNavigation = _model.CaptureNavigation;
-            if (config.mode == "Autonomous") _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
+            if (config.mode == "Autonomous" || config.mode == "ManualCluster")
+                _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
+            if (config.mode == "ManualCluster")
+            {
+                var scenario = config.ParseCommandScenario();
+                _commandEvidence = new Commands.SceneRaidCommandEvidence(config.outputPath, scenario.id, _writer, _observer, _model, identity);
+                _commands = new Commands.SceneRaidClusterCommandDriver(config.outputPath, scenario,
+                    new Commands.SceneRaidClusterCatalog(identity), _commandEvidence, _inventory, _writer, identity);
+                _carriedFile = new StreamWriter(Path.Combine(config.outputPath, "carried-inventory.jsonl"), false, new System.Text.UTF8Encoding(false));
+                _observer.DirectiveObserved += CaptureExtractionInventory;
+            }
             _sampler = new SceneRaidFrameSampler();
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));
             _writer.Flush();
@@ -57,7 +72,21 @@ namespace AnomalySearch.Automation.SceneRaid
             {
                 _updates++;
                 _sampler.Sample();
-                _inventory?.Tick();
+                _commandEvidence?.ObserveProgress();
+                if (_commands != null && !_initialInventoryCaptured && _updates >= 3)
+                {
+                    _initialInventoryCaptured = CaptureCarried("initial");
+                    if (!_initialInventoryCaptured && _writer.WallSeconds >= 10)
+                        throw new InvalidOperationException("Initial carried inventory did not become readable.");
+                }
+                bool commandAction = _commands != null && _initialInventoryCaptured && _commands.Tick();
+                if (!commandAction) _inventory?.Tick();
+                if (_commands != null && _initialInventoryCaptured && _inventoryRevision != _inventory.MutationRevision)
+                {
+                    _inventoryRevision = _inventory.MutationRevision;
+                    if (!CaptureCarried("inventoryRevision:" + _inventoryRevision))
+                        throw new InvalidOperationException("Changed carried inventory is not readable.");
+                }
                 if (_config.captureCommandCatalog && !_commandCatalogCaptured && _updates >= 3)
                 {
                     var actors = Gameplay.Agent.Runtime.AgentRuntimeRegistry.ActiveInstance;
@@ -106,9 +135,9 @@ namespace AnomalySearch.Automation.SceneRaid
                     Finish("HARNESS_FAILED", "No rendered game-camera frames after ten seconds; inspect render-final.json.");
                 else if (_observer.ProbeFailure != null) Finish("HARNESS_FAILED", _observer.ProbeFailure);
                 else if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
-                else if (_config.mode == "Autonomous" && _missionFailed)
+                else if ((_config.mode == "Autonomous" || _config.mode == "ManualCluster") && _missionFailed)
                     Finish("RAID_OBSERVED_FAILURE", "Mission failure observed; verify death terminal state and surviving agents' settlement.");
-                else if (_config.mode == "Autonomous" && _missionCompleted)
+                else if ((_config.mode == "Autonomous" || _config.mode == "ManualCluster") && _missionCompleted)
                     Finish("RAID_OBSERVED_COMPLETE", "Mission completion observed; final warehouse/coverage contracts are still required.");
                 else if (_writer.WallSeconds >= _config.observeSeconds && _updates > 3)
                     Finish(_config.mode == "Observe" ? "OBSERVED" : "BEHAVIOR_BLOCKED", _config.mode == "Observe"
@@ -123,11 +152,19 @@ namespace AnomalySearch.Automation.SceneRaid
             _complete = true;
             try
             {
-                _inventory?.Dispose(); _observer.Snapshot(_model.Capture());
+                _inventory?.Dispose();
+                _commands?.Stop("RaidEnded:" + status);
+                if (_commands != null) CaptureCarried("finalLiveAgents");
+                _observer.Snapshot(_model.Capture());
                 SceneRaidPersistenceEvidence.CaptureWarehouse(_config.outputPath, "final");
                 SceneRaidPersistenceEvidence.CaptureDefinitions(_config.outputPath, _config.runId);
             }
             catch (Exception ex) { status = "HARNESS_FAILED"; reason += "\nFinal capture/cleanup: " + ex; }
+            finally
+            {
+                _observer.DirectiveObserved -= CaptureExtractionInventory;
+                _commandEvidence?.Dispose(); _carriedFile?.Dispose();
+            }
             if (_writer.Lost > 0 || _sampler.Overflow) { status = "HARNESS_FAILED"; reason = "Evidence buffer overflow."; }
             _writer.Add("run.completed", status + ": " + reason);
             _writer.Flush();
@@ -164,9 +201,40 @@ namespace AnomalySearch.Automation.SceneRaid
             if (_config == null) return;
             if (!_complete)
             {
-                _inventory?.Dispose(); _observer?.Dispose(); _sampler?.Dispose(); _writer?.Dispose();
+                _inventory?.Dispose(); _commandEvidence?.Dispose(); _carriedFile?.Dispose();
+                if (_observer != null) _observer.DirectiveObserved -= CaptureExtractionInventory;
+                _observer?.Dispose(); _sampler?.Dispose(); _writer?.Dispose();
             }
             Time.timeScale = _originalScale; Time.fixedDeltaTime = _originalFixed;
+        }
+
+        [Serializable] private sealed class CarriedCapture
+        {
+            public int schemaVersion = 1, frame;
+            public double gameSeconds, wallSeconds;
+            public string reason;
+            public SceneRaidCarriedInventoryEvidence.Record[] agents;
+        }
+        private bool CaptureCarried(string reason)
+        {
+            var registry = Gameplay.Agent.Runtime.AgentRuntimeRegistry.ActiveInstance;
+            if (registry == null) return false;
+            var settled = _model.Capture().settledAgents;
+            var rows = registry.RegisteredAgents.Where(x => x.IsAlive && !settled.Contains(x.AgentId.Value))
+                .Select(x => SceneRaidCarriedInventoryEvidence.Capture(InventoryScreenController.Instance, x.AgentId.Value)).ToArray();
+            bool valid = rows.All(x => x.available);
+            if (!_initialInventoryCaptured && (rows.Length != 2 || !valid)) return false;
+            string json = JsonUtility.ToJson(new CarriedCapture { frame = Time.frameCount, gameSeconds = Time.timeAsDouble,
+                wallSeconds = _writer.WallSeconds, reason = reason, agents = rows });
+            _carriedFile.WriteLine(json); _carriedFile.Flush();
+            _writer.Add("inventory.carried", json);
+            return valid;
+        }
+        private void CaptureExtractionInventory(Gameplay.Agent.Commands.AgentDirectiveResult result, long sequence)
+        {
+            if (_initialInventoryCaptured && result.Stage == Gameplay.Agent.Commands.AgentDirectiveStage.Accepted &&
+                result.Request.DirectiveType == Gameplay.Agent.Data.AgentDirectiveType.Extract && !CaptureCarried("extractionAccepted:" + result.Request.CommandId))
+                throw new InvalidOperationException("Extraction carried inventory is not readable.");
         }
     }
 }

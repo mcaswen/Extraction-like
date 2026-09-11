@@ -3,12 +3,14 @@ param(
     [ValidateRange(120,1200)][int]$TimeoutSeconds = 600,
     [switch]$ObserveOnly,
     [switch]$ShowWindow,
+    [string]$ScenarioId,
     [ValidateRange(5,600)][Nullable[float]]$ObserveSeconds
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 Import-Module (Join-Path $PSScriptRoot 'AgentRepro.Workspace.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Report.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.CommandConfig.psm1') -Force
 $source = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $buildRoot = (Resolve-Path -LiteralPath $BuildRunPath).Path
 $allowedRoot = [IO.Path]::GetFullPath((Join-Path $source 'Logs/SceneRaid')).TrimEnd('\')
@@ -35,12 +37,20 @@ try {
     $assembly = Join-Path $buildRoot 'Player/SceneRaid_Data/Managed/Assembly-CSharp.dll'
     $assemblyHash = (Get-FileHash -LiteralPath $assembly -Algorithm SHA256).Hash
     $config.mode = if ($ObserveOnly) { 'Observe' } else { 'Autonomous' }
+    if ($ScenarioId) {
+        if ($ObserveOnly) { throw 'ManualCluster and ObserveOnly are mutually exclusive.' }
+        $scenario = Get-SceneRaidCommandScenario $ScenarioId
+        $config.mode='ManualCluster'; $config.schemaVersion=2
+        $config | Add-Member -NotePropertyName scenarioJson -NotePropertyValue $scenario.json -Force
+        $config | Add-Member -NotePropertyName scenarioSha256 -NotePropertyValue $scenario.sha256 -Force
+        [IO.File]::WriteAllText((Join-Path $output 'command-scenario.json'), $scenario.json, [Text.UTF8Encoding]::new($false))
+    }
     $config.outputPath = $output; $config.enabled = $true
     if ($null -ne $ObserveSeconds) { $config.observeSeconds = $ObserveSeconds }
     $config.buildPlayer = $false; $config.simulationSpeed = 1; $config.profile = $false; $config.binaryProfile = $false
     $config | Add-Member -NotePropertyName quitPlayerWhenComplete -NotePropertyValue $true -Force
     $configPath = Join-Path $output 'config.json'
-    $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding UTF8
+    $config | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $configPath -Encoding UTF8
     @{runId=$config.runId;buildRunPath=$buildRoot;buildManifestSha256=(Get-FileHash -LiteralPath (Join-Path $buildRoot 'manifest.json')).Hash;
         executableSha256=$exeHash;assemblySha256=$assemblyHash;files=$before;
         competingUnity=@(Get-Process Unity -ErrorAction SilentlyContinue | Select-Object Id,CPU,Path)} |

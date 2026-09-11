@@ -38,7 +38,7 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
             foreach (var step in steps)
             {
                 if (step == null || string.IsNullOrWhiteSpace(step.id) || known.Contains(step.id) ||
-                    (step.agent != "1" && step.agent != "2") ||
+                    (step.agent != "1" && step.agent != "2" && !(step.agent == "Focused" && step.route == "Focused")) ||
                     (step.route != "Explicit" && step.route != "Focused") ||
                     (step.focusAgent != "" && step.focusAgent != "1" && step.focusAgent != "2") ||
                     step.target == null || step.gate == null ||

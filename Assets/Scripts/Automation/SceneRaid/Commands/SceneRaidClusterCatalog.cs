@@ -59,6 +59,20 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
 
         public SceneRaidClusterCatalog(SceneRaidIdentityMap identity) { _identity = identity; }
 
+        public GameplayTargetClusterAuthoringBase Resolve(string identity) => _clusters.FirstOrDefault(x => x != null && _identity.Get(x) == identity);
+
+        public static Cluster Select(Snapshot snapshot, SceneRaidCommandScenario.Selector selector, string agent, string excludedIdentity)
+        {
+            string kind = selector.kind == "ActiveEnemy" ? "Enemy" : selector.kind;
+            return snapshot.clusters.Where(x => x.active && !x.completed && x.kind == kind && x.identity != excludedIdentity &&
+                    (!selector.singleton || x.members.Count(m => m.active && !m.completed) == 1))
+                .Select(x => new { cluster = x, nearest = x.members.Where(m => m.active && !m.completed)
+                    .SelectMany(m => m.approaches).Where(a => a.agent == agent).OrderBy(a => a.distancePlanar).FirstOrDefault() })
+                .Where(x => x.nearest != null && (selector.distance == "Any" || x.nearest.distanceClass == selector.distance))
+                .OrderBy(x => x.nearest.distancePlanar).ThenBy(x => x.cluster.identity, StringComparer.Ordinal)
+                .Select(x => x.cluster).FirstOrDefault();
+        }
+
         public Snapshot Capture()
         {
             var registry = AgentRuntimeRegistry.ActiveInstance;

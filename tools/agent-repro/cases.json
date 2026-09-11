@@ -374,7 +374,12 @@
         "EvidenceSeparatesSameFrameEarlyRejections",
         "EvidenceTracksSupersededAndAsyncCompletedCommands",
         "CarriedProbeReadsLiveAndStoredInventoryWithoutMutation",
-        "ObserverFailureDoesNotEscapeIntoFormalCommand"
+        "ObserverFailureDoesNotEscapeIntoFormalCommand",
+        "DriverWaitsForRealMovementSubmitsOnceAndStops",
+        "DriverUsesWallDeadlineWhileGameIsPaused",
+        "DriverDoesNotRetryAfterMissingCandidate",
+        "MixedDistanceClusterCannotPretendToBeFar",
+        "ManualConfigRoundTripPreservesScriptAndRejectsHashMismatch"
       ]
     },
     {

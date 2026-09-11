@@ -1,5 +1,6 @@
 param(
-    [ValidateSet('SC00','SC01','SC02','SC03','SC07')][string]$Case = 'SC01',
+    [ValidateSet('SC00','SC01','SC02','SC03','SC07','SC08','SC09')][string]$Case = 'SC01',
+    [string]$ScenarioId,
     [string]$UnityPath,
     [string]$WorkspaceRoot,
     [ValidateRange(120,3600)][int]$TimeoutSeconds = 900,
@@ -15,6 +16,7 @@ Set-StrictMode -Version Latest
 Import-Module (Join-Path $PSScriptRoot 'AgentRepro.Workspace.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Report.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.EditorSession.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.CommandConfig.psm1') -Force
 $source = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 if (!$WorkspaceRoot) { $WorkspaceRoot = Join-Path (Split-Path $source -Parent) '.agent-repro/AnomalySearch' }
 $runId = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
@@ -37,6 +39,12 @@ try {
         seed=$(if ($null -ne $Seed) {$Seed} else {$caseConfig.seed});observeSeconds=$(if ($null -ne $ObserveSeconds) {$ObserveSeconds} else {$caseConfig.observeSeconds});simulationSpeed=$caseConfig.simulationSpeed;
         width=$profileConfig.width;height=$profileConfig.height;profile=($Profile.IsPresent -or $profileConfig.profile);binaryProfile=$profileConfig.binaryProfile;
         enabled=$true;keepEditorOpen=(!$ExitEditor);buildPlayer=($Case -eq 'SC07');captureCommandCatalog=$CaptureCommandCatalog.IsPresent}
+    if ($config.mode -eq 'ManualCluster') {
+        if (!$ScenarioId) { throw 'ManualCluster requires -ScenarioId.' }
+        $scenario = Get-SceneRaidCommandScenario $ScenarioId
+        $config.schemaVersion=2; $config.scenarioJson=$scenario.json; $config.scenarioSha256=$scenario.sha256
+        [IO.File]::WriteAllText((Join-Path $output 'command-scenario.json'), $scenario.json, [Text.UTF8Encoding]::new($false))
+    } elseif ($ScenarioId) { throw '-ScenarioId requires SC08 or SC09.' }
     $before = Get-AgentReproSourceManifest $source
     @{runId=$runId;case=$Case;commit=(& git -C $source rev-parse HEAD);dirty=(& git -C $source status --porcelain);
         files=$before;competingUnity=@(Get-Process Unity -ErrorAction SilentlyContinue | Select-Object Id,CPU,Path)} |
@@ -46,7 +54,7 @@ try {
     $editorLog = if ($session) { $session.Info.logPath } else { Join-Path $source "Logs/SceneRaidSession/$runId/Editor.log" }
     New-Item -ItemType Directory -Path (Split-Path $editorLog -Parent) -Force | Out-Null
     if ($session -and (Test-Path -LiteralPath $editorLog)) { $logOffset = (Get-Item -LiteralPath $editorLog).Length }
-    $configJson = $config | ConvertTo-Json
+    $configJson = $config | ConvertTo-Json -Depth 16
     $configJson | Set-Content -LiteralPath (Join-Path $output 'config.json') -Encoding UTF8
     $configJson | Set-Content -LiteralPath ($configPath + '.tmp') -Encoding UTF8
     if (Test-Path -LiteralPath $configPath) { [IO.File]::Replace($configPath + '.tmp',$configPath,[NullString]::Value) }

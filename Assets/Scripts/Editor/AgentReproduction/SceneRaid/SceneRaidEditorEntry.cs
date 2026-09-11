@@ -49,7 +49,8 @@ namespace AnomalySearch.Editor.SceneRaid
             var state = CurrentState(SessionState.GetString("SceneRaid.LastRunId", ""));
             WriteState(state);
             if (!state.idle) return;
-            var request = SceneRaidScenarioConfig.LoadExplicit(false);
+            // 先刷新新源码，再由 Run 完整校验新模式；旧程序集不能阻塞新 schema 的交接。
+            var request = SceneRaidRequestFile.ReadPending(SceneRaidScenarioConfig.ExplicitPath());
             if (request == null || request.runId == state.runId) return;
             if (SessionState.GetString("SceneRaid.RefreshedRequest", "") != request.runId)
             {

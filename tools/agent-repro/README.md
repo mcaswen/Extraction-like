@@ -142,3 +142,20 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 搜索节点尚未接管的前置移动期只有真实导航目的地，`hasResource=false`；不会猜测箱子或替游戏发送指令。结果出现后仍有有限退出期限，Player 原生进程挂起会自动回收并报告失败，常驻 Editor 按用户约定保留。P1 阶段的 32 项报告故障探针和 2 项 R5 定向 Play Mode 测试见 [P1 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p1_execution.md)，后续自动背包、完整回合和新增回归的最终结果见下方报告及 [大规划](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/task_plan.md)。
 
 本轮场景和性能最终结果见 [Scenezl_Final 1 验收报告](../../outputs/scenezl_final1_validation_report.md)，逐轮输入和原始证据哈希见 [机器报告](../../outputs/scenezl_final1_validation.json)。该报告锁定测试时的完整输入，验收后的 README 更新仅同步说明。
+
+### Cluster 玩家指令验证
+
+显式 `ManualCluster` 模式通过正式 Dispatcher 向资源、活跃敌人、撤离群下令，不模拟鼠标或 Zone。SC08 为 4× 逻辑，SC09 为 1× 对照；两者要求 `-ScenarioId`，可选 MC01-R、MC01-E、MC01-X、MC02、MC03、MC04-N。脚本原文及 SHA256 随配置归档，命令只能提交一次，后续恢复自主流程。
+
+```powershell
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC08 -ScenarioId MC01-X -ObserveSeconds 300 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC09 -ScenarioId MC02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal
+./tools/agent-repro/Invoke-SceneRaidPlayer.ps1 -BuildRunPath Logs/SceneRaid/<SC07-runId> -ScenarioId MC01-R -ShowWindow
+./tools/agent-repro/Test-SceneRaidClusterCommands.ps1
+```
+
+`command-attempts.jsonl` 保存调用前后角色状态、候选目录和同步反馈序号；`command.progress` 记录移动、活动/挂起命令和目标血量变化。`command-steps.json` 保存未触发的前提，不把 Accepted 或死亡后的缺步骤当已覆盖。`carried-inventory.jsonl` 独立记录每人的初始/变更/撤离前携带，可核对没有开过箱的直接撤离。
+
+报告分开原始 `behaviorFailures`、唯一对应脚本的 `expectedRejections`、`unexpectedBehaviorFailures` 和 `coverageStatus`。游戏终态通过仍可能覆盖 PARTIAL；实际触发缺口必须保留，不能补发命令凑齐。Autonomous 仍禁止任何手动指令，并保持原搜刮、交战、暂停和结算标准。常驻 Editor 在新请求上先刷新源码，再按当前程序集完整验证，支持新模式更新而无需重启。
+
+实施记录见 [Cluster 验证规划](../../.planning/2026-09-12-cluster-command-validation/task_plan.md)。P2 已完成基础设施和真场景冒烟，完整 11 槽位与 1× 性能验收仍在后续阶段。

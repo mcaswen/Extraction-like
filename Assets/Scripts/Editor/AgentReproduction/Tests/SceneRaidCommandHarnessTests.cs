@@ -96,6 +96,119 @@ namespace AgentReproduction.Tests
         [System.Serializable] private sealed class Event { public long sequence; public string kind, detail; }
 
         [UnityTest]
+        public IEnumerator DriverWaitsForRealMovementSubmitsOnceAndStops()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "1", Vector3.zero, 8);
+            TargetFactory.Resources(World, new Vector3(25, 0, 0)); TargetFactory.Resources(World, new Vector3(-30, 0, 0));
+            yield return null;
+            var first = Step("first"); var second = Step("second");
+            second.target.excludeStep = "first"; second.gate.kind = "Moving"; second.gate.referenceStep = "first";
+            var scenario = new SceneRaidCommandScenario { id = "Harness", steps = new[] { first, second } };
+            string output = Output("driver-movement");
+            using var writer = new SceneRaidEvidenceWriter(output);
+            var identity = new SceneRaidIdentityMap(); using var observer = new SceneRaidObserver(writer, identity);
+            using var inventory = new SceneRaidInventoryDriver(writer, identity, observer.LatestResource);
+            using var evidence = new SceneRaidCommandEvidence(output, scenario.id, writer, observer, new SceneRaidReadModel(identity, observer.LatestResource), identity);
+            var driver = new SceneRaidClusterCommandDriver(output, scenario, new SceneRaidClusterCatalog(identity), evidence, inventory, writer, identity);
+            Assert.That(driver.Tick(), Is.True);
+            Assert.That(driver.Tick(), Is.False, "The gate must not infer movement from Accepted.");
+            Assert.That(evidence.AttemptCount, Is.EqualTo(1));
+            double deadline = Time.realtimeSinceStartupAsDouble + 5;
+            while (!driver.Stopped && Time.realtimeSinceStartupAsDouble < deadline) { yield return null; driver.Tick(); }
+            Assert.That(driver.Stopped, Is.True);
+            Assert.That(driver.Results.steps.All(x => x.status == "SUBMITTED"), Is.True);
+            var latest = evidence.FindStep("second");
+            Assert.That(latest.cluster, Is.Not.EqualTo(evidence.FindStep("first").cluster));
+            for (int i = 0; i < 20; i++) Assert.That(driver.Tick(), Is.False);
+            Assert.That(evidence.AttemptCount, Is.EqualTo(2));
+            yield return RuntimeWait.Until(() => agent.Position.x < -2, "latest script command moves after stop", 5);
+            Assert.That(agent.DirectiveLifecycle.Active?.CommandId, Is.EqualTo(latest.commandId));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator DriverUsesWallDeadlineWhileGameIsPaused()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero, 8);
+            TargetFactory.Resources(World, new Vector3(25, 0, 0));
+            yield return null;
+            var first = Step("first"); var second = Step("second");
+            second.gate.kind = "Moving"; second.gate.referenceStep = "first"; second.gameDeadline = 0.01f; second.wallDeadline = 0.5f;
+            var scenario = new SceneRaidCommandScenario { id = "Paused", steps = new[] { first, second } };
+            string output = Output("driver-paused");
+            using var writer = new SceneRaidEvidenceWriter(output);
+            var identity = new SceneRaidIdentityMap(); using var observer = new SceneRaidObserver(writer, identity);
+            using var inventory = new SceneRaidInventoryDriver(writer, identity, observer.LatestResource);
+            using var evidence = new SceneRaidCommandEvidence(output, scenario.id, writer, observer, new SceneRaidReadModel(identity, observer.LatestResource), identity);
+            var driver = new SceneRaidClusterCommandDriver(output, scenario, new SceneRaidClusterCatalog(identity), evidence, inventory, writer, identity);
+            Time.timeScale = 0; double began = Time.timeAsDouble;
+            driver.Tick(); driver.Tick();
+            yield return new WaitForSecondsRealtime(0.1f);
+            driver.Tick(); Assert.That(driver.Stopped, Is.False, "Paused game time must not consume the game deadline.");
+            yield return new WaitForSecondsRealtime(0.5f);
+            driver.Tick(); Assert.That(driver.Stopped, Is.True);
+            Assert.That(Time.timeAsDouble, Is.EqualTo(began));
+            Assert.That(driver.Results.steps.Last().status, Is.EqualTo("COVERAGE_MISSING"));
+            Assert.That(evidence.AttemptCount, Is.EqualTo(1));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator DriverDoesNotRetryAfterMissingCandidate()
+        {
+            TestNavMeshBuilder.Flat(World); AgentFactory.Create(World, "1", Vector3.zero);
+            TargetFactory.Resources(World, new Vector3(25, 0, 0));
+            yield return null;
+            var step = Step("missing"); step.target.kind = "ActiveEnemy";
+            var scenario = new SceneRaidCommandScenario { id = "Missing", steps = new[] { step } };
+            string output = Output("driver-missing");
+            using var writer = new SceneRaidEvidenceWriter(output);
+            var identity = new SceneRaidIdentityMap(); using var observer = new SceneRaidObserver(writer, identity);
+            using var inventory = new SceneRaidInventoryDriver(writer, identity, observer.LatestResource);
+            using var evidence = new SceneRaidCommandEvidence(output, scenario.id, writer, observer, new SceneRaidReadModel(identity, observer.LatestResource), identity);
+            var driver = new SceneRaidClusterCommandDriver(output, scenario, new SceneRaidClusterCatalog(identity), evidence, inventory, writer, identity);
+            driver.Tick();
+            TargetFactory.Enemies(World, EnemyFactory.Passive(World, new Vector3(15, 0, 0)));
+            driver.Tick();
+            Assert.That(driver.Stopped, Is.True); Assert.That(evidence.AttemptCount, Is.Zero);
+            Assert.That(driver.Results.steps.Single().reason, Is.EqualTo("NoCandidate"));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator MixedDistanceClusterCannotPretendToBeFar()
+        {
+            TestNavMeshBuilder.Flat(World, 200);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            TargetFactory.Resources(World, new Vector3(5, 0, 0), new Vector3(90, 0, 0));
+            yield return null;
+            var snapshot = new SceneRaidClusterCatalog(new SceneRaidIdentityMap()).Capture();
+            // Explicit synthetic observation range for classification only; no pawn state is changed.
+            foreach (var member in snapshot.clusters.Single().members)
+                foreach (var approach in member.approaches)
+                    approach.distanceClass = SceneRaidClusterCatalog.ClassifyDistance(approach.distancePlanar, 30, 0);
+            Assert.That(SceneRaidClusterCatalog.Select(snapshot, new SceneRaidCommandScenario.Selector { kind = "Resource", distance = "Far" }, "1", null), Is.Null);
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator ManualConfigRoundTripPreservesScriptAndRejectsHashMismatch()
+        {
+            var scenario = new SceneRaidCommandScenario { id = "Hash", steps = new[] { Step("one") } };
+            string json = JsonUtility.ToJson(scenario);
+            var config = new SceneRaidScenarioConfig { schemaVersion = 2, mode = "ManualCluster", scenarioJson = json,
+                scenarioSha256 = SceneRaidScenarioConfig.HashScenario(json) };
+            var copy = JsonUtility.FromJson<SceneRaidScenarioConfig>(JsonUtility.ToJson(config));
+            Assert.That(copy.ParseCommandScenario().steps.Single().target.kind, Is.EqualTo("Resource"));
+            copy.scenarioJson += " ";
+            Assert.Throws<System.InvalidOperationException>(() => copy.ParseCommandScenario());
+            ContractCompleted = true;
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator ObserverFailureDoesNotEscapeIntoFormalCommand()
         {
             TestNavMeshBuilder.Flat(World);
@@ -137,6 +250,14 @@ namespace AgentReproduction.Tests
             Assert.That(enemy == null || !enemy.IsAlive, Is.True);
             Assert.That(evidence.Latest(current.commandId).attemptId, Is.EqualTo(current.attemptId));
             Assert.That(evidence.Latest(current.commandId).eventSequence, Is.GreaterThan(current.outcomeSequence));
+            writer.Flush();
+            var progress = ReadEvents(output).Where(x => x.kind == "command.progress")
+                .Select(x => JsonUtility.FromJson<SceneRaidCommandEvidence.Progress>(x.detail))
+                .Where(x => x.commandId == current.commandId).ToArray();
+            Assert.That(progress.Length, Is.GreaterThanOrEqualTo(2));
+            Assert.That(progress[0].enemyHealth, Is.EqualTo(50));
+            Assert.That(progress.Last().enemyHealth, Is.EqualTo(0), "Death in the terminal callback must retain the final health sample.");
+            Assert.That(progress.All(x => x.attemptId == current.attemptId && x.agent == "1"), Is.True);
             evidence.Dispose();
             int before = writer.Count;
             Assert.That(new AgentTargetCommandDispatcher().TrySubmitClusterCommand(resource, agent.AgentIdValue, out _), Is.True);

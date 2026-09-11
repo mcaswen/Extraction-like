@@ -1,0 +1,629 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "schemaVersion": 1,
+      "id": "MC01-R",
+      "steps": [
+        {
+          "id": "resource-near-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "resource-far-2",
+          "agent": "2",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Far",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "resource-far-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Far",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "InventoryClosed",
+            "referenceStep": "resource-near-1"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "MC01-E",
+      "steps": [
+        {
+          "id": "enemy-near-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "enemy-far-2",
+          "agent": "2",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Far",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "enemy-far-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Far",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "CombatCompleted",
+            "referenceStep": "enemy-near-1"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "MC01-X",
+      "steps": [
+        {
+          "id": "exit-far-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Extraction",
+            "distance": "Far",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "exit-far-2",
+          "agent": "2",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Extraction",
+            "distance": "Far",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "exit-near-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Extraction",
+            "distance": "Near",
+            "sameAsStep": "exit-far-1",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Near",
+            "referenceStep": "exit-far-1"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "exit-near-2",
+          "agent": "2",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Extraction",
+            "distance": "Near",
+            "sameAsStep": "exit-far-2",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Near",
+            "referenceStep": "exit-far-2"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "MC02",
+      "steps": [
+        {
+          "id": "search-a",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "search-b",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "search-a",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Moving",
+            "referenceStep": "search-a"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "engage",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Moving",
+            "referenceStep": "search-b"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "combat-to-resource",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Moving",
+            "referenceStep": "engage"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "retaliation-replacement",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Retaliating",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "repeat-first",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "repeat-again",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "repeat-first",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "MC03",
+      "steps": [
+        {
+          "id": "focus-1",
+          "agent": "1",
+          "route": "Focused",
+          "focusAgent": "1",
+          "target": {
+            "kind": "Resource",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "focus-2",
+          "agent": "2",
+          "route": "Focused",
+          "focusAgent": "2",
+          "target": {
+            "kind": "Resource",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "explicit-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "focus-1",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "shared-resource-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "shared-resource-2",
+          "agent": "2",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "shared-resource-1",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "open-inventory-replace",
+          "agent": "Focused",
+          "route": "Focused",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "shared-resource-1",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "InventoryOpen",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "shared-enemy-1",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Near",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "shared-enemy-2",
+          "agent": "2",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Any",
+            "sameAsStep": "shared-enemy-1",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "MC04-N",
+      "steps": [
+        {
+          "id": "singleton-enemy",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": true
+          },
+          "gate": {
+            "kind": "Ready",
+            "referenceStep": ""
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "next-valid-task",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "Resource",
+            "distance": "Any",
+            "sameAsStep": "",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "CombatCompleted",
+            "referenceStep": "singleton-enemy"
+          },
+          "accepted": true,
+          "reason": "None",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        },
+        {
+          "id": "reject-completed",
+          "agent": "1",
+          "route": "Explicit",
+          "focusAgent": "",
+          "target": {
+            "kind": "ActiveEnemy",
+            "distance": "Any",
+            "sameAsStep": "singleton-enemy",
+            "excludeStep": "",
+            "singleton": false
+          },
+          "gate": {
+            "kind": "Moving",
+            "referenceStep": "next-valid-task"
+          },
+          "accepted": false,
+          "reason": "TargetCompleted",
+          "gameDeadline": 180,
+          "wallDeadline": 120
+        }
+      ]
+    }
+  ]
+}

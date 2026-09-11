@@ -32,6 +32,9 @@ namespace AnomalySearch.Automation.SceneRaid
         private bool _triedSorting;
         public string BlockedReason { get; private set; }
         public int CompletedSessions { get; private set; }
+        public int MutationRevision { get; private set; }
+        private readonly HashSet<string> _completedCommands = new HashSet<string>();
+        public bool HasCompletedSession(string commandId) => !string.IsNullOrEmpty(commandId) && _completedCommands.Contains(commandId);
         public readonly HashSet<string> ServedAgents = new HashSet<string>();
         public SceneRaidInventoryDriver(SceneRaidEvidenceWriter writer, SceneRaidIdentityMap identity,
             Func<string, AgentResourceInteractionEvent?> latest)
@@ -178,14 +181,18 @@ namespace AnomalySearch.Automation.SceneRaid
                     throw new InvalidOperationException("Inventory did not restore simulation time.");
             }
             Log(_session != null ? "closed" : "canceled", reason);
-            if (completed) { CompletedSessions++; ServedAgents.Add(_current.fact.AgentId); }
+            if (completed) { CompletedSessions++; ServedAgents.Add(_current.fact.AgentId); _completedCommands.Add(_current.fact.CommandId); }
             _current = null; _session = null; _box = null;
         }
-        private void Log(string kind, string reason, DraggableItemUI item = null) => _writer.Add("inventory." + kind,
+        private void Log(string kind, string reason, DraggableItemUI item = null)
+        {
+            if (kind == "transferred" || kind == "closed" || kind == "sorted" || kind == "focus") MutationRevision++;
+            _writer.Add("inventory." + kind,
             JsonUtility.ToJson(new Trace { agent = _current.fact.AgentId, commandId = _current.fact.CommandId,
                 resource = _identity.Get(_current.fact.Resource), reason = reason, item = item != null ? item.ItemData.ItemID : "",
                 amount = item != null ? item.CurrentAmount : 0, progress = item != null ? item.SearchProgressSeconds : 0,
                 duration = item != null ? item.SearchDurationSeconds : 0 }));
+        }
         public void Dispose()
         {
             AgentResourceInteractionChannel.Published -= Interaction;

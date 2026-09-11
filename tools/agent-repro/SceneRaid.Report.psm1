@@ -1,5 +1,6 @@
 Set-StrictMode -Version Latest
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Contracts.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.ClusterCommands.Contracts.psm1') -Force
 function Get-SceneRaidFrameStatistics {
     param([object[]]$Frames, [ValidateRange(1,1000)][double]$TargetFps = 60)
     $frameBudgetMs = 1000.0 / $TargetFps
@@ -80,6 +81,7 @@ function Test-SceneRaidEvidence {
     }
     $gameErrors = 0
     $behaviorFailures = 0
+    $expectedRejections = 0
     $warnings = 0
     $stagnations = 0
     $timing = $null
@@ -99,7 +101,7 @@ function Test-SceneRaidEvidence {
                 (Get-Item -LiteralPath $expectedExe -ErrorAction SilentlyContinue).Length -le 0) { $issues.Add('build_executable_missing_or_mismatch') }
         } catch { $issues.Add('invalid_or_missing_build:' + $_.Exception.Message) }
     }
-    if ($Config.mode -eq 'Observe' -or $Config.mode -eq 'Autonomous') {
+    if ($Config.mode -in @('Observe','Autonomous','ManualCluster')) {
         try {
             $result = Get-Content -LiteralPath (Join-Path $OutputPath 'result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
             if ($result.schemaVersion -ne 1 -or $result.runId -ne $Config.runId -or $result.mode -ne $Config.mode -or
@@ -158,14 +160,22 @@ function Test-SceneRaidEvidence {
                 $completion = Test-SceneRaidCompletion $OutputPath $Config $events $result
                 $completion | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8
             }
+            elseif ($Config.mode -eq 'ManualCluster') {
+                $completion = Test-SceneRaidClusterCompletion $OutputPath $Config $events $result
+                $expectedRejections = $completion.expectedRejections
+                if (@($completion.failures | Where-Object { $_ -like 'invalid_*' }).Count) { $issues.Add('invalid_command_or_carried_evidence') }
+                $completion | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8
+            }
         } catch { $issues.Add('invalid_or_missing_evidence:' + $_.Exception.Message) }
     }
     return [pscustomobject]@{
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
         editorLifecycle=$(if ($PlayerRun) {'PLAYER_EXITED'} elseif ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
-        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
+        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or ($behaviorFailures-$expectedRejections) -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
         completionContracts=$completion
+        expectedRejections=$expectedRejections; unexpectedBehaviorFailures=($behaviorFailures-$expectedRejections)
+        coverageStatus=$(if($Config.mode -eq 'ManualCluster' -and $completion){$completion.coverageStatus}else{'NOT_APPLICABLE'})
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries
         performanceAcceptance=$false; issues=$issues.ToArray()
     }
