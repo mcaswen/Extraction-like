@@ -1,5 +1,21 @@
 # P3h：交替伤害来源和反击进展诊断
 
+## 2026-09-12 已确认实施规划
+
+用户确认：“可以，保持当前有效目标，结束反击后恢复撤离”。以下为当前有效方案，后文诊断时的待确认记录保留历史语境。
+
+- **Extend `Assets/Scripts/Gameplay/Agent/Commands/AgentDirectiveLifecycleController.cs`**：有效 CombatDamage 反击期间再次受击，返回现有活动请求，不 Cancel/Activate、不重置 Motor、不改唯一撤离记录。仍通过现有入口接收实际伤害。普通自主 Engage 和手动命令不进入这一保持分支。
+- 有效性复用 **`AgentDirectiveValidationService.ValidateTarget`**，目标仍存活且可用时保持；视线丢失、导航失败的有限追踪由 **`AI/Actions/EngageEnemyActionNode.cs`** 继续负责，不新增永久锁，也不每次受击重置追踪窗口。失效恰好先于下一次受击时，复用 Finish 完成旧反击、恢复原撤离，再处理新的伤害请求。
+- **Extend `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidRetaliationProgressTests.cs`**：移除 Explicit，保留单/交替来源实际投射物对照；补充单一指令、目标结束后恢复同一撤离、其他敌人仍活着也不自动排队、目标同步失效和新受击的交接、手动指令覆盖、连续新来源受击不延长失去视线宽限。
+- **Extend `tools/agent-repro/cases.json`、`README.md`、`Assets/Docs/GameplayAgentFrameworkDesign.md`、旧 `repair_design.md`**：登记用例和最新确认规则，旧版“可更新目标”标明已由本轮替代。
+- 不创建新策略模块、威胁评分、时间参数或敌人队列；指令身份和恢复仍归生命周期，伤害/移动/开火各自边界不变。
+
+验收：已有红灯变绿，相关 Lifecycle/F1/CombatApproach 回归通过；4 倍速原场景先走完整闭环，再完成正常速度及 Player 的有限矩阵。自然死亡仍区分代码和数值，不加无敌或削弱敌人。
+
+实施：生命周期新增一个保持分支，失效交接复用 Finish；没有修改 Shooter、Motor 或伤害结算。`20260912-001614-642` 21/21 通过，其中新增边界和进展 6 项、Lifecycle 6、F1 2、CombatApproach 7。交替受击组 1.3435 秒产生真实伤害，6 次受击始终一个 CommandId；目标结束后恢复原撤离，未给仍存活的另一来源排队。Explicit 已移除，6 项加入 SceneRetaliation 组，目录总计 138 项。
+
+原场景 `20260912-001748-171`，种子 731、4×：69.54 秒完成，两人自主撤离、仓库守恒检查通过，0 运行错误、0 失败指令、0 停滞嫌疑，搜刮/战斗/容量撤离覆盖通过。本轮没有自然发生撤离后的受击恢复，具体反击链由构造验证；后续矩阵继续记录自然覆盖，不把未发生的场景事件写成通过。
+
 ## 已知事实和设计约束
 
 `20260911-234403-063` 中 Agent 2 已撤离，Agent 1 满包撤离途中进入反击，死亡前在 AncientStrander [116]/[130] 之间切换；HP 36→22→8→0，敌人确有被击伤，因此不能直接说该轮完全无法开火，也不能把死亡自动归类为代码缺陷。

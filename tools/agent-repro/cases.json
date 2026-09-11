@@ -279,6 +279,19 @@
         "AllAgentsResolvedAlwaysProducesTerminalState(\"BothSameFrame\")",
         "AllAgentsResolvedAlwaysProducesTerminalState(\"BothSequential\")"
       ]
+    },
+    {
+      "name": "SceneRetaliation",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests",
+      "expected": [
+        "RepeatedDamageAllowsRealRetaliationProgress(False)",
+        "RepeatedDamageAllowsRealRetaliationProgress(True)",
+        "InvalidTargetBeforeNextDamageResumesThenInterruptsOriginalExtraction(False)",
+        "InvalidTargetBeforeNextDamageResumesThenInterruptsOriginalExtraction(True)",
+        "ManualEnemyCommandOverridesRetaliationAndDiscardsOldExtraction",
+        "OtherDamageDoesNotRestartLostSightWindow"
+      ]
     }
   ]
 }

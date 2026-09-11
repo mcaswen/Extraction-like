@@ -240,3 +240,9 @@ P0 已开始并完成真实基线。每阶段在本文件追加以下信息：
 - BuildPipeline、临时 PlayerSettings 和构建结果集中在独立 Editor 文件；原入口仅审计后分派，不在 Runtime 承载构建，不改变正式 Build Settings 或增加 Gameplay 依赖。宏只通过 extraScriptingDefines 进入此次 Player，Mono 后端、单场景、4K/High Fidelity、Development 无附加调试选项均明确记录。
 - 请求采用旧读取器可接受的 Audit 加可选标记，先刷新源码再执行新入口。旧程序集拒绝新模式、DTO 类型错误、Flags.ToString 枚举别名误判三次失败均保留；最终使用请求和 BuildReport 的实际位掩码核对，不把名称中的旧别名当成 IL2CPP 证据。
 - 63 项报告构造通过，真实构建 `20260912-000700-938` 通过，Editor 保留且返回空闲，源码哈希一致；0 错误、36 资产/Shader 告警如实记录。未将构建成功标为 Player 行为或性能通过，未调整小地图或用户 FFT 状态。
+
+## P3h 实施审查：保持有效反击目标
+
+- 用户明确确认后，在 Lifecycle 保持有效 CombatDamage 请求，实际伤害仍正常结算，不重置 Motor、追击缓存或丢失视线计时。有效目标由原 ValidateTarget 判断，空间执行仍由原 Engage 节点有界推进；没有新增队列、评分器、锁定时长或反向依赖。
+- 同帧旧目标失效、新来源受击先通过 Finish 完成旧反击并恢复原撤离，再由本次伤害挂起同一撤离。新手动命令仍覆盖，旧回调不影响新任务。Completed/Resumed/Suspended 顺序、销毁/禁用、失去视线和真实投射物均有行为断言。
+- 21 项相关构造通过，Explicit 移除，6 项正式登记。731 原场景 4× 全流程及仓库契约通过，零错误、零失败指令、零停滞；本轮自然反击恢复覆盖为 false，如实保留，后续继续正常速度和 Player 验证。

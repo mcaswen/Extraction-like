@@ -30,6 +30,14 @@ namespace Gameplay.Agent.Commands
                 failure = AgentDirectiveFailure.None;
             if (failure != AgentDirectiveFailure.None) return Publish(request, AgentDirectiveStage.Rejected, failure);
             bool manual = AgentManualDirectiveLock.IsManualDirective(request);
+            if (!manual && damageInterrupt && _active.HasValue && AgentManualDirectiveLock.IsCombatDamageDirective(_active.Value))
+            {
+                // 连续受击不能反复重置追击，失去视线/导航失败仍由执行节点有界结束。
+                if (AgentDirectiveValidationService.ValidateTarget(_active.Value) == AgentDirectiveFailure.None)
+                    return new AgentDirectiveResult(_active.Value, AgentDirectiveStage.Accepted);
+                // 目标可能在本帧 Tick 前失效，先统一完成和恢复，再处理这次新伤害。
+                Finish(_active.Value.CommandId);
+            }
             if (!manual && !damageInterrupt && _active.HasValue &&
                 (AgentManualDirectiveLock.IsManualDirective(_active.Value) || AgentManualDirectiveLock.IsCombatDamageDirective(_active.Value)))
                 return Publish(request, AgentDirectiveStage.Rejected, AgentDirectiveFailure.Superseded);
