@@ -49,7 +49,7 @@ $worst=@($timing.slowFrames | Sort-Object ms -Descending | Select-Object -First 
 })
 $analysis=[pscustomobject]@{runId=$config.runId;warmupSeconds=$WarmupSeconds;performanceAcceptance=$false;
     status=$(if ($config.simulationSpeed -ne 1 -or $result.profilerEnabled) {'DIAGNOSTIC_ONLY'} elseif ($timing.thresholdsMet) {'TIMING_THRESHOLDS_MET'} else {'PERFORMANCE_FAIL'});
-    note='Fixed warmup only; includes first UI/combat interactions after that boundary. Counters are previous completed profiler samples, inclusive Total, not additive Self. Full matrix/Player acceptance is separate.';
+    note='Acceptance uses average FPS strictly greater than the target. P99, 1% low, rolling windows and spikes are diagnostic only. Fixed warmup, no intermediate frames removed. Counters are previous completed profiler samples, inclusive Total, not additive Self. Gameplay completion and Player validation are separate.';
     sourceFramesSha256=(Get-FileHash -LiteralPath (Join-Path $RunPath 'frames.csv') -Algorithm SHA256).Hash;
     timing=$timing;counterStatistics=$counterStats;worstIntervals=$worst}
 $analysis | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $OutputPath -Encoding UTF8

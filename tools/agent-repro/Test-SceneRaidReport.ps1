@@ -120,11 +120,14 @@ function New-FrameSeries([double]$StepMs, [int]$SpikeAt = -1) {
     }
 }
 if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries 5)).thresholdsMet) { throw 'Stable 200 FPS rejected.' }; $passed++
-if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 5 100)).thresholdsMet) { throw 'Averaging hid 40 ms spike.' }; $passed++
+$spike = Get-SceneRaidFrameStatistics @(New-FrameSeries 5 100)
+if (!$spike.thresholdsMet -or $spike.maxMs -ne 40 -or $spike.slowFrameCount -ne 1 -or !$spike.tailMetricsDiagnosticOnly) { throw 'Average-only acceptance must retain the slow frame without rejecting it.' }; $passed++
 if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5)).thresholdsMet) { throw 'Stable 80 FPS rejected by the 60 FPS target.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 20)).thresholdsMet) { throw '50 FPS accepted.' }; $passed++
 $boundary = Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/60))
-if (!$boundary.thresholdsMet -or $boundary.targetFps -ne 60 -or [Math]::Abs($boundary.frameBudgetMs - 1000.0/60) -gt 0.000001) { throw '60 FPS boundary or reported target is incorrect.' }; $passed++
+if ($boundary.thresholdsMet -or $boundary.targetFps -ne 60 -or $boundary.acceptancePolicy -ne 'AverageFpsGreaterThanTarget') { throw 'Exactly 60 FPS must not satisfy strictly greater than 60.' }; $passed++
+if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/60.01))).thresholdsMet) { throw 'Average above 60 FPS rejected.' }; $passed++
+if ((Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/59.99))).thresholdsMet) { throw 'Average below 60 FPS accepted.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5) -TargetFps 120).thresholdsMet) { throw 'Explicit historical 120 FPS comparison ignored.' }; $passed++
 @{status='PASS';probes=$passed} | ConvertTo-Json | Set-Content "$root/result.json" -Encoding UTF8
 Write-Output "PASS $passed report probes: $root"

@@ -84,7 +84,7 @@ SC00 在 Unity 展开正式场景，记录 Prefab 来源、实例覆盖、SO/对
 
 仅在明确调查退出问题时使用 `-ExitEditor`，此模式仍检查退出码和超时。默认保留模式超时也保留进程供检查，缺少有效清理标记仍失败。`-ObserveSeconds 10` 可构造短生命周期复跑，只验证会话，不算完整回合或性能验收。保留的工作区不能再交给 NUnit 批处理覆盖；独立回归用 `Invoke-AgentRepro.ps1 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchRegression ...`，或者在用户关闭后使用原工作区。会话所有权、忙碌/过期状态和日志分段可通过 `Test-SceneRaidEditorSession.ps1` 验证。
 
-用户最新性能目标为 **60 FPS**，4K 高画质保持，测量仍不限帧。平均、滑动 1 秒和 1% Low 至少 60 FPS，P99 不超过 16.667 ms，卡顿上限 33.333 ms；报告明确记录目标和预算。旧 120 FPS 报告不覆盖，门槛调整及退出调查见 [P4e 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4e_60fps_shutdown.md)。
+用户最新性能目标为 **正常速度平均 FPS >60**，4K 高画质保持，测量仍不限帧。平均值按有效帧数/实际时间计算；P99、1% Low、滑动 1 秒、最大帧仅诊断，小地图不继续优化。原始慢帧和历史报告不覆盖，最新口径见 [P4i 记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p4i_average_fps_scope.md)。时间指标通过与整局玩法成功分别报告。
 
 SC02 使用 **4×** 逻辑速度，默认 120 秒墙钟上限；SC03 使用 **1×**、360 秒上限，用于正常速度和性能复核。正式 UI 暂停后恢复各自速度，物理步长保持不变。驱动只操作焦点、背包和物品，Agent 自主选择目标，容量不足时自主撤离，剩余物品留在箱内。
 

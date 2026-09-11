@@ -6,7 +6,6 @@ function Get-SceneRaidFrameStatistics {
     $maximumBudgetMs = 2 * $frameBudgetMs
     # CSV uses six decimal places for time; allow only serialization-scale rounding at the boundary.
     $timeToleranceMs = 0.001
-    $fpsTolerance = 0.001
     if ($Frames.Count -lt 4) { throw 'Too few frame samples.' }
     $intervals = [Collections.Generic.List[double]]::new()
     $times = [Collections.Generic.List[double]]::new()
@@ -53,9 +52,9 @@ function Get-SceneRaidFrameStatistics {
     return [pscustomobject]@{targetFps=$TargetFps;frameBudgetMs=$frameBudgetMs;maximumBudgetMs=$maximumBudgetMs;
         validIntervals=$intervals.Count;averageFps=$averageFps;p99Ms=$p99;maxMs=$maximum;onePercentLowFps=$low;
         minimumOneSecondFps=$minWindow;windowCount=$windows;startupIncluded=$true;slowFrameCount=$slow.Count;slowFrames=$slow.ToArray();
-        thresholdsMet=($averageFps + $fpsTolerance -ge $TargetFps -and $p99 -le $frameBudgetMs + $timeToleranceMs -and
-            $maximum -le $maximumBudgetMs + $timeToleranceMs -and $low + $fpsTolerance -ge $TargetFps -and
-            $windows -gt 0 -and $minWindow -ge $TargetFps)}
+        acceptancePolicy='AverageFpsGreaterThanTarget';tailMetricsDiagnosticOnly=$true;
+        # Round floating point summation noise so exactly 60 FPS is not mislabeled as greater than 60.
+        thresholdsMet=([Math]::Round($averageFps,6) -gt $TargetFps)}
 }
 
 function Test-SceneRaidEvidence {
