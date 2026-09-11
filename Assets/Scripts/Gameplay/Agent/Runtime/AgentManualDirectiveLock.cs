@@ -41,7 +41,8 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
-            return !IsDirectiveTargetCompleted(directiveRequest);
+            // 生命周期拥有完成和恢复撤离的顺序，发现器不能在其清理请求前抢先解锁。
+            return true;
         }
 
         public static bool ShouldHoldCombatDamageDirective(IAgentReadOnly agent)
@@ -56,7 +57,7 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
-            return !IsDirectiveTargetCompleted(directiveRequest);
+            return true;
         }
 
         public static bool IsManualDirective(AgentDirectiveRequest directiveRequest)

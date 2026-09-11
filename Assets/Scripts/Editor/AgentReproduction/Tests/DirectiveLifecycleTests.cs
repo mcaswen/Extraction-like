@@ -16,6 +16,25 @@ namespace AgentReproduction.Tests
     public sealed class DirectiveLifecycleTests : ReproductionTestFixture
     {
         [UnityTest]
+        public IEnumerator CompletedRetaliationKeepsLockUntilLifecycleRestoresExtraction()
+        {
+            var agent = Create(out var original);
+            var enemy = EnemyFactory.Passive(World, new Vector3(20, 0, 0));
+            agent.TakeCombatDamage(10, agent.Position, Vector3.left, enemy.gameObject);
+            Assert.That(AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent), Is.True);
+            Object.DestroyImmediate(enemy.gameObject);
+            Assert.That(AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent), Is.True,
+                "Discovery must wait for lifecycle completion and extraction restoration.");
+            agent.DirectiveLifecycle.Tick();
+            Assert.That(AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent), Is.False);
+            Assert.That(AgentManualDirectiveLock.ShouldHoldManualDirective(agent), Is.True);
+            Assert.That(agent.DirectiveLifecycle.Active.Value.CommandId, Is.EqualTo(original.CommandId));
+            Assert.That(agent.DirectiveLifecycle.SuspendedExtraction.HasValue, Is.False);
+            ContractCompleted = true;
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator InvalidSuspendedExtractionFailsAfterRetaliation()
         {
             var agent=Create(out var original);

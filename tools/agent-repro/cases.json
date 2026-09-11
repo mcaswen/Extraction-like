@@ -33,6 +33,7 @@
         "RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
         "CancelAndDeathDiscardSuspendedExtraction",
         "ManualResourceIgnoresSightButEffectiveDamageInterrupts",
+        "CompletedRetaliationKeepsLockUntilLifecycleRestoresExtraction",
         "InvalidSuspendedExtractionFailsAfterRetaliation"
       ]
     },

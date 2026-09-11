@@ -74,3 +74,23 @@ P3b 红灯 `20260911-214901-479` 在“Plain backpack is not the waiting box”�
 原场景 `20260911-220657-484` 首次两人自主撤离并结算，63.72 秒墙钟、169.85 秒游戏时间、11 次背包会话，仍有 3 条粒子断言、1 次 Unreachable、1 次 Superseded 拒绝。修复后 `20260911-221156-196` 运行 180.80 秒墙钟、203.87 秒游戏时间、12 次会话，0 运行时错误、0 Unreachable、3 次 Superseded 拒绝。Agent 2 已撤离，Agent 1 撤离中死亡，missionFailed=true、timeScale=0，测试器未识别失败终态而等到期限。该轮证据 PASS，玩法 ISSUES_OBSERVED，不能算完整回合通过。
 
 后续发现：旧图腾仍出现在正式掉落中，却被运行时数据库排除；首个完成回合的仓库出现同格记录重叠和缺定义警告。P3d 后续必须验证真实存档回读、数量和布局，不能只凭 RaidFlow 的 settled 集合宣布结算正确。
+
+### P3d-2 指令交接和失败终态小规划
+
+- Extend `Assets/Scripts/Gameplay/Agent/Runtime/AgentManualDirectiveLock.cs`：高优先级请求尚在黑板时继续持锁，生命周期控制器统一完成、清理并恢复撤离；不允许发现器在敌人死亡但 Lifecycle 尚未 Tick 的同帧窗口插入新请求。Reuse `AgentDirectiveLifecycleController.cs` 的完成/恢复职责，不改变指令优先级。
+- Extend `Assets/Scripts/Editor/AgentReproduction/Tests/DirectiveLifecycleTests.cs`：构造撤离→受击→销毁敌人→生命周期 Tick 前发现器检查，先复现提前释放，再检查 Tick 后恢复原撤离。必要回归 Lifecycle、F1。
+- Extend `Assets/Scripts/Automation/SceneRaid/SceneRaidRunController.cs`：读取已有 snapshot.missionFailed，尽快以 BEHAVIOR_BLOCKED 结束并明确记录任务失败，停止在正式失败暂停中空等。成功判据仍保留仓库/覆盖待验收状态，不把正常死亡直接认定为代码错误。
+- Extend `tools/agent-repro/cases.json` 登记构造，原场景复跑验证拒绝次数和终态。死亡轨迹显示真实受击 107→85→71→57→39→25→2→0，反击后确实恢复撤离；是否有额外战斗缺陷需要进一步证据，禁止通过改血量或消除伤害掩盖。
+
+构造红灯 `20260911-221807-649` 在生命周期 Tick 前持锁断言失败。修复后 `20260911-221901-079` Lifecycle 5 项、F1 2 项全部通过。
+
+原场景 `20260911-221944-910` 76.72 秒墙钟、215.87 秒游戏时间、12 次会话，两名角色自主撤离，0 运行时错误、0 Superseded 拒绝。另有 1 次 Search/TargetCompleted、2 次动态反击追击 Unreachable，继续保留玩法问题，不能把这三项归为已修复的交接竞争。该轮未死亡，失败终态提前结束分支尚需单独构造验证。
+
+### P3d-3 正式掉落的存档兼容小规划
+
+真实引用为 `Assets/Resources/Loot/SO_SceneResourceLootRuleSet.asset` → `Assets/SO/ItemData/Table/equip_totem_green.asset`、`equip_totem_blue.asset`、`equip_totem_gold.asset`；`LootBox_1.prefab` 和相应 World Prefab 也引用这些资产。旧资产在 e448564 被排除出数据库，但掉落未迁移。保留现有掉落内容、权重、价格和属性，不用换掉落来掩盖结算丢失。
+
+- Extend 上述三个具体 ItemData asset：恢复 IncludeInRuntimeDatabase=1，IncludeInTotemShop 仍为 0。Extend `Assets/Resources/Inventory/InventoryItemDatabase.asset` 添加它们的真实 GUID；既有数据库构建器会依据该标记重建，不新增全局动态注册器。
+- Extend `Assets/Scripts/Gameplay/Backpack/PlayerStorageService.cs`：批量追加前验证每个 ItemID 能回解到原定义，不允许不可持久化输入部分写入。复用原 BuildPageLayoutModel，已有记录未知、越界或重叠时不把该页当空页，保留原记录，改用后续正常页面；同时应用原格子状态。仍由该服务拥有存档和仓库布局，不向 RaidFlow 复制装箱算法。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidStorageTests.cs`：所有正式掉落定义真实写盘→新服务重载→数量和布局核对；批量含未知定义不能部分追加；未知/重叠旧页不得继续覆盖，特殊格必须保留。该文件独立承担持久化契约，避免把存档夹具堆入 UI 会话测试。Extend `tools/agent-repro/cases.json` 登记组。
+- 后续 P3d-4 单独处理保存失败时的事务和 RaidFlow 完成顺序，补齐整局仓库契约。P3d-3 不宣称磁盘故障、任意损坏历史存档或仓库 UI 编辑都已恢复。

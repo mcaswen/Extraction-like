@@ -19,7 +19,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private double _nextSnapshot, _nextFlush, _instrumentation;
         private int _updates;
         private float _originalScale, _originalFixed;
-        private bool _complete, _missionCompleted;
+        private bool _complete, _missionCompleted, _missionFailed;
         public void Initialize(SceneRaidScenarioConfig config)
         {
             _config = config;
@@ -64,6 +64,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 {
                     var snapshot = _model.Capture();
                     _missionCompleted = snapshot.missionCompleted;
+                    _missionFailed = snapshot.missionFailed;
                     _observer.Snapshot(snapshot);
                     _contracts.Observe(snapshot, _writer);
                     _nextSnapshot = _writer.WallSeconds + (snapshot.agents.Any(x => x.enemy != null) ? 0.25 : 1);
@@ -76,6 +77,8 @@ namespace AnomalySearch.Automation.SceneRaid
                     _nextFlush = _writer.WallSeconds + 5;
                 }
                 if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
+                else if (_config.mode == "Autonomous" && _missionFailed)
+                    Finish("BEHAVIOR_BLOCKED", "Mission failure observed; see final agent health and extraction state.");
                 else if (_config.mode == "Autonomous" && _missionCompleted)
                     Finish("RAID_OBSERVED_COMPLETE", "Mission completion observed; final warehouse/coverage contracts are still required.");
                 else if (_writer.WallSeconds >= _config.observeSeconds && _updates > 3)
