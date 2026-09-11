@@ -62,31 +62,46 @@ namespace AgentReproduction.Tests
         {
             TestNavMeshBuilder.Flat(World);
             var agent=AgentFactory.Create(World,"R5",Vector3.zero);
-            var item=World.Root("Persistent loot").AddComponent<WorldLootItem>();
-            item.ItemData=World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
-            item.CurrentAmount=1;
-            var inventory=World.Root("Inventory").AddComponent<InventoryScreenController>();
-            yield return null;
-            var request=AgentDirectiveRequest.SearchConcreteResource(item.gameObject,"loot",agent.AgentId,AgentManualDirectiveLock.CreateCommandId("loot"),1000);
-            Assert.That(agent.TrySubmitDirective(request).Accepted,Is.True);
-            for(int i=0;i<5;i++) yield return null;
-            inventory.OpenInventory();
-            for(int i=0;i<3;i++) yield return null;
-            agent.NavMeshAgent.Warp(new Vector3(8,0,0));
-            for(int i=0;i<3;i++) yield return null;
-            inventory.CloseInventory();
-            for(int i=0;i<3;i++) yield return null;
-            Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.False,"Closing after displacement must not complete loot.");
-            Assert.That(agent.DirectiveLifecycle.Active.HasValue,Is.True);
-            agent.NavMeshAgent.Warp(Vector3.zero);
-            for(int i=0;i<3;i++) yield return null;
-            Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.False,"Returning alone must not consume stale open observation.");
-            inventory.OpenInventory();
-            for(int i=0;i<3;i++) yield return null;
-            inventory.CloseInventory();
-            for(int i=0;i<3;i++) yield return null;
-            Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.True);
-            ContractCompleted=true;
+            var item=World.Root("Persistent loot").AddComponent<LootBoxEntity>();
+            item.UseBoardGameResourceRules=false;
+            var data=World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+            data.ItemID="R5_Displacement";
+            item.SaveRuntimeState(new List<ContainerItemSaveData> { new ContainerItemSaveData { ItemData=data, Amount=1 } },
+                new List<ContainerCellStateSaveData>());
+            var inventory=InventoryFactory.Create(World);
+            var facts=new List<AgentResourceInteractionEvent>();
+            System.Action<AgentResourceInteractionEvent> observe=value => { if(value.AgentId==agent.AgentIdValue) facts.Add(value); };
+            AgentResourceInteractionChannel.Published+=observe;
+            try
+            {
+                yield return null;
+                Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent(agent.AgentIdValue),Is.True);
+                yield return null;
+                var request=AgentDirectiveRequest.SearchConcreteResource(item.gameObject,"loot",agent.AgentId,AgentManualDirectiveLock.CreateCommandId("loot"),1000);
+                Assert.That(agent.TrySubmitDirective(request).Accepted,Is.True);
+                yield return RuntimeWait.Until(() => facts.Count>0 && facts.Last().Stage==AgentResourceInteractionStage.WaitingForInventory,"initial resource arrival",3);
+                item.Interact();
+                Assert.That(inventory.ActiveSessionContext.SourceObject,Is.SameAs(item.gameObject));
+                Assert.That(inventory.ActiveSessionContext.AgentId,Is.EqualTo(agent.AgentIdValue));
+                for(int i=0;i<3;i++) yield return null;
+                agent.NavMeshAgent.Warp(new Vector3(8,0,0));
+                yield return RuntimeWait.Until(() => facts.Last().Stage==AgentResourceInteractionStage.Approaching,"displacement invalidates arrival",3);
+                inventory.CloseInventory();
+                for(int i=0;i<3;i++) yield return null;
+                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.False,"Closing after displacement must not complete loot.");
+                Assert.That(agent.DirectiveLifecycle.Active.HasValue,Is.True);
+                agent.NavMeshAgent.Warp(Vector3.zero);
+                yield return RuntimeWait.Until(() => facts.Last().Stage==AgentResourceInteractionStage.WaitingForInventory,"return to resource",3);
+                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.False,"Returning alone must not consume stale open observation.");
+                item.Interact();
+                Assert.That(inventory.ActiveSessionContext.SourceObject,Is.SameAs(item.gameObject));
+                for(int i=0;i<3;i++) yield return null;
+                inventory.CloseInventory();
+                yield return RuntimeWait.Until(() => AgentSearchedResourceRegistry.IsSearched(item.gameObject),"fresh matching resource session completes",3);
+                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.True);
+                ContractCompleted=true;
+            }
+            finally { AgentResourceInteractionChannel.Published-=observe; }
         }
     }
 }

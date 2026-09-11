@@ -20,7 +20,7 @@ namespace AnomalySearch.Automation.SceneRaid
         [Serializable] private sealed class DirectiveRecord
         { public string agent, commandId, directive, targetId, target, stage, reason; }
         [Serializable] private sealed class DirectiveProbe
-        { public string stage, reason; public bool hasNavigation; public SceneRaidReadModel.AgentState agent; public SceneRaidNavigationEvidence.Record navigation; }
+        { public string stage, reason, failureOrigin; public bool hasNavigation; public SceneRaidReadModel.AgentState agent; public SceneRaidNavigationEvidence.Record navigation; }
         public Func<AgentDirectiveRequest, SceneRaidReadModel.AgentState> CaptureDirective { get; set; }
         public Func<AgentDirectiveRequest, SceneRaidNavigationEvidence.Record> CaptureNavigation { get; set; }
         public string ProbeFailure { get; private set; }
@@ -79,6 +79,8 @@ namespace AnomalySearch.Automation.SceneRaid
                         ? CaptureNavigation?.Invoke(request) : null;
                     _writer.Add("diagnostic.directive", JsonUtility.ToJson(new DirectiveProbe
                     { stage = result.Stage.ToString(), reason = result.Reason.ToString(), agent = CaptureDirective(request),
+                        failureOrigin = result.Stage == AgentDirectiveStage.Failed || result.Stage == AgentDirectiveStage.Rejected
+                            ? new System.Diagnostics.StackTrace(1, false).ToString() : "",
                         hasNavigation = navigation != null, navigation = navigation }));
                 }
                 catch (Exception exception)

@@ -270,6 +270,7 @@ namespace Gameplay.Targets.Authoring
                         member.EntityObject,
                         member.Position,
                         agentPosition,
+                        navMeshAgent,
                         startPosition,
                         areaMask,
                         path,
@@ -489,16 +490,7 @@ namespace Gameplay.Targets.Authoring
                 }
 
                 sampledCount++;
-                bool calculated =
-                    navMeshAgent != null &&
-                    navMeshAgent.enabled &&
-                    navMeshAgent.isOnNavMesh
-                        ? navMeshAgent.CalculatePath(targetHit.position, path)
-                        : NavMesh.CalculatePath(
-                            startPosition,
-                            targetHit.position,
-                            areaMask,
-                            path);
+                bool calculated = CalculateResourcePath(navMeshAgent, startPosition, targetHit.position, areaMask, path);
                 if (!calculated)
                     calculateFailedCount++;
 
@@ -626,6 +618,7 @@ namespace Gameplay.Targets.Authoring
             GameObject resourceObject,
             Vector3 fallbackPosition,
             Vector3 agentPosition,
+            NavMeshAgent navMeshAgent,
             Vector3 startPosition,
             int areaMask,
             NavMeshPath path,
@@ -647,6 +640,7 @@ namespace Gameplay.Targets.Authoring
                 // 只接受 PathComplete，避免 Agent 追向无法最终到达的 partial 终点
                 if (!TryCalculateCompletePathToCandidate(
                         navigationCandidates[i],
+                        navMeshAgent,
                         startPosition,
                         areaMask,
                         path,
@@ -927,6 +921,7 @@ namespace Gameplay.Targets.Authoring
 
         private bool TryCalculateCompletePathToCandidate(
             Vector3 candidatePosition,
+            NavMeshAgent navMeshAgent,
             Vector3 startPosition,
             int areaMask,
             NavMeshPath path,
@@ -946,13 +941,9 @@ namespace Gameplay.Targets.Authoring
                 return false;
             }
 
-            // Use the resolved NavMesh start position to avoid per-agent path object allocations in the scan loop.
+            // 复用路径对象，但必须沿用 Agent 已绑定的地面起点，不能拿带 baseOffset 的显示位置重新寻路。
             NavigationPathCalculationCount++;
-            bool calculated = NavMesh.CalculatePath(
-                startPosition,
-                targetHit.position,
-                areaMask,
-                path);
+            bool calculated = CalculateResourcePath(navMeshAgent, startPosition, targetHit.position, areaMask, path);
             if (!calculated || path.status != NavMeshPathStatus.PathComplete)
                 return false;
 
@@ -960,6 +951,14 @@ namespace Gameplay.Targets.Authoring
             navigationPosition = targetHit.position;
             pathLength = GetPlanarDistanceSqr(startPosition, targetHit.position);
             return true;
+        }
+
+        private static bool CalculateResourcePath(NavMeshAgent navMeshAgent, Vector3 startPosition,
+            Vector3 targetPosition, int areaMask, NavMeshPath path)
+        {
+            return navMeshAgent != null && navMeshAgent.isActiveAndEnabled && navMeshAgent.isOnNavMesh
+                ? navMeshAgent.CalculatePath(targetPosition, path)
+                : NavMesh.CalculatePath(startPosition, targetPosition, areaMask, path);
         }
 
         private static float CalculatePathLength(NavMeshPath path)

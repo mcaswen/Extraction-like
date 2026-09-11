@@ -1,6 +1,21 @@
 {
   "groups": [
     {
+      "name": "SceneResourceNavigation",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.SceneRaidResourceNavigationTests",
+      "expected": [
+        "VisualBaseOffsetDoesNotInvalidateReachableResource(0.0f)",
+        "VisualBaseOffsetDoesNotInvalidateReachableResource(1.0f)",
+        "VisualBaseOffsetDoesNotInvalidateReachableResource(3.0f)",
+        "VisualBaseOffsetDoesNotInvalidateReachableResource(6.0f)",
+        "VisualOriginNearDisconnectedUpperFloorUsesBoundLowerFloor",
+        "RecordedScenePositionStillResolvesAReachableResource",
+        "ResourceOnDisconnectedIslandStillRemainsUnreachable"
+      ]
+    },
+    {
       "name": "SceneRequest",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidRequestFileTests",
@@ -68,6 +83,7 @@
     {
       "name": "R5",
       "suite": "Core",
+      "graphics": true,
       "filter": "AgentReproduction.Tests.ResourceDisplacementTests",
       "expected": [
         "DisplacementInvalidatesInventoryCloseUntilAgentReturns",
