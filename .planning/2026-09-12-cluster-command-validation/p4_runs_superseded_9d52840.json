@@ -1,0 +1,30 @@
+﻿{
+    "schemaVersion":  1,
+    "baselineCommit":  "9d52840b6c76f1bdccc88a60bb2b712cad993bb7",
+    "runs":  [
+                 {
+                     "slot":  1,
+                     "scenario":  "MC01-R",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-063715-280",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "COMPLETE"
+                 },
+                 {
+                     "slot":  2,
+                     "scenario":  "MC01-E",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-063855-616",
+                     "exit":  0,
+                     "gameStatus":  "ISSUES_OBSERVED",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 }
+             ]
+}

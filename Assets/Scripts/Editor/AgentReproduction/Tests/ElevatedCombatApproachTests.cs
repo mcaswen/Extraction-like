@@ -48,7 +48,17 @@ namespace AgentReproduction.Tests
             yield return null;
             agent.NavMeshAgent.enabled = true;
             float before = enemy.GetCurrentHealthRatio();
-            yield return RuntimeWait.Until(() => enemy.GetCurrentHealthRatio() < before, "navigation recovery continues same retaliation", 8);
+            try
+            {
+                yield return RuntimeWait.Until(() => enemy.GetCurrentHealthRatio() < before, "navigation recovery continues same retaliation", 8);
+            }
+            finally
+            {
+                var nav = agent.NavMeshAgent;
+                CaseArtifactWriter.Trace("navigation-rebuild-terminal", "position=" + agent.Position + "; time=" + Time.time +
+                    "; scale=" + Time.timeScale + "; command=" + agent.DirectiveLifecycle.Active?.CommandId +
+                    "; enemyHealth=" + enemy.GetCurrentHealthRatio() + "; ready=" + nav.isOnNavMesh + "; destination=" + nav.destination);
+            }
             Assert.That(agent.DirectiveLifecycle.Active?.CommandId, Is.EqualTo(command));
             ContractCompleted = true;
         }

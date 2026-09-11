@@ -20,6 +20,9 @@ namespace AgentReproduction.Tests
     {
         public static float[] Offsets = { 0f, 1f, 3f, 6f };
         public static float[] LaboratoryStartX = { -430.34558f, -444f };
+        public static int[] LaboratoryOrigins = { 0, 1, 2 };
+        public static float[] LaboratoryCaptureSteps = { 0, 0.008f, 0.01f, 0.0125f, 0.01666667f };
+        public static int[] RecoveryInterventions = { 1, 2 };
 
         [TearDown]
         public void StopActorsBeforeNavigationCleanup()
@@ -65,7 +68,19 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator RecordedLaboratoryResourceResolvesWhileMoving()
+        public IEnumerator RecordedLaboratoryResourceResolvesWhileMoving(
+            [ValueSource(nameof(LaboratoryOrigins))] int origin, [ValueSource(nameof(LaboratoryCaptureSteps))] float captureStep)
+        {
+            yield return RunLaboratoryMovement(origin, captureStep, 0);
+        }
+
+        [UnityTest]
+        public IEnumerator LaboratoryRecoveryHandlesPauseAndReplacement([ValueSource(nameof(RecoveryInterventions))] int intervention)
+        {
+            yield return RunLaboratoryMovement(1, 0.01666667f, intervention);
+        }
+
+        private IEnumerator RunLaboratoryMovement(int origin, float captureStep, int intervention)
         {
             var operation = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
                 new LoadSceneParameters(LoadSceneMode.Single));
@@ -83,28 +98,68 @@ namespace AgentReproduction.Tests
             foreach (var other in cluster.ResourceMembers)
                 if (other != member) cluster.MarkResourceCompleted(other.EntityObject);
             var nav = pawn.NavMeshAgent;
-            Vector3 start = new Vector3(-444f, 3.00834f, 197.98416f);
+            Vector3 start = origin == 1 ? new Vector3(-423.68872f, 3.00834f, 214.31749f)
+                : new Vector3(origin == 2 ? -430.492157f : -444f, 3.00834f, 197.98416f);
             Assert.That(nav.Warp(start - Vector3.up * nav.baseOffset * pawn.transform.lossyScale.y), Is.True);
             nav.nextPosition = start;
             Time.timeScale = 4;
-            var motor = new AgentNavigationMotor(nav, 2, 3);
-            double deadline = Time.timeAsDouble + 30;
-            bool arrived = false;
-            int retries = 0;
-            while (Time.timeAsDouble < deadline)
+            float previousCaptureStep = Time.captureDeltaTime;
+            Time.captureDeltaTime = captureStep;
+            try
             {
-                Assert.That(cluster.TryGetNearestReachableIncompleteResource(pawn.Position, nav, out var resource, out var target), Is.True);
-                Assert.That(resource, Is.EqualTo(member.EntityObject));
-                var result = motor.Move("laboratory-resource", target, 0, 12);
-                if (result.Status == AgentNavigationStatus.NotReady) retries++;
-                CaseArtifactWriter.Trace("laboratory-resource", "position=" + pawn.Position + "; target=" + target + "; move=" + result.Status);
-                Assert.That(result.Failed, Is.False);
-                if (result.Status == AgentNavigationStatus.Arrived) { arrived = true; break; }
-                yield return null;
+                var resolver = new AgentResourceNavigationResolver();
+                var motor = new AgentNavigationMotor(nav, 2, 3);
+                double deadline = Time.timeAsDouble + 30;
+                bool arrived = false;
+                int retries = 0;
+                bool intervened = false;
+                string command = "laboratory-resource";
+                Vector3 replacement = new Vector3(-444, 0.00834f, 197.98416f);
+                Assert.That(NavMesh.SamplePosition(replacement, out var replacementHit, 1,
+                    new NavMeshQueryFilter { agentTypeID = nav.agentTypeID, areaMask = nav.areaMask }), Is.True);
+                replacement = replacementHit.position;
+                while (Time.timeAsDouble < deadline)
+                {
+                    Assert.That(resolver.TryResolve(cluster, pawn.Position, nav, out var resource, out var target), Is.True);
+                    Assert.That(resource, Is.EqualTo(member.EntityObject));
+                    if (command == "replacement") target = replacement;
+                    var result = motor.Move(command, target, 0, 12);
+                    if (result.Status == AgentNavigationStatus.NotReady) retries++;
+                    CaseArtifactWriter.Trace("laboratory-resource", "position=" + pawn.Position + "; target=" + target + "; move=" + result.Status + "; dt=" + Time.deltaTime);
+                    Assert.That(result.Failed, Is.False);
+                    if (!intervened && intervention != 0 && result.Status == AgentNavigationStatus.NotReady)
+                    {
+                        intervened = true;
+                        if (intervention == 1)
+                        {
+                            Vector3 pausedPosition = pawn.Position;
+                            double pausedTime = Time.timeAsDouble;
+                            Time.timeScale = 0;
+                            for (int frame = 0; frame < 10; frame++)
+                            {
+                                yield return null;
+                                Assert.That(motor.Move(command, target, 0, 12).Status, Is.EqualTo(AgentNavigationStatus.NotReady));
+                                Assert.That(Vector3.Distance(pausedPosition, pawn.Position), Is.LessThan(0.001f));
+                                Assert.That(Time.timeAsDouble, Is.EqualTo(pausedTime));
+                            }
+                            Time.timeScale = 4;
+                        }
+                        else
+                        {
+                            command = "replacement";
+                            Assert.That(motor.Move(command, replacement, 0, 12).Failed, Is.False);
+                            Assert.That(Vector3.Distance(nav.destination, replacement), Is.LessThan(0.05f));
+                        }
+                    }
+                    if (result.Status == AgentNavigationStatus.Arrived) { arrived = true; break; }
+                    yield return null;
+                }
+                Assert.That(arrived, Is.True);
+                if (intervention != 0) Assert.That(intervened, Is.True, "The real native rejection must occur before testing the intervention.");
+                CaseArtifactWriter.Trace("assignment-recovery", "retries=" + retries + "; arrived=" + arrived);
+                ContractCompleted = true;
             }
-            Assert.That(arrived, Is.True);
-            CaseArtifactWriter.Trace("assignment-recovery", "retries=" + retries + "; arrived=" + arrived);
-            ContractCompleted = true;
+            finally { Time.captureDeltaTime = previousCaptureStep; }
         }
 
         [UnityTest]

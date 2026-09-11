@@ -19,6 +19,35 @@ namespace AgentReproduction.Tests
     {
         public static float[] Distances={0f,0.05f,0.2f};
         public static bool[] Slopes={false,true};
+        public static int[] RecoveryPaths = { 0, 1, 2 };
+        public static float[] RecoverySpeeds = { 1, 4 };
+        [UnityTest]
+        public IEnumerator NativeRecoveryRequiresCompleteMatchingEndpoint(
+            [ValueSource(nameof(RecoveryPaths))] int pathCase, [ValueSource(nameof(RecoverySpeeds))] float timeScale)
+        {
+            TestNavMeshBuilder.Build(World,
+                new Bounds(new Vector3(0, -0.1f, 0), new Vector3(20, 0.2f, 20)),
+                new Bounds(new Vector3(30, -0.1f, 0), new Vector3(12, 0.2f, 12)));
+            var pawn = AgentFactory.Create(World, "Recovery", Vector3.zero);
+            pawn.enabled = false;
+            Time.timeScale = timeScale;
+            yield return null;
+            var nav = pawn.NavMeshAgent;
+            var recovery = new AgentDestinationRecovery(nav);
+            Assert.That(NavMesh.SamplePosition(new Vector3(pathCase == 1 ? 30 : 6, 0, 0), out var hit, 1,
+                new NavMeshQueryFilter { agentTypeID = nav.agentTypeID, areaMask = nav.areaMask }), Is.True);
+            Assert.That(recovery.Begin(hit.position), Is.True);
+            if (pathCase == 2) Assert.That(nav.SetDestination(new Vector3(-6, 0, 0)), Is.True);
+            yield return RuntimeWait.Until(() => !nav.pathPending, "native recovery path computed", 2);
+            CaseArtifactWriter.Trace("native-recovery", "case=" + pathCase + "; nativeStatus=" + nav.pathStatus + "; endpoint=" + nav.pathEndPosition);
+            Assert.That(recovery.Poll(), Is.EqualTo(pathCase == 0 ? AgentNavigationStatus.Moving : AgentNavigationStatus.Unreachable));
+            recovery.Reset();
+            Assert.That(recovery.HasRequest, Is.False);
+            Assert.That(recovery.Poll(), Is.EqualTo(AgentNavigationStatus.Unreachable), "A cleared request must not reuse a previous path.");
+            nav.isStopped = true;
+            nav.ResetPath();
+            ContractCompleted = true;
+        }
         [Test]
         public void AssignmentFailureHasFixedDeadlineAndPauseDoesNotConsumeIt()
         {

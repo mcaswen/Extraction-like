@@ -15,6 +15,7 @@ namespace Gameplay.Agent.Navigation
             internal NavMeshPath Path => _path ??= new NavMeshPath();
             internal Vector3[] Corners = new Vector3[32];
             internal string LastFailure;
+            internal int LastCornerCount;
             public long CalculationCount { get; internal set; }
         }
         public static bool IsReady(NavMeshAgent agent) => agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh;
@@ -26,6 +27,7 @@ namespace Gameplay.Agent.Navigation
         {
             using var markerScope = QueryMarker.Auto();
             buffer.LastFailure = null;
+            buffer.LastCornerCount = 0;
             if (!IsReady(agent)) { buffer.LastFailure = "NotReady"; return new AgentNavigationResult(AgentNavigationStatus.NotReady); }
             float radius = Mathf.Max(0.5f, agent.radius * 2f);
             var filter = new NavMeshQueryFilter { agentTypeID = agent.agentTypeID, areaMask = agent.areaMask };
@@ -48,6 +50,7 @@ namespace Gameplay.Agent.Navigation
                 buffer.Corners = new Vector3[buffer.Corners.Length * 2];
                 count = path.GetCornersNonAlloc(buffer.Corners);
             }
+            buffer.LastCornerCount = count;
             Vector3 current = count > 0 ? buffer.Corners[0] : agent.nextPosition - Vector3.up * agent.baseOffset;
             Vector3 previous = current;
             for (int i = 0; i < count; i++) { Vector3 corner = buffer.Corners[i]; distance += Vector3.Distance(previous, corner); previous = corner; }
