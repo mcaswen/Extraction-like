@@ -461,6 +461,20 @@
         "LateRegisteredInventoryDoesNotChangeOpenSessionOrFocus",
         "PreviouslyInitializedMissingSnapshotIsNotRecreatedAsEmpty"
       ]
+    },
+    {
+      "name": "ResourceCommandCompletion",
+      "suite": "Regression",
+      "graphics": false,
+      "filter": "AgentReproduction.Tests.ResourceCommandCompletionTests",
+      "expected": [
+        "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Depleted\",1)",
+        "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Depleted\",4)",
+        "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Remaining\",1)",
+        "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Remaining\",4)",
+        "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Unreachable\",1)",
+        "ResourceChangeBetweenLifecycleAndMovementHasCorrectTerminal(\"Unreachable\",4)"
+      ]
     }
   ]
 }

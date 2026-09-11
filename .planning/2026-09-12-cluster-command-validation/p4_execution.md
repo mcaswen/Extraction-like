@@ -11,3 +11,7 @@ Reuse `tools/agent-repro/Invoke-SceneRaid.ps1`、`Invoke-SceneRaidPlayer.ps1`，
 ## 最终结果
 
 尚待 P3 完成后填写。
+
+P3d 修改了共享导航执行，因此最终基线额外安排一局 SC02 / 731 / 4× 自主回归，使用原严格自主契约，验证 ManualCluster 的预期终止分类没有泄漏到自主模式。该局是受影响回归，不替换或增加原 11 槽位的覆盖分母。原有常驻 Editor 和隔离保存流程保持。
+
+交付前按 `cases.json` 的完整 NUnit 名称核对阶段 XML：ClusterCommandReachability 10/10、ClusterCommandTransition 31/31、ClusterCommandInventory 11/11、SceneCommandHarness 19/19 均能在实际 Passed 记录找到。合并红绿运行时按唯一名称计数，不把失败后单例复跑重复计数，也没有因 TestFilter 标签而漏掉参数。

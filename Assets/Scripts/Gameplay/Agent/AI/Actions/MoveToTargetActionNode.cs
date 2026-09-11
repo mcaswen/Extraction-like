@@ -79,6 +79,13 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!resolvedTargetPosition)
             {
+                // 资源查询会刷新聚合状态，队友可能已在生命周期检查后耗尽最后一个成员。
+                if (_directiveType == AgentDirectiveType.Search &&
+                    AgentDirectiveValidationService.ValidateTarget(directiveRequest) == AgentDirectiveFailure.TargetCompleted)
+                {
+                    ClearPendingDirective(context);
+                    return Running(); // 等待宏状态切换，不让本帧后续搜索节点消费已释放的指令。
+                }
                 FailPendingDirective(context, AgentDirectiveFailure.InvalidTarget);
                 return Fail(BehaviorFailureCode.MissingBlackboardValue, "Directive target position is invalid");
             }
