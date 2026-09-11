@@ -39,7 +39,7 @@
 | Cooldown | 8 | 属性/装备/配置刷新、技能重排、重复 SkillId、普通攻击锁 |
 | Combined | 10 | 多 Agent、实际撤离、动态路径、无效输入、护盾和缺失攻击配置 |
 | Graphics | 1 | 正式顶部反馈 prefab 的成功/失败/消退 PNG |
-| ScenePerformance | 8 | Discovery ???????????/????????????? |
+| ScenePerformance | 8 | Discovery 范围预筛，路径查询次数及所有权，资源和轮廓缓存失效 |
 | SceneInventory | 4 | 正式背包搜索、旋转/空间/策略，双 Agent 会话，失效关闭和搜索恢复 |
 
 清单以 [cases.json](cases.json) 为准，共 88 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。

@@ -1,0 +1,965 @@
+{
+  "schemaVersion": 1,
+  "scope": "Same SC01, seed 731, 1x, 3840x2160, profile disabled. Diagnostic editor samples, not complete raid acceptance.",
+  "runs": [
+    {
+      "runId": "20260911-193222-820",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-193222-820",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-193222-820",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false
+      },
+      "result": {
+        "schemaVersion": 1,
+        "runId": "20260911-193222-820",
+        "mode": "Observe",
+        "status": "OBSERVED",
+        "reason": "Observation deadline reached; no player input supplied.",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-193222-820",
+        "batchMode": false,
+        "profilerEnabled": false,
+        "performanceAcceptance": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "frames": 1631,
+        "renderedFrames": 1630,
+        "events": 124,
+        "lostEvents": 0,
+        "errors": 0,
+        "warnings": 69,
+        "elapsedWallSeconds": 60.0629193,
+        "elapsedGameSeconds": 58.30513989955296,
+        "instrumentationMilliseconds": 94.99969999999996,
+        "observedAgents": [
+          "1",
+          "2"
+        ],
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check | Scripts | TimeNanoseconds"
+        ]
+      },
+      "process": {
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T11:36:35.3164751Z",
+        "sourceUnchanged": true
+      },
+      "report": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "ISSUES_OBSERVED",
+        "gameErrors": 0,
+        "behaviorFailures": 2,
+        "stagnationSuspicions": 2,
+        "performanceAcceptance": false,
+        "issues": [
+          "process_exit:1"
+        ]
+      },
+      "all": {
+        "samples": 1630,
+        "averageFps": 27.618778802722144,
+        "p99Ms": 73.2395,
+        "maxMs": 711.4977,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 32849308.722358722,
+            "p99Raw": 69466100,
+            "maxRaw": 89402300,
+            "meanCalls": 2.999385749385749
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 103661.04545454546,
+            "p99Raw": 138917,
+            "maxRaw": 1218735,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 1935759.8894348894,
+            "p99Raw": 32202200,
+            "maxRaw": 48927400,
+            "meanCalls": 0.9993857493857494
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 539290.2948402949,
+            "p99Raw": 1105800,
+            "maxRaw": 12378800,
+            "meanCalls": 1.9987714987714988
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 4354244.041769042,
+            "p99Raw": 6045200,
+            "maxRaw": 43859400,
+            "meanCalls": 7.995085995085995
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 1908516.339066339,
+            "p99Raw": 32128200,
+            "maxRaw": 48894700,
+            "meanCalls": 0.1375921375921376
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 65537.65356265356,
+            "p99Raw": 151000,
+            "maxRaw": 290700,
+            "meanCalls": 1.9987714987714988
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 23708.230958230957,
+            "p99Raw": 134200,
+            "maxRaw": 965800,
+            "meanCalls": 1.9987714987714988
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 444794.3488943489,
+            "p99Raw": 897600,
+            "maxRaw": 12253200,
+            "meanCalls": 1.9987714987714988
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 27537.960687960687,
+            "p99Raw": 56000,
+            "maxRaw": 73600,
+            "meanCalls": 7.995085995085995
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 4323162.837837838,
+            "p99Raw": 6009400,
+            "maxRaw": 43804400,
+            "meanCalls": 7.995085995085995
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 287105.9337913804,
+            "p99Raw": 3887000,
+            "maxRaw": 19908300,
+            "meanCalls": 4.8169893816364775
+          }
+        }
+      },
+      "after10WallSeconds": {
+        "samples": 1383,
+        "averageFps": 27.645839966644125,
+        "p99Ms": 73.2395,
+        "maxMs": 90.947,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 33248781.200289227,
+            "p99Raw": 69584200,
+            "maxRaw": 89402300,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 102599.99566160521,
+            "p99Raw": 136961,
+            "maxRaw": 159821,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 1938265.1482284889,
+            "p99Raw": 32202200,
+            "maxRaw": 44763300,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 544163.8467100506,
+            "p99Raw": 1094200,
+            "maxRaw": 12378800,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 4439094.143167028,
+            "p99Raw": 6057100,
+            "maxRaw": 43859400,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 1911280.3326102674,
+            "p99Raw": 32128200,
+            "maxRaw": 44697100,
+            "meanCalls": 0.13882863340563992
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 66065.22053506869,
+            "p99Raw": 155200,
+            "maxRaw": 290700,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 24746.854663774404,
+            "p99Raw": 154200,
+            "maxRaw": 965800,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 447947.2161966739,
+            "p99Raw": 882900,
+            "maxRaw": 12253200,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 28161.026753434562,
+            "p99Raw": 57200,
+            "maxRaw": 73600,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 4407260.086767896,
+            "p99Raw": 6015200,
+            "maxRaw": 43804400,
+            "meanCalls": 8
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 281869.26970354305,
+            "p99Raw": 3955200,
+            "maxRaw": 6395900,
+            "meanCalls": 4.8524945770065075
+          }
+        }
+      }
+    },
+    {
+      "runId": "20260911-193800-568",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-193800-568",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-193800-568",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false
+      },
+      "result": {
+        "schemaVersion": 1,
+        "runId": "20260911-193800-568",
+        "mode": "Observe",
+        "status": "OBSERVED",
+        "reason": "Observation deadline reached; no player input supplied.",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-193800-568",
+        "batchMode": false,
+        "profilerEnabled": false,
+        "performanceAcceptance": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "frames": 2141,
+        "renderedFrames": 2140,
+        "events": 128,
+        "lostEvents": 0,
+        "errors": 0,
+        "warnings": 69,
+        "elapsedWallSeconds": 60.056176199999996,
+        "elapsedGameSeconds": 58.65626189955296,
+        "instrumentationMilliseconds": 81.78659999999999,
+        "observedAgents": [
+          "1",
+          "2"
+        ],
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check | Scripts | TimeNanoseconds"
+        ]
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T11:40:26.3397652Z",
+        "sourceUnchanged": true
+      },
+      "report": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "ISSUES_OBSERVED",
+        "gameErrors": 0,
+        "behaviorFailures": 3,
+        "stagnationSuspicions": 3,
+        "performanceAcceptance": false,
+        "issues": [
+          "process_exit:1"
+        ]
+      },
+      "all": {
+        "samples": 2140,
+        "averageFps": 36.1170049665793,
+        "p99Ms": 49.8918,
+        "maxMs": 626.5571,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 25373616.276894294,
+            "p99Raw": 47639900,
+            "maxRaw": 62690500,
+            "meanCalls": 2.999532273152479
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 102337.33302151544,
+            "p99Raw": 133789,
+            "maxRaw": 930031,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 1171414.3592142188,
+            "p99Raw": 22127000,
+            "maxRaw": 34918000,
+            "meanCalls": 0.999532273152479
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 375675.3975678204,
+            "p99Raw": 781400,
+            "maxRaw": 11446900,
+            "meanCalls": 1.999064546304958
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 3389602.2918615527,
+            "p99Raw": 4317500,
+            "maxRaw": 5716200,
+            "meanCalls": 7.996258185219832
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 1154734.0505144994,
+            "p99Raw": 22088000,
+            "maxRaw": 33797100,
+            "meanCalls": 0.10664172123479888
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 42157.15622076707,
+            "p99Raw": 95800,
+            "maxRaw": 234100,
+            "meanCalls": 1.999064546304958
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 16716.93171188026,
+            "p99Raw": 99600,
+            "maxRaw": 1053800,
+            "meanCalls": 1.999064546304958
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 313286.2488306829,
+            "p99Raw": 632800,
+            "maxRaw": 11334600,
+            "meanCalls": 1.999064546304958
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 17314.359214218897,
+            "p99Raw": 34500,
+            "maxRaw": 47800,
+            "meanCalls": 7.996258185219832
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 3370159.1206735265,
+            "p99Raw": 4294600,
+            "maxRaw": 5683000,
+            "meanCalls": 7.996258185219832
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 167695.16816674563,
+            "p99Raw": 2419200,
+            "maxRaw": 2950100,
+            "meanCalls": 4.20701089531028
+          }
+        }
+      },
+      "after10WallSeconds": {
+        "samples": 1823,
+        "averageFps": 36.433929992865046,
+        "p99Ms": 49.6455,
+        "maxMs": 61.3456,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 25448345.255074054,
+            "p99Raw": 47267900,
+            "maxRaw": 58511800,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 101571.42622051563,
+            "p99Raw": 133753,
+            "maxRaw": 159722,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 1164814.3170597916,
+            "p99Raw": 21793500,
+            "maxRaw": 23501600,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 377650.85024684586,
+            "p99Raw": 748700,
+            "maxRaw": 11446900,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 3387260.449808009,
+            "p99Raw": 4317500,
+            "maxRaw": 5716200,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 1148412.0131651124,
+            "p99Raw": 21758300,
+            "maxRaw": 23463800,
+            "meanCalls": 0.10751508502468458
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 42855.677454744924,
+            "p99Raw": 95000,
+            "maxRaw": 171200,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 17632.857926494788,
+            "p99Raw": 100700,
+            "maxRaw": 1053800,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 313565.00274273177,
+            "p99Raw": 622300,
+            "maxRaw": 11334600,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 17742.841470104224,
+            "p99Raw": 34700,
+            "maxRaw": 46800,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 3367384.4761382337,
+            "p99Raw": 4294600,
+            "maxRaw": 5683000,
+            "meanCalls": 8
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 167804.11409764126,
+            "p99Raw": 2419200,
+            "maxRaw": 2703300,
+            "meanCalls": 4.21996708721887
+          }
+        }
+      }
+    },
+    {
+      "runId": "20260911-195919-537",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-195919-537",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-195919-537",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "result": {
+        "schemaVersion": 1,
+        "runId": "20260911-195919-537",
+        "mode": "Observe",
+        "status": "OBSERVED",
+        "reason": "Observation deadline reached; no player input supplied.",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-195919-537",
+        "batchMode": false,
+        "profilerEnabled": false,
+        "performanceAcceptance": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "frames": 2056,
+        "renderedFrames": 2055,
+        "events": 142,
+        "lostEvents": 0,
+        "errors": 1,
+        "warnings": 69,
+        "elapsedWallSeconds": 60.0686222,
+        "elapsedGameSeconds": 58.65958099955297,
+        "instrumentationMilliseconds": 103.57000000000004,
+        "observedAgents": [
+          "1",
+          "2"
+        ],
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check | Scripts | TimeNanoseconds"
+        ]
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T12:01:49.6687147Z",
+        "sourceUnchanged": true
+      },
+      "report": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "ISSUES_OBSERVED",
+        "gameErrors": 1,
+        "behaviorFailures": 2,
+        "stagnationSuspicions": 2,
+        "performanceAcceptance": false,
+        "issues": [
+          "process_exit:1"
+        ]
+      },
+      "all": {
+        "samples": 2055,
+        "averageFps": 34.70530631737634,
+        "p99Ms": 45.2696,
+        "maxMs": 582.3151,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 26347385.87433025,
+            "p99Raw": 41444200,
+            "maxRaw": 63080000,
+            "meanCalls": 2.9995129079396006
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 103225.8339016074,
+            "p99Raw": 139717,
+            "maxRaw": 939355,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 1355061.8606916708,
+            "p99Raw": 13594200,
+            "maxRaw": 35376300,
+            "meanCalls": 0.9995129079396006
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 452366.00097418413,
+            "p99Raw": 1018700,
+            "maxRaw": 12405500,
+            "meanCalls": 1.9990258158792011
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 3291802.9225523626,
+            "p99Raw": 3799600,
+            "maxRaw": 5394800,
+            "meanCalls": 7.996103263516805
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 1334276.3760350705,
+            "p99Raw": 13547400,
+            "maxRaw": 34313100,
+            "meanCalls": 0.10959571358986848
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 54889.917194349735,
+            "p99Raw": 132600,
+            "maxRaw": 265700,
+            "meanCalls": 1.9990258158792011
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 22109.20603994155,
+            "p99Raw": 126900,
+            "maxRaw": 1743800,
+            "meanCalls": 1.9990258158792011
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 370951.72917681444,
+            "p99Raw": 825100,
+            "maxRaw": 12241600,
+            "meanCalls": 1.9990258158792011
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 17506.91670725767,
+            "p99Raw": 42500,
+            "maxRaw": 108800,
+            "meanCalls": 7.996103263516805
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 3272456.7949342425,
+            "p99Raw": 3782300,
+            "maxRaw": 5357200,
+            "meanCalls": 7.996103263516805
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 181278.28232971372,
+            "p99Raw": 1369100,
+            "maxRaw": 2534700,
+            "meanCalls": 4.250740375123396
+          }
+        }
+      },
+      "after10WallSeconds": {
+        "samples": 1763,
+        "averageFps": 35.2426363759692,
+        "p99Ms": 42.2681,
+        "maxMs": 47.1189,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 26253315.14463982,
+            "p99Raw": 40020300,
+            "maxRaw": 44652600,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 101844.12081678957,
+            "p99Raw": 135557,
+            "maxRaw": 160030,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 1359260.7487237663,
+            "p99Raw": 12838400,
+            "maxRaw": 15057100,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 424879.06976744183,
+            "p99Raw": 942000,
+            "maxRaw": 1412800,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 3281540.44242768,
+            "p99Raw": 3791900,
+            "maxRaw": 5239400,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 1339672.7736812253,
+            "p99Raw": 12808400,
+            "maxRaw": 15019400,
+            "meanCalls": 0.11117413499716393
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 54130.57288712422,
+            "p99Raw": 130000,
+            "maxRaw": 265700,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 18423.369256948383,
+            "p99Raw": 60500,
+            "maxRaw": 240500,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 347966.7612024957,
+            "p99Raw": 759700,
+            "maxRaw": 1324400,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 17469.597277368124,
+            "p99Raw": 42500,
+            "maxRaw": 108800,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 3262225.751559841,
+            "p99Raw": 3753000,
+            "maxRaw": 5212300,
+            "meanCalls": 8
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 183018.09415768576,
+            "p99Raw": 1329700,
+            "maxRaw": 1541800,
+            "meanCalls": 4.352807714123653
+          }
+        }
+      }
+    },
+    {
+      "runId": "20260911-203250-166",
+      "config": {
+        "schemaVersion": 1,
+        "runId": "20260911-203250-166",
+        "outputPath": "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260911-203250-166",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "mode": "Observe",
+        "seed": 731,
+        "observeSeconds": 60,
+        "simulationSpeed": 1,
+        "width": 3840,
+        "height": 2160,
+        "profile": false,
+        "binaryProfile": false
+      },
+      "result": {
+        "schemaVersion": 1,
+        "runId": "20260911-203250-166",
+        "mode": "Observe",
+        "status": "OBSERVED",
+        "reason": "Observation deadline reached; no player input supplied.",
+        "scenePath": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+        "unityVersion": "2022.3.62f2c1",
+        "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+        "quality": "High Fidelity",
+        "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260911-203250-166",
+        "batchMode": false,
+        "profilerEnabled": false,
+        "performanceAcceptance": false,
+        "screenWidth": 3840,
+        "screenHeight": 2160,
+        "cameraWidth": 3840,
+        "cameraHeight": 2160,
+        "frames": 2399,
+        "renderedFrames": 2398,
+        "events": 118,
+        "lostEvents": 0,
+        "errors": 0,
+        "warnings": 69,
+        "elapsedWallSeconds": 60.055895899999996,
+        "elapsedGameSeconds": 58.83468599955296,
+        "instrumentationMilliseconds": 104.07560000000012,
+        "inventorySessions": 0,
+        "observedAgents": [
+          "1",
+          "2"
+        ],
+        "inventoryAgents": [],
+        "counters": [
+          "PlayerLoop | PlayerLoop | TimeNanoseconds",
+          "GC Allocated In Frame | Memory | Bytes",
+          "Anomaly.Discovery.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Update | Scripts | TimeNanoseconds",
+          "Anomaly.Discovery.ScanAgent | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Facts | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Lifecycle | Scripts | TimeNanoseconds",
+          "Anomaly.Pawn.Brain | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.State | Scripts | TimeNanoseconds",
+          "Anomaly.Zone.Shape | Scripts | TimeNanoseconds",
+          "Anomaly.Navigation.Check | Scripts | TimeNanoseconds"
+        ]
+      },
+      "process": {
+        "terminationReason": "shutdown_timeout",
+        "exitCode": 1,
+        "completedUtc": "2026-09-11T12:35:20.2423447Z",
+        "sourceUnchanged": true
+      },
+      "report": {
+        "evidenceStatus": "FAIL",
+        "gameStatus": "NOT_FULL_RAID_VALIDATED",
+        "gameErrors": 0,
+        "behaviorFailures": 0,
+        "stagnationSuspicions": 0,
+        "performanceAcceptance": false,
+        "issues": [
+          "process_exit:1"
+        ]
+      },
+      "all": {
+        "samples": 2398,
+        "averageFps": 40.42567364470999,
+        "p99Ms": 33.7369,
+        "maxMs": 509.6744,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 22227902.29549249,
+            "p99Raw": 29700400,
+            "maxRaw": 43535400,
+            "meanCalls": 2.9995826377295494
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 92973.15233722872,
+            "p99Raw": 126386,
+            "maxRaw": 1225599,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 127945.4507512521,
+            "p99Raw": 2474900,
+            "maxRaw": 14802900,
+            "meanCalls": 0.9995826377295493
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 303980.42570951587,
+            "p99Raw": 739000,
+            "maxRaw": 12976100,
+            "meanCalls": 1.9991652754590985
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 920287.5208681135,
+            "p99Raw": 2159900,
+            "maxRaw": 6709500,
+            "meanCalls": 7.996661101836394
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 107210.64273789649,
+            "p99Raw": 2429400,
+            "maxRaw": 13527100,
+            "meanCalls": 0.09599332220367279
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 58608.68113522538,
+            "p99Raw": 126200,
+            "maxRaw": 12464300,
+            "meanCalls": 1.9991652754590985
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 17674.91652754591,
+            "p99Raw": 43200,
+            "maxRaw": 83300,
+            "meanCalls": 1.9991652754590985
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 223800.70951585978,
+            "p99Raw": 611300,
+            "maxRaw": 4181200,
+            "meanCalls": 1.9991652754590985
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 18289.64941569282,
+            "p99Raw": 41700,
+            "maxRaw": 123300,
+            "meanCalls": 7.996661101836394
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 900522.2871452421,
+            "p99Raw": 2127900,
+            "maxRaw": 6637100,
+            "meanCalls": 7.996661101836394
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 23102.659349936683,
+            "p99Raw": 339500,
+            "maxRaw": 488900,
+            "meanCalls": 1.1215702828197551
+          }
+        }
+      },
+      "after10WallSeconds": {
+        "samples": 2039,
+        "averageFps": 40.77014349164975,
+        "p99Ms": 32.7362,
+        "maxMs": 44.8864,
+        "counters": {
+          "PlayerLoop": {
+            "meanRaw": 22258429.082883768,
+            "p99Raw": 29478900,
+            "maxRaw": 43535400,
+            "meanCalls": 3
+          },
+          "GC Allocated In Frame": {
+            "meanRaw": 92272.22314860225,
+            "p99Raw": 126359,
+            "maxRaw": 152783,
+            "meanCalls": 1
+          },
+          "Anomaly.Discovery.Update": {
+            "meanRaw": 121784.45316331535,
+            "p99Raw": 2450500,
+            "maxRaw": 3559300,
+            "meanCalls": 1
+          },
+          "Anomaly.Pawn.Update": {
+            "meanRaw": 292266.9445806768,
+            "p99Raw": 668500,
+            "maxRaw": 12976100,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.Update": {
+            "meanRaw": 921760.0294261893,
+            "p99Raw": 2167300,
+            "maxRaw": 6709500,
+            "meanCalls": 8
+          },
+          "Anomaly.Discovery.ScanAgent": {
+            "meanRaw": 101993.1829328102,
+            "p99Raw": 2412700,
+            "maxRaw": 3517100,
+            "meanCalls": 0.09612555174104953
+          },
+          "Anomaly.Pawn.Facts": {
+            "meanRaw": 59457.13585090731,
+            "p99Raw": 126800,
+            "maxRaw": 12464300,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Lifecycle": {
+            "meanRaw": 17625.944090240315,
+            "p99Raw": 44400,
+            "maxRaw": 65100,
+            "meanCalls": 2
+          },
+          "Anomaly.Pawn.Brain": {
+            "meanRaw": 211260.27464443355,
+            "p99Raw": 539000,
+            "maxRaw": 979400,
+            "meanCalls": 2
+          },
+          "Anomaly.Zone.State": {
+            "meanRaw": 18303.629230014714,
+            "p99Raw": 41600,
+            "maxRaw": 123300,
+            "meanCalls": 8
+          },
+          "Anomaly.Zone.Shape": {
+            "meanRaw": 901973.5164296223,
+            "p99Raw": 2134800,
+            "maxRaw": 6637100,
+            "meanCalls": 8
+          },
+          "Anomaly.Navigation.Check": {
+            "meanRaw": 22542.275625306524,
+            "p99Raw": 339500,
+            "maxRaw": 488900,
+            "meanCalls": 1.1064247179990192
+          }
+        }
+      }
+    }
+  ]
+}
