@@ -4,6 +4,7 @@
     { "id": "SC00", "mode": "Audit", "seed": 731, "observeSeconds": 60, "simulationSpeed": 1 },
     { "id": "SC01", "mode": "Observe", "seed": 731, "observeSeconds": 60, "simulationSpeed": 1 },
     { "id": "SC02", "mode": "Autonomous", "seed": 731, "observeSeconds": 120, "simulationSpeed": 4 },
-    { "id": "SC03", "mode": "Autonomous", "seed": 731, "observeSeconds": 360, "simulationSpeed": 1 }
+    { "id": "SC03", "mode": "Autonomous", "seed": 731, "observeSeconds": 360, "simulationSpeed": 1 },
+    { "id": "SC07", "mode": "Audit", "seed": 731, "observeSeconds": 360, "simulationSpeed": 1 }
   ]
 }

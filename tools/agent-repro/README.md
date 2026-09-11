@@ -90,6 +90,14 @@ SC02 使用 **4×** 逻辑速度，默认 120 秒墙钟上限；SC03 使用 **1�
 
 当前常驻场景 Editor 使用 `-WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene`，NUnit 使用独立 `AnomalySearchRegression` 工作区。旧工作区的卡住 Editor 保留供用户关闭，不对忙碌项目强制同步。
 
+SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进入 Play Mode：
+
+```powershell
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC07 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene -TimeoutSeconds 900
+```
+
+产物为 `Logs/SceneRaid/<runId>/Player/SceneRaid.exe`，构建结果在 `build-result.json`。当前 Mono / Development，4K / High Fidelity，仅此次构建定义 `ANOMALY_SCENE_AUTOMATION`，不启用自动连接 Profiler、Deep Profile 或脚本调试。请求与实际 BuildOptions 按整数位掩码验证，构建仍保留 Editor。SC07 只代表构建，不代表 Player 已完成搜打撤；当前阶段结果见 [P5a](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p5_player_verification.md)。
+
 ```powershell
 ./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
 ./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene

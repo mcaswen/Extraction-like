@@ -107,7 +107,11 @@ namespace AnomalySearch.Editor.SceneRaid
                 EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.None;
                 var scene = EditorSceneManager.OpenScene(_config.scenePath, OpenSceneMode.Single);
                 SceneRaidSceneAudit.Save(scene, _config);
-                if (_config.mode == "Audit") { Finish(0); return; }
+                if (_config.mode == "Audit")
+                {
+                    if (_config.buildPlayer) SceneRaidBuildEntry.Build(_config);
+                    Finish(0); return;
+                }
                 ConfigureGameView(_config.width, _config.height);
                 QualitySettings.SetQualityLevel(2, true);
                 Profiler.logFile = Path.Combine(_config.outputPath, "cpu-profile.raw");

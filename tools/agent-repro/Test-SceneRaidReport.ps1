@@ -129,5 +129,26 @@ if ($boundary.thresholdsMet -or $boundary.targetFps -ne 60 -or $boundary.accepta
 if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/60.01))).thresholdsMet) { throw 'Average above 60 FPS rejected.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/59.99))).thresholdsMet) { throw 'Average below 60 FPS accepted.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5) -TargetFps 120).thresholdsMet) { throw 'Explicit historical 120 FPS comparison ignored.' }; $passed++
+$buildConfig = [pscustomobject]@{runId='probe';mode='Audit';scenePath='scene.unity';buildPlayer=$true}
+$path = Write-Fixture 'build'
+New-Item -ItemType Directory -Path "$path/Player" | Out-Null
+[IO.File]::WriteAllBytes("$path/Player/SceneRaid.exe", [byte[]](1,2,3))
+$build = @{schemaVersion=1;runId='probe';scenePath='scene.unity';status='BUILT';bytes=3;seconds=1;errors=0;
+    backend='Mono2x';target='StandaloneWindows64';options='Development';optionsBits=1;effectiveOptionsBits=1;quality='High Fidelity';
+    defines=@('ANOMALY_SCENE_AUTOMATION');executable="$path/Player/SceneRaid.exe"}
+$build | ConvertTo-Json | Set-Content "$path/build-result.json" -Encoding UTF8
+$buildReport = Test-SceneRaidEvidence $path $buildConfig 0 $true
+if ($buildReport.evidenceStatus -ne 'PASS' -or $buildReport.gameStatus -ne 'NOT_FULL_RAID_VALIDATED') { throw 'Build result incorrectly classified.' }; $passed++
+foreach ($field in @('runId','scenePath','status','bytes','errors','backend','target','optionsBits','effectiveOptionsBits','defines','executable')) {
+    $invalid = $build.Clone()
+    $invalid[$field] = switch ($field) { 'bytes' {0} 'errors' {1} default {'wrong'} }
+    $invalid | ConvertTo-Json | Set-Content "$path/build-result.json" -Encoding UTF8
+    if ((Test-SceneRaidEvidence $path $buildConfig 0 $true).evidenceStatus -ne 'FAIL') { throw "Invalid build accepted: $field" }; $passed++
+}
+$build | ConvertTo-Json | Set-Content "$path/build-result.json" -Encoding UTF8
+Remove-Item -LiteralPath "$path/Player/SceneRaid.exe"
+if ((Test-SceneRaidEvidence $path $buildConfig 0 $true).evidenceStatus -ne 'FAIL') { throw 'Missing executable accepted.' }; $passed++
+Remove-Item -LiteralPath "$path/build-result.json"
+if ((Test-SceneRaidEvidence $path $buildConfig 0 $true).evidenceStatus -ne 'FAIL') { throw 'Missing build result accepted.' }; $passed++
 @{status='PASS';probes=$passed} | ConvertTo-Json | Set-Content "$root/result.json" -Encoding UTF8
 Write-Output "PASS $passed report probes: $root"

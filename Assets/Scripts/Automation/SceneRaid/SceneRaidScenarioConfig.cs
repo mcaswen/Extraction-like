@@ -14,6 +14,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public float observeSeconds = 60, simulationSpeed = 1;
         public bool profile, binaryProfile;
         public bool enabled = true, keepEditorOpen = true;
+        public bool buildPlayer;
 
         public static string ExplicitPath()
         {
@@ -34,6 +35,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 !Path.IsPathRooted(config.outputPath) || config.observeSeconds <= 0 || config.observeSeconds > 600 ||
                 config.scenePath != "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity" ||
                 (config.mode != "Audit" && config.mode != "Observe" && config.mode != "Autonomous") ||
+                (config.buildPlayer && config.mode != "Audit") ||
                 (config.simulationSpeed != 1 && !(config.mode == "Autonomous" && (config.simulationSpeed == 2 || config.simulationSpeed == 4))) ||
                 Application.companyName != "AnomalySearch.Automation" ||
                 (validateProductName && Application.productName != "AgentRepro_" + config.runId))

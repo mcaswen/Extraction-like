@@ -85,6 +85,19 @@ function Test-SceneRaidEvidence {
     $counterSummaries = @()
     $result = $null
     $completion = $null
+    if ($Config.PSObject.Properties['buildPlayer'] -and $Config.buildPlayer) {
+        try {
+            $build = Get-Content -LiteralPath (Join-Path $OutputPath 'build-result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
+            $expectedExe = [IO.Path]::GetFullPath((Join-Path $OutputPath 'Player/SceneRaid.exe'))
+            if ($build.schemaVersion -ne 1 -or $build.runId -ne $Config.runId -or $build.scenePath -ne $Config.scenePath -or
+                $build.status -ne 'BUILT' -or $build.errors -ne 0 -or $build.bytes -le 0 -or $build.seconds -le 0 -or
+                $build.backend -ne 'Mono2x' -or $build.target -ne 'StandaloneWindows64' -or $build.optionsBits -ne 1 -or
+                $build.effectiveOptionsBits -ne 1 -or $build.quality -ne 'High Fidelity' -or
+                (@($build.defines) -join ',') -ne 'ANOMALY_SCENE_AUTOMATION') { $issues.Add('build_mismatch_or_failed') }
+            if ([IO.Path]::GetFullPath($build.executable) -ne $expectedExe -or !(Test-Path -LiteralPath $expectedExe -PathType Leaf) -or
+                (Get-Item -LiteralPath $expectedExe -ErrorAction SilentlyContinue).Length -le 0) { $issues.Add('build_executable_missing_or_mismatch') }
+        } catch { $issues.Add('invalid_or_missing_build:' + $_.Exception.Message) }
+    }
     if ($Config.mode -eq 'Observe' -or $Config.mode -eq 'Autonomous') {
         try {
             $result = Get-Content -LiteralPath (Join-Path $OutputPath 'result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json

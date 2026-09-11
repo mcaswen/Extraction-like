@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('SC00','SC01','SC02','SC03')][string]$Case = 'SC01',
+    [ValidateSet('SC00','SC01','SC02','SC03','SC07')][string]$Case = 'SC01',
     [string]$UnityPath,
     [string]$WorkspaceRoot,
     [ValidateRange(120,3600)][int]$TimeoutSeconds = 900,
@@ -35,7 +35,7 @@ try {
     $config = [ordered]@{schemaVersion=1;runId=$runId;outputPath=$output;scenePath=$profileConfig.scenePath;mode=$caseConfig.mode;
         seed=$(if ($null -ne $Seed) {$Seed} else {$caseConfig.seed});observeSeconds=$(if ($null -ne $ObserveSeconds) {$ObserveSeconds} else {$caseConfig.observeSeconds});simulationSpeed=$caseConfig.simulationSpeed;
         width=$profileConfig.width;height=$profileConfig.height;profile=($Profile.IsPresent -or $profileConfig.profile);binaryProfile=$profileConfig.binaryProfile;
-        enabled=$true;keepEditorOpen=(!$ExitEditor)}
+        enabled=$true;keepEditorOpen=(!$ExitEditor);buildPlayer=($Case -eq 'SC07')}
     $before = Get-AgentReproSourceManifest $source
     @{runId=$runId;case=$Case;commit=(& git -C $source rev-parse HEAD);dirty=(& git -C $source status --porcelain);
         files=$before;competingUnity=@(Get-Process Unity -ErrorAction SilentlyContinue | Select-Object Id,CPU,Path)} |
