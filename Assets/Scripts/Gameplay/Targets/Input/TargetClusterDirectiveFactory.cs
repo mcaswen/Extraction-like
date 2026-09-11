@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
 using Gameplay.Targets.Authoring;
@@ -97,14 +98,16 @@ namespace Gameplay.Targets.Input
                 return false;
             }
 
-            directiveRequest = CreateConcreteDirective(
-                AgentDirectiveType.Extract,
-                AgentTargetKind.Extraction,
-                extractionPoint.gameObject,
-                targetId,
-                agentHandle,
-                commandId,
-                priority);
+            var candidates = new List<AgentDirectiveRequest>();
+            foreach (var member in extractionCluster.ExtractionMembers)
+            {
+                if (member == null || member.HasBeenCompleted ||
+                    !member.TryGetComponent(out global::ExtractionPointController point) || point == null || !point.gameObject.activeInHierarchy)
+                    continue;
+                candidates.Add(CreateConcreteDirective(AgentDirectiveType.Extract, AgentTargetKind.Extraction,
+                    point.gameObject, targetId, agentHandle, commandId, priority));
+            }
+            directiveRequest = TargetClusterDirectiveCandidateSelector.Select(agentHandle.ReadOnly, candidates);
             return true;
         }
 
@@ -116,23 +119,17 @@ namespace Gameplay.Targets.Input
             int priority,
             out AgentDirectiveRequest directiveRequest)
         {
-            GameObject targetObject = activeEnemyCluster.gameObject;
-            if (activeEnemyCluster.TryGetNearestAliveEnemy(
-                    agentHandle.ReadOnly.Position,
-                    out global::EnemyHealthController nearestEnemy) &&
-                nearestEnemy != null)
-            {
-                targetObject = nearestEnemy.gameObject;
-            }
-
-            directiveRequest = CreateConcreteDirective(
-                AgentDirectiveType.Engage,
-                AgentTargetKind.Enemy,
-                targetObject,
-                targetId,
-                agentHandle,
-                commandId,
-                priority);
+            var enemies = new List<global::EnemyHealthController>();
+            activeEnemyCluster.CopyAliveEnemiesTo(enemies);
+            var candidates = new List<AgentDirectiveRequest>();
+            foreach (var enemy in enemies)
+                candidates.Add(CreateConcreteDirective(AgentDirectiveType.Engage, AgentTargetKind.Enemy,
+                    enemy.gameObject, targetId, agentHandle, commandId, priority));
+            // 空群仍交给生命周期检查，保持原有无效/完成反馈路径。
+            directiveRequest = candidates.Count > 0
+                ? TargetClusterDirectiveCandidateSelector.Select(agentHandle.ReadOnly, candidates)
+                : CreateConcreteDirective(AgentDirectiveType.Engage, AgentTargetKind.Enemy,
+                    activeEnemyCluster.gameObject, targetId, agentHandle, commandId, priority);
             return true;
         }
 

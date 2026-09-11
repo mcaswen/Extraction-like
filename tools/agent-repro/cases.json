@@ -365,6 +365,23 @@
         "CatalogCaptureDoesNotChangeCommandsNavigationOrTargetState",
         "CatalogSeparatesDistanceFromReachability"
       ]
+    },
+    {
+      "name": "ClusterCommandReachability",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ClusterCommandReachabilityTests",
+      "expected": [
+        "DistantManualEnemyReachesFirstObservationAndDealsDamage(1)",
+        "DistantManualEnemyReachesFirstObservationAndDealsDamage(4)",
+        "EnemyClusterScansPastUnreachableNearestMember(True)",
+        "EnemyClusterScansPastUnreachableNearestMember(False)",
+        "ExtractionClusterSkipsNonExecutableNearestPoint(\"Disconnected\")",
+        "ExtractionClusterSkipsNonExecutableNearestPoint(\"Disabled\")",
+        "ExtractionClusterSkipsNonExecutableNearestPoint(\"Completed\")",
+        "ObservedManualEnemyStillUsesLostSightTimeout(1)",
+        "ObservedManualEnemyStillUsesLostSightTimeout(4)",
+        "MovingUnobservedEnemyCannotRenewInitialApproachForever"
+      ]
     }
   ]
 }

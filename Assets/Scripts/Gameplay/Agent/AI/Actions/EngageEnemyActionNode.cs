@@ -5,6 +5,7 @@ using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Navigation;
+using Gameplay.Agent.Runtime;
 using Gameplay.Perception;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
@@ -25,6 +26,8 @@ namespace Gameplay.Agent.AI.Actions
         private float _approachRange, _approachRadius, _approachHeight, _approachBaseOffset;
         private Vector3 _approachScale;
         private int _approachAreaMask, _approachAgentType;
+        private bool _hasObservedTarget;
+        private double _initialApproachDeadline = -1d;
 
         /// <summary>
         /// 创建敌人接战行为节点
@@ -39,6 +42,8 @@ namespace Gameplay.Agent.AI.Actions
         {
             _lostSightSince = -1d;
             _approachTime = -1d;
+            _hasObservedTarget = false;
+            _initialApproachDeadline = -1d;
         }
 
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
@@ -48,7 +53,11 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!TryGetDirective(context, AgentDirectiveType.Engage, out AgentDirectiveRequest directiveRequest))
                 return FailMissingDirective(AgentDirectiveType.Engage);
-            if (_commandId != directiveRequest.CommandId) { _commandId = directiveRequest.CommandId; _lostSightSince = -1d; _approachTime = -1d; }
+            if (_commandId != directiveRequest.CommandId)
+            {
+                _commandId = directiveRequest.CommandId; _lostSightSince = -1d; _approachTime = -1d;
+                _hasObservedTarget = false; _initialApproachDeadline = -1d;
+            }
 
             if (!TryResolveEnemyTarget(
                     directiveRequest,
@@ -86,8 +95,10 @@ namespace Gameplay.Agent.AI.Actions
             {
                 bool observed = context.Blackboard.TryGetValue(AgentBlackboardKeys.HasVisibleEnemy, out bool visible) && visible;
                 bool obstructed = shooter != null && shooter.LastShotResult == TargetVisibilityResult.Occluded;
+                _hasObservedTarget |= observed;
+                bool initialManualApproach = AgentManualDirectiveLock.IsManualDirective(directiveRequest) && !_hasObservedTarget;
                 if (observed && !obstructed) _lostSightSince = -1d;
-                else if (_lostSightSince < 0d) _lostSightSince = context.TimeSeconds;
+                else if (!initialManualApproach && _lostSightSince < 0d) _lostSightSince = context.TimeSeconds;
                 float timeout = agent is Gameplay.Agent.Core.AgentPawnRoot pawn ? pawn.CombatLostSightTimeout : 2f;
                 if (_lostSightSince >= 0d && context.TimeSeconds - _lostSightSince >= timeout)
                 {
@@ -117,10 +128,27 @@ namespace Gameplay.Agent.AI.Actions
                     _approachRadius = nav.radius; _approachHeight = nav.height; _approachBaseOffset = nav.baseOffset;
                     _approachScale = agent.CachedTransform.lossyScale;
                 }
+                if (initialManualApproach)
+                {
+                    if (_initialApproachDeadline < 0d)
+                    {
+                        var initialPath = AgentNavigationQuery.Check(nav, _approachPosition, 0f);
+                        if (initialPath.Failed || initialPath.Path == null)
+                        { FailPendingDirective(context, AgentDirectiveFailure.Unreachable); return Succeed(); }
+                        var corners = initialPath.Path.corners;
+                        float length = 0;
+                        for (int i = 1; i < corners.Length; i++) length += Vector3.Distance(corners[i - 1], corners[i]);
+                        // 只按初次路径计算一次预算，动态目标不能通过不断重算无限续期。
+                        _initialApproachDeadline = context.TimeSeconds + 2d * length / Mathf.Max(0.1f, moveSpeed) + timeout;
+                    }
+                    if (context.TimeSeconds >= _initialApproachDeadline)
+                    { FailPendingDirective(context, AgentDirectiveFailure.LostSight); return Succeed(); }
+                }
                 MoveAgentTowards(agent, _approachPosition, 0.1f, moveSpeed, context.DeltaTime);
                 return Running();
             }
             _lostSightSince = -1d;
+            _hasObservedTarget = true;
             StopAgentMovement(agent);
             AgentCombatController combat = agent.CachedTransform.GetComponent<AgentCombatController>();
 
