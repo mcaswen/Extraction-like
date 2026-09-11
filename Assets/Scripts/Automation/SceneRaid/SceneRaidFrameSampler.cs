@@ -39,6 +39,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private int _discoveredCounters;
         private int _lastRenderFrame = -1;
         public int RenderedFrames { get; private set; }
+        public int RenderContexts { get; private set; }
         public int CameraWidth { get; private set; }
         public int CameraHeight { get; private set; }
         public int Count => _frames.Count;
@@ -47,10 +48,11 @@ namespace AnomalySearch.Automation.SceneRaid
         public SceneRaidFrameSampler()
         {
             for (int i = 0; i < CounterNames.Length; i++) _descriptions[i] = CounterNames[i] + ": unavailable";
-            RenderPipelineManager.endFrameRendering += Rendered;
+            RenderPipelineManager.endContextRendering += Rendered;
         }
-        private void Rendered(ScriptableRenderContext context, Camera[] cameras)
+        private void Rendered(ScriptableRenderContext context, List<Camera> cameras)
         {
+            RenderContexts++;
             foreach (var camera in cameras)
                 if (camera != null && camera.cameraType == CameraType.Game && camera.targetTexture == null)
                 {
@@ -117,7 +119,7 @@ namespace AnomalySearch.Automation.SceneRaid
         }
         public void Dispose()
         {
-            RenderPipelineManager.endFrameRendering -= Rendered;
+            RenderPipelineManager.endContextRendering -= Rendered;
             for (int i = 0; i < _recorders.Length; i++) if (_recorders[i].Valid) _recorders[i].Dispose();
         }
     }

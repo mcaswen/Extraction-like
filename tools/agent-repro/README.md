@@ -98,6 +98,16 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 
 产物为 `Logs/SceneRaid/<runId>/Player/SceneRaid.exe`，构建结果在 `build-result.json`。当前 Mono / Development，4K / High Fidelity，仅此次构建定义 `ANOMALY_SCENE_AUTOMATION`，不启用自动连接 Profiler、Deep Profile 或脚本调试。请求与实际 BuildOptions 按整数位掩码验证，构建仍保留 Editor。SC07 只代表构建，不代表 Player 已完成搜打撤；当前阶段结果见 [P5a](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p5_player_verification.md)。
 
+成功构建后以同一源码运行一次正常速度 Player：
+
+```powershell
+./tools/agent-repro/Invoke-SceneRaidPlayer.ps1 -BuildRunPath Logs/SceneRaid/<buildRunId> -ShowWindow
+```
+
+结果在该构建目录的 `PlayerRun/`，自动背包和玩法契约复用 Editor 链路。一个构建产品名只运行一次，重新验证先生成新构建 runId，以保持存档隔离。正常结果写完后只退出验证 Player，Editor 保留；退出、实际渲染、平台/画质、源码和产物一致性、搜打撤、平均 FPS >60 全部满足时 `runAcceptance=PASS`。任何失败返回 1，原始日志和失败证据保留。
+
+`-ShowWindow` 显式显示验证窗口，用户已允许当前任务使用；默认隐藏在本机没有启动渲染管线，不能用其 Update 频率冒充 FPS。新环境可先用一个独立构建执行 `-ShowWindow -ObserveOnly -ObserveSeconds 15`，结果只标为 `OBSERVATION_COMPLETE`，不代表完成搜打撤。10 秒零渲染会明确失败；`render-startup.json`、`render-final.json` 保存管线/相机证据，实际渲染 30 帧后保存 `render-check.png`。之后完整回合需要新的 SC07 构建 runId。
+
 ```powershell
 ./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
 ./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene

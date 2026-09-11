@@ -15,6 +15,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public bool profile, binaryProfile;
         public bool enabled = true, keepEditorOpen = true;
         public bool buildPlayer;
+        public bool quitPlayerWhenComplete;
 
         public static string ExplicitPath()
         {
@@ -49,7 +50,10 @@ namespace AnomalySearch.Automation.SceneRaid
     {
         public int schemaVersion = 1;
         public string runId, mode, status, reason, scenePath, unityVersion, graphicsDevice, quality, persistentDataPath;
+        public string runtime, graphicsApi;
         public bool batchMode, profilerEnabled, performanceAcceptance;
+        public bool developmentBuild;
+        public int vSyncCount, targetFrameRate;
         public int screenWidth, screenHeight, cameraWidth, cameraHeight, frames, renderedFrames, events, lostEvents, errors, warnings;
         public double elapsedWallSeconds, elapsedGameSeconds, instrumentationMilliseconds;
         public int inventorySessions;

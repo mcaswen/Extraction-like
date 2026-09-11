@@ -1,6 +1,43 @@
 # P5a：独立 Player 构建和验证准备
 
-## 目标和边界
+## P5b：2026-09-12 实跑规划
+
+P3h 规则已确认，修复及 21 项相关构造通过。接续完成 Player 运行，不再等待旧确认项。
+
+- **Create `tools/agent-repro/Invoke-SceneRaidPlayer.ps1`**：接收明确的成功构建目录，复用 Workspace 的源清单和 Report 的证据/玩法核对。构建输入与当前源码必须一致，一个构建产品名只运行一个 `PlayerRun`，防止历史仓库串局；使用独占锁、实际退出码、原始 Player.log、进程超时、源码和可执行文件哈希。不承担游戏目标或库存策略。
+- **Extend `Assets/Scripts/Automation/SceneRaid/SceneRaidScenarioConfig.cs`**：增加显式 `quitPlayerWhenComplete` 和运行平台、开发构建、图形 API、帧限制结果字段；旧 Editor 默认行为保持。
+- **Extend `SceneRaidBootstrap.cs`**：仅验证 Player 在初始化前应用已有 High Fidelity、4K 全屏窗口配置。已查本机实际桌面为 3840×2160，最终仍核对 Screen 和实际相机像素。
+- **Extend `SceneRaidRunController.cs`**：写完原子结果、释放观察器后，仅显式配置的 Player 自动退出。常驻 Editor 仍由原 EditorEntry 收尾和保留，不增加游戏中的退出逻辑。
+- **Extend `SceneRaid.Report.psm1`、`Test-SceneRaidReport.ps1`**：显式 PlayerRun 要求结果为 Player / Development、实际 High Fidelity、无 Profiler、无垂直同步或帧率上限；帧/计数器/背包/仓库规则复用。缺少平台证据不能冒充独立 Player。
+- **Extend `README.md`**：补构建→一次 Player 运行的命令和独立结论；运行完成自动退出的是本轮验证 Player，Editor 保留。
+
+控制流：SC07 成功构建 → 验证源和产物 → 生成 Autonomous / 1× 的 Player config → 实际图形 Player 自动背包 → 结果后正常退出 → 原证据、完成契约和平均 FPS >60 核对。每次都保留失败，不以退出码 0 代替玩法成功。
+
+验收：报告边界构造、至少一轮正常速度 Player 完整搜打撤和平均 FPS >60。最终有限矩阵为最终玩法代码下 731 的三轮、1731/2731 各一轮 4×，再加一轮 1× Editor 和一轮 1× Player；同一常驻 Editor 复用同时覆盖重载。早期失败/已修复证据保留，不混作最终通过次数。
+
+### 首次 Player 实跑发现，调整诊断
+
+`20260912-002215-329/PlayerRun` 两人实际完成撤离，226.01 秒、11 次背包会话、0 程序错误，进程正常退出、源码及 exe/程序集哈希未变。但是渲染计数和相机像素为 0，循环超过 10 万帧导致采样溢出，最终 **HARNESS_FAILED**。因此数百次/秒的 Update 不能当作实际 FPS。现阶段尚不能区分隐藏窗口未渲染、管线未启动或观察事件问题，不修改画质来猜测修复。
+
+离线汇总处理 210 万条计数器超过四分钟还未完成，已记录 postprocess-error.json 后仅停止该已结束 Player 的汇总进程。后续对零渲染等已确定无效环境先明确失败，保留原始数据，不继续昂贵计数器聚合。
+
+具体调整：**Create `Assets/Scripts/Automation/SceneRaid/SceneRaidRenderEvidence.cs` + meta**，只读保存运行管线、相机启用/显示/RT、像素、焦点和渲染节流状态；**Extend `SceneRaidFrameSampler.cs`** 使用 URP 14 调用的 endContextRendering 事件、记录上下文次数；**Extend `SceneRaidRunController.cs`** 启动后 10 秒仍零渲染便保存诊断并明确失败；**Extend Player 入口** 支持 ObserveOnly 的短图形用例，先验证真正渲染后再花时间跑完整局。Source/Gameplay 不增加测试职责。暂不扩大帧缓冲，先解决零渲染的根因。
+
+`20260912-003400-232/PlayerRun` 短用例在 10 秒明确失败：Main Camera 启用、4K、目标显示器 0、无 RT，URP-HighFidelity 资产存在，renderFrameInterval=1，但运行管线实例始终 null、上下文回调 0。切到 endContextRendering 后仍相同，说明不是旧回调单独漏报。隐藏启动是目前需对照验证的环境因素。新增显式 `-ShowWindow` 开关供可见窗口验证，默认仍隐藏；进程启动工具规定显示交互窗口需要用户明确指示，已准备具体开关后请求一次确认，不让用户自己操作游戏。正常场景 Editor 的后续矩阵可独立继续。
+
+用户随后明确回复“允许显示测试窗口（推荐）”，可见 Player 对照已获授权，后续无需重复询问。先完成正在运行的 Editor 矩阵，再运行短可见对照，避免同时占用图形资源。屏幕截图只用于确认真实画面，帧率仍由连续原始采样和实际相机回调核对。
+
+### 可见对照和矩阵首次结果
+
+`20260912-004403-442/PlayerRun` 显式显示窗口，15 秒 Observe 通过，2912 个采样帧、2911 个实际渲染帧，管线实例为 UniversalRenderPipeline，4K / High Fidelity / DX11，截图确认场景、角色、HUD 和小地图正常绘制。与隐藏短用例相比，仅启动窗口方式改变后恢复渲染，定位到本机隐藏启动的环境问题。短观察均值 206.41 FPS 只用于检查，不当完整性能验收。
+
+`20260912-004617-938/PlayerRun` 首次完整可见 Player **PASS**：244.15 秒，58555 帧、58554 实际渲染，平均 **241.40 FPS**；两人撤离、完整仓库契约通过，0 程序错误、0 指令失败、0 停滞，真实进程正常退出、源码和产物未变。无 Profiler、无帧限制，4K / High Fidelity，Development 构建。该结果属于 P3i 场景引用修复前配置；新场景仍需重新完成矩阵，不直接沿用为最终验收。
+
+最终玩法下 731 三轮（`001748-171`、`003650-034`、`003834-557`）、1731（`004010-235`）完整通过。2731（`004159-072`）70.79 秒失败：Agent 2 撤离，Agent 1 血量为 0，0 程序错误、0 指令失败、0 停滞；停止矩阵，不以新种子或重复到通过替换原失败。
+
+2731 的撤离指令在游戏时间 151.69 秒建立，155.39–161.90、164.18–170.26 秒分别中断反击，敌人真实掉血并完成，两次均 Resumed 同一原指令；201.48 秒第三次受击中断，205.14 秒死亡。后段伤害日志为鱼骨横扫 14、撕咬 4、水柱 23，最后剩余 6 血被横扫扣完，未出现交替重置追击。此证据证明新规则实际触发，不足以直接把死亡归为某个代码缺陷。下一步保留原失败，额外用相同 2731 做 1× 诊断，检查加速和正常速度差异；未经确认不改生命/伤害、反击规则或策略阈值。
+
+## 目标和边界（P5a 历史规划）
 
 承接已确认大规划第 4.2、8.1 和 P5：用同一 Scenezl_Final 1 场景及 Runtime Automation 复核独立 Player。先完成可重复构建入口，再运行 Player；当前反击策略尚待确认，构建成功不代表行为验收通过。
 

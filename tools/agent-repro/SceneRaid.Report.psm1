@@ -59,8 +59,9 @@ function Get-SceneRaidFrameStatistics {
 
 function Test-SceneRaidEvidence {
     param([string]$OutputPath, [object]$Config, [Nullable[int]]$ExitCode, [bool]$SourceUnchanged,
-        [switch]$EditorRetained, [int]$EditorProcessId)
+        [switch]$EditorRetained, [int]$EditorProcessId, [switch]$PlayerRun)
     $issues = [Collections.Generic.List[string]]::new()
+    if ($PlayerRun -and $EditorRetained) { $issues.Add('player_cannot_be_retained_editor') }
     if ($EditorRetained) {
         try {
             $ready = Get-Content -LiteralPath (Join-Path $OutputPath 'editor-ready.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
@@ -103,6 +104,10 @@ function Test-SceneRaidEvidence {
             $result = Get-Content -LiteralPath (Join-Path $OutputPath 'result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
             if ($result.schemaVersion -ne 1 -or $result.runId -ne $Config.runId -or $result.mode -ne $Config.mode -or
                 $result.scenePath -ne $Config.scenePath) { $issues.Add('result_mismatch') }
+            if ($PlayerRun -and ($result.runtime -ne 'Player' -or !$result.developmentBuild -or
+                $result.quality -ne 'High Fidelity' -or $result.profilerEnabled -or $result.vSyncCount -ne 0 -or
+                $result.targetFrameRate -ne -1 -or [string]::IsNullOrWhiteSpace($result.graphicsApi) -or
+                $result.graphicsApi -eq 'Null')) { $issues.Add('player_environment_mismatch') }
             $allowedStatus = if ($Config.mode -eq 'Observe') { @('OBSERVED') } else { @('BEHAVIOR_BLOCKED','RAID_OBSERVED_COMPLETE') }
             if ($result.status -notin $allowedStatus) { $issues.Add('run_status_invalid') }
             if ($result.frames -lt 4 -or $result.renderedFrames -lt $result.frames - 2 -or $result.renderedFrames -gt $result.frames -or $result.batchMode) { $issues.Add('no_graphical_frames') }
@@ -117,6 +122,9 @@ function Test-SceneRaidEvidence {
             for ($i = 0; $i -lt $events.Count; $i++) { if ($events[$i].sequence -ne $i + 1) { $issues.Add('event_sequence_gap'); break } }
             $behaviorFailures = @($events | Where-Object { $_.kind -eq 'directive.Failed' -or $_.kind -eq 'directive.Rejected' }).Count
             $stagnations = @($events | Where-Object kind -eq 'contract.movementStagnationSuspected').Count
+            if ($issues.Contains('no_graphical_frames')) {
+                throw 'Rendering evidence is invalid; raw counters are retained but timing aggregation is not applicable.'
+            }
             $frames = @(Import-Csv -LiteralPath (Join-Path $OutputPath 'frames.csv') -ErrorAction Stop)
             if ($frames.Count -ne $result.frames) { $issues.Add('frame_stream_incomplete') }
             $timing = Get-SceneRaidFrameStatistics $frames
@@ -154,7 +162,7 @@ function Test-SceneRaidEvidence {
     }
     return [pscustomobject]@{
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
-        editorLifecycle=$(if ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
+        editorLifecycle=$(if ($PlayerRun) {'PLAYER_EXITED'} elseif ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
         gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or $behaviorFailures -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') {'PASS'} else {'NOT_FULL_RAID_VALIDATED'})
         completionContracts=$completion

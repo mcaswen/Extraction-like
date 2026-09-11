@@ -14,6 +14,7 @@ function Write-Fixture([string]$Name) {
     New-Item -ItemType Directory -Path $path -Force | Out-Null
     @{runId='probe';scene='scene.unity';status='AUDITED'} | ConvertTo-Json | Set-Content "$path/scene-audit.json" -Encoding UTF8
     @{schemaVersion=1;runId='probe';mode='Observe';scenePath='scene.unity';status='OBSERVED';frames=4;renderedFrames=4;batchMode=$false;
+        runtime='Editor';developmentBuild=$true;quality='High Fidelity';profilerEnabled=$false;vSyncCount=0;targetFrameRate=-1;graphicsApi='Direct3D11';
         screenWidth=3840;screenHeight=2160;cameraWidth=3840;cameraHeight=2160;lostEvents=0;elapsedWallSeconds=0.058;errors=0;warnings=0;
         events=2;observedAgents=@('1','2');counters=@($fixtureCounters | ForEach-Object { if($_ -eq 'GC Allocated In Frame') {'GC Allocated In Frame | Memory | Bytes'} else {$_+' | Scripts | TimeNanoseconds'} })} | ConvertTo-Json | Set-Content "$path/result.json" -Encoding UTF8
     @('{"sequence":1,"kind":"bootstrap.beforeSceneLoad"}','{"sequence":2,"kind":"run.completed"}') | Set-Content "$path/events.jsonl" -Encoding UTF8
@@ -129,6 +130,22 @@ if ($boundary.thresholdsMet -or $boundary.targetFps -ne 60 -or $boundary.accepta
 if (!(Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/60.01))).thresholdsMet) { throw 'Average above 60 FPS rejected.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries (1000.0/59.99))).thresholdsMet) { throw 'Average below 60 FPS accepted.' }; $passed++
 if ((Get-SceneRaidFrameStatistics @(New-FrameSeries 12.5) -TargetFps 120).thresholdsMet) { throw 'Explicit historical 120 FPS comparison ignored.' }; $passed++
+$path = Write-Fixture 'player'
+Edit-Result $path 'runtime' 'Player'
+$playerReport = Test-SceneRaidEvidence $path $config 0 $true -PlayerRun
+if ($playerReport.evidenceStatus -ne 'PASS' -or $playerReport.editorLifecycle -ne 'PLAYER_EXITED') { throw 'Valid Player result rejected.' }; $passed++
+foreach ($field in @('runtime','developmentBuild','quality','profilerEnabled','vSyncCount','targetFrameRate','graphicsApi')) {
+    $original = (Get-Content "$path/result.json" -Raw -Encoding UTF8 | ConvertFrom-Json).$field
+    $bad = switch ($field) { 'runtime' {'Editor'} 'developmentBuild' {$false} 'quality' {'Low'} 'profilerEnabled' {$true} 'vSyncCount' {1} 'targetFrameRate' {60} 'graphicsApi' {'Null'} }
+    Edit-Result $path $field $bad
+    if ((Test-SceneRaidEvidence $path $config 0 $true -PlayerRun).issues -notcontains 'player_environment_mismatch') { throw "Player environment mismatch hidden: $field" }; $passed++
+    Edit-Result $path $field $original
+}
+if ((Test-SceneRaidEvidence $path $config $null $true -PlayerRun).evidenceStatus -ne 'FAIL') { throw 'Player without exit code accepted.' }; $passed++
+$missingPlatform = Get-Content "$path/result.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+$missingPlatform.PSObject.Properties.Remove('runtime')
+$missingPlatform | ConvertTo-Json | Set-Content "$path/result.json" -Encoding UTF8
+if ((Test-SceneRaidEvidence $path $config 0 $true -PlayerRun).evidenceStatus -ne 'FAIL') { throw 'Player without platform evidence accepted.' }; $passed++
 $buildConfig = [pscustomobject]@{runId='probe';mode='Audit';scenePath='scene.unity';buildPlayer=$true}
 $path = Write-Fixture 'build'
 New-Item -ItemType Directory -Path "$path/Player" | Out-Null

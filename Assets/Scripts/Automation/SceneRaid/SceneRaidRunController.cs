@@ -20,6 +20,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private int _updates;
         private float _originalScale, _originalFixed;
         private bool _complete, _missionCompleted, _missionFailed;
+        private bool _screenshotRequested;
         public void Initialize(SceneRaidScenarioConfig config)
         {
             _config = config;
@@ -60,9 +61,15 @@ namespace AnomalySearch.Automation.SceneRaid
                 {
                     long queryStart = Stopwatch.GetTimestamp();
                     File.WriteAllText(Path.Combine(_config.outputPath, "runtime-world.json"), JsonUtility.ToJson(_model.CaptureWorld(), true));
+                    SceneRaidRenderEvidence.Save(_config.outputPath, "render-startup", _sampler);
                     _writer.Add("diagnostic.worldAudit", "durationMs=" + ((Stopwatch.GetTimestamp() - queryStart) * 1000.0 / Stopwatch.Frequency).ToString(System.Globalization.CultureInfo.InvariantCulture));
                 }
                 _sampler.DiscoverCounters();
+                if (!Application.isEditor && !_screenshotRequested && _sampler.RenderedFrames >= 30)
+                {
+                    _screenshotRequested = true;
+                    ScreenCapture.CaptureScreenshot(Path.Combine(_config.outputPath, "render-check.png"));
+                }
                 if (_writer.WallSeconds >= _nextSnapshot)
                 {
                     var snapshot = _model.Capture();
@@ -79,7 +86,9 @@ namespace AnomalySearch.Automation.SceneRaid
                         "{\"phase\":\"" + _config.mode + "\",\"frame\":" + Time.frameCount + "}");
                     _nextFlush = _writer.WallSeconds + 5;
                 }
-                if (_observer.ProbeFailure != null) Finish("HARNESS_FAILED", _observer.ProbeFailure);
+                if (_writer.WallSeconds >= 10 && _sampler.RenderedFrames == 0)
+                    Finish("HARNESS_FAILED", "No rendered game-camera frames after ten seconds; inspect render-final.json.");
+                else if (_observer.ProbeFailure != null) Finish("HARNESS_FAILED", _observer.ProbeFailure);
                 else if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
                 else if (_config.mode == "Autonomous" && _missionFailed)
                     Finish("BEHAVIOR_BLOCKED", "Mission failure observed; see final agent health and extraction state.");
@@ -107,11 +116,15 @@ namespace AnomalySearch.Automation.SceneRaid
             _writer.Add("run.completed", status + ": " + reason);
             _writer.Flush();
             _sampler.Save(_config.outputPath);
+            SceneRaidRenderEvidence.Save(_config.outputPath, "render-final", _sampler);
             var result = new SceneRaidRunResult
             {
                 runId = _config.runId, mode = _config.mode, status = status, reason = reason,
                 scenePath = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
                 unityVersion = Application.unityVersion, graphicsDevice = SystemInfo.graphicsDeviceName,
+                runtime = Application.isEditor ? "Editor" : "Player", graphicsApi = SystemInfo.graphicsDeviceType.ToString(),
+                developmentBuild = UnityEngine.Debug.isDebugBuild, vSyncCount = QualitySettings.vSyncCount,
+                targetFrameRate = Application.targetFrameRate,
                 quality = QualitySettings.names[QualitySettings.GetQualityLevel()], persistentDataPath = Application.persistentDataPath,
                 batchMode = Application.isBatchMode, profilerEnabled = UnityEngine.Profiling.Profiler.enabled,
                 performanceAcceptance = false, screenWidth = Screen.width, screenHeight = Screen.height,
@@ -128,6 +141,7 @@ namespace AnomalySearch.Automation.SceneRaid
             string path = Path.Combine(_config.outputPath, "result.json");
             File.WriteAllText(path + ".tmp", JsonUtility.ToJson(result, true));
             File.Move(path + ".tmp", path);
+            if (!Application.isEditor && _config.quitPlayerWhenComplete) Application.Quit(0);
         }
         private void OnDestroy()
         {
