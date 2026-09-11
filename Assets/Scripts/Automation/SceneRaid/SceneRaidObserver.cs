@@ -23,6 +23,7 @@ namespace AnomalySearch.Automation.SceneRaid
         { public string stage, reason, failureOrigin; public bool hasNavigation; public SceneRaidReadModel.AgentState agent; public SceneRaidNavigationEvidence.Record navigation; }
         public Func<AgentDirectiveRequest, SceneRaidReadModel.AgentState> CaptureDirective { get; set; }
         public Func<AgentDirectiveRequest, SceneRaidNavigationEvidence.Record> CaptureNavigation { get; set; }
+        public event Action<AgentDirectiveResult, long> DirectiveObserved;
         public string ProbeFailure { get; private set; }
         public readonly HashSet<string> ObservedAgents = new HashSet<string>();
         public int Errors { get; private set; }
@@ -70,6 +71,12 @@ namespace AnomalySearch.Automation.SceneRaid
                 agent = request.TargetAgentId.Value, commandId = request.CommandId, directive = request.DirectiveType.ToString(),
                 targetId = request.TargetId, target = target, stage = result.Stage.ToString(), reason = result.Reason.ToString()
             }));
+            try { DirectiveObserved?.Invoke(result, _writer.Count); }
+            catch (Exception exception)
+            {
+                ProbeFailure = exception.ToString();
+                _writer.Add("diagnostic.failed", ProbeFailure);
+            }
             if (CaptureDirective != null && (result.Stage == AgentDirectiveStage.Failed || result.Stage == AgentDirectiveStage.Rejected ||
                 (result.Stage == AgentDirectiveStage.Accepted && request.DirectiveType == AgentDirectiveType.Engage)))
             {

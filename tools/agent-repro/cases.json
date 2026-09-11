@@ -363,7 +363,18 @@
       "filter": "AgentReproduction.Tests.SceneRaidCommandHarnessTests",
       "expected": [
         "CatalogCaptureDoesNotChangeCommandsNavigationOrTargetState",
-        "CatalogSeparatesDistanceFromReachability"
+        "CatalogSeparatesDistanceFromReachability",
+        "ScenarioRoundTripPreservesNestedSelectorsAndReferences",
+        "InvalidCommandScenarioFailsBeforeExecution(\"Version\")",
+        "InvalidCommandScenarioFailsBeforeExecution(\"Duplicate\")",
+        "InvalidCommandScenarioFailsBeforeExecution(\"UnknownKind\")",
+        "InvalidCommandScenarioFailsBeforeExecution(\"ForwardReference\")",
+        "InvalidCommandScenarioFailsBeforeExecution(\"Deadline\")",
+        "InvalidCommandScenarioFailsBeforeExecution(\"Reason\")",
+        "EvidenceSeparatesSameFrameEarlyRejections",
+        "EvidenceTracksSupersededAndAsyncCompletedCommands",
+        "CarriedProbeReadsLiveAndStoredInventoryWithoutMutation",
+        "ObserverFailureDoesNotEscapeIntoFormalCommand"
       ]
     },
     {
