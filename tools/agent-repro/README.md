@@ -156,6 +156,6 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 
 `command-attempts.jsonl` 保存调用前后角色状态、候选目录和同步反馈序号；`command.progress` 记录移动、活动/挂起命令和目标血量变化。`command-steps.json` 保存未触发的前提，不把 Accepted 或死亡后的缺步骤当已覆盖。`carried-inventory.jsonl` 独立记录每人的初始/变更/撤离前携带，可核对没有开过箱的直接撤离。
 
-报告分开原始 `behaviorFailures`、唯一对应脚本的 `expectedRejections`、`unexpectedBehaviorFailures` 和 `coverageStatus`。游戏终态通过仍可能覆盖 PARTIAL；实际触发缺口必须保留，不能补发命令凑齐。Autonomous 仍禁止任何手动指令，并保持原搜刮、交战、暂停和结算标准。常驻 Editor 在新请求上先刷新源码，再按当前程序集完整验证，支持新模式更新而无需重启。
+报告分开原始 `behaviorFailures`、唯一对应脚本的 `expectedRejections`、有独立证据的 `expectedExecutionFailures`、`unexpectedBehaviorFailures` 和 `coverageStatus`。目前仅将已接受手动交战中“曾看见目标，持续丢失视线达到原有期限，同帧释放命令”的精确 Failed 序号计入预期终止；缺少证据或其他额外失败仍失败。61 项命令契约探针包含这些边界。游戏终态通过仍可能覆盖 PARTIAL；实际触发缺口必须保留，不能补发命令凑齐。Autonomous 仍禁止任何手动指令，并保持原搜刮、交战、暂停和结算标准。常驻 Editor 在新请求上先刷新源码，再按当前程序集完整验证，支持新模式更新而无需重启。
 
-实施记录见 [Cluster 验证规划](../../.planning/2026-09-12-cluster-command-validation/task_plan.md)。P2 已完成基础设施和真场景冒烟，完整 11 槽位与 1× 性能验收仍在后续阶段。
+实施记录见 [Cluster 验证规划](../../.planning/2026-09-12-cluster-command-validation/task_plan.md)，最终结果归档到 `outputs/cluster_command_validation_report.md`。最终验收执行固定 11 槽位，1× Editor / Player 的整局平均 FPS 必须大于 60；4× 用于逻辑验证，覆盖缺口与正常死亡单列。

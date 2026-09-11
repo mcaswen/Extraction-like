@@ -284,6 +284,7 @@ namespace AgentReproduction.Tests
                 .Where(x => x.commandId == current.commandId).ToArray();
             Assert.That(progress.Length, Is.GreaterThanOrEqualTo(2));
             Assert.That(progress[0].enemyHealth, Is.EqualTo(50));
+            Assert.That(progress[0].sightTimeout, Is.EqualTo(agent.CombatLostSightTimeout));
             Assert.That(progress.Last().enemyHealth, Is.EqualTo(0), "Death in the terminal callback must retain the final health sample.");
             Assert.That(progress.All(x => x.attemptId == current.attemptId && x.agent == "1"), Is.True);
             evidence.Dispose();

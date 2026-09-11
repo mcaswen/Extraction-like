@@ -53,14 +53,14 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
             public int health = -1;
             public float enemyHealth = -1;
             public string active;
-            public bool captured, ended;
+            public bool captured, ended, visible;
         }
         [Serializable] public sealed class Progress
         {
             public string attemptId, commandId, agent, activeCommand, suspendedCommand, state, resource;
             public Vector3 position;
             public int health;
-            public float enemyHealth;
+            public float enemyHealth, sightTimeout;
             public bool actorGone, targetGone, visible;
         }
         private bool _inCall, _disposed;
@@ -160,9 +160,10 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
                 // 纯托管生命字段在 Unity 销毁原生对象后仍可读取，避免漏掉同帧死亡的最后一次掉血。
                 float enemyHealth = ReferenceEquals(probe.enemy, null) ? -1 : probe.enemy.GetCurrentHealthRatio() * probe.enemy.MaxHealth;
                 string stage = Latest(probe.attempt.commandId)?.stage;
+                bool visible = !gone && active == probe.request.CommandId && pawn.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.HasVisibleEnemy);
                 bool ended = gone || stage == "Completed" || stage == "Cancelled" || stage == "Failed";
                 if (!probe.captured || ended || (position - probe.position).sqrMagnitude >= 1 || probe.health != health ||
-                    probe.enemyHealth != enemyHealth || probe.active != active)
+                    probe.enemyHealth != enemyHealth || probe.active != active || probe.visible != visible)
                 {
                     var resource = _observer.LatestResource(probe.attempt.resolvedAgent);
                     _writer.Add("command.progress", JsonUtility.ToJson(new Progress { attemptId = probe.attempt.attemptId,
@@ -171,8 +172,8 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
                         activeCommand = active, suspendedCommand = gone ? "" : pawn.DirectiveLifecycle.SuspendedExtraction?.CommandId,
                         state = gone ? "Gone" : pawn.CurrentMacroStateId.ToString(),
                         resource = resource.HasValue && resource.Value.CommandId == probe.request.CommandId ? _identity.Get(resource.Value.Resource) : "",
-                        visible = !gone && active == probe.request.CommandId && pawn.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.HasVisibleEnemy) }));
-                    probe.position = position; probe.health = health; probe.enemyHealth = enemyHealth; probe.active = active; probe.captured = true;
+                        visible = visible, sightTimeout = gone ? -1 : pawn.CombatLostSightTimeout }));
+                    probe.position = position; probe.health = health; probe.enemyHealth = enemyHealth; probe.active = active; probe.visible = visible; probe.captured = true;
                 }
                 probe.ended = ended;
             }

@@ -51,11 +51,28 @@ function Test-CommandGate($Spec, $Attempt, $ByStep, $Directives, $Events, [strin
     return $false
 }
 
+function Test-ObservedLostSightTermination($Attempt, $Terminal, $Samples) {
+    if ($Attempt.directive -ne 'Engage' -or $Terminal.data.stage -ne 'Failed' -or $Terminal.data.reason -ne 'LostSight') { return $false }
+    $active=@($Samples|Where-Object { $_.data.activeCommand -ceq $Attempt.commandId -and $_.source.sequence -lt $Terminal.source.sequence })
+    $seen=@($active|Where-Object { $_.data.visible })
+    if (!$seen.Count) { return $false }
+    $lost=@($active|Where-Object { $_.source.sequence -gt $seen[-1].source.sequence -and !$_.data.visible })
+    if (!$lost.Count) { return $false }
+    $timeout=[double]$lost[0].data.sightTimeout
+    if ($timeout -le 0 -or [double]::IsNaN($timeout) -or [double]::IsInfinity($timeout) -or
+        [double]$Terminal.source.gameSeconds-[double]$lost[0].source.gameSeconds -lt $timeout-0.001) { return $false }
+    if (@($active|Where-Object { $_.data.sightTimeout -ne $timeout }).Count) { return $false }
+    $released=@($Samples|Where-Object { $_.source.sequence -gt $Terminal.source.sequence -and
+        $_.source.frame -eq $Terminal.source.frame -and $_.data.activeCommand -cne $Attempt.commandId })
+    return $released.Count -gt 0
+}
+
 function Test-SceneRaidClusterCommandTrace {
     param($Scenario, [object[]]$Attempts, $StepResults, [object[]]$Events, $RunResult)
     $failures = [Collections.Generic.List[string]]::new()
     $coverage = [ordered]@{}
     $expectedRejects = [Collections.Generic.HashSet[long]]::new()
+    $expectedEnds = [Collections.Generic.HashSet[long]]::new()
     $rawFailures = @($Events | Where-Object { $_.kind -in @('directive.Rejected','directive.Failed') })
     try {
         Test-SceneRaidCommandScenario $Scenario
@@ -165,6 +182,8 @@ function Test-SceneRaidClusterCommandTrace {
             $dead=$last -and @($last.agents|Where-Object { $_.id -ceq $actor -and $_.health -eq 0 }).Count -eq 1
             $extracted=$last -and $last.settledAgents -contains $actor
             $end=if($terminal.Count){$terminal[-1].data.stage}elseif($directive -eq 'Extract' -and $extracted){'Extracted'}elseif($dead){'Died'}else{''}
+            $expectedLostSight=$end -eq 'Failed' -and (Test-ObservedLostSightTermination $attempt $terminal[-1] $samples)
+            if ($expectedLostSight) { [void]$expectedEnds.Add([long]$terminal[-1].source.sequence) }
             if (!$end) { $failures.Add("missing_command_terminal:$($spec.id)") }
             if ($end -eq 'Cancelled') {
                 $replacement=@($directives|Where-Object { $_.data.stage -eq 'Accepted' -and $_.data.agent -ceq $actor -and
@@ -181,7 +200,7 @@ function Test-SceneRaidClusterCommandTrace {
             }
             if ($end -notin @('Cancelled','Died') -and !$moved -and !$damaged) { $failures.Add("accepted_without_action:$($spec.id)") }
             $coverage[$spec.id]=[pscustomobject]@{status=$(if($dead -and !$moved -and !$damaged){'MISSING'}else{'OBSERVED'});
-                reason=$(if($dead){'NormalDeath'}else{''});movement=$moved;damage=$damaged;terminal=$end;agent=$actor;kind=$kind;distance=$spec.target.distance}
+                reason=$(if($expectedLostSight){'ObservedLostSightTimeout'}elseif($dead){'NormalDeath'}else{''});movement=$moved;damage=$damaged;terminal=$end;agent=$actor;kind=$kind;distance=$spec.target.distance}
         }
         if ($byStep.Count -ne @($StepResults.steps|Where-Object status -EQ 'SUBMITTED').Count) { throw 'unexpected_attempt' }
         foreach ($entry in $directives) {
@@ -198,11 +217,11 @@ function Test-SceneRaidClusterCommandTrace {
             if ($data.commandId -and $byCommand.ContainsKey($data.commandId) -and $data.attemptId -cne $byCommand[$data.commandId].attemptId) { $failures.Add('wrong_async_attempt') }
         }
     } catch { $failures.Add('invalid_command_evidence:'+$_.Exception.Message) }
-    $unexpected=@($rawFailures|Where-Object{!$expectedRejects.Contains([long]$_.sequence)}).Count
+    $unexpected=@($rawFailures|Where-Object{!$expectedRejects.Contains([long]$_.sequence) -and !$expectedEnds.Contains([long]$_.sequence)}).Count
     if ($unexpected -gt 0) { $failures.Add("unexpected_directive_failures:$unexpected") }
     return [pscustomobject]@{status=$(if($failures.Count){'FAIL'}else{'PASS'});failures=$failures.ToArray();coverage=$coverage;
         coverageStatus=$(if(@($coverage.Values|Where-Object status -EQ 'MISSING').Count){'PARTIAL'}else{'COMPLETE'});
-        behaviorFailures=$rawFailures.Count;expectedRejections=$expectedRejects.Count;unexpectedBehaviorFailures=$unexpected}
+        behaviorFailures=$rawFailures.Count;expectedRejections=$expectedRejects.Count;expectedExecutionFailures=$expectedEnds.Count;expectedTerminalSequences=@($expectedEnds);unexpectedBehaviorFailures=$unexpected}
 }
 
 function Test-SceneRaidClusterCompletion {
@@ -248,6 +267,7 @@ function Test-SceneRaidClusterCompletion {
         outcome=$(if(!$failures.Count -and $settlement){$settlement.outcome}else{'UNVERIFIED'});
         coverage=$(if($trace){$trace.coverage}else{@{}});coverageStatus=$(if($trace){$trace.coverageStatus}else{'MISSING'});
         expectedRejections=$(if($trace){$trace.expectedRejections}else{0});
+        expectedExecutionFailures=$(if($trace){$trace.expectedExecutionFailures}else{0});
         unexpectedBehaviorFailures=$(if($trace){$trace.unexpectedBehaviorFailures}else{0});trace=$trace;settlement=$settlement}
 }
 Export-ModuleMember -Function Test-SceneRaidClusterCommandTrace,Test-SceneRaidClusterCompletion

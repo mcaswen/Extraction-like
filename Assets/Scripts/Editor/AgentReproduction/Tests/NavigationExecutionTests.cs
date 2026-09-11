@@ -19,6 +19,30 @@ namespace AgentReproduction.Tests
     {
         public static float[] Distances={0f,0.05f,0.2f};
         public static bool[] Slopes={false,true};
+        [Test]
+        public void AssignmentFailureHasFixedDeadlineAndPauseDoesNotConsumeIt()
+        {
+            var budget = new AgentPathAssignmentBudget(2);
+            Assert.That(budget.Observe(false, 10), Is.EqualTo(AgentNavigationStatus.NotReady));
+            for (int i = 0; i < 100; i++) Assert.That(budget.Observe(false, 10), Is.EqualTo(AgentNavigationStatus.NotReady));
+            Assert.That(budget.Observe(false, 11.99), Is.EqualTo(AgentNavigationStatus.NotReady));
+            Assert.That(budget.Observe(false, 12), Is.EqualTo(AgentNavigationStatus.Unreachable));
+            Assert.That(budget.Observe(false, 13), Is.EqualTo(AgentNavigationStatus.Unreachable));
+            ContractCompleted = true;
+        }
+        [Test]
+        public void SuccessfulAssignmentAndNewTaskResetFailureBudget()
+        {
+            var budget = new AgentPathAssignmentBudget(2);
+            Assert.That(budget.Observe(false, 10), Is.EqualTo(AgentNavigationStatus.NotReady));
+            Assert.That(budget.Observe(true, 11), Is.EqualTo(AgentNavigationStatus.Moving));
+            Assert.That(budget.Observe(false, 13), Is.EqualTo(AgentNavigationStatus.NotReady));
+            Assert.That(budget.Observe(false, 15), Is.EqualTo(AgentNavigationStatus.Unreachable));
+            budget.Reset();
+            Assert.That(budget.Observe(false, 20), Is.EqualTo(AgentNavigationStatus.NotReady));
+            Assert.That(budget.Observe(true, 20.1), Is.EqualTo(AgentNavigationStatus.Moving));
+            ContractCompleted = true;
+        }
         [UnityTest]
         public IEnumerator DisconnectedMovementRecordsOriginalFailureBranch()
         {

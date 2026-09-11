@@ -101,7 +101,7 @@ try {
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'process.json') -Encoding UTF8
     $report = Test-SceneRaidEvidence $output ([pscustomobject]$config) $code $unchanged -EditorRetained:$retained -EditorProcessId $process.Id
     $report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $output 'report.json') -Encoding UTF8
-    $report | Select-Object runId,evidenceStatus,gameStatus,gameErrors,behaviorFailures,stagnationSuspicions,issues |
+    $report | Select-Object runId,evidenceStatus,gameStatus,gameErrors,behaviorFailures,expectedRejections,expectedExecutionFailures,unexpectedBehaviorFailures,coverageStatus,stagnationSuspicions,issues |
         ConvertTo-Json -Depth 4 | Write-Output
     Write-Output "Full evidence: $output"
     if ($report.evidenceStatus -ne 'PASS') { throw "SceneRaid evidence failed. See $output" }

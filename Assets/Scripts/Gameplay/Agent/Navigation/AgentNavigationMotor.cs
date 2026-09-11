@@ -9,6 +9,7 @@ namespace Gameplay.Agent.Navigation
         private readonly NavMeshAgent _agent;
         private readonly float _readyTimeout;
         private readonly float _progressTimeout;
+        private readonly AgentPathAssignmentBudget _pathAssignment;
         private string _commandId;
         private float _notReadySince = -1f;
         private float _progressTime;
@@ -22,7 +23,7 @@ namespace Gameplay.Agent.Navigation
         private int _areaMask;
         public long PathCalculationCount => _queryBuffer.CalculationCount;
         public AgentNavigationMotor(NavMeshAgent agent, float readyTimeout, float progressTimeout)
-        { _agent = agent; _readyTimeout = readyTimeout; _progressTimeout = progressTimeout; }
+        { _agent = agent; _readyTimeout = readyTimeout; _progressTimeout = progressTimeout; _pathAssignment = new AgentPathAssignmentBudget(readyTimeout); }
 
         public void Reset(string commandId)
         {
@@ -73,14 +74,20 @@ namespace Gameplay.Agent.Navigation
             _agent.isStopped = false;
             if (query)
             {
-                if (!_agent.SetPath(result.Path))
-                { LogExecutionFailure("SetPathRejected", target); _hasQuery = false; return new AgentNavigationResult(AgentNavigationStatus.Unreachable); }
+                AgentNavigationStatus assignment = _pathAssignment.Observe(_agent.SetPath(result.Path), Time.timeAsDouble);
+                if (assignment != AgentNavigationStatus.Moving)
+                {
+                    LogExecutionFailure(assignment == AgentNavigationStatus.Unreachable ? "SetPathDeadline" : "SetPathRetry", target);
+                    _hasQuery = false;
+                    return new AgentNavigationResult(assignment);
+                }
             }
             return result;
         }
 
         public void Stop()
         {
+            _pathAssignment.Reset();
             if (!AgentNavigationQuery.IsReady(_agent)) return;
             _agent.isStopped = true; _agent.ResetPath(); _agent.velocity = Vector3.zero;
             _progressPosition = _agent.nextPosition; _progressTime = Time.time;
@@ -91,7 +98,7 @@ namespace Gameplay.Agent.Navigation
         {
             Debug.LogWarning("[AgentNavigation] stage=" + stage + "; command=" + _commandId + "; actor=" + _agent.name +
                 "; position=" + _agent.nextPosition.ToString("R") + "; target=" + target.ToString("R") +
-                "; frame=" + Time.frameCount, _agent);
+                "; offMeshLink=" + _agent.isOnOffMeshLink + "; frame=" + Time.frameCount, _agent);
         }
     }
 }

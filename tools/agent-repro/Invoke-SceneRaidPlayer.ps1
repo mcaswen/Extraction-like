@@ -87,7 +87,7 @@ try {
         ($ObserveOnly -or ($report.gameStatus -in @('PASS','EXPECTED_DEATH') -and $report.diagnosticTiming.thresholdsMet))
     $report | Add-Member -NotePropertyName runAcceptance -NotePropertyValue $(if (!$passed) {'FAIL'} elseif ($ObserveOnly) {'OBSERVATION_COMPLETE'} else {'PASS'})
     $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $output 'report.json') -Encoding UTF8
-    $report | Select-Object runId,runAcceptance,evidenceStatus,gameStatus,gameErrors,behaviorFailures,stagnationSuspicions,issues,
+    $report | Select-Object runId,runAcceptance,evidenceStatus,gameStatus,gameErrors,behaviorFailures,expectedRejections,expectedExecutionFailures,unexpectedBehaviorFailures,coverageStatus,stagnationSuspicions,issues,
         @{n='averageFps';e={$_.diagnosticTiming.averageFps}} | ConvertTo-Json -Depth 4 | Write-Output
     if (!$passed) { throw "Player validation failed; inspect $output" }
 } catch {

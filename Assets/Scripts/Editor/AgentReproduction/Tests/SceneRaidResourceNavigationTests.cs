@@ -19,6 +19,7 @@ namespace AgentReproduction.Tests
     public sealed class SceneRaidResourceNavigationTests : ReproductionTestFixture
     {
         public static float[] Offsets = { 0f, 1f, 3f, 6f };
+        public static float[] LaboratoryStartX = { -430.34558f, -444f };
 
         [TearDown]
         public void StopActorsBeforeNavigationCleanup()
@@ -27,7 +28,7 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator RecordedLaboratoryApproachUsesExecutablePath()
+        public IEnumerator RecordedLaboratoryApproachUsesExecutablePath([ValueSource(nameof(LaboratoryStartX))] float startX)
         {
             var operation = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
                 new LoadSceneParameters(LoadSceneMode.Single));
@@ -41,7 +42,7 @@ namespace AgentReproduction.Tests
             foreach (var enemy in Object.FindObjectsOfType<EnemyHealthController>()) enemy.gameObject.SetActive(false);
             pawn.enabled = false;
             var nav = pawn.NavMeshAgent;
-            Vector3 start = new Vector3(-430.34558f, 3.00834f, 197.98416f);
+            Vector3 start = new Vector3(startX, 3.00834f, 197.98416f);
             Vector3 target = new Vector3(-370.77042f, 0.00834f, 197.92053f);
             Assert.That(nav.Warp(start - Vector3.up * nav.baseOffset * pawn.transform.lossyScale.y), Is.True);
             nav.nextPosition = start;
@@ -54,12 +55,55 @@ namespace AgentReproduction.Tests
                 var query = AgentNavigationQuery.Check(nav, target, 0);
                 var result = motor.Move("recorded-laboratory", target, 0, 12);
                 CaseArtifactWriter.Trace("laboratory-path", "position=" + pawn.Position + "; query=" + query.Status +
-                    "; move=" + result.Status + "; hasPath=" + nav.hasPath + "; path=" + nav.pathStatus);
+                    "; move=" + result.Status + "; hasPath=" + nav.hasPath + "; link=" + nav.isOnOffMeshLink + "; path=" + nav.pathStatus);
                 Assert.That(result.Failed, Is.False, "A recorded reachable target must not be rejected while following its path.");
                 if (result.Status == AgentNavigationStatus.Arrived) { arrived = true; break; }
                 yield return null;
             }
             Assert.That(arrived, Is.True, "The recorded laboratory path must actually reach its endpoint.");
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator RecordedLaboratoryResourceResolvesWhileMoving()
+        {
+            var operation = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+                new LoadSceneParameters(LoadSceneMode.Single));
+            while (!operation.isDone) yield return null;
+            yield return null;
+            yield return null;
+            yield return null;
+            var pawn = Object.FindObjectsOfType<AgentPawnRoot>().Single(x => x.AgentIdValue == "2");
+            foreach (var other in Object.FindObjectsOfType<AgentPawnRoot>())
+                if (other != pawn) other.gameObject.SetActive(false);
+            foreach (var enemy in Object.FindObjectsOfType<EnemyHealthController>()) enemy.gameObject.SetActive(false);
+            pawn.enabled = false;
+            var cluster = Object.FindObjectsOfType<ResourceClusterAuthoring>().Single(x => x.name == "ResourceCluster_B" && x.transform.parent.name == "Zone-实验室");
+            var member = cluster.ResourceMembers.Single(x => x.EntityObject.transform.GetSiblingIndex() == 2);
+            foreach (var other in cluster.ResourceMembers)
+                if (other != member) cluster.MarkResourceCompleted(other.EntityObject);
+            var nav = pawn.NavMeshAgent;
+            Vector3 start = new Vector3(-444f, 3.00834f, 197.98416f);
+            Assert.That(nav.Warp(start - Vector3.up * nav.baseOffset * pawn.transform.lossyScale.y), Is.True);
+            nav.nextPosition = start;
+            Time.timeScale = 4;
+            var motor = new AgentNavigationMotor(nav, 2, 3);
+            double deadline = Time.timeAsDouble + 30;
+            bool arrived = false;
+            int retries = 0;
+            while (Time.timeAsDouble < deadline)
+            {
+                Assert.That(cluster.TryGetNearestReachableIncompleteResource(pawn.Position, nav, out var resource, out var target), Is.True);
+                Assert.That(resource, Is.EqualTo(member.EntityObject));
+                var result = motor.Move("laboratory-resource", target, 0, 12);
+                if (result.Status == AgentNavigationStatus.NotReady) retries++;
+                CaseArtifactWriter.Trace("laboratory-resource", "position=" + pawn.Position + "; target=" + target + "; move=" + result.Status);
+                Assert.That(result.Failed, Is.False);
+                if (result.Status == AgentNavigationStatus.Arrived) { arrived = true; break; }
+                yield return null;
+            }
+            Assert.That(arrived, Is.True);
+            CaseArtifactWriter.Trace("assignment-recovery", "retries=" + retries + "; arrived=" + arrived);
             ContractCompleted = true;
         }
 

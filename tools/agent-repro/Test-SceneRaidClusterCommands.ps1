@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $root -Force|Out-Null
 function Copy-Value($Value) { return $Value|ConvertTo-Json -Depth 32 -Compress|ConvertFrom-Json }
 function Save-Json($Path,$Value) { [IO.File]::WriteAllText($Path,($Value|ConvertTo-Json -Depth 32 -Compress)) }
 function Add-Event($Fixture,$Kind,$Value,[int]$Frame=3) {
-    $Fixture.events.Add([pscustomobject]@{sequence=$Fixture.events.Count+1;frame=$Frame;kind=$Kind;detail=($Value|ConvertTo-Json -Depth 32 -Compress)})
+    $Fixture.events.Add([pscustomobject]@{sequence=$Fixture.events.Count+1;frame=$Frame;gameSeconds=[double]$Frame;kind=$Kind;detail=($Value|ConvertTo-Json -Depth 32 -Compress)})
 }
 function New-CommandFixture([switch]$Rejected) {
     $script=(Get-SceneRaidCommandScenario 'MC01-X').scenario
@@ -96,6 +96,37 @@ $f=New-CommandFixture
 $f.attempts=@();$f.events.Clear();$f.steps.steps[0].status='COVERAGE_MISSING';$f.steps.steps[0].reason='NormalDeath'
 $partial=Trace $f;Assert-Result 'death_missing_coverage' $partial $true
 if($partial.coverageStatus -ne 'PARTIAL'){throw 'Death fabricated full coverage.'}
+function New-LostSightFixture {
+    $f=New-CommandFixture
+    $f.scenario.steps[0].target.kind='ActiveEnemy'
+    $f.attempts[0].directive='Engage';$f.attempts[0].selection.clusters[0].kind='Enemy'
+    Change-Event $f 2 {param($v)$v|Add-Member NoteProperty visible $true;$v|Add-Member NoteProperty sightTimeout 2.0}
+    Change-Event $f 3 {param($v)$v|Add-Member NoteProperty visible $false;$v|Add-Member NoteProperty sightTimeout 2.0}
+    $f.events[4].kind='directive.Failed';$f.events[4].gameSeconds=6.01
+    Change-Event $f 4 {param($v)$v.stage='Failed';$v.reason='LostSight'}
+    Change-Event $f 5 {param($v)$v.stage='Failed';$v.reason='LostSight'}
+    $f.events[5].gameSeconds=6.01
+    $final=$f.events[6];$f.events.RemoveAt(6)
+    $sample=$f.events[3].detail|ConvertFrom-Json;$sample.activeCommand=''
+    Add-Event $f 'command.progress' $sample 5
+    $f.events[6].gameSeconds=6.01
+    $final.sequence=8;$f.events.Add($final)
+    return $f
+}
+foreach($fault in @('valid_observed_lost_sight','never_seen','too_early','reacquired','lock_retained','missing_timeout','timeout_drift','extra_failure')) {
+    $f=New-LostSightFixture
+    switch($fault){
+        never_seen {Change-Event $f 2 {param($v)$v.visible=$false}}
+        too_early {$f.events[4].gameSeconds=5.99}
+        reacquired {Change-Event $f 3 {param($v)$v.visible=$true}}
+        lock_retained {Change-Event $f 6 {param($v)$v.activeCommand='ManualTargetClick_probe'}}
+        missing_timeout {Change-Event $f 3 {param($v)$v.PSObject.Properties.Remove('sightTimeout')}}
+        timeout_drift {Change-Event $f 2 {param($v)$v.sightTimeout=3.0}}
+        extra_failure {Add-Event $f 'directive.Failed' @{commandId='Auto_extra';agent='2';stage='Failed';reason='LostSight'}}
+    }
+    $trace=Trace $f;Assert-Result ('lost_sight_'+$fault) $trace ($fault -eq 'valid_observed_lost_sight')
+    if($fault -eq 'valid_observed_lost_sight' -and ($trace.behaviorFailures -ne 1 -or $trace.expectedExecutionFailures -ne 1 -or $trace.unexpectedBehaviorFailures -ne 0)){throw 'LostSight raw failure was suppressed.'}
+}
 foreach($id in @('MC01-R','MC01-E','MC01-X','MC02','MC03','MC04-N')) {
     $value=Get-SceneRaidCommandScenario $id
     if((Get-SceneRaidScenarioHash $value.json) -cne $value.sha256){throw 'Hash round trip failed.'}
