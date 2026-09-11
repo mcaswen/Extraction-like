@@ -23,6 +23,8 @@ namespace AnomalySearch.Automation.SceneRaid
             public Vector3 position, velocity, desiredVelocity, destination, progressAnchor;
             public Vector3 eulerAngles, localScale, worldScale, nextPosition, steeringTarget, directivePosition;
             public Vector3 bodyBoundsCenter, bodyBoundsSize;
+            public Vector3 lastMovementTarget;
+            public string lastNavigationStatus;
             public int health;
             public bool onNavMesh, hasPath, pathPending, stopped;
             public float remainingDistance;
@@ -39,7 +41,9 @@ namespace AnomalySearch.Automation.SceneRaid
         [Serializable] public sealed class EnemyState
         {
             public string identity, bodyVisibility;
-            public Vector3 position, eulerAngles, scale, aimPosition, navigationPosition;
+            public Vector3 position, eulerAngles, scale, aimPosition, navigationPosition, navNextPosition, bodyCenter, bodySize;
+            public float navBaseOffset;
+            public bool navReady;
             public float health, maximumHealth, shield, distance3D, distancePlanar, aimDistance;
             public bool active, died;
         }
@@ -191,9 +195,15 @@ namespace AnomalySearch.Automation.SceneRaid
             return _rangeStates;
         }
         private static string[] Sorted(HashSet<string> values) => values == null ? Array.Empty<string>() : values.OrderBy(x => x).ToArray();
-        private AgentState Capture(AgentPawnRoot pawn)
+        public AgentState CaptureDirective(AgentDirectiveRequest request)
         {
-            var active = pawn.DirectiveLifecycle?.Active;
+            var registry = AgentRuntimeRegistry.ActiveInstance;
+            return registry != null && registry.TryGetHandle(request.TargetAgentId, out var handle) && handle.IsValid
+                ? Capture(handle.PawnRoot, request) : null;
+        }
+        private AgentState Capture(AgentPawnRoot pawn, AgentDirectiveRequest? request = null)
+        {
+            var active = request ?? pawn.DirectiveLifecycle?.Active;
             var nav = pawn.NavMeshAgent;
             var motor = ReadField<object>(pawn, "_navigationMotor");
             bool onMesh = nav != null && nav.isActiveAndEnabled && nav.isOnNavMesh;
@@ -218,6 +228,8 @@ namespace AnomalySearch.Automation.SceneRaid
                 steeringTarget = onMesh && nav.hasPath ? nav.steeringTarget : Vector3.zero,
                 bodyBoundsCenter = body != null ? body.bounds.center : pawn.Position,
                 bodyBoundsSize = body != null ? body.bounds.size : Vector3.zero,
+                lastMovementTarget = motor != null ? ReadField<Vector3>(motor, "_target") : Vector3.zero,
+                lastNavigationStatus = motor != null ? ReadField<Gameplay.Agent.Navigation.AgentNavigationResult>(motor, "_lastResult").Status.ToString() : "",
                 directivePosition = targetPosition,
                 hasDirectivePosition = hasPosition, hasEnemy = enemy != null, hasResource = resourceState != null,
                 inventoryRequiresExtraction = pawn.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction),
@@ -250,6 +262,9 @@ namespace AnomalySearch.Automation.SceneRaid
             if (enemy == null) return null; // 群指令不猜测其内部选择，当前自主发现提交的是具体敌人。
             Vector3 aim = CombatAimPointResolver.Resolve(enemy.transform);
             Vector3 origin = CombatAimPointResolver.Resolve(pawn.transform);
+            var navigation = enemy.GetComponent<NavMeshAgent>();
+            var body = enemy.GetComponent<Collider>();
+            bool navReady = Gameplay.Agent.Navigation.AgentNavigationQuery.IsReady(navigation);
             return new EnemyState
             {
                 identity = _identity.Get(enemy), position = enemy.transform.position, eulerAngles = enemy.transform.eulerAngles,
@@ -258,6 +273,10 @@ namespace AnomalySearch.Automation.SceneRaid
                 distance3D = Vector3.Distance(pawn.Position, enemy.transform.position), distancePlanar = PlanarDistance(pawn.Position, enemy.transform.position),
                 aimPosition = aim, aimDistance = Vector3.Distance(origin, aim),
                 navigationPosition = Gameplay.Agent.Navigation.AgentCombatNavigationTarget.Resolve(enemy),
+                navReady = navReady, navNextPosition = navReady ? navigation.nextPosition : Vector3.zero,
+                navBaseOffset = navigation != null ? navigation.baseOffset : 0,
+                bodyCenter = body != null ? body.bounds.center : enemy.transform.position,
+                bodySize = body != null ? body.bounds.size : Vector3.zero,
                 bodyVisibility = TargetVisibilityQuery.Check(pawn.transform, origin, enemy.transform, attackRange).ToString()
             };
         }

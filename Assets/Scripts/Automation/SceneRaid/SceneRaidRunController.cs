@@ -28,6 +28,7 @@ namespace AnomalySearch.Automation.SceneRaid
             var identity = new SceneRaidIdentityMap();
             _observer = new SceneRaidObserver(_writer, identity);
             _model = new SceneRaidReadModel(identity, _observer.LatestResource);
+            _observer.CaptureDirective = _model.CaptureDirective;
             if (config.mode == "Autonomous") _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
             _sampler = new SceneRaidFrameSampler();
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));
@@ -76,7 +77,8 @@ namespace AnomalySearch.Automation.SceneRaid
                         "{\"phase\":\"" + _config.mode + "\",\"frame\":" + Time.frameCount + "}");
                     _nextFlush = _writer.WallSeconds + 5;
                 }
-                if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
+                if (_observer.ProbeFailure != null) Finish("HARNESS_FAILED", _observer.ProbeFailure);
+                else if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
                 else if (_config.mode == "Autonomous" && _missionFailed)
                     Finish("BEHAVIOR_BLOCKED", "Mission failure observed; see final agent health and extraction state.");
                 else if (_config.mode == "Autonomous" && _missionCompleted)

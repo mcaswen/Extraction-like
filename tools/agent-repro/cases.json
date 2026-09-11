@@ -34,6 +34,7 @@
         "CancelAndDeathDiscardSuspendedExtraction",
         "ManualResourceIgnoresSightButEffectiveDamageInterrupts",
         "CompletedRetaliationKeepsLockUntilLifecycleRestoresExtraction",
+        "ActiveSearchCompletesNormallyButNewSearchOfCompletedClusterIsRejected",
         "InvalidSuspendedExtractionFailsAfterRetaliation"
       ]
     },
@@ -230,7 +231,8 @@
       "expected": [
         "RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor(False)",
         "RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor(True)",
-        "CorrosionSplashStartsWithoutChangingDurationWhilePlaying"
+        "CorrosionSplashStartsWithoutChangingDurationWhilePlaying",
+        "FailureProbePreservesTargetAfterLifecycleClearsRequest"
       ]
     }
   ]

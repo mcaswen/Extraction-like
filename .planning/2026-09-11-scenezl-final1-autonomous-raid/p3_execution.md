@@ -96,3 +96,23 @@ P3b 红灯 `20260911-214901-479` 在“Plain backpack is not the waiting box”�
 - 后续 P3d-4 单独处理保存失败时的事务和 RaidFlow 完成顺序，补齐整局仓库契约。P3d-3 不宣称磁盘故障、任意损坏历史存档或仓库 UI 编辑都已恢复。
 
 红灯 `20260911-222259-395`：五项全部失败，分别证实三种旧图腾不可回解、未知输入被错误接收、未知/重叠旧页继续覆盖、特殊格被忽略。修复后 `20260911-222420-091` 五项全部通过；正式掉落表共 27 个唯一物品定义均可真实写盘和新服务回读，数量、身份和布局通过。三个旧图腾的价格、属性和商店排除标记未变。
+
+### P3d-2b 已完成资源和瞬时失败探针
+
+原场景 53.18 秒箱子取空并关闭，下一帧群标记完成，生命周期却把当前 Search 判为 Failed/TargetCompleted。Extend `AgentDirectiveLifecycleController.cs`：已接受 Search 的 TargetCompleted 是正常完成，失效/禁用仍失败；新提交到已完成目标的请求仍由验证器拒绝。Extend `DirectiveLifecycleTests.cs` 构造当前群完成、新请求拒绝的区别。
+
+两次动态追击只持续一帧，定时快照未覆盖。Extend `SceneRaidReadModel.cs`：按反馈中的请求采集角色和敌人，不使用已被清除的新 Active 请求；增加敌人导航状态、baseOffset、nextPosition、身体范围。Extend `SceneRaidObserver.cs` 在接战接受和失败/拒绝时调用只读探针，独立记录 diagnostic.directive；Extend `SceneRaidRunController.cs` 连接读模型委托，探针异常导致 HARNESS_FAILED，不能向 Gameplay 事件回调抛异常改变执行顺序。继续 Automation → Gameplay，禁止探针移动、下指令或修正状态。
+
+`20260911-222622-431` 先复现正常搜索被报 Failed；修复后 `20260911-222747-407` Lifecycle 6、F1 2、SceneCombat 4，共 12 项通过，包括生命周期清理后仍按反馈请求保留敌人身份的只读探针构造。
+
+原场景 `20260911-222841-457`：78.34 秒墙钟、220.69 秒游戏时间，12 次背包会话，两人自主撤离，0 运行时错误、0 指令失败/拒绝、0 停滞疑点。离线核对两人最后背包合计 20 件物品和隔离仓库逐 ItemID 数量完全一致，含 4 个旧绿图腾；没有未知定义、越界或重叠。测试未下达目标/撤离命令。动态追击错误本轮未再次出现，不能认定已定位根因；报告仍为 NOT_FULL_RAID_VALIDATED，因为覆盖/仓库契约尚未集成进每次运行。71 条告警主要为重复目标 ID、出生点 NavMesh 采样、TerrainCollider，另有 Ledger 递归 DTO 的序列化深度警告，后续分项治理。
+
+### P3d-4 保存失败和撤离提交顺序小规划
+
+源码显示 RaidFlow 先标记已撤离，再调用 void 结算，即使仓库追加返回 false 仍销毁角色。必须以正式保存成功为提交前提。
+
+- Extend `Assets/Scripts/Gameplay/Backpack/PlayerStorageService.cs`：批量追加使用当前角色仓库的临时副本，写盘成功后提交；IOException/权限失败返回 false，恢复内存和输出计数。Save 在同目录临时文件写入后原子替换，避免覆盖半份 JSON；文件操作仍归该服务，不引入 Gameplay → Automation 依赖。
+- Extend `Assets/Scripts/Gameplay/Raid/RaidFlowController.cs`：结算改为私有 Try 方法，成功后才加入 extracted、销毁角色和完成任务。明确失败则保留背包和角色，走现有失败终态，说明物品未清除；不会重复入库。无 Inventory 组件的原白盒兼容仍按空背包处理，有组件却缺 Agent 快照不能假报成功。
+- Extend `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidStorageTests.cs`：隔离存档锁定目标文件模拟真实写盘拒绝，检查旧文件、内存、数量保持不变，释放锁后重试只入库一次；构造正式背包带不可持久化物品的真实撤离计时，检查角色和物品保留，任务未成功。复用 Canvas prefab，不让测试写正式存档。
+- 新增文件仅在已有 UI 夹具需要跨测试复用时提取到 `Assets/Scripts/Editor/AgentReproduction/World/InventoryFactory.cs`，负责正式 Canvas 实例和移除无关 RaidFlow，原 `SceneRaidInventoryTests.cs` 改为调用该工厂。不把工厂放入生产代码。
+- 回归 Storage、Inventory 和 Combined 的真实撤离用例，随后原场景验证库存→仓库回读。此阶段不实现断电恢复或任意损坏历史存档迁移。

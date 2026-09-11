@@ -77,7 +77,11 @@ namespace Gameplay.Agent.Commands
             if (_agent.IsDead) { Cancel(); return; }
             AgentDirectiveFailure failure = AgentDirectiveValidationService.ValidateTarget(_active.Value);
             if (failure != AgentDirectiveFailure.None)
-                Finish(_active.Value.CommandId, _active.Value.DirectiveType == AgentDirectiveType.Engage ? AgentDirectiveFailure.None : failure);
+            {
+                bool completed = _active.Value.DirectiveType == AgentDirectiveType.Engage ||
+                    (_active.Value.DirectiveType == AgentDirectiveType.Search && failure == AgentDirectiveFailure.TargetCompleted);
+                Finish(_active.Value.CommandId, completed ? AgentDirectiveFailure.None : failure);
+            }
             if (_active.HasValue)
                 _agent.Blackboard.SetValue(AgentBlackboardKeys.HasVisibleEnemy, IsVisible(_active.Value), Time.timeAsDouble);
         }

@@ -16,6 +16,36 @@ namespace AgentReproduction.Tests
     public sealed class DirectiveLifecycleTests : ReproductionTestFixture
     {
         [UnityTest]
+        public IEnumerator ActiveSearchCompletesNormallyButNewSearchOfCompletedClusterIsRejected()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "Search completion", Vector3.zero);
+            var cluster = TargetFactory.Resources(World, new Vector3(10, 0, 0));
+            var request = new AgentDirectiveRequest(AgentDirectiveType.Search,
+                AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, cluster.gameObject, cluster.TargetId), cluster.TargetId, agent.AgentId);
+            var accepted = agent.TrySubmitDirective(request);
+            Assert.That(accepted.Accepted, Is.True);
+            AgentDirectiveResult? terminal = null;
+            System.Action<AgentDirectiveResult> observe = value =>
+            {
+                if (value.Request.CommandId == accepted.Request.CommandId) terminal = value;
+            };
+            AgentDirectiveFeedbackChannel.Published += observe;
+            try
+            {
+                cluster.MarkCompleted();
+                agent.DirectiveLifecycle.Tick();
+                Assert.That(terminal.HasValue, Is.True);
+                Assert.That(terminal.Value.Stage, Is.EqualTo(AgentDirectiveStage.Completed));
+                Assert.That(agent.DirectiveLifecycle.Active.HasValue, Is.False);
+                Assert.That(agent.TrySubmitDirective(request).Reason, Is.EqualTo(AgentDirectiveFailure.TargetCompleted));
+                ContractCompleted = true;
+            }
+            finally { AgentDirectiveFeedbackChannel.Published -= observe; }
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator CompletedRetaliationKeepsLockUntilLifecycleRestoresExtraction()
         {
             var agent = Create(out var original);

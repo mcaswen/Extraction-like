@@ -19,6 +19,10 @@ namespace AnomalySearch.Automation.SceneRaid
         { public string agent, commandId, resource, stage; public Vector3 navigationPosition; }
         [Serializable] private sealed class DirectiveRecord
         { public string agent, commandId, directive, targetId, target, stage, reason; }
+        [Serializable] private sealed class DirectiveProbe
+        { public string stage, reason; public SceneRaidReadModel.AgentState agent; }
+        public Func<AgentDirectiveRequest, SceneRaidReadModel.AgentState> CaptureDirective { get; set; }
+        public string ProbeFailure { get; private set; }
         public readonly HashSet<string> ObservedAgents = new HashSet<string>();
         public int Errors { get; private set; }
         public int Warnings { get; private set; }
@@ -65,6 +69,20 @@ namespace AnomalySearch.Automation.SceneRaid
                 agent = request.TargetAgentId.Value, commandId = request.CommandId, directive = request.DirectiveType.ToString(),
                 targetId = request.TargetId, target = target, stage = result.Stage.ToString(), reason = result.Reason.ToString()
             }));
+            if (CaptureDirective != null && (result.Stage == AgentDirectiveStage.Failed || result.Stage == AgentDirectiveStage.Rejected ||
+                (result.Stage == AgentDirectiveStage.Accepted && request.DirectiveType == AgentDirectiveType.Engage)))
+            {
+                try
+                {
+                    _writer.Add("diagnostic.directive", JsonUtility.ToJson(new DirectiveProbe
+                    { stage = result.Stage.ToString(), reason = result.Reason.ToString(), agent = CaptureDirective(request) }));
+                }
+                catch (Exception exception)
+                {
+                    ProbeFailure = exception.ToString();
+                    _writer.Add("diagnostic.failed", ProbeFailure);
+                }
+            }
             if (result.Stage == AgentDirectiveStage.Completed || result.Stage == AgentDirectiveStage.Cancelled ||
                 result.Stage == AgentDirectiveStage.Failed || result.Stage == AgentDirectiveStage.Rejected) _commandTargets.Remove(key);
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using AgentReproduction.Infrastructure;
 using AgentReproduction.World;
+using AnomalySearch.Automation.SceneRaid;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
@@ -12,6 +13,27 @@ namespace AgentReproduction.Tests
 {
     public sealed class SceneRaidCombatTests : ReproductionTestFixture
     {
+        [UnityTest]
+        public IEnumerator FailureProbePreservesTargetAfterLifecycleClearsRequest()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "Probe", Vector3.zero);
+            var enemy = EnemyFactory.Passive(World, new Vector3(10, 0, 0));
+            var result = agent.TrySubmitDirective(AgentDirectiveRequest.EngageConcreteEnemy(enemy.gameObject, "probe", agent.AgentId));
+            Assert.That(result.Accepted, Is.True);
+            agent.FinishDirective(result.Request.CommandId, AgentDirectiveFailure.Unreachable);
+            Assert.That(agent.DirectiveLifecycle.Active.HasValue, Is.False);
+            var model = new SceneRaidReadModel(new SceneRaidIdentityMap(), null);
+            var captured = model.CaptureDirective(result.Request);
+            Assert.That(captured.commandId, Is.EqualTo(result.Request.CommandId));
+            Assert.That(captured.hasEnemy, Is.True);
+            Assert.That(captured.enemy.position, Is.EqualTo(enemy.transform.position));
+            Assert.That(captured.enemy.health, Is.GreaterThan(0));
+            Assert.That(agent.DirectiveLifecycle.Active.HasValue, Is.False, "Observation cannot restore the old command.");
+            ContractCompleted = true;
+            yield return null;
+        }
+
         public static bool[] Platforms = { false, true };
         [UnityTest]
         public IEnumerator RaisedRootUsesFeetForPursuitButCannotCrossDisconnectedFloor([ValueSource(nameof(Platforms))] bool disconnected)
