@@ -813,7 +813,7 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void OpenInventorySession(InventoryScreenSessionContext sessionContext)
     {
-        if (sessionContext == null || LootChestGrid == null)
+        if (sessionContext == null || sessionContext.IsClosed || LootChestGrid == null)
         {
             if (_logInventoryDebug)
             {
@@ -842,6 +842,7 @@ public class InventoryScreenController : MonoBehaviour
         }
 
         sessionContext.BeforeOpen?.Invoke();
+        sessionContext.AgentId = ActiveInventoryAgentId;
         _activeSessionContext = sessionContext;
         InventoryItemInfoPanelController.Instance?.Hide();
         PrepareSessionForDisplay(sessionContext);
@@ -1289,6 +1290,11 @@ public class InventoryScreenController : MonoBehaviour
             _activeSessionContext = null;
             RestoreStandardPlayerInventoryUiState();
             sessionContext?.OnClose?.Invoke(sessionResult);
+            if (sessionContext != null)
+            {
+                sessionContext.CloseResult = sessionResult;
+                sessionContext.IsClosed = true;
+            }
         }
         else
         {

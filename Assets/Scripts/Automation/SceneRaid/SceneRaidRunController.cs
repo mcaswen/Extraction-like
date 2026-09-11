@@ -35,7 +35,14 @@ namespace AnomalySearch.Automation.SceneRaid
             Application.runInBackground = true;
             Application.targetFrameRate = -1;
             QualitySettings.vSyncCount = 0;
-            Time.timeScale = config.simulationSpeed;
+        }
+        private void Start()
+        {
+            if (_config == null) return;
+            // 场景 Awake（包括 RaidFlow 的时钟复位）完成后，仅应用一次测试速度。
+            Time.timeScale = _config.simulationSpeed;
+            _writer.Add("simulation.started", "requested=" + _config.simulationSpeed +
+                "; actual=" + Time.timeScale + "; fixedDeltaTime=" + Time.fixedDeltaTime);
         }
         private void LateUpdate()
         {

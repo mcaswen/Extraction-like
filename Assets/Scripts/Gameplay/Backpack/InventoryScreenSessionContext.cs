@@ -8,6 +8,10 @@ using UnityEngine;
 /// </summary>
 public sealed class InventoryScreenSessionContext
 {
+    public GameObject SourceObject { get; set; }
+    public string AgentId { get; internal set; } = string.Empty;
+    public bool IsClosed { get; internal set; }
+    public InventoryScreenSessionResult CloseResult { get; internal set; }
     public string DisplayName { get; set; } = string.Empty;
     public bool UseCustomPlayerInventory { get; set; }
     public int PlayerColumns { get; set; } = 1;

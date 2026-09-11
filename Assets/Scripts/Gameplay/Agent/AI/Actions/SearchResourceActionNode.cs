@@ -20,7 +20,7 @@ namespace Gameplay.Agent.AI.Actions
         private GameObject _activeConcreteResourceObject;
         private string _activeResourceTargetId;
         private bool _hasReachedInteractionRange;
-        private bool _hasObservedInventoryOpen;
+        private global::InventoryScreenSessionContext _observedInventorySession;
         private bool _hasPlayedSearchCompleteSfx;
         private AgentResourceInteractionEvent? _reportedInteraction;
         private Vector3 _observedNavigationPosition;
@@ -223,7 +223,7 @@ namespace Gameplay.Agent.AI.Actions
                 _hasReachedInteractionRange = false;
                 ResetWaitState();
                 ReportInteraction(context, resourceObject, AgentResourceInteractionStage.Approaching);
-                if (wasInRange) CloseOwnedInventory(agent);
+                if (wasInRange) CloseOwnedInventory(agent, resourceObject);
                 return Running();
             }
 
@@ -421,27 +421,24 @@ namespace Gameplay.Agent.AI.Actions
                 return Running();
             }
 
-            if (TryGetAgent(context, out IAgentReadOnly agent) &&
-                !string.IsNullOrEmpty(inventoryController.ActiveInventoryAgentId) &&
-                !string.Equals(inventoryController.ActiveInventoryAgentId, agent.AgentIdValue, System.StringComparison.Ordinal))
-            {
-                return Running();
-            }
+            if (!TryGetAgent(context, out IAgentReadOnly agent)) return Running();
 
             if (_waitingResourceObject != resourceObject)
             {
                 _waitingResourceObject = resourceObject;
-                _hasObservedInventoryOpen = inventoryController.IsInventoryOpen;
+                _observedInventorySession = null;
                 GameplayTargetRegistry.GetOrCreate().NotifyResourceTouched(resourceObject);
             }
 
-            if (inventoryController.IsInventoryOpen)
+            var activeSession = inventoryController.ActiveSessionContext;
+            if (_observedInventorySession == null && inventoryController.IsInventoryOpen &&
+                activeSession != null && activeSession.SourceObject == resourceObject &&
+                activeSession.AgentId == agent.AgentIdValue && !activeSession.UseCustomPlayerInventory)
             {
-                _hasObservedInventoryOpen = true;
-                return Running();
+                _observedInventorySession = activeSession;
             }
 
-            if (!_hasObservedInventoryOpen)
+            if (_observedInventorySession == null || !_observedInventorySession.IsClosed)
                 return Running();
 
             if (resourceObject.TryGetComponent(out global::LootBoxEntity lootBox) &&
@@ -472,7 +469,7 @@ namespace Gameplay.Agent.AI.Actions
             if (_reportedInteraction?.Stage == AgentResourceInteractionStage.WaitingForInventory)
                 EndReportedInteraction(AgentResourceInteractionStage.Left);
             _waitingResourceObject = null;
-            _hasObservedInventoryOpen = false;
+            _observedInventorySession = null;
         }
 
         private void ReportInteraction(BehaviorTreeContext context, GameObject resource, AgentResourceInteractionStage stage)
@@ -501,10 +498,11 @@ namespace Gameplay.Agent.AI.Actions
                 old.Resource, old.NavigationPosition, stage));
         }
 
-        private static void CloseOwnedInventory(IAgentReadOnly agent)
+        private static void CloseOwnedInventory(IAgentReadOnly agent, GameObject resource)
         {
             var inventory = global::InventoryScreenController.Instance;
-            if (inventory != null && inventory.IsInventoryOpen && inventory.ActiveInventoryAgentId == agent.AgentIdValue)
+            if (inventory != null && inventory.IsInventoryOpen && inventory.ActiveInventoryAgentId == agent.AgentIdValue &&
+                inventory.ActiveSessionContext?.SourceObject == resource)
                 inventory.CloseInventory();
         }
 

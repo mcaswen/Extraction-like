@@ -128,7 +128,7 @@ namespace AgentReproduction.Tests
             var identities = new SceneRaidIdentityMap();
             using var observer = new SceneRaidObserver(writer, identities);
             using var driver = new SceneRaidInventoryDriver(writer, identities, observer.LatestResource);
-            Time.timeScale = 2;
+            Time.timeScale = 4;
             Assert.That(first.TrySubmitDirective(AgentDirectiveRequest.SearchConcreteResource(firstBox.gameObject, "first", first.AgentId,
                 AgentManualDirectiveLock.CreateCommandId("first"), 1000)).Accepted, Is.True);
             Assert.That(second.TrySubmitDirective(AgentDirectiveRequest.SearchConcreteResource(secondBox.gameObject, "second", second.AgentId,
@@ -140,7 +140,7 @@ namespace AgentReproduction.Tests
             Assert.That(driver.ServedAgents.OrderBy(x => x), Is.EqualTo(new[] { "1", "2" }));
             Assert.That(firstBox.GetSavedItems(), Is.Empty);
             Assert.That(secondBox.GetSavedItems(), Is.Empty);
-            Assert.That(Time.timeScale, Is.EqualTo(2));
+            Assert.That(Time.timeScale, Is.EqualTo(4));
             Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent("1"), Is.True);
             yield return null;
             Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), firstItem), Is.EqualTo(2));
@@ -149,6 +149,38 @@ namespace AgentReproduction.Tests
             yield return null;
             Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), secondItem), Is.EqualTo(3));
             Assert.That(SceneRaidInventoryLedger.Amount(screen.BackpackGrid.ExtractSaveData(), firstItem), Is.EqualTo(0));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator UnrelatedInventoryCannotCompleteTheWaitingResource()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var agent = AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = CreateInventory();
+            yield return null;
+            var box = Box("Waiting box", Vector3.zero, Item(), 1, 0);
+            box.UseBoardGameResourceRules = false;
+            var other = Box("Other box", Vector3.zero, Item(), 1, 0);
+            Assert.That(agent.TrySubmitDirective(AgentDirectiveRequest.SearchConcreteResource(box.gameObject, "waiting", agent.AgentId,
+                AgentManualDirectiveLock.CreateCommandId("waiting"), 1000)).Accepted, Is.True);
+            yield return new WaitForSecondsRealtime(0.2f);
+            screen.OpenInventory();
+            yield return null;
+            screen.CloseInventory();
+            yield return null;
+            Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.False, "Plain backpack is not the waiting box.");
+            other.Interact();
+            yield return null;
+            screen.CloseInventory();
+            yield return null;
+            Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.False, "Another box cannot complete this search.");
+            box.Interact();
+            yield return null;
+            screen.CloseInventory();
+            yield return new WaitForSecondsRealtime(0.1f);
+            Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.True, "The matching session still completes normally.");
+            Assert.That(box.GetSavedItems().Count, Is.EqualTo(1), "Closing must preserve loot the player left behind.");
             ContractCompleted = true;
         }
 

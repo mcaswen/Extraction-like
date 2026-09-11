@@ -197,6 +197,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     {
         return new InventoryScreenSessionContext
         {
+            SourceObject = gameObject,
             DisplayName = ResolvedBoxName,
             ExternalContainerName = ResolvedBoxName,
             ExternalColumns = ResolvedContainerColumns,

@@ -201,6 +201,7 @@
         "QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData",
         "OversizedItemAndPolicyRejectionPreserveOriginalContainer",
         "DriverServesTwoWaitingAgentsWithoutCrossingInventories",
+        "UnrelatedInventoryCannotCompleteTheWaitingResource",
         "InvalidatedResourceClosesSessionAndReopeningResumesRealSearch"
       ]
     }
