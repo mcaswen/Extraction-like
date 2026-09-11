@@ -382,6 +382,58 @@
         "ObservedManualEnemyStillUsesLostSightTimeout(4)",
         "MovingUnobservedEnemyCannotRenewInitialApproachForever"
       ]
+    },
+    {
+      "name": "ClusterCommandTransition",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ClusterCommandTransitionTests",
+      "expected": [
+        "MovingCommandReplacementIgnoresOldCompletion(\"Search>Search\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Search>Search\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Search>Engage\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Search>Engage\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Search>Extract\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Search>Extract\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Engage>Search\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Engage>Search\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Engage>Engage\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Engage>Engage\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Engage>Extract\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Engage>Extract\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Extract>Search\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Extract>Search\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Extract>Engage\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Extract>Engage\",4)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Extract>Extract\",1)",
+        "MovingCommandReplacementIgnoresOldCompletion(\"Extract>Extract\",4)",
+        "RepeatedAndReturningCommandsKeepLatestIdentity(1)",
+        "RepeatedAndReturningCommandsKeepLatestIdentity(4)",
+        "FocusedAndExplicitRoutingKeepOtherAgentTask",
+        "InvalidCommandPreservesActiveTask(\"Null\")",
+        "InvalidCommandPreservesActiveTask(\"Disabled\")",
+        "InvalidCommandPreservesActiveTask(\"Completed\")",
+        "InvalidCommandPreservesActiveTask(\"Unreachable\")",
+        "InvalidCommandPreservesActiveTask(\"MissingAgent\")",
+        "DeadExplicitAgentDoesNotRerouteToLivingFocus",
+        "SharedEnemyDeathReleasesBothCommands",
+        "ResourceCommandDuringRetaliationDiscardsOldExtraction",
+        "EightCommandBurstIsBoundedAndLatestMoves(1)",
+        "EightCommandBurstIsBoundedAndLatestMoves(4)"
+      ]
+    },
+    {
+      "name": "ClusterCommandInventory",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ClusterCommandInventoryTests",
+      "expected": [
+        "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Search\",1)",
+        "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Search\",4)",
+        "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Engage\",1)",
+        "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Engage\",4)",
+        "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Extract\",1)",
+        "CommandDuringOpenBoxPreservesOldContentsAndNewTask(\"Extract\",4)",
+        "SharedBoxContentsAreCollectedOnceAndBothCommandsRelease"
+      ]
     }
   ]
 }

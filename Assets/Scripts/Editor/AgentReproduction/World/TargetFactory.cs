@@ -8,6 +8,17 @@ namespace AgentReproduction.World
 {
     public static class TargetFactory
     {
+        public static ResourceClusterAuthoring ResourceBoxes(TestWorldBuilder world, params LootBoxEntity[] boxes)
+        {
+            var members = new List<GameplayTargetEntityMember>();
+            foreach (var box in boxes) members.Add(new GameplayTargetEntityMember(box.GetInstanceID().ToString(), box.gameObject));
+            var root = world.Root("Box resource cluster", false);
+            var cluster = root.AddComponent<ResourceClusterAuthoring>();
+            RuntimeFixtureAccess.Configure(cluster, "_resourceMembers", members);
+            root.SetActive(true);
+            return cluster;
+        }
+
         public static ResourceClusterAuthoring Resources(TestWorldBuilder world, params Vector3[] positions)
         {
             var members=new List<GameplayTargetEntityMember>();

@@ -25,14 +25,14 @@ namespace AgentReproduction.World
             staging.SetActive(true);
             return component;
         }
-        public static EnemyHealthController Passive(TestWorldBuilder world, Vector3 position)
+        public static EnemyHealthController Passive(TestWorldBuilder world, Vector3 position, float maxHealth = 10000)
         {
             GameObject root=world.Root("Passive damage source",false);
             root.transform.position=position;
             CapsuleCollider collider=root.AddComponent<CapsuleCollider>();
             collider.center=Vector3.up; collider.height=2; collider.radius=0.4f;
             EnemyHealthController health=root.AddComponent<EnemyHealthController>();
-            health.MaxHealth=10000;
+            health.MaxHealth=maxHealth;
             root.SetActive(true);
             return health;
         }
