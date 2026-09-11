@@ -26,7 +26,8 @@ namespace Gameplay.Agent.Navigation
             using var markerScope = QueryMarker.Auto();
             if (!IsReady(agent)) return new AgentNavigationResult(AgentNavigationStatus.NotReady);
             float radius = Mathf.Max(0.5f, agent.radius * 2f);
-            if (!NavMesh.SamplePosition(target, out NavMeshHit hit, radius, agent.areaMask) ||
+            var filter = new NavMeshQueryFilter { agentTypeID = agent.agentTypeID, areaMask = agent.areaMask };
+            if (!NavMesh.SamplePosition(target, out NavMeshHit hit, radius, filter) ||
                 Mathf.Abs(hit.position.y - target.y) > Mathf.Max(0.5f, agent.height * 0.5f))
                 return new AgentNavigationResult(AgentNavigationStatus.Unreachable);
             var path = buffer.Path;

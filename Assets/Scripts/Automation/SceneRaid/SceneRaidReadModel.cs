@@ -207,6 +207,12 @@ namespace AnomalySearch.Automation.SceneRaid
             if (registry == null || !registry.TryGetHandle(request.TargetAgentId, out var handle) || !handle.IsValid) return null;
             var motor = ReadField<object>(handle.PawnRoot, "_navigationMotor");
             var destination = motor != null ? ReadField<Vector3>(motor, "_target") : request.TargetPosition;
+            // 接近位置查询可能在调用 Motor 前失败；反击证据应查询当前敌人脚下，而不是上一条撤离路径。
+            if (request.DirectiveType == AgentDirectiveType.Engage && request.TargetObject != null)
+            {
+                var enemy = request.TargetObject.GetComponentInParent<EnemyHealthController>();
+                if (enemy != null) destination = Gameplay.Agent.Navigation.AgentCombatNavigationTarget.Resolve(enemy);
+            }
             return SceneRaidNavigationEvidence.Capture(handle.PawnRoot, destination, _identity);
         }
         private AgentState Capture(AgentPawnRoot pawn, AgentDirectiveRequest? request = null)

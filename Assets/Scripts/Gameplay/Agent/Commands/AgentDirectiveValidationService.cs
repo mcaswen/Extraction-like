@@ -47,8 +47,11 @@ namespace Gameplay.Agent.Commands
             GameObject obj = request.TargetObject;
             position = obj != null ? obj.transform.position : request.TargetPosition;
             if (obj == null) return request.HasTargetPosition;
-            if (request.DirectiveType == AgentDirectiveType.Engage && obj.TryGetComponent(out global::EnemyHealthController enemy))
-                position = AgentCombatNavigationTarget.Resolve(enemy);
+            if (request.DirectiveType == AgentDirectiveType.Engage && obj.GetComponentInParent<global::EnemyHealthController>() is var enemy && enemy != null)
+            {
+                agent.Blackboard.TryGetValue(AgentBlackboardKeys.AttackRange, out float range);
+                return AgentCombatApproachQuery.TryResolve(agent, enemy, range, new AgentCombatApproachQuery.Buffer(), out position);
+            }
             if (obj.TryGetComponent(out ResourceClusterAuthoring resource))
                 return resource.TryGetNearestReachableIncompleteResource(agent.Position, agent.NavMeshAgent, out _, out position);
             if (obj.TryGetComponent(out ExtractionClusterAuthoring exit))

@@ -14,6 +14,13 @@ namespace Gameplay.Agent.Combat
         public TargetVisibilityResult LastShotResult { get; private set; }
         public AgentShotFailure LastShotFailure { get; private set; }
         public bool IsConfigured => isActiveAndEnabled && (_bulletPrefab != null || _createFallbackBulletIfPrefabMissing);
+        /// <summary>给定姿态的只读枪口预测，不旋转角色，也不覆盖真实射击诊断。</summary>
+        public bool CanShootFrom(global::EnemyHealthController targetEnemy, float range, Vector3 position, Quaternion rotation)
+        {
+            if (!IsConfigured || targetEnemy == null || !targetEnemy.IsAlive) return false;
+            Vector3 offset = Quaternion.Inverse(transform.rotation) * (ResolveFirePosition() - transform.position);
+            return TargetVisibilityQuery.Check(transform, position + rotation * offset, targetEnemy.transform, range) == TargetVisibilityResult.Visible;
+        }
         public bool CanShootAt(global::EnemyHealthController targetEnemy, float range)
         {
             LastShotFailure = AgentShotFailure.None;

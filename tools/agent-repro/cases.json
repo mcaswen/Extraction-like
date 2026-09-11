@@ -241,6 +241,20 @@
       ]
     },
     {
+      "name": "SceneApproach",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidCombatApproachTests",
+      "expected": [
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"Visible\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"VisibleChild\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"Damage\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"Wall\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"TooFar\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"MuzzleOutOfRange\")",
+        "ApproachQueriesAreReadOnlyAndBuffersDoNotCrossTargets"
+      ]
+    },
+    {
       "name": "SceneTerminal",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.SceneRaidTerminalTests",

@@ -4,6 +4,7 @@ using Gameplay.Agent.Combat;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Commands;
+using Gameplay.Agent.Navigation;
 using Gameplay.Perception;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
@@ -18,6 +19,12 @@ namespace Gameplay.Agent.AI.Actions
     {
         private double _lostSightSince = -1d;
         private string _commandId;
+        private readonly AgentCombatApproachQuery.Buffer _approachBuffer = new AgentCombatApproachQuery.Buffer();
+        private Vector3 _approachPosition, _approachEnemyPosition;
+        private double _approachTime = -1;
+        private float _approachRange, _approachRadius, _approachHeight, _approachBaseOffset;
+        private Vector3 _approachScale;
+        private int _approachAreaMask, _approachAgentType;
 
         /// <summary>
         /// 创建敌人接战行为节点
@@ -31,6 +38,7 @@ namespace Gameplay.Agent.AI.Actions
         protected override void OnEnter(BehaviorTreeContext context)
         {
             _lostSightSince = -1d;
+            _approachTime = -1d;
         }
 
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
@@ -40,7 +48,7 @@ namespace Gameplay.Agent.AI.Actions
 
             if (!TryGetDirective(context, AgentDirectiveType.Engage, out AgentDirectiveRequest directiveRequest))
                 return FailMissingDirective(AgentDirectiveType.Engage);
-            if (_commandId != directiveRequest.CommandId) { _commandId = directiveRequest.CommandId; _lostSightSince = -1d; }
+            if (_commandId != directiveRequest.CommandId) { _commandId = directiveRequest.CommandId; _lostSightSince = -1d; _approachTime = -1d; }
 
             if (!TryResolveEnemyTarget(
                     directiveRequest,
@@ -86,7 +94,30 @@ namespace Gameplay.Agent.AI.Actions
                     FailPendingDirective(context, AgentDirectiveFailure.LostSight);
                     return Succeed();
                 }
-                MoveAgentTowards(agent, Gameplay.Agent.Navigation.AgentCombatNavigationTarget.Resolve(enemyHealthController), 0.1f, moveSpeed, context.DeltaTime);
+                var nav = agent.NavMeshAgent;
+                if (!AgentNavigationQuery.IsReady(nav))
+                {
+                    _approachTime = -1d;
+                    MoveAgentTowards(agent, AgentCombatNavigationTarget.Resolve(enemyHealthController), 0.1f, moveSpeed, context.DeltaTime);
+                    return Running();
+                }
+                if (_approachTime < 0 || context.TimeSeconds - _approachTime >= 0.1d ||
+                    (_approachEnemyPosition - enemyHealthController.transform.position).sqrMagnitude > 0.01f ||
+                    _approachRange != attackRange || _approachAreaMask != nav.areaMask || _approachAgentType != nav.agentTypeID ||
+                    _approachRadius != nav.radius || _approachHeight != nav.height || _approachBaseOffset != nav.baseOffset ||
+                    _approachScale != agent.CachedTransform.lossyScale || !nav.hasPath || nav.isPathStale)
+                {
+                    if (!AgentCombatApproachQuery.TryResolve(agent, enemyHealthController, attackRange, _approachBuffer, out _approachPosition))
+                    {
+                        FailPendingDirective(context, AgentDirectiveFailure.Unreachable);
+                        return Succeed();
+                    }
+                    _approachTime = context.TimeSeconds; _approachEnemyPosition = enemyHealthController.transform.position;
+                    _approachRange = attackRange; _approachAreaMask = nav.areaMask; _approachAgentType = nav.agentTypeID;
+                    _approachRadius = nav.radius; _approachHeight = nav.height; _approachBaseOffset = nav.baseOffset;
+                    _approachScale = agent.CachedTransform.lossyScale;
+                }
+                MoveAgentTowards(agent, _approachPosition, 0.1f, moveSpeed, context.DeltaTime);
                 return Running();
             }
             _lostSightSince = -1d;

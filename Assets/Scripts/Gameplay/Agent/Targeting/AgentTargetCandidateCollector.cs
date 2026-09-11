@@ -15,6 +15,7 @@ namespace Gameplay.Agent.Targeting
         private readonly HashSet<int> _seen = new HashSet<int>();
         private readonly AgentTargetFailureMemory _failures = new AgentTargetFailureMemory();
         private readonly AgentNavigationQuery.Buffer _navigationBuffer = new AgentNavigationQuery.Buffer();
+        private readonly AgentCombatApproachQuery.Buffer _combatNavigationBuffer = new AgentCombatApproachQuery.Buffer();
         public void StartObservingFailures() => _failures.StartObserving();
         public void StopObservingFailures() => _failures.StopObserving();
         public void CollectVisibleEnemies(IAgentReadOnly agent, IReadOnlyList<GameplayTargetClusterAuthoringBase> clusters,
@@ -34,7 +35,8 @@ namespace Gameplay.Agent.Targeting
                     Vector3 navigationPosition = AgentCombatNavigationTarget.Resolve(enemy);
                     float distanceSqr=(CombatAimPointResolver.Resolve(enemy.transform)-origin).sqrMagnitude;
                     agent.Blackboard.TryGetValue(AgentBlackboardKeys.AttackRange,out float attackRange);
-                    bool canExecute=(distanceSqr<=attackRange*attackRange || IsReachable(agent,navigationPosition,out _)) &&
+                    bool canExecute=(distanceSqr<=attackRange*attackRange ||
+                        AgentCombatApproachQuery.TryResolve(agent,enemy,attackRange,_combatNavigationBuffer,out _)) &&
                         !_failures.IsDeferred(agent,cluster.gameObject,enemy.gameObject,navigationPosition);
                     results.Add(new AgentTargetCandidate(cluster,enemy.gameObject,position,navigationPosition,
                         distanceSqr,AgentTargetKind.Enemy,enemy,canExecute));
