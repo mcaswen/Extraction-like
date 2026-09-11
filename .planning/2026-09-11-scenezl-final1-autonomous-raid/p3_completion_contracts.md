@@ -39,7 +39,7 @@
 
 `20260911-224707-038` 正常速度 220.61 秒墙钟完成两人撤离，11 次实际背包会话，零错误、零失败指令、零停滞。仓库逐 ID 数量相等。报告失败来自两次 focus 后、Interact 前的范围失效：Driver 的 Close 在没有 session 时仍发出 closed。修正归属仍是 `SceneRaidInventoryDriver.cs` 的日志语义，不改变游戏交互条件；未打开记 canceled。`SceneRaid.Contracts.psm1` 按每个 Agent 的 focus/open/close 顺序和资源/指令身份验证，兼容旧日志中有匹配 focus 且未 opened 的 interaction_invalidated，不能直接忽略所有关闭。`Test-SceneRaidContracts.ps1` 增加取消后正常打开、无归属关闭、错误身份、漏关和重复打开等构造。原始报告保留，离线重判另存。
 
-`20260911-225402-910` 完成契约 31/31、既有报告 47/47 通过。SC03 独立重判 `contracts.recheck.json` PASS，双角色移动/背包、真实战斗伤害、暂停恢复、满包撤离、反击恢复全部命中；21 件物品正确入库。原始报告的失败保留。回合原始证据路径和 SHA-256 见 `p3_diagnostics.json`。
+`20260911-225402-910` 完成契约 31/31、既有报告 47/47 通过。SC03 独立重判 `contracts.recheck.json` PASS，双角色移动/背包、真实战斗伤害、暂停恢复、满包撤离、反击恢复全部命中；20 件物品正确入库（此前文字合计误记为 21，逐 ID 契约和原始仓库没有变化）。原始报告的失败保留。回合原始证据路径和 SHA-256 见 `p3_diagnostics.json`。
 
 1 倍速性能初步分析：固定预热 10 秒后 22,355 帧，平均 106.47 FPS、P99 17.96 ms、1% Low 48.78 FPS、最大 39.81 ms、422 帧超过 16.667 ms。不能判性能通过；原三热点平均 Discovery/Pawn/Zone 为 0.051/0.187/0.257 ms，Cluster LateUpdate 平均 0.224 ms，后续需解释其外的整帧时间。计时器为包含子调用的 Total，不能相加当 Self。
 

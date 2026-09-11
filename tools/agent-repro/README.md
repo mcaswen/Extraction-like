@@ -93,6 +93,15 @@ SC02 使用 **4×** 逻辑速度，默认 120 秒墙钟上限；SC03 使用 **1�
 ./tools/agent-repro/Test-SceneRaidContracts.ps1
 ```
 
+`-Seed 1731` / `-Seed 2731` 可覆盖不同掉落组合；默认仍为 731。显式 `-Profile` 打开普通 CPU Profiler，额外输出 `cpu-hierarchy.json`，记录主/渲染线程 Total、Self、调用数和已采样最慢 60 个线程帧的局部层级。每 0.25 秒读取最新两个相邻历史帧，覆盖 Editor/游戏帧，报告跳过的 Profiler 帧数；它用于抽样归因，不能作为 FPS 验收或完整慢帧清单。读取过程中暂停 Profiler，避免递归计量自身分配。诊断期间记录 Editor 工作，结束恢复该设置，保留 Editor 进程。
+
+```powershell
+./tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC03 -Profile -ObserveSeconds 90 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchScene
+./tools/agent-repro/Measure-SceneRaidPerformance.ps1 -RunPath Logs/SceneRaid/<runId>
+```
+
+性能重算先校验完整 CSV，再取固定 10 秒预热后的连续区间，保留所有慢帧和相关事件，输出独立 `performance-warm10.json`；文件已存在时拒绝覆盖。`TIMING_THRESHOLDS_MET` 仅表示该轮时间指标满足，完整玩法、环境和重复矩阵仍单独验收。
+
 `warehouse-initial.json`、`warehouse-final.json`、`item-definitions.json` 和平面 `inventory.ledger` 支持独立数量/布局核对。`contracts.json` 核对两人的移动、真实转移、交战伤害、暂停恢复、撤离集合、箱子写回和仓库守恒。只有证据完整、无错误/失败指令且完成契约通过才报告 `gameStatus=PASS`；性能是否达标单独判定。缺少新证据的旧回合仍是 `NOT_FULL_RAID_VALIDATED`。
 
 每轮保持输入冻结，具体修复和首次失败见 [P3 实施记录](../../.planning/2026-09-11-scenezl-final1-autonomous-raid/p3_execution.md)。

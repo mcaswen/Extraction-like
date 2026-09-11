@@ -15,6 +15,7 @@ namespace AnomalySearch.Editor.SceneRaid
         private const string Armed = "SceneRaid.Armed";
         private const string Phase = "SceneRaid.Phase";
         private static SceneRaidScenarioConfig _config;
+        private static SceneRaidProfilerCapture _capture;
         private static double _nextIdlePoll;
 
         [Serializable] private sealed class EditorState
@@ -112,6 +113,14 @@ namespace AnomalySearch.Editor.SceneRaid
                 Profiler.logFile = Path.Combine(_config.outputPath, "cpu-profile.raw");
                 Profiler.enableBinaryLog = _config.profile && _config.binaryProfile;
                 Profiler.enabled = _config.profile;
+                if (_config.profile)
+                {
+                    if (UnityEditorInternal.ProfilerDriver.deepProfiling)
+                        throw new InvalidOperationException("CPU hierarchy diagnosis requires Deep Profile to be disabled.");
+                    SessionState.SetBool("SceneRaid.OldProfileEditor", UnityEditorInternal.ProfilerDriver.profileEditor);
+                    UnityEditorInternal.ProfilerDriver.profileEditor = true;
+                    UnityEditorInternal.ProfilerDriver.SetAreaEnabled(ProfilerArea.CPU, true);
+                }
                 SessionState.SetString(Phase, "entering");
                 EditorApplication.isPlaying = true;
             }
@@ -150,7 +159,15 @@ namespace AnomalySearch.Editor.SceneRaid
                 if (EditorApplication.isPlaying)
                 {
                     SessionState.SetString(Phase, "playing");
+                    if (_config.profile)
+                    {
+                        if (_capture == null) _capture = new SceneRaidProfilerCapture(_config);
+                        _capture.SampleLatest();
+                    }
                     if (!File.Exists(Path.Combine(_config.outputPath, "result.json"))) return;
+                    _capture?.Save();
+                    _capture = null;
+                    if (_config.profile) UnityEditorInternal.ProfilerDriver.enabled = false;
                     SessionState.SetString(Phase, "exiting");
                     TraceShutdown("PlayMode.stopRequested");
                     EditorApplication.isPlaying = false;
@@ -185,6 +202,11 @@ namespace AnomalySearch.Editor.SceneRaid
             SessionState.SetBool(Armed, false);
             Profiler.enabled = false;
             Profiler.enableBinaryLog = false;
+            if (_config != null && _config.profile)
+            {
+                UnityEditorInternal.ProfilerDriver.enabled = false;
+                UnityEditorInternal.ProfilerDriver.profileEditor = SessionState.GetBool("SceneRaid.OldProfileEditor", false);
+            }
             EditorSettings.enterPlayModeOptionsEnabled = SessionState.GetBool("SceneRaid.OldPlayOptionsEnabled", false);
             EditorSettings.enterPlayModeOptions = (EnterPlayModeOptions)SessionState.GetInt("SceneRaid.OldPlayOptions", 0);
             if (_config != null && _config.keepEditorOpen)
