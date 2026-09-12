@@ -1,6 +1,18 @@
 {
   "groups": [
     {
+      "name": "MapCommandNavigationAdmission",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandNavigationAdmissionTests",
+      "expected": [
+        "DeadAgentAtAnchorDoesNotBlockTheSurvivorsRealRoute",
+        "SimultaneousAgentsPassTheSharedEntryAndReachTheirOwnDestinations",
+        "AssignmentIsStableAndReservesExplicitPriorities",
+        "ReleaseDoesNotOverwriteExternalChangesOrReplacementNavigation",
+        "AnOldInstallerCannotRestoreAReplacementOwnersIdenticalValue"
+      ]
+    },
+    {
       "name": "MapCommandRouteEvidence",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandRouteEvidenceTests",
@@ -24,17 +36,6 @@
         "MenuCleanupRemovesCommandHudAndInstallerReenableDoesNotDuplicateIt",
         "TwoProcessingMarkersRemainDistinctAndStableAfterOneAgentLeaves",
         "LayoutRevisionRefreshesTheViewWithoutMovingWorldTargetsOrSubmittingCommands"
-      ]
-    },
-    {
-      "name": "MapCommandNavigationAdmission",
-      "suite": "Core",
-      "filter": "AgentReproduction.Tests.MapCommandNavigationAdmissionTests",
-      "expected": [
-        "SimultaneousAgentsPassTheSharedEntryAndReachTheirOwnDestinations",
-        "AssignmentIsStableAndReservesExplicitPriorities",
-        "ReleaseDoesNotOverwriteExternalChangesOrReplacementNavigation",
-        "AnOldInstallerCannotRestoreAReplacementOwnersIdenticalValue"
       ]
     },
     {

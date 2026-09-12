@@ -152,7 +152,8 @@ namespace Gameplay.Raid
             if (Time.realtimeSinceStartupAsDouble >= _nextProfileObservation) {
                 _nextProfileObservation = Time.realtimeSinceStartupAsDouble + 0.5;
                 foreach (var entry in _agents.Values)
-                    if (entry.Pawn != null && !ProfileMatches(entry.Profile, entry.Pawn.NavMeshAgent)) SetProfile(entry);
+                    if (entry.Pawn != null && !entry.Pawn.IsDead && AgentNavigationQuery.IsReady(entry.Pawn.NavMeshAgent) &&
+                        !ProfileMatches(entry.Profile, entry.Pawn.NavMeshAgent)) SetProfile(entry);
                 PruneProfiles();
             }
             Environments.Tick(2, 4);

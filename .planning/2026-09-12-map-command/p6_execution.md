@@ -25,13 +25,17 @@ MR01 首轮 `20260913-063355-897` 已结束：证据 PASS、源码未变、Edito
 
 ## P6b：远近指挥、编辑生效和导航断连
 
-### MR01 首轮发现：死亡角色继续占用路线锚点（待构造确认）
+### MR01 首轮发现：死亡角色继续占用路线锚点（构造已修复，待整局复核）
 
 `Logs/SceneRaid/20260913-063355-897` 在真实游戏时间推进期间记录：1 号已 Dead、血量 0，停在 `(215.699,3.167,-147.380)`；2 号血量 90，停在 `(214.997,3.167,-150.291)`，当前锚点距离约 2.705 米、完整路径、近零速度，反复 NoProgress 后对不同终点重试同一入图群。源码 `AgentPawnRoot.HandleDeath` 只 Stop/ResetPath，没有退出原生 NavMeshAgent 避让；该距离接近两个正式缩放身体的避让尺寸。死亡本身仍是预期行为，本次只调查幸存者被阻塞。
 
 - Extend `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationAdmissionTests.cs`：创建正式身体尺寸的双角色，一名在共享锚点经正式伤害入口死亡，另一名执行真实群路线。先保留红灯和位置/根/原生导航证据；对照仅关闭死亡角色的原生导航，确认幸存者可实际到达。不能关闭存活角色避让、缩半径或扩大到达容差。
 - 如对照确认，Extend `Assets/Scripts/Gameplay/Agent/Core/AgentPawnRoot.cs` 的既有 HandleDeath 身体收尾：停止移动后关闭自身 NavMeshAgent。生命/根终态/角色物体仍保留，归 Pawn 已有生命周期职责，不新建通用死亡服务，不把尸体行为塞进 MapGraph 或测试。
 - 定向复跑多人导航组、`SceneRaidTerminalTests.cs` 的四种死亡/撤离顺序，再重跑 MR01。只有实际修复结果证明后才关闭此项；若仍有存活敌人/角色占位，分别以真实探针继续定位，不能用死亡修复代替所有占位问题。
+
+构造 `064417-685` 确认原行为在锚点外 3 米以 NoProgress 失败，fallenNavEnabled=True。A/B `064543-069` 仅在测试关闭死亡者 NavMeshAgent，幸存者真实 Completed 到 n1（x=15.732），证明阻塞来源；但测试因 Installer.ProfileMatches 对已禁用原生组件 GetAreaCost 的错误日志仍为 FAIL，不改成通过。追加 Extend `Assets/Scripts/Gameplay/Raid/RaidMapCommandInstaller.cs`：已安装角色的 profile 观察只读取存活且原生导航就绪的组件，暂时未就绪期间保留原快照，恢复后继续原观察；职责仍归安装生命周期。正式修复移除 A/B 测试写入，由 Pawn 死亡收尾释放导航，同时补无效读取保护，复跑多人 5 项、终态 4 项和安装 10 项。
+
+正式修复定向结果：`064857-942` 多人导航 5/5、`064957-547` 死亡/撤离终态 4/4、`065108-446` 安装 10/10，全通过且源输入未变。测试不再关闭死亡者导航，由正式 HandleDeath 完成；幸存者到达精度、尸体位置/物体保留和存活导航启用均有断言。接下来同种子 MR01 整局复核，不能用这些构造替代整局结算。
 
 新路线脚本使用独立版本和目录 `tools/agent-repro/map-command-scenarios.json`；继承已有请求文件、哈希和进程隔离机制。MR02 按真实入图/行进/背包关闭前提，向正式 Router/地图 Handler 有限次下令，另一角色保持自主。旧 MC 脚本继续记录历史子指令含义，不静默改判定。具体驱动文件在 P6a 证据验证后补小规划，仍归 Automation/Commands，不能放入 Gameplay。
 

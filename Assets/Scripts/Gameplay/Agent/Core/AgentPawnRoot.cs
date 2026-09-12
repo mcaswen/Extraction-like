@@ -796,6 +796,8 @@ namespace Gameplay.Agent.Core
             _speedDebuffMultiplier = 1f;
 
             StopNavMeshForExternalMovement();
+            // 死亡身体保留，原生导航必须退出避让，否则会永久占用队友的群锚点。
+            if (_navMeshAgent != null) _navMeshAgent.enabled = false;
             _routeController?.Terminate(AgentRouteStage.Dead);
             _directiveLifecycle?.Cancel();
             SyncBodyFactsToBlackboard(timeSeconds);

@@ -15,6 +15,29 @@ namespace AgentReproduction.Tests
 {
     public sealed class MapCommandNavigationAdmissionTests:ReproductionTestFixture
     {
+        [UnityTest] public IEnumerator DeadAgentAtAnchorDoesNotBlockTheSurvivorsRealRoute()
+        {
+            TestNavMeshBuilder.Flat(World);Time.timeScale=4;
+            var fallen=AgentFactory.Create(World,"1",Vector3.zero,4,false,false);
+            var survivor=AgentFactory.Create(World,"2",Vector3.back*8,4,false,false);
+            var points=new[]{Vector3.zero,Vector3.right*16};
+            var clusters=points.Select(p=>{var enemy=EnemyFactory.Passive(World,p+Vector3.forward*3);
+                var cluster=TargetFactory.Enemies(World,enemy);Object.DestroyImmediate(enemy.gameObject);return (GameplayTargetClusterAuthoringBase)cluster;}).ToArray();
+            var binding=MapRouteFactory.Bind(World,clusters,points,MapRouteFactory.Chain(2));
+            var installer=World.Root("Death occupancy installer").AddComponent<RaidMapCommandInstaller>();installer.Configure(binding);
+            fallen.TakeCombatDamage(1000000,fallen.Position,Vector3.forward,null);
+            Assert.That(fallen.IsDead,Is.True);Vector3 bodyPosition=fallen.Position;
+            survivor.TrySubmitRoute(new AgentRouteRequest("n1",AgentRouteSource.Player,survivor.AgentId));
+            yield return RuntimeWait.Until(()=>survivor.RouteSnapshot.Stage==AgentRouteStage.Completed||survivor.RouteSnapshot.Stage==AgentRouteStage.Failed,
+                "幸存角色通过死亡队友占用的锚点",15);
+            AgentReproduction.Reporting.CaseArtifactWriter.Trace("death-navigation",JsonUtility.ToJson(
+                AnomalySearch.Automation.SceneRaid.Commands.SceneRaidRouteEvidence.Capture(survivor))+"; fallenNavEnabled="+fallen.NavMeshAgent.enabled);
+            Assert.That(survivor.RouteSnapshot.Stage,Is.EqualTo(AgentRouteStage.Completed),survivor.RouteSnapshot.Failure.ToString());
+            Assert.That(survivor.Position.x,Is.EqualTo(16).Within(.4));
+            Assert.That(fallen.Position,Is.EqualTo(bodyPosition));Assert.That(fallen.gameObject.activeInHierarchy,Is.True);
+            Assert.That(fallen.NavMeshAgent.enabled,Is.False);
+            Assert.That(survivor.NavMeshAgent.enabled,Is.True);ContractCompleted=true;
+        }
         [UnityTest] public IEnumerator SimultaneousAgentsPassTheSharedEntryAndReachTheirOwnDestinations()
         {
             TestNavMeshBuilder.Flat(World);Time.timeScale=4;
