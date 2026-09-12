@@ -46,6 +46,12 @@ namespace Gameplay.Agent.AI.Factories
                 BuildMaintainStateTree(AgentMacroStateId.Explore));
         }
 
+        public AgentBrainState CreateNavigateState()
+            => new AgentBrainState(AgentMacroStateId.Navigate, "Navigate",
+                new BehaviorTreeType("NavigateTree", new MoveToTargetActionNode("Navigate_MoveToLocation",
+                    AgentDirectiveType.MoveTo, AgentTargetKind.Location, AgentBlackboardKeys.MoveStoppingDistance,
+                    2f, finishDirectiveOnArrival: true)));
+
         /// <summary>
         /// 创建战斗状态
         /// </summary>

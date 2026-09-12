@@ -13,6 +13,14 @@ namespace Gameplay.Agent.AI.Factories
     {
         private const double CombatDamageInterruptWindowSeconds = 1.25d;
 
+        public bool CanEnterNavigate(StateMachineContext context)
+            => !GetBool(context, AgentBlackboardKeys.AgentIsDead) && context.Blackboard.TryGetValue(
+                AgentBlackboardKeys.PendingDirectiveRequest, out AgentDirectiveRequest request) &&
+                request.DirectiveType == AgentDirectiveType.MoveTo && request.TargetRef.Kind == AgentTargetKind.Location;
+
+        public bool CanLeaveNavigate(StateMachineContext context)
+            => !GetBool(context, AgentBlackboardKeys.AgentIsDead) && !CanEnterNavigate(context);
+
         /// <summary>
         /// 判断是否可以进入战斗状态
         /// 条件：有可见敌人且未死亡；手动资源指令生效时不被敌人事实打断

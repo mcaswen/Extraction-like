@@ -217,3 +217,6 @@
 - 构造 10/10、真实场景 2/2、敌人目标 16/16 通过。首轮失败和修正有原始证据；正式玩法仍待 StepExecutor/Controller，不能把成员事实通过冒称整条路线完成。
 
 结论：P3b2 审查通过，继续实际移动和单群执行。
+# P3b3 通用锚点移动审查（2026-09-13）
+
+结论：通过。Navigate 复用 MoveToTargetActionNode、AgentNavigationMotor 和原 Lifecycle，只给通用位置移动开启到达完成选项。旧状态枚举值、资源/撤离 Sequence 完成时机保持。没有复制路径追踪或受击恢复状态。新 4 项真实移动和旧 Navigation 17 项通过，证据见 p3_execution.md。后续单群执行仍需独立验收，不以移动通过代替整群完成。

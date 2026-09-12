@@ -42,6 +42,7 @@ namespace Gameplay.Agent.AI.Factories
             AgentBrainState searchResourceState = _stateFactory.CreateSearchResourceState();
             AgentBrainState interactLootState = _stateFactory.CreateInteractLootState();
             AgentBrainState extractionState = _stateFactory.CreateExtractionState();
+            AgentBrainState navigateState = _stateFactory.CreateNavigateState();
 
             // 先建立状态层级
             // 当前宏状态都挂在 Raid 之下，方便后续继续向下细拆子状态
@@ -53,6 +54,17 @@ namespace Gameplay.Agent.AI.Factories
             raidState.AddChild(searchResourceState);
             raidState.AddChild(interactLootState);
             raidState.AddChild(extractionState);
+            raidState.AddChild(navigateState);
+
+            // 路线锚点移动仍由同一 Brain 执行；命令已切换后可以离开任何旧动作状态。
+            foreach (var state in new[] { exploreState, combatState, investigateEnemySourceState,
+                searchResourceState, interactLootState, extractionState })
+                state.AddTransition(new StateTransition("ToNavigate", navigateState, _transitionRules.CanEnterNavigate, 120));
+            navigateState.AddTransition(new StateTransition("NavigateToCombat", combatState, _transitionRules.CanEnterCombat, 100));
+            navigateState.AddTransition(new StateTransition("NavigateToSource", investigateEnemySourceState, _transitionRules.CanEnterInvestigateEnemySource, 95));
+            navigateState.AddTransition(new StateTransition("NavigateToSearch", searchResourceState, _transitionRules.CanEnterSearchResource, 90));
+            navigateState.AddTransition(new StateTransition("NavigateToExtraction", extractionState, _transitionRules.CanEnterExtraction, 80));
+            navigateState.AddTransition(new StateTransition("NavigateToExplore", exploreState, _transitionRules.CanLeaveNavigate, 70));
 
             // Explore 转移
             exploreState.AddTransition(new StateTransition(

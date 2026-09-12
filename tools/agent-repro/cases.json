@@ -1,6 +1,17 @@
 {
   "groups": [
     {
+      "name": "AgentRouteMovement",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.AgentRouteMovementTests",
+      "expected": [
+        "LocationDirectiveActuallyMovesAndCompletesOnceAtTheAnchor",
+        "TravelRetaliationResumesAtNormalSpeed",
+        "TravelRetaliationResumesAtFourTimesSpeed",
+        "ReplacementWithinNavigateUsesTheNewDestinationAndIdentity"
+      ]
+    },
+    {
       "name": "MapGraphRouteTargets",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphRouteTargetTests",

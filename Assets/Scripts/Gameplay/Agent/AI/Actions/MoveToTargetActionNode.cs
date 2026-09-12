@@ -15,6 +15,7 @@ namespace Gameplay.Agent.AI.Actions
         private readonly AgentTargetKind _targetKind;
         private readonly BlackboardKey _stoppingDistanceKey;
         private readonly float _defaultStoppingDistance;
+        private readonly bool _finishDirectiveOnArrival;
 
         /// <summary>
         /// 创建移动到指令目标的行为节点
@@ -29,13 +30,15 @@ namespace Gameplay.Agent.AI.Actions
             AgentDirectiveType directiveType,
             AgentTargetKind targetKind,
             BlackboardKey stoppingDistanceKey,
-            float defaultStoppingDistance)
+            float defaultStoppingDistance,
+            bool finishDirectiveOnArrival = false)
             : base(nodeName)
         {
             _directiveType = directiveType;
             _targetKind = targetKind;
             _stoppingDistanceKey = stoppingDistanceKey;
             _defaultStoppingDistance = defaultStoppingDistance;
+            _finishDirectiveOnArrival = finishDirectiveOnArrival;
         }
 
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
@@ -97,14 +100,16 @@ namespace Gameplay.Agent.AI.Actions
                 _defaultStoppingDistance);
 
             // 移动参数来自黑板，方便不同 Agent 使用同一节点但不同配置
-            return MoveAgentTowards(
+            bool arrived = MoveAgentTowards(
                 agent,
                 targetPosition,
                 stoppingDistance,
                 moveSpeed,
-                context.DeltaTime)
-                ? Succeed()
-                : Running();
+                context.DeltaTime);
+            if (!arrived) return Running();
+            if (_finishDirectiveOnArrival && agent is IAgentCommandReceiver receiver)
+                receiver.FinishDirective(directiveRequest.CommandId);
+            return Succeed();
         }
     }
 }
