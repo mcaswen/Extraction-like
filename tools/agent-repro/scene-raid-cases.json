@@ -49,6 +49,13 @@
       "seed": 731,
       "observeSeconds": 600,
       "simulationSpeed": 1
+    },
+    {
+      "id": "SC10",
+      "mode": "ManualRoutes",
+      "seed": 731,
+      "observeSeconds": 300,
+      "simulationSpeed": 4
     }
   ]
 }

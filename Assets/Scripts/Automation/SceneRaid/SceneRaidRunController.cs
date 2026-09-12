@@ -18,6 +18,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private Commands.SceneRaidRouteEvidence _routes;
         private Commands.SceneRaidCommandEvidence _commandEvidence;
         private Commands.SceneRaidClusterCommandDriver _commands;
+        private Commands.SceneRaidRouteCommandDriver _routeCommands;
         private StreamWriter _carriedFile;
         private int _inventoryRevision = -1;
         private bool _initialInventoryCaptured;
@@ -40,7 +41,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _observer.CaptureDirective = _model.CaptureDirective;
             _observer.CaptureNavigation = _model.CaptureNavigation;
             _routes = new Commands.SceneRaidRouteEvidence(_writer);
-            if (config.mode == "Autonomous" || config.mode == "ManualCluster")
+            if (config.mode == "Autonomous" || config.mode == "ManualCluster" || config.mode == "ManualRoutes")
                 _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
             if (config.mode == "ManualCluster")
             {
@@ -53,6 +54,7 @@ namespace AnomalySearch.Automation.SceneRaid
             }
             _sampler = new SceneRaidFrameSampler(config.observeSeconds);
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));
+            if(config.mode=="ManualRoutes")_routeCommands=new Commands.SceneRaidRouteCommandDriver(config.ParseRouteScenario(),_writer);
             _writer.Flush();
             Application.runInBackground = true;
             Application.targetFrameRate = -1;
@@ -75,6 +77,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 _updates++;
                 _sampler.Sample();
                 _routes.Tick();
+                _routeCommands?.Tick();
                 _commandEvidence?.ObserveProgress();
                 if (_commands != null && !_initialInventoryCaptured && _updates >= 3)
                 {
@@ -138,9 +141,9 @@ namespace AnomalySearch.Automation.SceneRaid
                     Finish("HARNESS_FAILED", "No rendered game-camera frames after ten seconds; inspect render-final.json.");
                 else if (_observer.ProbeFailure != null) Finish("HARNESS_FAILED", _observer.ProbeFailure);
                 else if (_inventory?.BlockedReason != null) Finish("BEHAVIOR_BLOCKED", _inventory.BlockedReason);
-                else if ((_config.mode == "Autonomous" || _config.mode == "ManualCluster") && _missionFailed)
+                else if ((_config.mode == "Autonomous" || _config.mode == "ManualCluster" || _config.mode == "ManualRoutes") && _missionFailed)
                     Finish("RAID_OBSERVED_FAILURE", "Mission failure observed; verify death terminal state and surviving agents' settlement.");
-                else if ((_config.mode == "Autonomous" || _config.mode == "ManualCluster") && _missionCompleted)
+                else if ((_config.mode == "Autonomous" || _config.mode == "ManualCluster" || _config.mode == "ManualRoutes") && _missionCompleted)
                     Finish("RAID_OBSERVED_COMPLETE", "Mission completion observed; final warehouse/coverage contracts are still required.");
                 else if (_writer.WallSeconds >= _config.observeSeconds && _updates > 3)
                     Finish(_config.mode == "Observe" ? "OBSERVED" : "BEHAVIOR_BLOCKED", _config.mode == "Observe"
@@ -157,6 +160,7 @@ namespace AnomalySearch.Automation.SceneRaid
             {
                 _inventory?.Dispose();
                 _commands?.Stop("RaidEnded:" + status);
+                _routeCommands?.Stop(reason:"RaidEnded:"+status);
                 if (_commands != null) CaptureCarried("finalLiveAgents");
                 _observer.Snapshot(_model.Capture());
                 _routes.Tick(true);

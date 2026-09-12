@@ -2,6 +2,8 @@ Set-StrictMode -Version Latest
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Contracts.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.ClusterCommands.Contracts.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Routes.Contracts.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.RouteConfig.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.CommandConfig.psm1')
 function Get-SceneRaidFrameStatistics {
     param([object[]]$Frames, [ValidateRange(1,1000)][double]$TargetFps = 60)
     $frameBudgetMs = 1000.0 / $TargetFps
@@ -104,7 +106,7 @@ function Test-SceneRaidEvidence {
                 (Get-Item -LiteralPath $expectedExe -ErrorAction SilentlyContinue).Length -le 0) { $issues.Add('build_executable_missing_or_mismatch') }
         } catch { $issues.Add('invalid_or_missing_build:' + $_.Exception.Message) }
     }
-    if ($Config.mode -in @('Observe','Autonomous','ManualCluster')) {
+    if ($Config.mode -in @('Observe','Autonomous','ManualCluster','ManualRoutes')) {
         try {
             $result = Get-Content -LiteralPath (Join-Path $OutputPath 'result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
             if ($result.schemaVersion -ne 1 -or $result.runId -ne $Config.runId -or $result.mode -ne $Config.mode -or
@@ -129,6 +131,15 @@ function Test-SceneRaidEvidence {
             $stagnations = @($events | Where-Object kind -eq 'contract.movementStagnationSuspected').Count
             if (($Config.PSObject.Properties['routeEvidenceVersion'] -and $Config.routeEvidenceVersion -eq 1) -or @($events | Where-Object kind -eq 'route.graph').Count -gt 0) {
                 $routes = Test-SceneRaidRoutes $events $Config.mode
+                if($Config.mode -eq 'ManualRoutes') {
+                    $scenario=$Config.scenarioJson | ConvertFrom-Json
+                    Test-SceneRaidRouteScenario $scenario
+                    $frozen=Get-Content -LiteralPath (Join-Path $OutputPath 'route-scenario.json') -Raw -Encoding UTF8
+                    if($Config.schemaVersion -ne 3 -or $frozen -cne $Config.scenarioJson -or (Get-SceneRaidScenarioHash $frozen) -cne $Config.scenarioSha256){throw 'invalid_route_scenario_hash'}
+                    $scriptContract=Test-SceneRaidRouteScript $events $scenario
+                    $routes | Add-Member -NotePropertyName script -NotePropertyValue $scriptContract
+                    if($scriptContract.status -ne 'PASS'){$routes.status='FAIL';$routes.failures+=@($scriptContract.failures)}
+                }
                 $routes | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $OutputPath 'route-contracts.json') -Encoding UTF8
             }
             if ($issues.Contains('no_graphical_frames')) {
@@ -163,7 +174,7 @@ function Test-SceneRaidEvidence {
                     averageCalls=$(if ($valid.Count -gt 0) {($valid | Measure-Object previousCalls -Average).Average} else {$null})}
             })
             if ((@($result.observedAgents | Sort-Object) -join ',') -ne '1,2') { $issues.Add('expected_agents_missing') }
-            if ($Config.mode -eq 'Autonomous') {
+            if ($Config.mode -in @('Autonomous','ManualRoutes')) {
                 $completion = Test-SceneRaidCompletion $OutputPath $Config $events $result
                 $completion | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8
             }

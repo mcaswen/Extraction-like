@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "schemaVersion": 1,
+      "id": "MR02",
+      "agent": "2",
+      "nearMinimum": 10,
+      "farMinimum": 150,
+      "movementBeforeReplacement": 3,
+      "wallDeadline": 60,
+      "operations": ["Near", "FarCrossZone", "InvalidPreserves"]
+    }
+  ]
+}

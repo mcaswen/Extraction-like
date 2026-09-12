@@ -98,4 +98,71 @@ function Test-SceneRaidRoutes {
         coverage=$coverage;rejections=$rejections.ToArray();rootFailures=$rootFailures.ToArray();
         terminalAcceptance='RequiresIndependentRaidSettlement';sampledStatesDoNotProveEveryIntermediateFrame=$true}
 }
-Export-ModuleMember -Function Test-SceneRaidRoutes
+function Test-SceneRaidRouteScript {
+    param([object[]]$Events,$Scenario)
+    $failures=[Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $submitted=@($Events | Where-Object kind -eq 'routeScript.submitted' | ForEach-Object { $_.detail | ConvertFrom-Json })
+    $results=@($Events | Where-Object kind -eq 'route.result' | ForEach-Object { $_.detail | ConvertFrom-Json })
+    $finished=@($Events | Where-Object kind -eq 'routeScript.finished' | ForEach-Object { $_.detail | ConvertFrom-Json })
+    $states=@($Events | Where-Object kind -eq 'route.state' | ForEach-Object { $_.detail | ConvertFrom-Json })
+    $coverage=[ordered]@{near=$false;far=$false;invalidPreserves=$false;nearMoved=$false;farMoved=$false;farPassedNodes=$false;playerRetaliation=0;playerRetaliationResumed=0;otherAutonomous=$false}
+    if ($submitted.Count -ne 3 -or $finished.Count -ne 1 -or $finished[0].status -ne 'SUBMITTED') {
+        return [pscustomobject]@{status='PARTIAL';failures=@('finite_script_prerequisites_missing');coverage=$coverage;submitted=$submitted.Count}
+    }
+    for($i=0;$i -lt 3;$i++) {
+        $s=$submitted[$i]
+        if ($s.scenario -cne $Scenario.id -or $s.agent -cne $Scenario.agent -or $s.ordinal -ne $i -or $s.operation -cne $Scenario.operations[$i] -or $s.uiCommandsAfter-$s.uiCommandsBefore -ne 1) { [void]$failures.Add('script_submission_identity') }
+        if ($i -lt 2) {
+            $accepted=@($results | Where-Object { $_.requestId -ceq $s.requestId -and $_.agent -ceq $s.agent -and $_.stage -ceq 'Accepted' -and $_.source -ceq 'Player' })
+            if ($accepted.Count -eq 0) { [void]$failures.Add('script_root_not_accepted');continue }
+            $scans=@($Events | Where-Object kind -eq 'routeScript.candidates' | ForEach-Object { $_.detail | ConvertFrom-Json } | Where-Object operation -CEQ $s.operation)
+            if ($scans.Count -ne 1) { [void]$failures.Add('script_candidate_evidence_missing');continue }
+            $valid=@($scans[0].candidates | Where-Object { $_.reachable -and $_.distance -ge $(if($i -eq 0){$Scenario.nearMinimum}else{$Scenario.farMinimum}) -and ($i -eq 0 -or $_.zone -cne $submitted[0].zone) })
+            $ordered=@(if($i -eq 0){$valid | Sort-Object distance,node}else{$valid | Sort-Object @{Expression='distance';Descending=$true},node})
+            if ($ordered.Count -eq 0 -or $ordered[0].node -cne $s.node -or !$s.selected.reachable -or [Math]::Abs($ordered[0].distance-$s.selected.distance) -gt .01) { [void]$failures.Add('script_near_far_selection_mismatch') }
+            if ($i -eq 0){$coverage.near=$true}else{$coverage.far=$true}
+        } else {
+            $coverage.invalidPreserves=$s.stage -ceq 'Rejected' -and $s.reason -ceq 'MissingTarget' -and $s.before.active -and
+                $s.before.requestId -ceq $submitted[1].requestId -and $s.before.requestId -ceq $s.after.requestId -and
+                $s.before.version -eq $s.after.version -and $s.before.cursor -eq $s.after.cursor -and ($s.before.nodes -join '|') -ceq ($s.after.nodes -join '|')
+            if (!$coverage.invalidPreserves){[void]$failures.Add('rejection_did_not_preserve_player_route')}
+        }
+    }
+    $progress=@($Events | Where-Object kind -eq 'routeScript.progress' | ForEach-Object { $_.detail | ConvertFrom-Json })
+    if ($progress.Count -eq 1) {
+        $p=$progress[0];$dx=$p.currentPosition.x-$p.submittedPosition.x;$dy=$p.currentPosition.y-$p.submittedPosition.y;$dz=$p.currentPosition.z-$p.submittedPosition.z
+        $distance=[Math]::Sqrt($dx*$dx+$dy*$dy+$dz*$dz)
+        $coverage.nearMoved=$p.requestId -ceq $submitted[0].requestId -and $p.root.requestId -ceq $p.requestId -and $distance -ge $Scenario.movementBeforeReplacement -and [Math]::Abs($distance-$p.distance) -lt .01
+    }
+    if (!$coverage.nearMoved){[void]$failures.Add('near_root_has_no_actual_movement')}
+    $far=$submitted[1]
+    foreach($event in $Events | Where-Object kind -eq 'route.frame') {
+        $frame=$event.detail | ConvertFrom-Json
+        foreach($root in $frame.roots | Where-Object requestId -CEQ $far.requestId) {
+            $dx=$root.position.x-$far.after.position.x;$dz=$root.position.z-$far.after.position.z
+            if($dx*$dx+$dz*$dz -ge 9){$coverage.farMoved=$true}
+            if($root.cursor -gt 0){$coverage.farPassedNodes=$true}
+        }
+    }
+    if(!$coverage.farMoved){[void]$failures.Add('far_root_has_no_actual_movement')}
+    $active=@{};$retaliating=@{}
+    foreach($event in $Events) {
+        if($event.kind -eq 'route.result') {
+            $r=$event.detail | ConvertFrom-Json
+            if($r.stage -eq 'Accepted') {
+                if($active.ContainsKey($r.agent) -and $active[$r.agent].source -eq 'Player' -and $r.source -eq 'Autonomous'){[void]$failures.Add('autonomous_overrode_active_player_root')}
+                $active[$r.agent]=$r
+            } elseif($r.stage -in @('Completed','Cancelled','Failed','Dead','Extracted') -and $active.ContainsKey($r.agent) -and $active[$r.agent].requestId -eq $r.requestId){$active.Remove($r.agent)}
+        }
+        if($event.kind -ne 'route.state'){continue};$r=$event.detail | ConvertFrom-Json
+        if($r.agent -ne $Scenario.agent -and $r.source -eq 'Player'){[void]$failures.Add('script_commanded_other_agent')}
+        if($r.agent -ne $Scenario.agent -and $r.source -eq 'Autonomous' -and $r.active){$coverage.otherAutonomous=$true}
+        if($r.source -ne 'Player' -or !$r.active){continue}
+        $key="$($r.agent)|$($r.requestId)|$($r.version)"
+        if($r.retaliating){$coverage.playerRetaliation++;$retaliating[$key]=$true}
+        elseif($retaliating.ContainsKey($key)){$coverage.playerRetaliationResumed++;$retaliating.Remove($key)}
+    }
+    if(!$coverage.otherAutonomous){[void]$failures.Add('other_agent_autonomous_evidence_missing')}
+    return [pscustomobject]@{status=$(if($failures.Count){'FAIL'}else{'PASS'});failures=@($failures | Sort-Object);coverage=$coverage;submitted=$submitted.Count}
+}
+Export-ModuleMember -Function Test-SceneRaidRoutes,Test-SceneRaidRouteScript

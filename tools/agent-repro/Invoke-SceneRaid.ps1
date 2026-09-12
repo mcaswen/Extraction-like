@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('SC00','SC01','SC02','SC03','SC07','SC08','SC09')][string]$Case = 'SC01',
+    [ValidateSet('SC00','SC01','SC02','SC03','SC07','SC08','SC09','SC10')][string]$Case = 'SC01',
     [string]$ScenarioId,
     [string]$UnityPath,
     [string]$WorkspaceRoot,
@@ -17,6 +17,7 @@ Import-Module (Join-Path $PSScriptRoot 'AgentRepro.Workspace.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Report.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.EditorSession.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.CommandConfig.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.RouteConfig.psm1') -Force
 $source = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 if (!$WorkspaceRoot) { $WorkspaceRoot = Join-Path (Split-Path $source -Parent) '.agent-repro/AnomalySearch' }
 $runId = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
@@ -44,7 +45,12 @@ try {
         $scenario = Get-SceneRaidCommandScenario $ScenarioId
         $config.schemaVersion=2; $config.scenarioJson=$scenario.json; $config.scenarioSha256=$scenario.sha256
         [IO.File]::WriteAllText((Join-Path $output 'command-scenario.json'), $scenario.json, [Text.UTF8Encoding]::new($false))
-    } elseif ($ScenarioId) { throw '-ScenarioId requires SC08 or SC09.' }
+    } elseif ($config.mode -eq 'ManualRoutes') {
+        if (!$ScenarioId) { throw 'ManualRoutes requires -ScenarioId.' }
+        $scenario=Get-SceneRaidRouteScenario $ScenarioId
+        $config.schemaVersion=3; $config.scenarioJson=$scenario.json; $config.scenarioSha256=$scenario.sha256
+        [IO.File]::WriteAllText((Join-Path $output 'route-scenario.json'),$scenario.json,[Text.UTF8Encoding]::new($false))
+    } elseif ($ScenarioId) { throw '-ScenarioId requires SC08, SC09 or SC10.' }
     $before = Get-AgentReproSourceManifest $source
     @{runId=$runId;case=$Case;commit=(& git -C $source rev-parse HEAD);dirty=(& git -C $source status --porcelain);
         files=$before;competingUnity=@(Get-Process Unity -ErrorAction SilentlyContinue | Select-Object Id,CPU,Path)} |
