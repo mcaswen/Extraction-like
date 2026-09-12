@@ -220,3 +220,6 @@
 # P3b3 通用锚点移动审查（2026-09-13）
 
 结论：通过。Navigate 复用 MoveToTargetActionNode、AgentNavigationMotor 和原 Lifecycle，只给通用位置移动开启到达完成选项。旧状态枚举值、资源/撤离 Sequence 完成时机保持。没有复制路径追踪或受击恢复状态。新 4 项真实移动和旧 Navigation 17 项通过，证据见 p3_execution.md。后续单群执行仍需独立验收，不以移动通过代替整群完成。
+# P3b4 单群执行审查（2026-09-13）
+
+结论：通过。AgentClusterStepExecutor 只持有单群阶段和结果关联，原 Lifecycle 仍独占活动及挂起动作。移动到达再读整群事实，资源会话和敌人生命均由原系统确认。结果处理不重入提交；有限出生等待/成员重试不影响正常背包等待。CancelRoute 精确清根，保留有效反击。新 9 项及原背包 9 项通过，见 p3_execution.md。物理撤离门控和根序列属于 P3c，未用本步成绩代替。

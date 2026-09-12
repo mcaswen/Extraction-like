@@ -2,6 +2,37 @@
 
 基线：`99dbb61`。状态：P3a、P3b1–3 完成，进入 P3b4 单群执行。遵循已经确认的根路线/子指令分层，继续自主闭环，不新增架构审批点。
 
+## P3b4 小规划：单群到达、处理和等待
+
+- Create `Assets/Scripts/Gameplay/Agent/Routes/AgentClusterStepSnapshot.cs`：只读步骤身份、阶段、锚点、子指令、存活数、反击和失败，不包含可修改游标。
+- Create `Agent/Routes/AgentClusterStepExecutor.cs`：每次只拥有一个群阶段，原 MoveTo/Location 到达后重新核对真实导航容差，再按 Resolver 整群事实逐次创建原 Search/Engage/Extract。预先清空也先到锚点，中间撤离只通行，终点撤离等待 Raid。出生及无候选有限等待/重试，背包等待不算无进展。事件只记录，Tick 才提交下一子指令，不复制挂起记录。
+- Extend `Agent/Commands/AgentDirectiveLifecycleController.cs`：按根 ID/版本取消所属步骤，保留其他根和当前反击，防止旧根结束误清新任务。
+- Extend `Agent/Data/AgentResourceInteractionEvent.cs`、`Agent/AI/Actions/SearchResourceActionNode.cs`：追加 CapacityBlocked 事件，来自正式会话关闭结果，保留原 InventoryRequiresExtraction 标志。Executor 只接本 Agent/子指令事件，箱内余物保持。
+- Create `Assets/Scripts/Editor/AgentReproduction/World/MapRouteFactory.cs`：测试专属真实 Binding 构造，供后续整条路线测试复用，避免复制生产 Resolver。
+- Create `Editor/AgentReproduction/Tests/AgentClusterStepTests.cs`，Extend `tools/agent-repro/cases.json`：真实移动、多敌人接续、同伴击杀、有限等待、正式背包取物和满包关闭、反击恢复、取消所属步骤、中途撤离通行。Raid 物理触发门控在 P3c 接根接口后验证，不以本步代替结算测试。
+
+Executor 低频推进，每次只查当前群，移动由原 Motor 执行。根序列、全图版本和容量后自主撤离归后续 Controller/P4。容量撤离可传入资源免处理策略，沿途仍要求实际到达，不新增取物动作。
+
+### P3b4 实施结果
+
+- `20260913-024239-003` 首轮 8/8；审查补尚未注册群的 5 秒有界等待，`Logs/AgentReproduction/20260913-024431-854` 最终 **9/9 PASS**。原背包组 `20260913-024600-580` **9/9 PASS**。均正常退出，源输入未变。
+- 真实 Pawn 分别 Engage 两名敌人并清群，预先清空仍实际到达，反击中同伴击杀被挂起成员后接续剩余成员；禁用活成员/未注册群有限失败，不伪造清空。
+- 正式 Inventory 的等待、取物、关闭和容量评估通过，满包保留箱内物品及原容量事实。按根 ID/版本取消只清所属步骤，活动反击继续并且结束后不恢复旧根。
+- 审查：事件只记录、低频 Tick 才发下一动作；单群事实适配/单群阶段/原活动及挂起任务分别归 Resolver/Executor/Lifecycle，没有第二条队列。中间撤离本步只证明不提交 Extract，实际物理触发仍须 P3c 根门控测试，尚未标记整条路线完成。
+
+## P3c 小规划：根路线所有者、接口组合和正式撤离终态
+
+- Create `Assets/Scripts/Gameplay/Agent/Routes/AgentRouteEnvironment.cs`：安装器注入的不可变图/成本/群事实/导航配置上下文，携带安装版本和就绪事实。安装器更新上下文，Routes 不依赖 Binding，也不反向调用场景查找或成本补算。图和成本可在多个 Agent 间共享。
+- Create `Agent/Routes/AgentRouteState.cs`：内部根请求、计划、游标、终态和重规划次数。Create `AgentRouteSnapshot.cs`：不可变只读表示，供 ReadOnly/地图/探针观察，包含待规划新请求、当前群/前一群、真实阶段；读取不推进执行。
+- Create `Agent/Routes/AgentRouteController.cs`：每 Agent 唯一根序列和待规划任务。先规范化请求，预算推进入图；新请求规划期间旧路线继续，完整有效计划且首移动被原 Lifecycle 接受后才替换，拒绝不清旧任务。当前边改令入口限两端，群处理中限当前群。子结果只由 StepExecutor 消费，Controller 只在步骤终态推进；根锁覆盖步骤间隙。图/成本/绑定/位置过期有限重规划，次数/墙钟截止后明确结束，不回退直接执行终点。
+- Extend `AgentRouteResult.cs`：显式重规划标记，避免根内部修复被 UI 当成新的玩家命令成功。
+- Extend `Agent/Core/AgentPawnRoot.cs`、`Agent/Interfaces/IAgentReadOnly.cs`、`IAgentCommandReceiver.cs`：组合/更新注入环境，TrySubmitRoute、Snapshot、实例根结果事件；原 Update 只多一次 Controller.Tick，不放规划算法。死亡、撤离、停用清理一次；原低层兼容调用仍保留。
+- Extend `Agent/Runtime/AgentCommandRouter.cs`：高层请求按焦点/指定 Agent 路由，返回 Planning/Accepted/Rejected。Extend `AgentManualDirectiveLock.cs`：读取根快照保持整条玩家路线，不依赖步骤间恰好有一条 PendingDirective。
+- Extend `Gameplay/Raid/ExtractionPointController.cs`、`RaidFlowController.cs`：已安装路线的 Agent 只有当前最终 Extract 子指令才允许进入结算；中间点物理碰撞不计时，受击及时退出。真实结算成功后先通知 Pawn 根终态 Extracted，再由原 Raid 销毁实体，物品/存储结算仍由原流程独占。未安装图的历史场景保留原物理入口。
+- Create `Editor/AgentReproduction/Tests/AgentRouteExecutionTests.cs`，Extend `Editor/AgentReproduction/World/MapRouteFactory.cs` 和 `tools/agent-repro/cases.json`：真实多群顺序和拓扑修改、原子改令/拒绝、受击改令及旧回调、多 Agent 隔离、丢失/过期/预算、资源等待和整群接续、穿过中间撤离碰撞到正式终点、死亡/停用/结算一次。使用已有 InventoryFactory/原存储隔离，场景安装和全入口迁移归 P4。
+
+容量撤离路线读取原容量事实，仅沿途资源免处理，保留移动/敌群/最终撤离规则。Controller 不另选撤离点；P4 由原自主策略走统一入口选择，防止新旧策略双重发令。失败/重规划有明确原因和身份，视觉距离采样归 P5，不混进控制器。
+
 ## 分步顺序
 
 1. P3a：不可变请求、结果和群事实契约，有预算的入图规划，用构造图验证。

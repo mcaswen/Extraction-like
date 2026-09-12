@@ -1,6 +1,22 @@
 {
   "groups": [
     {
+      "name": "AgentClusterStep",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.AgentClusterStepTests",
+      "expected": [
+        "PreclearedEnemyClusterStillRequiresPhysicalAnchorArrival",
+        "ActualCombatClearsAllMembersBeforeCompletingCluster",
+        "AllyClearingSuspendedMemberPreservesClusterAndProcessesTheNext",
+        "DisabledLivingMemberFailsBoundedlyWithoutPretendingItDied",
+        "UnregisteredGroupWaitsThenFailsWithoutInventingCompletion",
+        "ResourceWaitsForFormalInventoryAndCompletesAfterTransfer",
+        "FullInventoryEndsResourceStepAndPreservesRemainingLoot",
+        "IntermediateExtractionArrivesWithoutSubmittingExtraction",
+        "CancellingOldRootDuringRetaliationDoesNotCancelTheAttacker"
+      ]
+    },
+    {
       "name": "AgentRouteMovement",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.AgentRouteMovementTests",

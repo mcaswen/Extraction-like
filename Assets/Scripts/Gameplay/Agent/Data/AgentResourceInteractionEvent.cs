@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Gameplay.Agent.Data
 {
-    public enum AgentResourceInteractionStage { Approaching, WaitingForInventory, Left, Completed }
+    public enum AgentResourceInteractionStage { Approaching, WaitingForInventory, Left, Completed, CapacityBlocked }
 
     /// <summary>搜索节点的真实交互事实；不包含指令或背包操作。</summary>
     public readonly struct AgentResourceInteractionEvent

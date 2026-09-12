@@ -444,7 +444,7 @@ namespace Gameplay.Agent.AI.Actions
             if (_observedInventorySession.CloseResult?.LootCapacity == global::InventoryLootCapacity.CapacityBlocked)
             {
                 SetFact(context, AgentBlackboardKeys.InventoryRequiresExtraction, true);
-                EndReportedInteraction(AgentResourceInteractionStage.Left);
+                EndReportedInteraction(AgentResourceInteractionStage.CapacityBlocked);
                 CompleteResourceSearch(context);
                 return Succeed();
             }

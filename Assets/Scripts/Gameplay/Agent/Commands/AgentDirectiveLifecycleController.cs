@@ -97,6 +97,18 @@ namespace Gameplay.Agent.Commands
             ClearActive();
         }
 
+        /// <summary>结束一个根任务时，只清理它的步骤。正在执行的伤害反击仍可自行结束。</summary>
+        public void CancelRoute(string rootRequestId, long routeVersion)
+        {
+            bool Owns(AgentDirectiveRequest value) => value.RouteContext.IsValid &&
+                value.RouteContext.RootRequestId == rootRequestId && value.RouteContext.RouteVersion == routeVersion;
+            if (_suspendedDirective.HasValue && Owns(_suspendedDirective.Value)) DiscardSuspended();
+            if (!_active.HasValue || !Owns(_active.Value)) return;
+            var cancelled = _active.Value;
+            ClearActive();
+            Publish(cancelled, AgentDirectiveStage.Cancelled);
+        }
+
         public void Tick()
         {
             if (!_active.HasValue) return;
