@@ -9,7 +9,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
 [RequireComponent(typeof(EnemyPatrolAwarenessController))]
-public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver
+public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver, IEnemyCombatAlertReceiver
 {
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
@@ -347,12 +347,30 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
 
         AssignCombatTarget(context.Attacker);
 
-        BeginDirectDamageForcedChase(context);
+        BeginForcedChase(ResolveDirectDamageFallbackPosition(context));
         _waitTimer = 0f;
         _patrolAwareness?.ResetAwareness();
         GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
         FacePlayerImmediately();
 
+        CurrentState = EnemyState.Chase;
+        SetAgentStopped(false);
+        TrySetChaseDestination();
+    }
+
+    /// <summary>响应同群警报，保留已有有效战斗，不触发本体受伤专用的反击招式。</summary>
+    public void NotifyCombatAlert(Transform attacker)
+    {
+        if (!isActiveAndEnabled || !EnemyCombatTargetBinding.TryCreate(attacker, out _) ||
+            (CurrentState != EnemyState.Patrol && EnemyCombatTargetBinding.TryCreate(PlayerTransform, out _)))
+            return;
+        if (!AssignCombatTarget(attacker)) return;
+
+        BeginForcedChase(attacker.position);
+        _waitTimer = 0f;
+        _patrolAwareness?.ResetAwareness();
+        GetComponent<EnemyLookController>()?.LookAtPlayer(PlayerTransform);
+        FacePlayerImmediately();
         CurrentState = EnemyState.Chase;
         SetAgentStopped(false);
         TrySetChaseDestination();
@@ -541,10 +559,10 @@ public class EnemyBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemy
                TrySetDestination(hit.position);
     }
 
-    private void BeginDirectDamageForcedChase(EnemyDamageContext context)
+    private void BeginForcedChase(Vector3 sourcePosition)
     {
         _directDamageForcedChaseEndTime = Time.time + DirectDamageForcedChaseDuration;
-        _directDamageFallbackPosition = ResolveDirectDamageFallbackPosition(context);
+        _directDamageFallbackPosition = sourcePosition;
         _hasDirectDamageFallbackPosition = true;
     }
 

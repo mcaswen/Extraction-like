@@ -5,6 +5,7 @@ using System.Linq;
 using AgentReproduction.Infrastructure;
 using AgentReproduction.Reporting;
 using AgentReproduction.World;
+using AnomalySearch.Automation.SceneRaid;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
@@ -54,6 +55,9 @@ namespace AgentReproduction.Tests
                 string retaliation = agent.DirectiveLifecycle.Active.Value.CommandId;
                 Assert.That(AgentManualDirectiveLock.IsCombatDamageDirective(agent.DirectiveLifecycle.Active.Value), Is.True);
                 Assert.That(events.Count(e => e.Request.CommandId == original.CommandId && e.Stage == AgentDirectiveStage.Suspended), Is.EqualTo(1));
+                var readModel = new SceneRaidReadModel(new SceneRaidIdentityMap(), _ => null);
+                Assert.That(readModel.CaptureDirective(agent.DirectiveLifecycle.Active.Value).suspendedCommand,
+                    Is.EqualTo(original.CommandId), "Runtime diagnostics must expose every suspended player task.");
                 // 连续受击和自动选择均不能覆盖已挂起的玩家意图。
                 agent.TakeCombatDamage(10, agent.Position, Vector3.back, attacker.gameObject);
                 Assert.That(agent.DirectiveLifecycle.Active.Value.CommandId, Is.EqualTo(retaliation));
@@ -142,6 +146,36 @@ namespace AgentReproduction.Tests
             b.DirectiveLifecycle.Tick();
             Assert.That(b.DirectiveLifecycle.Active?.CommandId, Is.EqualTo(taskB.CommandId));
             ContractCompleted = true;
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator CompletedSuspendedTargetEndsSuccessfully([ValueSource(nameof(Kinds))] string kind)
+        {
+            TestNavMeshBuilder.Flat(World, 160);
+            var agent = AgentFactory.Create(World, "Completed", Vector3.zero, 0, false, false);
+            var target = Target(kind, new Vector3(40, 0, 0));
+            var original = Submit(target, agent);
+            var attacker = kind == "Engage" ? original.TargetObject.GetComponent<EnemyHealthController>()
+                : EnemyFactory.Passive(World, new Vector3(0, 0, 10));
+            var events = new List<AgentDirectiveResult>();
+            Action<AgentDirectiveResult> observe = events.Add;
+            AgentDirectiveFeedbackChannel.Published += observe;
+            try
+            {
+                agent.TakeCombatDamage(10, agent.Position, Vector3.back, attacker.gameObject);
+                if (kind == "Search") target.MarkCompleted();
+                if (kind == "Extract") original.TargetObject.SetActive(false);
+                attacker.TakeDamage(100000);
+                agent.DirectiveLifecycle.Tick();
+                Assert.That(agent.DirectiveLifecycle.Active.HasValue, Is.False);
+                var terminal = events.Last(e => e.Request.CommandId == original.CommandId);
+                Assert.That(terminal.Stage, Is.EqualTo(kind == "Extract" ? AgentDirectiveStage.Failed : AgentDirectiveStage.Completed));
+                if (kind == "Extract") Assert.That(terminal.Reason, Is.EqualTo(AgentDirectiveFailure.InvalidTarget));
+                Assert.That(agent.DirectiveLifecycle.SuspendedDirective.HasValue, Is.False);
+                ContractCompleted = true;
+            }
+            finally { AgentDirectiveFeedbackChannel.Published -= observe; }
             yield return null;
         }
     }

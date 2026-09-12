@@ -291,7 +291,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 pathStatus = onMesh ? nav.pathStatus.ToString() : "NotOnNavMesh",
                 commandId = active?.CommandId, directive = active?.DirectiveType.ToString(),
                 targetId = active?.TargetId, target = active.HasValue ? _identity.Get(active.Value.TargetObject) : "",
-                suspendedCommand = pawn.DirectiveLifecycle?.SuspendedExtraction?.CommandId
+                suspendedCommand = pawn.DirectiveLifecycle?.SuspendedDirective?.CommandId
             };
         }
         private EnemyState CaptureEnemy(AgentPawnRoot pawn, EnemyHealthController enemy, float attackRange)

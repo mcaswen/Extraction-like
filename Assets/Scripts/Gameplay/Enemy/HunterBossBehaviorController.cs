@@ -5,7 +5,7 @@ using UnityEngine;
 /// 追猎者白模 Boss 行为。
 /// 近战挥锚、漩涡控场后抛锚、低血怒吼音波。
 /// </summary>
-public class HunterBossBehaviorController : MonoBehaviour
+public class HunterBossBehaviorController : MonoBehaviour, IEnemyCombatAlertReceiver
 {
     /// <summary>
     /// 追猎者 Boss 的主行为状态。
@@ -24,6 +24,7 @@ public class HunterBossBehaviorController : MonoBehaviour
     /// 当前 Boss 主行为状态。
     /// </summary>
     public BossState CurrentState;
+    private float _groupAlertChaseEndTime;
 
     [Header("Config")]
     [SerializeField, Tooltip("Runtime source of truth for this boss's tunable values.")]
@@ -306,7 +307,7 @@ public class HunterBossBehaviorController : MonoBehaviour
 
     private void TickChase(float distanceToPlayer)
     {
-        if (distanceToPlayer > LoseRange)
+        if (distanceToPlayer > LoseRange && Time.time >= _groupAlertChaseEndTime)
         {
             return;
         }
@@ -1243,6 +1244,17 @@ public class HunterBossBehaviorController : MonoBehaviour
         return projectileObject;
     }
 
+    /// <summary>空闲时接收同群警报，沿用招式和目标接收器，远处攻击者获得有限追击窗口。</summary>
+    public void NotifyCombatAlert(Transform attacker)
+    {
+        if (!isActiveAndEnabled || !EnemyCombatTargetBinding.TryCreate(attacker, out var binding) ||
+            (CurrentState != BossState.Idle && EnemyCombatTargetBinding.TryCreate(PlayerTransform, out _))) return;
+
+        ApplyCombatTargetBinding(binding);
+        _groupAlertChaseEndTime = Time.time + 4f;
+        CurrentState = BossState.Chase;
+    }
+
     private bool EnsurePlayerReferences()
     {
         Transform candidate = PlayerTransform;
@@ -1253,14 +1265,20 @@ public class HunterBossBehaviorController : MonoBehaviour
             EnemyTargetSelector.TrySelectNearest(transform, out candidate);
             EnemyCombatTargetBinding.TryCreate(candidate, out binding);
         }
+        ApplyCombatTargetBinding(binding);
+        return binding.Target != null;
+    }
+
+    private void ApplyCombatTargetBinding(EnemyCombatTargetBinding binding)
+    {
         if (!ReferenceEquals(PlayerTransform, null) && PlayerTransform != binding.Target)
         {
             ClearVortexField(); _meleeTimer = 0f; _meleeVisualTimer = 0f; CurrentState = BossState.Idle;
+            _groupAlertChaseEndTime = 0f;
         }
         PlayerTransform = binding.Target;
         _combatDamageReceiver = binding.DamageReceiver;
         _playerMovementController = binding.Target != null ? binding.Target.GetComponent<PlayerMovementController>() : null;
         _externalMovementReceiver = binding.MovementReceiver;
-        return binding.Target != null;
     }
 }

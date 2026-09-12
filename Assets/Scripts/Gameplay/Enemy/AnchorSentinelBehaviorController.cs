@@ -6,7 +6,7 @@ using UnityEngine;
 /// The sentinel is now a standard enemy: the player damages its body directly,
 /// and the sentinel attacks when the player enters detection range.
 /// </summary>
-public class AnchorSentinelBehaviorController : MonoBehaviour
+public class AnchorSentinelBehaviorController : MonoBehaviour, IEnemyCombatAlertReceiver
 {
     public enum SentinelState
     {
@@ -442,6 +442,17 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
         return Gameplay.Perception.TargetVisibilityQuery.Check(transform, origin, PlayerTransform, DetectionRange) == Gameplay.Perception.TargetVisibilityResult.Visible;
     }
 
+    /// <summary>接收同群攻击者，炮台仍站桩且仅在原射程和视线内启动攻击。</summary>
+    public void NotifyCombatAlert(Transform attacker)
+    {
+        if (!isActiveAndEnabled || CurrentState == SentinelState.Disabled ||
+            !EnemyCombatTargetBinding.TryCreate(attacker, out var binding) ||
+            (CurrentState != SentinelState.Dormant && EnemyCombatTargetBinding.TryCreate(PlayerTransform, out _))) return;
+
+        ApplyCombatTargetBinding(binding);
+        if (CurrentState == SentinelState.Dormant && CanSeeCurrentTarget()) ActivateSentinel();
+    }
+
     private bool EnsurePlayerReferences()
     {
         Transform candidate = PlayerTransform;
@@ -452,12 +463,17 @@ public class AnchorSentinelBehaviorController : MonoBehaviour
             EnemyTargetSelector.TrySelectNearest(transform, out candidate);
             EnemyCombatTargetBinding.TryCreate(candidate, out binding);
         }
+        ApplyCombatTargetBinding(binding);
+        return binding.Target != null;
+    }
+
+    private void ApplyCombatTargetBinding(EnemyCombatTargetBinding binding)
+    {
         if (!ReferenceEquals(PlayerTransform, null) && PlayerTransform != binding.Target)
         {
             ReturnToDormantState();
         }
         PlayerTransform = binding.Target;
         _combatDamageReceiver = binding.DamageReceiver;
-        return binding.Target != null;
     }
 }

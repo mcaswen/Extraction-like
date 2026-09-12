@@ -10,7 +10,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyLookController))]
 [RequireComponent(typeof(EnemySuspicionSensor))]
 [RequireComponent(typeof(EnemyPatrolAwarenessController))]
-public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver
+public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSource, IEnemyDirectDamageReceiver, IEnemyCombatAlertReceiver
 {
     private const float DirectDamageForcedChaseDuration = 4f;
     private const float DirectDamageDestinationSampleRadius = 4f;
@@ -542,7 +542,7 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         }
 
         AssignCombatTarget(context.Attacker);
-        BeginDirectDamageForcedChase(context);
+        BeginForcedChase(ResolveDirectDamageFallbackPosition(context));
 
         StopBiteStrike();
         _waitTimer = 0f;
@@ -550,6 +550,24 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
         _lookController?.LookAtPlayer(PlayerTransform);
         FacePlayerImmediately();
 
+        CurrentState = EnemyState.Chase;
+        SetAgentStopped(false);
+        TrySetChaseDestination();
+    }
+
+    /// <summary>响应同群警报，保留已有有效战斗，不触发本体受伤专用的反击招式。</summary>
+    public void NotifyCombatAlert(Transform attacker)
+    {
+        if (!isActiveAndEnabled || !EnemyCombatTargetBinding.TryCreate(attacker, out _) ||
+            (CurrentState != EnemyState.Patrol && EnemyCombatTargetBinding.TryCreate(PlayerTransform, out _)))
+            return;
+        if (!AssignCombatTarget(attacker)) return;
+
+        BeginForcedChase(attacker.position);
+        _waitTimer = 0f;
+        _patrolAwareness?.ResetAwareness();
+        _lookController?.LookAtPlayer(PlayerTransform);
+        FacePlayerImmediately();
         CurrentState = EnemyState.Chase;
         SetAgentStopped(false);
         TrySetChaseDestination();
@@ -946,10 +964,10 @@ public class AncientStranderBehaviorController : MonoBehaviour, IEnemyVisionSour
                TrySetDestination(hit.position);
     }
 
-    private void BeginDirectDamageForcedChase(EnemyDamageContext context)
+    private void BeginForcedChase(Vector3 sourcePosition)
     {
         _directDamageForcedChaseEndTime = Time.time + DirectDamageForcedChaseDuration;
-        _directDamageFallbackPosition = ResolveDirectDamageFallbackPosition(context);
+        _directDamageFallbackPosition = sourcePosition;
         _hasDirectDamageFallbackPosition = true;
     }
 
