@@ -1,6 +1,31 @@
 {
   "groups": [
     {
+      "name": "AgentRouteExecution",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.AgentRouteExecutionTests",
+      "expected": [
+        "RouterExecutesEveryClusterInOrderWithActualArrival",
+        "ResourceThenCombatThenDestinationUsesOneRoot",
+        "RejectedDisconnectedReplacementPreservesOldRoute",
+        "ValidReplacementFromCurrentEdgeRejectsOldCompletion",
+        "RetaliationKeepsRootAndOnlyValidNewRequestReplacesIt",
+        "PlayerRootLockCoversTheGapBetweenCompletedChildren",
+        "PlanningDiscardsChangedEnvironmentAndAcceptsOnlyCurrentCosts",
+        "RemovingTheRequiredEdgeCannotFallBackToDirectDestination",
+        "FocusedRouterAndTwoAgentsKeepIndependentRoots",
+        "DeathEndsOneRootAndDisableCannotChangeItsTerminal",
+        "IntermediatePhysicalExitDoesNotSettleUntilFinalExit",
+        "FinalExtractionRetaliationResumesAtNormalSpeed",
+        "FinalExtractionRetaliationResumesAtFourTimesSpeed",
+        "AutonomousRootAlsoResumesItsRemainingClustersAfterDamage",
+        "DisablingActorCancelsActiveRootAndPendingReplacementOnce",
+        "UnreadyCostsEndPlanningWithinTheWallClockLimit",
+        "CapacityEndsPlayerRootAndWithdrawalTraversesResourcesWithoutTakingLoot",
+        "FailedStorageEndsRootsOnceAndRetainsActorAndInventory"
+      ]
+    },
+    {
       "name": "AgentClusterStep",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.AgentClusterStepTests",

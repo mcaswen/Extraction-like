@@ -9,6 +9,7 @@ using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Progression;
 using Gameplay.Agent.Runtime;
+using Gameplay.Agent.Routes;
 using Gameplay.Agent.SO;
 using Gameplay.Agent.Talent;
 using Gameplay.Targets.Authoring;
@@ -62,6 +63,11 @@ namespace Gameplay.Agent.Core
         private AgentDirectiveLifecycleController _directiveLifecycle;
         private AgentNavigationMotor _navigationMotor;
         public AgentDirectiveLifecycleController DirectiveLifecycle => _directiveLifecycle;
+        private AgentRouteController _routeController;
+        private AgentRouteEnvironment _routeEnvironment;
+        public AgentRouteSnapshot RouteSnapshot => _routeController?.Snapshot ?? default;
+        public event System.Action<AgentRouteResult> RouteResultPublished;
+        public long RoutePlanningQueryCount => _routeController?.PlanningQueryCount ?? 0;
         private Vector3 _externalImpulseVelocity;
         private float _externalImpulseMovementOverrideRemaining;
         private float _speedDebuffDurationRemaining;
@@ -177,10 +183,12 @@ namespace Gameplay.Agent.Core
         {
             if (EnsureInitialized())
                 RegisterWithRuntime();
+            if (_routeEnvironment != null) CreateRouteController();
         }
 
         private void OnDisable()
         {
+            _routeController?.Dispose();
             _directiveLifecycle?.Cancel();
             UnregisterFromRuntime();
         }
@@ -215,6 +223,7 @@ namespace Gameplay.Agent.Core
 
             // 驱动自主 Brain 更新
             using (LifecycleMarker.Auto()) _directiveLifecycle.Tick();
+            _routeController?.Tick();
             using (BrainMarker.Auto()) _brainController.Tick(deltaTime, timeSeconds);
             TickExternalImpulseMovement(deltaTime);
         }
@@ -464,6 +473,30 @@ namespace Gameplay.Agent.Core
         }
 
         public AgentDirectiveResult TrySubmitDirective(AgentDirectiveRequest request) => _directiveLifecycle.Submit(request);
+        public AgentRouteResult TrySubmitRoute(AgentRouteRequest request)
+        {
+            if (_routeController != null) return _routeController.Submit(request);
+            var rejected = new AgentRouteResult(request.WithTargetAgentId(AgentId), 0, AgentRouteStage.Rejected, AgentRouteFailure.MapUnavailable);
+            RouteResultPublished?.Invoke(rejected); return rejected;
+        }
+        /// <summary>由 Raid 安装器组合世界适配与共享图，不在 Pawn 查找或构造地图。</summary>
+        public void ConfigureRoutes(AgentRouteEnvironment environment)
+        {
+            _routeEnvironment = environment;
+            if (_routeController == null) CreateRouteController();
+            else _routeController.UpdateEnvironment(environment);
+        }
+        private void CreateRouteController()
+        {
+            _routeController?.Dispose();
+            if (_routeController != null) _routeController.ResultPublished -= ForwardRouteResult;
+            _routeController = new AgentRouteController(this, _directiveLifecycle, _routeEnvironment);
+            _routeController.ResultPublished += ForwardRouteResult;
+        }
+        private void ForwardRouteResult(AgentRouteResult result) => RouteResultPublished?.Invoke(result);
+        public bool AllowsExtractionAt(GameObject point) => _routeController == null || _routeController.AllowsExtractionAt(point);
+        public void NotifyExtracted() => _routeController?.Terminate(AgentRouteStage.Extracted);
+        public void NotifyRaidSettlementFailed() => _routeController?.Terminate(AgentRouteStage.Failed, AgentRouteFailure.SettlementFailed);
         public bool FinishDirective(string commandId, AgentDirectiveFailure failure = AgentDirectiveFailure.None) => _directiveLifecycle.Finish(commandId, failure);
         public AgentNavigationResult MoveDirective(Vector3 destination, float stoppingDistance, float speed)
         {
@@ -510,6 +543,7 @@ namespace Gameplay.Agent.Core
         /// </summary>
         public void ClearDirective()
         {
+            _routeController?.Cancel();
             _directiveLifecycle.Cancel();
         }
 
@@ -747,6 +781,7 @@ namespace Gameplay.Agent.Core
             _speedDebuffMultiplier = 1f;
 
             StopNavMeshForExternalMovement();
+            _routeController?.Terminate(AgentRouteStage.Dead);
             _directiveLifecycle?.Cancel();
             SyncBodyFactsToBlackboard(timeSeconds);
 

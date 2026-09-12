@@ -223,3 +223,10 @@
 # P3b4 单群执行审查（2026-09-13）
 
 结论：通过。AgentClusterStepExecutor 只持有单群阶段和结果关联，原 Lifecycle 仍独占活动及挂起动作。移动到达再读整群事实，资源会话和敌人生命均由原系统确认。结果处理不重入提交；有限出生等待/成员重试不影响正常背包等待。CancelRoute 精确清根，保留有效反击。新 9 项及原背包 9 项通过，见 p3_execution.md。物理撤离门控和根序列属于 P3c，未用本步成绩代替。
+# P3c/P3d 根路线、接口及结算审查（2026-09-13）
+
+结论：通过。AgentRouteState 是唯一根序列，RouteController 执行原子接受/替换和有界重规划，AgentClusterStepExecutor 只管当前群，DirectiveLifecycle 仍保留唯一挂起动作。Environment 注入共享规划输入，Routes 无 Binding/View/Editor 依赖；Data 中子步骤上下文不反向引用 Routes。Pawn 增加组合和事件转发，无新增路径算法。只读快照不推进游标。
+
+Raid 保留实际计时、写仓和销毁所有权：中间节点碰撞不撤离，最终 Extract 才允许计时；受击立即清进度。结算成功通知 Extracted 后原流程销毁；失败保留角色/库存并通知 SettlementFailed，不留下永久活动根。原丢失撤离点计时从“完成列表”改为清理列表，避免空点误结算。
+
+最终根路线 18/18、原物理撤离 14/14、原存储 8/8 通过，源输入未变；速度证据明确为 1 和 4。初轮临时物品缺数据库以及 Raid 初始化重置倍速的夹具问题均修正并记录。规范内未新增公共万能事件总线、第二导航马达、Gameplay→测试依赖。阶段证据见 p3_execution.md，P4 的安装/全入口和 P5/P6 的显示/主场景尚不在本步通过范围。

@@ -1,6 +1,7 @@
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Navigation;
+using Gameplay.Agent.Routes;
 using UnityEngine;
 
 namespace Gameplay.Agent.Interfaces
@@ -13,6 +14,7 @@ namespace Gameplay.Agent.Interfaces
     /// </summary>
     public interface IAgentCommandReceiver
     {
+        AgentRouteResult TrySubmitRoute(AgentRouteRequest request);
         /// <summary>
         /// 使Agent受到伤害
         /// </summary>

@@ -36,6 +36,8 @@ public class RaidFlowController : MonoBehaviour
     private readonly Dictionary<string, AgentExtractionProgress> _activeExtractionProgressByAgentId =
         new Dictionary<string, AgentExtractionProgress>();
     private readonly HashSet<string> _extractedAgentIds = new HashSet<string>();
+    private readonly List<string> _invalidExtractionAgentIds = new List<string>();
+    private readonly List<AgentRuntimeHandle> _terminalAgentBuffer = new List<AgentRuntimeHandle>();
     private readonly HashSet<string> _requiredExtractionAgentIds =
         new HashSet<string>(System.StringComparer.Ordinal);
     private readonly HashSet<string> _settledExtractionAgentIds =
@@ -189,6 +191,8 @@ public class RaidFlowController : MonoBehaviour
         if (string.IsNullOrEmpty(normalizedAgentId))
             return;
 
+        isInside &= IsAgentExtractionAllowed(normalizedAgentId, extractionPoint);
+
         if (isInside)
         {
             // 第一次进入撤离点时捕获本局要求撤离的智能体列表，避免后续销毁导致目标丢失
@@ -237,15 +241,16 @@ public class RaidFlowController : MonoBehaviour
         }
 
         _completedExtractionAgentIds.Clear();
+        _invalidExtractionAgentIds.Clear();
         _extractionProgressSeconds = 0f;
 
         // 允许多个智能体同时读条，用完成列表延迟移除避免遍历时修改字典
         foreach (KeyValuePair<string, AgentExtractionProgress> pair in _activeExtractionProgressByAgentId)
         {
             AgentExtractionProgress progress = pair.Value;
-            if (progress == null || progress.ExtractionPoint == null)
+            if (progress == null || progress.ExtractionPoint == null || !IsAgentExtractionAllowed(pair.Key, progress.ExtractionPoint))
             {
-                _completedExtractionAgentIds.Add(pair.Key);
+                _invalidExtractionAgentIds.Add(pair.Key);
                 continue;
             }
 
@@ -257,6 +262,7 @@ public class RaidFlowController : MonoBehaviour
                 _completedExtractionAgentIds.Add(pair.Key);
         }
 
+        foreach (string id in _invalidExtractionAgentIds) _activeExtractionProgressByAgentId.Remove(id);
         for (int i = 0; i < _completedExtractionAgentIds.Count; i++)
         {
             string completedAgentId = _completedExtractionAgentIds[i];
@@ -273,6 +279,9 @@ public class RaidFlowController : MonoBehaviour
                 _isMissionFailed = true;
                 _missionFailureDetail = "Extraction settlement failed; inventory retained";
                 Time.timeScale = 0f;
+                AgentRuntimeRegistry.ActiveInstance?.CopyHandlesTo(_terminalAgentBuffer);
+                foreach (var handle in _terminalAgentBuffer) handle.PawnRoot?.NotifyRaidSettlementFailed();
+                _activeExtractionProgressByAgentId.Clear();
                 return;
             }
             _activeExtractionProgressByAgentId.Remove(completedAgentId);
@@ -632,12 +641,22 @@ public class RaidFlowController : MonoBehaviour
         }
 
         // 撤离成功后从场景移除对应智能体，流程层只保留已撤离标识
+        handle.PawnRoot.NotifyExtracted();
         AgentSfxEmitter sfxEmitter = handle.PawnRoot.GetComponent<AgentSfxEmitter>();
         if (sfxEmitter != null)
             sfxEmitter.PlayExtract();
         else
             global::GameSfxPlayer.PlayAiExtract(handle.PawnRoot.transform.position);
         UnityEngine.Object.Destroy(handle.PawnRoot.gameObject);
+    }
+
+    /// <summary>正式路线只允许最终 Extract。未安装路网的历史场景保留物理触发入口。</summary>
+    public static bool IsAgentExtractionAllowed(string agentId, ExtractionPointController point)
+    {
+        if (point == null) return false;
+        var registry = AgentRuntimeRegistry.ActiveInstance;
+        if (registry == null || !registry.TryGetHandle(agentId, out var handle) || handle.PawnRoot == null) return true;
+        return !handle.PawnRoot.IsDead && handle.PawnRoot.AllowsExtractionAt(point.gameObject);
     }
 
     private string GetExtractionPromptText()

@@ -31,6 +31,7 @@ namespace Gameplay.Agent.Runtime
 
         public static bool ShouldHoldManualDirective(IAgentReadOnly agent)
         {
+            if (agent != null && agent.RouteSnapshot.HoldsPlayerRoute) return true;
             if (agent == null ||
                 agent.Blackboard == null ||
                 !agent.Blackboard.TryGetValue(

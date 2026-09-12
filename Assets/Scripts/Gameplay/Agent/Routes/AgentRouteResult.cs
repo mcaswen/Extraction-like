@@ -5,7 +5,7 @@ namespace Gameplay.Agent.Routes
     {
         None, NoAgent, AgentUnavailable, MapUnavailable, InvalidRequest, MissingTarget, TargetUnavailable,
         NoReachableEntry, Disconnected, StaleContext, Superseded, Unreachable, NoProgress,
-        SpawnFailed, NoExecutableMember, CapacityExtraction, NavigationNotReady
+        SpawnFailed, NoExecutableMember, CapacityExtraction, NavigationNotReady, SettlementFailed
     }
 
     public readonly struct AgentRouteResult
@@ -15,9 +15,10 @@ namespace Gameplay.Agent.Routes
         public AgentRouteStage Stage { get; }
         public AgentRouteFailure Reason { get; }
         public string Detail { get; }
+        public bool IsReplan { get; }
         public bool Accepted => Stage == AgentRouteStage.Accepted;
         public AgentRouteResult(AgentRouteRequest request, long version, AgentRouteStage stage,
-            AgentRouteFailure reason = AgentRouteFailure.None, string detail = "")
-        { Request = request; RouteVersion = version; Stage = stage; Reason = reason; Detail = detail ?? string.Empty; }
+            AgentRouteFailure reason = AgentRouteFailure.None, string detail = "", bool isReplan = false)
+        { Request = request; RouteVersion = version; Stage = stage; Reason = reason; Detail = detail ?? string.Empty; IsReplan = isReplan; }
     }
 }

@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using Gameplay.MapGraph.Binding;
 using Gameplay.MapGraph.Config;
+using Gameplay.MapGraph.Runtime;
+using Gameplay.Agent.Core;
+using Gameplay.Agent.Navigation;
+using Gameplay.Agent.Routes;
 using Gameplay.Targets.Authoring;
 using NUnit.Framework;
 using UnityEngine;
@@ -9,6 +13,21 @@ namespace AgentReproduction.World
 {
     public static class MapRouteFactory
     {
+        public static MapGraphEdgeDefinition[] Chain(int count)
+        {
+            var edges = new MapGraphEdgeDefinition[count-1];
+            for (int i=0;i<edges.Length;i++) edges[i]=new MapGraphEdgeDefinition("e"+i,"n"+i,"n"+(i+1),1,MapGraphAxis.Horizontal,MapGraphEdgeOrigin.Manual);
+            return edges;
+        }
+        public static AgentRouteEnvironment Environment(MapGraphBindingAuthoring binding, AgentPawnRoot agent, long version=1)
+        {
+            var profile=AgentNavigationProfile.FromAgent(agent.NavMeshAgent);
+            // 构造图实际测量每条保存边，不能用显示距离代替导航长度。
+            var service=new MapGraphNavigationCostService(binding.MapDefinition,binding,profile,"","");
+            while(service.PendingEdgeCount>0) service.ProcessPending(2);
+            return new AgentRouteEnvironment(new MapGraphService(binding.MapDefinition),binding.MapDefinition.Revision,version,
+                service.Snapshot,new MapGraphRouteTargetResolver(binding),profile);
+        }
         public static MapGraphBindingAuthoring Bind(TestWorldBuilder world,
             GameplayTargetClusterAuthoringBase[] clusters, Vector3[] anchors, MapGraphEdgeDefinition[] edges = null)
         {

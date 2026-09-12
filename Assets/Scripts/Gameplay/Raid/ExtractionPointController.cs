@@ -125,6 +125,7 @@ public class ExtractionPointController : MonoBehaviour
 
     private void SetPlayerInsideActiveBounds(PlayerPresence player, bool isInside)
     {
+        isInside &= RaidFlowController.IsAgentExtractionAllowed(player.AgentId, this);
         if (player.Inside == isInside)
         {
             return;

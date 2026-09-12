@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using Core.BehaviorTree.Blackboard;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
+using Gameplay.Agent.Routes;
 
 namespace Gameplay.Agent.Interfaces
 {
@@ -12,6 +13,8 @@ namespace Gameplay.Agent.Interfaces
     /// </summary>
     public interface IAgentReadOnly
     {
+        AgentRouteSnapshot RouteSnapshot { get; }
+        event System.Action<AgentRouteResult> RouteResultPublished;
         /// <summary>
         /// Agent 的强类型运行时 ID
         /// </summary>

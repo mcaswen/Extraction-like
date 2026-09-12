@@ -1,4 +1,5 @@
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Routes;
 using UnityEngine;
 
 namespace Gameplay.Agent.Runtime
@@ -9,6 +10,13 @@ namespace Gameplay.Agent.Runtime
     /// </summary>
     public sealed class AgentCommandRouter : MonoBehaviour
     {
+        public AgentRouteResult TrySubmitRoute(AgentRouteRequest request) => TrySubmitRoute(request.TargetAgentId, request);
+        public AgentRouteResult TrySubmitRoute(AgentId agentId, AgentRouteRequest request)
+        {
+            if (!TryResolveTarget(agentId, out var handle))
+                return new AgentRouteResult(request.WithTargetAgentId(agentId), 0, AgentRouteStage.Rejected, AgentRouteFailure.NoAgent);
+            return handle.CommandReceiver.TrySubmitRoute(request.WithTargetAgentId(handle.AgentId));
+        }
         private static AgentCommandRouter _activeInstance;
 
         [SerializeField] private AgentRuntimeRegistry _registry;
