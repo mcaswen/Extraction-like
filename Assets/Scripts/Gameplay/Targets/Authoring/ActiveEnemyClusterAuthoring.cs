@@ -29,6 +29,19 @@ namespace Gameplay.Targets.Authoring
         public IReadOnlyList<GameplayTargetEntityMember> InitialEnemies => _initialEnemies;
         public bool HasRegisteredEnemy => CountRegisteredEnemies() > 0;
 
+        /// <summary>包括临时禁用的活敌人，避免可执行候选为空时误判整群被清空。</summary>
+        public int CountLivingEnemies()
+            => CountLivingEnemies(_initialEnemies) + CountLivingEnemies(_runtimeEnemies);
+
+        private static int CountLivingEnemies(List<GameplayTargetEntityMember> members)
+        {
+            int count = 0;
+            if (members != null)
+                for (int i = 0; i < members.Count; i++)
+                    if (TryGetEnemy(members[i], out var enemy) && enemy.HasLivingHealth) count++;
+            return count;
+        }
+
         public void CopyAliveEnemiesTo(List<global::EnemyHealthController> results)
         {
             results.Clear();
@@ -363,7 +376,7 @@ namespace Gameplay.Targets.Authoring
                 return;
             }
 
-            if (!enemy.IsAlive)
+            if (!enemy.HasLivingHealth)
                 member.MarkCompleted();
         }
 
@@ -418,7 +431,11 @@ namespace Gameplay.Targets.Authoring
             out global::EnemyHealthController enemy)
         {
             enemy = null;
-            return member != null && member.TryGetComponent(out enemy) && enemy != null;
+            if (member == null) return false;
+            if (member.TryGetComponent(out enemy) && enemy != null) return true;
+            // 完成判定仍需读取失活子物体上的生命，普通战斗候选随后继续检查 IsAlive。
+            if (member.EntityObject != null) enemy = member.EntityObject.GetComponentInChildren<global::EnemyHealthController>(true);
+            return enemy != null;
         }
 
         private int CountRegisteredEnemies()

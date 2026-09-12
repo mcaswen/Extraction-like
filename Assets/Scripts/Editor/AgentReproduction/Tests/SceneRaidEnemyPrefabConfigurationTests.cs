@@ -50,6 +50,9 @@ namespace AgentReproduction.Tests
                     if (point == null || !point.gameObject.activeInHierarchy) continue;
                     slots++;
                     var spawn = point.GetComponent<EnemySpawnPoint>();
+                    Assert.That(spawn, Is.Not.Null, point.name);
+                    Assert.That(spawn.SpawnState, Is.EqualTo(EnemySpawnState.Completed), point.name + ": " + spawn.SpawnFailure);
+                    Assert.That(spawn.RegisteredSourceCluster, Is.EqualTo(source), point.name + " 的实际出生注册来源");
                     GameObject prefab = source.TryResolveEnemyPrefabForSpawnPoint(point, out var configured) ? configured : spawn?.EnemyPrefab;
                     if (prefab == null || prefab.GetComponentInChildren<EnemyHealthController>(true) == null ||
                         prefab.GetComponentInChildren<EnemySpawnPoint>(true) != null)

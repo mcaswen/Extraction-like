@@ -386,7 +386,12 @@ namespace Gameplay.Targets.Runtime
         public bool TryRegisterSpawnedEnemy(
             Transform spawnPoint,
             global::EnemyHealthController enemy)
+            => TryRegisterSpawnedEnemy(spawnPoint, enemy, out _);
+
+        public bool TryRegisterSpawnedEnemy(Transform spawnPoint, global::EnemyHealthController enemy,
+            out EnemySourceClusterAuthoring registeredSource)
         {
+            registeredSource = null;
             if (spawnPoint == null || enemy == null)
                 return false;
 
@@ -395,6 +400,7 @@ namespace Gameplay.Targets.Runtime
                 if (_clusters[i] is EnemySourceClusterAuthoring sourceCluster &&
                     sourceCluster.TryRegisterSpawnedEnemy(spawnPoint, enemy))
                 {
+                    registeredSource = sourceCluster;
                     return true;
                 }
             }

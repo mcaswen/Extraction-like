@@ -9,6 +9,8 @@ using UnityEngine.AI;
 /// 敌人刷新点。
 /// 运行时生成一个配置好的敌人，并可把固定巡逻路线绑定给生成物。
 /// </summary>
+public enum EnemySpawnState { NotStarted, Spawning, Completed, Failed }
+
 public sealed class EnemySpawnPoint : MonoBehaviour
 {
     private static readonly float SpawnRadius = 0f;
@@ -29,6 +31,7 @@ public sealed class EnemySpawnPoint : MonoBehaviour
 
     private GameObject _spawnedEnemy;
     private bool _hasSpawned;
+    private EnemySourceClusterAuthoring _registeredSourceCluster;
 
     /// <summary>
     /// 当前刷新点生成的敌人预制体。
@@ -44,6 +47,11 @@ public sealed class EnemySpawnPoint : MonoBehaviour
     /// 当前刷新点本轮是否已经生成过敌人。
     /// </summary>
     public bool HasSpawned => _hasSpawned;
+    public EnemySpawnState SpawnState { get; private set; }
+    public string SpawnFailure { get; private set; } = string.Empty;
+    public bool RegisteredToSourceCluster { get; private set; }
+    public GameObject SpawnedEnemy => _spawnedEnemy;
+    public EnemySourceClusterAuthoring RegisteredSourceCluster => _registeredSourceCluster;
 
     private void Awake()
     {
@@ -74,10 +82,23 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         }
 
         _hasSpawned = true;
+        SpawnState = EnemySpawnState.Spawning;
+        try { return SpawnConfiguredEnemy(); }
+        catch (Exception exception)
+        {
+            SpawnState = EnemySpawnState.Failed;
+            SpawnFailure = exception.GetType().Name;
+            throw;
+        }
+    }
 
+    private GameObject SpawnConfiguredEnemy()
+    {
         GameObject enemyPrefab = ResolveEnemyPrefab();
         if (enemyPrefab == null)
         {
+            SpawnState = EnemySpawnState.Failed;
+            SpawnFailure = "MissingPrefab";
             return null;
         }
 
@@ -100,7 +121,9 @@ public sealed class EnemySpawnPoint : MonoBehaviour
             0,
             NavMeshSampleRadius);
 
-        RegisterSpawnedEnemyTarget(enemy);
+        RegisteredToSourceCluster = RegisterSpawnedEnemyTarget(enemy, out bool hasHealth);
+        SpawnState = hasHealth ? EnemySpawnState.Completed : EnemySpawnState.Failed;
+        SpawnFailure = hasHealth ? string.Empty : "MissingHealth";
         return enemy;
     }
 
@@ -214,17 +237,17 @@ public sealed class EnemySpawnPoint : MonoBehaviour
     }
 
     // 刷新点声明敌人来源；生成出的活动敌人会交给目标注册表追踪。
-    private void RegisterSpawnedEnemyTarget(GameObject enemy)
+    private bool RegisterSpawnedEnemyTarget(GameObject enemy, out bool hasHealth)
     {
-        if (enemy == null)
-            return;
+        hasHealth = false;
+        if (enemy == null) return false;
 
         EnemyHealthController enemyHealth = enemy.GetComponent<EnemyHealthController>();
         if (enemyHealth == null)
             enemyHealth = enemy.GetComponentInChildren<EnemyHealthController>(true);
 
-        if (enemyHealth != null)
-            GameplayTargetRegistry.GetOrCreate().TryRegisterSpawnedEnemy(transform, enemyHealth);
+        hasHealth = enemyHealth != null;
+        return hasHealth && GameplayTargetRegistry.GetOrCreate().TryRegisterSpawnedEnemy(transform, enemyHealth, out _registeredSourceCluster);
     }
 
     private void OnValidate()

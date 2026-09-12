@@ -47,6 +47,7 @@
 
 - Create `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphRouteTargetResolver.cs`：实现 Routes 所有的只读接口，包装现有 Binding、Registry 和 DirectiveFactory。按直接对象身份规范化来源/活跃/成员，拒绝歧义 TargetId；不使用注册表的同名来源近邻猜测。只在解析新请求时按成员查归属，处理时查询当前群，不在 Update 全场搜对象。
 - Extend `Assets/Scripts/Gameplay/Enemy/EnemySpawnPoint.cs`：记录 NotStarted/Spawning/Completed/Failed、失败原因和来源注册结果，保留 HasSpawned 的尝试语义和原 Spawn 返回值；不为测试删出生物或修改敌人配置。来源群必须所有出生点生成且成功注册后才可按存活数判断清空。
+- Extend `Assets/Scripts/Gameplay/Targets/Runtime/GameplayTargetRegistry.cs`：原出生注册增加返回实际接收 Source 引用的重载，旧签名继续转发。出生点保存真实注册来源，Resolver 精确核对，避免仅凭注册到某个群的布尔值误认归属；不新增第二次按名称/距离查找。
 - Extend `Assets/Scripts/Gameplay/Targets/Authoring/EnemySourceClusterAuthoring.cs`：暴露当前已配置/已解析的 Active 引用，不在只读查询中自动创建群。生成、注册和生命周期仍归原系统。
 - Extend `Assets/Scripts/Gameplay/Targets/Authoring/ActiveEnemyClusterAuthoring.cs`：提供包括禁用/失活实体的存活计数，复用原成员集合。禁用的活敌人不能因为不在可执行候选列表中而算被击杀。
 - Resolver 对资源复用聚合完成状态，对敌人来源同时读取出生结果及整群生命，对独立活跃群保留未注册/已注册区别，对撤离仅给候选，不执行 presence/结算。Source 的处理候选委托原 Active 群的 DirectiveFactory，避免重复写敌人候选扫描算法。
@@ -54,6 +55,19 @@
 - Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphRouteTargetTests.cs`，Extend `tools/agent-repro/cases.json`：真实出生缺配置/缺健康/未注册、尚未 Start、成功生成/注册/死亡，来源与活跃同节点，重复 TargetId 的具体成员、禁用活敌人不算完成、资源/撤离候选、锚点变化/禁用/丢失的区分。出生资产配置定向回归，不全项目重跑。
 
 验收为只读事实可定位、无凭空出生/清群/取物，以及候选继续经过原验证服务。新 Resolver 归 Binding 适配，Routes 不反向引用此类。执行器后续消费这些事实，不能根据单个 Engage 结果自行断言群完成。
+
+P3b2 构造发现 `EnemyHealthController.IsAlive` 本义为“可作为战斗目标”，包含 enabled/active 条件，不能用作死亡事实。Extend `Assets/Scripts/Gameplay/Enemy/EnemyHealthController.cs` 增加 `HasLivingHealth`，保留 IsAlive 原筛选语义；Extend `ActiveEnemyClusterAuthoring.cs` 的存活计数及成员完成刷新改读生命事实。否则禁用活敌人不仅会让新路线误判，也会使原聚合永久标记完成。测试增加等待聚合刷新后仍未完成，以及重新启用恢复候选，原战斗目标筛选保持。
+
+## P3b3 小规划：实际到达群锚点的移动子指令
+
+源码当前只有 `MoveTo + EnemySource` 的侦查状态，`MoveTo + Location` 虽能通过导航验证，却没有行为树驱动。因此先在原 Brain 工厂接通通用位置移动，再由 StepExecutor 包装；不能把资源/撤离群伪装成敌人来源来强行复用旧宏状态。
+
+- Extend `Assets/Scripts/Gameplay/Agent/Data/AgentMacroStateId.cs`：尾部增加 Navigate，保留既有枚举数值。它表示具体位置移动，不保存路线。
+- Extend `Agent/AI/Factories/AgentBrainStateFactory.cs`、`AgentBrainStateMachineFactory.cs`、`AgentBrainTransitionRules.cs`：复用原 MoveToTargetActionNode 创建 Navigate，入口只认当前有效 MoveTo/Location，所有原状态可在命令切换时进入，伤害后按原指令恢复。其他宏状态的既有优先级/感知规则保持。
+- Extend `Agent/AI/Actions/MoveToTargetActionNode.cs`：新增默认关闭的到达完成选项，仅 Navigate 开启；原 Motor 返回 Arrived 后按本次 CommandId 完成生命周期。原搜索/撤离 Sequence 和来源侦查不提前清指令。停止距离复用 MoveStoppingDistance，测试记录实际 Transform/到锚点导航距离。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/AgentRouteMovementTests.cs`，Extend `tools/agent-repro/cases.json`：4× 真正移动至锚点、途中有效伤害及恢复、同宏状态改令不继续旧目标、到达只产生一次对应身份的完成。保留 1× 伤害恢复对照，复用既有原导航回归按影响选择。
+
+没有新增导航马达或并行 Tick 行为树，Routes 仍只能提交具体动作，Brain 执行动作，生命周期拥有完成事实。随后 P3b4 的单群执行器才能据此进入处理阶段。此步无新地图视觉，截图在 P5 新 HUD 接通时继续。
 
 
 ### P3b1 实施结果
@@ -63,3 +77,12 @@
 - 真实 Pawn/导航/伤害验证自主路线子任务挂起及恢复，连续伤害不重复挂起，拒绝改令保留旧任务，接受改令清除旧挂起，旧完成回调无效，同伴清掉被挂起敌人仍返回正确步骤身份。实例结果事件不串 Agent。
 - Context 归 Agent/Data，原 Request 的两种构造和 With 复制均保留字段；PayloadId 保持。Lifecycle 仍只有原有活动/挂起存储，未新增路线队列或第二份恢复数据。
 - 本步没有补通用位置 MoveTo 的 Brain 执行或整群队列，测试没有冒称真实群路线已经完整运行。继续 P3b2 事实适配。
+
+
+### P3b2 实施结果
+
+- `020951-162` 测试枚举拼写编译失败，修为现有 EnemySource/ActiveEnemy；`021117-840` 7/9，暴露 IsAlive 混入可用性的真实问题，另一个为 NUnit 对 Unity 已销毁对象的 null 判定。生命事实拆分后 `021407-067` 8/9，剩余是此 EditMode 入口进入 Play Mode 后仍不支持 WaitForSeconds 的测试调度限制，改用有墙钟截止的逐帧等待。
+- `Logs/AgentReproduction/20260913-021607-570` 最终 **10/10 PASS**：出生未就绪、缺 Prefab/健康/注册、实际注册错群、来源/活跃/成员规范化、重复 TargetId、禁用活敌人和失活子物体生命、锚点版本/预算、资源/敌人/撤离候选、无查询副作用。空可执行敌人列表不会把旧 Factory 的群对象兼容结果当成真实敌人提交。
+- `021740-143` 真实 Scenezl_Final 1 配置 **2/2 PASS**，30 个出生点全部 Completed，保存的实际注册 Source 正确，30 名敌人/出生点数量保持。`022003-002` 受影响的敌人目标选择 **16/16 PASS**。最终共 28 项定向通过，均正常退出、源输入未变。
+- `EnemyHealthController.HasLivingHealth` 提供死亡事实，原 IsAlive 仍筛选 enabled/active；Active 群计数和聚合完成改读生命事实，临时禁用不永久标记完成。生命/出生/归属事实各由原拥有者提供，Binding 适配不造敌人、不标记取物或结算。
+- Resolver 只在新请求规范化时查成员归属，当前节点事实不全场扫描；锚点观察有预算、不查询 NavMesh，成员死亡不重算全图。未改场景或正式地图布局，无新增视觉状态。P3b3 继续通用位置移动。

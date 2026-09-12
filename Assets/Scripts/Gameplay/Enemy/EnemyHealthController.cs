@@ -414,9 +414,14 @@ public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
     {
         get
         {
-            InitializeHealthIfNeeded();
-            return enabled && gameObject.activeInHierarchy && !_hasDied && _currentHealth > 0f;
+            return enabled && gameObject.activeInHierarchy && HasLivingHealth;
         }
+    }
+
+    /// <summary>实际生命事实，不把临时禁用或隐藏当成死亡。</summary>
+    public bool HasLivingHealth
+    {
+        get { InitializeHealthIfNeeded(); return !_hasDied && _currentHealth > 0f; }
     }
 
     private void Awake()

@@ -53,6 +53,8 @@ namespace Gameplay.Targets.Authoring
         protected override string IdPrefix => "EnemySourceCluster";
         protected override bool RefreshStateEveryFrame => true;
 
+        /// <summary>只读取已有引用，不因诊断/路线查询创建活跃群。</summary>
+        public ActiveEnemyClusterAuthoring ConfiguredActiveEnemyCluster => _activeEnemyCluster;
         public ActiveEnemyClusterAuthoring ActiveEnemyCluster => ResolveActiveEnemyCluster(Application.isPlaying);
         public IReadOnlyList<GameObject> EnemyPrefabs => _enemyPrefabs;
         public IReadOnlyList<Transform> SpawnPoints => _spawnPoints;

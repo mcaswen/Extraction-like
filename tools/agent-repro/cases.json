@@ -1,6 +1,23 @@
 {
   "groups": [
     {
+      "name": "MapGraphRouteTargets",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphRouteTargetTests",
+      "expected": [
+        "InactiveNestedHealthIsStillLivingUntilActuallyDestroyed",
+        "UnstartedSourceCannotCompleteAndFailedAttemptStaysDistinct",
+        "SuccessfulSpawnRegistrationAndDeathProduceAuthoritativeFacts",
+        "MissingHealthAndMissingRegistrationCannotMasqueradeAsClearGroups",
+        "DisabledLivingEnemiesAreNotReportedAsCompleted",
+        "DuplicateSourceIdsStillResolveConcreteMembersToTheirOwnNodes",
+        "RegistrationToAnotherSourceIsNotEnoughForReadiness",
+        "ResourceEnemyAndExtractionCandidatesReuseFormalValidation",
+        "AnchorRefreshIsBudgetedAndUnavailableIsDistinctFromMissing",
+        "ReadingAnUnreadySourceDoesNotCreateAnActiveCluster"
+      ]
+    },
+    {
       "name": "AgentRouteLifecycle",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.AgentRouteLifecycleTests",
