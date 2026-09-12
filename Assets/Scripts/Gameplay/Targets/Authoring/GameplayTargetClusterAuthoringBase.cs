@@ -51,6 +51,11 @@ namespace Gameplay.Targets.Authoring
         public long RangeLineWriteCount => _rangeCache.LineWriteCount;
         public int RangeInputPointCount => _rangeCache.InputPointCount;
 
+        /// <summary>按本群地表探测配置投射位置；只读，不重建轮廓或改变实体。</summary>
+        public Vector3 ProjectPositionToGround(Vector3 position)
+            => GameplayTargetShapeUtility.ProjectPointToGround(position, transform,
+                _groundProbeHeight, _groundProbeDistance, _minGroundNormalY);
+
         private GameplayTargetRangeCache.Settings RangeSettings => new GameplayTargetRangeCache.Settings
         {
             Padding = _rangePadding, Radius = _fallbackRadius, CircleSegments = _circleSegments,

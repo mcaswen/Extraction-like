@@ -54,6 +54,17 @@ namespace Gameplay.Targets.Authoring
         /// </summary>
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
 
+        /// <summary>复制真实成员的几何接近候选，供离线导航锚点采样；不创建调试物体或改变资源状态。</summary>
+        public bool TryCopyNavigationApproachCandidates(GameObject resourceObject, Vector3 referencePosition, List<Vector3> results)
+        {
+            if (results == null) throw new System.ArgumentNullException(nameof(results));
+            results.Clear();
+            var member = FindMember(resourceObject);
+            if (member == null || member.EntityObject == null) return false;
+            FillResourceNavigationCandidates(member.EntityObject, member.Position, referencePosition, results);
+            return results.Count > 0;
+        }
+
         /// <summary>
         /// 向调试日志追加资源群内每个成员的可搜索状态和 NavMesh 可达性快照
         /// </summary>

@@ -22,6 +22,13 @@ namespace Gameplay.Agent.Navigation
             internal void Reset() { LastFailure = null; LastCornerCount = 0; }
         }
 
+        /// <summary>只采样地面锚点并验证高度，不计算路径。</summary>
+        public static bool TrySampleAnchor(AgentNavigationProfile profile, Vector3 candidate, out Vector3 position, out string failure)
+        {
+            if (profile == null) throw new ArgumentNullException(nameof(profile));
+            return TrySample(candidate, profile.SampleRadius, profile.HeightTolerance, profile.Filter, out position, out failure);
+        }
+
         /// <summary>无需场景中的 Agent，按快照查询两个地面锚点间的完整路径。</summary>
         public static AgentNavigationSegmentResult Calculate(AgentNavigationProfile profile, Vector3 origin,
             Vector3 destination, Buffer buffer)

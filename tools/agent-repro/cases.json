@@ -1,6 +1,17 @@
 {
   "groups": [
     {
+      "name": "MapGraphSceneCollection",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphSceneCollectionTests",
+      "expected": [
+        "ActualSceneIdentityProfilesAndPrefabReferencesAreStable",
+        "ActualSceneAnchorsAndAllDirectedPairsAreMeasuredWithinBudget",
+        "SamplingAndCancellationNeverInventMissingConnections",
+        "CandidateSelectionSkipsAValidButDisconnectedNavigationIsland"
+      ]
+    },
+    {
       "name": "MapGraphBinding",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphBindingTests",

@@ -158,13 +158,24 @@ public sealed class EnemySpawnPoint : MonoBehaviour
         }
 
         Vector3 desired = transform.TransformPoint(localOffset);
-        if (NavMesh.SamplePosition(desired, out NavMeshHit hit, NavMeshSampleRadius, NavMesh.AllAreas))
+        if (TrySampleSpawnGround(desired, out Vector3 ground))
         {
-            return EnemyGroundingUtility.ApplyRootGroundOffset(enemyPrefab, hit.position);
+            return EnemyGroundingUtility.ApplyRootGroundOffset(enemyPrefab, ground);
         }
 
         Debug.LogWarning($"[{name}] Could not sample spawn position on NavMesh. Using raw spawn position.", this);
         return EnemyGroundingUtility.ApplyRootGroundOffset(enemyPrefab, desired);
+    }
+
+    /// <summary>读取出生中心的地面导航候选；保留固定偏移，不消耗随机数、不生成实体。</summary>
+    public bool TryGetNavigationGroundCandidate(out Vector3 ground)
+        => TrySampleSpawnGround(transform.TransformPoint(PositionOffset), out ground);
+
+    private static bool TrySampleSpawnGround(Vector3 desired, out Vector3 ground)
+    {
+        bool found = NavMesh.SamplePosition(desired, out NavMeshHit hit, NavMeshSampleRadius, NavMesh.AllAreas);
+        ground = found ? hit.position : default;
+        return found;
     }
 
     private Quaternion ResolveSpawnRotation()
