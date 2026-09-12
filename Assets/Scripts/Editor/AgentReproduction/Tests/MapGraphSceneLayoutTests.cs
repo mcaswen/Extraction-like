@@ -110,10 +110,14 @@ namespace AgentReproduction.Tests
                 status = generator.Result != null ? "JOINT_LAYOUT_FEASIBLE" : generator.IsComplete ? "JOINT_LAYOUT_UNRESOLVED" : "GENERATOR_TIMEOUT",
                 strategy = generator.SelectedStrategy, complete = generator.IsComplete, states = generator.SearchStates,
                 coordinateIterations = generator.CoordinateIterations,
+                addedConnections = generator.AddedConnections,
                 maximumCoordinatesPerAdvance = maximumCoordinatesPerAdvance,
                 milliseconds = generator.ElapsedMilliseconds, maximumAdvanceMilliseconds = maximumAdvanceMilliseconds,
                 feasibleCandidates = generator.Attempts.Sum(a => a.FeasibleLayouts),
-                budgetExhausted = generator.Attempts.Any(a => a.BudgetExhausted), navigation = scan.Connections.Select(c => c.Edge).ToList(),
+                budgetExhausted = generator.Attempts.Any(a => a.BudgetExhausted) || generator.ShortcutBudgetExhausted, navigation = scan.Connections.Select(c => c.Edge).ToList(),
+                shortcutAttempts = generator.ShortcutAttempts.Select(a => new ShortcutEvidence
+                { edgeId = a.EdgeId, from = a.FromNodeId, to = a.ToNodeId, ratio = a.DetourRatio,
+                    outcome = a.Outcome, relayout = a.Relayout, details = a.Details.ToList() }).ToList(),
                 attempts = generator.Attempts.Select(a => new AttemptEvidence
                 { strategy = a.Strategy, outcome = a.Outcome, edgeIds = a.EdgeIds.ToList(), states = a.SearchStates,
                     feasibleCandidates = a.FeasibleLayouts, coordinateIterations = a.CoordinateIterations, budgetExhausted = a.BudgetExhausted,
@@ -137,7 +141,8 @@ namespace AgentReproduction.Tests
             Assert.That(generator.IsComplete, Is.True, "Joint generation exceeded its wall-clock deadline.");
             Assert.That(generator.Result, Is.Not.Null, string.Join("\n", evidence.failures));
             Assert.That(generator.SearchStates, Is.LessThanOrEqualTo(settings.MaximumSearchStates));
-            Assert.That(generator.CoordinateIterations, Is.LessThanOrEqualTo(4 * Math.Max(settings.MaximumLayoutIterations, snapshot.Nodes.Count * 32)));
+            Assert.That(generator.CoordinateIterations, Is.LessThanOrEqualTo(5 * Math.Max(settings.MaximumLayoutIterations, snapshot.Nodes.Count * 32)));
+            Assert.That(layout.Edges.Count, Is.EqualTo(BuildSeed(reference, scan, snapshot.Profiles.Count).Count + generator.AddedConnections));
             Assert.That(scan.TotalQueryCount, Is.EqualTo(queriesBefore));
             Assert.That(layout.Nodes.Count, Is.EqualTo(28)); Assert.That(layout.Zones.Count, Is.EqualTo(7));
             Assert.That(MapGraphValidation.Validate(layout, reference).IsValid, Is.True);
@@ -164,6 +169,10 @@ namespace AgentReproduction.Tests
             string Root(string node) { while (parent[node] != node) node = parent[node]; return node; }
         }
 
+        [Serializable] private sealed class ShortcutEvidence
+        {
+            public string edgeId, from, to, outcome; public double ratio; public bool relayout; public List<string> details;
+        }
         [Serializable] private sealed class AttemptEvidence
         {
             public string strategy, outcome; public List<string> edgeIds, failures;
@@ -175,11 +184,13 @@ namespace AgentReproduction.Tests
             public bool complete, budgetExhausted;
             public int states, feasibleCandidates, reversals, crossings;
             public int coordinateIterations;
+            public int addedConnections;
             public int maximumCoordinatesPerAdvance;
             public double milliseconds, score;
             public double maximumAdvanceMilliseconds;
             public string strategy;
             public List<AttemptEvidence> attempts;
+            public List<ShortcutEvidence> shortcutAttempts;
             public List<string> failures, geometryIssues;
             public List<string> navigationIssues = new List<string>();
             public List<MapGraphZoneDefinition> zones;

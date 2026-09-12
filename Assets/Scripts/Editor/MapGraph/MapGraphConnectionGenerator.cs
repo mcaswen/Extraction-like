@@ -39,6 +39,7 @@ namespace AnomalySearch.Editor.MapGraph
         private readonly List<MapGraphValidationIssue> _diagnostics = new List<MapGraphValidationIssue>();
         private readonly int _maximumStates;
         private MapGraphConnectionCandidates _candidates;
+        private MapGraphShortcutGenerator _shortcuts;
         private IEnumerator<int> _search;
         private MapGraphLayoutDraft _best;
         private double _score = double.PositiveInfinity;
@@ -51,6 +52,9 @@ namespace AnomalySearch.Editor.MapGraph
         public int WorkItems { get; private set; }
         public double ElapsedMilliseconds { get; private set; }
         public double BestScore => _score;
+        public int AddedConnections => _shortcuts?.AddedConnections ?? 0;
+        public bool ShortcutBudgetExhausted => _shortcuts?.BudgetExhausted ?? false;
+        public IReadOnlyList<MapGraphShortcutAttempt> ShortcutAttempts => _shortcuts?.Attempts ?? Array.Empty<MapGraphShortcutAttempt>();
         public IReadOnlyList<MapGraphConnectionAttempt> Attempts { get; }
         public IReadOnlyList<MapGraphValidationIssue> Diagnostics { get; }
 
@@ -143,6 +147,28 @@ namespace AnomalySearch.Editor.MapGraph
             }
             if (_best == null) _diagnostics.Add(new MapGraphValidationIssue("NoFeasibleConnectionLayout", "graph",
                 detail: "有界候选未找到可发布布局，请检查各候选冲突或调整预算；不表示数学无解。"));
+            else
+            {
+                _shortcuts = new MapGraphShortcutGenerator(_reference, _best, _candidates, _settings, _maximumStates - SearchStates);
+                try
+                {
+                    while (!_shortcuts.IsComplete)
+                    {
+                        int states = _shortcuts.SearchStates, iterations = _shortcuts.CoordinateIterations;
+                        _shortcuts.Advance(1); SearchStates += _shortcuts.SearchStates - states;
+                        CoordinateIterations += _shortcuts.CoordinateIterations - iterations; yield return 1;
+                    }
+                    if (_shortcuts.Result == null)
+                    { _best = null; _score = double.PositiveInfinity; _diagnostics.Add(new MapGraphValidationIssue("ShortcutBaseValidationFailed", "graph")); }
+                    else
+                    {
+                        _best = _shortcuts.Result; _score = MapGraphLayoutScore.Evaluate(_best, _reference, _settings).Total;
+                        if (_shortcuts.BudgetExhausted) _diagnostics.Add(new MapGraphValidationIssue("OptionalShortcutBudgetExhausted", "graph",
+                            detail: "可选补边的预算耗尽，保留已通过验收的图。", error: false));
+                    }
+                }
+                finally { if (!_shortcuts.IsComplete) _shortcuts.Cancel(); }
+            }
         }
     }
 }

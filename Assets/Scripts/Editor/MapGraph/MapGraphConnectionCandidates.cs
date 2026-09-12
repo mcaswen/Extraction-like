@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.MapGraph.Config;
+using Gameplay.MapGraph.Runtime;
 using UnityEngine;
 
 namespace AnomalySearch.Editor.MapGraph
@@ -24,9 +25,11 @@ namespace AnomalySearch.Editor.MapGraph
         }
 
         private readonly Dictionary<string, MapGraphNavigationEdgeBake[]> _profiles = new Dictionary<string, MapGraphNavigationEdgeBake[]>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Dictionary<string, MapGraphNavigationEdgeBake>> _profilePairs = new Dictionary<string, Dictionary<string, MapGraphNavigationEdgeBake>>(StringComparer.Ordinal);
         private readonly Dictionary<string, Candidate> _byPair = new Dictionary<string, Candidate>(StringComparer.Ordinal);
         public IReadOnlyList<Candidate> Ordered { get; private set; } = Array.Empty<Candidate>();
         public MapGraphValidationResult Validation { get; private set; }
+        public IEnumerable<string> ProfileIds => _profiles.Keys;
 
         public MapGraphConnectionCandidates(MapGraphLayoutDraft reference, IEnumerable<MapGraphScannedConnection> measurements,
             IEnumerable<string> profileIds)
@@ -46,7 +49,9 @@ namespace AnomalySearch.Editor.MapGraph
             {
                 var matrix = samples.Where(s => s.ProfileId == id).Select(s => s.Edge).ToArray();
                 _profiles.Add(id, matrix);
-                issues.AddRange(MapGraphNavigationValidation.Validate(empty, matrix, false).Issues);
+                var report = MapGraphNavigationValidation.Validate(empty, matrix, false);
+                issues.AddRange(report.Issues);
+                if (report.IsValid) _profilePairs.Add(id, matrix.ToDictionary(e => MapGraphGeometry.PairKey(e.FromNodeId, e.ToNodeId), StringComparer.Ordinal));
             }
             Validation = new MapGraphValidationResult(issues);
             if (!Validation.IsValid) return;
@@ -81,6 +86,26 @@ namespace AnomalySearch.Editor.MapGraph
 
         public bool TryGet(string from, string to, out Candidate candidate)
             => _byPair.TryGetValue(MapGraphGeometry.PairKey(from, to), out candidate);
+
+        public bool TryGetLength(string profile, string from, string to, out float length)
+        {
+            length = float.PositiveInfinity;
+            if (!_profilePairs.TryGetValue(profile, out var pairs) || !pairs.TryGetValue(MapGraphGeometry.PairKey(from, to), out var sample)) return false;
+            length = sample.FromNodeId == from ? sample.ForwardLength : sample.ReverseLength;
+            return MapGraphGeometry.Finite(length) && length >= 0;
+        }
+
+        public MapGraphCostSnapshot CreateCostSnapshot(MapGraphLayoutDraft draft, string profile)
+        {
+            var costs = new List<MapGraphEdgeCost>();
+            foreach (var edge in draft.Edges)
+            {
+                TryGetLength(profile, edge.FromNodeId, edge.ToNodeId, out float forward);
+                TryGetLength(profile, edge.ToNodeId, edge.FromNodeId, out float reverse);
+                costs.Add(new MapGraphEdgeCost(edge.EdgeId, forward, reverse));
+            }
+            return new MapGraphCostSnapshot(profile, 0, costs);
+        }
 
         public MapGraphValidationResult Validate(MapGraphLayoutDraft draft)
         {

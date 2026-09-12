@@ -1,6 +1,22 @@
 {
   "groups": [
     {
+      "name": "MapGraphShortcuts",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphShortcutTests",
+      "expected": [
+        "RectangleClosesARealThreeTimesDetourWithoutMovingIcons",
+        "LowNavigationBenefitDoesNotAddAVisuallyShortEdge",
+        "ReverseDirectionCostAndLegacyDisplayLengthAreHandledSeparately",
+        "DeletedConnectionAndSeparateLockedColumnsRemainAuthoritative",
+        "AnAlignedShortcutCannotCrossLockedContent(\"Node\")",
+        "AnAlignedShortcutCannotCrossLockedContent(\"Name\")",
+        "BenefitIsRecheckedAfterAnEarlierShortcutChangesThePath",
+        "BudgetsAndCancellationKeepTheValidatedBaseIsolated",
+        "ShortcutSelectionDoesNotDependOnAdvanceBatchSize"
+      ]
+    },
+    {
       "name": "MapGraphConnections",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphConnectionGeneratorTests",

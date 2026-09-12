@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gameplay.MapGraph.Config;
 using UnityEngine;
 
@@ -71,6 +72,35 @@ namespace AnomalySearch.Editor.MapGraph
                         if (saved.Id == id) { lines.Add(saved); return; }
                 lines.Add(new MapGraphAlignmentConstraint(id, axis, coordinate));
             }
+        }
+
+        /// <summary>保持显示位置，合并新横竖边的行列身份；返回待独立验收的草稿，不应用资产。</summary>
+        public static MapGraphLayoutDraft CreateAlignedConnectionDraft(MapGraphLayoutDraft layout, MapGraphEdgeDefinition edge)
+        {
+            if (layout == null || edge == null) throw new ArgumentNullException();
+            if (!layout.Graph.IsValid || !layout.Graph.TryGetNode(edge.FromNodeId, out _) || !layout.Graph.TryGetNode(edge.ToNodeId, out _)) return null;
+            var from = layout.Graph.GetNodePosition(edge.FromNodeId); var to = layout.Graph.GetNodePosition(edge.ToNodeId);
+            MapGraphAxis axis = MapGraphGeometry.Near(from.y, to.y) && !MapGraphGeometry.Near(from.x, to.x) ? MapGraphAxis.Horizontal :
+                MapGraphGeometry.Near(from.x, to.x) && !MapGraphGeometry.Near(from.y, to.y) ? MapGraphAxis.Vertical : MapGraphAxis.Unspecified;
+            if (axis == MapGraphAxis.Unspecified || edge.Axis != MapGraphAxis.Unspecified && edge.Axis != axis) return null;
+            int count = layout.Nodes.Count, a = -1, b = -1;
+            var positions = new Vector2[count]; var rows = new int[count]; var columns = new int[count];
+            var rowIds = new Dictionary<string, int>(StringComparer.Ordinal); var columnIds = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < count; i++)
+            {
+                var node = layout.Nodes[i]; positions[i] = layout.Graph.GetNodePosition(node.NodeId);
+                if (!rowIds.ContainsKey(node.RowId)) rowIds.Add(node.RowId, i);
+                if (!columnIds.ContainsKey(node.ColumnId)) columnIds.Add(node.ColumnId, i);
+                rows[i] = rowIds[node.RowId]; columns[i] = columnIds[node.ColumnId];
+                if (node.NodeId == edge.FromNodeId) a = i;
+                if (node.NodeId == edge.ToNodeId) b = i;
+            }
+            int[] groups = axis == MapGraphAxis.Horizontal ? rows : columns;
+            int first = groups[a], second = groups[b];
+            for (int i = 0; i < count; i++) if (groups[i] == second) groups[i] = first;
+            var presented = edge.WithPresentation(axis, edge.FromInset, edge.ToInset, edge.WidthOverride,
+                edge.UseColorOverride, edge.ColorOverride, edge.Origin);
+            return FromCoordinates(layout, positions, layout.Zones.ToArray(), layout.Edges.Concat(new[] { presented }).ToArray(), columns, rows);
         }
 
         internal static MapGraphLayoutDraft FromCoordinates(MapGraphLayoutDraft reference, Vector2[] positions,

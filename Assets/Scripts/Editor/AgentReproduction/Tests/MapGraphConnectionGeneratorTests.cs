@@ -63,7 +63,7 @@ namespace AgentReproduction.Tests
             }
             Assert.That(generator.IsComplete, Is.True);
             Assert.That(generator.SearchStates, Is.LessThanOrEqualTo(settings.MaximumSearchStates));
-            Assert.That(generator.CoordinateIterations, Is.LessThanOrEqualTo(4 * Math.Max(settings.MaximumLayoutIterations, reference.Nodes.Count * 32)));
+            Assert.That(generator.CoordinateIterations, Is.LessThanOrEqualTo(5 * Math.Max(settings.MaximumLayoutIterations, reference.Nodes.Count * 32)));
             CaseArtifactWriter.Trace("joint", "strategy=" + generator.SelectedStrategy + "; states=" + generator.SearchStates +
                 "; ms=" + generator.ElapsedMilliseconds + "; attempts=" + string.Join(";", generator.Attempts.Select(a => a.Strategy + ":" + a.Outcome + ":" + string.Join(",", a.Failures))));
             return generator;
@@ -100,7 +100,7 @@ namespace AgentReproduction.Tests
             for (int i = 0; i < 5; i++) points.Add(new Vector2(Mathf.Cos(i * Mathf.PI * 2 / 5), Mathf.Sin(i * Mathf.PI * 2 / 5)) * 150);
             var reference = Reference(points.ToArray()); var matrix = Matrix(reference);
             var generator = Run(reference, matrix); Valid(generator, reference, matrix);
-            Assert.That(generator.Result.Edges.Count, Is.EqualTo(5));
+            Assert.That(generator.Result.Edges.Count, Is.EqualTo(5 + generator.AddedConnections));
             Assert.That(generator.Result.Edges.Any(e => e.FromNodeId != "A" && e.ToNodeId != "A"), Is.True);
             foreach (string node in reference.Graph.OrderedNodeIds) Assert.That(generator.Result.Graph.GetConnectedEdges(node).Count, Is.LessThanOrEqualTo(4));
         }
