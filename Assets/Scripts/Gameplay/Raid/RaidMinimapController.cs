@@ -51,12 +51,19 @@ public class RaidMinimapController : MonoBehaviour
     private static Sprite _whiteSprite;
     private static Font _defaultFont;
 
-    private void Awake()
+    private void Start()
     {
+        if(Gameplay.Raid.RaidMapCommandInstaller.HasCommandBinding(gameObject.scene)) {enabled=false;return;}
         EnsureUi();
         RecalculateMapBounds();
         RefreshMarkers();
         SetFullMapVisible(false);
+    }
+
+    public void SuppressForCommandMap()
+    {
+        enabled=false;
+        if(_canvas!=null)_canvas.gameObject.SetActive(false);
     }
 
     private void Update()

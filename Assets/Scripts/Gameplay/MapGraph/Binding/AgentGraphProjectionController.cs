@@ -24,22 +24,27 @@ namespace Gameplay.MapGraph.Binding
         private readonly HashSet<string> _activeIds=new HashSet<string>();
         private readonly List<string> _removed=new List<string>();
         private SO_MapGraphDefinition _definition;
+        private long _definitionRevision=-1;
         private MapGraphService _graph;
         private double _nextSample;
         public IReadOnlyList<MapGraphAgentRuntimeState> AgentStates => _state.AgentStates;
         public int Revision { get; private set; }
         public void Initialize(SO_MapGraphDefinition definition,MapGraphBindingAuthoring binding)
         {
-            if (_graph!=null && _definition==definition && _bindingAuthoring==binding) return;
+            bool sameSource=_graph!=null&&_definition==definition&&_bindingAuthoring==binding;
+            if(sameSource&&_definitionRevision==(definition!=null?definition.Revision:-1))return;
             _definition=definition; _bindingAuthoring=binding; _graph=definition!=null?new MapGraphService(definition):null;
-            _state.Clear(); _caches.Clear(); _nextSample=0; Revision++;
+            _definitionRevision=definition!=null?definition.Revision:-1;
+            if(!sameSource){_state.Clear();_caches.Clear();}
+            _nextSample=0; Revision++;
         }
         public void Tick(float deltaTime) => TickAt(Time.realtimeSinceStartupAsDouble);
         public void TickAt(double now)
         {
             if (now<_nextSample) return;
             _nextSample=now+0.05;
-            if (_definition==null && _bindingAuthoring!=null) Initialize(_bindingAuthoring.MapDefinition,_bindingAuthoring);
+            if (_bindingAuthoring!=null && (_definition!=_bindingAuthoring.MapDefinition || (_definition!=null&&_definitionRevision!=_definition.Revision)))
+                Initialize(_bindingAuthoring.MapDefinition,_bindingAuthoring);
             var registry=AgentRuntimeRegistry.ActiveInstance;
             if (_graph==null || !_graph.IsValid || registry==null) { _state.Clear(); _caches.Clear(); Revision++; return; }
             _activeIds.Clear();
@@ -129,8 +134,8 @@ namespace Gameplay.MapGraph.Binding
         }
         private static Color StableColor(string id)
         {
-            int hash=17; for(int i=0;i<id.Length;i++) hash=hash*31+id[i];
-            return Color.HSVToRGB(Mathf.Abs(hash%360)/360f,0.45f,0.95f);
+            uint hash=2166136261;for(int i=0;i<id.Length;i++)hash=(hash^id[i])*16777619;
+            return Color.HSVToRGB((hash%360)/360f,0.45f,0.95f);
         }
     }
 }

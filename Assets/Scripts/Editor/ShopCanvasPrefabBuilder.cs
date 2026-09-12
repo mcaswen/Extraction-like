@@ -693,7 +693,7 @@ public static class ShopCanvasPrefabBuilder
         {
             Transform child = transforms[i];
             if (child != null &&
-                (child.name == "RaidMinimapCanvas" ||
+                ((child.name == "RaidMinimapCanvas" || child.name == "RaidCommandMapCanvas" || child.name == "Pfb_RaidCommandMap") ||
                  child.name == "Pfb_PlayerStatusHud" ||
                  child.name == "PlayerStatusHudRoot"))
             {

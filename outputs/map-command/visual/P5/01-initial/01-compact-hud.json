@@ -1,0 +1,38 @@
+{
+    "scene": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "graphics": "NVIDIA GeForce RTX 5090 D",
+    "width": 2240,
+    "height": 1400,
+    "renderedFrames": 83,
+    "zones": 7,
+    "nodes": 28,
+    "edges": 28,
+    "expanded": false,
+    "timeScale": 4.0,
+    "agents": [
+        {
+            "id": "1",
+            "root": "Route_1d31733d80274d4e9aca83a62347d206",
+            "phase": "Entering",
+            "target": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "current": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "edge": "",
+            "step": 0,
+            "progress": 0.0,
+            "distance": 0.0,
+            "valid": false
+        },
+        {
+            "id": "2",
+            "root": "Route_e123f48ce96c40fea0e270c5254246ee",
+            "phase": "Entering",
+            "target": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "current": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "edge": "",
+            "step": 0,
+            "progress": 0.0,
+            "distance": 0.0,
+            "valid": false
+        }
+    ]
+}

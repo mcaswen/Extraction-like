@@ -1,121 +1,36 @@
-using Gameplay.MapGraph.Runtime;
+using Gameplay.MapGraph.Config;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Gameplay.MapGraph.View
 {
-    /// <summary>
-    /// 抽象图 UI Agent 视图
-    /// 只负责显示图上位置、颜色和名称，不显示旧桌游战斗或升级信息
-    /// </summary>
-    [RequireComponent(typeof(RectTransform))]
     public sealed class MapGraphAgentView : MonoBehaviour
     {
-        [SerializeField] private Image _bodyImage;
-        [SerializeField] private Image _selectionRingImage;
-        [SerializeField] private TMP_Text _labelText;
-        [SerializeField] private Vector2 _defaultSize = new Vector2(28f, 28f);
-        [SerializeField] private Vector2 _labelSize = new Vector2(112f, 24f);
-        [SerializeField] private Color _selectionRingColor = new Color(0.22f, 0.62f, 1f, 0.36f);
-
-        private RectTransform _rectTransform;
-        private string _agentId;
-
-        /// <summary>
-        /// 当前 Agent ID
-        /// </summary>
-        public string AgentId => _agentId ?? string.Empty;
-
-        /// <summary>
-        /// 初始化 Agent 静态身份
-        /// </summary>
-        /// <param name="agentId"></param>
-        public void Initialize(string agentId)
+        [SerializeField] private MapGraphSymbolGraphic _body;
+        [SerializeField] private MapGraphSymbolGraphic _ring;
+        [SerializeField] private TMP_Text _identity;
+        [SerializeField] private TMP_Text _status;
+        private RectTransform _rect;
+        private SO_MapGraphTheme _theme;
+        public string MarkerId { get; private set; }
+        public Vector2 Position => _rect.anchoredPosition;
+        public string IdentityText => _identity.text;
+        public void Initialize(string id,SO_MapGraphTheme theme)
         {
-            _agentId = agentId ?? string.Empty;
-            EnsureReferences();
-            gameObject.name = $"Agent_{AgentId}";
+            MarkerId=id; name="AgentMarker_"+id; _rect=(RectTransform)transform;_theme=theme;
+            _body.Configure(MapGraphSymbol.Agent,theme.Text); _ring.Configure(MapGraphSymbol.Ring,theme.FocusedRoute,1);
+            _identity.font=theme.Font; _identity.color=theme.Background; _identity.raycastTarget=false;
+            _status.font=theme.Font; _status.color=theme.Text; _status.raycastTarget=false;
         }
-
-        /// <summary>
-        /// 刷新 Agent 图上位置和显示信息
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="anchoredPosition"></param>
-        public void Refresh(MapGraphAgentRuntimeState state, Vector2 anchoredPosition)
+        public void Refresh(Vector2 position,float size,string identity,string status,Color color,bool focused,bool expanded,bool retaliating=false,bool waiting=false)
         {
-            EnsureReferences();
-            _rectTransform.anchoredPosition = anchoredPosition;
-
-            if (_bodyImage != null)
-                _bodyImage.color = state != null ? state.AgentColor : Color.white;
-
-            if (_selectionRingImage != null)
-            {
-                bool showRing = state != null && !string.IsNullOrWhiteSpace(state.CurrentTargetNodeId);
-                _selectionRingImage.gameObject.SetActive(showRing);
-                _selectionRingImage.color = _selectionRingColor;
-            }
-
-            if (_labelText != null)
-                _labelText.text = state != null ? state.DisplayName : string.Empty;
-        }
-
-        private void Awake()
-        {
-            EnsureReferences();
-        }
-
-        private void EnsureReferences()
-        {
-            _rectTransform = GetComponent<RectTransform>();
-            if (_rectTransform.sizeDelta == Vector2.zero)
-                _rectTransform.sizeDelta = _defaultSize;
-
-            if (_bodyImage == null)
-                _bodyImage = GetComponent<Image>();
-            if (_bodyImage == null)
-                _bodyImage = ResolveChildImage("Body");
-
-            if (_selectionRingImage == null)
-                _selectionRingImage = ResolveChildImage("SelectionRing");
-
-            if (_labelText == null)
-                _labelText = GetComponentInChildren<TMP_Text>();
-
-            if (_bodyImage != null)
-                _bodyImage.raycastTarget = false;
-            if (_selectionRingImage != null)
-                _selectionRingImage.raycastTarget = false;
-            LayoutImage(_selectionRingImage, Vector2.zero, _defaultSize + new Vector2(10f, 10f), 0);
-            if (_selectionRingImage != null)
-                _selectionRingImage.gameObject.SetActive(false);
-            if (_labelText != null)
-                _labelText.transform.SetAsLastSibling();
-        }
-
-        private Image ResolveChildImage(string childName)
-        {
-            Transform existing = transform.Find(childName);
-            if (existing != null && existing.TryGetComponent(out Image existingImage))
-                return existingImage;
-
-            return null;
-        }
-
-        private static void LayoutImage(Image image, Vector2 anchoredPosition, Vector2 size, int siblingIndex)
-        {
-            if (image == null)
-                return;
-
-            RectTransform rectTransform = image.rectTransform;
-            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            rectTransform.anchoredPosition = anchoredPosition;
-            rectTransform.sizeDelta = size;
-            image.transform.SetSiblingIndex(siblingIndex);
+            _rect.anchoredPosition=position; _rect.sizeDelta=Vector2.one*size;
+            _body.color=color; _identity.text=identity; _identity.fontSize=expanded?11:8;
+            _ring.gameObject.SetActive(focused||retaliating||waiting); _ring.rectTransform.sizeDelta=Vector2.one*(size+5);
+            _ring.color=retaliating?_theme.Enemy:waiting?_theme.Resource:_theme.FocusedRoute;
+            _status.text=string.Empty; _status.fontSize=10;
+            _status.rectTransform.anchoredPosition=new Vector2(0,size*.5f+9);
+            _status.rectTransform.sizeDelta=new Vector2(140,16);
         }
     }
 }

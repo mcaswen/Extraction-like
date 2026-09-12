@@ -4,6 +4,7 @@ using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Routes;
 using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Binding;
+using Gameplay.MapGraph.View;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,6 +25,8 @@ namespace Gameplay.Raid
         private readonly Dictionary<AgentId,Registration> _agents = new Dictionary<AgentId,Registration>();
         private readonly List<AgentId> _removed = new List<AgentId>();
         private readonly HashSet<string> _retainedProfiles = new HashSet<string>();
+        private readonly AgentNavigationAvoidanceAssignment _avoidance=new AgentNavigationAvoidanceAssignment();
+        private readonly List<AgentNavigationAvoidanceAssignment.AgentEntry> _navigationActors=new List<AgentNavigationAvoidanceAssignment.AgentEntry>();
         private MapGraphBindingAuthoring _binding;
         private Scene _scene;
         private AgentRuntimeRegistry _registry;
@@ -36,6 +39,16 @@ namespace Gameplay.Raid
         public MapGraphRouteEnvironmentService Environments { get; private set; }
         public int InstalledAgentCount => _agents.Count;
         public int FingerprintCaptureCount { get; private set; }
+        public MapGraphPresenter Presentation { get; private set; }
+
+        public static bool HasCommandBinding(Scene scene)
+        {
+            if(!scene.IsValid()||!scene.isLoaded)return false;
+            foreach(var root in scene.GetRootGameObjects())
+                foreach(var binding in root.GetComponentsInChildren<MapGraphBindingAuthoring>(true))
+                    if(binding.MapDefinition!=null&&binding.MapDefinition.IsCommandGraph)return true;
+            return false;
+        }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void RegisterSceneHook()
@@ -78,6 +91,8 @@ namespace Gameplay.Raid
         private void OnDisable() => ReleaseAll();
         private void Initialize()
         {
+            foreach(var root in _scene.GetRootGameObjects())
+                foreach(var minimap in root.GetComponentsInChildren<global::RaidMinimapController>(true))minimap.SuppressForCommandMap();
             CaptureNavigation();
             Environments = new MapGraphRouteEnvironmentService(_binding, _navigationFingerprint);
             _navigationOwner = FindNavigationOwner();
@@ -86,6 +101,13 @@ namespace Gameplay.Raid
             AttachRegistry(AgentRuntimeRegistry.GetOrCreate());
             _rosterDirty = true; _nextProfileObservation = 0;
             TickInstallation();
+            var prefab=Resources.Load<GameObject>("HUD/Pfb_RaidCommandMap");
+            if(prefab!=null)
+            {
+                var view=Instantiate(prefab,transform); view.name="RaidCommandMapCanvas";
+                Presentation=view.GetComponent<MapGraphPresenter>();
+                Presentation.Initialize(_binding,Environments);
+            }
         }
         private RuntimeNavMeshSurfaceBuilder FindNavigationOwner()
         {
@@ -163,6 +185,11 @@ namespace Gameplay.Raid
                     var entry = new Registration { Pawn = pawn }; SetProfile(entry);
                     _agents.Add(handle.AgentId, entry); pawn.RouteResultPublished += OnRouteResult;
                 }
+            _navigationActors.Clear();
+            foreach(var entry in _agents.Values)
+                if(entry.Pawn!=null&&!entry.Pawn.IsDead)
+                    _navigationActors.Add(new AgentNavigationAvoidanceAssignment.AgentEntry(entry.Pawn.AgentIdValue,entry.Pawn.NavMeshAgent));
+            _avoidance.Synchronize(_navigationActors);
             PruneProfiles();
         }
         private void SetProfile(Registration entry)
@@ -204,6 +231,8 @@ namespace Gameplay.Raid
         }
         private void ReleaseAll()
         {
+            _avoidance.Clear();_navigationActors.Clear();
+            if(Presentation!=null) {Presentation.gameObject.SetActive(false);Destroy(Presentation.gameObject);Presentation=null;}
             AttachRegistry(null);
             foreach (var entry in _agents.Values) Release(entry);
             _agents.Clear(); _retainedProfiles.Clear(); Environments = null;

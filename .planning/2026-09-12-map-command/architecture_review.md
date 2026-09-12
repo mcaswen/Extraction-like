@@ -253,3 +253,11 @@ Raid 保留实际计时、写仓和销毁所有权：中间节点碰撞不撤离
 # P5a 真实距离和路线投影审查（2026-09-13）
 
 结论：通过。纯数值进度位于 Runtime，采样和 Registry 组合位于 Binding，根路线仍唯一拥有序列和游标；展示状态的剩余节点列表只读。原生距离只在实际命令上下文及采样终点一致时复用，额外查询持有独立 Buffer，不 SetPath/SetDestination。容差冻结、无效保持和校准无时间兜底。入口来源边由规划器已有合法候选得到，既未新增待处理节点，也未由 UI 猜测。新 5+5 项、原根 18 项通过，失败定位和证据见 p5_execution.md。正式视图和 HUD 待 P5b/P5c，当前不宣称视觉或全场景性能完成。
+
+# P5b/P5c 正式 HUD 和多人避让审查（2026-09-13）
+
+结论：通过。Theme 是纯显示配置；SymbolGraphic 统一矢量网格，Zone/Node/Edge/Agent 各自管理视图；MarkerLayout 处理屏幕空间避让，Viewport 处理尺寸/缩放/输入遮罩，Presenter 汇总真实执行事实、转发 Router 请求。Overlay 不再混入寻路、Registry 扫描或命令编排。静态对象只在定义修订时重建，额外导航距离由既有 Binding 采样器限频，所有行进核心使用实际边端口。中文字体使用已修正的源文件生成正式 TMP 资产。
+
+Installer 组合正式 HUD、共享环境和导航 roster，不承载 UI 布局或 RVO 分配算法；AgentNavigationAvoidanceAssignment 独立归 Navigation，以精确拥有者令牌恢复配置，显式优先级和外部改动得到保留。实际双角色测试证明共同入图可通过，未关避让或放宽到达。旧小地图在正式 Binding 场景不创建旧 UI，商店/仓库和重新安装释放所有者所属显示。
+
+GUIView 抓图复用逻辑已提取到 Editor/Reporting，Gameplay 不引用 Automation/Editor。9+4+10+5 项定向行为和 1 项真实 SRP 截图通过，三轮图片已实际打开检查并记录修改。P5 结束；P6 仍需完整整局、动态图像补证、导航岛定位和正式性能，具体边界见 p5_execution.md、p6_execution.md。

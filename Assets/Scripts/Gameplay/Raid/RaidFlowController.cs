@@ -456,8 +456,9 @@ public class RaidFlowController : MonoBehaviour
         return prefabObject != null ? prefabObject.GetComponent<RaidExtractionSuccessScreen>() : null;
     }
 
-    private static void EnsureMinimapExists()
+    private void EnsureMinimapExists()
     {
+        if(Gameplay.Raid.RaidMapCommandInstaller.HasCommandBinding(gameObject.scene)) return;
         if (FindObjectOfType<StorageScreenController>(true) != null)
         {
             return;

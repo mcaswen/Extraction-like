@@ -1,6 +1,42 @@
 {
   "groups": [
     {
+      "name": "MapCommandPresentation",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandPresentationTests",
+      "expected": [
+        "SavedPrefabHasChineseFontAndFormalZonesHaveCenteredNamesAndStraightEdges",
+        "ActualNodeHandlerSubmitsOneRootToTheFocusedAgent",
+        "CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute",
+        "SingleProcessingAgentIsOffsetAndRetaliationKeepsThatCluster",
+        "OverlappingTravellersCombineIdentitiesOnTheSameLine",
+        "RightClickDoesNotSubmitAndRejectedReplacementKeepsTheDisplayedRoot",
+        "MenuCleanupRemovesCommandHudAndInstallerReenableDoesNotDuplicateIt",
+        "TwoProcessingMarkersRemainDistinctAndStableAfterOneAgentLeaves",
+        "LayoutRevisionRefreshesTheViewWithoutMovingWorldTargetsOrSubmittingCommands"
+      ]
+    },
+    {
+      "name": "MapCommandNavigationAdmission",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandNavigationAdmissionTests",
+      "expected": [
+        "SimultaneousAgentsPassTheSharedEntryAndReachTheirOwnDestinations",
+        "AssignmentIsStableAndReservesExplicitPriorities",
+        "ReleaseDoesNotOverwriteExternalChangesOrReplacementNavigation",
+        "AnOldInstallerCannotRestoreAReplacementOwnersIdenticalValue"
+      ]
+    },
+    {
+      "name": "MapCommandVisual",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.MapCommandVisualTests",
+      "expected": [
+        "FormalSceneRendersTheRealCompactAndExpandedCommandHud"
+      ]
+    },
+    {
       "name": "MapGraphRouteProjection",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphRouteProjectionTests",

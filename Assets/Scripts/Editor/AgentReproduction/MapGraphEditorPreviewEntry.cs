@@ -70,37 +70,7 @@ namespace AgentReproduction
         }
         private static void Capture(string name)
         {
-            // 读取此窗口的 GUIView 渲染表面，桌面前台遮挡不能混入证据。
-            // Unity 2022.3 GUIView.bindings.cs 的 GrabPixels，仅用于 Editor 验证工具。
-            var rect = _window.position; float scale = EditorGUIUtility.pixelsPerPoint;
-            int width = Mathf.RoundToInt(rect.width * scale), height = Mathf.RoundToInt(rect.height * scale);
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            var parent = typeof(EditorWindow).GetField("m_Parent", flags)?.GetValue(_window);
-            var viewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GUIView");
-            var grab = viewType?.GetMethod("GrabPixels", flags);
-            if (parent == null || grab == null) throw new MissingMethodException("Unity 2022.3 GUIView.GrabPixels unavailable.");
-            viewType.GetMethod("RepaintImmediately", flags)?.Invoke(parent, null);
-            var target = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
-            var texture = new Texture2D(width, height, TextureFormat.RGB24, false);
-            var previous = RenderTexture.active;
-            try
-            {
-                grab.Invoke(parent, new object[] { target, new Rect(0, 0, width, height) });
-                RenderTexture.active = target; texture.ReadPixels(new Rect(0, 0, width, height), 0, 0); texture.Apply();
-                var pixels = texture.GetPixels32();
-                if (SystemInfo.graphicsUVStartsAtTop)
-                {
-                    for (int y = 0; y < height / 2; y++)
-                        for (int x = 0; x < width; x++)
-                        { int a = y * width + x, b = (height - 1 - y) * width + x; (pixels[a], pixels[b]) = (pixels[b], pixels[a]); }
-                    texture.SetPixels32(pixels); texture.Apply();
-                }
-                int dark = 0;
-                foreach (var p in pixels) if (p.r > 5 && p.r < 70 && p.g > 10 && p.g < 90 && p.b > 12 && p.b < 105) dark++;
-                if (dark < pixels.Length / 3) throw new InvalidOperationException("CaptureDoesNotContainTheDarkEditorCanvas");
-                File.WriteAllBytes(Path.Combine(_output, name), texture.EncodeToPNG());
-            }
-            finally { RenderTexture.active = previous; RenderTexture.ReleaseTemporary(target); UnityEngine.Object.DestroyImmediate(texture); }
+            Reporting.UnityEditorViewCapture.Capture(_window, Path.Combine(_output,name), 1f/3f);
         }
         private static void Finish(int code)
         {

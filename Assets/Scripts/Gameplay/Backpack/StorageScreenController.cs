@@ -777,7 +777,7 @@ public sealed class StorageScreenController : MonoBehaviour
         for (int i = 0; i < canvases.Length; i++)
         {
             Canvas canvas = canvases[i];
-            if (canvas != null && canvas.name == "RaidMinimapCanvas")
+            if (canvas != null && (canvas.name == "RaidMinimapCanvas" || canvas.name == "RaidCommandMapCanvas" || canvas.name == "Pfb_RaidCommandMap"))
             {
                 DestroyUnityObject(canvas.gameObject);
             }

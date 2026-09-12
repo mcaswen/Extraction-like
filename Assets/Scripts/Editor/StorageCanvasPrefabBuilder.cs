@@ -157,7 +157,7 @@ public static class StorageCanvasPrefabBuilder
         for (int i = transforms.Length - 1; i >= 0; i--)
         {
             Transform child = transforms[i];
-            if (child != null && child.name == "RaidMinimapCanvas")
+            if (child != null && (child.name == "RaidMinimapCanvas" || child.name == "RaidCommandMapCanvas" || child.name == "Pfb_RaidCommandMap"))
             {
                 Object.DestroyImmediate(child.gameObject);
             }
