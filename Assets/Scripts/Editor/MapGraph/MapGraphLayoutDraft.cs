@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Gameplay.MapGraph.Config;
 using Gameplay.MapGraph.Runtime;
+using UnityEngine;
 
 namespace AnomalySearch.Editor.MapGraph
 {
@@ -14,6 +15,11 @@ namespace AnomalySearch.Editor.MapGraph
         public MapGraphLayoutConstraints Constraints { get; }
         public string StartNodeId { get; }
         public MapGraphService Graph { get; }
+        private string _fingerprint;
+        public string ContentFingerprint => _fingerprint ??= Hash128.Compute(JsonUtility.ToJson(new Content
+        { zones = new List<MapGraphZoneDefinition>(Zones), nodes = new List<MapGraphNodeDefinition>(Nodes), edges = new List<MapGraphEdgeDefinition>(Edges), constraints = Constraints, start = StartNodeId })).ToString();
+        [Serializable] private sealed class Content
+        { public List<MapGraphZoneDefinition> zones; public List<MapGraphNodeDefinition> nodes; public List<MapGraphEdgeDefinition> edges; public MapGraphLayoutConstraints constraints; public string start; }
 
         public MapGraphLayoutDraft(IEnumerable<MapGraphZoneDefinition> zones, IEnumerable<MapGraphNodeDefinition> nodes,
             IEnumerable<MapGraphEdgeDefinition> edges, MapGraphLayoutConstraints constraints = null, string startNodeId = "")

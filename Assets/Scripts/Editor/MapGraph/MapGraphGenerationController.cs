@@ -154,7 +154,7 @@ namespace AnomalySearch.Editor.MapGraph
             _diagnostics.AddRange(MapGraphValidation.Validate(draft, _reference, intent).Issues);
             foreach (var profile in _scene.Profiles)
                 _diagnostics.AddRange(MapGraphNavigationValidation.Validate(draft,
-                    _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray()).Issues);
+                    _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), Mode == MapGraphGenerationMode.ConnectionsAndLayout).Issues);
             if (_diagnostics.Any(i => i.IsError)) { Fail("GeneratedLayoutValidationFailed"); return; }
             if (!CheckCurrentInputs()) return;
             Result = new MapGraphGenerationResult(RequestId, InputRevision, Mode, _scene, draft, _scan.Anchors, _scan.Connections, JsonUtility.ToJson(_settings));

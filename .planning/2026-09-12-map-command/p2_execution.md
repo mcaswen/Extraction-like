@@ -79,6 +79,24 @@
 - 正式目标场景尚未写入 Binding，本轮写入均在隔离测试副本。继续 P2c3 编辑操作/画布，随后 P2d 保存正式图。
 - 用户于 2026-09-13 要求后续命令使用 Ubuntu，已切换到 WSL Ubuntu 26.04，项目为 `/mnt/d/Unity-Projects/Extraction-like`。安装原生 git-lfs 3.7.1，仓库本地 Git 换行/文件模式及提交身份沿用现有工作树口径；未修改工作文件以消除跨平台误报。Windows Unity 和既有验证适配器通过 WSL 互操作调用，源 Editor 继续保留。
 
+## P2c3a 小规划：作者操作和约束预览
+
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphEditOperations.cs`：纯数据生成节点移动、区域移动/缩放、锁定、加线/删线/端点重绑和样式操作的作者意图。显式拖动锁定新位置，区域移动携带成员；保留其他锁，删除边写禁连记录，重新手动加入时解除该对禁连。坐标/样式归 Config，不移动世界物体。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphEditOperation.cs`：持有一次编辑的原草稿、意图草稿、文档版本和有界 Solver；直接有效的样式/锁/删除操作立即完成，其余复用固定边集求解。独立复核几何、人工意图和原始节点/区域身份，失败不发布。
+- Extend `MapGraphEditorDocument.cs`：计算前保存当前文档版本，应用前复核场景输入、版本、每 profile 导航和当前草稿身份，再以一个 Undo 操作应用。Extend `MapGraphNavigationValidation.cs`/`MapGraphNavigationBakeBuilder.cs`/`MapGraphGenerationController.cs`：作者主动删桥可以形成断开的图并显示警告，保存/只校验/固定拓扑重排不偷偷补边；自动生成仍严格要求保留候选连通性。每条保留边必须真实双向可达。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditOperationTests.cs`，Extend `tools/agent-repro/cases.json`：验证拖动联动和冲突拒绝、区域带动成员、删线禁连/重加解除、端点重绑/样式、固定拓扑和预算/取消，独立断言几何与身份。
+
+P2c3b 随后 Create `MapGraphEditorWindow.cs`、`MapGraphEditorCanvas.cs`，只编排上述命令和绘制预览，加入选择、拖动、缩放/平移、参数/锁/端点/样式、生成/校验/保存入口。首次显示即捕获实际窗口并检查；本小步先完成可程序化验证的操作规则。
+
+Extend `MapGraphLayoutDraft.cs` 增加缓存的内容指纹，检查编辑预览是否基于当前草稿；作者文档缓存 Layout，编辑/Undo 后失效，避免 OnGUI 每次读取都重建图索引。
+
+### P2c3a 实施结果
+
+- `20260913-001253-193` 作者操作 **7/7 PASS**：拖动联动、锁冲突、区域携带锁定成员、删线禁连及显式重加、端点重绑保留身份/样式、非法宽度拒绝、取消和工作项预算均通过。首轮 `001056-126` 仅因新测试缺少约束构造参数编译失败，补齐后验证通过。
+- `20260913-002056-716` 作者文档 **10/10 PASS**：新增实际 Undo/Redo 撤回作者删线，导航输入仍有效；新编辑取代旧预览后，旧结果不能写入工作副本。两轮最终报告均正常退出，无基础设施失败和源输入变化。
+- 手工断开图可以保存，但显示 `AuthoredGraphDisconnected` 警告；自动重建仍严格检查候选分量连通性，固定拓扑重排和只校验不补回删线。边的真实双向导航、几何和身份约束未放宽。
+- 操作只生成意图，EditOperation 负责有界预览，Document 负责版本复核及单次 Undo，正式持久化仍由 AuthoringTransaction 所有。未修改用户场景或 NavMesh。本步没有新可见画面，继续 P2c3b 画布及实际截图。
+
 ## P2b1 小规划：布局数据、独立几何校验和评分
 
 先写验收器再接求解器，避免自动生成器通过自我放宽条件获得假成功。本步为纯 Editor 算法，不导航、不改场景、不生成正式资产；没有可见布局时不截图旧 UI。

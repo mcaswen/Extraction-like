@@ -21,7 +21,7 @@ namespace AnomalySearch.Editor.MapGraph
             var profile = scene.Profiles.SingleOrDefault(p => p.Data.ProfileId == profileId);
             if (profile == null) throw new ArgumentException("UnknownBakeProfile:" + profileId);
             var matrix = connections.Where(c => c.ProfileId == profileId).Select(c => c.Edge).ToArray();
-            var validation = MapGraphValidationResult.Combine(MapGraphValidation.Validate(layout), MapGraphNavigationValidation.Validate(layout, matrix));
+            var validation = MapGraphValidationResult.Combine(MapGraphValidation.Validate(layout), MapGraphNavigationValidation.Validate(layout, matrix, false));
             if (!validation.IsValid) throw new InvalidOperationException(string.Join("\n", validation.Issues.Where(i => i.IsError)));
             var points = new Dictionary<string, MapGraphScannedAnchor>(StringComparer.Ordinal);
             foreach (var anchor in anchors.Where(a => a.ProfileId == profileId))

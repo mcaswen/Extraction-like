@@ -34,6 +34,12 @@
       ]
     },
     {
+      "name": "MapGraphEditOperations",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphEditOperationTests",
+      "expected": ["DragLocksTheRequestedPositionAndAlignsTheOtherEndpoint", "ConflictingLockedEndpointRejectsTheDrag", "ZoneTranslationCarriesLockedMembersAsOneAuthoredMove", "DeleteAndExplicitReaddRespectTheConnectionTombstone", "RebindingKeepsTheEdgeIdentityAndItsStyle", "OversizedLineIsRejectedAndPendingPreviewCanBeCancelled", "ExplicitDisconnectedGraphIsValidButGenerationStillRequiresConnectivity"]
+    },
+    {
       "name": "MapGraphAuthoringTransaction",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphAuthoringTransactionTests",
@@ -47,7 +53,8 @@
         "FirstGenerationUndoRedoRestoresGraphAndBakeAtomically", "MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch",
         "ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument", "SceneChangeRejectsReadyGenerationWithoutCreatingUndoState",
         "ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset", "ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement",
-        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections", "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake"
+        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections", "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake",
+        "AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput", "EditingAfterStartingAPreviewRejectsTheEarlierPreview"
       ]
     },
     {

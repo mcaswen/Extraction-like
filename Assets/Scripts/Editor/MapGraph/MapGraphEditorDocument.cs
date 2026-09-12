@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Gameplay.MapGraph.Config;
 using UnityEditor;
 using UnityEngine;
@@ -15,9 +16,11 @@ namespace AnomalySearch.Editor.MapGraph
         private string _workingBaseline;
         private Func<MapGraphSceneSnapshot> _pendingCapture, _verifiedCapture;
         private bool _disposed;
+        private MapGraphLayoutDraft _layoutCache;
         public SO_MapGraphDefinition WorkingDefinition { get; private set; }
         public SO_MapGraphDefinition SourceDefinition => _source;
-        public MapGraphLayoutDraft Layout => WorkingDefinition != null && WorkingDefinition.IsCommandGraph ? MapGraphLayoutDraft.FromDefinition(WorkingDefinition) : null;
+        public MapGraphLayoutDraft Layout => WorkingDefinition != null && WorkingDefinition.IsCommandGraph ? _layoutCache ??= MapGraphLayoutDraft.FromDefinition(WorkingDefinition) : null;
+        public MapGraphEditOperation PendingEdit { get; private set; }
         public MapGraphGenerationController PendingGeneration { get; private set; }
         public MapGraphGenerationResult LastVerifiedInput { get; private set; }
         public long Revision { get; private set; }
@@ -40,7 +43,7 @@ namespace AnomalySearch.Editor.MapGraph
 
         internal MapGraphGenerationController BeginGeneration(Func<MapGraphSceneSnapshot> capture, MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout)
         {
-            EnsureOpen(); PendingGeneration?.Cancel();
+            EnsureOpen(); PendingGeneration?.Cancel(); PendingEdit?.Cancel(); PendingEdit = null;
             _pendingCapture = capture;
             PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, Layout, mode, Revision);
             return PendingGeneration;
@@ -92,6 +95,38 @@ namespace AnomalySearch.Editor.MapGraph
             _workingBaseline = EditorJsonUtility.ToJson(WorkingDefinition); Changed?.Invoke();
         }
 
+        public MapGraphEditOperation BeginEdit(Func<MapGraphLayoutDraft, MapGraphLayoutDraft> edit, string label)
+        {
+            EnsureOpen(); if (Layout == null) throw new InvalidOperationException("MapNeedsGeneration");
+            PendingGeneration?.Cancel(); PendingGeneration = null; PendingEdit?.Cancel();
+            PendingEdit = new MapGraphEditOperation(Layout, edit(Layout), WorkingDefinition.GenerationSettings, Revision, label);
+            return PendingEdit;
+        }
+
+        public bool TryApplyEdit(MapGraphEditOperation edit, out string failure)
+        {
+            EnsureOpen(); failure = "";
+            if (edit == null || edit != PendingEdit || edit.InputRevision != Revision || Layout?.ContentFingerprint != edit.Original.ContentFingerprint)
+            { failure = "EditRequestSuperseded"; return false; }
+            if (!edit.IsComplete || edit.IsCancelled || edit.Result == null) { failure = string.Join("\n", edit.Failures); return false; }
+            if (!TryVerifyForSave(out var input, out failure)) return false;
+            var draft = edit.Result; MapGraphNavigationBakeData bake;
+            try
+            {
+                foreach (var profile in input.Scene.Profiles)
+                {
+                    var report = MapGraphNavigationValidation.Validate(draft,
+                        input.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), false);
+                    if (!report.IsValid) { failure = string.Join("\n", report.Issues); return false; }
+                }
+                bake = MapGraphNavigationBakeBuilder.Build(input.Scene, draft, input.Anchors, input.Connections, WorkingDefinition.Revision + 1, input.Scene.Profiles[0].Data.ProfileId);
+            }
+            catch (Exception exception) { failure = exception.Message; return false; }
+            ApplyUndo(edit.Label, () => WorkingDefinition.ApplyCommandData(WorkingDefinition.MapId, WorkingDefinition.DisplayName, draft.StartNodeId,
+                draft.Zones, draft.Nodes, draft.Edges, draft.Constraints, bake));
+            return true;
+        }
+
         public void SetGenerationSettings(MapGraphGenerationSettings settings)
         {
             EnsureOpen(); if (settings == null) throw new ArgumentNullException(nameof(settings));
@@ -114,7 +149,7 @@ namespace AnomalySearch.Editor.MapGraph
             Undo.RegisterCompleteObjectUndo(WorkingDefinition, label);
             try
             {
-                mutation(); WorkingDefinition.OnAfterDeserialize(); EditorUtility.SetDirty(WorkingDefinition);
+                mutation(); WorkingDefinition.OnAfterDeserialize(); _layoutCache = null; EditorUtility.SetDirty(WorkingDefinition);
                 Undo.FlushUndoRecordObjects(); Undo.CollapseUndoOperations(group);
             }
             catch { Undo.RevertAllDownToGroup(group); throw; }
@@ -124,17 +159,18 @@ namespace AnomalySearch.Editor.MapGraph
         private void OnUndoRedo()
         {
             if (_disposed || WorkingDefinition == null) return;
-            WorkingDefinition.OnAfterDeserialize(); AdvanceRevision();
+            WorkingDefinition.OnAfterDeserialize(); _layoutCache = null; AdvanceRevision();
         }
         private void AdvanceRevision()
         {
             Revision++; PendingGeneration?.Cancel(); PendingGeneration = null;
+            PendingEdit?.Cancel(); PendingEdit = null;
             Changed?.Invoke();
         }
         public void Dispose()
         {
             if (_disposed) return; _disposed = true;
-            Undo.undoRedoPerformed -= OnUndoRedo; PendingGeneration?.Cancel(); PendingGeneration = null; LastVerifiedInput = null;
+            Undo.undoRedoPerformed -= OnUndoRedo; PendingGeneration?.Cancel(); PendingGeneration = null; PendingEdit?.Cancel(); PendingEdit = null; LastVerifiedInput = null;
             if (WorkingDefinition != null) { Undo.ClearUndo(WorkingDefinition); UnityEngine.Object.DestroyImmediate(WorkingDefinition); WorkingDefinition = null; }
             Changed = null;
         }

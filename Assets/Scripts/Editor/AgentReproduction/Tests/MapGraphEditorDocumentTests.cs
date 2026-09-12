@@ -156,6 +156,26 @@ namespace AgentReproduction.Tests
             Assert.Throws<InvalidOperationException>(() => MapGraphNavigationBakeBuilder.Build(_snapshot, evidence.Layout, evidence.Anchors, wrongAnchor, 1, measured.ProfileId));
         }
 
+        [Test] public void AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput()
+        {
+            var document = Document(); Generate(document); string before = document.Layout.ContentFingerprint;
+            var request = document.BeginEdit(g => MapGraphEditOperations.DeleteEdge(g, g.Edges[0].EdgeId), "删除连接");
+            Assert.That(document.TryApplyEdit(request, out var failure), Is.True, failure);
+            Assert.That(document.Layout.Edges, Is.Empty); Assert.That(document.WorkingDefinition.NavigationBake.Edges, Is.Empty);
+            Assert.That(document.TryVerifyForSave(out _, out failure), Is.True, failure);
+            Undo.PerformUndo(); Assert.That(document.Layout.ContentFingerprint, Is.EqualTo(before));
+            Undo.PerformRedo(); Assert.That(document.Layout.Edges, Is.Empty);
+        }
+
+        [Test] public void EditingAfterStartingAPreviewRejectsTheEarlierPreview()
+        {
+            var document = Document(); Generate(document);
+            var request = document.BeginEdit(g => MapGraphEditOperations.DeleteEdge(g, g.Edges[0].EdgeId), "删除连接");
+            document.SetDisplayName("更晚的修改");
+            Assert.That(document.TryApplyEdit(request, out var failure), Is.False);
+            Assert.That(failure, Is.EqualTo("EditRequestSuperseded")); Assert.That(document.Layout.Edges.Count, Is.EqualTo(1));
+        }
+
         private MapGraphEditorDocument Document(SO_MapGraphDefinition source = null)
         { var document = new MapGraphEditorDocument(source); _documents.Add(document); return document; }
         private void Generate(MapGraphEditorDocument document)

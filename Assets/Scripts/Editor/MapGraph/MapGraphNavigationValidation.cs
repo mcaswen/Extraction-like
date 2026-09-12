@@ -41,11 +41,13 @@ namespace AnomalySearch.Editor.MapGraph
             }
             var physicalComponents = Components(physical, out int physicalCount);
             var allowedComponents = Components(eligible, out int eligibleCount);
-            var actualComponents = Components(actual, out _);
+            var actualComponents = Components(actual, out int actualCount);
             if (physicalCount > 1)
                 issues.Add(new MapGraphValidationIssue("NavigationDisconnected", "graph", detail: physicalCount + " 个物理分量。", error: false));
             if (eligibleCount > physicalCount)
                 issues.Add(new MapGraphValidationIssue("ExclusionsSplitNavigation", "graph", detail: eligibleCount + " 个允许连接分量。", error: false));
+            if (!requireCandidateConnectivity && actualCount > eligibleCount)
+                issues.Add(new MapGraphValidationIssue("AuthoredGraphDisconnected", "graph", detail: actualCount + " 个作者图分量。", error: false));
             if (requireCandidateConnectivity)
             {
                 var owner = new Dictionary<int, string>();
