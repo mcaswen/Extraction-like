@@ -1,0 +1,111 @@
+using System;
+using System.Collections;
+using System.IO;
+using System.Linq;
+using AgentReproduction.Infrastructure;
+using AgentReproduction.Reporting;
+using AnomalySearch.Editor.MapGraph;
+using Gameplay.MapGraph.Binding;
+using NUnit.Framework;
+using Unity.AI.Navigation;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.TestTools;
+using Object=UnityEngine.Object;
+
+namespace AgentReproduction.Tests
+{
+    /// <summary>显式运行的场景维护，产物只写 Runner 拥有的副本，普通回归不调用。</summary>
+    public sealed class MapCommandSceneRepairTests
+    {
+        private const string ScenePath="Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
+        private const string NavPath="Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-CommandRoutes.asset";
+        [UnityTest] public IEnumerator GroundDragonboneMarkerAndRebakeOwnedNavigationAndMap()
+        {
+            Assert.That(Application.companyName,Is.EqualTo("AnomalySearch.Automation"));
+            Assert.That(Application.dataPath.Replace('\\','/'),Does.Contain("/.agent-repro/"));
+            Assert.That(Application.isPlaying,Is.False);
+            CaseArtifactWriter.Trace("setup","隔离副本维护，原导航资产保留。");
+            var scene=EditorSceneManager.OpenScene(ScenePath);yield return null;
+            var root=GameObject.Find("Zone-龙骨礁/ExtractionCluster");Assert.That(root,Is.Not.Null);
+            var floor=GameObject.Find("Zone-龙骨礁/tripo_convert_cfc50981-c500-4787-94ae-f41149c942c9/tripo_part_6");
+            Assert.That(floor,Is.Not.Null);
+            var mesh=floor.GetComponent<MeshFilter>();Assert.That(mesh,Is.Not.Null);
+            var before=root.transform.position;
+            float ground=FindSurfaceHeight(mesh,before);Assert.That(ground,Is.InRange(6f,8f));
+            float halfHeight=root.GetComponent<Renderer>().bounds.extents.y;
+            root.transform.position=new Vector3(before.x,ground+halfHeight,before.z);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(root.transform);
+            Physics.SyncTransforms();
+            var surface=Object.FindObjectOfType<NavMeshSurface>();Assert.That(surface,Is.Not.Null);
+            Assert.That(surface.useGeometry,Is.EqualTo(NavMeshCollectGeometry.RenderMeshes));
+            var original=surface.navMeshData;
+            surface.BuildNavMesh();var generated=surface.navMeshData;
+            Assert.That(generated,Is.Not.Null);Assert.That(generated,Is.Not.SameAs(original));
+            var existing=AssetDatabase.LoadAssetAtPath<NavMeshData>(NavPath);
+            if(existing==null)AssetDatabase.CreateAsset(generated,NavPath);
+            else
+            {
+                surface.RemoveData();EditorUtility.CopySerialized(generated,existing);
+                surface.navMeshData=existing;surface.AddData();Object.DestroyImmediate(generated);
+            }
+            EditorUtility.SetDirty(surface.navMeshData);EditorUtility.SetDirty(surface);
+            AssetDatabase.SaveAssets();Assert.That(EditorSceneManager.SaveScene(scene),Is.True);
+            // 新烘焙的原生三角形顺序和反序列化顺序可能不同，以玩家将加载的保存态生成缓存。
+            scene=EditorSceneManager.OpenScene(ScenePath);yield return null;
+            root=GameObject.Find("Zone-龙骨礁/ExtractionCluster");
+            var binding=Object.FindObjectOfType<MapGraphBindingAuthoring>();Assert.That(binding,Is.Not.Null);
+            using(var document=new MapGraphEditorDocument(binding.MapDefinition))
+            {
+                var request=document.BeginGeneration(scene);
+                double deadline=EditorApplication.timeSinceStartup+180;
+                while(request.IsRunning&&EditorApplication.timeSinceStartup<deadline){request.Advance(64,6);yield return null;}
+                Assert.That(document.TryApplyGeneration(request,out string failure),Is.True,string.Join(";",request.Diagnostics)+failure);
+                Assert.That(MapGraphAuthoringTransaction.TrySave(document,scene,null,out binding,out failure),Is.True,failure);
+            }
+            var output=Path.Combine(TestRunContext.Load().outputPath,"scene-repair");Directory.CreateDirectory(output);
+            File.WriteAllText(Path.Combine(output,"repair.json"),JsonUtility.ToJson(new Repair{before=before,after=root.transform.position,ground=ground,
+                navigation=NavPath,edges=binding.MapDefinition.Edges.Count,runtimeFingerprint=binding.MapDefinition.NavigationBake.RuntimeNavigationFingerprint},true));
+            CaseArtifactWriter.Trace("repaired","保留原导航资产，实际地面贴合后重烘焙并更新图。");
+        }
+        [UnityTest] public IEnumerator RefreshGraphBakeFromSavedScene()
+        {
+            Assert.That(Application.companyName,Is.EqualTo("AnomalySearch.Automation"));
+            Assert.That(Application.dataPath.Replace('\\','/'),Does.Contain("/.agent-repro/"));
+            var scene=EditorSceneManager.OpenScene(ScenePath);yield return null;
+            var binding=Object.FindObjectOfType<MapGraphBindingAuthoring>();
+            using var document=new MapGraphEditorDocument(binding.MapDefinition);
+            var request=document.BeginGeneration(scene,MapGraphGenerationMode.ValidateOnly);
+            double deadline=EditorApplication.timeSinceStartup+180;
+            while(request.IsRunning&&EditorApplication.timeSinceStartup<deadline){request.Advance(64,6);yield return null;}
+            Assert.That(document.TryApplyGeneration(request,out string failure),Is.True,string.Join(";",request.Diagnostics)+failure);
+            Assert.That(MapGraphAuthoringTransaction.TrySave(document,scene,null,out binding,out failure),Is.True,failure);
+            CaseArtifactWriter.Trace("cache.saved",binding.MapDefinition.NavigationBake.RuntimeNavigationFingerprint);
+        }
+        // XZ 重心插值只读取指定可见地板的三角形，不能用无碰撞 FBX 下方的 Terrain 代替。
+        private static float FindSurfaceHeight(MeshFilter filter,Vector3 location)
+        {
+            var mesh=filter.sharedMesh;var vertices=mesh.vertices;var indices=mesh.triangles;
+            float best=float.NegativeInfinity;
+            for(int i=0;i<indices.Length;i+=3)
+            {
+                var a=filter.transform.TransformPoint(vertices[indices[i]]);
+                var b=filter.transform.TransformPoint(vertices[indices[i+1]]);
+                var c=filter.transform.TransformPoint(vertices[indices[i+2]]);
+                float denominator=(b.z-c.z)*(a.x-c.x)+(c.x-b.x)*(a.z-c.z);
+                if(Mathf.Abs(denominator)<.00001f)continue;
+                float u=((b.z-c.z)*(location.x-c.x)+(c.x-b.x)*(location.z-c.z))/denominator;
+                float v=((c.z-a.z)*(location.x-c.x)+(a.x-c.x)*(location.z-c.z))/denominator;
+                float w=1-u-v;
+                if(u<0||v<0||w<0)continue;
+                float height=u*a.y+v*b.y+w*c.y;
+                if(height<location.y&&height>best)best=height;
+            }
+            Assert.That(float.IsNegativeInfinity(best),Is.False,"正式可见地面没有下方交点");return best;
+        }
+        [Serializable]private sealed class Repair{public Vector3 before,after;public float ground;public string navigation,runtimeFingerprint;public int edges;}
+        [TearDown]public void Cleanup(){EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);NavMesh.RemoveAllNavMeshData();CaseArtifactWriter.Complete("COMPLETED");}
+    }
+}

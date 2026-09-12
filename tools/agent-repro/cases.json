@@ -1,6 +1,24 @@
 {
   "groups": [
     {
+      "name": "MapCommandSceneRepair",
+      "suite": "Maintenance",
+      "filter": "AgentReproduction.Tests.MapCommandSceneRepairTests",
+      "expected": [
+        "GroundDragonboneMarkerAndRebakeOwnedNavigationAndMap",
+        "RefreshGraphBakeFromSavedScene"
+      ]
+    },
+    {
+      "name": "MapCommandNavigationIsland",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.MapCommandNavigationIslandTests",
+      "expected": [
+        "BothAuthoredExtractionAnchorsAreReachableFromTheInitialAgents"
+      ]
+    },
+    {
       "name": "MapCommandNavigationAdmission",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandNavigationAdmissionTests",

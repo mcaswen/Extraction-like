@@ -37,7 +37,29 @@ MR01 首轮 `20260913-063355-897` 已结束：证据 PASS、源码未变、Edito
 
 正式修复定向结果：`064857-942` 多人导航 5/5、`064957-547` 死亡/撤离终态 4/4、`065108-446` 安装 10/10，全通过且源输入未变。测试不再关闭死亡者导航，由正式 HandleDeath 完成；幸存者到达精度、尸体位置/物体保留和存活导航启用均有断言。接下来同种子 MR01 整局复核，不能用这些构造替代整局结算。
 
+修复以 `6f55180` 提交后，同种子 MR01 `20260913-065441-522` 在约 64.7 秒达到正式终态：证据 PASS、游戏 EXPECTED_DEATH、0 运行异常、0 失败子指令；1 号正常战死，2 号容量不足后走 9 群撤离路线并发布 Extracted。6 次背包会话，两人实际取物、战斗伤害、暂停恢复、容量撤离和反击恢复均有覆盖；仓库 expected/actual 完全一致。根合同 PASS（容量撤离作为有名控制结果），227 次路线帧、452 次同步显示、128 次线上样本。死亡占位和幸存者撤离闭环在真实场景关闭。普通 state 采样未赶上销毁前 Extracted，原始 route.result 和 route.unregistered 都保存了该终态，不能把采样计数 0 误解为没有撤离。
+
+### 龙骨礁导航岛诊断小规划
+
+Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationIslandTests.cs`：独立 EditMode 场景用例，复用 `MapGraphSceneCollector.cs` 的真实来源/导航 profile、`MapGraphTargetBinding.cs` 的已保存锚点、原生只读路径查询和 `UnityEditorViewCapture.cs`。在失败断言前导出两名初始角色/邻近群到撤离锚点的路径角点、附近三角化、物理向下射线、Collider/Renderer 来源和边界、SceneView 俯视/斜视画面。可视化只标注真实三角形和路径，不修改世界物体或导航。通过门槛为正式两个撤离点都可从初始区域到达；初始红灯作为诊断证据，不伪造连线。
+
+初步静态发现撤离 Cluster 含可见 MeshRenderer，根位于 y≈10.01，附近主导航面约 y≈6.8；需要实际几何和构建源证据区分悬浮标记、真实台阶或烘焙遗漏，暂不据此移动物体。后续具体修复文件和精确场景增量在诊断后记录。
+
+诊断 `070941-344` 为有效红灯：两名角色到龙骨礁均 Partial，雨林均 Complete。SceneView 两张已查看，圆柱上独立三角形和地面断开；Surface 明确 UseGeometry=RenderMeshes，圆柱顶 y=10.36、烘焙面 10.50，邻近地面导航 6.83。物理射线只有下方 Terrain（可见岛屿 FBX 无 Collider），因此不能用物理射线把标记降到 Terrain y=1.10。首次 `070307-432` 是 SceneView 重载编译错误，修为 orthographic 属性加三参 LookAtDirect，未当作行为红灯。
+
+修复归属：Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs`，仅隔离副本允许执行的维护用例，按真实龙骨礁地面 Mesh 三角形交点将现有圆柱底面贴到可见地面，再用同一个 NavMeshSurface 设置烘焙。生成独立 `Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-CommandRoutes.asset`，保留用户原 NavMesh 文件，不覆盖或提交其无关增量。Extend 正式场景仅该实例高度、Surface 导航资产引用及地图 Binding，复用 `MapGraphEditorDocument.cs` / `MapGraphAuthoringTransaction.cs` 更新正式图和绑定；仍由原算法生成真实可达的横竖连接，不手画假边。维护用例不进入 Gameplay，也不在普通测试自动修复。先在副本产生资产/截图/可达证据，通过后精确导出；场景提交用 HEAD 加本次必要增量，不全量收录用户修改。
+
+修复结果：`071413-836` 维护通过，真实地面交点 y=6.712236，圆柱中心从 10.010208 降至 7.062236，生成 29 边并导出准确三个场景块。`071640-527` 独立重载后 8 条路径全部 Complete，修复后斜视图已查看。新增缓存断言在 `071828-845` 发现新烘焙和反序列化后的三角形原生顺序不同，保守指纹正确使缓存失效；维护流程改为保存后重新打开再生成缓存。`072045-845` 仅 RefreshGraphBakeFromSavedScene 定向通过，导出刷新图；最终 `072151-814` 完整诊断通过：两名角色到两撤离群和四个邻近群到龙骨礁均 Complete，29 条缓存边直接加载，0 待补验、0 新导航计算。原用户导航文件未修改，正式导航指纹保存态为 `0d08ddbf700007774f593a480da8040b514c19a493559446099ae6cbaae60981`。这关闭物理断连及启动缓存补算，真实运行新图仍随后续 MR02/MR04 验收。
+
 新路线脚本使用独立版本和目录 `tools/agent-repro/map-command-scenarios.json`；继承已有请求文件、哈希和进程隔离机制。MR02 按真实入图/行进/背包关闭前提，向正式 Router/地图 Handler 有限次下令，另一角色保持自主。旧 MC 脚本继续记录历史子指令含义，不静默改判定。具体驱动文件在 P6a 证据验证后补小规划，仍归 Automation/Commands，不能放入 Gameplay。
+
+### MR02 实施小规划和边界
+
+Create `SceneRaidRouteScenario.cs` / `SceneRaidRouteCommandDriver.cs`（`Assets/Scripts/Automation/SceneRaid/Commands/`）：新版本有限脚本，分别负责严格配置校验、状态前提下通过正式地图 Handler 发令，保存候选实际路径长度/区域/位置、提交前后根、真实移动及接受事件。先近群，在真实移动后替换远处跨区群，随后提交不存在节点验证拒绝保留；给 2 号有限次指令，1 号保持自主。脚本只查选定时的真实路径，分帧限额，不写角色位置、血量、库存或根游标。前提缺失/正常战死导致未完成时标 PARTIAL，不能补发无限命令或判玩法错误。
+
+Extend `SceneRaidScenarioConfig.cs`、`SceneRaidRunController.cs`：独立 ManualRoutes/schemaVersion=3，接入新驱动，继续复用现有 InventoryDriver、路线只读探针和正式结算，旧 ManualCluster 不变。Extend `Invoke-SceneRaid.ps1`、`scene-raid-cases.json`，Create `SceneRaid.RouteConfig.psm1` / `map-command-scenarios.json`：新 SC10 4× 入口，版本和 SHA 校验、冻结原脚本。Extend `SceneRaid.Routes.Contracts.psm1` / `Test-SceneRaidRoutes.ps1` / `SceneRaid.Report.psm1`：从原始提交、结果、快照独立核对近远分类、替换身份、失败保留、真实前进、反击恢复和脚本完成，不以驱动自报通过为最终判定；结算复用自主的物品守恒合同。
+
+Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRouteScenarioTests.cs`：配置拒绝、有限发令及不干预其他 Agent 的定向构造；场景随机反击有覆盖则计入，无覆盖由已有根恢复构造补证。具体实验如需调选择范围只改脚本并记录，不改变生产战斗能力。
 
 MR03 在测试拥有的图副本删除/添加合法边，比较实际规划和经过序列，结合现有纯图、根重规划和 Editor 保存测试补证。当前龙骨礁撤离锚点可采样但跨区路径 Partial：先导出真实路径角点、附近几何/层级/导航面和画面，判断是锚点、通路还是烘焙配置问题；不得删节点、伪造可达或瞬移。用户已授权有证据的场景修复，只精确提交本次修改，隔离用户场景/NavMesh 增量。
 

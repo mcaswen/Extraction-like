@@ -85283,7 +85283,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.33333334
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: b34e4e5e0abbb4e2c9fb2a11bb5f0071, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 89dd37311848f744bb0c1c86159cc589, type: 2}
   m_BuildHeightMesh: 0
 --- !u!4 &1952741355
 Transform:
@@ -86610,7 +86610,7 @@ PrefabInstance:
     - target: {fileID: 5434960340434965799, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.77522
+      value: 1.8272481
       objectReference: {fileID: 0}
     - target: {fileID: 5434960340434965799, guid: 7cc4aa7609c2440da95de0b049b474ee,
         type: 3}
@@ -135534,7 +135534,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-187720463
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 4.4099884, y: -0.9034176, z: 2.4000015}
+    _navigationAnchorLocal: {x: 4.4099884, y: -0.8837452, z: 2.4000015}
   - _nodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
     _expectedTargetKind: 5
     _target: {fileID: 951112712}
@@ -135597,7 +135597,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-9068098947778029321-1990788660
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 0.0000061035157, y: 1.3994272, z: 0.07000122}
+    _navigationAnchorLocal: {x: 0.0000061035157, y: 1.7269367, z: 0.07000122}
   - _nodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
     _expectedTargetKind: 5
     _target: {fileID: 477127445}
