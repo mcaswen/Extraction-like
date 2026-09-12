@@ -3,6 +3,7 @@ using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
+using Gameplay.Agent.Routes;
 using Gameplay.Agent.Targeting;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
@@ -69,6 +70,7 @@ namespace Gameplay.Agent.Decision
                 return;
 
             WriteDecisionDisabled(_pawnRoot, "决策组件已停用");
+            if (AgentManualDirectiveLock.ShouldHoldRoute(_pawnRoot)) return;
             ClearTargetFacts(_pawnRoot);
         }
 
@@ -98,6 +100,8 @@ namespace Gameplay.Agent.Decision
 
             IAgentReadOnly agent = _pawnRoot;
             IAgentCommandReceiver commandReceiver = _pawnRoot;
+
+            if (AgentManualDirectiveLock.ShouldHoldRoute(agent)) return;
 
             if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent))
             {
@@ -224,6 +228,13 @@ namespace Gameplay.Agent.Decision
             AgentDecisionResult result)
         {
             AgentDecisionCandidate candidate = result.Candidate;
+
+            if (_pawnRoot.RouteSnapshot.IsInstalled)
+            {
+                AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(string.Empty, AgentRouteSource.Autonomous,
+                    _pawnRoot.AgentId, targetRef: AgentTargetRef.FromConcreteObject(candidate.TargetKind, candidate.TargetObject, candidate.TargetId)));
+                return;
+            }
 
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 candidate.DirectiveType,

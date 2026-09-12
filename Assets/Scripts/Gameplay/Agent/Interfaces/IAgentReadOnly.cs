@@ -15,6 +15,7 @@ namespace Gameplay.Agent.Interfaces
     {
         AgentRouteSnapshot RouteSnapshot { get; }
         event System.Action<AgentRouteResult> RouteResultPublished;
+        bool CanSelectAutonomousRouteTarget(AgentTargetRef target);
         /// <summary>
         /// Agent 的强类型运行时 ID
         /// </summary>

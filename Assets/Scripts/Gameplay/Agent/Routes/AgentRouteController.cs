@@ -35,6 +35,7 @@ namespace Gameplay.Agent.Routes
         private PlanningWork _pending;
         private long _version;
         private bool _disposed;
+        private readonly AgentRouteFailureMemory _failures = new AgentRouteFailureMemory();
         private double _nextExecutionTick;
         public event Action<AgentRouteResult> ResultPublished;
         public AgentRouteSnapshot Snapshot => new AgentRouteSnapshot(_state, _step?.Snapshot ?? default, _pending?.Request);
@@ -43,6 +44,13 @@ namespace Gameplay.Agent.Routes
         public AgentRouteController(IAgentReadOnly agent, AgentDirectiveLifecycleController lifecycle, AgentRouteEnvironment environment)
         { _agent = agent ?? throw new ArgumentNullException(nameof(agent)); _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle)); _environment = environment; }
         public void UpdateEnvironment(AgentRouteEnvironment environment) => _environment = environment;
+        public bool CanSelectAutonomousTarget(AgentTargetRef target)
+        {
+            return !_disposed && !_agent.IsDead && _environment?.IsReady == true &&
+                _environment.Targets.TryResolveNode(target, out var node) &&
+                _environment.Targets.TryGetFacts(node, out var facts) && facts.CanTraverse &&
+                _failures.CanSelect(node, _environment, _agent.Position, Time.realtimeSinceStartupAsDouble);
+        }
 
         public AgentRouteResult Submit(AgentRouteRequest request)
         {
@@ -260,6 +268,7 @@ namespace Gameplay.Agent.Routes
             AgentRouteFailure failure = AgentRouteFailure.None, bool isReplan = false)
         {
             var result = new AgentRouteResult(request, version, stage, failure, isReplan: isReplan);
+            _failures.Observe(result, _environment, _agent.Position, Time.realtimeSinceStartupAsDouble);
             ResultPublished?.Invoke(result); return result;
         }
     }

@@ -472,7 +472,13 @@ namespace Gameplay.Agent.Core
             TrySubmitDirective(directiveRequest);
         }
 
-        public AgentDirectiveResult TrySubmitDirective(AgentDirectiveRequest request) => _directiveLifecycle.Submit(request);
+        public AgentDirectiveResult TrySubmitDirective(AgentDirectiveRequest request)
+        {
+            if (_routeController != null && !request.RouteContext.IsValid && !AgentManualDirectiveLock.IsCombatDamageDirective(request))
+                return AgentRouteDirectiveAdapter.Submit(_routeController, request, AgentId);
+            return _directiveLifecycle.Submit(request);
+        }
+        public bool CanSelectAutonomousRouteTarget(AgentTargetRef target) => _routeController == null || _routeController.CanSelectAutonomousTarget(target);
         public AgentRouteResult TrySubmitRoute(AgentRouteRequest request)
         {
             if (_routeController != null) return _routeController.Submit(request);

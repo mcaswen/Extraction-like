@@ -25,6 +25,7 @@ namespace Gameplay.Raid
         private readonly List<AgentId> _removed = new List<AgentId>();
         private readonly HashSet<string> _retainedProfiles = new HashSet<string>();
         private MapGraphBindingAuthoring _binding;
+        private Scene _scene;
         private AgentRuntimeRegistry _registry;
         private RuntimeNavMeshSurfaceBuilder _navigationOwner;
         private long _navigationRevision = -1;
@@ -70,7 +71,7 @@ namespace Gameplay.Raid
         public void Configure(MapGraphBindingAuthoring binding)
         {
             if (binding == null) throw new System.ArgumentNullException(nameof(binding));
-            ReleaseAll(); _binding = binding;
+            ReleaseAll(); _binding = binding; _scene = binding.gameObject.scene;
             if (isActiveAndEnabled) Initialize();
         }
         private void OnEnable() { if (_binding != null) Initialize(); }
@@ -89,11 +90,11 @@ namespace Gameplay.Raid
         private RuntimeNavMeshSurfaceBuilder FindNavigationOwner()
         {
             var owner = RuntimeNavMeshSurfaceBuilder.Instance;
-            return owner != null && owner.gameObject.scene == _binding.gameObject.scene ? owner : null;
+            return owner != null && owner.gameObject.scene == _scene ? owner : null;
         }
         private void CaptureNavigation()
         {
-            _navigationFingerprint = MapGraphNavigationFingerprint.Capture(_binding.gameObject.scene);
+            _navigationFingerprint = MapGraphNavigationFingerprint.Capture(_scene);
             FingerprintCaptureCount++;
         }
         private void AttachRegistry(AgentRuntimeRegistry registry)
@@ -117,7 +118,6 @@ namespace Gameplay.Raid
         {
             using var marker = TickMarker.Auto();
             if (!isActiveAndEnabled || Environments == null) return;
-            if (_binding == null) { ReleaseAll(); return; }
             if (_registry != AgentRuntimeRegistry.ActiveInstance) AttachRegistry(AgentRuntimeRegistry.ActiveInstance);
             var owner = FindNavigationOwner();
             long revision = owner != null ? owner.NavigationRevision : -1;
@@ -158,7 +158,7 @@ namespace Gameplay.Raid
             if (_registry != null)
                 foreach (var handle in _registry.RegisteredAgents) {
                     var pawn = handle.PawnRoot;
-                    if (pawn == null || !pawn.isActiveAndEnabled || pawn.IsDead || pawn.gameObject.scene != _binding.gameObject.scene ||
+                    if (pawn == null || !pawn.isActiveAndEnabled || pawn.IsDead || pawn.gameObject.scene != _scene ||
                         _agents.ContainsKey(handle.AgentId)) continue;
                     var entry = new Registration { Pawn = pawn }; SetProfile(entry);
                     _agents.Add(handle.AgentId, entry); pawn.RouteResultPublished += OnRouteResult;

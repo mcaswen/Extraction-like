@@ -4,6 +4,7 @@ using Gameplay.Agent.Data;
 using Gameplay.Agent.Targeting;
 using Gameplay.Agent.Decision;
 using Gameplay.Agent.Interfaces;
+using Gameplay.Agent.Routes;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
@@ -149,7 +150,8 @@ namespace Gameplay.Agent.Runtime
                 return false;
             }
 
-            if (AgentManualDirectiveLock.ShouldHoldManualDirective(handle.ReadOnly) ||
+            if (AgentManualDirectiveLock.ShouldHoldRoute(handle.ReadOnly) ||
+                AgentManualDirectiveLock.ShouldHoldManualDirective(handle.ReadOnly) ||
                 AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(handle.ReadOnly))
             {
                 return false;
@@ -195,7 +197,8 @@ namespace Gameplay.Agent.Runtime
             IAgentCommandReceiver commandReceiver = handle.CommandReceiver;
             float range = Mathf.Max(0f, handle.PawnRoot.TargetDiscoveryRange);
 
-            if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent) ||
+            if (AgentManualDirectiveLock.ShouldHoldRoute(agent) ||
+                AgentManualDirectiveLock.ShouldHoldManualDirective(agent) ||
                 AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent))
                 return;
 
@@ -244,6 +247,7 @@ namespace Gameplay.Agent.Runtime
             if (_worldCandidates.Count > 0)
             {
                 var exit = _worldCandidates[0];
+                if (SubmitRouteIfInstalled(handle, AgentTargetKind.Extraction, exit.Member, exit.Cluster.TargetId)) return;
                 commandReceiver.SubmitDirective(new AgentDirectiveRequest(AgentDirectiveType.Extract,
                     AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction,exit.Member,exit.Cluster.TargetId),
                     exit.Cluster.TargetId,handle.AgentId));
@@ -262,6 +266,7 @@ namespace Gameplay.Agent.Runtime
         {
             string targetId = ResolveActiveEnemyTargetId(targetRegistry, enemyCluster, enemy);
             GameObject targetObject = enemy != null ? enemy.gameObject : enemyCluster.gameObject;
+            if (SubmitRouteIfInstalled(handle, AgentTargetKind.Enemy, targetObject, targetId)) return;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 AgentDirectiveType.Engage,
                 AgentTargetRef.FromConcreteObject(
@@ -278,6 +283,7 @@ namespace Gameplay.Agent.Runtime
             ResourceClusterAuthoring resourceCluster)
         {
             string targetId = resourceCluster.TargetId;
+            if (SubmitRouteIfInstalled(handle, AgentTargetKind.Resource, resourceCluster.gameObject, targetId)) return;
             commandReceiver.SubmitDirective(new AgentDirectiveRequest(
                 AgentDirectiveType.Search,
                 AgentTargetRef.FromConcreteObject(
@@ -286,6 +292,14 @@ namespace Gameplay.Agent.Runtime
                     targetId),
                 targetId,
                 handle.AgentId));
+        }
+
+        private static bool SubmitRouteIfInstalled(AgentRuntimeHandle handle, AgentTargetKind kind, GameObject target, string id)
+        {
+            if (!handle.ReadOnly.RouteSnapshot.IsInstalled) return false;
+            AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(string.Empty, AgentRouteSource.Autonomous,
+                handle.AgentId, targetRef: AgentTargetRef.FromConcreteObject(kind, target, id)));
+            return true;
         }
 
         private static void ClearTargetFacts(IAgentCommandReceiver commandReceiver)

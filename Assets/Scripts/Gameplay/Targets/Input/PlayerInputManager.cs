@@ -62,7 +62,7 @@ public sealed class PlayerInputManager : MonoBehaviour
         TargetClusterPickOptions pickOptions = new TargetClusterPickOptions(
             _clusterLayerMask,
             _useClusterLayerMask,
-            _ignoreCompletedClusters);
+            _ignoreCompletedClusters && !_commandDispatcher.UsesRoutes(_targetAgentId));
 
         if (!_clusterPicker.TryPick(
                 camera,
@@ -73,6 +73,12 @@ public sealed class PlayerInputManager : MonoBehaviour
             return;
         }
 
+        if (_commandDispatcher.UsesRoutes(_targetAgentId))
+        {
+            var result = _commandDispatcher.TrySubmitClusterRoute(cluster, _targetAgentId);
+            if (_logClicks) Debug.Log($"[TargetInput] Clicked cluster [{cluster.name}] -> {result.Stage}", cluster);
+            return;
+        }
         if (!_commandDispatcher.TrySubmitClusterCommand(
                 cluster,
                 _targetAgentId,

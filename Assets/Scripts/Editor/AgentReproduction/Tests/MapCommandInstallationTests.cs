@@ -156,5 +156,17 @@ namespace AgentReproduction.Tests
             Assert.That(builder.HasPendingBuild,Is.False); Assert.That(builder.IsBuilding,Is.False);
             ContractCompleted=true;
         }
+        [UnityTest] public IEnumerator DestroyedBindingCannotFallBackToLegacyCommandsForCurrentOrLateAgents()
+        {
+            var binding=Build(3); var pawn=AgentFactory.Create(World,"1",Vector3.left*3,8,false,false); var installer=Install(binding);
+            yield return RuntimeWait.Until(()=>Environment(installer,pawn).IsReady,"原绑定就绪");
+            Object.DestroyImmediate(binding); installer.TickInstallation();
+            Assert.That(pawn.RouteSnapshot.IsInstalled,Is.True);
+            Assert.That(pawn.TrySubmitRoute(new AgentRouteRequest("n2",AgentRouteSource.Player,pawn.AgentId)).Reason,Is.EqualTo(AgentRouteFailure.MapUnavailable));
+            var late=AgentFactory.Create(World,"2",Vector3.left*6,8,false,false); installer.TickInstallation();
+            Assert.That(late.RouteSnapshot.IsInstalled,Is.True);
+            Assert.That(late.TrySubmitRoute(new AgentRouteRequest("n2",AgentRouteSource.Player,late.AgentId)).Reason,Is.EqualTo(AgentRouteFailure.MapUnavailable));
+            Assert.That(installer.Environments.Graph,Is.Null); ContractCompleted=true;
+        }
     }
 }

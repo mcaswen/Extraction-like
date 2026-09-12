@@ -46,6 +46,9 @@ namespace Gameplay.Agent.Runtime
             return true;
         }
 
+        public static bool ShouldHoldRoute(IAgentReadOnly agent) => agent != null &&
+            (agent.RouteSnapshot.IsActive || agent.RouteSnapshot.HasPendingRequest);
+
         public static bool ShouldHoldCombatDamageDirective(IAgentReadOnly agent)
         {
             if (agent == null ||

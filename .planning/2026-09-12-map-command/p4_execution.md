@@ -1,6 +1,6 @@
 # P4 全入口统一和正式场景安装
 
-状态：**P4a1 缓存完成，进入 P4a2 正式安装。** 延续已确认的大规划，不改变 Routes、Binding、Raid、View 的依赖方向。
+状态：**P4a/P4b 完成，进入 P4c 根指令反馈。** 延续已确认的大规划，不改变 Routes、Binding、Raid、View 的依赖方向。
 
 ### P4a2a 共享环境实施结果
 
@@ -46,6 +46,8 @@ P4b 接口细化：Create `Assets/Scripts/Gameplay/Agent/Routes/AgentRouteDirect
 
 失败记忆由 `AgentRouteFailureMemory.cs` 保存，Controller 记录根结果；IAgentReadOnly 暴露可否自主选择该群的只读查询。候选过滤不删除可见敌人的风险事实，手动路线不读自主冷却。图/成本/目标上下文或 Agent 位置真实改变后允许重新尝试，容量退出不写失败冷却。
 
+P4b 入口审查补充：`AgentTargetCandidateCollector.cs` 的路线可选性按群查询一次，敌人的风险可见性仍逐成员保存，避免每个敌人都重复读整群出生/生命事实。`RaidMapCommandInstaller.cs` 保存所属 Scene，绑定运行时被销毁时继续注入不可用环境，迟到角色也不得退回低层直达；仅安装器卸载才解除正式模式。对应 `MapCommandInstallationTests.cs` 增加绑定销毁分支。
+
 P4a2 接线细化：Registry 提供 AgentRegistered/AgentUnregistered 实例事件，安装器只标记集合变动，实际组合放在自己的早期 Tick；反馈只挂接订阅，不在注册回调里规划。Pawn 增加按预期环境引用解除组合的入口，避免旧安装器移除新安装器已替换的服务。Environment 冻结 Targets.Revision，规划接受前必须匹配；Resolver 的 Source 可用性同时观察已配置 Active 的启用状态，区分业务存活数和可用性变化。安装器发现目标修订变化时先检查已有边锚点，保留未移动边成本，仅补失效边；构造主动查询引起修订变化时也不能先接受旧锚点成本。
 
 `RaidMapCommandInstaller` 通过 SceneLoaded 一次查找正式 Binding，默认执行顺序早于 Pawn/目标决策，按 profile 共用环境。导航指纹只在安装或显式导航重建时计算，RuntimeNavMeshSurfaceBuilder 增加 IsBuilding/HasPendingBuild/NavigationRevision，重建 pending 期间环境不就绪。动态执行失败通过实例根结果通知安装器失效当前边；MapGraph 的失效/补验预算独立，不由 UI 重绘触发。
@@ -64,6 +66,14 @@ P4a2b 审查修正归属：RuntimeNavMeshSurfaceBuilder 的初次延迟协程需
 - Create `Editor/AgentReproduction/Tests/MapCommandEntryTests.cs`：同目标世界/Router/自动入口的等价序列、玩家优先、两个自主组件、目标完成后恢复自主、满包自主选出口且余物保留、断图不循环发令、图变更恢复候选、低层不能绕图、感知约束保持。
 
 ## P4c 小规划：根反馈
+
+### P4b 实施结果
+
+- 世界点击、自主 Decision、保底 Discovery 均提交群根路线，完成群仍允许作为移动终点；玩家等待规划和跨步骤锁不被自主刷新或停用决策组件清除。正式场景兼容 Directive 经独立 Adapter 转换，Planning 不冒称接受，任意位置不能绕图。
+- 每 Agent 失败记忆最多 64 项。断图/无入图路径在上下文或位置改变前停止自主重试，临时失败冷却 3 秒；手动重试不受限制，容量退出不阻塞自动选出口。风险集合仍保留可见但未绑定的敌人，路线资格按群检查一次。
+- 新 `MapCommandEntryTests.cs` 初轮 `041041-838` 夹具构造参数误用，修为具名参数；`041214-083` 射线构造漏物理同步，补一帧和 Physics.SyncTransforms 后 `041344-452` 11/11。候选成本审查调整后最终 `Logs/AgentReproduction/20260913-042158-829` **11/11 PASS**，包含自动容量撤离到正式结算、余物保留、两个自主组件、旧入口不能绕图、断图和连线恢复。
+- 原根路线 `041536-026` **18/18**，原 Decision `041742-444` **6/6**，原 Perception `041827-590` **5/5**。安装器补绑定销毁仍保持正式模式，最终 `042034-539` **10/10**，真实场景加载也包含本轮全入口代码。全部正常退出，源输入未变。
+- 真实整局/画面性能仍归 P6；此阶段没有新 HUD 样式。下一步根反馈排除路线子步骤刷屏。
 
 - Extend `Targets/Presentation/AgentCommandFeedbackPresenter.cs`、`AgentCommandFeedbackText.cs`：订阅 Pawn 的实例根结果，注册/注销时同步订阅；只显示玩家根接受/拒绝/失败，Planning 和内部重规划/步骤切换不刷成功。复用原正式字体、淡入淡出和有界队列。
 - Extend `AgentCommandRouter.cs` 的实例路由失败事件：仅承接不存在 Agent 的即时拒绝，解决没有 Pawn 可发布实例事件时的反馈；不是全局路线事件总线。世界/地图同一结果只入队一次。

@@ -241,3 +241,7 @@ Raid 保留实际计时、写仓和销毁所有权：中间节点碰撞不撤离
 # P4a2b 正式安装审查（2026-09-13）
 
 结论：通过。RaidMapCommandInstaller 负责 Scene/Registry/导航所有者生命周期，缓存与预算仍属于 MapGraphRouteEnvironmentService。Pawn 仅增加按环境引用释放的入口，不反向查找场景。Registry 保持唯一 Agent 索引，追加实例集合事件，重复注册不重复通知。导航修订和初次协程仍由 RuntimeNavMeshSurfaceBuilder 管理。安装器无每帧场景扫描、完整指纹捕获或 profile 数组分配。9 项包含真实场景加载/卸载、迟到 Agent、profile 变更、停止/重启、旧拥有者释放隔离，通过。首轮编译和夹具收尾错误在规划中保留，未把安装通过写成整局通过。
+
+# P4b 高层入口统一审查（2026-09-13）
+
+结论：通过。世界点击/两个自主组件通过 Router 提交根路线，群候选和风险评分仍由原模块管理；Pawn 只将兼容调用转发到 AgentRouteDirectiveAdapter。AgentRouteFailureMemory 独立保存每 Agent 有界失败缓存，经只读接口影响自主可执行性，Routes 不依赖 Targeting/Binding。低层 Lifecycle 仍拥有步骤及受击恢复，不形成第二套控制流程。可见风险事实不因图绑定缺失而删除；群可选性每群一次，避免随敌人数重复整群扫描。绑定销毁只使地图不可用，不解锁绕图兼容路径。新入口 11、原根 18、决策 6、感知 5、更新安装 10 项通过，证据见 p4_execution.md。

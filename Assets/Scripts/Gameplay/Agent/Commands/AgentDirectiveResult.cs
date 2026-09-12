@@ -2,7 +2,7 @@ using Gameplay.Agent.Data;
 
 namespace Gameplay.Agent.Commands
 {
-    public enum AgentDirectiveStage { Accepted, Rejected, Completed, Failed, Cancelled, Suspended, Resumed }
+    public enum AgentDirectiveStage { Accepted, Rejected, Completed, Failed, Cancelled, Suspended, Resumed, Planning }
     public enum AgentDirectiveFailure { None, NoAgent, AgentUnavailable, InvalidTarget, TargetCompleted, NavigationNotReady, Unreachable, NoProgress, LostSight, Superseded, AttackUnavailable }
     public readonly struct AgentDirectiveResult
     {

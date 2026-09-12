@@ -1,6 +1,24 @@
 {
   "groups": [
     {
+      "name": "MapCommandEntry",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandEntryTests",
+      "expected": [
+        "CompletedWorldClusterStillExecutesTheFullAuthoredRoute",
+        "WorldAndRouterRequestsUseEquivalentNodesAndFocusedIdentity",
+        "LegacyDirectiveReportsPlanningAndCannotBypassTheGraphWithALocation",
+        "DecisionCreatesAnAutonomousRootAndDoesNotReplaceItAtRefresh",
+        "DiscoveryCreatesAnAutonomousRootAndHoldsAcrossRepeatedScans",
+        "PendingPlayerRouteSurvivesDecisionRefreshAndDisable",
+        "FinishingPlayerDestinationResumesAutonomousSelection",
+        "DisconnectedAutonomousTargetIsDeferredUntilTopologyChanges",
+        "FailureMemoryUsesWorldChangesAndBoundedCooldownWithoutBlockingManualRequests",
+        "UnboundVisibleEnemiesStayInRiskFactsButCannotBecomeRoutes",
+        "CapacityFailureAutomaticallySelectsExitAndLeavesAllBoxRemainders"
+      ]
+    },
+    {
       "name": "MapCommandInstallation",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandInstallationTests",
@@ -13,7 +31,8 @@
         "DisabledBindingRemainsExplicitCommandModeAndCanRecover",
         "PendingInitialNavigationAndActualRebuildInvalidateWithoutPerFrameFingerprint",
         "FormalSceneLoadInstallsItsSavedBindingForBothAgents",
-        "InterruptedInitialNavigationBuildResumesAfterEnable"
+        "InterruptedInitialNavigationBuildResumesAfterEnable",
+        "DestroyedBindingCannotFallBackToLegacyCommandsForCurrentOrLateAgents"
       ]
     },
     {

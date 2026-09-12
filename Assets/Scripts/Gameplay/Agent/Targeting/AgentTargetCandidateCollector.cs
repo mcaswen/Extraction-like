@@ -27,6 +27,7 @@ namespace Gameplay.Agent.Targeting
             foreach(var cluster in clusters)
             {
                 if (!(cluster is ActiveEnemyClusterAuthoring active) || !active.isActiveAndEnabled || active.HasBeenCompleted) continue;
+                bool routeSelectable=IsRouteCandidate(agent,cluster,AgentTargetKind.Enemy);
                 active.CopyAliveEnemiesTo(_enemies);
                 foreach(var enemy in _enemies)
                 {
@@ -35,7 +36,7 @@ namespace Gameplay.Agent.Targeting
                     Vector3 navigationPosition = AgentCombatNavigationTarget.Resolve(enemy);
                     float distanceSqr=(CombatAimPointResolver.Resolve(enemy.transform)-origin).sqrMagnitude;
                     agent.Blackboard.TryGetValue(AgentBlackboardKeys.AttackRange,out float attackRange);
-                    bool canExecute=(distanceSqr<=attackRange*attackRange ||
+                    bool canExecute=routeSelectable && (distanceSqr<=attackRange*attackRange ||
                         AgentCombatApproachQuery.TryResolve(agent,enemy,attackRange,_combatNavigationBuffer,out _)) &&
                         !_failures.IsDeferred(agent,cluster.gameObject,enemy.gameObject,navigationPosition);
                     results.Add(new AgentTargetCandidate(cluster,enemy.gameObject,position,navigationPosition,
@@ -54,6 +55,7 @@ namespace Gameplay.Agent.Targeting
                 if (cluster == null || !cluster.isActiveAndEnabled || cluster.HasBeenCompleted) continue;
                 if (cluster is ResourceClusterAuthoring resource)
                 {
+                    if (!IsRouteCandidate(agent,cluster,AgentTargetKind.Resource)) continue;
                     if (resource.TryGetNearestReachableIncompleteResource(agent.Position,agent.NavMeshAgent,range,out GameObject member,out Vector3 navigation))
                     {
                         float distance=(member.transform.position-agent.Position).sqrMagnitude;
@@ -68,6 +70,7 @@ namespace Gameplay.Agent.Targeting
                 }
                 else if (includeEnemySources && cluster is EnemySourceClusterAuthoring source)
                 {
+                    if (!IsRouteCandidate(agent,cluster,AgentTargetKind.EnemySource)) continue;
                     AgentTargetCandidate? nearest=null;
                     foreach (var point in source.SpawnPoints)
                     {
@@ -97,6 +100,7 @@ namespace Gameplay.Agent.Targeting
 
         private void AppendExtractionTargets(IAgentReadOnly agent, ExtractionClusterAuthoring extraction, List<AgentTargetCandidate> results)
         {
+            if (!IsRouteCandidate(agent,extraction,AgentTargetKind.Extraction)) return;
             // 出口始终可作为超出发现范围的后备；仅调用者决定何时需要计算它。
             foreach (var member in extraction.ExtractionMembers)
             {
@@ -107,6 +111,9 @@ namespace Gameplay.Agent.Targeting
                     (point.transform.position-agent.Position).sqrMagnitude,AgentTargetKind.Extraction));
             }
         }
+
+        private static bool IsRouteCandidate(IAgentReadOnly agent, GameplayTargetClusterAuthoringBase cluster, AgentTargetKind kind) =>
+            agent.CanSelectAutonomousRouteTarget(AgentTargetRef.FromConcreteObject(kind,cluster.gameObject,cluster.TargetId));
 
         private bool IsReachable(IAgentReadOnly agent, Vector3 point, out Vector3 destination)
         {
