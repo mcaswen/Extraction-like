@@ -1,0 +1,30 @@
+{
+  "sourceSha256": "6bec7a834824673a3bc7103928815ba51a3b1f1553817fe08a32829f36b915cf",
+  "fixedSha256": "8683923c35cb97d1e7e265c3241699c784b90ea2413ffb7d09f2bba9161bfcf0",
+  "glyphCount": 7782,
+  "changedGlyphs": [
+    "uni6307"
+  ],
+  "changedMetrics": [
+    "uni6307"
+  ],
+  "changedTables": [
+    "head",
+    "hmtx",
+    "glyf",
+    "loca"
+  ],
+  "cmapUnchanged": true,
+  "glyphOrderUnchanged": true,
+  "targetAdvance": 1000,
+  "sourceGlyphs": [
+    "uni62CD",
+    "uni8102"
+  ],
+  "rasterChecks": {
+    "32": "distinct_target_unchanged_controls",
+    "64": "distinct_target_unchanged_controls",
+    "120": "distinct_target_unchanged_controls"
+  },
+  "status": "PASS"
+}
