@@ -72,6 +72,8 @@ namespace Gameplay.Agent.Runtime
         /// 参数依次为旧焦点句柄与新焦点句柄
         /// </summary>
         public event Action<AgentRuntimeHandle, AgentRuntimeHandle> FocusedAgentChanged;
+        public event Action<AgentRuntimeHandle> AgentRegistered;
+        public event Action<AgentRuntimeHandle> AgentUnregistered;
 
         /// <summary>
         /// Agent 查询入口
@@ -149,12 +151,11 @@ namespace Gameplay.Agent.Runtime
             if (!_hasExplicitFocusSelection && IsDefaultFocusedAgent(agentId))
             {
                 SetFocusedHandle(handle);
-                return true;
             }
-
-            if (!TryGetFocusedHandle(out _))
+            else if (!TryGetFocusedHandle(out _))
                 SetFocusedHandle(handle);
 
+            AgentRegistered?.Invoke(handle);
             return true;
         }
 
@@ -398,6 +399,7 @@ namespace Gameplay.Agent.Runtime
 
         private void RemoveHandle(AgentId agentId)
         {
+            if (!_handlesById.TryGetValue(agentId, out var removed)) return;
             _handlesById.Remove(agentId);
 
             for (int i = _registeredAgents.Count - 1; i >= 0; i--)
@@ -405,6 +407,7 @@ namespace Gameplay.Agent.Runtime
                 if (_registeredAgents[i].AgentId == agentId)
                     _registeredAgents.RemoveAt(i);
             }
+            AgentUnregistered?.Invoke(removed);
         }
 
         private bool FocusFirstAvailableAgent()

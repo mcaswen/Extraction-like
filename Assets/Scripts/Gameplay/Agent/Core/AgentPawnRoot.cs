@@ -486,6 +486,15 @@ namespace Gameplay.Agent.Core
             if (_routeController == null) CreateRouteController();
             else _routeController.UpdateEnvironment(environment);
         }
+        /// <summary>只解除调用方仍然拥有的环境，旧场景组合根不能移除新组合。</summary>
+        public bool ReleaseRouteEnvironment(AgentRouteEnvironment expectedEnvironment)
+        {
+            if (expectedEnvironment == null || !ReferenceEquals(_routeEnvironment, expectedEnvironment)) return false;
+            _routeController?.Dispose();
+            if (_routeController != null) _routeController.ResultPublished -= ForwardRouteResult;
+            _routeController = null; _routeEnvironment = null;
+            return true;
+        }
         private void CreateRouteController()
         {
             _routeController?.Dispose();

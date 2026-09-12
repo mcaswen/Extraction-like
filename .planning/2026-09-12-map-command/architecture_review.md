@@ -237,3 +237,7 @@ Raid 保留实际计时、写仓和销毁所有权：中间节点碰撞不撤离
 # P4a2a 共享环境审查（2026-09-13）
 
 结论：通过。MapGraphRouteEnvironmentService 独占图/Resolver/各 profile 成本缓存和全局补验预算，不引用 Raid、Pawn 或 UI。环境为冻结快照，Controller 只读检查当前剩余路径；更换 Resolver 需要重建步骤，无关边补验则保留正在使用的背包会话。Source 的已配置 Active 启用状态参与可用性修订，生命数量仍由原敌人系统提供。没有复制根路线或当前指令状态。新 7、根执行 18、群事实 10 项通过，证据见 p4_execution.md。正式场景注册/安装由下一步组合根承担。
+
+# P4a2b 正式安装审查（2026-09-13）
+
+结论：通过。RaidMapCommandInstaller 负责 Scene/Registry/导航所有者生命周期，缓存与预算仍属于 MapGraphRouteEnvironmentService。Pawn 仅增加按环境引用释放的入口，不反向查找场景。Registry 保持唯一 Agent 索引，追加实例集合事件，重复注册不重复通知。导航修订和初次协程仍由 RuntimeNavMeshSurfaceBuilder 管理。安装器无每帧场景扫描、完整指纹捕获或 profile 数组分配。9 项包含真实场景加载/卸载、迟到 Agent、profile 变更、停止/重启、旧拥有者释放隔离，通过。首轮编译和夹具收尾错误在规划中保留，未把安装通过写成整局通过。

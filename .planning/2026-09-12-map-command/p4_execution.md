@@ -9,6 +9,13 @@
 - 初轮 `034336-595` 6/6，补身份用例后 `Logs/AgentReproduction/20260913-035013-636` **7/7 PASS**；受影响的根执行 `035138-466` **18/18 PASS**，群事实 `035335-739` **10/10 PASS**。均正常退出、源输入不变，原始 JSON/XML 留在对应目录。
 - 本步没有正式安装或新可见 HUD，不将这些构造结果算作 P4/P5/P6 验收。后续安装器仅负责组合和生命周期。
 
+### P4a2b 场景安装实施结果
+
+- `RaidMapCommandInstaller.cs` 在 SceneLoaded 对本场景层级一次定位正式图，重复安装复用已有实例；自动接入已注册/迟到的 Agent。Registry 提供集合变化事件，安装器早期 Tick 组合服务，按引用解除自己拥有的环境，旧安装器不能移除替换环境。
+- 导航拥有者报告 pending、building 和真实完成修订，指纹只在初始化/修订变化时重新捕获。每 0.5 秒无分配比较 Agent 配置，确实变化才创建 profile，成本总预算不乘 Agent 数。原导航初次延迟协程补齐启停，防止重新启用后永久 pending。
+- `035804-990` 初轮字段名误用导致编译失败，改为原契约 Reason。`035925-224` 正式安装断言通过，收尾先移除 NavMesh 再留敌人运行导致 TearDown 报错；改为正式卸载场景再清测试导航，未屏蔽日志、未修改敌人行为。`040141-089` 8/8，追加初次烘焙恢复用例后 `Logs/AgentReproduction/20260913-040358-507` **9/9 PASS**，正常退出、源输入不变。
+- 真实 `Scenezl_Final 1.unity` 的 28 群绑定、两名 Agent、共享成本补验和卸载完成；此处只验证安装，P4b 全入口迁移、P5 HUD、P6 整局仍继续实施。
+
 P3 已提交 `aec9964`。先实施 P4a1 可验证导航缓存，再接 P4a2 安装调度，避免把旧缓存假定有效。`MapGraphNavigationBakeBuilder.cs` 是实际最终烘焙提交文件；新增 `Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs` 验证同输入指纹、真实链接/网格变化、profile/锚点不匹配、缺签名补验、保存读回。正式 PlayerInputManager 路径为 `Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs`。
 
 P4a1 审查：本项目 Unity 版本未公开 NavMeshData.agentTypeID，改读 Surface 的导航类型，实际查询仍使用完整 profile。NavMeshLink/OffMeshLink 的已提交原生端点也没有足够的只读公开事实，autoUpdate=false 时不能用组件 Transform 冒充原生链接状态。因此活动链接场景保留带 `live-links:` 标记的输入指纹用于诊断，运行时仍预算补验已有边；静态无链接场景可验证缓存后零补算。新增活动链接不得直接复用缓存的构造，不修改链接或生成假通路。
@@ -35,11 +42,17 @@ P4a1 审查：本项目 Unity 版本未公开 NavMeshData.agentTypeID，改读 S
 
 ## P4b 小规划：世界点击、自主候选、容量撤离
 
+P4b 接口细化：Create `Assets/Scripts/Gameplay/Agent/Routes/AgentRouteDirectiveAdapter.cs`，集中兼容旧高层 Directive 到群根请求及返回状态的转换，Pawn 仅转发；内部 RouteContext 步骤和伤害指令继续走原 Lifecycle。Extend `Agent/Commands/AgentDirectiveResult.cs` 在枚举末尾增加 Planning，使旧返回类型能诚实表示“已排入规划，尚未接受”，不发布假的子指令接受事件。正式世界点击和自主组件直接使用根接口。
+
+失败记忆由 `AgentRouteFailureMemory.cs` 保存，Controller 记录根结果；IAgentReadOnly 暴露可否自主选择该群的只读查询。候选过滤不删除可见敌人的风险事实，手动路线不读自主冷却。图/成本/目标上下文或 Agent 位置真实改变后允许重新尝试，容量退出不写失败冷却。
+
 P4a2 接线细化：Registry 提供 AgentRegistered/AgentUnregistered 实例事件，安装器只标记集合变动，实际组合放在自己的早期 Tick；反馈只挂接订阅，不在注册回调里规划。Pawn 增加按预期环境引用解除组合的入口，避免旧安装器移除新安装器已替换的服务。Environment 冻结 Targets.Revision，规划接受前必须匹配；Resolver 的 Source 可用性同时观察已配置 Active 的启用状态，区分业务存活数和可用性变化。安装器发现目标修订变化时先检查已有边锚点，保留未移动边成本，仅补失效边；构造主动查询引起修订变化时也不能先接受旧锚点成本。
 
 `RaidMapCommandInstaller` 通过 SceneLoaded 一次查找正式 Binding，默认执行顺序早于 Pawn/目标决策，按 profile 共用环境。导航指纹只在安装或显式导航重建时计算，RuntimeNavMeshSurfaceBuilder 增加 IsBuilding/HasPendingBuild/NavigationRevision，重建 pending 期间环境不就绪。动态执行失败通过实例根结果通知安装器失效当前边；MapGraph 的失效/补验预算独立，不由 UI 重绘触发。
 
 P4a2 文件归属再细化：Create `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphRouteEnvironmentService.cs` 独立拥有共享图/Resolver、按 profile 的成本及环境缓存、全局查询预算和失效发布；RaidMapCommandInstaller 仅处理场景/Registry 生命周期及注入，不堆入缓存调度。Create `Editor/AgentReproduction/Tests/MapRouteEnvironmentTests.cs` 先验证这一能力，再做安装集成。
+
+P4a2b 审查修正归属：RuntimeNavMeshSurfaceBuilder 的初次延迟协程需要由自身启停管理，否则烘焙前 GameObject 停用会终止协程，重新启用后仍永久 pending。扩展同文件的 OnEnable/OnDisable 和初次工作引用，不把重启计时放入安装器；新增实际停用/恢复后自动烘焙用例。正式场景测试在基类清测试导航前先正式卸载本场景，避免故意移走导航却留下敌人继续 Update 的夹具错误。
 
 环境变化须区分新请求和已有路线：新请求等待完整成本快照，已有路线若剩余边/目标/当前锚点仍有效则继续，不因无关边补验而关闭玩家背包或重启任务。Extend `AgentRouteController.cs` 在环境变化时只读验证剩余路径，仍有效则采用新环境；失效才走原有界重规划。该检查无 NavMesh 查询，仅在环境修订时运行。新增无关边失效不打断已接受路线/背包的构造，避免共享成本成为多 Agent 互相打断的来源。
 

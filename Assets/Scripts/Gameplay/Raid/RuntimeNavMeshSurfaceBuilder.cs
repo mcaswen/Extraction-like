@@ -25,7 +25,13 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
 
     private NavMeshSurface _surface;
     private bool _isBuilding;
+    private bool _hasBuilt;
+    private bool _started;
+    private Coroutine _initialBuild;
     private float _lastBuildTime = -999f;
+    public bool IsBuilding => _isBuilding;
+    public bool HasPendingBuild => isActiveAndEnabled && BuildOnStart && !_hasBuilt;
+    public long NavigationRevision { get; private set; }
 
     private void Awake()
     {
@@ -42,10 +48,19 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
 
     private void Start()
     {
-        if (BuildOnStart)
-        {
-            StartCoroutine(BuildAfterDelay());
-        }
+        _started = true;
+        ScheduleInitialBuild();
+    }
+
+    private void OnEnable() { if (_started) ScheduleInitialBuild(); }
+    private void OnDisable()
+    {
+        if (_initialBuild != null) StopCoroutine(_initialBuild);
+        _initialBuild = null;
+    }
+    private void ScheduleInitialBuild()
+    {
+        if (BuildOnStart && !_hasBuilt && _initialBuild == null) _initialBuild = StartCoroutine(BuildAfterDelay());
     }
 
     private IEnumerator BuildAfterDelay()
@@ -55,7 +70,8 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
             yield return new WaitForSeconds(InitialBuildDelay);
         }
 
-        BuildNow();
+        _initialBuild = null;
+        if (!_hasBuilt) BuildNow();
     }
 
     /// <summary>
@@ -86,6 +102,8 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
     /// </summary>
     public void BuildNow()
     {
+        if (_initialBuild != null) StopCoroutine(_initialBuild);
+        _initialBuild = null;
         if (_surface == null)
         {
             _surface = GetComponent<NavMeshSurface>();
@@ -97,10 +115,17 @@ public class RuntimeNavMeshSurfaceBuilder : MonoBehaviour
 
         ApplySurfaceDefaults();
         _isBuilding = true;
-        _surface.BuildNavMesh();
-        _lastBuildTime = Time.unscaledTime;
-        _isBuilding = false;
+        try
+        {
+            _surface.BuildNavMesh();
+            _lastBuildTime = Time.unscaledTime;
+            _hasBuilt = true;
+            NavigationRevision++;
+        }
+        finally { _isBuilding = false; }
     }
+
+    private void OnDestroy() { if (Instance == this) Instance = null; }
 
     private void ApplySurfaceDefaults()
     {

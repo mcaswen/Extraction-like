@@ -1,6 +1,22 @@
 {
   "groups": [
     {
+      "name": "MapCommandInstallation",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandInstallationTests",
+      "expected": [
+        "NoCommandBindingLeavesLegacySceneUninstalled",
+        "ExistingAndLateAgentsShareOneBudgetAndUnusedProfilesAreRemoved",
+        "RegistryEventsObserveFinalRosterAndDoNotDuplicateRegistration",
+        "DisablingInstallerCancelsOwnedRouteAndReenableCreatesUsableController",
+        "OldInstallerCannotReleaseAReplacementEnvironment",
+        "DisabledBindingRemainsExplicitCommandModeAndCanRecover",
+        "PendingInitialNavigationAndActualRebuildInvalidateWithoutPerFrameFingerprint",
+        "FormalSceneLoadInstallsItsSavedBindingForBothAgents",
+        "InterruptedInitialNavigationBuildResumesAfterEnable"
+      ]
+    },
+    {
       "name": "MapRouteEnvironment",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapRouteEnvironmentTests",
