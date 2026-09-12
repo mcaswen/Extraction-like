@@ -10,11 +10,16 @@ namespace Gameplay.Agent.Runtime
     /// </summary>
     public sealed class AgentCommandRouter : MonoBehaviour
     {
+        public event System.Action<AgentRouteResult> RouteRejectedBeforeDispatch;
         public AgentRouteResult TrySubmitRoute(AgentRouteRequest request) => TrySubmitRoute(request.TargetAgentId, request);
         public AgentRouteResult TrySubmitRoute(AgentId agentId, AgentRouteRequest request)
         {
             if (!TryResolveTarget(agentId, out var handle))
-                return new AgentRouteResult(request.WithTargetAgentId(agentId), 0, AgentRouteStage.Rejected, AgentRouteFailure.NoAgent);
+            {
+                var rejected = new AgentRouteResult(request.WithTargetAgentId(agentId), 0, AgentRouteStage.Rejected, AgentRouteFailure.NoAgent);
+                RouteRejectedBeforeDispatch?.Invoke(rejected);
+                return rejected;
+            }
             return handle.CommandReceiver.TrySubmitRoute(request.WithTargetAgentId(handle.AgentId));
         }
         private static AgentCommandRouter _activeInstance;

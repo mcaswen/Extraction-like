@@ -1,6 +1,19 @@
 {
   "groups": [
     {
+      "name": "MapCommandFeedback",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandFeedbackTests",
+      "expected": [
+        "PlanningIsSilentAcceptedShowsOnceAndEveryChildRemainsSilent",
+        "RootRejectionShowsReasonAndKeepsTheAcceptedRoute",
+        "MissingAgentAndLateRegistrationUseOneFeedbackSubscription",
+        "AutonomousRoutesAndDamageInterruptsDoNotShowPlayerCommandFeedback",
+        "FailedReplanShowsOneRootFailureInsteadOfChildMessages",
+        "RootMessagesUseCorrectChineseAndDescribePlayerMeaning"
+      ]
+    },
+    {
       "name": "MapCommandEntry",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandEntryTests",
