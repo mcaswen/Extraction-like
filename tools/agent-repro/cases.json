@@ -1,6 +1,20 @@
 {
   "groups": [
     {
+      "name": "MapRouteEnvironment",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapRouteEnvironmentTests",
+      "expected": [
+        "EquivalentProfilesShareSnapshotsAndOneGlobalQueryBudget",
+        "ObservedAnchorRevisionCannotPublishOldCostsAsReady",
+        "NavigationPauseAndRebuildNeverExposeAReadyStaleEnvironment",
+        "DisabledBindingInvalidatesSharedEnvironmentAndCanBeRestored",
+        "SourceActiveClusterAvailabilityHasAnObservableRevision",
+        "ReplacingBindingResolverReplansEvenWhenNodeIdsAndAnchorsMatch",
+        "UnrelatedEdgeRevalidationDoesNotCloseInventoryOrReplaceRoot"
+      ]
+    },
+    {
       "name": "MapCommandNavigationCache",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandNavigationCacheTests",

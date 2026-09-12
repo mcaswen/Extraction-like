@@ -233,3 +233,7 @@ Raid 保留实际计时、写仓和销毁所有权：中间节点碰撞不撤离
 # P4a1 运行时导航缓存审查（2026-09-13）
 
 结论：通过。Fingerprint 归 Binding 的一次性世界输入采集，BakeData 只保存数据，CostService 验证 profile/端点/锚点和实际输入再加载；Editor Collector/Builder 负责采集和持久化，Runtime 无 AssetDatabase 依赖。没有用 SO 自带指纹当当前世界事实。活动链接的原生状态不能完整证明，保守补验已有边；只读采集不强行 UpdateLink。新增 6、原成本绑定 11、生成编排 13 项通过，见 p4_execution.md。运行时安装尚待下一步。
+
+# P4a2a 共享环境审查（2026-09-13）
+
+结论：通过。MapGraphRouteEnvironmentService 独占图/Resolver/各 profile 成本缓存和全局补验预算，不引用 Raid、Pawn 或 UI。环境为冻结快照，Controller 只读检查当前剩余路径；更换 Resolver 需要重建步骤，无关边补验则保留正在使用的背包会话。Source 的已配置 Active 启用状态参与可用性修订，生命数量仍由原敌人系统提供。没有复制根路线或当前指令状态。新 7、根执行 18、群事实 10 项通过，证据见 p4_execution.md。正式场景注册/安装由下一步组合根承担。

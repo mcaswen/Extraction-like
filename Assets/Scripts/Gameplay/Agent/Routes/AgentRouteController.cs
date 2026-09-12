@@ -83,8 +83,12 @@ namespace Gameplay.Agent.Routes
             double now = Time.realtimeSinceStartupAsDouble;
             if (now < _nextExecutionTick) return;
             _nextExecutionTick = now + 0.05;
-            if (!SameEnvironment(_state.Environment, _environment))
-            { BeginReplan(AgentRouteFailure.StaleContext); return; }
+            if (!ReferenceEquals(_state.Environment, _environment) || _environment?.NavigationReady != true ||
+                _environment.Targets == null || _environment.TargetRevision != _environment.Targets.Revision)
+            {
+                if (CanContinuePlan()) _state.Environment = _environment;
+                else { BeginReplan(AgentRouteFailure.StaleContext); return; }
+            }
             _step.Tick();
             var step = _step.Snapshot;
             if (!step.IsTerminal) return;
@@ -110,6 +114,7 @@ namespace Gameplay.Agent.Routes
             if (Time.realtimeSinceStartupAsDouble >= work.Deadline)
             { PlanningFailed(AgentRouteFailure.NavigationNotReady); return; }
             if (_environment?.IsReady != true || !AgentNavigationQuery.IsReady(_agent.NavMeshAgent)) return;
+            if (_environment.TargetRevision != _environment.Targets.Revision) return;
             if (work.IsReplan && IsRetaliating) return;
             if (work.Planner == null)
             {
@@ -124,6 +129,7 @@ namespace Gameplay.Agent.Routes
             if (!work.Planner.IsDone) return;
             var plan = work.Planner.Result;
             bool stale = !SameEnvironment(work.Environment, _environment) || work.Planner.Failure == AgentRouteFailure.StaleContext ||
+                plan != null && plan.BindingRevision != _environment.TargetRevision ||
                 work.PreviousVersion != (_state?.Version ?? 0) || work.PreviousCursor != (_state?.Cursor ?? -1) ||
                 (GroundPosition() - work.Origin).sqrMagnitude > 4f;
             if (stale)
@@ -189,8 +195,30 @@ namespace Gameplay.Agent.Routes
         private static bool SameTarget(AgentRouteRequest a, AgentRouteRequest b) => a.TargetNodeId == b.TargetNodeId && a.Source == b.Source;
         private static bool SameEnvironment(AgentRouteEnvironment a, AgentRouteEnvironment b) => a != null && b != null &&
             a.IsReady && b.IsReady && a.ContextVersion == b.ContextVersion && a.GraphRevision == b.GraphRevision &&
+            a.TargetRevision == b.TargetRevision && b.TargetRevision == b.Targets.Revision &&
             ReferenceEquals(a.Graph, b.Graph) && ReferenceEquals(a.Targets, b.Targets) && ReferenceEquals(a.Profile, b.Profile) &&
             a.Costs.Revision == b.Costs.Revision && a.Costs.ProfileId == b.Costs.ProfileId;
+        // 无关成本补验不打断有效任务。仅在环境修订时检查剩余路径，不查询 NavMesh。
+        private bool CanContinuePlan()
+        {
+            var next = _environment;
+            if (next == null || !next.NavigationReady || next.Graph?.IsValid != true || next.Targets == null ||
+                next.Costs == null || next.TargetRevision != next.Targets.Revision ||
+                !ReferenceEquals(next.Targets, _state.Environment.Targets) ||
+                next.Costs.ProfileId != _state.Environment.Costs.ProfileId) return false;
+            int firstEdge = _state.Cursor;
+            for (int i = _state.Cursor; i < _state.Plan.NodeIds.Count; i++)
+            {
+                string id = _state.Plan.NodeIds[i];
+                if (!next.Graph.TryGetNode(id, out var node) || !_state.Environment.Graph.TryGetNode(id, out var oldNode) ||
+                    node.NodeKind != oldNode.NodeKind || !next.Targets.TryGetFacts(id, out var facts) || !facts.CanTraverse) return false;
+                if (i == _state.Cursor && (facts.Anchor - _step.Snapshot.Anchor).sqrMagnitude > 0.0001f) return false;
+                if (i == firstEdge && (i == 0 || _step.Snapshot.Phase != AgentClusterStepPhase.Travelling)) continue;
+                string from = _state.Plan.NodeIds[i-1];
+                if (!next.Graph.TryGetEdgeBetween(from, id, out var edge) || !next.Costs.TryGetCost(edge, from, out _)) return false;
+            }
+            return next.TargetRevision == next.Targets.Revision;
+        }
         private bool IsRetaliating => _lifecycle.Active.HasValue && AgentManualDirectiveLock.IsCombatDamageDirective(_lifecycle.Active.Value);
         private void PlanningFailed(AgentRouteFailure reason)
         {

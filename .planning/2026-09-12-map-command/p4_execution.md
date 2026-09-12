@@ -2,6 +2,13 @@
 
 状态：**P4a1 缓存完成，进入 P4a2 正式安装。** 延续已确认的大规划，不改变 Routes、Binding、Raid、View 的依赖方向。
 
+### P4a2a 共享环境实施结果
+
+- `MapGraphRouteEnvironmentService.cs` 拥有按 profile 共享的冻结图/成本/目标环境，全局每帧最多补 2 条已保存边（4 次有向查询），轮换 profile。锚点变化只失效相关已有边，导航重建暂停补算，未使用 profile 可释放；无 Update 全场扫描。
+- Environment 冻结目标修订，新请求拒绝接受旧成本。当前路线只在环境变化时检查剩余路径，无关成本暂缺不会关背包、替换根或重发动作。审查补充 Resolver 身份检查：群绑定适配器替换即重规划，不能让旧步骤继续持有旧对象。
+- 初轮 `034336-595` 6/6，补身份用例后 `Logs/AgentReproduction/20260913-035013-636` **7/7 PASS**；受影响的根执行 `035138-466` **18/18 PASS**，群事实 `035335-739` **10/10 PASS**。均正常退出、源输入不变，原始 JSON/XML 留在对应目录。
+- 本步没有正式安装或新可见 HUD，不将这些构造结果算作 P4/P5/P6 验收。后续安装器仅负责组合和生命周期。
+
 P3 已提交 `aec9964`。先实施 P4a1 可验证导航缓存，再接 P4a2 安装调度，避免把旧缓存假定有效。`MapGraphNavigationBakeBuilder.cs` 是实际最终烘焙提交文件；新增 `Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs` 验证同输入指纹、真实链接/网格变化、profile/锚点不匹配、缺签名补验、保存读回。正式 PlayerInputManager 路径为 `Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs`。
 
 P4a1 审查：本项目 Unity 版本未公开 NavMeshData.agentTypeID，改读 Surface 的导航类型，实际查询仍使用完整 profile。NavMeshLink/OffMeshLink 的已提交原生端点也没有足够的只读公开事实，autoUpdate=false 时不能用组件 Transform 冒充原生链接状态。因此活动链接场景保留带 `live-links:` 标记的输入指纹用于诊断，运行时仍预算补验已有边；静态无链接场景可验证缓存后零补算。新增活动链接不得直接复用缓存的构造，不修改链接或生成假通路。
@@ -31,6 +38,10 @@ P4a1 审查：本项目 Unity 版本未公开 NavMeshData.agentTypeID，改读 S
 P4a2 接线细化：Registry 提供 AgentRegistered/AgentUnregistered 实例事件，安装器只标记集合变动，实际组合放在自己的早期 Tick；反馈只挂接订阅，不在注册回调里规划。Pawn 增加按预期环境引用解除组合的入口，避免旧安装器移除新安装器已替换的服务。Environment 冻结 Targets.Revision，规划接受前必须匹配；Resolver 的 Source 可用性同时观察已配置 Active 的启用状态，区分业务存活数和可用性变化。安装器发现目标修订变化时先检查已有边锚点，保留未移动边成本，仅补失效边；构造主动查询引起修订变化时也不能先接受旧锚点成本。
 
 `RaidMapCommandInstaller` 通过 SceneLoaded 一次查找正式 Binding，默认执行顺序早于 Pawn/目标决策，按 profile 共用环境。导航指纹只在安装或显式导航重建时计算，RuntimeNavMeshSurfaceBuilder 增加 IsBuilding/HasPendingBuild/NavigationRevision，重建 pending 期间环境不就绪。动态执行失败通过实例根结果通知安装器失效当前边；MapGraph 的失效/补验预算独立，不由 UI 重绘触发。
+
+P4a2 文件归属再细化：Create `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphRouteEnvironmentService.cs` 独立拥有共享图/Resolver、按 profile 的成本及环境缓存、全局查询预算和失效发布；RaidMapCommandInstaller 仅处理场景/Registry 生命周期及注入，不堆入缓存调度。Create `Editor/AgentReproduction/Tests/MapRouteEnvironmentTests.cs` 先验证这一能力，再做安装集成。
+
+环境变化须区分新请求和已有路线：新请求等待完整成本快照，已有路线若剩余边/目标/当前锚点仍有效则继续，不因无关边补验而关闭玩家背包或重启任务。Extend `AgentRouteController.cs` 在环境变化时只读验证剩余路径，仍有效则采用新环境；失效才走原有界重规划。该检查无 NavMesh 查询，仅在环境修订时运行。新增无关边失效不打断已接受路线/背包的构造，避免共享成本成为多 Agent 互相打断的来源。
 
 - Extend `Targets/Input/AgentTargetCommandDispatcher.cs`：增加正式群路线入口，规范具体群 TargetRef，已完成群允许移动；焦点/指定 Agent 通过 Router。旧低层 out Directive 入口在无图场景保持兼容，在有图场景转发根路线且不再造单敌人整任务。更新实际 `PlayerInputManager.cs` 调用正式返回值，Planning 不冒称成功。
 - Extend `Agent/Decision/AgentTargetDecisionController.cs`、`Agent/Runtime/AgentTargetDiscoveryController.cs`：保留候选发现范围、射线、风险和原容量选择，选定后提交 Autonomous 路线。有效根和待规划请求阻止重复自动刷新/覆盖；关闭决策模块不能清掉仍有效的根步骤。容量根结束后重新选择撤离，沿途资源免处理由原容量事实驱动。

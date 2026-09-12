@@ -19,6 +19,8 @@ namespace Gameplay.Agent.Routes
         public long GraphRevision { get; }
         public long CostRevision { get; }
         public long BindingRevision { get; }
+        public long EnvironmentVersion { get; }
+        public long CurrentCostRevision { get; }
         public bool IsActive => HasRoute && Stage == AgentRouteStage.Accepted;
         public bool HoldsPlayerRoute => (IsActive && Request.Source == AgentRouteSource.Player) ||
             (HasPendingRequest && PendingRequest.Source == AgentRouteSource.Player);
@@ -34,6 +36,8 @@ namespace Gameplay.Agent.Routes
             HasPendingRequest = pending.HasValue; PendingRequest = pending ?? default;
             GraphRevision = state?.Plan?.GraphRevision ?? 0; CostRevision = state?.Plan?.CostRevision ?? 0;
             BindingRevision = state?.Plan?.BindingRevision ?? 0;
+            EnvironmentVersion = state?.Environment?.ContextVersion ?? 0;
+            CurrentCostRevision = state?.Environment?.Costs?.Revision ?? 0;
         }
     }
 }

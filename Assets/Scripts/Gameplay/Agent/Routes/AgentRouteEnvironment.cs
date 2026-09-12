@@ -12,13 +12,16 @@ namespace Gameplay.Agent.Routes
         public MapGraphCostSnapshot Costs { get; }
         public IAgentRouteTargetResolver Targets { get; }
         public AgentNavigationProfile Profile { get; }
+        public long TargetRevision { get; }
+        public bool NavigationReady { get; }
         public bool IsReady { get; }
         public AgentRouteEnvironment(MapGraphService graph, long graphRevision, long contextVersion,
-            MapGraphCostSnapshot costs, IAgentRouteTargetResolver targets, AgentNavigationProfile profile, bool ready = true)
+            MapGraphCostSnapshot costs, IAgentRouteTargetResolver targets, AgentNavigationProfile profile, bool ready = true, bool navigationReady = true)
         {
             Graph = graph; GraphRevision = graphRevision; ContextVersion = contextVersion;
             Costs = costs; Targets = targets; Profile = profile;
-            IsReady = ready && graph != null && graph.IsValid && costs != null && targets != null && profile != null;
+            TargetRevision = targets?.Revision ?? 0; NavigationReady = navigationReady;
+            IsReady = ready && navigationReady && graph != null && graph.IsValid && costs != null && targets != null && profile != null;
         }
     }
 }

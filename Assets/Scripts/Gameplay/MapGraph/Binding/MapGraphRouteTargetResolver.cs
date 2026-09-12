@@ -168,7 +168,7 @@ namespace Gameplay.MapGraph.Binding
                 if (item == null || _nodes.ContainsKey(item.NodeId) || !graph.TryGetNode(item.NodeId, out var node)) continue;
                 var record = new NodeRecord { Binding = item, Kind = node.NodeKind };
                 record.HasAnchor = item.TryGetNavigationAnchor(out record.Anchor);
-                record.Available = item.DirectTarget != null && item.DirectTarget.isActiveAndEnabled;
+                record.Available = IsAvailable(item.DirectTarget);
                 _nodes.Add(item.NodeId, record); _ordered.Add(record);
             }
         }
@@ -176,9 +176,11 @@ namespace Gameplay.MapGraph.Binding
         private void Observe(NodeRecord record)
         {
             bool hasAnchor = record.Binding.TryGetNavigationAnchor(out var anchor);
-            bool available = record.Binding.DirectTarget != null && record.Binding.DirectTarget.isActiveAndEnabled;
+            bool available = IsAvailable(record.Binding.DirectTarget);
             if (hasAnchor != record.HasAnchor || available != record.Available || (hasAnchor && anchor != record.Anchor)) _revision++;
             record.HasAnchor = hasAnchor; record.Anchor = anchor; record.Available = available;
         }
+        private static bool IsAvailable(GameplayTargetAuthoringBase target) => target != null && target.isActiveAndEnabled &&
+            (!(target is EnemySourceClusterAuthoring source) || source.ConfiguredActiveEnemyCluster == null || source.ConfiguredActiveEnemyCluster.isActiveAndEnabled);
     }
 }
