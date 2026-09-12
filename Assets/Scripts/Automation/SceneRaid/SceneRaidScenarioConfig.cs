@@ -9,6 +9,7 @@ namespace AnomalySearch.Automation.SceneRaid
     public sealed class SceneRaidScenarioConfig
     {
         public int schemaVersion = 1;
+        public int routeEvidenceVersion = 1;
         public string runId, outputPath, scenePath, mode = "Observe";
         public int seed = 731, width = 3840, height = 2160;
         public float observeSeconds = 60, simulationSpeed = 1;

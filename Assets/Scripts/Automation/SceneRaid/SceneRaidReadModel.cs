@@ -38,6 +38,7 @@ namespace AnomalySearch.Automation.SceneRaid
             public bool attackReady, hasEnemy, hasResource, hasDirectivePosition, inventoryRequiresExtraction;
             public EnemyState enemy;
             public ResourceState resource;
+            public Commands.SceneRaidRouteEvidence.RootRecord route;
         }
         [Serializable] public sealed class EnemyState
         {
@@ -277,7 +278,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 attackRange = attackRange, attackReady = combat != null && combat.IsAttackReady(Time.timeAsDouble),
                 lastShotResult = shooter != null ? shooter.LastShotResult.ToString() : "NoShooter",
                 lastShotFailure = shooter != null ? shooter.LastShotFailure.ToString() : "NoShooter",
-                enemy = CaptureEnemy(pawn, enemy, attackRange), resource = resourceState,
+                enemy = CaptureEnemy(pawn, enemy, attackRange), resource = resourceState, route = Commands.SceneRaidRouteEvidence.Capture(pawn),
                 radius = nav != null ? nav.radius : 0, height = nav != null ? nav.height : 0,
                 baseOffset = nav != null ? nav.baseOffset : 0, stoppingDistance = nav != null ? nav.stoppingDistance : 0,
                 avoidancePriority = nav != null ? nav.avoidancePriority : -1,

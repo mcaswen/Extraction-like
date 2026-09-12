@@ -1,6 +1,7 @@
 Set-StrictMode -Version Latest
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Contracts.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.ClusterCommands.Contracts.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Routes.Contracts.psm1') -Force
 function Get-SceneRaidFrameStatistics {
     param([object[]]$Frames, [ValidateRange(1,1000)][double]$TargetFps = 60)
     $frameBudgetMs = 1000.0 / $TargetFps
@@ -89,6 +90,7 @@ function Test-SceneRaidEvidence {
     $counterSummaries = @()
     $result = $null
     $completion = $null
+    $routes = $null
     if ($Config.PSObject.Properties['buildPlayer'] -and $Config.buildPlayer) {
         try {
             $build = Get-Content -LiteralPath (Join-Path $OutputPath 'build-result.json') -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json
@@ -125,6 +127,10 @@ function Test-SceneRaidEvidence {
             for ($i = 0; $i -lt $events.Count; $i++) { if ($events[$i].sequence -ne $i + 1) { $issues.Add('event_sequence_gap'); break } }
             $behaviorFailures = @($events | Where-Object { $_.kind -eq 'directive.Failed' -or $_.kind -eq 'directive.Rejected' }).Count
             $stagnations = @($events | Where-Object kind -eq 'contract.movementStagnationSuspected').Count
+            if (($Config.PSObject.Properties['routeEvidenceVersion'] -and $Config.routeEvidenceVersion -eq 1) -or @($events | Where-Object kind -eq 'route.graph').Count -gt 0) {
+                $routes = Test-SceneRaidRoutes $events $Config.mode
+                $routes | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $OutputPath 'route-contracts.json') -Encoding UTF8
+            }
             if ($issues.Contains('no_graphical_frames')) {
                 throw 'Rendering evidence is invalid; raw counters are retained but timing aggregation is not applicable.'
             }
@@ -174,8 +180,9 @@ function Test-SceneRaidEvidence {
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
         editorLifecycle=$(if ($PlayerRun) {'PLAYER_EXITED'} elseif ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
-        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or ($behaviorFailures-$expectedRejections-$expectedExecutionFailures) -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
+        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or ($behaviorFailures-$expectedRejections-$expectedExecutionFailures) -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL') -or ($routes -and $routes.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
         completionContracts=$completion
+        routeContracts=$routes
         expectedRejections=$expectedRejections; expectedExecutionFailures=$expectedExecutionFailures; unexpectedBehaviorFailures=($behaviorFailures-$expectedRejections-$expectedExecutionFailures)
         coverageStatus=$(if($Config.mode -eq 'ManualCluster' -and $completion){$completion.coverageStatus}else{'NOT_APPLICABLE'})
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries

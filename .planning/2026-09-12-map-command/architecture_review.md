@@ -261,3 +261,9 @@ Raid 保留实际计时、写仓和销毁所有权：中间节点碰撞不撤离
 Installer 组合正式 HUD、共享环境和导航 roster，不承载 UI 布局或 RVO 分配算法；AgentNavigationAvoidanceAssignment 独立归 Navigation，以精确拥有者令牌恢复配置，显式优先级和外部改动得到保留。实际双角色测试证明共同入图可通过，未关避让或放宽到达。旧小地图在正式 Binding 场景不创建旧 UI，商店/仓库和重新安装释放所有者所属显示。
 
 GUIView 抓图复用逻辑已提取到 Editor/Reporting，Gameplay 不引用 Automation/Editor。9+4+10+5 项定向行为和 1 项真实 SRP 截图通过，三轮图片已实际打开检查并记录修改。P5 结束；P6 仍需完整整局、动态图像补证、导航岛定位和正式性能，具体边界见 p5_execution.md、p6_execution.md。
+
+# P6a 路线证据和独立合同审查（2026-09-13）
+
+结论：证据模块通过，整局尚未通过。SceneRaidRouteEvidence 位于 Automation/Commands，只订阅 Pawn/Registry、读取根快照和已有显示事实，不发请求、导航查询或背包操作；SceneRaidReadModel 复用该快照，原导航/敌人血量探针保持唯一实现。状态事件最多 20 Hz 检查、普通位置 4 Hz 采样，释放订阅和快照数组隔离已验证，实际连续抓取没有增加路径查询或推进根游标。
+
+PowerShell 合同根据冻结图和原始事件独立核对合法边、根序列/游标、接受来源和图标位置，不复用 Gameplay 搜索算法。20 Hz UI 的一次终态刷新延迟单列，跨连续采样长期不同步仍失败；缺失路线证据不能 PASS。新报告通过版本字段接入，不把旧 MC 子指令合同改名当作新路线完成；死亡仍交由既有独立结算合同判断。3 项 Play Mode、18 项合同正反例、79 项原报告回归和真实构造日志对照通过。MR01 暴露幸存者 NoProgress，已保留失败证据和修复小规划，未宣称整局或正常速度性能达标。

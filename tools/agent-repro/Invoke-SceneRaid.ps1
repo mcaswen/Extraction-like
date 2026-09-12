@@ -35,7 +35,7 @@ try {
     }
     $caseConfig = (Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scene-raid-cases.json') -Raw | ConvertFrom-Json).cases | Where-Object id -eq $Case
     $profileConfig = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'scene-raid-profiles.json') -Raw | ConvertFrom-Json
-    $config = [ordered]@{schemaVersion=1;runId=$runId;outputPath=$output;scenePath=$profileConfig.scenePath;mode=$caseConfig.mode;
+    $config = [ordered]@{schemaVersion=1;routeEvidenceVersion=1;runId=$runId;outputPath=$output;scenePath=$profileConfig.scenePath;mode=$caseConfig.mode;
         seed=$(if ($null -ne $Seed) {$Seed} else {$caseConfig.seed});observeSeconds=$(if ($null -ne $ObserveSeconds) {$ObserveSeconds} else {$caseConfig.observeSeconds});simulationSpeed=$caseConfig.simulationSpeed;
         width=$profileConfig.width;height=$profileConfig.height;profile=($Profile.IsPresent -or $profileConfig.profile);binaryProfile=$profileConfig.binaryProfile;
         enabled=$true;keepEditorOpen=(!$ExitEditor);buildPlayer=($Case -eq 'SC07');captureCommandCatalog=$CaptureCommandCatalog.IsPresent}

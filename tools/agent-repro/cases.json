@@ -1,6 +1,16 @@
 {
   "groups": [
     {
+      "name": "MapCommandRouteEvidence",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandRouteEvidenceTests",
+      "expected": [
+        "JournalContainsActualRootSequenceTransitionsAndTerminalResult",
+        "RepeatedCaptureDoesNotSubmitMoveAdvanceRootOrQueryNavigation",
+        "DisposalStopsSubscriptionsAndSnapshotsKeepTheirOwnNodeArray"
+      ]
+    },
+    {
       "name": "MapCommandPresentation",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandPresentationTests",

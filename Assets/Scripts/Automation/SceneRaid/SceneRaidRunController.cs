@@ -15,6 +15,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private SceneRaidReadModel _model;
         private SceneRaidFrameSampler _sampler;
         private SceneRaidInventoryDriver _inventory;
+        private Commands.SceneRaidRouteEvidence _routes;
         private Commands.SceneRaidCommandEvidence _commandEvidence;
         private Commands.SceneRaidClusterCommandDriver _commands;
         private StreamWriter _carriedFile;
@@ -38,6 +39,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _model = new SceneRaidReadModel(identity, _observer.LatestResource);
             _observer.CaptureDirective = _model.CaptureDirective;
             _observer.CaptureNavigation = _model.CaptureNavigation;
+            _routes = new Commands.SceneRaidRouteEvidence(_writer);
             if (config.mode == "Autonomous" || config.mode == "ManualCluster")
                 _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
             if (config.mode == "ManualCluster")
@@ -72,6 +74,7 @@ namespace AnomalySearch.Automation.SceneRaid
             {
                 _updates++;
                 _sampler.Sample();
+                _routes.Tick();
                 _commandEvidence?.ObserveProgress();
                 if (_commands != null && !_initialInventoryCaptured && _updates >= 3)
                 {
@@ -156,6 +159,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 _commands?.Stop("RaidEnded:" + status);
                 if (_commands != null) CaptureCarried("finalLiveAgents");
                 _observer.Snapshot(_model.Capture());
+                _routes.Tick(true);
                 SceneRaidPersistenceEvidence.CaptureWarehouse(_config.outputPath, "final");
                 SceneRaidPersistenceEvidence.CaptureDefinitions(_config.outputPath, _config.runId);
             }
@@ -190,7 +194,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 inventoryAgents = _inventory != null ? _inventory.ServedAgents.OrderBy(x => x).ToArray() : Array.Empty<string>(),
                 observedAgents = _observer.ObservedAgents.OrderBy(x => x).ToArray(), counters = _sampler.Descriptions
             };
-            _observer.Dispose(); _sampler.Dispose(); _writer.Dispose();
+            _routes.Dispose(); _observer.Dispose(); _sampler.Dispose(); _writer.Dispose();
             // 结果最后原子出现；进程层另外验证完整文件和事件终态。
             string path = Path.Combine(_config.outputPath, "result.json");
             File.WriteAllText(path + ".tmp", JsonUtility.ToJson(result, true));
@@ -204,7 +208,7 @@ namespace AnomalySearch.Automation.SceneRaid
             {
                 _inventory?.Dispose(); _commandEvidence?.Dispose(); _carriedFile?.Dispose();
                 if (_observer != null) _observer.DirectiveObserved -= CaptureExtractionInventory;
-                _observer?.Dispose(); _sampler?.Dispose(); _writer?.Dispose();
+                _routes?.Dispose(); _observer?.Dispose(); _sampler?.Dispose(); _writer?.Dispose();
             }
             Time.timeScale = _originalScale; Time.fixedDeltaTime = _originalFixed;
         }
