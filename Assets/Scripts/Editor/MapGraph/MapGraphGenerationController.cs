@@ -156,7 +156,7 @@ namespace AnomalySearch.Editor.MapGraph
                     _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray()).Issues);
             if (_diagnostics.Any(i => i.IsError)) { Fail("GeneratedLayoutValidationFailed"); return; }
             if (!CheckCurrentInputs()) return;
-            Result = new MapGraphGenerationResult(RequestId, InputRevision, Mode, _scene, draft, _scan.Anchors, _scan.Connections);
+            Result = new MapGraphGenerationResult(RequestId, InputRevision, Mode, _scene, draft, _scan.Anchors, _scan.Connections, JsonUtility.ToJson(_settings));
             Stage = MapGraphGenerationStage.Ready;
         }
 

@@ -44,6 +44,24 @@
 - 图数据和实体未写回。新增指纹输入使当前场景指纹变为 `7d82f625e8f68e6f3e47c689c03905c1`，导航仍为 `17e80a2593b3808e59919818228226fd`；这是指纹规则补全，未更改用户场景。实际名称、Agent 初始位置和导航参数变化均能使指纹变化。
 - 此步没有新画布，沿用已检查的第四张布局证据。P2c2 继续编辑文档/Undo/保存事务，之后接窗口和操作画布；当前不能通过 UI 编辑或使用正式地图指挥。
 
+## P2c2a 小规划：临时作者文档和 Undo
+
+先完成独立于窗口的编辑会话，再接正式资产/Binding 保存。直接复用现有 SO 作为临时工作副本，避免另一套节点/区域序列化格式；原资产只在后续明确保存入口写入。
+
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphEditorDocument.cs`：拥有 HideAndDontSave 的 SO 工作副本、单调递增的编辑版本、当前生成请求和 Undo/Redo 刷新。新请求取消旧任务，完成结果必须同时匹配请求身份、文档版本和当前场景指纹；应用作为一个 Undo 操作。关闭只销毁自己持有的临时对象和任务。原资产序列化内容留作保存冲突基线，外部 Inspector 修改即使未递增 SO.Revision 也能识别。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphNavigationBakeBuilder.cs`：由已验收的全对矩阵构造当前选中边的正式烘焙，按作者边的 ID/端点方向重排两个方向的长度及锚点；明确选择一个 profile，不混用不同 profile 的锚点。SO 首版仍保存一个 profile，其他运行时 profile 复用 P1 成本服务重新查询。
+- Extend `MapGraphGenerationResult.cs`/`MapGraphGenerationController.cs`：结果附带本次冻结的设置 JSON，作者文档应用该份设置；不从已被窗口修改的参数重新取值。Reuse `SO_MapGraphDefinition.cs`、`MapGraphLayoutDraft.cs` 和 Unity Undo；暂不新增通用历史系统。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorDocumentTests.cs`，Extend `tools/agent-repro/cases.json`：实际调用 Unity Undo/Redo，核对第一次生成可撤回为空、字段和烘焙恢复、Undo 后版本仍单调递增、旧请求不能覆盖新编辑、取消/关闭不改原资产、原资产外部修改冲突、方向相反的作者边烘焙和不可用方向拒绝。
+
+文件仍在 Editor 模块，文档管理会话/事务身份，Controller 管计算，BakeBuilder 管数据适配。P2c2b 再实现经过验证的正式资产/场景 Binding 保存、失败回滚和重开；P2c3 接画布及拖动/连线操作。本步不提前修改正式场景绑定。
+
+### P2c2a 实施结果
+
+- `233812-549` 作者文档 **8/8 PASS**，实际调用 Unity Undo/Redo，第一次生成撤回后恢复空工作副本，重做恢复完整图和烘焙。连续名称/设置操作分别撤回、重做，文档版本始终递增，不随 Undo 回退。
+- 旧请求被替换、生成后继续编辑、Undo、新场景输入等情况均不能覆盖当前文档。关闭会话停止其任务、移除自身 Undo 订阅并销毁临时对象；正式资产内容、磁盘重读结果和 dirty 状态保持。外部 Inspector 只改名称且 SO.Revision 不变时仍检测到冲突。
+- 正式烘焙保留作者自定义边 ID，反向定义正确交换实测 12/17 的两个方向成本及世界锚点，旧显示长度 999 不参与计算。错误 profile、缺锚点、不可达方向、测量与绑定锚点不一致均拒绝。
+- 生成结果附带冻结设置，应用前构造并校验烘焙，再以单个 Unity Undo 操作替换临时 SO。原资产尚未写回，保存后重开以及正式 Binding 的事务验证留在 P2c2b；本步没有新画布，不把这些测试当作可见编辑器完成。
+
 ## P2b1 小规划：布局数据、独立几何校验和评分
 
 先写验收器再接求解器，避免自动生成器通过自我放宽条件获得假成功。本步为纯 Editor 算法，不导航、不改场景、不生成正式资产；没有可见布局时不截图旧 UI。

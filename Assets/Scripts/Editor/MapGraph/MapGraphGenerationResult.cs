@@ -15,13 +15,15 @@ namespace AnomalySearch.Editor.MapGraph
         public MapGraphGenerationMode Mode { get; }
         public MapGraphSceneSnapshot Scene { get; }
         public MapGraphLayoutDraft Layout { get; }
+        public string GenerationSettingsJson { get; }
         public IReadOnlyList<MapGraphScannedAnchor> Anchors { get; }
         public IReadOnlyList<MapGraphScannedConnection> Connections { get; }
         internal MapGraphGenerationResult(string requestId, long inputRevision, MapGraphGenerationMode mode,
             MapGraphSceneSnapshot scene, MapGraphLayoutDraft layout, IEnumerable<MapGraphScannedAnchor> anchors,
-            IEnumerable<MapGraphScannedConnection> connections)
+            IEnumerable<MapGraphScannedConnection> connections, string generationSettingsJson)
         {
             RequestId = requestId; InputRevision = inputRevision; Mode = mode; Scene = scene; Layout = layout;
+            GenerationSettingsJson = generationSettingsJson;
             Anchors = anchors.ToList().AsReadOnly(); Connections = connections.ToList().AsReadOnly();
         }
     }

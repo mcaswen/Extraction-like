@@ -34,6 +34,17 @@
       ]
     },
     {
+      "name": "MapGraphEditorDocument",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphEditorDocumentTests",
+      "expected": [
+        "FirstGenerationUndoRedoRestoresGraphAndBakeAtomically", "MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch",
+        "ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument", "SceneChangeRejectsReadyGenerationWithoutCreatingUndoState",
+        "ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset", "ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement",
+        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections", "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake"
+      ]
+    },
+    {
       "name": "MapGraphGenerationController",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphGenerationControllerTests",
