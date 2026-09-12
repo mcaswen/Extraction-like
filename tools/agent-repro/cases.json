@@ -1,6 +1,27 @@
 {
   "groups": [
     {
+      "name": "ManualDirectiveResume",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.ManualDirectiveResumeTests",
+      "expected": [
+        "MovingManualTaskResumesAfterActualRetaliationDeath(\"Search\",1)",
+        "MovingManualTaskResumesAfterActualRetaliationDeath(\"Search\",4)",
+        "MovingManualTaskResumesAfterActualRetaliationDeath(\"Engage\",1)",
+        "MovingManualTaskResumesAfterActualRetaliationDeath(\"Engage\",4)",
+        "MovingManualTaskResumesAfterActualRetaliationDeath(\"Extract\",1)",
+        "MovingManualTaskResumesAfterActualRetaliationDeath(\"Extract\",4)",
+        "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"NewOrder\")",
+        "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"RejectedOrder\")",
+        "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"Cancel\")",
+        "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"Death\")",
+        "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"InvalidTarget\")",
+        "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"FailedRetaliation\")",
+        "TwoAgentsKeepIndependentPlayerTasks"
+      ]
+    },
+    {
       "name": "ExtractionPresence",
       "suite": "Core",
       "graphics": true,

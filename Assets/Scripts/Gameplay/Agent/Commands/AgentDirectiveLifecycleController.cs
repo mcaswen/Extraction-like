@@ -8,16 +8,18 @@ using UnityEngine;
 
 namespace Gameplay.Agent.Commands
 {
-    /// <summary>Owns directive identity, atomic task facts and one suspended extraction.</summary>
+    /// <summary>Owns directive identity, atomic task facts and one interrupted player task or extraction.</summary>
     public sealed class AgentDirectiveLifecycleController
     {
         private readonly IAgentReadOnly _agent;
         private readonly AgentInterventionController _storage;
         private readonly AgentNavigationMotor _motor;
         private AgentDirectiveRequest? _active;
-        private AgentDirectiveRequest? _suspendedExtraction;
+        private AgentDirectiveRequest? _suspendedDirective;
         public AgentDirectiveRequest? Active => _active;
-        public AgentDirectiveRequest? SuspendedExtraction => _suspendedExtraction;
+        public AgentDirectiveRequest? SuspendedDirective => _suspendedDirective;
+        public AgentDirectiveRequest? SuspendedExtraction => _suspendedDirective?.DirectiveType == AgentDirectiveType.Extract
+            ? _suspendedDirective : null;
         public AgentDirectiveLifecycleController(IAgentReadOnly agent, AgentInterventionController storage, AgentNavigationMotor motor)
         { _agent = agent; _storage = storage; _motor = motor; }
 
@@ -43,10 +45,11 @@ namespace Gameplay.Agent.Commands
                 return Publish(request, AgentDirectiveStage.Rejected, AgentDirectiveFailure.Superseded);
             if (!manual && _active.HasValue && SameTarget(_active.Value, request))
                 return new AgentDirectiveResult(_active.Value, AgentDirectiveStage.Accepted);
-            if (manual) _suspendedExtraction = null;
-            if (damageInterrupt && _active.HasValue && _active.Value.DirectiveType == AgentDirectiveType.Extract && !_suspendedExtraction.HasValue)
+            if (manual) DiscardSuspended(AgentDirectiveFailure.Superseded);
+            if (damageInterrupt && _active.HasValue && !_suspendedDirective.HasValue &&
+                (AgentManualDirectiveLock.IsManualDirective(_active.Value) || _active.Value.DirectiveType == AgentDirectiveType.Extract))
             {
-                _suspendedExtraction = _active;
+                _suspendedDirective = _active;
                 Publish(_active.Value, AgentDirectiveStage.Suspended);
             }
             else if (_active.HasValue) Publish(_active.Value, AgentDirectiveStage.Cancelled, AgentDirectiveFailure.Superseded);
@@ -61,20 +64,20 @@ namespace Gameplay.Agent.Commands
             bool resume = AgentManualDirectiveLock.IsCombatDamageDirective(completed);
             ClearActive();
             Publish(completed, failure == AgentDirectiveFailure.None ? AgentDirectiveStage.Completed : AgentDirectiveStage.Failed, failure);
-            if (resume && _suspendedExtraction.HasValue)
+            if (resume && _suspendedDirective.HasValue)
             {
-                AgentDirectiveRequest extraction = _suspendedExtraction.Value;
-                _suspendedExtraction = null;
-                AgentDirectiveFailure validation = AgentDirectiveValidationService.Validate(_agent, extraction);
-                if (validation == AgentDirectiveFailure.None) { Activate(extraction); Publish(extraction, AgentDirectiveStage.Resumed); }
-                else Publish(extraction, AgentDirectiveStage.Failed, validation);
+                AgentDirectiveRequest suspended = _suspendedDirective.Value;
+                _suspendedDirective = null;
+                AgentDirectiveFailure validation = AgentDirectiveValidationService.Validate(_agent, suspended);
+                if (validation == AgentDirectiveFailure.None) { Activate(suspended); Publish(suspended, AgentDirectiveStage.Resumed); }
+                else Publish(suspended, AgentDirectiveStage.Failed, validation);
             }
             return true;
         }
 
         public void Cancel()
         {
-            _suspendedExtraction = null;
+            DiscardSuspended();
             if (_active.HasValue) Publish(_active.Value, AgentDirectiveStage.Cancelled);
             ClearActive();
         }
@@ -104,6 +107,13 @@ namespace Gameplay.Agent.Commands
         private void ClearActive()
         {
             _active = null; _storage.ClearDirective(Time.timeAsDouble); SetTaskFacts(default); _motor.Reset(null);
+        }
+        private void DiscardSuspended(AgentDirectiveFailure reason = AgentDirectiveFailure.None)
+        {
+            if (!_suspendedDirective.HasValue) return;
+            AgentDirectiveRequest discarded = _suspendedDirective.Value;
+            _suspendedDirective = null;
+            Publish(discarded, AgentDirectiveStage.Cancelled, reason);
         }
         private void SetTaskFacts(AgentDirectiveRequest request)
         {

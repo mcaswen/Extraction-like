@@ -4,7 +4,7 @@
 
 | 文件 | 所有权与依赖 |
 | --- | --- |
-| `Agent/Commands/AgentDirectiveLifecycleController.cs` | 活动指令、唯一挂起撤离及终态；经 Validation 验证，通过既有 Intervention 存取黑板 |
+| `Agent/Commands/AgentDirectiveLifecycleController.cs` | 活动指令、唯一挂起的玩家任务/撤离及终态；经 Validation 验证，通过既有 Intervention 存取黑板 |
 | `Agent/Commands/AgentDirectiveValidationService.cs`、`AgentDirectiveResult.cs`、`AgentDirectiveFeedbackChannel.cs` | 只读前提检查、结构化结果和事件；不绘制 UI |
 | `Agent/Navigation/AgentNavigationQuery.cs`、`AgentNavigationMotor.cs`、`AgentNavigationResult.cs` | 分离查询、移动状态与结果；不选任务，按路径端点处理到达高度 |
 | `Agent/Targeting/AgentTargetCandidate.cs`、`AgentTargetCandidateCollector.cs` | 统一具体成员事实，Discovery/Decision 各自保留策略 |
@@ -463,7 +463,7 @@ AgentBrainStateMachineFactory 负责：
 
 1. 手动资源指令不被单纯发现敌人覆盖；有效伤害通过生命周期切换到反击。
 2. Engage 指令驱动 Combat，已知但被遮挡的攻击者不伪装为可见敌人。
-3. 撤离受有效伤害后挂起一份原任务，反击终态恢复原目标和 CommandId。反击中再受其他敌人伤害时保持当前有效目标，不重置追击和丢失视线窗口；目标死亡、失效或有限追踪失败后恢复撤离，不排队处理历史伤害来源。新手动命令仍可覆盖并撤销旧撤离记录。
+3. 玩家搜索、交战、撤离等手动任务，以及自主撤离，受有效伤害后挂起一份原任务；反击终态通过正式校验后恢复原目标和 CommandId。反击中再受其他敌人伤害时保持当前有效目标，不重置追击和丢失视线窗口；目标死亡、失效或有限追踪失败后恢复挂起任务，不排队处理历史伤害来源。新手动命令覆盖时撤销旧挂起记录，原目标已失效则发布失败，不恢复无效目标。自主搜索/交战仍由正常发现流程重新决策。
 4. 新手动命令、取消或死亡清理挂起任务；没有任务时回到 Explore。
 
 来源：
@@ -508,7 +508,7 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
 4. EngageEnemyActionNode
    - 输入：Engage 指令中的敌人目标
    - 行为：解析 EnemyHealthController，在三维射程及眼点/枪口视线允许时施法或发射子弹；可原地射击时不要求走到敌人脚下
-   - 输出：敌人死亡或目标失效后结束任务，生命周期决定是否恢复挂起撤离；不可用攻击配置产生明确失败
+   - 输出：敌人死亡或目标失效后结束任务，生命周期决定是否恢复挂起任务；不可用攻击配置产生明确失败
 5. SearchResourceActionNode
    - 输入：Search 指令中的 LootBoxEntity / WorldLootItem 或资源点
    - 行为：前往资源目标，触发资源搜索/预生成，发现战利品后等待玩家打开并关闭背包
