@@ -550,6 +550,26 @@
         "FiniteBudgetStillRejectsAnExtraFrame(120)",
         "InvalidDeadlineCannotStartSampling"
       ]
+    },
+    {
+      "name": "ClusterCommandCost",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ClusterCommandCostTests",
+      "expected": [
+        "ProbeCalibratesSynchronousNavigationAndAllocation",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Resource\",False,1)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Resource\",False,8)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Resource\",True,1)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Resource\",True,8)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Enemy\",False,1)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Enemy\",False,8)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Enemy\",True,1)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Enemy\",True,8)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",False,1)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",False,8)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",True,1)",
+        "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",True,8)"
+      ]
     }
   ]
 }
