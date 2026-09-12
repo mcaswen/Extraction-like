@@ -34,6 +34,12 @@
       ]
     },
     {
+      "name": "MapGraphAuthoringTransaction",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphAuthoringTransactionTests",
+      "expected": ["SavedMapReopensWithStableIdentityAndZeroBakeQueries", "ConflictsAndInvalidPathsCannotMutateSavedInputs"]
+    },
+    {
       "name": "MapGraphEditorDocument",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphEditorDocumentTests",

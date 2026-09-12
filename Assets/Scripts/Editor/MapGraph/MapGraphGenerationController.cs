@@ -93,11 +93,11 @@ namespace AnomalySearch.Editor.MapGraph
             {
                 case MapGraphGenerationStage.Collecting:
                     if (!Enum.IsDefined(typeof(MapGraphGenerationMode), Mode)) { Fail("UnknownGenerationMode"); return; }
-                    if (Mode == MapGraphGenerationMode.LayoutOnly && _previous == null) { Fail("LayoutOnlyNeedsExistingGraph"); return; }
+                    if (Mode != MapGraphGenerationMode.ConnectionsAndLayout && _previous == null) { Fail("LayoutOnlyNeedsExistingGraph"); return; }
                     _scene = Capture();
                     if (_scene == null || !_scene.IsValid) { Fail("InvalidSceneInput", _scene == null ? "采集没有返回输入。" : string.Join("\n", _scene.Diagnostics)); return; }
                     if (!ValidateSynchronization()) return;
-                    _reference = MapGraphLayoutGenerator.CreateReference(_scene, _settings, _previous);
+                    _reference = Mode == MapGraphGenerationMode.ValidateOnly ? _previous : MapGraphLayoutGenerator.CreateReference(_scene, _settings, _previous);
                     _scan = new MapGraphSceneNavigationScan(_scene); Stage = MapGraphGenerationStage.ScanningNavigation; break;
                 case MapGraphGenerationStage.ScanningNavigation:
                     _scan.Advance(1);
@@ -105,6 +105,7 @@ namespace AnomalySearch.Editor.MapGraph
                     foreach (var anchor in _scan.Anchors.Where(a => !a.IsValid))
                         _diagnostics.Add(new MapGraphValidationIssue("MissingNavigationAnchor", anchor.NodeId, anchor.ProfileId, anchor.Failure));
                     if (_diagnostics.Any(i => i.IsError)) { Fail("NavigationScanFailed"); return; }
+                    if (Mode == MapGraphGenerationMode.ValidateOnly) { Stage = MapGraphGenerationStage.Validating; break; }
                     if (Mode == MapGraphGenerationMode.ConnectionsAndLayout)
                         _connections = new MapGraphConnectionGenerator(_reference, _scan.Connections, _scene.Profiles.Select(p => p.Data.ProfileId), _settings);
                     else
@@ -136,7 +137,7 @@ namespace AnomalySearch.Editor.MapGraph
                 if (current == null || current.SourceObjectId != node.SourceObjectId || current.ZoneId != node.ZoneId || current.Kind != node.NodeKind)
                     _diagnostics.Add(new MapGraphValidationIssue("NodeSynchronizationRequired", node.NodeId));
             }
-            if (Mode == MapGraphGenerationMode.LayoutOnly && (_scene.Nodes.Count != _previous.Nodes.Count || _scene.Zones.Count != _previous.Zones.Count))
+            if (Mode != MapGraphGenerationMode.ConnectionsAndLayout && (_scene.Nodes.Count != _previous.Nodes.Count || _scene.Zones.Count != _previous.Zones.Count))
                 _diagnostics.Add(new MapGraphValidationIssue("LayoutOnlyCannotSynchronizeTopology", "graph"));
             if (!_diagnostics.Any(i => i.IsError)) return true;
             Fail("SceneSynchronizationRequired", "请先审查场景身份增删差异，再重新计算。"); return false;
@@ -144,12 +145,12 @@ namespace AnomalySearch.Editor.MapGraph
 
         private void Publish()
         {
-            var draft = _connections?.Result ?? _layout?.Result;
+            var draft = Mode == MapGraphGenerationMode.ValidateOnly ? _previous : _connections?.Result ?? _layout?.Result;
             if (_connections != null) _diagnostics.AddRange(_connections.Diagnostics);
             if (draft == null)
             { Fail("NoPublishableLayout", _layout == null ? "" : string.Join("\n", _layout.FailureCounts.Select(p => p.Key + "=" + p.Value))); return; }
             var intent = MapGraphIntentPreservation.AllIntent;
-            if (Mode == MapGraphGenerationMode.LayoutOnly) intent |= MapGraphIntentPreservation.Topology;
+            if (Mode != MapGraphGenerationMode.ConnectionsAndLayout) intent |= MapGraphIntentPreservation.Topology;
             _diagnostics.AddRange(MapGraphValidation.Validate(draft, _reference, intent).Issues);
             foreach (var profile in _scene.Profiles)
                 _diagnostics.AddRange(MapGraphNavigationValidation.Validate(draft,

@@ -62,6 +62,23 @@
 - 正式烘焙保留作者自定义边 ID，反向定义正确交换实测 12/17 的两个方向成本及世界锚点，旧显示长度 999 不参与计算。错误 profile、缺锚点、不可达方向、测量与绑定锚点不一致均拒绝。
 - 生成结果附带冻结设置，应用前构造并校验烘焙，再以单个 Unity Undo 操作替换临时 SO。原资产尚未写回，保存后重开以及正式 Binding 的事务验证留在 P2c2b；本步没有新画布，不把这些测试当作可见编辑器完成。
 
+## P2c2b 小规划：正式资产和场景绑定保存
+
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphAuthoringTransaction.cs`：保存前核对作者版本、原资产内容、当前场景/导航及全部绑定引用，复用 BakeBuilder；将 SO 和场景 Binding 的内容作为一个 Unity Undo 操作应用。只保存目标资产和其场景，磁盘失败保留具体错误并回滚本次内容，不操作其他场景。新资产路径必须为 Assets 下未占用的 .asset；不得覆盖其他文件。
+- Extend `MapGraphEditorDocument.cs`：提供重新核对当前测量输入的保存入口，保存成功后更新来源基线，保留工作副本的 Undo 历史。Extend `MapGraphGenerationController.cs`/`MapGraphGenerationResult.cs` 增加只校验模式，打开已保存图后重新扫描而不移动布局或改变边；不以重排代替保存验证。
+- Reuse `MapGraphBindingAuthoring.cs`、`MapGraphTargetBinding.cs`、`MapGraphZoneBinding.cs`、`SO_MapGraphDefinition.cs`；资产只含稳定 ID/值，真实对象仍只在场景 Binding。保存使用当前图内容和实测导航，不复制旧烘焙长度。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphAuthoringTransactionTests.cs`，Extend `tools/agent-repro/cases.json`：隔离场景保存/重开，核对目标/区域绑定、稳定 GUID、横竖布局、烘焙方向，验证外部修改冲突和失败不污染已有配置。保存事务的 Undo 恢复内存内容/绑定；磁盘持久化遵循 Unity 保存语义，Undo 后再次保存才更新文件。
+
+此步骤完成后接入画布，再通过窗口生成当前场景正式资产。用户当前 Scene/NavMesh 改动继续保留，正式场景写入只增加本功能配置，不恢复旧场景版本。
+
+### P2c2b 实施结果
+
+- `20260912-234913-829` 真实场景副本保存测试 **2/2 PASS**：28 群、7 区域直接绑定，重复保存保持图资产 GUID，重新打开场景后布局、节点/边身份及名称一致；全部烘焙边直接复用，0 次补充导航查询。只校验模式的方向搜索和坐标迭代均为 0，原布局不变。
+- 外部 Inspector 修改即使未递增业务版本，也会拒绝保存，原场景文件和既有绑定内容保持；非法资产路径在写入前拒绝。源资产已保存后再次写入会递增正式版本，成功后更新文档来源基线。
+- `20260912-235138-425` 受影响的作者文档 **8/8 PASS**，Undo/Redo、请求版本、关闭隔离和方向烘焙仍通过。本阶段共 10 项定向测试通过，没有基础设施或源输入变化异常。故障恢复代码检查了内存 Undo 回滚和已写磁盘的备份恢复；磁盘 I/O 失败后的恢复分支尚未用故障注入自然触发，不扩大本轮覆盖口径。
+- 正式目标场景尚未写入 Binding，本轮写入均在隔离测试副本。继续 P2c3 编辑操作/画布，随后 P2d 保存正式图。
+- 用户于 2026-09-13 要求后续命令使用 Ubuntu，已切换到 WSL Ubuntu 26.04，项目为 `/mnt/d/Unity-Projects/Extraction-like`。安装原生 git-lfs 3.7.1，仓库本地 Git 换行/文件模式及提交身份沿用现有工作树口径；未修改工作文件以消除跨平台误报。Windows Unity 和既有验证适配器通过 WSL 互操作调用，源 Editor 继续保留。
+
 ## P2b1 小规划：布局数据、独立几何校验和评分
 
 先写验收器再接求解器，避免自动生成器通过自我放宽条件获得假成功。本步为纯 Editor 算法，不导航、不改场景、不生成正式资产；没有可见布局时不截图旧 UI。

@@ -9,12 +9,14 @@ namespace AnomalySearch.Editor.MapGraph
     /// <summary>地图作者会话。工作副本参与 Unity Undo，计算请求通过单调版本隔离，原资产只读。</summary>
     public sealed class MapGraphEditorDocument : IDisposable
     {
-        private readonly SO_MapGraphDefinition _source;
-        private readonly bool _hasSource;
-        private readonly string _sourceBaseline;
-        private readonly string _workingBaseline;
+        private SO_MapGraphDefinition _source;
+        private bool _hasSource;
+        private string _sourceBaseline;
+        private string _workingBaseline;
+        private Func<MapGraphSceneSnapshot> _pendingCapture, _verifiedCapture;
         private bool _disposed;
         public SO_MapGraphDefinition WorkingDefinition { get; private set; }
+        public SO_MapGraphDefinition SourceDefinition => _source;
         public MapGraphLayoutDraft Layout => WorkingDefinition != null && WorkingDefinition.IsCommandGraph ? MapGraphLayoutDraft.FromDefinition(WorkingDefinition) : null;
         public MapGraphGenerationController PendingGeneration { get; private set; }
         public MapGraphGenerationResult LastVerifiedInput { get; private set; }
@@ -39,6 +41,7 @@ namespace AnomalySearch.Editor.MapGraph
         internal MapGraphGenerationController BeginGeneration(Func<MapGraphSceneSnapshot> capture, MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout)
         {
             EnsureOpen(); PendingGeneration?.Cancel();
+            _pendingCapture = capture;
             PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, Layout, mode, Revision);
             return PendingGeneration;
         }
@@ -58,10 +61,35 @@ namespace AnomalySearch.Editor.MapGraph
                 if (settings == null) throw new InvalidOperationException("MissingGenerationSettings");
             }
             catch (Exception exception) { failure = exception.Message; return false; }
+            LastVerifiedInput = result;
+            _verifiedCapture = _pendingCapture;
             ApplyUndo("应用地图生成", () => WorkingDefinition.ApplyCommandData(WorkingDefinition.MapId, WorkingDefinition.DisplayName, result.Layout.StartNodeId,
                 result.Layout.Zones, result.Layout.Nodes, result.Layout.Edges, result.Layout.Constraints, bake, settings));
-            LastVerifiedInput = result;
             return true;
+        }
+
+        public bool TryVerifyForSave(out MapGraphGenerationResult input, out string failure)
+        {
+            EnsureOpen(); input = null; failure = "";
+            if (Layout == null || LastVerifiedInput == null || _verifiedCapture == null) { failure = "MapNeedsValidation"; return false; }
+            if (PendingGeneration != null && PendingGeneration.IsRunning) { failure = "GenerationStillRunning"; return false; }
+            if (HasSourceConflict) { failure = "SourceAssetChanged"; return false; }
+            try
+            {
+                Physics.SyncTransforms(); var current = _verifiedCapture(); var verified = LastVerifiedInput.Scene;
+                if (current == null || !current.IsValid || current.SceneGuid != verified.SceneGuid || current.ScenePath != verified.ScenePath ||
+                    current.SceneFingerprint != verified.SceneFingerprint || current.NavigationFingerprint != verified.NavigationFingerprint ||
+                    WorkingDefinition.NavigationBake.SceneFingerprint != verified.SceneFingerprint || WorkingDefinition.NavigationBake.NavigationFingerprint != verified.NavigationFingerprint)
+                { failure = "GenerationInputsChanged"; return false; }
+                input = LastVerifiedInput; return true;
+            }
+            catch (Exception exception) { failure = "GenerationInputUnavailable:" + exception.Message; return false; }
+        }
+
+        internal void MarkSaved(SO_MapGraphDefinition source)
+        {
+            EnsureOpen(); _source = source; _hasSource = true; _sourceBaseline = EditorJsonUtility.ToJson(source);
+            _workingBaseline = EditorJsonUtility.ToJson(WorkingDefinition); Changed?.Invoke();
         }
 
         public void SetGenerationSettings(MapGraphGenerationSettings settings)
