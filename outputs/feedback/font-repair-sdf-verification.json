@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "changedGlyphs": [
+    "2907"
+  ],
+  "unchangedOtherGlyphs": 3630,
+  "characterRecordsUnchanged": 3631,
+  "atlasChangedBounds": [
+    3693,
+    3866,
+    3771,
+    3924
+  ],
+  "overwrittenExistingPixels": false,
+  "atlasReadableUnchanged": true,
+  "atlasReadability": false
+}

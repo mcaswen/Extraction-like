@@ -55,7 +55,7 @@ Regression 退出 0，42 个组进程均正常。运行前后及导出证据时�
 
 `20260911-024654-362` 的 71 例 × 3、213/213 是 Review 增补前的历史运行，单独保留，不混入最终 225 次统计。
 
-正式 HUD 原始图像已由 Agent 读取检查：[成功](feedback/success.png)、[失败原因](feedback/failure.png)、[消退中](feedback/fading.png)、[已隐藏](feedback/hidden.png)。来源为上述批次 Graphics 第一次运行，1920×1080；成功/失败中文字形完整，顶部居中、暂停下消退有效，不拦截点击。测试 Camera 导出时将隔离场景中的 Canvas 切到 ScreenSpaceCamera，正式 prefab 保持 Overlay。
+正式 HUD 原始图像已由 Agent 读取检查：[成功](feedback/success.png)、[失败原因](feedback/failure.png)、[消退中](feedback/fading.png)、[已隐藏](feedback/hidden.png)。来源为上述批次 Graphics 第一次运行，1920×1080；顶部居中、暂停下消退有效，不拦截点击。测试 Camera 导出时将隔离场景中的 Canvas 切到 ScreenSpaceCamera，正式 prefab 保持 Overlay。2026-09-12 更正：当时的字符存在检查和视觉审阅漏掉了字体将「指」画成「址」的问题，现已修复原字体及 TMP 缓存，补充实际字形差异验证，见[字体修复报告](font_repair_report.md)。旧图保留为历史证据。
 
 报告层故障构造 `ReportProbe-20260911-030411-704` 7/7 通过，包含成功 XML 后异常进程退出；故障不会被计入业务通过。
 
