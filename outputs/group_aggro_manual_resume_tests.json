@@ -1,0 +1,886 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-12",
+  "scope": "Latest passing evidence per exact parameterized test across staged fixes; not a single full-project test run",
+  "newCases": 44,
+  "regressionCases": 80,
+  "total": 124,
+  "runs": [
+    "20260912-155705-735",
+    "20260912-161126-861",
+    "20260912-161405-406",
+    "20260912-161647-077",
+    "20260912-164205-776",
+    "20260912-165734-388"
+  ],
+  "cases": [
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.DeadExplicitAgentDoesNotRerouteToLivingFocus",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.516453
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.EightCommandBurstIsBoundedAndLatestMoves(1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.319103
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.EightCommandBurstIsBoundedAndLatestMoves(4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.862905
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.FocusedAndExplicitRoutingKeepOtherAgentTask",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.194142
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.InvalidCommandPreservesActiveTask(\"Completed\")",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.308884
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.InvalidCommandPreservesActiveTask(\"Disabled\")",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.336658
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.InvalidCommandPreservesActiveTask(\"MissingAgent\")",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.308106
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.InvalidCommandPreservesActiveTask(\"Null\")",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.314099
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.InvalidCommandPreservesActiveTask(\"Unreachable\")",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.298273
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Engage>Engage\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.959585
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Engage>Engage\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.027242
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Engage>Extract\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.971342
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Engage>Extract\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.011358
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Engage>Search\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.990817
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Engage>Search\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.026833
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Extract>Engage\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.948491
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Extract>Engage\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.047317
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Extract>Extract\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.958423
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Extract>Extract\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.017932
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Extract>Search\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.969056
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Extract>Search\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.026802
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Search>Engage\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.960822
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Search>Engage\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.017505
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Search>Extract\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.968051
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Search>Extract\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.045398
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Search>Search\",1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.94541
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.MovingCommandReplacementIgnoresOldCompletion(\"Search>Search\",4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.032001
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.RepeatedAndReturningCommandsKeepLatestIdentity(1)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.301273
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.RepeatedAndReturningCommandsKeepLatestIdentity(4)",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.839373
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.ResourceCommandDuringRetaliationDiscardsOldExtraction",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.323887
+    },
+    {
+      "name": "AgentReproduction.Tests.ClusterCommandTransitionTests.SharedEnemyDeathReleasesBothCommands",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.216459
+    },
+    {
+      "name": "AgentReproduction.Tests.DirectiveLifecycleTests.ActiveSearchCompletesNormallyButNewSearchOfCompletedClusterIsRejected",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.896628
+    },
+    {
+      "name": "AgentReproduction.Tests.DirectiveLifecycleTests.CancelAndDeathDiscardSuspendedExtraction",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.747728
+    },
+    {
+      "name": "AgentReproduction.Tests.DirectiveLifecycleTests.CompletedRetaliationKeepsLockUntilLifecycleRestoresExtraction",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.732443
+    },
+    {
+      "name": "AgentReproduction.Tests.DirectiveLifecycleTests.InvalidSuspendedExtractionFailsAfterRetaliation",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.724509
+    },
+    {
+      "name": "AgentReproduction.Tests.DirectiveLifecycleTests.ManualResourceIgnoresSightButEffectiveDamageInterrupts",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.730846
+    },
+    {
+      "name": "AgentReproduction.Tests.DirectiveLifecycleTests.RepeatedDamagePreservesOneExtractionAndOldCompletionCannotClearNewOrder",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.721804
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.AlertedRangedMemberCannotDamageThroughWallThenAttacksWhenClear",
+      "result": "Passed",
+      "run": "20260912-161405-406",
+      "xml": "Logs/AgentReproduction/20260912-161405-406/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.510297
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"AlreadyFighting\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.732133
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"Dead\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.743707
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"Disabled\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.751706
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"Lethal\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.736919
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"NoAttacker\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.738734
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"RuntimeMember\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.732543
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"Shield\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.738774
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.GroupAlertHonorsMembershipDamageAndExistingCombat(\"Zero\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.733493
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.RepeatedGroupHitsHaveBoundedCost(32)",
+      "result": "Passed",
+      "run": "20260912-161405-406",
+      "xml": "Logs/AgentReproduction/20260912-161405-406/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.79186
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.RepeatedGroupHitsHaveBoundedCost(8)",
+      "result": "Passed",
+      "run": "20260912-161405-406",
+      "xml": "Logs/AgentReproduction/20260912-161405-406/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.78641
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"AncientStrander\",1)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.115087
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"AncientStrander\",4)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.833658
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"Base\",1)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.047336
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"Base\",4)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.812127
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"HunterBoss\",1)",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 1.141904
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"HunterBoss\",4)",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 0.809826
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"ModernStrander\",1)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.131594
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"ModernStrander\",4)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.833982
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"Ranged\",1)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.046053
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"Ranged\",4)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.809106
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"TidalAberration\",1)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.088356
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SameClusterMobileMemberJoinsAndMoves(\"TidalAberration\",4)",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.820582
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyClusterCombatAlertTests.SentinelBindsAlertAttackerWithoutMovingOrIgnoringRange",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 1.231619
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyPhysicsOwnershipTests.BossPhysicsBodyStaysOnItsDrivenRoot(1)",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 6.832749
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyPhysicsOwnershipTests.BossPhysicsBodyStaysOnItsDrivenRoot(4)",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 2.270225
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AnchorSentinel\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.771006
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"AncientStrander\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.749843
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Base\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.751607
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"HunterBoss\")",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 0.84902
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"ModernStrander\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.784691
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"Ranged\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.742871
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.DeadTargetRebinds(\"TidalAberration\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.747519
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Destroyed\")",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 0.870017
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Disabled\")",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 0.874732
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.InvalidTargetIsNotReacquired(\"Unregistered\")",
+      "result": "Passed",
+      "run": "20260912-164205-776",
+      "xml": "Logs/AgentReproduction/20260912-164205-776/groups/EnemyPhysicsOwnership-1/test-results.xml",
+      "durationSeconds": 0.855535
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"AncientStrander\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.740666
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Base\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.733578
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"ModernStrander\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.751986
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"Ranged\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.716688
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.VisibleFartherCandidateIsScannedDuringPatrol(\"TidalAberration\")",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.739845
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyTargetBindingTests.WallUnderSharedSceneRootIsNotAnAgentDamageReceiver",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.713673
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyVisualOwnershipTests.DedicatedChildVisualStillAnimates",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.683317
+    },
+    {
+      "name": "AgentReproduction.Tests.EnemyVisualOwnershipTests.StaticFallbackNeverRewritesBodyTransform",
+      "result": "Passed",
+      "run": "20260912-161126-861",
+      "xml": "Logs/AgentReproduction/20260912-161126-861/groups/EnemyClusterAlert-1/test-results.xml",
+      "durationSeconds": 0.673372
+    },
+    {
+      "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionRemainsWithoutDamage",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.690825
+    },
+    {
+      "name": "AgentReproduction.Tests.F1ExtractionInterruptTests.ExtractionResumesAfterRetaliation",
+      "result": "Passed",
+      "run": "20260912-155705-735",
+      "xml": "Logs/AgentReproduction/20260912-155705-735/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.727321
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.CompletedSuspendedTargetEndsSuccessfully(\"Engage\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.730243
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.CompletedSuspendedTargetEndsSuccessfully(\"Extract\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.721254
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.CompletedSuspendedTargetEndsSuccessfully(\"Search\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.728996
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.MovingManualTaskResumesAfterActualRetaliationDeath(\"Engage\",1)",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.658901
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.MovingManualTaskResumesAfterActualRetaliationDeath(\"Engage\",4)",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.912739
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.MovingManualTaskResumesAfterActualRetaliationDeath(\"Extract\",1)",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.652203
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.MovingManualTaskResumesAfterActualRetaliationDeath(\"Extract\",4)",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.987866
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.MovingManualTaskResumesAfterActualRetaliationDeath(\"Search\",1)",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.91794
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.MovingManualTaskResumesAfterActualRetaliationDeath(\"Search\",4)",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.984341
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"Cancel\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.721621
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"Death\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.73315
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"FailedRetaliation\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.723595
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"InvalidTarget\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.720299
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"NewOrder\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.732859
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"RejectedOrder\")",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.728079
+    },
+    {
+      "name": "AgentReproduction.Tests.ManualDirectiveResumeTests.TwoAgentsKeepIndependentPlayerTasks",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.743359
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.CarriedProbeReadsLiveAndStoredInventoryWithoutMutation",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.981757
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.CatalogCaptureDoesNotChangeCommandsNavigationOrTargetState",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.747421
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.CatalogSeparatesDistanceFromReachability",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.668451
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.DriverDoesNotRetryAfterMissingCandidate",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.650589
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.DriverUsesWallDeadlineWhileGameIsPaused",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.320243
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.DriverWaitsForRealMovementSubmitsOnceAndStops",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.634902
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.EvidencePreservesIdentityAfterTargetObjectDestroyed",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.832917
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.EvidenceSeparatesSameFrameEarlyRejections",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.662561
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.EvidenceTracksSupersededAndAsyncCompletedCommands",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 1.167545
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.InvalidCommandScenarioFailsBeforeExecution(\"Deadline\")",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.609975
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.InvalidCommandScenarioFailsBeforeExecution(\"Duplicate\")",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.621594
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.InvalidCommandScenarioFailsBeforeExecution(\"ForwardReference\")",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.66558
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.InvalidCommandScenarioFailsBeforeExecution(\"Reason\")",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.648987
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.InvalidCommandScenarioFailsBeforeExecution(\"UnknownKind\")",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.660311
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.InvalidCommandScenarioFailsBeforeExecution(\"Version\")",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.641887
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.ManualConfigRoundTripPreservesScriptAndRejectsHashMismatch",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.647409
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.MixedDistanceClusterCannotPretendToBeFar",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.664395
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.ObserverFailureDoesNotEscapeIntoFormalCommand",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.699019
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidCommandHarnessTests.ScenarioRoundTripPreservesNestedSelectorsAndReferences",
+      "result": "Passed",
+      "run": "20260912-165734-388",
+      "xml": "Logs/AgentReproduction/20260912-165734-388/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.665423
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests.InvalidTargetBeforeNextDamageResumesThenInterruptsOriginalExtraction(False)",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.758412
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests.InvalidTargetBeforeNextDamageResumesThenInterruptsOriginalExtraction(True)",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.751084
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests.ManualEnemyCommandOverridesRetaliationAndDiscardsOldExtraction",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 0.735437
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests.OtherDamageDoesNotRestartLostSightWindow",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 2.777056
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests.RepeatedDamageAllowsRealRetaliationProgress(False)",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 2.100716
+    },
+    {
+      "name": "AgentReproduction.Tests.SceneRaidRetaliationProgressTests.RepeatedDamageAllowsRealRetaliationProgress(True)",
+      "result": "Passed",
+      "run": "20260912-161647-077",
+      "xml": "Logs/AgentReproduction/20260912-161647-077/groups/ManualDirectiveResume-1/test-results.xml",
+      "durationSeconds": 2.094344
+    }
+  ]
+}

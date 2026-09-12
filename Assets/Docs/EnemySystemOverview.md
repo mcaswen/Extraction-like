@@ -20,6 +20,12 @@
 
 ## 生命、死亡与掉落
 
+带有效攻击者的正直接伤害通过 `EnemyClusterCombatAlert` 通知同一个 `ActiveEnemyClusterAuthoring` 的存活成员，场景成员、运行时出生的成员共用规则，包含护盾承伤和致死一击。空闲成员绑定攻击者并接战，已有有效战斗的成员保留目标和攻击时序；不把通知伪装为同伴受伤，不经全局怀疑总线扩散到其他群。移动敌人获得有限追击窗口，固定炮台仍按原射程和视线启动攻击。通知仅在受击时执行，成员和接收器列表使用池复用。
+
+`EnemyAnimatorDriver` 的静态动画兜底只操作独立视觉子节点，落地对齐也要求 `Visual` 子节点。模型直接挂在敌人根节点时，不再用表现动画写回根位置，根节点继续由导航和碰撞控制。
+
+Boss 的正式 `Pfb_Enemy_HunterBoss.prefab` 刚体使用 kinematic、关闭重力，让导航/脚本拥有移动。动态刚体和导航同时控制根位置会使物理身体、瞄准点脱离画面上的位置，出现近距离也射程不足的问题；不应通过放宽射程来掩盖这种配置冲突。
+
 `EnemyHealthController` 负责敌人的生命、受伤、护盾、死亡和死亡掉落。敌人配置会通过 `EnemyHealthConfigBase` 或其子类提供最大生命值和死亡掉落配置。敌人死亡时会通知 `GameplayTargetRegistry`，让所属 `ActiveEnemyClusterAuthoring` 标记该敌人成员完成，同时通知 `RaidFlowController` 记录击杀，并按配置生成死亡掉落容器。
 
 这里有一个需要注意的生命周期点：目标系统可能早于敌人的 `Start` 查询敌人状态，所以敌人生命初始化不能只依赖 `Start`。当前 `EnemyHealthController` 已经提供 `IsAlive`，并在被查询时保证生命值完成初始化，避免活跃敌人群在场景启动早期把敌人误判成已死亡。

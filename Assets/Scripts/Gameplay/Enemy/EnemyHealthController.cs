@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Pool;
 using UnityEngine.UI;
 
 /// <summary>
@@ -533,14 +534,14 @@ public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
         if (remainingDamage <= 0f)
         {
             UpdateHealthBar();
-            NotifyDamageReaction(context);
+            NotifyDamageReaction(context, damageAmount > 0f && _damageTakenMultiplier > 0f);
             return;
         }
 
         _currentHealth -= remainingDamage;
         _currentHealth = Mathf.Clamp(_currentHealth, 0f, MaxHealth);
         UpdateHealthBar();
-        NotifyDamageReaction(context);
+        NotifyDamageReaction(context, damageAmount > 0f && _damageTakenMultiplier > 0f);
 
         if (_currentHealth <= 0f)
         {
@@ -549,16 +550,21 @@ public class EnemyHealthController : MonoBehaviour, IEnemyDeathLootRuleReceiver
         }
     }
 
-    private void NotifyDamageReaction(EnemyDamageContext context)
+    private void NotifyDamageReaction(EnemyDamageContext context, bool alertCluster)
     {
         if (context.IsDirectDamage && context.Attacker != null)
         {
-            // 直接伤害只通知本敌人本地反击，不走全局怀疑总线，避免误拉附近敌人。
-            IEnemyDirectDamageReceiver[] receivers = GetComponents<IEnemyDirectDamageReceiver>();
-            for (int i = 0; i < receivers.Length; i++)
+            // 本体仍执行原受伤反应，同群接战使用独立通知，不走全局怀疑总线。
+            var receivers = ListPool<IEnemyDirectDamageReceiver>.Get();
+            try
             {
-                receivers[i]?.NotifyDirectDamage(context);
+                GetComponents(receivers);
+                for (int i = 0; i < receivers.Count; i++) receivers[i]?.NotifyDirectDamage(context);
             }
+            finally { ListPool<IEnemyDirectDamageReceiver>.Release(receivers); }
+
+            // 在 Die 移除成员前通知，致死一击也能唤醒剩余同伴。
+            if (alertCluster) EnemyClusterCombatAlert.Notify(this, context.Attacker);
 
             return;
         }

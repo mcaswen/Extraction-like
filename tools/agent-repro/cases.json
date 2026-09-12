@@ -1,6 +1,58 @@
 {
   "groups": [
     {
+      "name": "EnemyPhysicsOwnership",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.EnemyPhysicsOwnershipTests",
+      "expected": [
+        "BossPhysicsBodyStaysOnItsDrivenRoot(1)",
+        "BossPhysicsBodyStaysOnItsDrivenRoot(4)"
+      ]
+    },
+    {
+      "name": "EnemyVisualOwnership",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.EnemyVisualOwnershipTests",
+      "expected": [
+        "StaticFallbackNeverRewritesBodyTransform",
+        "DedicatedChildVisualStillAnimates"
+      ]
+    },
+    {
+      "name": "EnemyClusterAlert",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.EnemyClusterCombatAlertTests",
+      "expected": [
+        "SameClusterMobileMemberJoinsAndMoves(\"Base\",1)",
+        "SameClusterMobileMemberJoinsAndMoves(\"Base\",4)",
+        "SameClusterMobileMemberJoinsAndMoves(\"Ranged\",1)",
+        "SameClusterMobileMemberJoinsAndMoves(\"Ranged\",4)",
+        "SameClusterMobileMemberJoinsAndMoves(\"ModernStrander\",1)",
+        "SameClusterMobileMemberJoinsAndMoves(\"ModernStrander\",4)",
+        "SameClusterMobileMemberJoinsAndMoves(\"AncientStrander\",1)",
+        "SameClusterMobileMemberJoinsAndMoves(\"AncientStrander\",4)",
+        "SameClusterMobileMemberJoinsAndMoves(\"TidalAberration\",1)",
+        "SameClusterMobileMemberJoinsAndMoves(\"TidalAberration\",4)",
+        "SameClusterMobileMemberJoinsAndMoves(\"HunterBoss\",1)",
+        "SameClusterMobileMemberJoinsAndMoves(\"HunterBoss\",4)",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"Shield\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"Lethal\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"NoAttacker\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"Zero\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"Disabled\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"Dead\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"RuntimeMember\")",
+        "GroupAlertHonorsMembershipDamageAndExistingCombat(\"AlreadyFighting\")",
+        "AlertedRangedMemberCannotDamageThroughWallThenAttacksWhenClear",
+        "SentinelBindsAlertAttackerWithoutMovingOrIgnoringRange",
+        "RepeatedGroupHitsHaveBoundedCost(8)",
+        "RepeatedGroupHitsHaveBoundedCost(32)"
+      ]
+    },
+    {
       "name": "ManualDirectiveResume",
       "suite": "Core",
       "graphics": true,
@@ -18,7 +70,10 @@
         "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"Death\")",
         "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"InvalidTarget\")",
         "SuspendedPlayerTaskHonorsTerminalAndReplacementRules(\"FailedRetaliation\")",
-        "TwoAgentsKeepIndependentPlayerTasks"
+        "TwoAgentsKeepIndependentPlayerTasks",
+        "CompletedSuspendedTargetEndsSuccessfully(\"Search\")",
+        "CompletedSuspendedTargetEndsSuccessfully(\"Engage\")",
+        "CompletedSuspendedTargetEndsSuccessfully(\"Extract\")"
       ]
     },
     {

@@ -330,6 +330,7 @@ public sealed class EnemyAnimatorDriver
         {
             Renderer renderer = renderers[i];
             if (renderer == null ||
+                renderer.transform == root ||
                 !renderer.enabled ||
                 renderer is LineRenderer ||
                 renderer.GetComponentInParent<Canvas>() != null)
@@ -363,7 +364,8 @@ public static class EnemyRuntimeVisualUtility
         Transform visualRoot = root.Find("Visual");
         if (visualRoot == null)
         {
-            visualRoot = root;
+            // 没有独立视觉节点时，移动根仍归导航/碰撞所有，不能为贴地改写它。
+            return;
         }
 
         if (!TryResolveRendererBottom(visualRoot, out float rendererBottomY))

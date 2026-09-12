@@ -68,6 +68,12 @@ namespace Gameplay.Agent.Commands
             {
                 AgentDirectiveRequest suspended = _suspendedDirective.Value;
                 _suspendedDirective = null;
+                AgentDirectiveFailure targetFailure = AgentDirectiveValidationService.ValidateTarget(suspended);
+                if (targetFailure != AgentDirectiveFailure.None && IsTargetCompletion(suspended, targetFailure))
+                {
+                    Publish(suspended, AgentDirectiveStage.Completed);
+                    return true;
+                }
                 AgentDirectiveFailure validation = AgentDirectiveValidationService.Validate(_agent, suspended);
                 if (validation == AgentDirectiveFailure.None) { Activate(suspended); Publish(suspended, AgentDirectiveStage.Resumed); }
                 else Publish(suspended, AgentDirectiveStage.Failed, validation);
@@ -89,9 +95,7 @@ namespace Gameplay.Agent.Commands
             AgentDirectiveFailure failure = AgentDirectiveValidationService.ValidateTarget(_active.Value);
             if (failure != AgentDirectiveFailure.None)
             {
-                bool completed = _active.Value.DirectiveType == AgentDirectiveType.Engage ||
-                    (_active.Value.DirectiveType == AgentDirectiveType.Search && failure == AgentDirectiveFailure.TargetCompleted);
-                Finish(_active.Value.CommandId, completed ? AgentDirectiveFailure.None : failure);
+                Finish(_active.Value.CommandId, IsTargetCompletion(_active.Value, failure) ? AgentDirectiveFailure.None : failure);
             }
             if (_active.HasValue)
                 _agent.Blackboard.SetValue(AgentBlackboardKeys.HasVisibleEnemy, IsVisible(_active.Value), Time.timeAsDouble);
@@ -104,6 +108,9 @@ namespace Gameplay.Agent.Commands
             SetTaskFacts(request);
             _motor.Reset(request.CommandId);
         }
+        private static bool IsTargetCompletion(AgentDirectiveRequest request, AgentDirectiveFailure failure) =>
+            request.DirectiveType == AgentDirectiveType.Engage ||
+            (request.DirectiveType == AgentDirectiveType.Search && failure == AgentDirectiveFailure.TargetCompleted);
         private void ClearActive()
         {
             _active = null; _storage.ClearDirective(Time.timeAsDouble); SetTaskFacts(default); _motor.Reset(null);

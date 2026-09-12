@@ -2,6 +2,8 @@
 
 日期：2026-09-12。需求：用户明确同群成员响应交战，玩家任务在反击后继续。沿用已授权的小规划 → 实现 → 自动测试/审查 → 提交闭环。此次是现有 Enemy 和 Agent.Commands 内的修复，不建立新系统、改变模块依赖方向或重写行为树。
 
+状态：**P1–P3 实现、自动验证和最终审查完成。** 明细见 p1_execution.md、p2_execution.md、p3_execution.md、architecture_review.md，最终报告位于 `outputs/group_aggro_manual_resume_report.md`。
+
 ## 事实、规则和范围
 
 - `EnemyHealthController.NotifyDamageReaction` 只通知本体的 `IEnemyDirectDamageReceiver`，直接伤害不走怀疑总线。Registry 已有敌人到 ActiveEnemyCluster 的查询，该群已支持场景成员和运行时出生的成员。
@@ -44,4 +46,8 @@
 
 ## 实施结果
 
-待运行，不能把源码定位当作程序化复现通过。
+P1 已完成，见 p1_execution.md。
+
+P2 首轮复现 22 项中 17 失败，补齐接战后 19 通过。剩余远程追击由探针发现 `EnemyAnimatorDriver.cs` 的静态动画兜底把根 MeshRenderer 当视觉节点，逐帧写回初始化的根 localPosition，覆盖真实 NavMesh 移动；同文件的落地对齐也可能写根 Transform。调整：Extend 该文件，仅操作独立视觉子节点，缺少子节点时保留根对象的移动/碰撞归属；Create `Assets/Scripts/Editor/AgentReproduction/Tests/EnemyVisualOwnershipTests.cs` + meta，验证根对象不被改写、子视觉动画仍可用。这是现有表现辅助类的职责纠正，不搬迁资产或扩大为动画系统重构。
+
+固定远程射击构造原来设置水平 10m，而角色实际有高度偏移，三维距离为 10.19m，超过 SO 的 10m 射程；固定敌人又不能接近。因此仅将该夹具改为 8m，墙体约束和正式射击入口保持，移墙后已真实命中 15 点伤害，不能把这项夹具修正算作产品修复。
