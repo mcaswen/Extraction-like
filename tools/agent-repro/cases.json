@@ -1,6 +1,22 @@
 {
   "groups": [
     {
+      "name": "MapGraphLayoutSolver",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphLayoutSolverTests",
+      "expected": [
+        "ThreeClusterRouteHasSingleSegmentsAndCenteredNames",
+        "OverlappingReferencePointsRemainDistinctRealClusters",
+        "FourPortsCanFitButFiveCannotBeInvented",
+        "CrossZoneEdgesUseGlobalAlignmentCoordinates",
+        "ConflictingLockedPositionsNeverModifyTheInput",
+        "BudgetExhaustionAndCancellationNeverPublishPartialGeometry",
+        "AdvancingWithDifferentBudgetsProducesTheSameLayout",
+        "EmptyAuthoredZoneSurvivesWithoutObscuringTheRoute",
+        "WorldReferenceKeepsIdentityAndPreviousLockedLayout"
+      ]
+    },
+    {
       "name": "MapGraphLayoutValidation",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphLayoutValidationTests",
@@ -20,6 +36,7 @@
         "ZonesNamesAndAlignmentCoordinatesCannotSilentlyDrift",
         "RegenerationPreservesLocksManualEdgesAndDeletedConnections",
         "LayoutOnlyModeAndExplicitEdgeEditsHaveDifferentIntentRules",
+        "LockedAlignmentCannotSurviveOnlyAsAnUnusedAlias",
         "IncompleteOrOneWayMeasurementsCannotUseLegacyDrawingLengths",
         "PhysicalIslandsAndDroppedReachableBridgesAreDistinguished",
         "ExplicitExclusionsArePreservedWithoutInventingAForbiddenBridge",

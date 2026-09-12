@@ -47,6 +47,35 @@
 - 对齐校验同时要求边两端共享行/列身份，0.001 容差只容纳局部坐标回写再相加的浮点误差；可见端点共用轴坐标。评分分项只用于生成方案比较，硬约束独立验收。
 - 本步仍无可见布局，第一张新地图预览在后续生成结果产生时捕获。
 
+## P2b2 小规划：参考布局和固定候选边集的横竖求解
+
+继续已确认的联合生成设计，先把固定候选边集的几何可行性做成可分批独立步骤，后续 ConnectionGenerator 据此换自动边、补边。真实导航矩阵初始 MST 有 26 条边、最大度数 4，另外一个撤离节点为物理孤岛；MST 只是待试种子，不作为固定最终图。
+
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphLayoutGenerator.cs`：以世界 XZ、Zone/群范围和统一比例建立参考数据；真实节点 ID/Zone 不变，地图最小图标/区域尺寸与世界参考位置分开保存。完成坐标求解后写回 Zone 局部位置和全图行列约束，保持旧人工锁/展示覆写。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphOrthogonalLayoutSolver.cs`：固定边集的四向端口分配，世界主要方向优先，必要时尝试另一轴；显式方向搜索状态数、每次 Advance 预算、可取消，保留少量通过独立验收的候选按 P2b1 评分比较。不能改边集、查 NavMesh 或保存资产。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs`：把横边的 Y、竖边的 X 合并为对齐组，固定位置/行列锁归入同一数值约束，投射边间距、图标分离、Zone 包含和区间留白；迭代有上限，无法满足返回具体冲突，不把未收敛坐标算成功。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs`：按真实群占位求区域矩形，在有界中心候选中给中央名称留白，矩形仍以名称位置为几何中心；只调整地图表示，锁定区域不擅自扩张。与离散方向搜索、导航候选挑选分开。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutSolverTests.cs`，Extend `tools/agent-repro/cases.json`：单区 L 形、跨区、重合参考点、四端口、固定锁冲突、预算耗尽/取消/重复生成稳定；最终结果必须经过独立验收器。真实场景的固定 MST 可失败并保留诊断，不能以这种失败声称完整联合生成无解。
+
+原有 `MapGraphLayoutDraft.cs`/几何/校验/评分复用。生成过程尚未写入 SO 或场景；坐标求解只做 Editor 平面约束，不替代实际移动。连续约束/Zone 适配是大规划 Solver 和 LayoutGenerator 中独立职责的文件细分，模块边界不变。下一小阶段加入联合连线和实际预览导出，首次可见产物即渲染查看，最终自然度还需 P5 全 HUD 截图。
+
+### P2b2 实施结果
+
+- `Logs/AgentReproduction/20260912-213912-784` 的固定边集求解构造 **9/9 PASS**：L 形、重合参考点、四端口/五端口拒绝、跨区、人工锁冲突、取消/预算、不同 Advance 步长的确定性、空区域和世界身份/旧锁保留均通过。
+- 方向搜索按状态推进，坐标组每候选最多按配置迭代；结果须经几何校验器再验并按分项评分排序。停止原因区分状态预算、端口/锁/区域冲突，不把搜索用完当数学无解。只有完整结束后才公开 Result，取消清掉内部候选。
+- 复核人工行列锁时发现，仅保留原锁条目还不够：节点若被改绑到同坐标的新行，旧锁会成为无用别名。追加 `LockedAlignmentMembershipChanged` 校验和独立反例，定向回归正在执行。
+- 追加后的 `Logs/AgentReproduction/20260912-214142-947` 布局验收 **21/21 PASS**；P2b2 共 30 项定向测试通过。未保存新 SO/场景，用户场景改动保留。
+
+## P2b3 小规划：真实候选骨架诊断和第一版布局预览
+
+先让真实场景经过已测试的固定骨架求解，定位联合生成器需要交换哪些边。此处得到的 MST 仅为候选，不保证可画，不直接保存正式图。
+
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphSceneLayoutTests.cs`：复用 Collector/Scan/Reference/Solver，读取完整实际导航矩阵，测试侧构造导航 MST 种子；记录矩阵、每个候选的阶段预算/失败类别/坐标和实际连通性。固定种子几何失败只形成待处理诊断，不能等同整项地图验收通过。
+- Create `tools/agent-repro/Render-MapGraphPreview.py`：从 Unity 导出的真实布局 JSON 生成静态 PNG，读取项目字体，检查深色底、矩形区域中央名称、群图标及横竖单段的位置；这是算法布局审阅图，不冒称游戏/HUD 实拍。Editor 窗口和正式 HUD 接入后另拍真实截图。
+- Extend `tools/agent-repro/cases.json` 登记单独的实际场景布局诊断组。原始 JSON/矩阵/失败报告留在 Logs，有有效几何候选即渲染到 `outputs/map-command/visual/P2b/` 并实际查看。
+
+之后 Create `Assets/Scripts/Editor/MapGraph/MapGraphConnectionGenerator.cs`，由完整可达候选提出多个骨架、替换未锁定自动边，复用分批 Solver 比较可行性；补边先试已有行列再试有限调整，保留手工边/样式/禁连。每个合法导航分量仍须连通，不能为通过几何删桥。新组件只管理拓扑候选，不计算导航或自行移动节点。实际联合算法的小范围参数和失败反例在固定种子证据出来后继续细化，属于已确认大规划的职责。
+
 ## 实施结果
 
 P2a 真实场景复核中。

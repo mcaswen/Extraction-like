@@ -31,6 +31,11 @@ namespace AnomalySearch.Editor.MapGraph
                     issues.Add(new MapGraphValidationIssue("LockedNodeChanged", node.NodeId));
                 if (Has(MapGraphIntentPreservation.Topology) && !exists)
                     issues.Add(new MapGraphValidationIssue("TopologyNodeRemoved", node.NodeId));
+                if (exists && Has(MapGraphIntentPreservation.Locks))
+                    foreach (var line in original.Constraints.Alignments)
+                        if (line != null && line.Locked &&
+                            (node.RowId == line.Id && current.RowId != line.Id || node.ColumnId == line.Id && current.ColumnId != line.Id))
+                            issues.Add(new MapGraphValidationIssue("LockedAlignmentMembershipChanged", node.NodeId, line.Id));
             }
             foreach (var zone in original.Zones)
             {

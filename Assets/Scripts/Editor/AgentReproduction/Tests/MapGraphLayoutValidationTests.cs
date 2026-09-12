@@ -166,6 +166,17 @@ namespace AgentReproduction.Tests
             Has(MapGraphValidation.Validate(forbidden), "ExcludedConnection");
         }
 
+        [Test] public void LockedAlignmentCannotSurviveOnlyAsAnUnusedAlias()
+        {
+            var original = Make(locks: true);
+            var nodes = original.Nodes.Select(n => n.RowId == "row:60"
+                ? n.WithLayout(n.Position, "replacement-row", n.ColumnId, n.PositionLocked) : n).ToArray();
+            var lines = original.Constraints.Alignments.ToList();
+            lines.Add(new MapGraphAlignmentConstraint("replacement-row", MapGraphAxis.Horizontal, 60));
+            var changed = new MapGraphLayoutDraft(original.Zones, nodes, original.Edges, new MapGraphLayoutConstraints(lines, null));
+            Has(MapGraphLayoutIntentValidation.Validate(changed, original), "LockedAlignmentMembershipChanged");
+        }
+
         [Test] public void IncompleteOrOneWayMeasurementsCannotUseLegacyDrawingLengths()
         {
             var draft = Make(); var matrix = Matrix(draft); matrix.RemoveAt(0);
