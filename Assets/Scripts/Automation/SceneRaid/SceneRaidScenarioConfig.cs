@@ -73,7 +73,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public bool batchMode, profilerEnabled, performanceAcceptance;
         public bool developmentBuild;
         public int vSyncCount, targetFrameRate;
-        public int screenWidth, screenHeight, cameraWidth, cameraHeight, frames, renderedFrames, events, lostEvents, errors, warnings;
+        public int screenWidth, screenHeight, cameraWidth, cameraHeight, frames, frameCapacity, renderedFrames, events, lostEvents, errors, warnings;
         public double elapsedWallSeconds, elapsedGameSeconds, instrumentationMilliseconds;
         public int inventorySessions;
         public string[] observedAgents, inventoryAgents;

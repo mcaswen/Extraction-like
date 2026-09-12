@@ -159,3 +159,7 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 报告分开原始 `behaviorFailures`、唯一对应脚本的 `expectedRejections`、有独立证据的 `expectedExecutionFailures`、`unexpectedBehaviorFailures` 和 `coverageStatus`。目前仅将已接受手动交战中“曾看见目标，持续丢失视线达到原有期限，同帧释放命令”的精确 Failed 序号计入预期终止；缺少证据或其他额外失败仍失败。61 项命令契约探针包含这些边界。游戏终态通过仍可能覆盖 PARTIAL；实际触发缺口必须保留，不能补发命令凑齐。Autonomous 仍禁止任何手动指令，并保持原搜刮、交战、暂停和结算标准。常驻 Editor 在新请求上先刷新源码，再按当前程序集完整验证，支持新模式更新而无需重启。
 
 实施记录见 [Cluster 验证规划](../../.planning/2026-09-12-cluster-command-validation/task_plan.md)，最终结果归档到 `outputs/cluster_command_validation_report.md`。最终验收执行固定 11 槽位，1× Editor / Player 的整局平均 FPS 必须大于 60；4× 用于逻辑验证，覆盖缺口与正常死亡单列。
+
+`-Group ExtractionPresence` 的 14 项构造走真实物理 Trigger，覆盖双人同点、同角色多 Collider、禁用/销毁、范围边界和真实 Prefab 的正式指令撤离。快照 `extractionProgress` 只读每角色实际撤离点、当前秒数和配置时长，不改变读条或受击中断。
+
+`-Group SceneFrameSampler` 的 4 项构造验证长局帧容量，结果 `frameCapacity` 为 `max(100000, ceil(observeSeconds × 1000))`，600 秒最多保留 600000 帧。列表按实际样本增长，预算不限制游戏 FPS，超过仍报告采集失败。报告完整性反例现为 79 项，包含 HARNESS_FAILED 溢出终态；历史截断运行不能重算为合格性能。

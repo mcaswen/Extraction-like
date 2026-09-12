@@ -539,6 +539,17 @@
         "NavigationRebuildingStillAllowsBoundedRetaliation(4)",
         "RecordedSceneSentinelCanBeDamagedFromReachableGround"
       ]
+    },
+    {
+      "name": "SceneFrameSampler",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.SceneRaidFrameSamplerTests",
+      "expected": [
+        "LongRunRetainsMoreThanLegacyCapacity",
+        "FiniteBudgetStillRejectsAnExtraFrame(60)",
+        "FiniteBudgetStillRejectsAnExtraFrame(120)",
+        "InvalidDeadlineCannotStartSampling"
+      ]
     }
   ]
 }

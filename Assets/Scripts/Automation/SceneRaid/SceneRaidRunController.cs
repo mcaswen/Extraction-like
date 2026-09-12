@@ -49,7 +49,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 _carriedFile = new StreamWriter(Path.Combine(config.outputPath, "carried-inventory.jsonl"), false, new System.Text.UTF8Encoding(false));
                 _observer.DirectiveObserved += CaptureExtractionInventory;
             }
-            _sampler = new SceneRaidFrameSampler();
+            _sampler = new SceneRaidFrameSampler(config.observeSeconds);
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));
             _writer.Flush();
             Application.runInBackground = true;
@@ -182,7 +182,8 @@ namespace AnomalySearch.Automation.SceneRaid
                 batchMode = Application.isBatchMode, profilerEnabled = UnityEngine.Profiling.Profiler.enabled,
                 performanceAcceptance = false, screenWidth = Screen.width, screenHeight = Screen.height,
                 cameraWidth = _sampler.CameraWidth, cameraHeight = _sampler.CameraHeight,
-                frames = _sampler.Count, renderedFrames = _sampler.RenderedFrames, events = _writer.Count, lostEvents = _writer.Lost,
+                frames = _sampler.Count, frameCapacity = _sampler.FrameCapacity,
+                renderedFrames = _sampler.RenderedFrames, events = _writer.Count, lostEvents = _writer.Lost,
                 errors = _observer.Errors, warnings = _observer.Warnings, elapsedWallSeconds = _writer.WallSeconds,
                 elapsedGameSeconds = Time.timeAsDouble, instrumentationMilliseconds = _instrumentation,
                 inventorySessions = _inventory?.CompletedSessions ?? 0,

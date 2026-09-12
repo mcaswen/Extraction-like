@@ -62,6 +62,7 @@ $faults = @(
     @{name='invalid_json';act={param($p) '{' | Set-Content "$p/result.json"}},
     @{name='wrong_run';act={param($p) Edit-Result $p 'runId' 'wrong'}},
     @{name='wrong_mode';act={param($p) Edit-Result $p 'mode' 'AutonomousRaid'}},
+    @{name='sampler_overflow';act={param($p) Edit-Result $p 'status' 'HARNESS_FAILED'}},
     @{name='zero_frames';act={param($p) Edit-Result $p 'frames' 0}},
     @{name='zero_render';act={param($p) Edit-Result $p 'renderedFrames' 0}},
     @{name='wrong_resolution';act={param($p) Edit-Result $p 'cameraWidth' 1920}},

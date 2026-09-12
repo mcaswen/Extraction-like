@@ -11,6 +11,7 @@
 - Extend `SceneRaidScenarioConfig.cs` 中既有 `SceneRaidRunResult`：记录 frameCapacity，便于判断截断；不新增用户配置开关或弱化旧溢出判定。
 - Create `Assets/Scripts/Editor/AgentReproduction/Tests/SceneRaidFrameSamplerTests.cs` 和 meta：构造 160001 次采样，证明原容量失败；修复后保留全部记录，低期限仍有容量上限，非法期限拒绝。纯采样数量构造不冒充真实渲染、FPS 或游戏帧序列。
 - Extend `tools/agent-repro/cases.json` 登记新组，复用现有报告负例确保帧丢失/溢出仍拒绝。
+- Extend `tools/agent-repro/Test-SceneRaidReport.ps1`：在原报告故障集合中加入采集溢出产生的 HARNESS_FAILED 终态，确认完整 CSV 也不能将采集失败改判通过；不修改报告接受规则。
 
 职责仍为采样器拥有存储预算，RunController 只传配置，结果 DTO 只记录事实。没有新 Gameplay 依赖、线程、流式写入框架或性能口径变更。大于 60 FPS 的正式验收继续使用完整真实渲染帧，最大帧/GC 突刺保留诊断。列表增长的额外内存仅出现在超过旧 10 万帧的长局，预算是有限的；不为已完成的短局扩大预分配。
 
@@ -18,4 +19,8 @@
 
 ## 结果
 
-待实施。
+`081056-645` 容量构造在旧实现失败，160001 次采样触发 Overflow。实现后 `081210-309` **4/4 通过**：保留超过旧容量的全部记录、60/120 秒各自有限容量最后一帧可保留而下一帧拒绝、零/负/超限/NaN/无穷期限均在开始采集前拒绝。构造连续调用 Sample 只证明存储边界，不声称形成真实渲染帧或 FPS。
+
+构造沿用 ReproductionTestFixture 的隔离 Play Mode 和完成检查。采样器默认 600 秒保持已有无参调用兼容；正式 RunController 显式传本局期限，结果记录 frameCapacity。原增长策略、Recorder、CSV、溢出失败判定和游戏时钟保持。原 78 项报告反例 `081228-167` 通过，随后补入精确 HARNESS_FAILED 反例进行最终回归。
+
+最终报告回归 `081325-065` **79/79 通过**。审查确认采样器仍唯一拥有容量、帧和计数器存储，RunController 只传配置并记录事实，DTO 没有行为。额外分支为 O(1)，未修改逐帧工作量；上限增长只支持更长保留，仍可能因超过预算而明确失败。第五版截断证据不改判，P4 将在新提交后重新冻结全部原槽位。

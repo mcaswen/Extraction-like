@@ -43,10 +43,16 @@ namespace AnomalySearch.Automation.SceneRaid
         public int CameraWidth { get; private set; }
         public int CameraHeight { get; private set; }
         public int Count => _frames.Count;
+        public int FrameCapacity { get; }
         public bool Overflow { get; private set; }
         public string[] Descriptions => _descriptions;
-        public SceneRaidFrameSampler()
+        public SceneRaidFrameSampler(float wallBudgetSeconds = 600)
         {
+            if (float.IsNaN(wallBudgetSeconds) || float.IsInfinity(wallBudgetSeconds) ||
+                wallBudgetSeconds <= 0 || wallBudgetSeconds > 600)
+                throw new ArgumentOutOfRangeException(nameof(wallBudgetSeconds));
+            // Storage allowance, not a frame-rate limit. Lists still grow only as samples arrive.
+            FrameCapacity = Math.Max(100000, (int)Math.Ceiling(wallBudgetSeconds * 1000d));
             for (int i = 0; i < CounterNames.Length; i++) _descriptions[i] = CounterNames[i] + ": unavailable";
             RenderPipelineManager.endContextRendering += Rendered;
         }
@@ -84,7 +90,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public void Sample()
         {
             double now = _clock.Elapsed.TotalSeconds;
-            if (_frames.Count >= 100000) { Overflow = true; return; }
+            if (_frames.Count >= FrameCapacity) { Overflow = true; return; }
             _frames.Add(new Frame
             {
                 number = Time.frameCount, wall = now, milliseconds = _previous == 0 ? -1 : (now - _previous) * 1000,
