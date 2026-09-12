@@ -114,12 +114,20 @@ namespace AnomalySearch.Editor.MapGraph
             var profiles = CaptureProfiles(actors, diagnostics);
             string navigationFingerprint = NavigationFingerprint(surfaces, diagnostics);
             var fingerprint = new StringBuilder(guid);
-            foreach (var zone in zones) { fingerprint.Append('|').Append(zone.SourceObjectId); AppendBounds(fingerprint, zone.WorldBounds); }
+            foreach (var zone in zones) { fingerprint.Append('|').Append(zone.SourceObjectId).Append('|').Append(zone.Name); AppendBounds(fingerprint, zone.WorldBounds); }
             foreach (var node in nodes)
             {
                 fingerprint.Append('|').Append(node.SourceObjectId).Append('|').Append(node.ZoneId).Append('|').Append((int)node.Kind);
+                fingerprint.Append('|').Append(node.Name).Append('|').Append(node.HierarchyPath).Append('|').Append(node.PrefabPath);
+                AppendVector(fingerprint, node.WorldCenter);
                 AppendBounds(fingerprint, node.WorldBounds);
                 foreach (var candidate in node.Candidates) { fingerprint.Append('|').Append(candidate.MemberSourceId).Append('|').Append(candidate.Derivation); AppendVector(fingerprint, candidate.Position); }
+            }
+            foreach (var profile in profiles)
+            {
+                fingerprint.Append('|').Append(profile.Data.ProfileId);
+                for (int i = 0; i < profile.AgentSourceIds.Count; i++)
+                { fingerprint.Append('|').Append(profile.AgentSourceIds[i]); AppendVector(fingerprint, profile.AgentOrigins[i]); }
             }
             return new MapGraphSceneSnapshot(scene.path, guid, Hash128.Compute(fingerprint.ToString()).ToString(), navigationFingerprint,
                 zones, nodes, profiles, diagnostics);

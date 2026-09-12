@@ -34,6 +34,18 @@
       ]
     },
     {
+      "name": "MapGraphGenerationController",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphGenerationControllerTests",
+      "expected": [
+        "BudgetedPipelinePublishesOnlyValidatedResults", "NavigationTickLimitAndSettingsAreFrozenAtStart",
+        "CancellationStopsEveryOwnedStage(\"ScanningNavigation\")", "CancellationStopsEveryOwnedStage(\"Generating\")", "CancellationStopsEveryOwnedStage(\"Ready\")",
+        "InputChangesBeforePublicationRejectTheWholeResult(\"scene\")", "InputChangesBeforePublicationRejectTheWholeResult(\"navigation\")", "InputChangesBeforePublicationRejectTheWholeResult(\"unavailable\")",
+        "APreviouslyReadyPreviewMustBeRecheckedBeforeApplying", "LayoutOnlyKeepsConnectionsAndAuthoredStyles",
+        "MissingOrChangedInputsCannotBeSilentlySynchronized", "ActualSceneControllerProducesAValidatedReadOnlyResult", "SceneFingerprintIncludesLabelsProfilesAndAgentOrigins"
+      ]
+    },
+    {
       "name": "MapGraphSceneLayout",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphSceneLayoutTests",
