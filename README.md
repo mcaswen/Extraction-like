@@ -242,6 +242,8 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 
 2026-09-12，`Scenezl_Final 1` 的自主搜打撤有限矩阵已完成：七轮全部通过，5 轮双人撤离，2 轮正常战死结局，均通过程序行为、终态和结算核对。4K / High Fidelity、1×完整回合，Editor 平均 95.23 FPS，Player 平均 236.22 FPS。测试只代操作背包，游戏自主决定目标和撤离。配置、证据、修复和未解决限制见 [场景验收报告](outputs/scenezl_final1_validation_report.md)。
 
+随后完成 [Cluster 指令验证](outputs/cluster_command_validation_report.md)：通过正式 Dispatcher 模拟近远资源、敌人和撤离群下令，覆盖改令、重复、焦点和双人交接。最终固定 11 局与自主回归全部通过，7 局双人撤离、4 局正常死亡且幸存者结算；1× Editor 平均 106.24 FPS，Player 214.56 FPS。保留 4 个未自然触发步骤及对应构造证据，关联 177 项相关回归和 13 项成本构造。此轮修复了远敌初次接近、群候选后备、非焦点库存初始化、原生路径交付、共享资源完成时序、高处反击和多人撤离进度等问题；鼠标命中、UI 遮挡与 Zone 不在本轮范围。
+
 内容与关卡改动仍可按以下顺序进行整体验收：
 
 1. 菜单进入关卡、两个 Agent 注册、焦点切换与镜头跟随。
@@ -296,6 +298,7 @@ Packages/           包依赖
 - [敌人系统概览](Assets/Docs/EnemySystemOverview.md)：生成、目标群、巡逻、感知和敌人配置。
 - [修复验收报告](outputs/implementation_validation_report.md)：F1–F7 / R1–R5 实现、构造证据、重复结果和覆盖边界。
 - [Scenezl_Final 1 场景验收](outputs/scenezl_final1_validation_report.md)：自主搜打撤、场景配置、结算契约、性能治理和最终有限矩阵。
+- [Cluster 指令验收](outputs/cluster_command_validation_report.md)：近远下令、连续改令、双人交接、故障修复、固定矩阵和单次提交成本。
 - [URP Toon 描边说明](Assets/Docs/Rendering/URPToonOutlineSystem.md)：网格处理、材质与 Renderer 配置。
 - [魔法知识散布指南](Assets/Docs/MagicKnowledgeScatterGuide.md)：旧知识拾取物的生成与场景散布。
 - [旧桌游原型说明](Assets/Scripts/Obsolete/BoardGame/README.md)：早期玩法验证规则和资源组织。
