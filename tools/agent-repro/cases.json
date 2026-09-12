@@ -1,6 +1,12 @@
 {
   "groups": [
     {
+      "name": "MapGraphSceneLayout",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphSceneLayoutTests",
+      "expected": ["ActualSceneFixedSeedIsMeasuredAndBounded"]
+    },
+    {
       "name": "MapGraphLayoutSolver",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphLayoutSolverTests",

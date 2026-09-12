@@ -1,0 +1,21 @@
+# P2b 布局视觉证据
+
+两张图均从隔离 Unity Edit Mode 采集的真实场景布局 JSON 渲染，1600×1000、项目 `Assets/Font/text-c.ttf` 字体、深色主题。它们是算法审阅图，尚不是正式小地图或 HUD 实拍。生成后均由 Agent 打开检查。
+
+| 图片 | 运行 | 结果 |
+| --- | --- | --- |
+| [01-fixed-seed.png](01-fixed-seed.png) | `20260912-214518-209` | 旧场景 8 区域、28 群；错误空“渔村2”浮到北侧。用户随后修复，旧图仅留历史 |
+| [02-corrected-scene-seed.png](02-corrected-scene-seed.png) | `20260912-220928-484` | 修正场景 7 区域、28 群；中央名称无遮挡、26 条单段横竖线、0 交叉，渔村位置仍偏南，需联合生成改善 |
+
+修正场景指纹 `c216c62c522bba24b146d1ad3f359938`，导航烘焙指纹 `dd2d6ed39b1e8aadb7aec3785561311f`。龙骨礁撤离旁的 `!` 表示本轮测量所得物理断连，未通过假边掩盖。
+
+源码基线 `5043ac7` 加本阶段诊断测试及渲染脚本；原始全对导航矩阵、布局、搜索预算和校验结果在各运行目录的 `map-seed-layout.json`，实际采集结果另见 `20260912-220831-959`。
+
+复现（仓库根目录，Python 需安装 Pillow）：
+
+```powershell
+powershell -NoProfile -File tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Group MapGraphSceneLayout -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchRegression -TimeoutSeconds 300
+python tools/agent-repro/Render-MapGraphPreview.py Logs/AgentReproduction/<run-id>/map-seed-layout.json outputs/map-command/visual/P2b/<iteration>.png
+```
+
+固定 MST 仅用于诊断。正式生成、编辑器画布、小地图/放大图和真实 Agent 路线尚需后续阶段实现及截图。

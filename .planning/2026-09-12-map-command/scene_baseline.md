@@ -1,5 +1,9 @@
 # P0 真实场景基线
 
+> 当前基线更新（P2b，2026-09-12）：用户已修复错误的空“渔村2”区域。`Logs/AgentReproduction/20260912-220831-959` 重新读取已保存的真实场景，确认 **7 Zone、28 群**，各 Zone 均有群，群数/类型/稳定身份及实际 Prefab 引用保持，归属诊断为空。4 项采集回归全部通过。以下 P0 的 8 Zone 表格保留为历史记录，不能再作为当前场景预期。
+
+更新后的场景指纹为 `c216c62c522bba24b146d1ad3f359938`，导航烘焙指纹仍为 `dd2d6ed39b1e8aadb7aec3785561311f`。本轮 38 次候选采样、35 次初始可达查询、756 次有向群间查询，查询工作 142.55 ms。27 个群可从初始 Agent 到达；龙骨礁撤离群仍是合法采样但初始不可达的独立导航分量。用户此次场景修改由用户持有，Agent 未修改场景或重烘焙 NavMesh。
+
 审计运行：`20260912-191826-063`，源码 `fcb6df1`。复用保留 Editor PID 11628，SC00 证据 PASS，Editor 返回空闲、源输入未变；没有进入新地图 Play Mode 或验证整局。
 
 ## 场景和规范群
@@ -42,7 +46,7 @@
 
 以上只是出生点本身的直接引用。正式 `EnemySpawnPoint.ResolveEnemyPrefab` 优先取来源群对应槽位，再回退直接引用；来源群实际配置另包含 `Assets/Prefabs/Enemy/Pawn/Common/Pfb_Enemy_Common_AncientStrander.prefab`、`Pfb_Enemy_Common_ModernStrander.prefab` 和 `Assets/Prefabs/Enemy/Pawn/Boss/Pfb_Enemy_HunterBoss.prefab`。所有非空来源槽位均指向 Enemy/Pawn 资产，不能把直接引用表误读为实际只有两种敌人。
 
-Zone-渔村2 当前没有群。生成器保留其区域及居中名称，不虚构群，也不从仅有一个区域矩形推断可下达 Zone 任务。
+P0 当时记录 Zone-渔村2 没有群；该错误区域已由用户在 P2b 期间修复，现已不存在。生成器仍应支持合法空区域，不能把历史错误区域硬编码回来。
 
 唯一 NavMeshSurface：agentTypeID=0，GenerateLinks=False，烘焙数据 `Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-NavMesh Surface.asset`。
 当前场景组件统计没有 NavMeshLink/OffMeshLink，有 14 个 NavMeshModifierVolume 和 2 个 NavMeshAgent。这只能排除当前显式单向 Link 配置，不能单凭它证明所有群互相可达。

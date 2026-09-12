@@ -60,7 +60,7 @@ namespace AgentReproduction.Tests
             var second = MapGraphSceneCollector.Capture(scene);
             WriteEvidence(first, null, "scene-collection.json");
             Assert.That(first.Diagnostics, Is.Empty);
-            Assert.That(first.Zones.Count, Is.EqualTo(8));
+            Assert.That(first.Zones.Count, Is.EqualTo(7));
             Assert.That(first.Nodes.Count, Is.EqualTo(28));
             Assert.That(first.Nodes.Count(n => n.Kind == MapGraphNodeKind.Resource), Is.EqualTo(12));
             Assert.That(first.Nodes.Count(n => n.Kind == MapGraphNodeKind.EnemySource), Is.EqualTo(14));
@@ -68,7 +68,8 @@ namespace AgentReproduction.Tests
             Assert.That(first.Profiles.Sum(p => p.AgentSourceIds.Count), Is.EqualTo(2));
             Assert.That(first.Nodes.Select(n => n.Id).Distinct().Count(), Is.EqualTo(28));
             Assert.That(first.Nodes.Where(n => n.Kind == MapGraphNodeKind.Resource).All(n => n.PrefabPath.EndsWith("ResourceCluster.prefab")), Is.True);
-            Assert.That(first.Zones.Any(z => !first.Nodes.Any(n => n.ZoneId == z.Id)), Is.True, "Keep the authored empty zone.");
+            Assert.That(first.Zones.All(z => first.Nodes.Any(n => n.ZoneId == z.Id)), Is.True,
+                "The user removed the erroneous empty village zone; use the corrected scene baseline.");
             Assert.That(second.SceneFingerprint, Is.EqualTo(first.SceneFingerprint));
             Assert.That(second.NavigationFingerprint, Is.EqualTo(first.NavigationFingerprint));
             Assert.That(second.Nodes.Select(n => n.Id), Is.EqualTo(first.Nodes.Select(n => n.Id)));
