@@ -34,7 +34,7 @@ namespace AnomalySearch.Editor.MapGraph
         public MapGraphScannedConnection(string profileId, MapGraphNavigationEdgeBake edge) { ProfileId = profileId; Edge = edge; }
     }
 
-    /// <summary>Editor 的分批导航扫描。每个工作项是一候选采样或一对有向查询，可取消，不更改场景。</summary>
+    /// <summary>分批采样、初始可达检查和群对测量；每工作项最多两次有向查询，可取消，不更改场景。</summary>
     public sealed class MapGraphSceneNavigationScan
     {
         private readonly MapGraphSceneSnapshot _scene;

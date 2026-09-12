@@ -1,6 +1,33 @@
 {
   "groups": [
     {
+      "name": "MapGraphLayoutValidation",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphLayoutValidationTests",
+      "expected": [
+        "ValidCrossZoneRouteTurnsOnlyAtRealNodes",
+        "InvalidGeometryHasSpecificIdentity(\"Diagonal\",\"NonOrthogonalEdge\")",
+        "InvalidGeometryHasSpecificIdentity(\"NodeOverlap\",\"NodeOverlap\")",
+        "InvalidGeometryHasSpecificIdentity(\"NodeOverName\",\"NodeOverName\")",
+        "InvalidGeometryHasSpecificIdentity(\"ThroughNode\",\"EdgeThroughNode\")",
+        "InvalidGeometryHasSpecificIdentity(\"ThroughName\",\"EdgeThroughName\")",
+        "InvalidGeometryHasSpecificIdentity(\"PortOverlap\",\"PortOverlap\")",
+        "InvalidGeometryHasSpecificIdentity(\"Insets\",\"InvalidEdgeSpan\")",
+        "InvalidGeometryHasSpecificIdentity(\"WidthNaN\",\"InvalidEdgeStyle\")",
+        "InvalidGeometryHasSpecificIdentity(\"WidthTooLarge\",\"EdgeWiderThanPort\")",
+        "InvalidGeometryHasSpecificIdentity(\"PositionNaN\",\"InvalidNodeGeometry\")",
+        "InvalidGeometryHasSpecificIdentity(\"OutsideZone\",\"NodeOutsideZone\")",
+        "ZonesNamesAndAlignmentCoordinatesCannotSilentlyDrift",
+        "RegenerationPreservesLocksManualEdgesAndDeletedConnections",
+        "LayoutOnlyModeAndExplicitEdgeEditsHaveDifferentIntentRules",
+        "IncompleteOrOneWayMeasurementsCannotUseLegacyDrawingLengths",
+        "PhysicalIslandsAndDroppedReachableBridgesAreDistinguished",
+        "ExplicitExclusionsArePreservedWithoutInventingAForbiddenBridge",
+        "AGeometricCrossingNeverCreatesAnInterchange",
+        "ScoringPenalizesDisplacementReversalAndDistanceWithoutChangingPaths"
+      ]
+    },
+    {
       "name": "MapGraphSceneCollection",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphSceneCollectionTests",

@@ -32,10 +32,20 @@
 - Create `Assets/Scripts/Editor/MapGraph/MapGraphGeometry.cs`：平面矩形、轴向线段和相交判据；校验、评分、编辑器和后续画布共用数值规则，不包含拓扑或编辑状态。
 - Create `Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs`：独立检查拓扑、有限数值、单段横竖、合法端点/端口/留白、节点/区域重叠、穿节点/名称、安全区包含、对齐一致性、人工锁/边/禁连意图。另提供测量矩阵校验，区分物理断连、人工排除和几何/求解失败；不以断连为由伪造边。
 - Create `Assets/Scripts/Editor/MapGraph/MapGraphLayoutScore.cs`：按统一参考布局计算方位、距离、位移、区域面积、交叉和总体紧凑度，返回可解释分项；分数只排序通过硬约束的候选，不参与运行时寻路成本。
+- 校验器内部按独立规则拆分：Create `MapGraphValidationResult.cs`（带身份和严重度的只读诊断）、`MapGraphLayoutIntentValidation.cs`（原布局锁、人工边/样式/禁连保留）、`MapGraphNavigationValidation.cs`（测量矩阵和分量对照），路径均为 `Assets/Scripts/Editor/MapGraph/`。`MapGraphValidation.cs` 保留几何和对齐规则，避免一个文件同时堆入几何、导航和人工意图判断。
 - Reuse `MapGraphService.cs`、P1 Config 的不可变条目和 `MapGraphLayoutConstraints.cs`，不重复写业务身份/寻路代码。上述 Draft/Geometry 是已确认生成器与校验器职责内的数据和数学原语细分，没有增加 Gameplay → Editor 依赖。
 - Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutValidationTests.cs`，Extend `tools/agent-repro/cases.json`：构造合法跨区横竖图、斜线/重叠/穿节点/中心名称/端口复用/非法留白/锁定破坏/人工禁连/方向不可用和断图反例；独立断言错误类型及评分相对关系。使用 Edit Mode 纯测试，不启动玩法。
 
 验收：固定输入输出稳定；全部拒绝项有具体节点/边/区域身份，不把一般线交叉当换乘节点；不误拒绝真实群处转向，不接受坏数值；原布局和人工记录未变。通过后提交，再实现联合拓扑/布局求解和第一版可见预览。
+
+### P2b1 实施结果
+
+- 7 个生产 Editor 文件分别承接草稿、几何、只读诊断、几何/对齐校验、人工意图、导航矩阵和评分，没有修改运行时图成本或 Agent 执行。
+- `Logs/AgentReproduction/20260912-211706-195` 首轮 19/19 PASS。审查补充线宽不得超过图标端口尺寸、无效旧图不得进入人工意图遍历；最终 `Logs/AgentReproduction/20260912-211925-830` **20/20 PASS**，无编译错误和源输入差异。
+- 构造验证证明：合法跨 Zone 横竖转向通过，斜线/穿节点/中心名称/重叠/不合法留白和非有限值被拒绝；一般交叉不产生路径换乘；手工删线/位置锁/手工或样式覆写边保留；固定拓扑重排和显式改线的规则可区分。
+- 导航校验区分“矩阵未测全”“某方向不可达”“真实物理孤岛”“人工禁连切断”“生成器丢了本应连通的桥”。前两种和丢桥是错误，物理孤岛及人工切断保留明确警告；绝不退回旧 LengthUnits。
+- 对齐校验同时要求边两端共享行/列身份，0.001 容差只容纳局部坐标回写再相加的浮点误差；可见端点共用轴坐标。评分分项只用于生成方案比较，硬约束独立验收。
+- 本步仍无可见布局，第一张新地图预览在后续生成结果产生时捕获。
 
 ## 实施结果
 
