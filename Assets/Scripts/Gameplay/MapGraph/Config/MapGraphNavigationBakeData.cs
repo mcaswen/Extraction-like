@@ -71,20 +71,23 @@ namespace Gameplay.MapGraph.Config
     public sealed class MapGraphNavigationBakeData : ISerializationCallbackReceiver
     {
         [SerializeField] private string _sceneFingerprint, _navigationFingerprint;
+        [SerializeField] private string _runtimeNavigationFingerprint;
         [SerializeField] private long _revision;
         [SerializeField] private MapGraphNavigationProfileData _profile;
         [SerializeField] private List<MapGraphNavigationEdgeBake> _edges = new List<MapGraphNavigationEdgeBake>();
         [NonSerialized] private IReadOnlyList<MapGraphNavigationEdgeBake> _edgeView;
         public string SceneFingerprint => _sceneFingerprint ?? string.Empty;
         public string NavigationFingerprint => _navigationFingerprint ?? string.Empty;
+        public string RuntimeNavigationFingerprint => _runtimeNavigationFingerprint ?? string.Empty;
         public long Revision => _revision;
         public MapGraphNavigationProfileData Profile => _profile;
         public IReadOnlyList<MapGraphNavigationEdgeBake> Edges => _edgeView ??= _edges.AsReadOnly();
         public MapGraphNavigationBakeData() { }
         public MapGraphNavigationBakeData(string sceneFingerprint, string navigationFingerprint, long revision,
-            MapGraphNavigationProfileData profile, IEnumerable<MapGraphNavigationEdgeBake> edges)
+            MapGraphNavigationProfileData profile, IEnumerable<MapGraphNavigationEdgeBake> edges, string runtimeNavigationFingerprint = "")
         {
             _sceneFingerprint = sceneFingerprint; _navigationFingerprint = navigationFingerprint;
+            _runtimeNavigationFingerprint = runtimeNavigationFingerprint ?? string.Empty;
             _revision = revision; _profile = profile;
             if (edges != null) _edges = new List<MapGraphNavigationEdgeBake>(edges);
         }

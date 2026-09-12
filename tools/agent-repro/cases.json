@@ -1,6 +1,19 @@
 {
   "groups": [
     {
+      "name": "MapCommandNavigationCache",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandNavigationCacheTests",
+      "expected": [
+        "FingerprintTracksRealNavigationAndLinkConfigurationOnly",
+        "MatchingRuntimeBakeLoadsWithoutEditorFingerprintsOrQueries",
+        "MissingOrChangedRuntimeSignatureUsesOnlyBudgetedSavedEdges",
+        "RuntimeSignatureCannotHideProfileOrAnchorMismatch",
+        "ActiveLinksRequireRevalidationOfNativeConnectivity",
+        "RuntimeFingerprintSurvivesAssetSaveUnloadAndReadback"
+      ]
+    },
+    {
       "name": "AgentRouteExecution",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.AgentRouteExecutionTests",

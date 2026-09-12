@@ -35,7 +35,7 @@ namespace Gameplay.MapGraph.Binding
         public string LastInvalidationReason { get; private set; }
 
         public MapGraphNavigationCostService(SO_MapGraphDefinition definition, MapGraphBindingAuthoring binding,
-            AgentNavigationProfile profile, string sceneFingerprint, string navigationFingerprint)
+            AgentNavigationProfile profile, string sceneFingerprint, string navigationFingerprint, string runtimeNavigationFingerprint = "")
         {
             if (definition == null || !definition.IsCommandGraph || !new MapGraphService(definition).IsValid)
                 throw new ArgumentException("需要有效的正式指挥图。", nameof(definition));
@@ -48,8 +48,12 @@ namespace Gameplay.MapGraph.Binding
             _orderedEdges.Sort((a, b) => string.CompareOrdinal(a.EdgeId, b.EdgeId));
             foreach (var edge in _orderedEdges) _edges.Add(edge.EdgeId, edge);
             var bake = definition.NavigationBake;
-            bool valid = bake != null && !string.IsNullOrEmpty(sceneFingerprint) && !string.IsNullOrEmpty(navigationFingerprint) &&
-                bake.SceneFingerprint == sceneFingerprint && bake.NavigationFingerprint == navigationFingerprint && MatchesProfile(bake.Profile, profile);
+            bool editorContext = !string.IsNullOrEmpty(sceneFingerprint) && !string.IsNullOrEmpty(navigationFingerprint) &&
+                bake != null && bake.SceneFingerprint == sceneFingerprint && bake.NavigationFingerprint == navigationFingerprint;
+            bool runtimeContext = !string.IsNullOrEmpty(runtimeNavigationFingerprint) && bake != null &&
+                !runtimeNavigationFingerprint.StartsWith("live-links:", StringComparison.Ordinal) &&
+                bake.RuntimeNavigationFingerprint == runtimeNavigationFingerprint;
+            bool valid = bake != null && (editorContext || runtimeContext) && MatchesProfile(bake.Profile, profile);
             var bakedById = new Dictionary<string, MapGraphNavigationEdgeBake>(StringComparer.Ordinal);
             if (valid)
             {
@@ -134,13 +138,13 @@ namespace Gameplay.MapGraph.Binding
         }
 
         /// <summary>Editor 完成生成后取值保存；此方法本身不写入 SO。</summary>
-        public MapGraphNavigationBakeData CreateBakeData(string sceneFingerprint, string navigationFingerprint)
+        public MapGraphNavigationBakeData CreateBakeData(string sceneFingerprint, string navigationFingerprint, string runtimeNavigationFingerprint = "")
         {
             if (!EnsureContext()) throw new InvalidOperationException("地图或绑定已替换，需要重建成本服务。");
             var entries = new List<MapGraphNavigationEdgeBake>();
             foreach (var edge in _orderedEdges)
                 if (_measurements.TryGetValue(edge.EdgeId, out var entry)) entries.Add(entry);
-            return new MapGraphNavigationBakeData(sceneFingerprint, navigationFingerprint, _revision, _profileData, entries);
+            return new MapGraphNavigationBakeData(sceneFingerprint, navigationFingerprint, _revision, _profileData, entries, runtimeNavigationFingerprint);
         }
 
         /// <summary>生成器候选和运行时补边共用的双向测量入口。</summary>

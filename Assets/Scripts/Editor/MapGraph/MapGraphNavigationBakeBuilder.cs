@@ -44,7 +44,7 @@ namespace AnomalySearch.Editor.MapGraph
                 selected.Add(new MapGraphNavigationEdgeBake(edge.EdgeId, edge.FromNodeId, edge.ToNodeId, from, to,
                     forward ? measured.ForwardLength : measured.ReverseLength, forward ? measured.ReverseLength : measured.ForwardLength));
             }
-            return new MapGraphNavigationBakeData(scene.SceneFingerprint, scene.NavigationFingerprint, revision, profile.Data, selected);
+            return new MapGraphNavigationBakeData(scene.SceneFingerprint, scene.NavigationFingerprint, revision, profile.Data, selected, scene.RuntimeNavigationFingerprint);
         }
     }
 }

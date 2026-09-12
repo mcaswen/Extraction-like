@@ -122,6 +122,7 @@ namespace AnomalySearch.Editor.MapGraph
             nodes.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
             var profiles = CaptureProfiles(actors, diagnostics);
             string navigationFingerprint = NavigationFingerprint(surfaces, diagnostics);
+            string runtimeNavigationFingerprint = Gameplay.MapGraph.Binding.MapGraphNavigationFingerprint.Capture(scene);
             var fingerprint = new StringBuilder(guid);
             foreach (var zone in zones) { fingerprint.Append('|').Append(zone.SourceObjectId).Append('|').Append(zone.Name); AppendBounds(fingerprint, zone.WorldBounds); }
             foreach (var node in nodes)
@@ -139,7 +140,7 @@ namespace AnomalySearch.Editor.MapGraph
                 { fingerprint.Append('|').Append(profile.AgentSourceIds[i]); AppendVector(fingerprint, profile.AgentOrigins[i]); }
             }
             return new MapGraphSceneSnapshot(scene.path, guid, Hash128.Compute(fingerprint.ToString()).ToString(), navigationFingerprint,
-                zones, nodes, profiles, diagnostics);
+                zones, nodes, profiles, diagnostics, runtimeNavigationFingerprint);
         }
 
         public static string SourceId(UnityEngine.Object value) => GlobalObjectId.GetGlobalObjectIdSlow(value).ToString();

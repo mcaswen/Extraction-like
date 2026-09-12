@@ -13,6 +13,7 @@ namespace AnomalySearch.Editor.MapGraph
         public string SceneGuid { get; }
         public string SceneFingerprint { get; }
         public string NavigationFingerprint { get; }
+        public string RuntimeNavigationFingerprint { get; }
         public IReadOnlyList<MapGraphSceneZone> Zones { get; }
         public IReadOnlyList<MapGraphSceneNode> Nodes { get; }
         public IReadOnlyList<MapGraphSceneProfile> Profiles { get; }
@@ -20,9 +21,10 @@ namespace AnomalySearch.Editor.MapGraph
         public bool IsValid => Diagnostics.Count == 0 && Nodes.Count > 0 && Profiles.Count > 0;
         public MapGraphSceneSnapshot(string scenePath, string sceneGuid, string sceneFingerprint, string navigationFingerprint,
             IEnumerable<MapGraphSceneZone> zones, IEnumerable<MapGraphSceneNode> nodes, IEnumerable<MapGraphSceneProfile> profiles,
-            IEnumerable<string> diagnostics)
+            IEnumerable<string> diagnostics, string runtimeNavigationFingerprint = "")
         {
             ScenePath = scenePath; SceneGuid = sceneGuid; SceneFingerprint = sceneFingerprint; NavigationFingerprint = navigationFingerprint;
+            RuntimeNavigationFingerprint = runtimeNavigationFingerprint ?? string.Empty;
             Zones = new List<MapGraphSceneZone>(zones).AsReadOnly(); Nodes = new List<MapGraphSceneNode>(nodes).AsReadOnly();
             Profiles = new List<MapGraphSceneProfile>(profiles).AsReadOnly(); Diagnostics = new List<string>(diagnostics).AsReadOnly();
         }

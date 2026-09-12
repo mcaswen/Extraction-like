@@ -165,7 +165,8 @@ namespace AnomalySearch.Editor.MapGraph
         {
             var current = Capture();
             bool unchanged = current != null && current.IsValid && current.SceneGuid == _scene.SceneGuid && current.ScenePath == _scene.ScenePath &&
-                current.SceneFingerprint == _scene.SceneFingerprint && current.NavigationFingerprint == _scene.NavigationFingerprint;
+                current.SceneFingerprint == _scene.SceneFingerprint && current.NavigationFingerprint == _scene.NavigationFingerprint &&
+                current.RuntimeNavigationFingerprint == _scene.RuntimeNavigationFingerprint;
             if (!unchanged) Fail("GenerationInputsChanged", "场景或导航输入已经变化，请重新生成。", MapGraphGenerationStage.Stale);
             return unchanged;
         }

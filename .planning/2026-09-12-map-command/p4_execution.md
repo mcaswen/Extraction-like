@@ -1,6 +1,17 @@
 # P4 全入口统一和正式场景安装
 
-状态：小规划准备，P3 最终测试/提交后实施。延续已确认的大规划，不改变 Routes、Binding、Raid、View 的依赖方向。
+状态：**P4a1 缓存完成，进入 P4a2 正式安装。** 延续已确认的大规划，不改变 Routes、Binding、Raid、View 的依赖方向。
+
+P3 已提交 `aec9964`。先实施 P4a1 可验证导航缓存，再接 P4a2 安装调度，避免把旧缓存假定有效。`MapGraphNavigationBakeBuilder.cs` 是实际最终烘焙提交文件；新增 `Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs` 验证同输入指纹、真实链接/网格变化、profile/锚点不匹配、缺签名补验、保存读回。正式 PlayerInputManager 路径为 `Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs`。
+
+P4a1 审查：本项目 Unity 版本未公开 NavMeshData.agentTypeID，改读 Surface 的导航类型，实际查询仍使用完整 profile。NavMeshLink/OffMeshLink 的已提交原生端点也没有足够的只读公开事实，autoUpdate=false 时不能用组件 Transform 冒充原生链接状态。因此活动链接场景保留带 `live-links:` 标记的输入指纹用于诊断，运行时仍预算补验已有边；静态无链接场景可验证缓存后零补算。新增活动链接不得直接复用缓存的构造，不修改链接或生成假通路。
+
+### P4a1 实施结果
+
+- 首轮 `032306-059` 编译发现该 Unity 版本没有公开 NavMeshData.agentTypeID，按已有 Surface/profile API 修正。`Logs/AgentReproduction/20260913-032533-089` **6/6 PASS**：实际网格及链接配置变化、静态缓存零补算、缺签名/动态链接预算补验、profile/锚点不匹配、实际 Asset 保存/卸载/读回。
+- `032707-569` 原成本/绑定 **11/11 PASS**；`032940-054` Editor 生成编排 **13/13 PASS**，均正常退出、源输入未变。采集增加独立 runtime 指纹，生成应用前比较该输入，最终 BakeBuilder 写入；原 Editor 场景/资产指纹不冒充 runtime 验证。
+- 指纹捕获不产生导航移动/查询或修改链接，ProfilerMarker 可定位开销；只有生成/保存和后续安装/导航变更调用，没有新增 Update 全场扫描。原生三角形顺序变化保守失效，活动链接补已有边，均不创建假双向通路。
+- 正式图资产尚未补新签名；P4 安装对旧资产预算补验已有 28 条边，后续正式保存时补签名。此步无新视觉，P5 接新 HUD 后继续截图。
 
 ## P4a 小规划：共享环境和正式安装
 
@@ -16,6 +27,10 @@
 - Create `Editor/AgentReproduction/Tests/MapCommandInstallationTests.cs`：有图/无图模式、延迟出生/注销、共享成本和预算、静态缓存复用/缺签名补验、锚点/导航/图变化失效、卸载清理。定向回归 P1 Binding/成本相关用例。
 
 ## P4b 小规划：世界点击、自主候选、容量撤离
+
+P4a2 接线细化：Registry 提供 AgentRegistered/AgentUnregistered 实例事件，安装器只标记集合变动，实际组合放在自己的早期 Tick；反馈只挂接订阅，不在注册回调里规划。Pawn 增加按预期环境引用解除组合的入口，避免旧安装器移除新安装器已替换的服务。Environment 冻结 Targets.Revision，规划接受前必须匹配；Resolver 的 Source 可用性同时观察已配置 Active 的启用状态，区分业务存活数和可用性变化。安装器发现目标修订变化时先检查已有边锚点，保留未移动边成本，仅补失效边；构造主动查询引起修订变化时也不能先接受旧锚点成本。
+
+`RaidMapCommandInstaller` 通过 SceneLoaded 一次查找正式 Binding，默认执行顺序早于 Pawn/目标决策，按 profile 共用环境。导航指纹只在安装或显式导航重建时计算，RuntimeNavMeshSurfaceBuilder 增加 IsBuilding/HasPendingBuild/NavigationRevision，重建 pending 期间环境不就绪。动态执行失败通过实例根结果通知安装器失效当前边；MapGraph 的失效/补验预算独立，不由 UI 重绘触发。
 
 - Extend `Targets/Input/AgentTargetCommandDispatcher.cs`：增加正式群路线入口，规范具体群 TargetRef，已完成群允许移动；焦点/指定 Agent 通过 Router。旧低层 out Directive 入口在无图场景保持兼容，在有图场景转发根路线且不再造单敌人整任务。更新实际 `PlayerInputManager.cs` 调用正式返回值，Planning 不冒称成功。
 - Extend `Agent/Decision/AgentTargetDecisionController.cs`、`Agent/Runtime/AgentTargetDiscoveryController.cs`：保留候选发现范围、射线、风险和原容量选择，选定后提交 Autonomous 路线。有效根和待规划请求阻止重复自动刷新/覆盖；关闭决策模块不能清掉仍有效的根步骤。容量根结束后重新选择撤离，沿途资源免处理由原容量事实驱动。
