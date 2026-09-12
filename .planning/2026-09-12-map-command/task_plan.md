@@ -1,6 +1,6 @@
 # 地图指挥、自动路网和统一群路线：大规划
 
-日期：2026-09-12。源码基线：`fcb6df1`。状态：**用户已确认方案，P0 完成，P1a 纯图拓扑/成本已实现，10/10 定向测试通过；后续阶段进行中。** 实施中持续截图、检查样式及 HUD 协调性，发现问题调整后复拍。当前尚未替换正式地图或修改场景/Prefab。
+日期：2026-09-12。源码基线：`fcb6df1`。状态：**用户已确认方案，P0、P1a 纯图拓扑/成本、P1b 共用导航查询完成；P1c 序列化契约进行中。** P1a 10/10、P1b 36/36 定向测试通过。实施中持续截图、检查样式及 HUD 协调性，发现问题调整后复拍。当前尚未替换正式地图或修改场景/Prefab。
 
 本文各处“建议/拟定/供 Review”记录方案形成时的设计表述；当前版本作为首版实现基线执行。重要边界变化仍重新说明，阶段内按已授权闭环推进。
 
@@ -334,6 +334,7 @@ t = clamp01((d0 - d) / (d0 - r))
 | Create | `MapGraph/Binding/MapGraphClusterResolver.cs` | 规范 EnemySource/ActiveEnemy/成员身份，实现 `IAgentRouteTargetResolver` 的世界事实和子指令候选适配；不持有路线 |
 | Create | `MapGraph/Binding/MapGraphNavigationCostService.cs` | 调用导航查询生成/补充成本快照，缓存失效、预算和诊断；算法/Editor/Agent 不各写一套路径长度测量 |
 | Create | `Agent/Navigation/AgentNavigationSegmentQuery.cs` | 从既有 Query 提取 profile + origin + destination 的无副作用路径查询/采样/长度能力，供运行时和 Editor 共用 |
+| Create | `Agent/Navigation/AgentNavigationProfile.cs`、`AgentNavigationSegmentResult.cs` | P1b 将导航参数快照及只读路段事实独立为数据文件；前者复制 32 个区域成本，后者不暴露可变原生 Path，避免查询算法兼任数据所有权 |
 | Extend | `Agent/Navigation/AgentNavigationQuery.cs` | 委托共用段查询，仍负责针对 live Agent 的 readiness/arrival 等校验，不破坏原导航失败语义 |
 | Reuse | `Agent/Navigation/AgentNavigationMotor.cs`、`AgentResourceNavigationResolver.cs` | 实际移动及资源接近位置能力；不向图算法转移导航执行所有权 |
 | Reuse | `Targets/Authoring/TargetZoneAuthoring.cs`、`GameplayTargetClusterAuthoringBase.cs`、`ResourceClusterAuthoring.cs`、`EnemySourceClusterAuthoring.cs`、`ActiveEnemyClusterAuthoring.cs`、`ExtractionClusterAuthoring.cs`、`Targets/Runtime/GameplayTargetRegistry.cs` | 既有范围、群归属、成员及完成事实；只在 P0 证明缺少只读事实时列出局部扩展，不默认重写完成语义 |

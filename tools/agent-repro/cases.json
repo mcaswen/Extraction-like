@@ -1,6 +1,40 @@
 {
   "groups": [
     {
+      "name": "MapGraphNavigationCompatibility",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.SceneRaidCombatApproachTests;AgentReproduction.Tests.SceneRaidResourceNavigationTests.RecordedLaboratoryApproachUsesExecutablePath;AgentReproduction.Tests.ClusterCommandCostTests.ProbeCalibratesSynchronousNavigationAndAllocation",
+      "expected": [
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"Visible\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"VisibleChild\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"Damage\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"Wall\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"TooFar\")",
+        "DisconnectedEnemyRequiresReachableFiringPosition(\"MuzzleOutOfRange\")",
+        "ApproachQueriesAreReadOnlyAndBuffersDoNotCrossTargets",
+        "RecordedLaboratoryApproachUsesExecutablePath(-430.3456f)",
+        "RecordedLaboratoryApproachUsesExecutablePath(-444.0f)",
+        "ProbeCalibratesSynchronousNavigationAndAllocation"
+      ]
+    },
+    {
+      "name": "MapGraphNavigation",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphNavigationTests",
+      "expected": [
+        "StaticAndLiveQueriesAgreeWithoutChangingMovement",
+        "AreaCostsChooseDetoursButReportPhysicalLength",
+        "AreaMasksConstrainSamplingAndPaths",
+        "DisconnectedIslandsNeverProduceACompleteSegment",
+        "SamplingRejectsWrongFloorsInvalidCoordinatesAndMissingEndpoints",
+        "SlopeDistanceIncludesHeightAndArrivalUsesGroundWithBaseOffset",
+        "BuffersAndResultValuesDoNotAliasOtherQueries",
+        "ProfileCopiesCostsAndRejectsInvalidInputs",
+        "ReusedSegmentQueriesAllocateNothingAfterWarmup"
+      ]
+    },
+    {
       "name": "MapGraphPathfinding",
       "suite": "Core",
       "graphics": false,
