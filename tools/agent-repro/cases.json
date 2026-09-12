@@ -1,6 +1,21 @@
 {
   "groups": [
     {
+      "name": "AgentRoutePlanning",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.AgentRoutePlanningTests",
+      "expected": [
+        "ActualEntryDistanceAndDirectedGraphCostsDefineTheRoute",
+        "DisconnectedGoalCannotBecomeAnAlternativeDirectEntry",
+        "ReplacementUsesOnlyTheAllowedCurrentEdgeEndpoints",
+        "BudgetsTiesAndFrozenResultsAreIndependentOfBatchSize",
+        "CompletedNodesRemainTransitButUnavailableNodesBlockEdges",
+        "CancellationAndBindingChangesCannotPublishStalePlans",
+        "MissingInvalidAndNonFiniteInputsNeverYieldPartialExecution",
+        "RootIdentitySurvivesRoutingAndTargetCanonicalization"
+      ]
+    },
+    {
       "name": "MapGraphSceneSynchronization",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphSceneSynchronizationTests",
