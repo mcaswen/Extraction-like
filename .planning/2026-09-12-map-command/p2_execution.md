@@ -119,6 +119,26 @@ Extend `MapGraphLayoutDraft.cs` 增加缓存的内容指纹，检查编辑预览
 - 最终 7 Zone、28 群、28 横竖边，中央区名可读，选中四端口和属性面板清晰，局部缩放不越过画布边界。仍保留真实龙骨礁撤离物理断连警告，可选补边预算耗尽只说明搜索停止。未新增对游戏帧率或真实路线执行的验收结论。
 - P2c 完成，继续 P2d 补齐未分区/标签同步约束后生成正式资产、绑定当前场景；正式 Scene/NavMesh 的用户修改本步仍未写入提交。P3–P6 继续按大规划推进。
 
+## P2d1 小规划：正式落地前的同步和保存边界
+
+当前真实场景所有群均有区域，但大规划要求未分区群也能显示；另外已保存图重新生成时仍沿用旧名称。先补齐这两个配置边界，再保存正式场景图。磁盘写入后的回滚覆盖一并补齐，避免把未验证的保存恢复留到交付末尾。
+
+- Extend `Assets/Scripts/Gameplay/MapGraph/Config/MapGraphZoneDefinition.cs`、`Binding/MapGraphZoneBinding.cs`：显式记录 `IsSynthetic`，区分未分区显示区域和已丢失的真实 Zone 引用，默认 false 兼容现有图。Extend `Binding/MapGraphBindingAuthoring.cs`：仅允许显式合成区域持有 null Zone，且成员必须确实未绑定真实区域；真实区域引用丢失仍报错。
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphSceneSnapshot.cs`、`MapGraphSceneCollector.cs`：未分区群归入由场景 GUID 派生身份的“未分区”矩形，范围为这些群世界范围的并集；保持真实节点身份，不创建或绑定世界 Zone。指向其他场景区域、归属冲突等错误仍拒绝，不能用合成区域掩盖错误引用。
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphLayoutGenerator.cs`、`Assets/Scripts/Gameplay/MapGraph/Config/MapGraphNodeDefinition.cs`：普通生成/重排从场景刷新区域和群名称、层级描述，保留原位置、锁、图标和样式；“只校验”保持原图，不隐式改显示数据。Extend `MapGraphLayoutIntentValidation.cs` 保持真实/合成区域身份属性。
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphAuthoringTransaction.cs`：保存显式合成绑定；在原保存事务内提供仅 Editor 内部可用的阶段回调，测试可以在真实资产写入后或场景写入后抛出异常，验证既有 Undo/磁盘恢复。回调按调用传入，不设全局故障开关、不增加 Gameplay 测试依赖。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphSceneSynchronizationTests.cs`：实际场景副本解绑一个群、生成合成区域、配置绑定/序列化重读，验证未分区显示不移动世界对象、不容许真实 Zone 缺失；纯快照重命名保持作者布局/样式。Extend `MapGraphAuthoringTransactionTests.cs` 增加已有资产/新建资产的晚期写入故障，断言磁盘字节、内存和绑定恢复。
+
+文件均沿原配置、场景绑定、Editor 同步和事务职责扩展。合成区域仅为地图表示，不修改世界归属和正式 Gameplay 决策。验收通过后 P2d2 使用已验收事务在隔离场景生成正式资产和绑定增量，核对源场景输入哈希未变化后精确应用本功能增量，保留用户现有场景/NavMesh 编辑；随后读回源场景复验。
+
+### P2d1 实施结果
+
+- `20260913-010347-240` 同步构造 **4/4 PASS**：实际解绑一个资源群后生成稳定“未分区”区域，原群身份和世界位置保持；合成标记序列化恢复，真实区域引用缺失/冒充合成均被拒绝。重命名快照刷新名称和描述，原坐标、锁、人工边及样式保持。
+- `010529-083` 正式保存 **5/5 PASS**：已有资产在资产写入后、场景写入后抛出 I/O 异常，磁盘字节、内存图和 Binding 完整恢复；新资产场景写入后失败，删除本次新资产及其 meta、新 Binding，保留待保存的作者修改。正常保存重开仍为 28 群、7 区域，0 次烘焙补算。
+- `010728-855` 受影响的运行时绑定 **11/11 PASS**：直接引用、区域所有权、重复 ID 拒绝、烘焙命中、成本失效、锚点变化和有界补算保持。三轮最终报告正常退出、源输入不变，本步共 20 项定向验证通过。首轮 `010219-237` 因新测试遗漏 NUnit using 编译失败，补齐后通过。
+- 配置增加默认 false 的合成标记，既有场景没有未分区群，因此正式布局未改变，不重复截图同图。此前的磁盘晚期失败覆盖缺口已由真实写入后的故障注入补齐；没有声称覆盖设备断电或不可恢复的磁盘故障。
+- P2d2 继续生成并应用当前真实场景的正式图及绑定。此提交没有修改 Scene/NavMesh。
+
 ## P2b1 小规划：布局数据、独立几何校验和评分
 
 先写验收器再接求解器，避免自动生成器通过自我放宽条件获得假成功。本步为纯 Editor 算法，不导航、不改场景、不生成正式资产；没有可见布局时不截图旧 UI。

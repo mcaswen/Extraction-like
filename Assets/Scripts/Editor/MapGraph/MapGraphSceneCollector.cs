@@ -47,14 +47,22 @@ namespace AnomalySearch.Editor.MapGraph
                     if (!sourceOwnedActive.Add(source.ActiveEnemyCluster)) diagnostics.Add("SharedActiveEnemyCluster:" + Hierarchy(source.transform));
                 }
             var candidateBuffer = new List<Vector3>();
+            string unassignedSource = guid + ":unassigned", unassignedId = StableId("zone", unassignedSource);
+            bool hasUnassigned = false; Rect unassignedBounds = default;
             foreach (var cluster in clusters)
             {
                 if (cluster is ActiveEnemyClusterAuthoring active && sourceOwnedActive.Contains(active)) continue;
                 string sourceId = SourceId(cluster), id = StableId("cluster", sourceId);
                 if (!identities.Add(sourceId)) diagnostics.Add("DuplicateSceneIdentity:" + sourceId);
                 string zoneId = string.Empty;
-                if (cluster.Zone == null || !zoneIds.TryGetValue(cluster.Zone, out zoneId))
-                    diagnostics.Add("UnassignedCluster:" + Hierarchy(cluster.transform));
+                if (cluster.Zone == null)
+                {
+                    zoneId = unassignedId;
+                    var bounds = BoundsOf(cluster.RangePoints, cluster.CenterPosition);
+                    unassignedBounds = hasUnassigned ? MapGraphGeometry.Union(unassignedBounds, bounds) : bounds;
+                    hasUnassigned = true;
+                }
+                else if (!zoneIds.TryGetValue(cluster.Zone, out zoneId)) diagnostics.Add("ForeignClusterZone:" + Hierarchy(cluster.transform));
                 else
                 {
                     bool registered = false;
@@ -109,6 +117,7 @@ namespace AnomalySearch.Editor.MapGraph
                 nodes.Add(new MapGraphSceneNode(id, sourceId, zoneId, cluster.DisplayName, Hierarchy(cluster.transform), prefab,
                     cluster, center, BoundsOf(cluster.RangePoints, center), kind, candidates));
             }
+            if (hasUnassigned) zones.Add(new MapGraphSceneZone(unassignedId, unassignedSource, "未分区", null, unassignedBounds, true));
             zones.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
             nodes.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
             var profiles = CaptureProfiles(actors, diagnostics);

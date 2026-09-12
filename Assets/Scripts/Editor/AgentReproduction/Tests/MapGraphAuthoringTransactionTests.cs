@@ -97,6 +97,41 @@ namespace AgentReproduction.Tests
             Assert.That(File.ReadAllBytes(TestScene), Is.EqualTo(before));
         }
 
+        [UnityTest] public IEnumerator ExistingAssetFailureAfterAssetWriteRollsBack() => FailureAfterWrite(true, MapGraphSaveCheckpoint.AssetSaved);
+        [UnityTest] public IEnumerator ExistingAssetFailureAfterSceneWriteRollsBack() => FailureAfterWrite(true, MapGraphSaveCheckpoint.SceneSaved);
+        [UnityTest] public IEnumerator NewAssetFailureAfterSceneWriteRemovesOnlyItsNewObjects() => FailureAfterWrite(false, MapGraphSaveCheckpoint.SceneSaved);
+
+        private IEnumerator FailureAfterWrite(bool existing, MapGraphSaveCheckpoint checkpoint)
+        {
+            yield return GenerateSceneCopy(); MapGraphBindingAuthoring saved = null;
+            if (existing) Assert.That(MapGraphAuthoringTransaction.TrySave(_document, _scene, TestAsset, out saved, out var firstFailure), Is.True, firstFailure);
+            byte[] sceneBytes = File.ReadAllBytes(TestScene), assetBytes = existing ? File.ReadAllBytes(TestAsset) : null;
+            string bindingBefore = saved != null ? EditorJsonUtility.ToJson(saved) : "", assetBefore = existing ? EditorJsonUtility.ToJson(saved.MapDefinition) : "";
+            _document.SetDisplayName("故障前的待保存修改"); bool observed = false;
+            bool result = MapGraphAuthoringTransaction.TrySave(_document, _scene, TestAsset, phase =>
+            {
+                if (phase != checkpoint) return;
+                observed = true; Assert.That(File.Exists(TestAsset), Is.True);
+                throw new IOException("InjectedAfter" + phase);
+            }, out _, out string failure);
+            Assert.That(observed, Is.True); Assert.That(result, Is.False); Assert.That(failure, Does.Contain("InjectedAfter" + checkpoint));
+            Assert.That(failure, Does.Not.Contain("RollbackFailed")); Assert.That(File.ReadAllBytes(TestScene), Is.EqualTo(sceneBytes));
+            var bindings = _scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MapGraphBindingAuthoring>(true)).ToArray();
+            if (existing)
+            {
+                Assert.That(File.ReadAllBytes(TestAsset), Is.EqualTo(assetBytes)); Assert.That(bindings.Length, Is.EqualTo(1));
+                Assert.That(EditorJsonUtility.ToJson(bindings[0]), Is.EqualTo(bindingBefore));
+                Assert.That(EditorJsonUtility.ToJson(AssetDatabase.LoadAssetAtPath<SO_MapGraphDefinition>(TestAsset)), Is.EqualTo(assetBefore));
+                Assert.That(_document.HasSourceConflict, Is.False);
+            }
+            else
+            {
+                Assert.That(File.Exists(TestAsset) || File.Exists(TestAsset + ".meta"), Is.False);
+                Assert.That(bindings, Is.Empty); Assert.That(_document.SourceDefinition, Is.Null);
+            }
+            Assert.That(_document.WorkingDefinition.DisplayName, Is.EqualTo("故障前的待保存修改")); Assert.That(_document.IsDirty, Is.True);
+        }
+
         [Serializable] private sealed class LayoutEvidence
         { public MapGraphNodeDefinition[] nodes; public MapGraphZoneDefinition[] zones; public MapGraphEdgeDefinition[] edges; }
     }

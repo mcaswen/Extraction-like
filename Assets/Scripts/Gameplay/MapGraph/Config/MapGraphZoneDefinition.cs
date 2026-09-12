@@ -13,6 +13,7 @@ namespace Gameplay.MapGraph.Config
         [SerializeField] private Vector2 _nameSafeSize;
         [SerializeField] private bool _layoutLocked;
         [SerializeField] private string _sourceObjectId;
+        [SerializeField] private bool _isSynthetic;
 
         public string ZoneId => _zoneId ?? string.Empty;
         public string DisplayName => string.IsNullOrWhiteSpace(_displayName) ? ZoneId : _displayName;
@@ -21,15 +22,17 @@ namespace Gameplay.MapGraph.Config
         public Rect NameSafeBounds => new Rect(_bounds.center - _nameSafeSize * 0.5f, _nameSafeSize);
         public bool LayoutLocked => _layoutLocked;
         public string SourceObjectId => _sourceObjectId ?? string.Empty;
+        public bool IsSynthetic => _isSynthetic;
 
         public MapGraphZoneDefinition(string zoneId, string displayName, Rect bounds, Vector2 nameSafeSize,
-            bool layoutLocked = false, string sourceObjectId = "")
+            bool layoutLocked = false, string sourceObjectId = "", bool isSynthetic = false)
         {
             _zoneId = zoneId; _displayName = displayName; _bounds = bounds; _nameSafeSize = nameSafeSize;
             _layoutLocked = layoutLocked; _sourceObjectId = sourceObjectId;
+            _isSynthetic = isSynthetic;
         }
 
         public MapGraphZoneDefinition WithLayout(Rect bounds, bool locked)
-            => new MapGraphZoneDefinition(ZoneId, DisplayName, bounds, NameSafeSize, locked, SourceObjectId);
+            => new MapGraphZoneDefinition(ZoneId, DisplayName, bounds, NameSafeSize, locked, SourceObjectId, IsSynthetic);
     }
 }

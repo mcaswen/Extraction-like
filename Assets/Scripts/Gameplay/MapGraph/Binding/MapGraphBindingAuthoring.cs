@@ -52,12 +52,17 @@ namespace Gameplay.MapGraph.Binding
             if (graph != null && !graph.IsValid) _errors.AddRange(graph.ValidationErrors);
             foreach (var binding in _zoneBindings)
             {
-                if (binding == null || string.IsNullOrWhiteSpace(binding.ZoneId) || binding.Zone == null)
+                if (binding == null || string.IsNullOrWhiteSpace(binding.ZoneId) || (binding.IsSynthetic ? binding.Zone != null : binding.Zone == null))
                 { _errors.Add("InvalidZoneBinding"); continue; }
                 if (_byZone.ContainsKey(binding.ZoneId)) { _errors.Add("DuplicateZoneBinding:" + binding.ZoneId); continue; }
                 _byZone.Add(binding.ZoneId, binding);
-                if (!_zoneTargets.Add(binding.Zone)) _errors.Add("DuplicateZoneTarget:" + binding.ZoneId);
-                if (graph != null && !graph.TryGetZone(binding.ZoneId, out _)) _errors.Add("OrphanZoneBinding:" + binding.ZoneId);
+                if (binding.Zone != null && !_zoneTargets.Add(binding.Zone)) _errors.Add("DuplicateZoneTarget:" + binding.ZoneId);
+                if (graph != null)
+                {
+                    if (!graph.TryGetZone(binding.ZoneId, out var zone)) _errors.Add("OrphanZoneBinding:" + binding.ZoneId);
+                    else if (zone.IsSynthetic != binding.IsSynthetic) _errors.Add("ZoneBindingKindMismatch:" + binding.ZoneId);
+                    else if (zone.SourceObjectId.Length > 0 && zone.SourceObjectId != binding.SourceObjectId) _errors.Add("ZoneSourceIdentityMismatch:" + binding.ZoneId);
+                }
             }
             foreach (var binding in _targetBindings)
             {

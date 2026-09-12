@@ -1,6 +1,12 @@
 {
   "groups": [
     {
+      "name": "MapGraphSceneSynchronization",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphSceneSynchronizationTests",
+      "expected": ["UnassignedClusterGetsAStableDisplayZoneWithoutAWorldZone", "MissingRealZoneCannotPretendToBeAnUnassignedDisplayZone", "SourceLabelsRefreshWhileAuthoredLayoutAndStylesStayFixed", "AnEditCannotChangeARealZonesIdentityIntoSynthetic"]
+    },
+    {
       "name": "MapGraphEditorCanvas",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphEditorCanvasTests",
@@ -49,7 +55,7 @@
       "name": "MapGraphAuthoringTransaction",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphAuthoringTransactionTests",
-      "expected": ["SavedMapReopensWithStableIdentityAndZeroBakeQueries", "ConflictsAndInvalidPathsCannotMutateSavedInputs"]
+      "expected": ["SavedMapReopensWithStableIdentityAndZeroBakeQueries", "ConflictsAndInvalidPathsCannotMutateSavedInputs", "ExistingAssetFailureAfterAssetWriteRollsBack", "ExistingAssetFailureAfterSceneWriteRollsBack", "NewAssetFailureAfterSceneWriteRemovesOnlyItsNewObjects"]
     },
     {
       "name": "MapGraphEditorDocument",

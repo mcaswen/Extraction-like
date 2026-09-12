@@ -35,8 +35,9 @@ namespace AnomalySearch.Editor.MapGraph
         public string Name { get; }
         public TargetZoneAuthoring Target { get; }
         public Rect WorldBounds { get; }
-        public MapGraphSceneZone(string id, string sourceObjectId, string name, TargetZoneAuthoring target, Rect worldBounds)
-        { Id = id; SourceObjectId = sourceObjectId; Name = name; Target = target; WorldBounds = worldBounds; }
+        public bool IsSynthetic { get; }
+        public MapGraphSceneZone(string id, string sourceObjectId, string name, TargetZoneAuthoring target, Rect worldBounds, bool isSynthetic = false)
+        { Id = id; SourceObjectId = sourceObjectId; Name = name; Target = target; WorldBounds = worldBounds; IsSynthetic = isSynthetic; }
     }
 
     public readonly struct MapGraphAnchorCandidate

@@ -81,6 +81,10 @@ namespace Gameplay.MapGraph.Config
             => new MapGraphNodeDefinition(NodeId, NodeKind, localPosition, DisplayName, Description, Icon, IconKind,
                 ResourceTier, DangerTier, ZoneId, Footprint, rowId, columnId, locked, SourceObjectId);
 
+        public MapGraphNodeDefinition WithSourceLabel(string displayName, string description)
+            => new MapGraphNodeDefinition(NodeId, NodeKind, Position, displayName, description, Icon, IconKind,
+                ResourceTier, DangerTier, ZoneId, Footprint, RowId, ColumnId, PositionLocked, SourceObjectId);
+
         /// <summary>
         /// 给策划或调试面板阅读的额外说明
         /// </summary>

@@ -10,11 +10,16 @@ using UnityEngine.SceneManagement;
 
 namespace AnomalySearch.Editor.MapGraph
 {
+    internal enum MapGraphSaveCheckpoint { AssetSaved, SceneSaved }
     /// <summary>验证后的正式配置事务。只写目标图和对应场景，生成算法不参与持久化。</summary>
     public static class MapGraphAuthoringTransaction
     {
         public static bool TrySave(MapGraphEditorDocument document, Scene scene, string newAssetPath,
             out MapGraphBindingAuthoring binding, out string failure)
+            => TrySave(document, scene, newAssetPath, null, out binding, out failure);
+
+        internal static bool TrySave(MapGraphEditorDocument document, Scene scene, string newAssetPath,
+            Action<MapGraphSaveCheckpoint> onCheckpoint, out MapGraphBindingAuthoring binding, out string failure)
         {
             binding = null; failure = "";
             if (document == null || !scene.IsValid() || !scene.isLoaded || string.IsNullOrEmpty(scene.path))
@@ -47,9 +52,10 @@ namespace AnomalySearch.Editor.MapGraph
                 zones = draft.Zones.Select(z =>
                 {
                     var target = input.Scene.Zones.Single(s => s.Id == z.ZoneId);
-                    if (target.Target == null || target.Target.gameObject.scene != scene || target.SourceObjectId != z.SourceObjectId)
+                    if (target.IsSynthetic != z.IsSynthetic || target.SourceObjectId != z.SourceObjectId ||
+                        (z.IsSynthetic ? target.Target != null : target.Target == null || target.Target.gameObject.scene != scene))
                         throw new InvalidOperationException("InvalidSavedZone:" + z.ZoneId);
-                    return new MapGraphZoneBinding(z.ZoneId, target.Target, z.SourceObjectId);
+                    return new MapGraphZoneBinding(z.ZoneId, target.Target, z.SourceObjectId, z.IsSynthetic);
                 }).ToArray();
             }
             catch (Exception exception) { failure = exception.Message; return false; }
@@ -83,8 +89,10 @@ namespace AnomalySearch.Editor.MapGraph
                 EditorUtility.SetDirty(binding); EditorSceneManager.MarkSceneDirty(scene);
                 Undo.FlushUndoRecordObjects();
                 wroteAsset = true; AssetDatabase.SaveAssetIfDirty(source);
+                onCheckpoint?.Invoke(MapGraphSaveCheckpoint.AssetSaved);
                 wroteScene = true;
                 if (!EditorSceneManager.SaveScene(scene)) throw new IOException("SceneSaveFailed:" + scene.path);
+                onCheckpoint?.Invoke(MapGraphSaveCheckpoint.SceneSaved);
                 Undo.CollapseUndoOperations(group); document.MarkSaved(source); return true;
             }
             catch (Exception exception)

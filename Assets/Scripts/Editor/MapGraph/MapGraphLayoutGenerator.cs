@@ -22,7 +22,8 @@ namespace AnomalySearch.Editor.MapGraph
             foreach (var source in scene.Zones)
             {
                 MapGraphZoneDefinition zone;
-                if (previous != null && previous.Graph.TryGetZone(source.Id, out var saved)) zone = saved;
+                if (previous != null && previous.Graph.TryGetZone(source.Id, out var saved))
+                    zone = new MapGraphZoneDefinition(saved.ZoneId, DisplayZoneName(source.Name), saved.Bounds, saved.NameSafeSize, saved.LayoutLocked, saved.SourceObjectId, source.IsSynthetic);
                 else
                 {
                     bool empty = true;
@@ -30,7 +31,7 @@ namespace AnomalySearch.Editor.MapGraph
                     Vector2 minimum = empty ? settings.NameSafeSize + Vector2.one * settings.ZonePadding * 2 : settings.MinimumZoneSize;
                     Vector2 size = Vector2.Max(minimum, source.WorldBounds.size * scale + Vector2.one * settings.ZonePadding * 2);
                     var bounds = new Rect(source.WorldBounds.center * scale - size * 0.5f, size);
-                    zone = new MapGraphZoneDefinition(source.Id, DisplayZoneName(source.Name), bounds, settings.NameSafeSize, false, source.SourceObjectId);
+                    zone = new MapGraphZoneDefinition(source.Id, DisplayZoneName(source.Name), bounds, settings.NameSafeSize, false, source.SourceObjectId, source.IsSynthetic);
                 }
                 zones.Add(zone); zoneIndex.Add(zone.ZoneId, zone);
             }
@@ -45,7 +46,7 @@ namespace AnomalySearch.Editor.MapGraph
                     if (saved.SourceObjectId != source.SourceObjectId || saved.ZoneId != source.ZoneId || saved.NodeKind != source.Kind)
                         throw new ArgumentException("群身份或归属变化，需先审查同步差异：" + source.HierarchyPath);
                     Vector2 point = previous.Graph.GetNodePosition(saved.NodeId);
-                    node = saved.WithLayout(point - zone.Bounds.center, saved.RowId, saved.ColumnId, saved.PositionLocked);
+                    node = saved.WithLayout(point - zone.Bounds.center, saved.RowId, saved.ColumnId, saved.PositionLocked).WithSourceLabel(source.Name, source.HierarchyPath);
                 }
                 else
                 {

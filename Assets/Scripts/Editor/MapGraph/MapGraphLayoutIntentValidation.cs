@@ -40,7 +40,7 @@ namespace AnomalySearch.Editor.MapGraph
             foreach (var zone in original.Zones)
             {
                 bool exists = draft.Graph.TryGetZone(zone.ZoneId, out var current);
-                if (exists && zone.SourceObjectId != current.SourceObjectId)
+                if (exists && (zone.SourceObjectId != current.SourceObjectId || zone.IsSynthetic != current.IsSynthetic))
                     issues.Add(new MapGraphValidationIssue("ZoneIdentityChanged", zone.ZoneId));
                 if (Has(MapGraphIntentPreservation.Locks) && zone.LayoutLocked && (!exists || !current.LayoutLocked ||
                     !MapGraphGeometry.Near(zone.Bounds.position, current.Bounds.position) ||

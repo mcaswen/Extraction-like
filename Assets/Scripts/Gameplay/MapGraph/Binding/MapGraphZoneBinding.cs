@@ -10,10 +10,12 @@ namespace Gameplay.MapGraph.Binding
     {
         [SerializeField] private string _zoneId, _sourceObjectId;
         [SerializeField] private TargetZoneAuthoring _zone;
+        [SerializeField] private bool _isSynthetic;
         public string ZoneId => _zoneId ?? string.Empty;
         public string SourceObjectId => _sourceObjectId ?? string.Empty;
         public TargetZoneAuthoring Zone => _zone;
-        public MapGraphZoneBinding(string zoneId, TargetZoneAuthoring zone, string sourceObjectId = "")
-        { _zoneId = zoneId; _zone = zone; _sourceObjectId = sourceObjectId; }
+        public bool IsSynthetic => _isSynthetic;
+        public MapGraphZoneBinding(string zoneId, TargetZoneAuthoring zone, string sourceObjectId = "", bool isSynthetic = false)
+        { _zoneId = zoneId; _zone = zone; _sourceObjectId = sourceObjectId; _isSynthetic = isSynthetic; }
     }
 }
