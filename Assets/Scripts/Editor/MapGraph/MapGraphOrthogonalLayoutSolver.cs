@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace AnomalySearch.Editor.MapGraph
 {
-    /// <summary>固定边集的有界方向搜索；每次推进有状态预算，候选必须经独立几何验收。</summary>
+    /// <summary>固定边集的有界方向搜索；每工作项最多一个方向状态或一次坐标迭代，候选经独立验收。</summary>
     public sealed class MapGraphOrthogonalLayoutSolver
     {
         private readonly MapGraphLayoutDraft _reference;
@@ -74,11 +74,11 @@ namespace AnomalySearch.Editor.MapGraph
             _search = Explore(0).GetEnumerator();
         }
 
-        public int Advance(int maximumStates)
+        public int Advance(int maximumWorkItems)
         {
-            if (IsComplete || IsCancelled || maximumStates <= 0) return 0;
+            if (IsComplete || IsCancelled || maximumWorkItems <= 0) return 0;
             long started = Stopwatch.GetTimestamp(); int work = 0;
-            while (work < maximumStates)
+            while (work < maximumWorkItems)
             {
                 if (!_search.MoveNext()) { IsComplete = true; _search.Dispose(); _search = null; break; }
                 work++;
@@ -99,21 +99,31 @@ namespace AnomalySearch.Editor.MapGraph
             if (depth == _edges.Length)
             {
                 if (!ReserveState()) yield break;
+                yield return 1;
                 var coordinates = new MapGraphLayoutCoordinates(_reference, _edges, _from, _to, _directions, _settings,
                     _maximumCoordinateIterations - CoordinateIterations);
-                if (coordinates.TrySolve(out var candidate))
+                try
                 {
-                    var validation = MapGraphValidation.Validate(candidate, _reference);
-                    var score = MapGraphLayoutScore.Evaluate(candidate, _reference, _settings);
-                    if (validation.IsValid && score.IsFinite)
+                    while (!coordinates.IsComplete)
                     {
-                        FeasibleLayouts++;
-                        if (score.Total < _bestScore) { _bestScore = score.Total; _best = candidate; }
+                        int before = coordinates.Iterations; coordinates.Advance(1);
+                        CoordinateIterations += coordinates.Iterations - before; yield return 1;
                     }
-                    else Reject(validation.IsValid ? "NonFiniteScore" : validation.Issues[0].ToString());
+                    var candidate = coordinates.Result;
+                    if (candidate != null)
+                    {
+                        var validation = MapGraphValidation.Validate(candidate, _reference);
+                        var score = MapGraphLayoutScore.Evaluate(candidate, _reference, _settings);
+                        if (validation.IsValid && score.IsFinite)
+                        {
+                            FeasibleLayouts++;
+                            if (score.Total < _bestScore) { _bestScore = score.Total; _best = candidate; }
+                        }
+                        else Reject(validation.IsValid ? "NonFiniteScore" : validation.Issues[0].ToString());
+                    }
+                    else Reject(coordinates.Failure ?? "CoordinateSolveFailed");
                 }
-                else Reject(coordinates.Failure ?? "CoordinateSolveFailed");
-                CoordinateIterations += coordinates.Iterations;
+                finally { if (!coordinates.IsComplete) coordinates.Cancel(); }
                 yield return 1; yield break;
             }
             int edge = _order[depth], a = _from[edge], b = _to[edge];

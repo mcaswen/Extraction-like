@@ -35,6 +35,7 @@
         "ConflictingLockedPositionsNeverModifyTheInput",
         "BudgetExhaustionAndCancellationNeverPublishPartialGeometry",
         "AdvancingWithDifferentBudgetsProducesTheSameLayout",
+        "CancellationDuringCoordinateIterationStopsAllFurtherWork",
         "EmptyAuthoredZoneSurvivesWithoutObscuringTheRoute",
         "StationaryEdgeThroughNodeDoesNotRepeatTheIterationBudget",
         "CoordinateBudgetRetainsAnAlreadyValidatedCandidate",

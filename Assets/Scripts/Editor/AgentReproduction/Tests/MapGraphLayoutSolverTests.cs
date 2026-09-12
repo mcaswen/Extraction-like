@@ -46,9 +46,10 @@ namespace AgentReproduction.Tests
             var solver = new MapGraphOrthogonalLayoutSolver(reference, edges, new MapGraphGenerationSettings(), states);
             for (int i = 0; !solver.IsComplete && i < states + 5; i++)
             {
-                int before = solver.SearchStates;
+                int before = solver.SearchStates, coordinateBefore = solver.CoordinateIterations;
                 Assert.That(solver.Advance(advance), Is.LessThanOrEqualTo(advance));
                 Assert.That(solver.SearchStates - before, Is.LessThanOrEqualTo(advance));
+                Assert.That(solver.SearchStates - before + solver.CoordinateIterations - coordinateBefore, Is.LessThanOrEqualTo(advance));
             }
             Assert.That(solver.IsComplete, Is.True);
             CaseArtifactWriter.Trace("solver", "states=" + solver.SearchStates + "; valid=" + solver.FeasibleLayouts +
@@ -134,8 +135,21 @@ namespace AgentReproduction.Tests
             var first = Run(reference, edges, 1); var second = Run(reference, edges, 100);
             Valid(first, 3, 2); Valid(second, 3, 2);
             Assert.That(first.SearchStates, Is.EqualTo(second.SearchStates)); Assert.That(first.BestScore, Is.EqualTo(second.BestScore));
+            Assert.That(first.CoordinateIterations, Is.EqualTo(second.CoordinateIterations));
             Assert.That(first.Result.Nodes.Select(n => first.Result.Graph.GetNodePosition(n.NodeId)),
                 Is.EqualTo(second.Result.Nodes.Select(n => second.Result.Graph.GetNodePosition(n.NodeId))));
+        }
+
+        [Test] public void CancellationDuringCoordinateIterationStopsAllFurtherWork()
+        {
+            var reference = Reference(new[] { Vector2.zero, new Vector2(100, 10), new Vector2(110, 100) });
+            var solver = new MapGraphOrthogonalLayoutSolver(reference, new[] { Edge("A", "B"), Edge("B", "C") }, new MapGraphGenerationSettings());
+            for (int tick = 0; solver.CoordinateIterations == 0 && tick < 50; tick++) solver.Advance(1);
+            Assert.That(solver.CoordinateIterations, Is.EqualTo(1)); Assert.That(solver.IsComplete, Is.False);
+            int states = solver.SearchStates;
+            solver.Cancel();
+            Assert.That(solver.Advance(100), Is.Zero); Assert.That(solver.Result, Is.Null);
+            Assert.That(solver.CoordinateIterations, Is.EqualTo(1)); Assert.That(solver.SearchStates, Is.EqualTo(states));
         }
 
         [Test] public void EmptyAuthoredZoneSurvivesWithoutObscuringTheRoute()

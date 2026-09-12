@@ -93,10 +93,14 @@ namespace AgentReproduction.Tests
             var generator = new MapGraphConnectionGenerator(reference, scan.Connections, snapshot.Profiles.Select(p => p.Data.ProfileId), settings);
             var timer = System.Diagnostics.Stopwatch.StartNew();
             double maximumAdvanceMilliseconds = 0;
+            int maximumCoordinatesPerAdvance = 0;
             while (!generator.IsComplete && timer.Elapsed.TotalSeconds < 120)
             {
                 var started = System.Diagnostics.Stopwatch.StartNew();
+                int coordinateBefore = generator.CoordinateIterations;
                 Assert.That(generator.Advance(8), Is.LessThanOrEqualTo(8));
+                maximumCoordinatesPerAdvance = Math.Max(maximumCoordinatesPerAdvance, generator.CoordinateIterations - coordinateBefore);
+                Assert.That(generator.CoordinateIterations - coordinateBefore, Is.LessThanOrEqualTo(8));
                 maximumAdvanceMilliseconds = Math.Max(maximumAdvanceMilliseconds, started.Elapsed.TotalMilliseconds);
                 yield return null;
             }
@@ -106,6 +110,7 @@ namespace AgentReproduction.Tests
                 status = generator.Result != null ? "JOINT_LAYOUT_FEASIBLE" : generator.IsComplete ? "JOINT_LAYOUT_UNRESOLVED" : "GENERATOR_TIMEOUT",
                 strategy = generator.SelectedStrategy, complete = generator.IsComplete, states = generator.SearchStates,
                 coordinateIterations = generator.CoordinateIterations,
+                maximumCoordinatesPerAdvance = maximumCoordinatesPerAdvance,
                 milliseconds = generator.ElapsedMilliseconds, maximumAdvanceMilliseconds = maximumAdvanceMilliseconds,
                 feasibleCandidates = generator.Attempts.Sum(a => a.FeasibleLayouts),
                 budgetExhausted = generator.Attempts.Any(a => a.BudgetExhausted), navigation = scan.Connections.Select(c => c.Edge).ToList(),
@@ -170,6 +175,7 @@ namespace AgentReproduction.Tests
             public bool complete, budgetExhausted;
             public int states, feasibleCandidates, reversals, crossings;
             public int coordinateIterations;
+            public int maximumCoordinatesPerAdvance;
             public double milliseconds, score;
             public double maximumAdvanceMilliseconds;
             public string strategy;

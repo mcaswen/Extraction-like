@@ -55,9 +55,10 @@ namespace AgentReproduction.Tests
             int ticks = 0;
             while (!generator.IsComplete && ticks++ < 15000)
             {
-                int before = generator.SearchStates;
+                int before = generator.SearchStates, coordinateBefore = generator.CoordinateIterations;
                 Assert.That(generator.Advance(advance), Is.LessThanOrEqualTo(advance));
                 Assert.That(generator.SearchStates - before, Is.LessThanOrEqualTo(advance));
+                Assert.That(generator.SearchStates - before + generator.CoordinateIterations - coordinateBefore, Is.LessThanOrEqualTo(advance));
                 if (!generator.IsComplete) Assert.That(generator.Result, Is.Null);
             }
             Assert.That(generator.IsComplete, Is.True);

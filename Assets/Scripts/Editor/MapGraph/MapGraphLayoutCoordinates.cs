@@ -18,8 +18,15 @@ namespace AnomalySearch.Editor.MapGraph
         private readonly Vector2[] _emptyOffsets;
         private readonly Dictionary<string, MapGraphAlignmentConstraint> _lines = new Dictionary<string, MapGraphAlignmentConstraint>();
         private readonly Vector2[] _points;
+        private readonly MapGraphZoneDefinition[] _zones;
+        private readonly MapGraphEdgeDefinition[] _presentationEdges;
+        private bool _prepared;
+        private MapGraphLayoutDraft _result;
         internal string Failure { get; private set; }
         internal int Iterations { get; private set; }
+        internal bool IsComplete { get; private set; }
+        internal bool IsCancelled { get; private set; }
+        internal MapGraphLayoutDraft Result => IsComplete && !IsCancelled ? _result : null;
         private readonly Dictionary<int, List<Vector2[]>> _visitedStates = new Dictionary<int, List<Vector2[]>>();
 
         internal MapGraphLayoutCoordinates(MapGraphLayoutDraft reference, MapGraphEdgeDefinition[] edges, int[] from, int[] to,
@@ -29,6 +36,8 @@ namespace AnomalySearch.Editor.MapGraph
             _maximumIterations = maximumIterations > 0 ? Math.Min(maximumIterations, settings.MaximumLayoutIterations) : settings.MaximumLayoutIterations;
             _x = new AxisCoordinates(reference.Nodes.Count); _y = new AxisCoordinates(reference.Nodes.Count);
             _points = new Vector2[reference.Nodes.Count];
+            _zones = new MapGraphZoneDefinition[reference.Zones.Count];
+            _presentationEdges = new MapGraphEdgeDefinition[edges.Length];
             _members = new List<int>[reference.Zones.Count]; _emptyOffsets = new Vector2[reference.Zones.Count];
             for (int z = 0; z < _members.Length; z++)
             {
@@ -38,68 +47,91 @@ namespace AnomalySearch.Editor.MapGraph
             foreach (var line in reference.Constraints.Alignments) if (line != null) _lines[line.Id] = line;
         }
 
-        internal bool TrySolve(out MapGraphLayoutDraft draft)
+        internal int Advance(int maximumIterations)
         {
-            draft = null;
+            if (IsComplete || IsCancelled || maximumIterations <= 0) return 0;
+            if (!_prepared)
+            {
+                _prepared = true;
+                if (!Prepare()) return 0;
+            }
+            int work = 0;
+            while (!IsComplete && work < maximumIterations && Iterations < _maximumIterations)
+            {
+                Iterations++; work++;
+                if (!RememberState()) { Fail("RepeatedCoordinateState:" + (Failure ?? "ZoneSeparation")); break; }
+                Iterate();
+            }
+            if (!IsComplete && Iterations >= _maximumIterations) Fail("CoordinateBudgetExhausted:" + Failure);
+            return work;
+        }
+
+        internal void Cancel()
+        {
+            if (IsComplete || IsCancelled) return;
+            IsCancelled = true; _result = null; _visitedStates.Clear();
+        }
+
+        private bool Prepare()
+        {
             for (int e = 0; e < _edges.Length; e++)
                 if (_directions[e] < 2) _y.Merge(_from[e], _to[e]); else _x.Merge(_from[e], _to[e]);
             if (!Initialize(_x, true) || !Initialize(_y, false)) return false;
             for (int i = 0; i < _points.Length; i++)
                 for (int j = i + 1; j < _points.Length; j++)
                     if (_x.Group(i) == _x.Group(j) && _y.Group(i) == _y.Group(j)) return Fail("CoincidentAlignmentGroups");
-            var zones = new MapGraphZoneDefinition[_members.Length];
-            var edges = new MapGraphEdgeDefinition[_edges.Length];
-            for (int e = 0; e < edges.Length; e++)
+            for (int e = 0; e < _presentationEdges.Length; e++)
             {
                 var source = _edges[e];
-                edges[e] = source.WithPresentation(_directions[e] < 2 ? MapGraphAxis.Horizontal : MapGraphAxis.Vertical,
+                _presentationEdges[e] = source.WithPresentation(_directions[e] < 2 ? MapGraphAxis.Horizontal : MapGraphAxis.Vertical,
                     source.FromInset, source.ToInset, source.WidthOverride, source.UseColorOverride, source.ColorOverride, source.Origin);
             }
-            for (int iteration = 0; iteration < _maximumIterations; iteration++)
+            return true;
+        }
+
+        private void Iterate()
+        {
+            var edges = _presentationEdges; var zones = _zones;
+            for (int e = 0; e < edges.Length; e++)
             {
-                Iterations++;
-                if (!RememberState()) return Fail("RepeatedCoordinateState:" + (Failure ?? "ZoneSeparation"));
-                for (int e = 0; e < edges.Length; e++)
-                {
-                    int a = _from[e], b = _to[e]; bool horizontal = _directions[e] < 2;
-                    float firstSize = horizontal ? _reference.Nodes[a].Footprint.x : _reference.Nodes[a].Footprint.y;
-                    float secondSize = horizontal ? _reference.Nodes[b].Footprint.x : _reference.Nodes[b].Footprint.y;
-                    float gap = Mathf.Max(_settings.GridSpacing, (firstSize + secondSize) * 0.5f + edges[e].FromInset + edges[e].ToInset + 8);
-                    var axis = horizontal ? _x : _y;
-                    if ((_directions[e] & 1) != 0) (a, b) = (b, a);
-                    if (!axis.Separate(a, b, gap)) return Fail("FixedEdgeGapConflict:" + edges[e].EdgeId);
-                }
-                if (!SeparateNodes() || !ConstrainLockedZones()) return false;
-                ReadPositions();
-                var segments = new (Vector2 from, Vector2 to, float width)[edges.Length];
-                for (int e = 0; e < edges.Length; e++)
-                    segments[e] = (_points[_from[e]], _points[_to[e]], edges[e].WidthOverride > 0 ? edges[e].WidthOverride : 2);
-                bool retry = false;
-                for (int z = 0; z < zones.Length; z++)
-                {
-                    var original = _reference.Zones[z];
-                    if (_members[z].Count == 0 && !original.LayoutLocked)
-                        original = original.WithLayout(new Rect(original.Bounds.position + _emptyOffsets[z], original.Bounds.size), false);
-                    if (MapGraphZoneLayout.TryFit(original, _reference.Nodes, _points, _members[z], segments, _settings, out zones[z])) continue;
-                    if (_members[z].Count == 0 && !original.LayoutLocked)
-                    { _emptyOffsets[z] += Vector2.up * _settings.GridSpacing; retry = true; break; }
-                    return Fail("ZoneNameOrContainmentConflict:" + original.ZoneId);
-                }
-                if (retry) continue;
-                for (int a = 0; a < zones.Length; a++)
-                    for (int b = a + 1; b < zones.Length; b++)
-                        if (MapGraphGeometry.Overlaps(zones[a].Bounds, zones[b].Bounds))
-                        {
-                            if (!SeparateZones(a, b, zones[a].Bounds, zones[b].Bounds)) return Fail("ZoneSeparationConflict:" + zones[a].ZoneId + ":" + zones[b].ZoneId);
-                            retry = true;
-                        }
-                if (retry) continue;
-                var candidate = MapGraphLayoutGenerator.FromCoordinates(_reference, _points, zones, edges, _x.Groups(), _y.Groups());
-                var validation = MapGraphValidation.Validate(candidate, _reference);
-                if (validation.IsValid) { draft = candidate; return true; }
-                Failure = validation.Issues[0].ToString();
+                int a = _from[e], b = _to[e]; bool horizontal = _directions[e] < 2;
+                float firstSize = horizontal ? _reference.Nodes[a].Footprint.x : _reference.Nodes[a].Footprint.y;
+                float secondSize = horizontal ? _reference.Nodes[b].Footprint.x : _reference.Nodes[b].Footprint.y;
+                float gap = Mathf.Max(_settings.GridSpacing, (firstSize + secondSize) * 0.5f + edges[e].FromInset + edges[e].ToInset + 8);
+                var axis = horizontal ? _x : _y;
+                if ((_directions[e] & 1) != 0) (a, b) = (b, a);
+                if (!axis.Separate(a, b, gap)) { Fail("FixedEdgeGapConflict:" + edges[e].EdgeId); return; }
             }
-            return Fail("CoordinateBudgetExhausted:" + Failure);
+            if (!SeparateNodes() || !ConstrainLockedZones()) return;
+            ReadPositions();
+            var segments = new (Vector2 from, Vector2 to, float width)[edges.Length];
+            for (int e = 0; e < edges.Length; e++)
+                segments[e] = (_points[_from[e]], _points[_to[e]], edges[e].WidthOverride > 0 ? edges[e].WidthOverride : 2);
+            bool retry = false;
+            for (int z = 0; z < zones.Length; z++)
+            {
+                var original = _reference.Zones[z];
+                if (_members[z].Count == 0 && !original.LayoutLocked)
+                    original = original.WithLayout(new Rect(original.Bounds.position + _emptyOffsets[z], original.Bounds.size), false);
+                if (MapGraphZoneLayout.TryFit(original, _reference.Nodes, _points, _members[z], segments, _settings, out zones[z])) continue;
+                if (_members[z].Count == 0 && !original.LayoutLocked)
+                { _emptyOffsets[z] += Vector2.up * _settings.GridSpacing; retry = true; break; }
+                Fail("ZoneNameOrContainmentConflict:" + original.ZoneId); return;
+            }
+            if (retry) return;
+            for (int a = 0; a < zones.Length; a++)
+                for (int b = a + 1; b < zones.Length; b++)
+                    if (MapGraphGeometry.Overlaps(zones[a].Bounds, zones[b].Bounds))
+                    {
+                        if (!SeparateZones(a, b, zones[a].Bounds, zones[b].Bounds))
+                        { Fail("ZoneSeparationConflict:" + zones[a].ZoneId + ":" + zones[b].ZoneId); return; }
+                        retry = true;
+                    }
+            if (retry) return;
+            var candidate = MapGraphLayoutGenerator.FromCoordinates(_reference, _points, zones, edges, _x.Groups(), _y.Groups());
+            var validation = MapGraphValidation.Validate(candidate, _reference);
+            if (validation.IsValid) { _result = candidate; IsComplete = true; return; }
+            Failure = validation.Issues[0].ToString();
         }
 
         // 下一轮只取决于两轴组坐标和空区域偏移。完全相同的状态不会因再跑一遍得到不同结果。
@@ -206,7 +238,7 @@ namespace AnomalySearch.Editor.MapGraph
             else (horizontal ? _x : _y).Shift(_members[zone], amount);
         }
         private void ReadPositions() { for (int i = 0; i < _points.Length; i++) _points[i] = new Vector2(_x.Get(i), _y.Get(i)); }
-        private bool Fail(string reason) { Failure = reason; return false; }
+        private bool Fail(string reason) { Failure = reason; IsComplete = true; return false; }
 
         private sealed class AxisCoordinates
         {

@@ -85,6 +85,37 @@
 
 ## 实施结果
 
+## P2b5a 小规划：连续求解按迭代推进
+
+P2b4 实测单次 Advance 最长 675 ms，原因是一个方向搜索叶子仍同步执行最多 128 次坐标迭代。本步先解决这个明确的 Editor 调度问题，数学规则、选边、评分和结果发布语义保持；补充环路随后在 P2b5b 单独实施、验证。
+
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs`：把同步 `TrySolve` 改成私有初始化/单轮迭代和有界 `Advance`，持续保存轴组/区域工作区，公开内部只读完成、取消及结果；每个工作项最多执行一轮连续约束。精确停滞和总迭代上限继续生效，取消不得发布草稿。
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphOrthogonalLayoutSolver.cs`：方向搜索叶子逐次推进坐标任务，每轮让出控制权，结束后再评分/验收；外层取消释放正在执行的坐标工作区。原状态数、坐标数分别统计，Advance 的单位明确为工作项，不能仍声称每工作项只是一条方向状态。
+- Reuse `MapGraphConnectionGenerator.cs` 的逐工作项编排，不将连续求解移入窗口、Update 或 Runtime。Extend `MapGraphLayoutSolverTests.cs`/`MapGraphConnectionGeneratorTests.cs`：断言每次 Advance 的坐标增量也受预算限制；补坐标执行中取消，保持跨步长的同布局/同状态/同迭代计数。
+- Extend `MapGraphSceneLayoutTests.cs`：实际采集每次 Advance 的最大坐标增量和耗时，保留原真实几何/导航验收；与 P2b4 的同输入结果对照，截图应保持一致。只改生成调度没有新样式，不重复制作不同外观。
+
+文件职责和 Editor → Gameplay 依赖不变。本步不新增设置资产或界面，不移动用户场景；小规划、结果与审查按原文档回写。验收为 1 工作项最多 1 次坐标迭代、取消不继续工作、实际输出与 P2b4 一致，以及实测单次耗时明显降低；编辑器完整交互仍在 P2c 验证。
+
+### P2b5a 实施结果
+
+- `224717-160` 固定求解 12/12 PASS；增加坐标执行中取消，所有推进同时验证方向状态和坐标迭代增量之和不超过工作项预算。内层保存自身迭代状态，外层只编排、验收和评分，原数学规则没有改变。
+- `224948-348` 真实场景 2/2 PASS，同一场景/导航指纹下，JSON 的 zones、nodes、edges、constraints 与 `223226-432` **完全一致**。仍为 Geographic、229 个方向状态、1,280 次坐标迭代、分数 4.3938700704；图形没有变化，继续使用第三张预览，不把同图复拍当新视觉成果。
+- 每次 Advance(8) 最多 8 次坐标迭代，最大耗时 **22.43 ms**，总求解工作 **2,465.79 ms**。上轮 675.20 ms 的整候选阻塞已消除；这次属于相同搜索/结果的调度拆分，不声称游戏帧率已验证。P2c 窗口将按更小工作项及短时间片推进。
+- `225316-369` 联合候选 10/10 PASS，本步最终共 **24 项定向验证通过**，无基础设施失败或源输入变化。本步未改动 Scene、NavMesh、图 SO 或正式玩法。
+
+## P2b5b 小规划：具有导航收益的可选补边
+
+在有效骨架上补充可走环路。只增加真实群间连接，不引入虚拟拐点；近邻/候选排序影响作者路网，正式最短路依然使用实测导航成本。可选补边失败可以保留已验收骨架，不能破坏必需连通性或人工意图。
+
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphConnectionCandidates.cs`：按 profile 及端点索引实测方向长度，包装 `MapGraphCostSnapshot.cs` 为当前图创建方向成本快照；调用已有 `MapGraphPathfindingService.cs` 计算绕行收益，不使用 LengthUnits 或屏幕长度。
+- Extend `Assets/Scripts/Editor/MapGraph/MapGraphLayoutGenerator.cs`：为已横/竖对齐的端点构造加边草稿，合并对应行/列身份，位置不变；仍由独立几何/人工意图验收拒绝穿群、名称遮挡或锁冲突。这个坐标回写能力可供后续 Editor 复用，不直接应用 SO。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphShortcutGenerator.cs`：在有效骨架上按实际导航绕行比例（至少 1.5）挑选补边；先试不移动布局的横/竖连接，再对少量候选复用逐步 Solver 调整未锁位置。每次加边前重算当前图收益，防止上一次补边后收益已消失。记录端点、收益、是否重排、预算和拒绝原因。
+- Extend `MapGraphConnectionGenerator.cs`：骨架完成后编排上述可选补边，最终一起发布；只累计工作/搜索/坐标计数，不混入收益算法或几何操作。额外边上限为骨架边数 × ExtraConnectionRatio 向上取整，0 表示关闭；重排候选次数由 CandidateNeighbors 限制，补边共用一份 `max(单候选迭代上限, 32 × 群数)` 坐标总预算及剩余全局状态预算。
+- 重排验收沿用原硬约束，按原世界参考的总布局分数最多恶化 15% 加 0.1 小量余量；这只是可选边的保真筛选，不能放宽横竖/四端口/连通性/人工锁。普通同排同列补边不改变位置，仍检查合并行列后所有约束。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphShortcutTests.cs`：独立构造矩形绕行闭环、低收益跳过、人工禁连/锁/穿点拒绝、方向成本及旧 LengthUnits 不影响收益、预算/取消、不同步长确定性；Extend `MapGraphConnectionGeneratorTests.cs`、`MapGraphSceneLayoutTests.cs`、`tools/agent-repro/cases.json` 验证集成及最终边数/成本/身份。真实结果生成第四张预览并实际查看。
+
+文件继续位于已有 Editor 生成模块；ShortcutGenerator 是可选环路选择职责，独立于骨架、几何和窗口。成本/寻路能力 Reuse P1，不向 Gameplay 加 Editor 依赖。当前单 profile 场景按真实长度比较，多 profile 时只考虑共同可用边，任一方向的收益可提名但所有 profile 的连通和几何必须有效。取消丢弃新结果，预算耗尽保留已经独立验收的候选及明确诊断。
+
 ## P2b4 小规划：导航候选和横竖布局联合比较
 
 目标是将 P2b3 的单骨架诊断推进为可复用的生产联合生成器。先完成骨架候选选择、人工意图保留和预算闭环；环路补边单列 P2b5，之后进入 P2c 编辑器。暂不写正式资产、不改变场景、运行时寻路成本或任务入口。
