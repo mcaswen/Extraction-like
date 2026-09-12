@@ -16,7 +16,7 @@ namespace AnomalySearch.Editor.MapGraph
         private readonly int[] _from, _to, _directions, _order;
         private readonly int[][] _choices;
         private readonly bool[,] _ports;
-        private readonly int _maximumStates, _maximumSolutions;
+        private readonly int _maximumStates, _maximumSolutions, _maximumCoordinateIterations;
         private readonly Dictionary<string, int> _failures = new Dictionary<string, int>(StringComparer.Ordinal);
         private IEnumerator<int> _search;
         private MapGraphLayoutDraft _best;
@@ -27,17 +27,19 @@ namespace AnomalySearch.Editor.MapGraph
         public bool BudgetExhausted { get; private set; }
         public int SearchStates { get; private set; }
         public int FeasibleLayouts { get; private set; }
+        public int CoordinateIterations { get; private set; }
         public double ElapsedMilliseconds { get; private set; }
         public double BestScore => _bestScore;
         public IReadOnlyDictionary<string, int> FailureCounts { get; }
 
         public MapGraphOrthogonalLayoutSolver(MapGraphLayoutDraft reference, IEnumerable<MapGraphEdgeDefinition> fixedEdges,
-            MapGraphGenerationSettings settings, int maximumStates = 0, int maximumSolutions = 8)
+            MapGraphGenerationSettings settings, int maximumStates = 0, int maximumSolutions = 8, int maximumCoordinateIterations = 0)
         {
             _reference = reference ?? throw new ArgumentNullException(nameof(reference));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _maximumStates = maximumStates > 0 ? maximumStates : settings.MaximumSearchStates;
             _maximumSolutions = Math.Max(1, maximumSolutions);
+            _maximumCoordinateIterations = maximumCoordinateIterations > 0 ? maximumCoordinateIterations : int.MaxValue;
             var edges = new List<MapGraphEdgeDefinition>(fixedEdges ?? throw new ArgumentNullException(nameof(fixedEdges)));
             edges.Sort((a, b) => string.CompareOrdinal(a?.EdgeId, b?.EdgeId)); _edges = edges.ToArray();
             _from = new int[edges.Count]; _to = new int[edges.Count]; _directions = new int[edges.Count];
@@ -97,7 +99,8 @@ namespace AnomalySearch.Editor.MapGraph
             if (depth == _edges.Length)
             {
                 if (!ReserveState()) yield break;
-                var coordinates = new MapGraphLayoutCoordinates(_reference, _edges, _from, _to, _directions, _settings);
+                var coordinates = new MapGraphLayoutCoordinates(_reference, _edges, _from, _to, _directions, _settings,
+                    _maximumCoordinateIterations - CoordinateIterations);
                 if (coordinates.TrySolve(out var candidate))
                 {
                     var validation = MapGraphValidation.Validate(candidate, _reference);
@@ -110,6 +113,7 @@ namespace AnomalySearch.Editor.MapGraph
                     else Reject(validation.IsValid ? "NonFiniteScore" : validation.Issues[0].ToString());
                 }
                 else Reject(coordinates.Failure ?? "CoordinateSolveFailed");
+                CoordinateIterations += coordinates.Iterations;
                 yield return 1; yield break;
             }
             int edge = _order[depth], a = _from[edge], b = _to[edge];
@@ -152,6 +156,8 @@ namespace AnomalySearch.Editor.MapGraph
         }
         private bool ReserveState()
         {
+            if (CoordinateIterations >= _maximumCoordinateIterations)
+            { BudgetExhausted = true; Reject("TotalCoordinateBudgetExhausted"); return false; }
             if (SearchStates >= _maximumStates) { BudgetExhausted = true; return false; }
             SearchStates++; return true;
         }

@@ -147,6 +147,30 @@ namespace AgentReproduction.Tests
             Assert.That(solver.Result.Nodes.Any(n => n.ZoneId == "empty"), Is.False);
         }
 
+        [Test] public void StationaryEdgeThroughNodeDoesNotRepeatTheIterationBudget()
+        {
+            var reference = Reference(new[] { new Vector2(-150, 80), new Vector2(150, 80), new Vector2(0, 80) }, locked: true);
+            var solver = Run(reference, new[] { Edge("A", "B") });
+            Assert.That(solver.Result, Is.Null);
+            Assert.That(solver.FailureCounts.Keys.Any(k => k.StartsWith("RepeatedCoordinateState:EdgeThroughNode")), Is.True);
+            Assert.That(solver.CoordinateIterations, Is.LessThan(10), "The unchanged invalid layout must not consume 128 iterations.");
+            var limited = new MapGraphOrthogonalLayoutSolver(reference, new[] { Edge("A", "B") },
+                new MapGraphGenerationSettings(), maximumCoordinateIterations: 1);
+            while (!limited.IsComplete) limited.Advance(1);
+            Assert.That(limited.CoordinateIterations, Is.EqualTo(1)); Assert.That(limited.BudgetExhausted, Is.True);
+            Assert.That(limited.Result, Is.Null);
+        }
+
+        [Test] public void CoordinateBudgetRetainsAnAlreadyValidatedCandidate()
+        {
+            var reference = Reference(new[] { new Vector2(-120, 80), new Vector2(120, 80) }, locked: true);
+            var solver = new MapGraphOrthogonalLayoutSolver(reference, new[] { Edge("A", "B") },
+                new MapGraphGenerationSettings(), maximumCoordinateIterations: 1);
+            while (!solver.IsComplete) solver.Advance(1);
+            Assert.That(solver.CoordinateIterations, Is.EqualTo(1)); Assert.That(solver.BudgetExhausted, Is.True);
+            Valid(solver, 2, 1);
+        }
+
         [Test] public void WorldReferenceKeepsIdentityAndPreviousLockedLayout()
         {
             var reference = Reference(new[] { Vector2.zero, new Vector2(100, 10) }, locked: true);

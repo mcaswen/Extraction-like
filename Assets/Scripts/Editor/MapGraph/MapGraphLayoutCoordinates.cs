@@ -10,6 +10,7 @@ namespace AnomalySearch.Editor.MapGraph
     {
         private readonly MapGraphLayoutDraft _reference;
         private readonly MapGraphGenerationSettings _settings;
+        private readonly int _maximumIterations;
         private readonly MapGraphEdgeDefinition[] _edges;
         private readonly int[] _from, _to, _directions;
         private readonly AxisCoordinates _x, _y;
@@ -18,11 +19,14 @@ namespace AnomalySearch.Editor.MapGraph
         private readonly Dictionary<string, MapGraphAlignmentConstraint> _lines = new Dictionary<string, MapGraphAlignmentConstraint>();
         private readonly Vector2[] _points;
         internal string Failure { get; private set; }
+        internal int Iterations { get; private set; }
+        private readonly Dictionary<int, List<Vector2[]>> _visitedStates = new Dictionary<int, List<Vector2[]>>();
 
         internal MapGraphLayoutCoordinates(MapGraphLayoutDraft reference, MapGraphEdgeDefinition[] edges, int[] from, int[] to,
-            int[] directions, MapGraphGenerationSettings settings)
+            int[] directions, MapGraphGenerationSettings settings, int maximumIterations = 0)
         {
             _reference = reference; _edges = edges; _from = from; _to = to; _directions = directions; _settings = settings;
+            _maximumIterations = maximumIterations > 0 ? Math.Min(maximumIterations, settings.MaximumLayoutIterations) : settings.MaximumLayoutIterations;
             _x = new AxisCoordinates(reference.Nodes.Count); _y = new AxisCoordinates(reference.Nodes.Count);
             _points = new Vector2[reference.Nodes.Count];
             _members = new List<int>[reference.Zones.Count]; _emptyOffsets = new Vector2[reference.Zones.Count];
@@ -51,8 +55,10 @@ namespace AnomalySearch.Editor.MapGraph
                 edges[e] = source.WithPresentation(_directions[e] < 2 ? MapGraphAxis.Horizontal : MapGraphAxis.Vertical,
                     source.FromInset, source.ToInset, source.WidthOverride, source.UseColorOverride, source.ColorOverride, source.Origin);
             }
-            for (int iteration = 0; iteration < _settings.MaximumLayoutIterations; iteration++)
+            for (int iteration = 0; iteration < _maximumIterations; iteration++)
             {
+                Iterations++;
+                if (!RememberState()) return Fail("RepeatedCoordinateState:" + (Failure ?? "ZoneSeparation"));
                 for (int e = 0; e < edges.Length; e++)
                 {
                     int a = _from[e], b = _to[e]; bool horizontal = _directions[e] < 2;
@@ -94,6 +100,26 @@ namespace AnomalySearch.Editor.MapGraph
                 Failure = validation.Issues[0].ToString();
             }
             return Fail("CoordinateBudgetExhausted:" + Failure);
+        }
+
+        // 下一轮只取决于两轴组坐标和空区域偏移。完全相同的状态不会因再跑一遍得到不同结果。
+        // 使用精确相等，并复核哈希冲突；不把接近收敛或小幅移动误判为停滞。
+        private bool RememberState()
+        {
+            var state = new Vector2[_points.Length + _emptyOffsets.Length];
+            int hash = 17;
+            for (int i = 0; i < _points.Length; i++) state[i] = new Vector2(_x.Get(i), _y.Get(i));
+            Array.Copy(_emptyOffsets, 0, state, _points.Length, _emptyOffsets.Length);
+            unchecked { foreach (var value in state) hash = hash * 31 + value.GetHashCode(); }
+            if (!_visitedStates.TryGetValue(hash, out var previous))
+            { previous = new List<Vector2[]>(); _visitedStates.Add(hash, previous); }
+            foreach (var candidate in previous)
+            {
+                bool same = true;
+                for (int i = 0; i < state.Length; i++) if (!candidate[i].Equals(state[i])) { same = false; break; }
+                if (same) return false;
+            }
+            previous.Add(state); return true;
         }
 
         private bool Initialize(AxisCoordinates axis, bool horizontalCoordinate)

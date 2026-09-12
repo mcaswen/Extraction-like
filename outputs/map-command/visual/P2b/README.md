@@ -1,11 +1,12 @@
 # P2b 布局视觉证据
 
-两张图均从隔离 Unity Edit Mode 采集的真实场景布局 JSON 渲染，1600×1000、项目 `Assets/Font/text-c.ttf` 字体、深色主题。它们是算法审阅图，尚不是正式小地图或 HUD 实拍。生成后均由 Agent 打开检查。
+各图均从隔离 Unity Edit Mode 采集的真实场景布局 JSON 渲染，1600×1000、项目 `Assets/Font/text-c.ttf` 字体、深色主题。它们是算法审阅图，尚不是正式小地图或 HUD 实拍。生成后均由 Agent 打开检查。
 
 | 图片 | 运行 | 结果 |
 | --- | --- | --- |
 | [01-fixed-seed.png](01-fixed-seed.png) | `20260912-214518-209` | 旧场景 8 区域、28 群；错误空“渔村2”浮到北侧。用户随后修复，旧图仅留历史 |
 | [02-corrected-scene-seed.png](02-corrected-scene-seed.png) | `20260912-220928-484` | 修正场景 7 区域、28 群；中央名称无遮挡、26 条单段横竖线、0 交叉，渔村位置仍偏南，需联合生成改善 |
+| [03-joint-geographic.png](03-joint-geographic.png) | `20260912-223226-432` | 使用用户新导航烘焙，联合比较 4 个骨架；渔村位于奇点塔西侧略偏北，方位计数改善，中央名称无遮挡、26 条横竖边、0 交叉 |
 
 修正场景指纹 `c216c62c522bba24b146d1ad3f359938`，导航烘焙指纹 `dd2d6ed39b1e8aadb7aec3785561311f`。龙骨礁撤离旁的 `!` 表示本轮测量所得物理断连，未通过假边掩盖。
 
@@ -19,3 +20,5 @@ python tools/agent-repro/Render-MapGraphPreview.py Logs/AgentReproduction/<run-i
 ```
 
 固定 MST 仅用于诊断。正式生成、编辑器画布、小地图/放大图和真实 Agent 路线尚需后续阶段实现及截图。
+
+第三张使用 `ea073ad` 加 P2b4 联合生成实现，输入指纹更新为场景 `436c7a5c609ed5fe76a489060eb18e84` / 导航 `17e80a2593b3808e59919818228226fd`，龙骨礁撤离断连仍存在。数据源改为本轮 `map-joint-layout.json`，渲染命令相同。Geographic 胜出，工作 2.45 秒；强次轴策略耗尽自身坐标预算，结果不表示全局最优。图中区域留白和实际 HUD 的可读性留给后续真实视图迭代。
