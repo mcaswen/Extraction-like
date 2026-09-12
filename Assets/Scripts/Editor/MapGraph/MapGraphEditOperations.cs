@@ -21,11 +21,20 @@ namespace AnomalySearch.Editor.MapGraph
             return Copy(graph, zones: graph.Zones.Select(z => z.ZoneId == id ? z.WithLayout(bounds, true) : z));
         }
         public static MapGraphLayoutDraft LockNode(MapGraphLayoutDraft graph, string id, bool locked)
-            => Copy(graph, nodes: graph.Nodes.Select(n => n.NodeId == id ? n.WithLayout(n.Position, n.RowId, n.ColumnId, locked) : n));
+        {
+            if (!graph.Graph.TryGetNode(id, out _)) throw new ArgumentException("UnknownNode:" + id);
+            return Copy(graph, nodes: graph.Nodes.Select(n => n.NodeId == id ? n.WithLayout(n.Position, n.RowId, n.ColumnId, locked) : n));
+        }
         public static MapGraphLayoutDraft LockZone(MapGraphLayoutDraft graph, string id, bool locked)
-            => Copy(graph, zones: graph.Zones.Select(z => z.ZoneId == id ? z.WithLayout(z.Bounds, locked) : z));
+        {
+            if (!graph.Graph.TryGetZone(id, out _)) throw new ArgumentException("UnknownZone:" + id);
+            return Copy(graph, zones: graph.Zones.Select(z => z.ZoneId == id ? z.WithLayout(z.Bounds, locked) : z));
+        }
         public static MapGraphLayoutDraft LockAlignment(MapGraphLayoutDraft graph, string id, bool locked)
-            => Copy(graph, constraints: new MapGraphLayoutConstraints(graph.Constraints.Alignments.Select(a => a.Id == id ? new MapGraphAlignmentConstraint(a.Id, a.Axis, a.Coordinate, locked) : a), graph.Constraints.ExcludedConnections));
+        {
+            if (!graph.Constraints.Alignments.Any(a => a.Id == id)) throw new ArgumentException("UnknownAlignment:" + id);
+            return Copy(graph, constraints: new MapGraphLayoutConstraints(graph.Constraints.Alignments.Select(a => a.Id == id ? new MapGraphAlignmentConstraint(a.Id, a.Axis, a.Coordinate, locked) : a), graph.Constraints.ExcludedConnections));
+        }
 
         public static MapGraphLayoutDraft AddEdge(MapGraphLayoutDraft graph, string from, string to, MapGraphAxis axis)
         {
@@ -49,11 +58,20 @@ namespace AnomalySearch.Editor.MapGraph
             return Copy(graph, edges: graph.Edges.Select(e => e.EdgeId == id ? changed : e), constraints: Exclusions(graph, edge.FromNodeId, edge.ToNodeId, from, to));
         }
         public static MapGraphLayoutDraft StyleEdge(MapGraphLayoutDraft graph, string id, float fromInset, float toInset, float width, bool useColor, Color color)
-            => Copy(graph, edges: graph.Edges.Select(e => e.EdgeId == id ? e.WithPresentation(e.Axis, fromInset, toInset, width, useColor, color, e.Origin) : e));
+        {
+            if (!graph.Graph.TryGetEdge(id, out _)) throw new ArgumentException("UnknownEdge:" + id);
+            return Copy(graph, edges: graph.Edges.Select(e => e.EdgeId == id ? e.WithPresentation(e.Axis, fromInset, toInset, width, useColor, color, e.Origin) : e));
+        }
+
+        public static MapGraphLayoutDraft ResetOverrides(MapGraphLayoutDraft graph)
+            => Copy(graph, zones: graph.Zones.Select(z => z.WithLayout(z.Bounds, false)),
+                nodes: graph.Nodes.Select(n => n.WithLayout(n.Position, n.RowId, n.ColumnId, false)),
+                edges: graph.Edges.Select(e => e.WithPresentation(e.Axis, 0, 0, 0, false, Color.white, MapGraphEdgeOrigin.Generated)),
+                constraints: new MapGraphLayoutConstraints(graph.Constraints.Alignments.Select(a => new MapGraphAlignmentConstraint(a.Id, a.Axis, a.Coordinate)), null));
 
         private static void CheckEndpoints(MapGraphLayoutDraft graph, string from, string to, MapGraphAxis axis)
         {
-            if (from == to || !graph.Graph.TryGetNode(from, out _) || !graph.Graph.TryGetNode(to, out _) || axis == MapGraphAxis.Unspecified)
+            if (from == to || !graph.Graph.TryGetNode(from, out _) || !graph.Graph.TryGetNode(to, out _) || (axis != MapGraphAxis.Horizontal && axis != MapGraphAxis.Vertical))
                 throw new ArgumentException("InvalidConnectionEndpoints");
         }
         private static MapGraphLayoutConstraints Exclusions(MapGraphLayoutDraft graph, string addA, string addB, string removeA, string removeB)

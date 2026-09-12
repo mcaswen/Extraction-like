@@ -1,0 +1,24 @@
+{
+    "passed": true,
+    "zones": 7,
+    "nodes": 28,
+    "edges": 28,
+    "paints": 123,
+    "pixelScale": 1.75,
+    "window": {
+        "serializedVersion": "2",
+        "x": 787.4285888671875,
+        "y": 327.4285888671875,
+        "width": 1400.0,
+        "height": 900.0
+    },
+    "canvas": {
+        "serializedVersion": "2",
+        "x": 0.0,
+        "y": 23.0,
+        "width": 1090.0,
+        "height": 817.0
+    },
+    "graphFingerprint": "3438bd21ac1ebddcae198b690bb9ec8b",
+    "elapsedSeconds": 12.5808378
+}

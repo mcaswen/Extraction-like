@@ -19,6 +19,8 @@ namespace AnomalySearch.Editor.MapGraph
         private MapGraphLayoutDraft _layoutCache;
         public SO_MapGraphDefinition WorkingDefinition { get; private set; }
         public SO_MapGraphDefinition SourceDefinition => _source;
+        public string SourceBaseline => _sourceBaseline;
+        public string ExportWorkingCopy() => EditorJsonUtility.ToJson(WorkingDefinition);
         public MapGraphLayoutDraft Layout => WorkingDefinition != null && WorkingDefinition.IsCommandGraph ? _layoutCache ??= MapGraphLayoutDraft.FromDefinition(WorkingDefinition) : null;
         public MapGraphEditOperation PendingEdit { get; private set; }
         public MapGraphGenerationController PendingGeneration { get; private set; }
@@ -28,13 +30,21 @@ namespace AnomalySearch.Editor.MapGraph
         public bool HasSourceConflict => _hasSource && (_source == null || EditorJsonUtility.ToJson(_source) != _sourceBaseline);
         public event Action Changed;
 
-        public MapGraphEditorDocument(SO_MapGraphDefinition source = null)
+        public MapGraphEditorDocument(SO_MapGraphDefinition source = null, string recoveryJson = null, string sourceBaseline = null)
         {
             if (source != null && !source.IsCommandGraph) throw new ArgumentException("请先显式转换旧图，不能在编辑时隐式迁移。", nameof(source));
             _source = source; _hasSource = source != null; _sourceBaseline = source != null ? EditorJsonUtility.ToJson(source) : "";
             WorkingDefinition = source != null ? UnityEngine.Object.Instantiate(source) : ScriptableObject.CreateInstance<SO_MapGraphDefinition>();
             WorkingDefinition.hideFlags = HideFlags.HideAndDontSave; WorkingDefinition.name = "Command map working copy";
             _workingBaseline = EditorJsonUtility.ToJson(WorkingDefinition);
+            if (!string.IsNullOrEmpty(recoveryJson))
+            {
+                EditorJsonUtility.FromJsonOverwrite(recoveryJson, WorkingDefinition);
+                WorkingDefinition.hideFlags = HideFlags.HideAndDontSave;
+                WorkingDefinition.OnAfterDeserialize();
+                if (!string.IsNullOrEmpty(sourceBaseline)) _sourceBaseline = sourceBaseline;
+                Revision++;
+            }
             Undo.undoRedoPerformed += OnUndoRedo;
         }
 

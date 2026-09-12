@@ -1,6 +1,12 @@
 {
   "groups": [
     {
+      "name": "MapGraphEditorCanvas",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphEditorCanvasTests",
+      "expected": ["ViewportRoundTripAndCursorZoomKeepTheMapPointFixed", "HitTestingPrefersRealNodesThenEdgesThenZones", "RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence", "RecoveryDoesNotEraseAnExternalSourceConflict", "ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates"]
+    },
+    {
       "name": "MapGraphShortcuts",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphShortcutTests",

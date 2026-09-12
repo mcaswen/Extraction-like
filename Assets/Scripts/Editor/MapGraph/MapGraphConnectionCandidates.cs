@@ -50,7 +50,8 @@ namespace AnomalySearch.Editor.MapGraph
                 var matrix = samples.Where(s => s.ProfileId == id).Select(s => s.Edge).ToArray();
                 _profiles.Add(id, matrix);
                 var report = MapGraphNavigationValidation.Validate(empty, matrix, false);
-                issues.AddRange(report.Issues);
+                // 此处故意使用空边集核验物理矩阵，不是作者最终图；连通性在生成结果上单独验收。
+                issues.AddRange(report.Issues.Where(issue => issue.Code != "AuthoredGraphDisconnected"));
                 if (report.IsValid) _profilePairs.Add(id, matrix.ToDictionary(e => MapGraphGeometry.PairKey(e.FromNodeId, e.ToNodeId), StringComparer.Ordinal));
             }
             Validation = new MapGraphValidationResult(issues);

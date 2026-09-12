@@ -1,6 +1,6 @@
 # P2 场景采集、自动生成和编辑
 
-基线：`8d76e38`。状态：P2a、P2b1–P2b5 完成，进入 P2c 编辑器。保留用户当前场景全部修改，不恢复旧值。沿用已确认大规划的横竖单段、真实群转向、连线决定路线、人工覆写保留和持续截图要求。
+基线：`8d76e38`。状态：P2a–P2c 完成，进入 P2d 场景绑定。保留用户当前场景全部修改，不恢复旧值。沿用已确认大规划的横竖单段、真实群转向、连线决定路线、人工覆写保留和持续截图要求。
 
 ## P2a 小规划：真实场景快照和导航候选证据
 
@@ -96,6 +96,28 @@ Extend `MapGraphLayoutDraft.cs` 增加缓存的内容指纹，检查编辑预览
 - `20260913-002056-716` 作者文档 **10/10 PASS**：新增实际 Undo/Redo 撤回作者删线，导航输入仍有效；新编辑取代旧预览后，旧结果不能写入工作副本。两轮最终报告均正常退出，无基础设施失败和源输入变化。
 - 手工断开图可以保存，但显示 `AuthoredGraphDisconnected` 警告；自动重建仍严格检查候选分量连通性，固定拓扑重排和只校验不补回删线。边的真实双向导航、几何和身份约束未放宽。
 - 操作只生成意图，EditOperation 负责有界预览，Document 负责版本复核及单次 Undo，正式持久化仍由 AuthoringTransaction 所有。未修改用户场景或 NavMesh。本步没有新可见画面，继续 P2c3b 画布及实际截图。
+
+## P2c3b 小规划：可见编辑窗口及实际截图
+
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphEditorWindow.cs`：持有作者文档，按 Editor 更新推进生成/编辑，显示进度和新增/删除边预览，提供应用、取消、Undo/Redo、保存入口；关闭停止自己持有的任务。工作草稿在域重载时保留序列化恢复数据，恢复后重新验证导航，不复用旧计算请求。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs`：只拥有视口变换、选择和拖动状态，绘制深色矩形区域、中央名称、群图标及横竖线，负责命中和四向端口拖线；通过回调提出作者操作，不能写 SO、场景或查询导航。视口变换提供独立数值测试入口，拖动预览限频，鼠标释放提交最新位置。
+- Create `Assets/Scripts/Editor/MapGraph/MapGraphEditorInspector.cs`：选择项的属性面板，调用既有作者操作完成群/区域位置、行列锁、对齐、端点重绑和线条留白/样式；生成设置编辑写文档，不能在面板另写求解规则。该文件将属性控件从任务编排和画布交互中分离。
+- Extend `MapGraphEditorDocument.cs`：恢复未验证的工作副本、保存来源冲突基线；重载后仍需新的场景验证。Extend `MapGraphEditOperations.cs` 为未知选择返回明确错误，加入显式解除人工覆写操作；普通生成继续保留作者意图。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorCanvasTests.cs`：视口往返/缩放固定点、命中优先级、重载工作副本恢复、工作草稿来源冲突。Create `Assets/Scripts/Editor/AgentReproduction/MapGraphEditorPreviewEntry.cs`：隔离 Editor 打开真实场景，调用正式窗口生成、显示并截图，记录实际画布范围/节点线数量/耗时，测试入口不进入 Gameplay。
+- Create `tools/agent-repro/Invoke-MapGraphEditorPreview.ps1`：复用现有隔离工作区和 Unity 定位，在用户已授权的可见测试窗口中执行上述入口，保留源码哈希与截图；从 Ubuntu 通过 WSL 互操作调用 Windows Unity。只管理自己的测试进程，用户 Editor 保留。
+
+验收为定向数值/重载测试通过、实际编辑窗口可读、所有可见连接横竖单段、区名居中，生成失败/取消不覆盖草稿，截图实际打开检查。窗口编排、属性控件、画布几何和持久化职责独立，沿用已确认 Editor → Gameplay 依赖，没有增加运行时生成或新的路线所有者。
+
+可见验证调整：桌面屏幕读取受到前台窗口遮挡，原截屏不作为地图证据。验证入口改读 Unity 2022.3 `GUIView.GrabPixels` 的本窗口渲染表面（[Unity 官方源码](https://github.com/Unity-Technologies/UnityCsReference/blob/2022.3/Editor/Mono/GUIView.bindings.cs)），D3D 读回按 UV 原点修正行方向，增加非空深色画布检查；反射限定在 Editor 测试入口，API 不存在时明确失败，不进入正式窗口/Gameplay。首轮窗口还暴露空候选图的 `AuthoredGraphDisconnected` 警告被传播到生成结果：Extend `MapGraphConnectionCandidates.cs` 只过滤这一条不适用的中间图警告，最终图仍严格验收，实际窗口入口增加反例断言。
+
+### P2c3b 实施结果
+
+- 窗口入口 `Tools/Anomaly Search/地图指挥编辑器`，生成先展示增删线差异，作者应用后进入可编辑工作副本。画布支持滚轮固定点缩放、中键平移、选择群/边/区域、区域右下角缩放和四端口拖线；属性面板支持行列锁、对齐、端点/轴向重绑、线宽/留白/颜色、人工覆写显式重置。Undo、求解和保存复用前序组件。
+- 工作副本和来源基线可序列化恢复；恢复时不复活旧任务或旧导航验证。未知节点/线操作返回明确错误。属性面板的设置临时副本按文档版本缓存，未逐次 OnGUI 实例化整图。
+- `20260913-003531-153` 视口/命中/恢复/来源冲突/重置 **5/5 PASS**；`004658-664` 文档回归 **10/10 PASS**。早期 `003323-982` 测试入口访问受保护的 `hasUnsavedChanges` 导致编译失败，改用公开的 DiscardChanges；`003413-632` 新恢复测试缺少必填约束/烘焙，补齐构造后通过，未修改生产契约以迎合测试。
+- 可见启动器初轮中文注释的 UTF-8 无 BOM 被 Windows PowerShell 错误解析，改成 ASCII；补显式进程句柄和退出码记录。`004556-432` 窗口生成/退出完成，读回图片上下翻转；最终 `004834-668` 正常退出、源输入不变、截图成功且实际打开检查。全图/局部归档到 `outputs/map-command/visual/P2c/`。
+- 最终 7 Zone、28 群、28 横竖边，中央区名可读，选中四端口和属性面板清晰，局部缩放不越过画布边界。仍保留真实龙骨礁撤离物理断连警告，可选补边预算耗尽只说明搜索停止。未新增对游戏帧率或真实路线执行的验收结论。
+- P2c 完成，继续 P2d 补齐未分区/标签同步约束后生成正式资产、绑定当前场景；正式 Scene/NavMesh 的用户修改本步仍未写入提交。P3–P6 继续按大规划推进。
 
 ## P2b1 小规划：布局数据、独立几何校验和评分
 
