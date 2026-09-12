@@ -19,6 +19,32 @@ namespace Gameplay.MapGraph.Binding
         [SerializeField] private string _targetIdOverride;
         [SerializeField] private bool _useFallbackWorldPosition;
         [SerializeField] private Vector3 _fallbackWorldPosition;
+        [SerializeField] private string _sourceObjectId;
+        [SerializeField] private bool _hasNavigationAnchor;
+        [SerializeField] private Vector3 _navigationAnchorLocal;
+        public GameplayTargetAuthoringBase DirectTarget => _target;
+        public string SourceObjectId => _sourceObjectId ?? string.Empty;
+
+        public MapGraphTargetBinding() { }
+        public MapGraphTargetBinding(string nodeId, GameplayTargetAuthoringBase target, Vector3 navigationAnchor,
+            string sourceObjectId = "")
+        {
+            _nodeId = nodeId; _target = target; _sourceObjectId = sourceObjectId;
+            _expectedTargetKind = target != null ? target.TargetKind : GameplayTargetKind.None;
+            _hasNavigationAnchor = target != null;
+            _navigationAnchorLocal = target != null ? target.transform.InverseTransformPoint(navigationAnchor) : default;
+        }
+
+        /// <summary>导航锚点独立于成员聚合中心。目标 Transform 改动会使其变化，供成本缓存识别失效。</summary>
+        public bool TryGetNavigationAnchor(out Vector3 position)
+        {
+            position = default;
+            if (!_hasNavigationAnchor || _target == null) return false;
+            position = _target.transform.TransformPoint(_navigationAnchorLocal);
+            return Finite(position.x) && Finite(position.y) && Finite(position.z);
+        }
+
+        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
         /// <summary>
         /// 绑定的图节点 ID

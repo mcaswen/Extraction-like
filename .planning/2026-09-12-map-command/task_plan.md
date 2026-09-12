@@ -1,6 +1,6 @@
 # 地图指挥、自动路网和统一群路线：大规划
 
-日期：2026-09-12。源码基线：`fcb6df1`。状态：**用户已确认方案，P0、P1a 纯图拓扑/成本、P1b 共用导航查询、P1c 序列化契约完成；P1d 场景绑定/成本缓存进行中。** P1a 10/10、P1b 36/36、P1c 18/18 定向测试通过。实施中持续截图、检查样式及 HUD 协调性，发现问题调整后复拍。当前尚未替换正式地图或修改场景/Prefab。
+日期：2026-09-12。源码基线：`fcb6df1`。状态：**用户已确认方案，P0、P1a–P1d 完成，进入 P2 场景采集/自动生成。** P1a 10/10、P1b 36/36、P1c 18/18、P1d 11/11 定向测试通过。实施中持续截图、检查样式及 HUD 协调性，发现问题调整后复拍。当前尚未替换正式地图；用户新增相机/Gizmos 场景改动原样保留。
 
 本文各处“建议/拟定/供 Review”记录方案形成时的设计表述；当前版本作为首版实现基线执行。重要边界变化仍重新说明，阶段内按已授权闭环推进。
 
@@ -331,6 +331,7 @@ t = clamp01((d0 - d) / (d0 - r))
 | Create | `MapGraph/Runtime/IMapGraphCostProvider.cs` | 纯图成本查询契约；算法不绑定 NavMesh 或未来模型 |
 | Create | `MapGraph/Runtime/MapGraphCostSnapshot.cs` | 不可变的可用边、成本、导航配置和版本快照，实现首版成本查询；不自己扫描世界 |
 | Extend | `MapGraph/Binding/MapGraphBindingAuthoring.cs`、`MapGraphTargetBinding.cs` | 增补 Zone 绑定、世界锚点及索引，保持场景引用所有权和稳定 ID |
+| Create | `MapGraph/Binding/MapGraphZoneBinding.cs` | P1d 将区域直接引用单独存为数据项，避免混进节点绑定或独立地图 SO |
 | Create | `MapGraph/Binding/MapGraphClusterResolver.cs` | 规范 EnemySource/ActiveEnemy/成员身份，实现 `IAgentRouteTargetResolver` 的世界事实和子指令候选适配；不持有路线 |
 | Create | `MapGraph/Binding/MapGraphNavigationCostService.cs` | 调用导航查询生成/补充成本快照，缓存失效、预算和诊断；算法/Editor/Agent 不各写一套路径长度测量 |
 | Create | `Agent/Navigation/AgentNavigationSegmentQuery.cs` | 从既有 Query 提取 profile + origin + destination 的无副作用路径查询/采样/长度能力，供运行时和 Editor 共用 |

@@ -1,6 +1,24 @@
 {
   "groups": [
     {
+      "name": "MapGraphBinding",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphBindingTests",
+      "expected": [
+        "DirectReferencesDistinguishDuplicateRuntimeIds",
+        "DuplicateOrOrphanBindingsAreDiagnosedAndNotQueryable",
+        "ZoneReferencesAndBindingCollectionsHaveClearOwnership",
+        "MatchingBakeLoadsWithoutAnyNavigationQueries",
+        "ContextAndProfileChangesInvalidateCachedCosts",
+        "RecalculationHasABoundedQueueAndImmutableSnapshots",
+        "AnchorMovementInvalidatesCostsButCompletionKeepsAnchor",
+        "PartialOrOneWayMeasurementsNeverBecomeBidirectionalEdges",
+        "ReplacedGraphOrBindingCannotReuseAnOldCostService",
+        "SourceIdentityAndRepeatedZoneReferencesAreRejected",
+        "LostBindingFailsWithoutInventingAFallbackPath"
+      ]
+    },
+    {
       "name": "MapGraphDefinition",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphDefinitionTests",
