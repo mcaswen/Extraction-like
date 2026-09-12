@@ -39,6 +39,13 @@ namespace AgentReproduction.Tests
         private IEnumerator GenerateSceneCopy()
         {
             _scene = EditorSceneManager.OpenScene("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity");
+            // 正式场景已安装图；独立新建保存用例只移除当前隔离副本的专用绑定根。
+            foreach (var binding in _scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MapGraphBindingAuthoring>(true)).ToArray())
+            {
+                Assert.That(binding.gameObject.name, Is.EqualTo("MapGraphBinding"));
+                Assert.That(binding.GetComponents<Component>().Length, Is.EqualTo(2));
+                UnityEngine.Object.DestroyImmediate(binding.gameObject);
+            }
             Assert.That(EditorSceneManager.SaveScene(_scene, TestScene), Is.True); yield return null;
             _document = new MapGraphEditorDocument(); var request = _document.BeginGeneration(_scene);
             var time = System.Diagnostics.Stopwatch.StartNew();

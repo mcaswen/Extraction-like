@@ -135422,3 +135422,331 @@ SceneRoots:
   - {fileID: 2046761721}
   - {fileID: 1663492076}
   - {fileID: 1855942717}
+  - {fileID: 1572020049}
+--- !u!1 &1572020047
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1572020049}
+  - component: {fileID: 1572020048}
+  m_Layer: 0
+  m_Name: MapGraphBinding
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1572020048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572020047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5370ef9497c46fd833c775c18cd996a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _mapDefinition: {fileID: 11400000, guid: dcbcd9140c33c2640b3f8de1becc3cc3, type: 2}
+  _targetBindings:
+  - _nodeId: cluster_02c8fd945d1342eab053fa8af41d469f
+    _expectedTargetKind: 2
+    _target: {fileID: 653206022}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-94253630
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -2.7166095, y: -1.8588613, z: -1.5675863}
+  - _nodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
+    _expectedTargetKind: 5
+    _target: {fileID: 6431816093595122837}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-6431816093595122837-0
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 3.1300018, y: -0.84210813, z: -0.8399906}
+  - _nodeId: cluster_1d8e558540281854a4430a91743e5541
+    _expectedTargetKind: 5
+    _target: {fileID: 1519466337}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1519466335
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 0.33829036, y: -1.0165297, z: 0.5778002}
+  - _nodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
+    _expectedTargetKind: 5
+    _target: {fileID: 1576772077}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1576772075
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 0, y: -0.96040916, z: 1.5}
+  - _nodeId: cluster_3a148e744335b9648c8c429f7fe51985
+    _expectedTargetKind: 5
+    _target: {fileID: 1653989896}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1653989894
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -0.1000061, y: -1.0083294, z: -1.899992}
+  - _nodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
+    _expectedTargetKind: 2
+    _target: {fileID: 806267696}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-806267694
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -2.6969604, y: -3.3588614, z: -33.49302}
+  - _nodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
+    _expectedTargetKind: 2
+    _target: {fileID: 1550666497}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1550666496
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 9.912649, y: -1.3631389, z: 7.9041367}
+  - _nodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
+    _expectedTargetKind: 2
+    _target: {fileID: 2009893639}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-2009893638
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -7.287348, y: -1.8859688, z: -12.243291}
+  - _nodeId: cluster_73607cab556336476bac9995b5e46c2b
+    _expectedTargetKind: 5
+    _target: {fileID: 1828811882}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-187720463
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 4.4099884, y: -0.9034176, z: 2.4000015}
+  - _nodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
+    _expectedTargetKind: 5
+    _target: {fileID: 951112712}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-873998147
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -2.0255857, y: -1.0020733, z: 0.8475838}
+  - _nodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+    _expectedTargetKind: 2
+    _target: {fileID: 687329776}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-687329775
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 7.042539, y: -1.7240562, z: -7.969577}
+  - _nodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
+    _expectedTargetKind: 2
+    _target: {fileID: 1522635427}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1522635425
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 1.7901418, y: 4.4918814, z: 1.9454411}
+  - _nodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+    _expectedTargetKind: 5
+    _target: {fileID: 492151350}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-492151349
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 3.1300015, y: -1.012236, z: -0.83999336}
+  - _nodeId: cluster_9d02dfbf9e190218416afd8280324f29
+    _expectedTargetKind: 5
+    _target: {fileID: 27217508}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-27217506
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 0.5000131, y: -1.0020733, z: -1.2600144}
+  - _nodeId: cluster_a74bba773e45b99d0523beafcb31bc84
+    _expectedTargetKind: 2
+    _target: {fileID: 1566286470}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1566286469
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -0.036771577, y: -1.7240562, z: -14.657541}
+  - _nodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
+    _expectedTargetKind: 4
+    _target: {fileID: 1990788661}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-9068098947778029321-1990788660
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 0.0000061035157, y: 1.3994272, z: 0.07000122}
+  - _nodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
+    _expectedTargetKind: 5
+    _target: {fileID: 477127445}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-477127443
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -1.089991, y: -1.0020733, z: 1.049985}
+  - _nodeId: cluster_ae3336fb07b69b8f929439fab983b97c
+    _expectedTargetKind: 5
+    _target: {fileID: 218544781}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-206812183
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -2.9999986, y: -0.6270733, z: 1.0500069}
+  - _nodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
+    _expectedTargetKind: 4
+    _target: {fileID: 1366059838}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-9068098947778029321-1366059836
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 0, y: 1.8263791, z: 0.07000122}
+  - _nodeId: cluster_b4b57110749a44a77e972f12ac0416a0
+    _expectedTargetKind: 2
+    _target: {fileID: 1276062713}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-767002675
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 5.261386, y: -1.5055288, z: 0.3058421}
+  - _nodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
+    _expectedTargetKind: 2
+    _target: {fileID: 1481449958}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1481449956
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 2.222245, y: -1.4523396, z: 4.485408}
+  - _nodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+    _expectedTargetKind: 5
+    _target: {fileID: 316926282}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-64209955
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -1.7600021, y: -0.8004093, z: -0.69000244}
+  - _nodeId: cluster_e003c321c8d54767f3e93234ce7e48c5
+    _expectedTargetKind: 2
+    _target: {fileID: 1993952242}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1993952240
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -20.885876, y: -1.7548625, z: 16.033363}
+  - _nodeId: cluster_e351d521b0b236a2292a54c00835880b
+    _expectedTargetKind: 2
+    _target: {fileID: 1680951181}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1680951179
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 1.3361843, y: -1.4607434, z: 17.379372}
+  - _nodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
+    _expectedTargetKind: 2
+    _target: {fileID: 1512210627}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-672118188
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -3.0780644, y: -1.347758, z: 4.863838}
+  - _nodeId: cluster_ee48bab778b117a1ab3e609b606e0187
+    _expectedTargetKind: 5
+    _target: {fileID: 202635496}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-7145147231377341779-202635494
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: -0.42405027, y: -0.7111854, z: -0.55645835}
+  - _nodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+    _expectedTargetKind: 5
+    _target: {fileID: 4111936733065926357}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-4111936733065926357-0
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 0.16000046, y: -0.47764108, z: -3.6799958}
+  - _nodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+    _expectedTargetKind: 5
+    _target: {fileID: 1698125063}
+    _targetIdOverride:
+    _useFallbackWorldPosition: 0
+    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1698125062
+    _hasNavigationAnchor: 1
+    _navigationAnchorLocal: {x: 2.4499989, y: -1.076985, z: -0.7700002}
+  _zoneBindings:
+  - _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-922218180-0
+    _zone: {fileID: 922218180}
+    _isSynthetic: 0
+  - _zoneId: zone_1a5c503a20eaa4b61337291d8a58d169
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3387003-0
+    _zone: {fileID: 3387003}
+    _isSynthetic: 0
+  - _zoneId: zone_1d01c1036a8261658e9935ed9f006458
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-20146627-0
+    _zone: {fileID: 20146627}
+    _isSynthetic: 0
+  - _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-1279994158-0
+    _zone: {fileID: 1279994158}
+    _isSynthetic: 0
+  - _zoneId: zone_bd785f4955941f5ef39b762e534aeed5
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-317829572-0
+    _zone: {fileID: 317829572}
+    _isSynthetic: 0
+  - _zoneId: zone_bec781aa3ebe55b15c57cd445fb85883
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-279692725-0
+    _zone: {fileID: 279692725}
+    _isSynthetic: 0
+  - _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-1414847388-0
+    _zone: {fileID: 1414847388}
+    _isSynthetic: 0
+--- !u!4 &1572020049
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572020047}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
