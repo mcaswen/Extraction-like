@@ -1,6 +1,21 @@
 {
   "groups": [
     {
+      "name": "MapGraphDefinition",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphDefinitionTests",
+      "expected": [
+        "SaveReloadKeepsZonesManualEditsAndNavigationIdentity",
+        "LocalCoordinatesFollowZoneWithoutChangingPathCost",
+        "BadZoneReferencesAndFutureSchemasAreDiagnosed",
+        "CollectionsAreCopiedAndEditsProduceNewNodeDefinitions",
+        "FailedDirectionAndManualExclusionSurviveJsonRoundTrip",
+        "ExplicitReplacementIsAtomicAndInvalidatesCachedViews",
+        "NestedOverwriteRefreshesReadOnlyCollections",
+        "LoadingLegacyAssetNeverAutoMigratesIt"
+      ]
+    },
+    {
       "name": "MapGraphNavigationCompatibility",
       "suite": "Core",
       "graphics": true,

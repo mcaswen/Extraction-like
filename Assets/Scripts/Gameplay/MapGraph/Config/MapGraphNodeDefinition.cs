@@ -19,6 +19,9 @@ namespace Gameplay.MapGraph.Config
         [SerializeField] private MapGraphNodeIconKind _iconKind = MapGraphNodeIconKind.None;
         [SerializeField] private MapGraphResourceTier _resourceTier = MapGraphResourceTier.None;
         [SerializeField] private MapGraphDangerTier _dangerTier = MapGraphDangerTier.None;
+        [SerializeField] private string _zoneId, _rowId, _columnId, _sourceObjectId;
+        [SerializeField] private Vector2 _footprint = new Vector2(28, 28);
+        [SerializeField] private bool _positionLocked;
 
         public MapGraphNodeDefinition(
             string nodeId,
@@ -29,7 +32,9 @@ namespace Gameplay.MapGraph.Config
             Sprite icon = null,
             MapGraphNodeIconKind iconKind = MapGraphNodeIconKind.None,
             MapGraphResourceTier resourceTier = MapGraphResourceTier.None,
-            MapGraphDangerTier dangerTier = MapGraphDangerTier.None)
+            MapGraphDangerTier dangerTier = MapGraphDangerTier.None,
+            string zoneId = "", Vector2 footprint = default, string rowId = "", string columnId = "",
+            bool positionLocked = false, string sourceObjectId = "")
         {
             _nodeId = nodeId ?? string.Empty;
             _nodeKind = nodeKind;
@@ -40,6 +45,8 @@ namespace Gameplay.MapGraph.Config
             _iconKind = iconKind;
             _resourceTier = resourceTier;
             _dangerTier = dangerTier;
+            _zoneId = zoneId; _footprint = footprint == default ? new Vector2(28, 28) : footprint;
+            _rowId = rowId; _columnId = columnId; _positionLocked = positionLocked; _sourceObjectId = sourceObjectId;
         }
 
         /// <summary>
@@ -60,9 +67,19 @@ namespace Gameplay.MapGraph.Config
         public MapGraphNodeKind NodeKind => _nodeKind;
 
         /// <summary>
-        /// 节点在抽象图 UI 平面上的坐标
+        /// 正式节点为 Zone 中心相对坐标；旧节点为全图坐标。显示位置统一通过 MapGraphService 解析。
         /// </summary>
         public Vector2 Position => _position;
+        public string ZoneId => _zoneId ?? string.Empty;
+        public Vector2 Footprint => _footprint;
+        public string RowId => _rowId ?? string.Empty;
+        public string ColumnId => _columnId ?? string.Empty;
+        public bool PositionLocked => _positionLocked;
+        public string SourceObjectId => _sourceObjectId ?? string.Empty;
+
+        public MapGraphNodeDefinition WithLayout(Vector2 localPosition, string rowId, string columnId, bool locked)
+            => new MapGraphNodeDefinition(NodeId, NodeKind, localPosition, DisplayName, Description, Icon, IconKind,
+                ResourceTier, DangerTier, ZoneId, Footprint, rowId, columnId, locked, SourceObjectId);
 
         /// <summary>
         /// 给策划或调试面板阅读的额外说明

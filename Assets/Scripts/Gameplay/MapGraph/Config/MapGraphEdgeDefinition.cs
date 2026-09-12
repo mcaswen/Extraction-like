@@ -14,17 +14,26 @@ namespace Gameplay.MapGraph.Config
         [SerializeField] private string _fromNodeId;
         [SerializeField] private string _toNodeId;
         [SerializeField] private float _lengthUnits = 1f;
+        [SerializeField] private MapGraphAxis _axis;
+        [SerializeField] private MapGraphEdgeOrigin _origin;
+        [SerializeField] private float _fromInset, _toInset, _widthOverride;
+        [SerializeField] private bool _useColorOverride;
+        [SerializeField] private Color _colorOverride = Color.white;
 
         public MapGraphEdgeDefinition(
             string edgeId,
             string fromNodeId,
             string toNodeId,
-            float lengthUnits)
+            float lengthUnits, MapGraphAxis axis = MapGraphAxis.Unspecified,
+            MapGraphEdgeOrigin origin = MapGraphEdgeOrigin.Legacy, float fromInset = 0, float toInset = 0,
+            float widthOverride = 0, bool useColorOverride = false, Color colorOverride = default)
         {
             _edgeId = edgeId ?? string.Empty;
             _fromNodeId = fromNodeId ?? string.Empty;
             _toNodeId = toNodeId ?? string.Empty;
             _lengthUnits = Mathf.Max(0.1f, lengthUnits);
+            _axis = axis; _origin = origin; _fromInset = fromInset; _toInset = toInset;
+            _widthOverride = widthOverride; _useColorOverride = useColorOverride; _colorOverride = colorOverride;
         }
 
         /// <summary>
@@ -43,9 +52,20 @@ namespace Gameplay.MapGraph.Config
         public string ToNodeId => _toNodeId ?? string.Empty;
 
         /// <summary>
-        /// 抽象边长度
-        /// 影响寻路权重和图上移动速度换算
+        /// 历史图的兼容成本。正式指挥图的导航成本另存，不使用显示线长。
         /// </summary>
         public float LengthUnits => Mathf.Max(0.1f, _lengthUnits);
+        public MapGraphAxis Axis => _axis;
+        public MapGraphEdgeOrigin Origin => _origin;
+        public float FromInset => _fromInset;
+        public float ToInset => _toInset;
+        public float WidthOverride => _widthOverride;
+        public bool UseColorOverride => _useColorOverride;
+        public Color ColorOverride => _colorOverride;
+
+        public MapGraphEdgeDefinition WithPresentation(MapGraphAxis axis, float fromInset, float toInset,
+            float width, bool useColor, Color color, MapGraphEdgeOrigin origin)
+            => new MapGraphEdgeDefinition(EdgeId, FromNodeId, ToNodeId, LengthUnits, axis, origin,
+                fromInset, toInset, width, useColor, color);
     }
 }

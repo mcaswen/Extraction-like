@@ -1,6 +1,6 @@
 # P1 图数据和纯路径
 
-基线：`453d793`。状态：P1a、P1b 实现、测试和审查完成；P1c 继续实施。P0 的静态场景证据已归档，P1/P2 继续核实真实导航路径，不能用静态组件统计代替可达性。
+基线：`453d793`。状态：P1a、P1b、P1c 实现、测试和审查完成；P1d 继续实施。P0 的静态场景证据已归档，P1/P2 继续核实真实导航路径，不能用静态组件统计代替可达性。
 
 ## P1a 小规划：拓扑、成本和确定性最短路
 
@@ -63,3 +63,22 @@ P1c 只建立 P2 生成/编辑需要的数据契约，之后 P1d 接真实场景
 - `Logs/AgentReproduction/20260912-194559-347`：原 Navigation 17/17 PASS，覆盖平地/坡面/零停止距离、导航丢失、停滞、恢复及 1×/4× 分支。
 - `Logs/AgentReproduction/20260912-194743-560`：兼容组 10/10 PASS，复用原高处敌人接近 7 例、真实实验室两条记录路径、同步性能探针校准。部分路径读取、缓冲隔离、原 Check 计数和分配语义均保持。
 - 共 36/36，三轮均无失败/缺失/超时，源快照一致。没有重跑全工程；未改正式场景/地图资产，P2 仍需对全部群锚点和双向连接实测。
+
+## P1d 小规划：场景直接绑定和有预算的导航成本缓存
+
+- Extend `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphTargetBinding.cs`：显式构造直接目标引用、源场景身份、目标 Transform 下的导航锚点；显示中心和导航锚点分开，保留旧 TargetId/fallback 的兼容字段。群中心因成员完成而变化时，不让既有静态锚点漂移。
+- Create `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphZoneBinding.cs`：Zone ID 到场景区域直接引用的数据项，独立于节点绑定。
+- Extend `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphBindingAuthoring.cs`：Zone/节点/目标引用索引、重复/孤儿诊断，明确配置替换/重建入口和只读集合；直接对象匹配不依赖重复的运行时 TargetId。旧 ID 查询检测歧义，不静默取第一个。来源/活跃群的规范化及成员事实仍由 P3 的 ClusterResolver 负责，不塞进绑定索引。
+- Create `Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationCostService.cs`：共用 Profile/SegmentQuery，烘焙 profile/指纹/边方向/锚点一致才载入成本；缺失、过期成本进入有界补算队列，每条边最多两个有向查询。失效立即撤下旧成本，补算发布新只读快照，旧快照不变。首版两方向都完整才作为双向可走连接，不回写资产。
+- Reuse `AgentNavigationProfile.cs`、`AgentNavigationSegmentQuery.cs`、`MapGraphCostSnapshot.cs`：不复制 NavMesh 长度算法或图最短路。生成器全对查询也调用同一测量入口，运行时只补已保存图的边。
+- Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphBindingTests.cs`，Extend `tools/agent-repro/cases.json`：重复 TargetId 的直接对象辨认、重复/孤儿绑定、区域引用、锚点移动、成本快照载入零查询、profile/指纹失效、补算预算、双向路径失败及旧快照隔离。
+
+缓存失效不等于立即全对重建；服务只提供显式失效和有限锚点复核入口，P3/P5 的安装/路线层选择调用时机。P2 负责采集实际场景 profile、挑选合法锚点和完整有向查询证据。P1d 不尝试通过群中心的大半径投影掩盖无可行锚点。
+
+## P1c 实施结果
+
+- 完成版本化 SO、Zone 矩形/中央安全区、节点局部布局/稳定源身份、单横/竖段的端点留白/人工来源/样式、行列锁及禁连记录、独立导航烘焙 profile/双向有效性。旧资产保留 schema 0，未自动迁移；正式图 schema 2 由明确 Editor 事务写入。
+- Service 增补 Zone 索引和局部转全图坐标，复制图索引后不随原 SO 的新替换变化；显示平移不改变导航路径成本。未知/重复 Zone、缺少归属和未来 schema 明确诊断。
+- `Logs/AgentReproduction/20260912-195835-658`：初版 7/7 PASS。审查增加嵌套 JSON 覆盖后的只读缓存刷新、显式失败不能保留有效数值成本，按规划默认值将近邻数设为 4。
+- 最终 `Logs/AgentReproduction/20260912-200036-277`：MapGraphDefinition 8/8 PASS，包含 Unity 资产实际保存/卸载/重读、GUID 保持、空 Zone、人工位置锁/删线/端点样式、失败方向、原子替换及旧资产只读加载。
+- `Logs/AgentReproduction/20260912-200218-429`：MapGraphPathfinding 10/10 PASS。最终 18/18，无缺失/失败/超时，源快照一致。数据层不引入 NavMesh、Agent、场景引用或生成算法；没有新地图画面，截图从 P2 初次生成开始。

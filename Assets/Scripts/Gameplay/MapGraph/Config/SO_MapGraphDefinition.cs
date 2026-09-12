@@ -14,8 +14,12 @@ namespace Gameplay.MapGraph.Config
     [CreateAssetMenu(
         fileName = "SO_MapGraph_Definition",
         menuName = "Gameplay/Map Graph/Graph Definition")]
-    public sealed class SO_MapGraphDefinition : ScriptableObject
+    public sealed class SO_MapGraphDefinition : ScriptableObject, ISerializationCallbackReceiver
     {
+        public const int CommandSchemaVersion = 2;
+        // 缺少字段的旧资产仍是 0，不能因加载就被解释成正式指挥图。
+        [SerializeField] private int _schemaVersion;
+        [SerializeField] private long _revision;
         [SerializeField] private string _mapId = "map_graph";
         [SerializeField] private string _displayName = "Map Graph";
         [SerializeField] private string _startNodeId;
@@ -24,6 +28,20 @@ namespace Gameplay.MapGraph.Config
             new List<MapGraphNodeDefinition>();
         [SerializeField] private List<MapGraphEdgeDefinition> _edges =
             new List<MapGraphEdgeDefinition>();
+        [SerializeField] private List<MapGraphZoneDefinition> _zones = new List<MapGraphZoneDefinition>();
+        [SerializeField] private MapGraphGenerationSettings _generationSettings = new MapGraphGenerationSettings();
+        [SerializeField] private MapGraphLayoutConstraints _layoutConstraints = new MapGraphLayoutConstraints();
+        [SerializeField] private MapGraphNavigationBakeData _navigationBake = new MapGraphNavigationBakeData();
+        [NonSerialized] private IReadOnlyList<MapGraphNodeDefinition> _nodeView;
+        [NonSerialized] private IReadOnlyList<MapGraphEdgeDefinition> _edgeView;
+        [NonSerialized] private IReadOnlyList<MapGraphZoneDefinition> _zoneView;
+        public int SchemaVersion => _schemaVersion;
+        public bool IsCommandGraph => _schemaVersion == CommandSchemaVersion;
+        public long Revision => _revision;
+        public IReadOnlyList<MapGraphZoneDefinition> Zones => _zoneView ??= _zones.AsReadOnly();
+        public MapGraphGenerationSettings GenerationSettings => _generationSettings;
+        public MapGraphLayoutConstraints LayoutConstraints => _layoutConstraints;
+        public MapGraphNavigationBakeData NavigationBake => _navigationBake;
 
         /// <summary>
         /// 图配置稳定 ID
@@ -49,18 +67,45 @@ namespace Gameplay.MapGraph.Config
         /// <summary>
         /// 图中的全部节点定义
         /// </summary>
-        public IReadOnlyList<MapGraphNodeDefinition> Nodes => _nodes;
+        public IReadOnlyList<MapGraphNodeDefinition> Nodes => _nodeView ??= _nodes.AsReadOnly();
 
         /// <summary>
         /// 图中的全部边定义
         /// </summary>
-        public IReadOnlyList<MapGraphEdgeDefinition> Edges => _edges;
+        public IReadOnlyList<MapGraphEdgeDefinition> Edges => _edgeView ??= _edges.AsReadOnly();
 
         private void OnValidate()
         {
             _mapId = NormalizeId(_mapId);
             _startNodeId = NormalizeId(_startNodeId);
+            ResetViews();
         }
+
+        public void OnBeforeSerialize() { }
+        public void OnAfterDeserialize() => ResetViews();
+        private void ResetViews() { _nodeView = null; _edgeView = null; _zoneView = null; }
+
+#if UNITY_EDITOR
+        /// <summary>生成器通过校验后，在 Undo 事务中一次替换。运行时不能写回正式图资产。</summary>
+        public void ApplyCommandData(string mapId, string displayName, string startNodeId,
+            IEnumerable<MapGraphZoneDefinition> zones, IEnumerable<MapGraphNodeDefinition> nodes,
+            IEnumerable<MapGraphEdgeDefinition> edges, MapGraphLayoutConstraints constraints,
+            MapGraphNavigationBakeData navigationBake, MapGraphGenerationSettings settings = null)
+        {
+            if (string.IsNullOrWhiteSpace(mapId)) throw new ArgumentException("地图 ID 不能为空。", nameof(mapId));
+            var zoneCopy = new List<MapGraphZoneDefinition>(zones ?? throw new ArgumentNullException(nameof(zones)));
+            var nodeCopy = new List<MapGraphNodeDefinition>(nodes ?? throw new ArgumentNullException(nameof(nodes)));
+            var edgeCopy = new List<MapGraphEdgeDefinition>(edges ?? throw new ArgumentNullException(nameof(edges)));
+            if (constraints == null) throw new ArgumentNullException(nameof(constraints));
+            if (navigationBake == null) throw new ArgumentNullException(nameof(navigationBake));
+            _mapId = mapId.Trim(); _displayName = displayName; _startNodeId = NormalizeId(startNodeId);
+            _zones = zoneCopy; _nodes = nodeCopy; _edges = edgeCopy;
+            _layoutConstraints = constraints; _navigationBake = navigationBake;
+            if (settings != null) _generationSettings = settings;
+            _schemaVersion = CommandSchemaVersion; _revision++;
+            ResetViews(); MarkDirty();
+        }
+#endif
 
         [ContextMenu("Apply MVP Graph Preset")]
         public void ApplyMvpGraphPresetToAsset()
@@ -120,6 +165,11 @@ namespace Gameplay.MapGraph.Config
             _startNodeId = MvpMapGraphPresetConfig.StartNodeId;
             _nodes = presetNodes;
             _edges = MvpMapGraphPresetConfig.CreateEdgePresets();
+            _schemaVersion = 0; _revision++;
+            _zones = new List<MapGraphZoneDefinition>();
+            _layoutConstraints = new MapGraphLayoutConstraints();
+            _navigationBake = new MapGraphNavigationBakeData();
+            ResetViews();
             MarkDirty();
         }
 
