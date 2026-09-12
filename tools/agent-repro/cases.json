@@ -1,6 +1,24 @@
 {
   "groups": [
     {
+      "name": "MapGraphPathfinding",
+      "suite": "Core",
+      "graphics": false,
+      "filter": "AgentReproduction.Tests.MapGraphPathfindingTests",
+      "expected": [
+        "NavigationCostsOverrideDrawingAndLegacyLengths",
+        "ReverseTraversalUsesItsOwnCostAndDirection",
+        "UnknownEndpointsAndDisconnectedGraphsNeverYieldPartialRoutes",
+        "InvalidOrMissingCostsAreUnavailableEvenFromCustomProviders",
+        "EqualCostsAreStableAcrossNodeAndEdgeOrder",
+        "ZeroCostCyclesTerminateWithSimpleShortestPaths",
+        "MalformedTopologyIsDiagnosedRatherThanOverwritten",
+        "InputCollectionsAndLaterQueriesCannotMutateSnapshots",
+        "SmallGraphCostsMatchIndependentSimplePathEnumeration",
+        "ExistingMvpAssetRemainsQueryableWithoutNavigationCosts"
+      ]
+    },
+    {
       "name": "EnemyPhysicsOwnership",
       "suite": "Core",
       "graphics": true,

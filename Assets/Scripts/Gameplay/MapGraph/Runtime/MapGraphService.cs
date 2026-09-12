@@ -19,23 +19,44 @@ namespace Gameplay.MapGraph.Runtime
 
         private readonly Dictionary<string, List<MapGraphEdgeDefinition>> _edgesByNodeId =
             new Dictionary<string, List<MapGraphEdgeDefinition>>(StringComparer.Ordinal);
+        private readonly Dictionary<string, IReadOnlyList<MapGraphEdgeDefinition>> _edgeViews =
+            new Dictionary<string, IReadOnlyList<MapGraphEdgeDefinition>>(StringComparer.Ordinal);
 
-        private readonly SO_MapGraphDefinition _mapDefinition;
+        private readonly string _startNodeId;
+        private readonly List<string> _validationErrors = new List<string>();
+        private readonly IReadOnlyList<string> _validationErrorsView;
+        private readonly IReadOnlyList<string> _orderedNodeIds;
+        public IReadOnlyList<string> ValidationErrors => _validationErrorsView;
+        public IReadOnlyList<string> OrderedNodeIds => _orderedNodeIds;
 
         public MapGraphService(SO_MapGraphDefinition mapDefinition)
+            : this(mapDefinition != null ? mapDefinition.Nodes : null,
+                mapDefinition != null ? mapDefinition.Edges : null,
+                mapDefinition != null ? mapDefinition.StartNodeId : string.Empty)
         {
-            _mapDefinition = mapDefinition;
-            if (_mapDefinition == null)
-                return;
+        }
 
-            BuildNodeIndexes(_mapDefinition.Nodes);
-            BuildEdgeIndexes(_mapDefinition.Edges);
+        /// <summary>为场景生成和构造验证建立图索引，输入列表之后的修改不会改变索引。</summary>
+        public MapGraphService(IReadOnlyList<MapGraphNodeDefinition> nodes,
+            IReadOnlyList<MapGraphEdgeDefinition> edges, string startNodeId = "")
+        {
+            _startNodeId = NormalizeId(startNodeId);
+            _validationErrorsView = _validationErrors.AsReadOnly();
+            BuildNodeIndexes(nodes);
+            BuildEdgeIndexes(edges);
+            foreach (var pair in _edgesByNodeId) _edgeViews.Add(pair.Key, pair.Value.AsReadOnly());
+            var ordered = new List<string>(_nodesById.Keys);
+            ordered.Sort(StringComparer.Ordinal);
+            _orderedNodeIds = ordered.AsReadOnly();
+            if (ordered.Count == 0) _validationErrors.Add("EmptyGraph");
+            if (_startNodeId.Length > 0 && !_nodesById.ContainsKey(_startNodeId))
+                _validationErrors.Add("UnknownStartNode:" + _startNodeId);
         }
 
         /// <summary>
         /// 当前服务是否持有有效图配置
         /// </summary>
-        public bool IsValid => _mapDefinition != null && _nodesById.Count > 0;
+        public bool IsValid => _nodesById.Count > 0 && _validationErrors.Count == 0;
 
         /// <summary>
         /// 返回图中全部节点 ID
@@ -43,7 +64,7 @@ namespace Gameplay.MapGraph.Runtime
         /// <returns></returns>
         public IEnumerable<string> GetNodeIds()
         {
-            return _nodesById.Keys;
+            return _orderedNodeIds;
         }
 
         /// <summary>
@@ -53,23 +74,19 @@ namespace Gameplay.MapGraph.Runtime
         /// <returns></returns>
         public string GetStartNodeId()
         {
-            if (_mapDefinition != null &&
-                !string.IsNullOrWhiteSpace(_mapDefinition.StartNodeId) &&
-                _nodesById.ContainsKey(_mapDefinition.StartNodeId))
+            if (_startNodeId.Length > 0 && _nodesById.ContainsKey(_startNodeId))
             {
-                return _mapDefinition.StartNodeId;
+                return _startNodeId;
             }
 
-            foreach (MapGraphNodeDefinition node in _nodesById.Values)
+            foreach (string nodeId in _orderedNodeIds)
             {
+                MapGraphNodeDefinition node = _nodesById[nodeId];
                 if (node.NodeKind == MapGraphNodeKind.Start)
                     return node.NodeId;
             }
 
-            foreach (string nodeId in _nodesById.Keys)
-                return nodeId;
-
-            return string.Empty;
+            return _orderedNodeIds.Count > 0 ? _orderedNodeIds[0] : string.Empty;
         }
 
         /// <summary>
@@ -137,7 +154,7 @@ namespace Gameplay.MapGraph.Runtime
         /// <returns></returns>
         public IReadOnlyList<MapGraphEdgeDefinition> GetConnectedEdges(string nodeId)
         {
-            return _edgesByNodeId.TryGetValue(NormalizeId(nodeId), out List<MapGraphEdgeDefinition> edges)
+            return _edgeViews.TryGetValue(NormalizeId(nodeId), out IReadOnlyList<MapGraphEdgeDefinition> edges)
                 ? edges
                 : Array.Empty<MapGraphEdgeDefinition>();
         }
@@ -199,10 +216,18 @@ namespace Gameplay.MapGraph.Runtime
             for (int index = 0; index < nodes.Count; index++)
             {
                 MapGraphNodeDefinition node = nodes[index];
-                if (node == null || string.IsNullOrWhiteSpace(node.NodeId))
+                if (node == null || string.IsNullOrWhiteSpace(node.NodeId) || node.NodeId != node.NodeId.Trim())
+                {
+                    _validationErrors.Add("InvalidNodeId:" + index);
                     continue;
+                }
+                if (_nodesById.ContainsKey(node.NodeId))
+                {
+                    _validationErrors.Add("DuplicateNode:" + node.NodeId);
+                    continue;
+                }
 
-                _nodesById[node.NodeId] = node;
+                _nodesById.Add(node.NodeId, node);
                 if (!_edgesByNodeId.ContainsKey(node.NodeId))
                     _edgesByNodeId.Add(node.NodeId, new List<MapGraphEdgeDefinition>());
             }
@@ -218,13 +243,30 @@ namespace Gameplay.MapGraph.Runtime
                 MapGraphEdgeDefinition edge = edges[index];
                 if (edge == null ||
                     string.IsNullOrWhiteSpace(edge.EdgeId) ||
+                    edge.EdgeId != edge.EdgeId.Trim() ||
                     !_nodesById.ContainsKey(edge.FromNodeId) ||
                     !_nodesById.ContainsKey(edge.ToNodeId))
                 {
+                    _validationErrors.Add("InvalidEdge:" + index);
+                    continue;
+                }
+                if (edge.FromNodeId == edge.ToNodeId)
+                {
+                    _validationErrors.Add("SelfEdge:" + edge.EdgeId);
+                    continue;
+                }
+                if (_edgesById.ContainsKey(edge.EdgeId))
+                {
+                    _validationErrors.Add("DuplicateEdgeId:" + edge.EdgeId);
+                    continue;
+                }
+                if (TryGetEdgeBetween(edge.FromNodeId, edge.ToNodeId, out _))
+                {
+                    _validationErrors.Add("DuplicateConnection:" + edge.EdgeId);
                     continue;
                 }
 
-                _edgesById[edge.EdgeId] = edge;
+                _edgesById.Add(edge.EdgeId, edge);
                 _edgesByNodeId[edge.FromNodeId].Add(edge);
                 _edgesByNodeId[edge.ToNodeId].Add(edge);
             }

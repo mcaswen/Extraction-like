@@ -1,6 +1,6 @@
 # 地图指挥、自动路网和统一群路线：大规划
 
-日期：2026-09-12。源码基线：`fcb6df1`。状态：**用户已确认方案，P0 静态场景基线完成，后续 P1–P6 待实施。** 实施中持续截图、检查样式及 HUD 协调性，发现问题调整后复拍。当前尚未修改生产代码、Prefab 或场景，未执行新功能测试。
+日期：2026-09-12。源码基线：`fcb6df1`。状态：**用户已确认方案，P0 完成，P1a 纯图拓扑/成本已实现，10/10 定向测试通过；后续阶段进行中。** 实施中持续截图、检查样式及 HUD 协调性，发现问题调整后复拍。当前尚未替换正式地图或修改场景/Prefab。
 
 本文各处“建议/拟定/供 Review”记录方案形成时的设计表述；当前版本作为首版实现基线执行。重要边界变化仍重新说明，阶段内按已授权闭环推进。
 
@@ -413,6 +413,7 @@ t = clamp01((d0 - d) / (d0 - r))
 | 判断 | 具体文件（相对根目录） | 职责 |
 | --- | --- | --- |
 | Create | `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphGenerationTests.cs` | 生成可达性、稀疏连接、布局/增量结果及成本对照 |
+| Create | `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPathfindingTests.cs` | P1a 的纯拓扑/成本接口、确定性路径和独立穷举对照，独立于导航和布局生成测试 |
 | Create | `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphOrthogonalLayoutTests.cs` | 正交硬约束、位置保真对照、跨 Zone 对齐、固定图冲突和搜索预算；与导航/生成控制流程测试分离 |
 | Create | `Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorPersistenceTests.cs` | Undo/Redo、取消、保存重载、真实绑定/Prefab 覆写 |
 | Create | `Assets/Scripts/Editor/AgentReproduction/Tests/AgentRouteExecutionTests.cs` | 实际逐群移动/战斗/资源/撤离契约 |
@@ -535,6 +536,7 @@ t = clamp01((d0 - d) / (d0 - r))
 ## 11. 实现结果及架构审查记录
 
 - P0 静态基线完成：`Logs/SceneRaid/20260912-191826-063` SC00 证据 PASS，Editor 保留、源输入未变；当前 28 群沿用 3 组重复 TargetId，生成器需稳定场景身份，详见 `p0_execution.md`、`scene_baseline.md` 和 `architecture_review.md`。锚点/群间真实路径验证归入 P1/P2；P1–P6 尚未实施，未生成正式场景图或验证新功能。
+- P1a 纯图成本、只读索引和确定性最短路完成：`Logs/AgentReproduction/20260912-193242-122` 10/10 PASS，包含 500 个起终点组合的独立穷举对照；详见 `p1_execution.md`。后续图数据/导航/生成/真实路线/显示仍待实现，不能用本组成绩替代整个地图验收。
 - 已做规划自查：复用已有图/指令/背包/验证设施；列明具体文件；无 Gameplay → Automation/Editor 依赖；不让大 Overlay、PawnRoot 或动作节点承担独立算法；人工生成意图、真实路线身份和唯一伤害恢复都有明确所有者。
 - 本轮布局修订仅改文档。重读边视图和节点数据后确认现有任意角度 Image 旋转不足以保证横竖；新增求解器、评分和约束数据的文件归属，补齐固定图冲突、人工锁、跨区对齐和渲染验收，尚未运行求解性能实验。
 - 本轮显示修订仅改文档：替换先前线外反击投影建议，确认距离映射到线上、处理时群旁偏移、深色简约主题和中央 Zone 名称；补充原目标距离采样、纯投影、显示排布的文件边界及 U03–U05 验证。尚未制作新 UI 资产或运行这些用例。

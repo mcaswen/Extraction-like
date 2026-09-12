@@ -1,192 +1,113 @@
+using System;
 using System.Collections.Generic;
-using Gameplay.MapGraph.Config;
-using UnityEngine;
 
 namespace Gameplay.MapGraph.Runtime
 {
-    /// <summary>
-    /// 抽象地图最短路径服务
-    /// 使用 Dijkstra 计算节点路径，供 UI 路径高亮和 Agent 图上移动表现复用
-    /// </summary>
+    /// <summary>基于固定图索引的 Dijkstra。查询工作区归该实例所有，不支持并行重入。</summary>
     public sealed class MapGraphPathfindingService
     {
-        private readonly MapGraphService _graphService;
+        private readonly MapGraphService _graph;
+        private readonly IMapGraphCostProvider _defaultCosts;
+        private readonly IReadOnlyList<string> _nodes;
+        private readonly Dictionary<string, int> _indexes = new Dictionary<string, int>(StringComparer.Ordinal);
+        private readonly double[] _distances;
+        private readonly int[] _previous;
+        private readonly bool[] _visited;
+        private readonly List<string> _path = new List<string>();
 
-        public MapGraphPathfindingService(MapGraphService graphService)
+        public MapGraphPathfindingService(MapGraphService graphService, IMapGraphCostProvider costs = null)
         {
-            _graphService = graphService;
+            _graph = graphService;
+            _defaultCosts = costs ?? ConfiguredMapGraphCostProvider.Instance;
+            _nodes = graphService != null ? graphService.OrderedNodeIds : Array.Empty<string>();
+            _distances = new double[_nodes.Count];
+            _previous = new int[_nodes.Count];
+            _visited = new bool[_nodes.Count];
+            for (int i = 0; i < _nodes.Count; i++) _indexes.Add(_nodes[i], i);
         }
 
-        /// <summary>
-        /// 从一个节点出发，计算到目标节点的最短路径
-        /// 返回结果中的 RemainingNodeIds 不包含起点本身
-        /// </summary>
-        /// <param name="startNodeId"></param>
-        /// <param name="targetNodeId"></param>
-        /// <returns></returns>
+        /// <summary>使用构造时的成本策略。未显式传入时，仅兼容旧图的 LengthUnits。</summary>
         public MapGraphResolvedPathPlan ResolveFromNode(string startNodeId, string targetNodeId)
-        {
-            List<string> pathNodes = FindShortestPath(startNodeId, targetNodeId, out float totalLength);
+            => ResolveFromNode(startNodeId, targetNodeId, _defaultCosts);
 
-            if (pathNodes.Count == 0)
+        /// <summary>剩余节点不含起点；结果复制路径，后续查询或输入集合变化不会改写已返回的结果。</summary>
+        public MapGraphResolvedPathPlan ResolveFromNode(string startNodeId, string targetNodeId,
+            IMapGraphCostProvider costs)
+        {
+            if (_graph == null || !_graph.IsValid || costs == null ||
+                string.IsNullOrWhiteSpace(startNodeId) || string.IsNullOrWhiteSpace(targetNodeId) ||
+                !_indexes.TryGetValue(startNodeId, out int start) || !_indexes.TryGetValue(targetNodeId, out int target))
                 return MapGraphResolvedPathPlan.Invalid(targetNodeId);
 
-            List<string> remainingNodeIds = new List<string>();
-            for (int index = 1; index < pathNodes.Count; index++)
-                remainingNodeIds.Add(pathNodes[index]);
-
-            return MapGraphResolvedPathPlan.FromNodePath(
-                targetNodeId,
-                remainingNodeIds,
-                totalLength);
-        }
-
-        private List<string> FindShortestPath(string startNodeId, string targetNodeId, out float totalLength)
-        {
-            totalLength = float.MaxValue;
-
-            if (_graphService == null ||
-                string.IsNullOrWhiteSpace(startNodeId) ||
-                string.IsNullOrWhiteSpace(targetNodeId))
+            for (int i = 0; i < _nodes.Count; i++)
             {
-                return new List<string>();
+                _distances[i] = double.PositiveInfinity;
+                _previous[i] = -1;
+                _visited[i] = false;
             }
-
-            if (startNodeId == targetNodeId)
+            _distances[start] = 0d;
+            for (int pass = 0; pass < _nodes.Count; pass++)
             {
-                totalLength = 0f;
-                return new List<string> { startNodeId };
-            }
-
-            Dictionary<string, float> distances = new Dictionary<string, float>();
-            Dictionary<string, string> previousByNodeId = new Dictionary<string, string>();
-            HashSet<string> unvisitedNodeIds = new HashSet<string>(_graphService.GetNodeIds());
-
-            foreach (string nodeId in unvisitedNodeIds)
-                distances[nodeId] = float.MaxValue;
-
-            if (!distances.ContainsKey(startNodeId) || !distances.ContainsKey(targetNodeId))
-                return new List<string>();
-
-            distances[startNodeId] = 0f;
-
-            while (unvisitedNodeIds.Count > 0)
-            {
-                string currentNodeId = GetLowestDistanceNode(unvisitedNodeIds, distances);
-                if (string.IsNullOrEmpty(currentNodeId))
-                    break;
-
-                if (currentNodeId == targetNodeId)
-                    break;
-
-                unvisitedNodeIds.Remove(currentNodeId);
-
-                IReadOnlyList<MapGraphEdgeDefinition> connectedEdges =
-                    _graphService.GetConnectedEdges(currentNodeId);
-                for (int index = 0; index < connectedEdges.Count; index++)
+                int current = -1;
+                double minimum = double.PositiveInfinity;
+                // 节点索引按 Ordinal 排序，相同成本不依赖资产列表/HashSet 遍历顺序。
+                for (int i = 0; i < _nodes.Count; i++)
+                    if (!_visited[i] && _distances[i] < minimum) { current = i; minimum = _distances[i]; }
+                if (current < 0 || current == target) break;
+                _visited[current] = true;
+                var edges = _graph.GetConnectedEdges(_nodes[current]);
+                for (int i = 0; i < edges.Count; i++)
                 {
-                    MapGraphEdgeDefinition edge = connectedEdges[index];
-                    string neighborNodeId = _graphService.GetOtherNodeId(edge, currentNodeId);
-                    if (string.IsNullOrEmpty(neighborNodeId) || !unvisitedNodeIds.Contains(neighborNodeId))
-                        continue;
-
-                    float candidateDistance = distances[currentNodeId] + edge.LengthUnits;
-                    if (candidateDistance >= distances[neighborNodeId])
-                        continue;
-
-                    distances[neighborNodeId] = candidateDistance;
-                    previousByNodeId[neighborNodeId] = currentNodeId;
+                    var edge = edges[i];
+                    int next = _indexes[_graph.GetOtherNodeId(edge, _nodes[current])];
+                    if (_visited[next] || !costs.TryGetCost(edge, _nodes[current], out float cost) ||
+                        cost < 0f || float.IsNaN(cost) || float.IsInfinity(cost)) continue;
+                    double candidate = minimum + cost;
+                    if (candidate >= _distances[next]) continue;
+                    _distances[next] = candidate;
+                    _previous[next] = current;
                 }
             }
 
-            if (!distances.TryGetValue(targetNodeId, out totalLength) || totalLength == float.MaxValue)
-                return new List<string>();
-
-            List<string> path = new List<string>();
-            string walkNodeId = targetNodeId;
-            while (!string.IsNullOrEmpty(walkNodeId))
+            if (double.IsInfinity(_distances[target]) || _distances[target] > float.MaxValue)
+                return MapGraphResolvedPathPlan.Invalid(targetNodeId);
+            _path.Clear();
+            for (int current = target; current != start; current = _previous[current])
             {
-                path.Add(walkNodeId);
-                if (!previousByNodeId.TryGetValue(walkNodeId, out walkNodeId))
-                    break;
+                if (current < 0 || _path.Count >= _nodes.Count) return MapGraphResolvedPathPlan.Invalid(targetNodeId);
+                _path.Add(_nodes[current]);
             }
-
-            path.Reverse();
-            return path;
-        }
-
-        private static string GetLowestDistanceNode(
-            HashSet<string> candidateNodeIds,
-            Dictionary<string, float> distances)
-        {
-            string bestNodeId = string.Empty;
-            float bestDistance = float.MaxValue;
-
-            foreach (string nodeId in candidateNodeIds)
-            {
-                if (!distances.TryGetValue(nodeId, out float distance))
-                    continue;
-
-                if (distance >= bestDistance)
-                    continue;
-
-                bestDistance = distance;
-                bestNodeId = nodeId;
-            }
-
-            return bestNodeId;
+            _path.Reverse();
+            return MapGraphResolvedPathPlan.FromNodePath(targetNodeId, _path, (float)_distances[target]);
         }
     }
 
-    /// <summary>
-    /// 抽象图寻路结果
-    /// RemainingNodeIds 是状态机或表现层接下来需要依次抵达的节点序列
-    /// </summary>
+    /// <summary>与搜索工作区隔离的只读路径结果；失效结果不携带部分可执行路径。</summary>
     public sealed class MapGraphResolvedPathPlan
     {
-        private MapGraphResolvedPathPlan() { }
+        public string TargetNodeId { get; }
+        public IReadOnlyList<string> RemainingNodeIds { get; }
+        public float TotalEstimatedLengthUnits { get; }
+        public bool IsValid { get; }
 
-        /// <summary>
-        /// 本次寻路的目标节点
-        /// </summary>
-        public string TargetNodeId { get; private set; }
-
-        /// <summary>
-        /// 起点之后需要依次抵达的节点
-        /// </summary>
-        public List<string> RemainingNodeIds { get; private set; } = new List<string>();
-
-        /// <summary>
-        /// 路径估算总长度
-        /// </summary>
-        public float TotalEstimatedLengthUnits { get; private set; }
-
-        /// <summary>
-        /// 寻路是否成功
-        /// </summary>
-        public bool IsValid { get; private set; }
-
-        public static MapGraphResolvedPathPlan Invalid(string targetNodeId)
+        private MapGraphResolvedPathPlan(string target, IReadOnlyList<string> nodes, float length, bool valid)
         {
-            return new MapGraphResolvedPathPlan
-            {
-                TargetNodeId = targetNodeId ?? string.Empty,
-                IsValid = false
-            };
+            TargetNodeId = target ?? string.Empty;
+            RemainingNodeIds = nodes;
+            TotalEstimatedLengthUnits = length;
+            IsValid = valid;
         }
 
-        public static MapGraphResolvedPathPlan FromNodePath(
-            string targetNodeId,
-            List<string> remainingNodeIds,
+        public static MapGraphResolvedPathPlan Invalid(string targetNodeId)
+            => new MapGraphResolvedPathPlan(targetNodeId, Array.Empty<string>(), 0f, false);
+
+        public static MapGraphResolvedPathPlan FromNodePath(string targetNodeId, List<string> remainingNodeIds,
             float totalEstimatedLengthUnits)
         {
-            return new MapGraphResolvedPathPlan
-            {
-                TargetNodeId = targetNodeId ?? string.Empty,
-                RemainingNodeIds = remainingNodeIds ?? new List<string>(),
-                TotalEstimatedLengthUnits = Mathf.Max(0f, totalEstimatedLengthUnits),
-                IsValid = true
-            };
+            if (totalEstimatedLengthUnits < 0f || float.IsNaN(totalEstimatedLengthUnits) || float.IsInfinity(totalEstimatedLengthUnits))
+                return Invalid(targetNodeId);
+            var copy = remainingNodeIds != null ? new List<string>(remainingNodeIds) : new List<string>();
+            return new MapGraphResolvedPathPlan(targetNodeId, copy.AsReadOnly(), totalEstimatedLengthUnits, true);
         }
     }
 }
