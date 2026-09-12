@@ -1,4 +1,5 @@
 using Gameplay.Agent.Core;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -15,9 +16,16 @@ public class ExtractionPointController : MonoBehaviour
 
     public float WorldPromptVerticalOffset = 0.9f;
 
-    private Collider _playerCollider;
-    private string _playerAgentId;
-    private bool _isPlayerInsideActiveBounds;
+    private sealed class PlayerPresence
+    {
+        public readonly string AgentId;
+        public readonly HashSet<Collider> Colliders = new HashSet<Collider>();
+        public bool Inside;
+        public PlayerPresence(string agentId) { AgentId = agentId; }
+    }
+    private readonly Dictionary<string, PlayerPresence> _players = new Dictionary<string, PlayerPresence>();
+    private readonly List<Collider> _expiredColliders = new List<Collider>();
+    private readonly List<string> _emptyPlayers = new List<string>();
 
     private void Reset()
     {
@@ -30,62 +38,57 @@ public class ExtractionPointController : MonoBehaviour
 
     private void Update()
     {
-        if (_playerCollider != null)
+        if (_players.Count == 0) return;
+        Bounds bounds = GetEffectiveBounds();
+        _emptyPlayers.Clear();
+        foreach (var pair in _players)
         {
-            RefreshPlayerPresence();
+            RefreshPlayerPresence(pair.Value, bounds);
+            if (pair.Value.Colliders.Count == 0) _emptyPlayers.Add(pair.Key);
         }
+        foreach (string id in _emptyPlayers) _players.Remove(id);
     }
 
     private void OnDisable()
     {
-        SetPlayerInsideActiveBounds(false);
-        _playerCollider = null;
-        _playerAgentId = string.Empty;
+        foreach (var player in _players.Values) SetPlayerInsideActiveBounds(player, false);
+        _players.Clear();
+        _expiredColliders.Clear();
+        _emptyPlayers.Clear();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player"))
-        {
-            return;
-        }
-
-        _playerCollider = other;
-        _playerAgentId = ResolveAgentId(other);
-        RefreshPlayerPresence();
+        TrackPlayer(other);
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (!other.CompareTag("Player"))
-        {
-            return;
-        }
-
-        if (_playerCollider != other)
-        {
-            SetPlayerInsideActiveBounds(false);
-            _playerCollider = other;
-        }
-
-        _playerAgentId = ResolveAgentId(other);
-        RefreshPlayerPresence();
+        TrackPlayer(other);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.CompareTag("Player"))
-        {
-            return;
-        }
+        if (other == null) return;
+        string id = ResolveAgentId(other);
+        if (!_players.TryGetValue(id, out var player)) return;
+        player.Colliders.Remove(other);
+        RefreshPlayerPresence(player, GetEffectiveBounds());
+        if (player.Colliders.Count == 0) _players.Remove(id);
+    }
 
-        if (_playerCollider == other)
+    private void TrackPlayer(Collider other)
+    {
+        // Unity can deliver trigger callbacks to disabled behaviours.
+        if (!isActiveAndEnabled || other == null || !other.CompareTag("Player")) return;
+        string id = ResolveAgentId(other);
+        if (!_players.TryGetValue(id, out var player))
         {
-            SetPlayerInsideActiveBounds(false);
-            _playerCollider = null;
-            _playerAgentId = string.Empty;
-            return;
+            player = new PlayerPresence(id);
+            _players.Add(id, player);
         }
+        player.Colliders.Add(other);
+        RefreshPlayerPresence(player, GetEffectiveBounds());
     }
 
     /// <summary>
@@ -101,37 +104,37 @@ public class ExtractionPointController : MonoBehaviour
             effectiveBounds.center.z);
     }
 
-    private void RefreshPlayerPresence()
+    private void RefreshPlayerPresence(PlayerPresence player, Bounds effectiveBounds)
     {
-        SetPlayerInsideActiveBounds(IsPlayerInsideActiveBounds());
+        bool inside = false;
+        _expiredColliders.Clear();
+        foreach (var collider in player.Colliders)
+        {
+            if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy || !collider.CompareTag("Player"))
+            {
+                _expiredColliders.Add(collider);
+                continue;
+            }
+            Vector3 position = collider.bounds.center;
+            inside |= Mathf.Abs(position.x - effectiveBounds.center.x) <= effectiveBounds.extents.x &&
+                      Mathf.Abs(position.z - effectiveBounds.center.z) <= effectiveBounds.extents.z;
+        }
+        foreach (var collider in _expiredColliders) player.Colliders.Remove(collider);
+        SetPlayerInsideActiveBounds(player, inside);
     }
 
-    private void SetPlayerInsideActiveBounds(bool isInside)
+    private void SetPlayerInsideActiveBounds(PlayerPresence player, bool isInside)
     {
-        if (_isPlayerInsideActiveBounds == isInside)
+        if (player.Inside == isInside)
         {
             return;
         }
 
-        _isPlayerInsideActiveBounds = isInside;
-        if (!string.IsNullOrEmpty(_playerAgentId))
-            RaidFlowController.Instance?.SetAgentInsideExtractionPoint(_playerAgentId, this, isInside);
+        player.Inside = isInside;
+        if (!string.IsNullOrEmpty(player.AgentId))
+            RaidFlowController.Instance?.SetAgentInsideExtractionPoint(player.AgentId, this, isInside);
         else
             RaidFlowController.Instance?.SetPlayerInsideExtractionPoint(this, isInside);
-    }
-
-    private bool IsPlayerInsideActiveBounds()
-    {
-        if (_playerCollider == null)
-        {
-            return false;
-        }
-
-        // 使用收窄后的水平范围判定撤离，避免只碰到触发器边缘就开始读条
-        Bounds effectiveBounds = GetEffectiveBounds();
-        Vector3 playerPosition = _playerCollider.bounds.center;
-        return Mathf.Abs(playerPosition.x - effectiveBounds.center.x) <= effectiveBounds.extents.x &&
-               Mathf.Abs(playerPosition.z - effectiveBounds.center.z) <= effectiveBounds.extents.z;
     }
 
     private static string ResolveAgentId(Collider collider)

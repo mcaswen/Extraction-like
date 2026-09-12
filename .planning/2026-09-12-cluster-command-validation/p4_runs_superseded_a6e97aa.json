@@ -1,0 +1,152 @@
+﻿{
+    "schemaVersion":  1,
+    "baselineCommit":  "a6e97aa6041babd7c5b07d5a3ffffce2de5fb19a",
+    "runs":  [
+                 {
+                     "slot":  1,
+                     "scenario":  "MC01-R",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-071622-119",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "COMPLETE"
+                 },
+                 {
+                     "slot":  2,
+                     "scenario":  "MC01-E",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072035-007",
+                     "exit":  0,
+                     "gameStatus":  "EXPECTED_DEATH",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  3,
+                     "scenario":  "MC01-X",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072152-838",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  4,
+                     "scenario":  "MC02",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072233-499",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  5,
+                     "scenario":  "MC03",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072426-935",
+                     "exit":  0,
+                     "gameStatus":  "EXPECTED_DEATH",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  6,
+                     "scenario":  "MC04-N",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072528-483",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  7,
+                     "scenario":  "MC02",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072711-792",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  8,
+                     "scenario":  "MC03",
+                     "seed":  731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-072849-791",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "COMPLETE"
+                 },
+                 {
+                     "slot":  9,
+                     "scenario":  "MC01-R",
+                     "seed":  1731,
+                     "speed":  4,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-073021-406",
+                     "exit":  0,
+                     "gameStatus":  "EXPECTED_DEATH",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "COMPLETE"
+                 },
+                 {
+                     "slot":  10,
+                     "scenario":  "MC02",
+                     "seed":  731,
+                     "speed":  1,
+                     "runtime":  "Editor",
+                     "path":  "Logs/SceneRaid/20260912-073303-451",
+                     "exit":  0,
+                     "gameStatus":  "PASS",
+                     "evidenceStatus":  "PASS",
+                     "coverageStatus":  "PARTIAL"
+                 },
+                 {
+                     "slot":  11,
+                     "scenario":  "MC01-R",
+                     "seed":  731,
+                     "speed":  1,
+                     "runtime":  "Player",
+                     "path":  "Logs/SceneRaid/20260912-073808-127/PlayerRun",
+                     "exit":  1,
+                     "gameStatus":  "ISSUES_OBSERVED",
+                     "evidenceStatus":  "FAIL",
+                     "coverageStatus":  "NOT_APPLICABLE"
+                 }
+             ],
+    "infrastructureAttempts":  [
+                                   {
+                                       "path":  "Logs/SceneRaid/20260912-071756-289",
+                                       "reason":  "Retained Editor is not idle; no files were synchronized",
+                                       "playModeStarted":  false,
+                                       "slot":  2
+                                   }
+                               ],
+    "autonomousRegression":  {
+                                 "path":  "Logs/SceneRaid/20260912-073141-172",
+                                 "gameStatus":  "PASS",
+                                 "exit":  0
+                             },
+    "playerBuild":  "Logs/SceneRaid/20260912-073808-127"
+}

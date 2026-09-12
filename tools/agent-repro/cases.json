@@ -1,6 +1,28 @@
 {
   "groups": [
     {
+      "name": "ExtractionPresence",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.ExtractionPresenceTests",
+      "expected": [
+        "TwoBodiesKeepIndependentProgress(1)",
+        "TwoBodiesKeepIndependentProgress(4)",
+        "SharedPointCommandsExtractBoth(1)",
+        "SharedPointCommandsExtractBoth(4)",
+        "OtherActorLeavingDoesNotResetRemaining(1)",
+        "OtherActorLeavingDoesNotResetRemaining(4)",
+        "MultipleCollidersLeaveIndependently(1)",
+        "MultipleCollidersLeaveIndependently(4)",
+        "DisabledPointClearsPresenceAndCanReenter(1)",
+        "DisabledPointClearsPresenceAndCanReenter(4)",
+        "DisabledOrDestroyedBodyOnlyClearsItsActor(False)",
+        "DisabledOrDestroyedBodyOnlyClearsItsActor(True)",
+        "HorizontalDetectionScaleStillExcludesTheEdge",
+        "LegacyPlayerStillHasOneTimer"
+      ]
+    },
+    {
       "name": "SceneResourceApproach",
       "suite": "Core",
       "graphics": true,

@@ -1,5 +1,6 @@
 #if UNITY_EDITOR || ANOMALY_SCENE_AUTOMATION
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -65,6 +66,12 @@ namespace AnomalySearch.Automation.SceneRaid
             public string[] requiredAgents, extractedAgents, settledAgents;
             public AgentState[] agents;
             public RangeState[] ranges;
+            public ExtractionState[] extractionProgress;
+        }
+        [Serializable] public sealed class ExtractionState
+        {
+            public string agent, point;
+            public float progressSeconds, durationSeconds;
         }
         [Serializable] public sealed class RangeState
         {
@@ -144,7 +151,7 @@ namespace AnomalySearch.Automation.SceneRaid
             string key = owner.GetType().FullName + "." + name;
             if (!Fields.TryGetValue(key, out var field))
             {
-                field = owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
+                field = owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 if (field == null) throw new MissingFieldException(owner.GetType().FullName, name);
                 Fields.Add(key, field);
             }
@@ -173,8 +180,24 @@ namespace AnomalySearch.Automation.SceneRaid
                 requiredAgents = Sorted(RaidField<HashSet<string>>(raid, "_requiredExtractionAgentIds")),
                 extractedAgents = Sorted(RaidField<HashSet<string>>(raid, "_extractedAgentIds")),
                 settledAgents = Sorted(RaidField<HashSet<string>>(raid, "_settledExtractionAgentIds")),
-                agents = states.ToArray(), ranges = CaptureRanges(targets)
+                agents = states.ToArray(), ranges = CaptureRanges(targets), extractionProgress = CaptureExtractionProgress(raid)
             };
+        }
+
+        private ExtractionState[] CaptureExtractionProgress(RaidFlowController raid)
+        {
+            var progress = RaidField<IDictionary>(raid, "_activeExtractionProgressByAgentId");
+            if (progress == null || progress.Count == 0) return Array.Empty<ExtractionState>();
+            var result = new ExtractionState[progress.Count];
+            int index = 0;
+            foreach (DictionaryEntry pair in progress)
+            {
+                var point = ReadField<ExtractionPointController>(pair.Value, "ExtractionPoint");
+                result[index++] = new ExtractionState { agent = (string)pair.Key, point = _identity.Get(point),
+                    progressSeconds = ReadField<float>(pair.Value, "ProgressSeconds"),
+                    durationSeconds = point != null ? point.ExtractionDurationSeconds : 0 };
+            }
+            return result;
         }
 
         private RangeState[] CaptureRanges(GameplayTargetRegistry registry)
