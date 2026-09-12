@@ -1,6 +1,30 @@
 {
   "groups": [
     {
+      "name": "MapGraphRouteProjection",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphRouteProjectionTests",
+      "expected": [
+        "ProjectionReadsTheExecutedSequenceAndStationaryTimeCannotAdvanceIt",
+        "NativeDistanceIsBorrowedWithoutAdditionalQueryOrDestinationMutation",
+        "RetaliationMeasuresTheOriginalAnchorWithBoundedReadOnlyQueries",
+        "MidEdgeReversalRetainsThePhysicalEntryEdgeAcrossRepeatedCommands",
+        "ProcessingAndNavigationLossCannotInventAnotherEdgeOrAdvanceTheCursor"
+      ]
+    },
+    {
+      "name": "MapGraphPositionProjection",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphPositionProjectionTests",
+      "expected": [
+        "FrozenDistanceAndToleranceProduceMeasuredProgressAndRetreat",
+        "InvalidNonfiniteAndPendingDistanceFreezeUntilRecoveryBaseline",
+        "SameEdgeReplacementAndDirectionReversalKeepTheSamePosition",
+        "PathRevisionCalibratesOnceAndNewEdgeStartsFromItsPort",
+        "ZeroNearToleranceAndInvalidToleranceStayFinite"
+      ]
+    },
+    {
       "name": "MapCommandFeedback",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandFeedbackTests",
@@ -175,13 +199,24 @@
       "name": "MapGraphSceneSynchronization",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphSceneSynchronizationTests",
-      "expected": ["UnassignedClusterGetsAStableDisplayZoneWithoutAWorldZone", "MissingRealZoneCannotPretendToBeAnUnassignedDisplayZone", "SourceLabelsRefreshWhileAuthoredLayoutAndStylesStayFixed", "AnEditCannotChangeARealZonesIdentityIntoSynthetic"]
+      "expected": [
+        "UnassignedClusterGetsAStableDisplayZoneWithoutAWorldZone",
+        "MissingRealZoneCannotPretendToBeAnUnassignedDisplayZone",
+        "SourceLabelsRefreshWhileAuthoredLayoutAndStylesStayFixed",
+        "AnEditCannotChangeARealZonesIdentityIntoSynthetic"
+      ]
     },
     {
       "name": "MapGraphEditorCanvas",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphEditorCanvasTests",
-      "expected": ["ViewportRoundTripAndCursorZoomKeepTheMapPointFixed", "HitTestingPrefersRealNodesThenEdgesThenZones", "RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence", "RecoveryDoesNotEraseAnExternalSourceConflict", "ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates"]
+      "expected": [
+        "ViewportRoundTripAndCursorZoomKeepTheMapPointFixed",
+        "HitTestingPrefersRealNodesThenEdgesThenZones",
+        "RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence",
+        "RecoveryDoesNotEraseAnExternalSourceConflict",
+        "ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates"
+      ]
     },
     {
       "name": "MapGraphShortcuts",
@@ -220,24 +255,43 @@
       "name": "MapGraphEditOperations",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphEditOperationTests",
-      "expected": ["DragLocksTheRequestedPositionAndAlignsTheOtherEndpoint", "ConflictingLockedEndpointRejectsTheDrag", "ZoneTranslationCarriesLockedMembersAsOneAuthoredMove", "DeleteAndExplicitReaddRespectTheConnectionTombstone", "RebindingKeepsTheEdgeIdentityAndItsStyle", "OversizedLineIsRejectedAndPendingPreviewCanBeCancelled", "ExplicitDisconnectedGraphIsValidButGenerationStillRequiresConnectivity"]
+      "expected": [
+        "DragLocksTheRequestedPositionAndAlignsTheOtherEndpoint",
+        "ConflictingLockedEndpointRejectsTheDrag",
+        "ZoneTranslationCarriesLockedMembersAsOneAuthoredMove",
+        "DeleteAndExplicitReaddRespectTheConnectionTombstone",
+        "RebindingKeepsTheEdgeIdentityAndItsStyle",
+        "OversizedLineIsRejectedAndPendingPreviewCanBeCancelled",
+        "ExplicitDisconnectedGraphIsValidButGenerationStillRequiresConnectivity"
+      ]
     },
     {
       "name": "MapGraphAuthoringTransaction",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphAuthoringTransactionTests",
-      "expected": ["SavedMapReopensWithStableIdentityAndZeroBakeQueries", "ConflictsAndInvalidPathsCannotMutateSavedInputs", "ExistingAssetFailureAfterAssetWriteRollsBack", "ExistingAssetFailureAfterSceneWriteRollsBack", "NewAssetFailureAfterSceneWriteRemovesOnlyItsNewObjects"]
+      "expected": [
+        "SavedMapReopensWithStableIdentityAndZeroBakeQueries",
+        "ConflictsAndInvalidPathsCannotMutateSavedInputs",
+        "ExistingAssetFailureAfterAssetWriteRollsBack",
+        "ExistingAssetFailureAfterSceneWriteRollsBack",
+        "NewAssetFailureAfterSceneWriteRemovesOnlyItsNewObjects"
+      ]
     },
     {
       "name": "MapGraphEditorDocument",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphEditorDocumentTests",
       "expected": [
-        "FirstGenerationUndoRedoRestoresGraphAndBakeAtomically", "MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch",
-        "ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument", "SceneChangeRejectsReadyGenerationWithoutCreatingUndoState",
-        "ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset", "ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement",
-        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections", "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake",
-        "AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput", "EditingAfterStartingAPreviewRejectsTheEarlierPreview"
+        "FirstGenerationUndoRedoRestoresGraphAndBakeAtomically",
+        "MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch",
+        "ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument",
+        "SceneChangeRejectsReadyGenerationWithoutCreatingUndoState",
+        "ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset",
+        "ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement",
+        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections",
+        "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake",
+        "AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput",
+        "EditingAfterStartingAPreviewRejectsTheEarlierPreview"
       ]
     },
     {
@@ -245,18 +299,29 @@
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphGenerationControllerTests",
       "expected": [
-        "BudgetedPipelinePublishesOnlyValidatedResults", "NavigationTickLimitAndSettingsAreFrozenAtStart",
-        "CancellationStopsEveryOwnedStage(\"ScanningNavigation\")", "CancellationStopsEveryOwnedStage(\"Generating\")", "CancellationStopsEveryOwnedStage(\"Ready\")",
-        "InputChangesBeforePublicationRejectTheWholeResult(\"scene\")", "InputChangesBeforePublicationRejectTheWholeResult(\"navigation\")", "InputChangesBeforePublicationRejectTheWholeResult(\"unavailable\")",
-        "APreviouslyReadyPreviewMustBeRecheckedBeforeApplying", "LayoutOnlyKeepsConnectionsAndAuthoredStyles",
-        "MissingOrChangedInputsCannotBeSilentlySynchronized", "ActualSceneControllerProducesAValidatedReadOnlyResult", "SceneFingerprintIncludesLabelsProfilesAndAgentOrigins"
+        "BudgetedPipelinePublishesOnlyValidatedResults",
+        "NavigationTickLimitAndSettingsAreFrozenAtStart",
+        "CancellationStopsEveryOwnedStage(\"ScanningNavigation\")",
+        "CancellationStopsEveryOwnedStage(\"Generating\")",
+        "CancellationStopsEveryOwnedStage(\"Ready\")",
+        "InputChangesBeforePublicationRejectTheWholeResult(\"scene\")",
+        "InputChangesBeforePublicationRejectTheWholeResult(\"navigation\")",
+        "InputChangesBeforePublicationRejectTheWholeResult(\"unavailable\")",
+        "APreviouslyReadyPreviewMustBeRecheckedBeforeApplying",
+        "LayoutOnlyKeepsConnectionsAndAuthoredStyles",
+        "MissingOrChangedInputsCannotBeSilentlySynchronized",
+        "ActualSceneControllerProducesAValidatedReadOnlyResult",
+        "SceneFingerprintIncludesLabelsProfilesAndAgentOrigins"
       ]
     },
     {
       "name": "MapGraphSceneLayout",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphSceneLayoutTests",
-      "expected": ["ActualSceneFixedSeedIsMeasuredAndBounded", "ActualSceneJointGenerationPreservesNavigationAndGeometry"]
+      "expected": [
+        "ActualSceneFixedSeedIsMeasuredAndBounded",
+        "ActualSceneJointGenerationPreservesNavigationAndGeometry"
+      ]
     },
     {
       "name": "MapGraphLayoutSolver",

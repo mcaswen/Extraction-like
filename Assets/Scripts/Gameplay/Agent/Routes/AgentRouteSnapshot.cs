@@ -13,6 +13,7 @@ namespace Gameplay.Agent.Routes
         public AgentRouteFailure Failure { get; }
         public IReadOnlyList<string> NodeIds { get; }
         public int StepIndex { get; }
+        public string EntryFromNodeId { get; }
         public AgentClusterStepSnapshot CurrentStep { get; }
         public bool HasPendingRequest { get; }
         public AgentRouteRequest PendingRequest { get; }
@@ -25,7 +26,7 @@ namespace Gameplay.Agent.Routes
         public bool HoldsPlayerRoute => (IsActive && Request.Source == AgentRouteSource.Player) ||
             (HasPendingRequest && PendingRequest.Source == AgentRouteSource.Player);
         public string CurrentNodeId => NodeIds != null && StepIndex >= 0 && StepIndex < NodeIds.Count ? NodeIds[StepIndex] : string.Empty;
-        public string PreviousNodeId => NodeIds != null && StepIndex > 0 && StepIndex < NodeIds.Count ? NodeIds[StepIndex - 1] : string.Empty;
+        public string PreviousNodeId => NodeIds != null && StepIndex > 0 && StepIndex < NodeIds.Count ? NodeIds[StepIndex - 1] : StepIndex == 0 ? EntryFromNodeId : string.Empty;
 
         internal AgentRouteSnapshot(AgentRouteState state, AgentClusterStepSnapshot step, AgentRouteRequest? pending)
         {
@@ -33,6 +34,7 @@ namespace Gameplay.Agent.Routes
             RouteVersion = state?.Version ?? 0; Stage = state?.Stage ?? AgentRouteStage.Planning;
             Failure = state?.Failure ?? AgentRouteFailure.None; NodeIds = state?.Plan?.NodeIds ?? Array.Empty<string>();
             StepIndex = state?.Cursor ?? -1; CurrentStep = step;
+            EntryFromNodeId = state?.EntryFromNodeId ?? string.Empty;
             HasPendingRequest = pending.HasValue; PendingRequest = pending ?? default;
             GraphRevision = state?.Plan?.GraphRevision ?? 0; CostRevision = state?.Plan?.CostRevision ?? 0;
             BindingRevision = state?.Plan?.BindingRevision ?? 0;

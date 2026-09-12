@@ -3,112 +3,57 @@ using UnityEngine;
 
 namespace Gameplay.MapGraph.Runtime
 {
-    /// <summary>
-    /// 单个 Agent 在抽象图 UI 上的运行时投影状态
-    /// 只记录图上表现所需的节点、边、目标和显示位置，不承载真实战斗状态
-    /// </summary>
+    public enum MapGraphAgentDisplayMode { Unlocalized, Entering, Travelling, Processing, Waiting, Extracting, Idle, Completed, Failed, Dead, Extracted }
+
+    /// <summary>执行事实的展示缓存。只有 Binding 投影器写入，视图不能推进路线。</summary>
     public sealed class MapGraphAgentRuntimeState
     {
-        private readonly List<string> _remainingPathNodeIds = new List<string>();
-
-        public MapGraphAgentRuntimeState(string agentId)
-        {
-            AgentId = agentId ?? string.Empty;
-        }
-
-        /// <summary>
-        /// Agent 稳定 ID
-        /// </summary>
+        private readonly List<string> _remaining = new List<string>();
+        private readonly IReadOnlyList<string> _remainingView;
+        public MapGraphAgentRuntimeState(string agentId) { AgentId=agentId??string.Empty; _remainingView=_remaining.AsReadOnly(); }
         public string AgentId { get; }
-
-        /// <summary>
-        /// UI 显示名称
-        /// </summary>
-        public string DisplayName { get; set; } = "Agent";
-
-        /// <summary>
-        /// UI 显示颜色
-        /// </summary>
-        public Color AgentColor { get; set; } = Color.white;
-
-        /// <summary>
-        /// 当前所在节点 ID
-        /// 为空表示 Agent 正在边上移动
-        /// </summary>
-        public string CurrentNodeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 最近一次离开的节点 ID
-        /// </summary>
-        public string PreviousNodeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 当前图上目标节点 ID
-        /// </summary>
-        public string CurrentTargetNodeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 当前路径剩余节点序列
-        /// </summary>
-        public List<string> RemainingPathNodeIds => _remainingPathNodeIds;
-
-        /// <summary>
-        /// 当前所在边 ID
-        /// </summary>
-        public string CurrentEdgeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 当前边起点节点 ID
-        /// </summary>
-        public string CurrentEdgeFromNodeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 当前边终点节点 ID
-        /// </summary>
-        public string CurrentEdgeToNodeId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// 当前边长度
-        /// </summary>
-        public float CurrentEdgeLengthUnits { get; set; }
-
-        /// <summary>
-        /// Agent 在当前边上的进度
-        /// </summary>
-        public float CurrentEdgeProgress01 { get; set; }
-
-        /// <summary>
-        /// 本段移动的起始进度
-        /// </summary>
-        public float CurrentEdgeSegmentStartProgress01 { get; set; }
-
-        /// <summary>
-        /// 本段移动的目标进度
-        /// </summary>
-        public float CurrentEdgeTargetProgress01 { get; set; } = 1f;
-
-        /// <summary>
-        /// Agent 在抽象图坐标系中的当前位置
-        /// </summary>
-        public Vector2 GraphPosition { get; set; }
-
-        /// <summary>
-        /// 当前是否处在边上
-        /// </summary>
-        public bool IsOnEdge => !string.IsNullOrWhiteSpace(CurrentEdgeId);
-
-        /// <summary>
-        /// 清空边上移动状态，把 Agent 收回节点态
-        /// </summary>
-        public void ClearEdgeTravel()
+        public string DisplayName { get; internal set; } = "Agent";
+        public Color AgentColor { get; internal set; } = Color.white;
+        public string RootRequestId { get; internal set; } = string.Empty;
+        public long RouteVersion { get; internal set; }
+        public int StepIndex { get; internal set; } = -1;
+        public string CurrentStepNodeId { get; internal set; } = string.Empty;
+        public string CurrentNodeId { get; internal set; } = string.Empty;
+        public string PreviousNodeId { get; internal set; } = string.Empty;
+        public string CurrentTargetNodeId { get; internal set; } = string.Empty;
+        public string PendingTargetNodeId { get; internal set; } = string.Empty;
+        public bool IsPlayerRoute { get; internal set; }
+        public bool IsRetaliating { get; internal set; }
+        public bool HasPendingRoute { get; internal set; }
+        public MapGraphAgentDisplayMode DisplayMode { get; internal set; }
+        public IReadOnlyList<string> RemainingPathNodeIds => _remainingView;
+        public string CurrentEdgeId { get; internal set; } = string.Empty;
+        // 两端按真实执行方向排列，进度始终从来源端口 0 到目标端口 1。
+        public string CurrentEdgeFromNodeId { get; internal set; } = string.Empty;
+        public string CurrentEdgeToNodeId { get; internal set; } = string.Empty;
+        public float CurrentEdgeLengthUnits { get; internal set; }
+        public float CurrentEdgeProgress01 { get; internal set; }
+        public float CurrentEdgeSegmentStartProgress01 { get; internal set; }
+        public float CurrentEdgeTargetProgress01 => 1;
+        public Vector2 GraphPosition { get; internal set; }
+        public bool IsOnEdge => !string.IsNullOrEmpty(CurrentEdgeId);
+        public bool HasGraphPosition { get; internal set; }
+        public bool HasValidDistance { get; internal set; }
+        public float RemainingDistance { get; internal set; }
+        public float ArrivalTolerance { get; internal set; }
+        public float BaselineDistance { get; internal set; }
+        public string DistanceFailure { get; internal set; } = string.Empty;
+        public long DistancePathVersion { get; internal set; }
+        internal void CopyRemaining(IReadOnlyList<string> nodes,int cursor,bool active)
         {
-            CurrentEdgeId = string.Empty;
-            CurrentEdgeFromNodeId = string.Empty;
-            CurrentEdgeToNodeId = string.Empty;
-            CurrentEdgeLengthUnits = 0f;
-            CurrentEdgeProgress01 = 0f;
-            CurrentEdgeSegmentStartProgress01 = 0f;
-            CurrentEdgeTargetProgress01 = 1f;
+            _remaining.Clear();
+            if (active && nodes!=null) for(int i=Mathf.Max(0,cursor);i<nodes.Count;i++) _remaining.Add(nodes[i]);
+        }
+        internal void ClearEdgeTravel()
+        {
+            CurrentEdgeId=CurrentEdgeFromNodeId=CurrentEdgeToNodeId=string.Empty;
+            CurrentEdgeLengthUnits=CurrentEdgeProgress01=CurrentEdgeSegmentStartProgress01=0;
+            HasValidDistance=false;
         }
     }
 }

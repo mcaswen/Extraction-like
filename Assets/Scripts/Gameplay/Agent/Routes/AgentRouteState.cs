@@ -8,6 +8,7 @@ namespace Gameplay.Agent.Routes
         public AgentRoutePlan Plan;
         public AgentRouteEnvironment Environment;
         public int Cursor;
+        public string EntryFromNodeId;
         public int ReplanCount;
         public bool SkipResources;
         public AgentRouteStage Stage;

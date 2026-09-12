@@ -154,6 +154,7 @@ namespace Gameplay.Agent.Routes
             { var failure = next.Snapshot.Failure; next.Dispose(); PlanningFailed(failure); return; }
             var previous = _state; _step?.Dispose(); _step = next;
             _state = new AgentRouteState { Request = work.Request, Version = work.Version, Plan = plan, Environment = work.Environment,
+                EntryFromNodeId = ResolveEntryFrom(work, plan),
                 Stage = AgentRouteStage.Accepted, SkipResources = skipResources, ReplanCount = work.IsReplan ? previous.ReplanCount : 0 };
             _pending = null;
             if (previous?.IsActive == true && !work.IsReplan)
@@ -191,9 +192,17 @@ namespace Gameplay.Agent.Routes
             if (_state?.IsActive != true || _state.Plan == null) return null;
             int cursor = _state.Cursor;
             string current = _state.Plan.NodeIds[cursor];
-            if (cursor > 0 && _step?.Snapshot.Phase == AgentClusterStepPhase.Travelling)
-                return new[] { _state.Plan.NodeIds[cursor - 1], current };
+            string previous = cursor > 0 ? _state.Plan.NodeIds[cursor - 1] : _state.EntryFromNodeId;
+            if (!string.IsNullOrEmpty(previous) && _step?.Snapshot.Phase == AgentClusterStepPhase.Travelling)
+                return new[] { previous, current };
             return new[] { current };
+        }
+        private static string ResolveEntryFrom(PlanningWork work, AgentRoutePlan plan)
+        {
+            if (work.EntryNodes == null || work.EntryNodes.Length != 2) return string.Empty;
+            string from = work.EntryNodes[0] == plan.EntryNodeId ? work.EntryNodes[1] :
+                work.EntryNodes[1] == plan.EntryNodeId ? work.EntryNodes[0] : string.Empty;
+            return from.Length > 0 && work.Environment.Graph.TryGetEdgeBetween(from, plan.EntryNodeId, out _) ? from : string.Empty;
         }
         private Vector3 GroundPosition()
         {
@@ -221,8 +230,9 @@ namespace Gameplay.Agent.Routes
                 if (!next.Graph.TryGetNode(id, out var node) || !_state.Environment.Graph.TryGetNode(id, out var oldNode) ||
                     node.NodeKind != oldNode.NodeKind || !next.Targets.TryGetFacts(id, out var facts) || !facts.CanTraverse) return false;
                 if (i == _state.Cursor && (facts.Anchor - _step.Snapshot.Anchor).sqrMagnitude > 0.0001f) return false;
-                if (i == firstEdge && (i == 0 || _step.Snapshot.Phase != AgentClusterStepPhase.Travelling)) continue;
-                string from = _state.Plan.NodeIds[i-1];
+                if (i == firstEdge && _step.Snapshot.Phase != AgentClusterStepPhase.Travelling) continue;
+                string from = i > 0 ? _state.Plan.NodeIds[i-1] : _state.EntryFromNodeId;
+                if (string.IsNullOrEmpty(from)) continue;
                 if (!next.Graph.TryGetEdgeBetween(from, id, out var edge) || !next.Costs.TryGetCost(edge, from, out _)) return false;
             }
             return next.TargetRevision == next.Targets.Revision;
