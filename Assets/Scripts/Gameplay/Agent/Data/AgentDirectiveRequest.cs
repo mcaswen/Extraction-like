@@ -60,6 +60,8 @@ namespace Gameplay.Agent.Data
         /// </summary>
         public int Priority { get; }
 
+        public AgentDirectiveRouteContext RouteContext { get; }
+
         /// <summary>
         /// 创建搜索具体资源对象的指令
         /// </summary>
@@ -175,7 +177,8 @@ namespace Gameplay.Agent.Data
             string payloadId = "",
             AgentId targetAgentId = default(AgentId),
             string commandId = "",
-            int priority = 0)
+            int priority = 0,
+            AgentDirectiveRouteContext routeContext = default)
         {
             TargetAgentId = targetAgentId;
             DirectiveType = directiveType;
@@ -183,6 +186,7 @@ namespace Gameplay.Agent.Data
             PayloadId = payloadId ?? string.Empty;
             CommandId = commandId ?? string.Empty;
             Priority = priority;
+            RouteContext = routeContext;
         }
 
         /// <summary>
@@ -205,7 +209,8 @@ namespace Gameplay.Agent.Data
             string payloadId = "",
             AgentId targetAgentId = default(AgentId),
             string commandId = "",
-            int priority = 0)
+            int priority = 0,
+            AgentDirectiveRouteContext routeContext = default)
         {
             TargetAgentId = targetAgentId;
             DirectiveType = directiveType;
@@ -218,6 +223,7 @@ namespace Gameplay.Agent.Data
             PayloadId = payloadId ?? string.Empty;
             CommandId = commandId ?? string.Empty;
             Priority = priority;
+            RouteContext = routeContext;
         }
 
         /// <summary>
@@ -234,7 +240,8 @@ namespace Gameplay.Agent.Data
                 PayloadId,
                 targetAgentId,
                 CommandId,
-                Priority);
+                Priority,
+                RouteContext);
         }
 
         /// <summary>
@@ -250,8 +257,12 @@ namespace Gameplay.Agent.Data
                 PayloadId,
                 TargetAgentId,
                 CommandId,
-                Priority);
+                Priority,
+                RouteContext);
         }
+
+        public AgentDirectiveRequest WithRouteContext(AgentDirectiveRouteContext context)
+            => new AgentDirectiveRequest(DirectiveType, TargetRef, PayloadId, TargetAgentId, CommandId, Priority, context);
 
         private static AgentTargetRef CreateTargetRefFromLegacyArguments(
             AgentDirectiveType directiveType,

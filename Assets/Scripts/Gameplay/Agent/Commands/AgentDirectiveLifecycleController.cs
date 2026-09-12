@@ -16,6 +16,7 @@ namespace Gameplay.Agent.Commands
         private readonly AgentNavigationMotor _motor;
         private AgentDirectiveRequest? _active;
         private AgentDirectiveRequest? _suspendedDirective;
+        public event System.Action<AgentDirectiveResult> ResultPublished;
         public AgentDirectiveRequest? Active => _active;
         public AgentDirectiveRequest? SuspendedDirective => _suspendedDirective;
         public AgentDirectiveRequest? SuspendedExtraction => _suspendedDirective?.DirectiveType == AgentDirectiveType.Extract
@@ -24,6 +25,14 @@ namespace Gameplay.Agent.Commands
         { _agent = agent; _storage = storage; _motor = motor; }
 
         public AgentDirectiveResult Submit(AgentDirectiveRequest request, bool damageInterrupt = false)
+            => SubmitCore(request, damageInterrupt, false);
+
+        /// <summary>路线编排器专用。先验证，再原子替换旧活动/挂起任务；普通入口不能解除路线保护。</summary>
+        public AgentDirectiveResult SubmitRouteStep(AgentDirectiveRequest request)
+            => request.RouteContext.IsValid ? SubmitCore(request, false, true)
+                : Publish(WithIdentity(request), AgentDirectiveStage.Rejected, AgentDirectiveFailure.InvalidTarget);
+
+        private AgentDirectiveResult SubmitCore(AgentDirectiveRequest request, bool damageInterrupt, bool routeReplacement)
         {
             request = WithIdentity(request);
             AgentDirectiveFailure failure = AgentDirectiveValidationService.Validate(_agent, request);
@@ -40,14 +49,14 @@ namespace Gameplay.Agent.Commands
                 // 目标可能在本帧 Tick 前失效，先统一完成和恢复，再处理这次新伤害。
                 Finish(_active.Value.CommandId);
             }
-            if (!manual && !damageInterrupt && _active.HasValue &&
-                (AgentManualDirectiveLock.IsManualDirective(_active.Value) || AgentManualDirectiveLock.IsCombatDamageDirective(_active.Value)))
+            if (!manual && !damageInterrupt && !routeReplacement && _active.HasValue &&
+                (AgentManualDirectiveLock.IsManualDirective(_active.Value) || AgentManualDirectiveLock.IsCombatDamageDirective(_active.Value) || _active.Value.RouteContext.IsValid))
                 return Publish(request, AgentDirectiveStage.Rejected, AgentDirectiveFailure.Superseded);
             if (!manual && _active.HasValue && SameTarget(_active.Value, request))
                 return new AgentDirectiveResult(_active.Value, AgentDirectiveStage.Accepted);
-            if (manual) DiscardSuspended(AgentDirectiveFailure.Superseded);
+            if (manual || routeReplacement) DiscardSuspended(AgentDirectiveFailure.Superseded);
             if (damageInterrupt && _active.HasValue && !_suspendedDirective.HasValue &&
-                (AgentManualDirectiveLock.IsManualDirective(_active.Value) || _active.Value.DirectiveType == AgentDirectiveType.Extract))
+                (AgentManualDirectiveLock.IsManualDirective(_active.Value) || _active.Value.DirectiveType == AgentDirectiveType.Extract || _active.Value.RouteContext.IsValid))
             {
                 _suspendedDirective = _active;
                 Publish(_active.Value, AgentDirectiveStage.Suspended);
@@ -141,14 +150,15 @@ namespace Gameplay.Agent.Commands
         }
         private AgentDirectiveRequest WithIdentity(AgentDirectiveRequest request) => new AgentDirectiveRequest(
             request.DirectiveType, request.TargetRef, request.PayloadId, _agent.AgentId,
-            string.IsNullOrEmpty(request.CommandId) ? "Auto_" + System.Guid.NewGuid().ToString("N") : request.CommandId, request.Priority);
+            string.IsNullOrEmpty(request.CommandId) ? "Auto_" + System.Guid.NewGuid().ToString("N") : request.CommandId, request.Priority, request.RouteContext);
         private static bool SameTarget(AgentDirectiveRequest a, AgentDirectiveRequest b) =>
-            a.DirectiveType == b.DirectiveType && a.TargetObject == b.TargetObject && a.TargetId == b.TargetId &&
+            a.RouteContext.Equals(b.RouteContext) && a.DirectiveType == b.DirectiveType && a.TargetObject == b.TargetObject && a.TargetId == b.TargetId &&
             (a.TargetObject != null || a.TargetPosition == b.TargetPosition) &&
             AgentManualDirectiveLock.IsCombatDamageDirective(a) == AgentManualDirectiveLock.IsCombatDamageDirective(b);
-        private static AgentDirectiveResult Publish(AgentDirectiveRequest request, AgentDirectiveStage stage, AgentDirectiveFailure reason = AgentDirectiveFailure.None)
+        private AgentDirectiveResult Publish(AgentDirectiveRequest request, AgentDirectiveStage stage, AgentDirectiveFailure reason = AgentDirectiveFailure.None)
         {
             var result = new AgentDirectiveResult(request, stage, reason);
+            ResultPublished?.Invoke(result);
             AgentDirectiveFeedbackChannel.Publish(result);
             return result;
         }

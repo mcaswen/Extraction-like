@@ -1,6 +1,18 @@
 {
   "groups": [
     {
+      "name": "AgentRouteLifecycle",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.AgentRouteLifecycleTests",
+      "expected": [
+        "AutonomousRouteStepResumesAfterEffectiveDamage",
+        "RejectedReplacementPreservesActiveRetaliationAndSuspendedRoute",
+        "AcceptedReplacementDiscardsOldRouteAndObsoleteCallbacks",
+        "CompletedSuspendedEnemyRetainsStepIdentityInCompletion",
+        "RouteProtectionAndInstanceEventsStayWithinOneAgent"
+      ]
+    },
+    {
       "name": "AgentRoutePlanning",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.AgentRoutePlanningTests",

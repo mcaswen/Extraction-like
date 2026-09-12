@@ -62,6 +62,7 @@ namespace Gameplay.Agent.Runtime
 
         public static bool IsManualDirective(AgentDirectiveRequest directiveRequest)
         {
+            if (directiveRequest.RouteContext.IsValid) return directiveRequest.RouteContext.IsPlayerRoute;
             return directiveRequest.Priority >= ManualDirectivePriority &&
                    !string.IsNullOrWhiteSpace(directiveRequest.CommandId) &&
                    directiveRequest.CommandId.StartsWith(
