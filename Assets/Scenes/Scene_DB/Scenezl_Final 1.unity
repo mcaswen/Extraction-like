@@ -71064,15 +71064,6 @@ MonoBehaviour:
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-94253630
     _hasNavigationAnchor: 1
     _navigationAnchorLocal: {x: -2.7166095, y: -1.8588613, z: -1.5675863}
-  - _nodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-    _expectedTargetKind: 5
-    _target: {fileID: 0}
-    _targetIdOverride: 
-    _useFallbackWorldPosition: 0
-    _fallbackWorldPosition: {x: 0, y: 0, z: 0}
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-6431816093595122837-0
-    _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 3.1300018, y: -0.84210813, z: -0.8399906}
   - _nodeId: cluster_1d8e558540281854a4430a91743e5541
     _expectedTargetKind: 5
     _target: {fileID: 1519466337}
@@ -71081,7 +71072,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1519466335
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 0.33829036, y: -1.0165297, z: 0.5778002}
+    _navigationAnchorLocal: {x: 0.16000044, y: -1.0154867, z: -3.6799881}
   - _nodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
     _expectedTargetKind: 5
     _target: {fileID: 1576772077}
@@ -71090,7 +71081,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1576772075
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 0, y: -0.96040916, z: 1.5}
+    _navigationAnchorLocal: {x: 0, y: -0.9839182, z: 1.5}
   - _nodeId: cluster_3a148e744335b9648c8c429f7fe51985
     _expectedTargetKind: 5
     _target: {fileID: 1653989896}
@@ -71135,7 +71126,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-187720463
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 4.4099884, y: -0.8837452, z: 2.4000015}
+    _navigationAnchorLocal: {x: -1.9200058, y: -0.6337452, z: -1.0800018}
   - _nodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
     _expectedTargetKind: 5
     _target: {fileID: 951112712}
@@ -71180,7 +71171,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-27217506
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 0.5000131, y: -1.0020733, z: -1.2600144}
+    _navigationAnchorLocal: {x: 0.5000118, y: -1.0020733, z: -1.2599996}
   - _nodeId: cluster_a74bba773e45b99d0523beafcb31bc84
     _expectedTargetKind: 2
     _target: {fileID: 1566286470}
@@ -71207,7 +71198,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-477127443
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: -1.089991, y: -1.0020733, z: 1.049985}
+    _navigationAnchorLocal: {x: 0.50000536, y: -1.0020733, z: -1.259997}
   - _nodeId: cluster_ae3336fb07b69b8f929439fab983b97c
     _expectedTargetKind: 5
     _target: {fileID: 218544781}
@@ -71225,7 +71216,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-9068098947778029321-1366059836
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 0, y: 1.8263791, z: 0.07000122}
+    _navigationAnchorLocal: {x: -0.00000038146973, y: 1.9048419, z: 0.07000122}
   - _nodeId: cluster_b4b57110749a44a77e972f12ac0416a0
     _expectedTargetKind: 2
     _target: {fileID: 1276062713}
@@ -71252,7 +71243,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-64209955
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: -1.7600021, y: -0.8004093, z: -0.69000244}
+    _navigationAnchorLocal: {x: -1.7600021, y: -0.5403023, z: -0.69000244}
   - _nodeId: cluster_e003c321c8d54767f3e93234ce7e48c5
     _expectedTargetKind: 2
     _target: {fileID: 1993952242}
@@ -71288,7 +71279,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-7145147231377341779-202635494
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: -0.42405027, y: -0.7111854, z: -0.55645835}
+    _navigationAnchorLocal: {x: -0.4296667, y: -0.7111854, z: -0.5226652}
   - _nodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
     _expectedTargetKind: 5
     _target: {fileID: 4111936733065926357}
@@ -71297,7 +71288,7 @@ MonoBehaviour:
     _fallbackWorldPosition: {x: 0, y: 0, z: 0}
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-4111936733065926357-0
     _hasNavigationAnchor: 1
-    _navigationAnchorLocal: {x: 0.16000046, y: -0.47764108, z: -3.6799958}
+    _navigationAnchorLocal: {x: 0.16000794, y: -0.47764108, z: -3.6799881}
   - _nodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
     _expectedTargetKind: 5
     _target: {fileID: 1698125063}

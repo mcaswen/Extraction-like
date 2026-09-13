@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="9" result="Passed" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:57:07Z" duration="11.0475683">
+  <test-suite type="TestSuite" id="1865" name="AgentRepro_20260913-215639-527" fullname="AgentRepro_20260913-215639-527" runstate="Runnable" testcasecount="700" result="Passed" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:57:07Z" duration="11.047568" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2723" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="700" result="Passed" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:57:07Z" duration="11.028577" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="7696" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2724" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="700" result="Passed" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:57:07Z" duration="11.024671" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2725" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="700" result="Passed" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:57:07Z" duration="11.021136" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2215" name="MapCommandPresentationTests" fullname="AgentReproduction.Tests.MapCommandPresentationTests" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:57:07Z" duration="11.007738" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2217" name="ActualNodeHandlerSubmitsOneRootToTheFocusedAgent" fullname="AgentReproduction.Tests.MapCommandPresentationTests.ActualNodeHandlerSubmitsOneRootToTheFocusedAgent" methodname="ActualNodeHandlerSubmitsOneRootToTheFocusedAgent" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="859184453" result="Passed" start-time="2026-09-13 13:56:56Z" end-time="2026-09-13 13:56:58Z" duration="1.182696" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+            </test-case>
+            <test-case id="2218" name="CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute" fullname="AgentReproduction.Tests.MapCommandPresentationTests.CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute" methodname="CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="1463479531" result="Passed" start-time="2026-09-13 13:56:58Z" end-time="2026-09-13 13:56:59Z" duration="1.757190" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2224" name="LayoutRevisionRefreshesTheViewWithoutMovingWorldTargetsOrSubmittingCommands" fullname="AgentReproduction.Tests.MapCommandPresentationTests.LayoutRevisionRefreshesTheViewWithoutMovingWorldTargetsOrSubmittingCommands" methodname="LayoutRevisionRefreshesTheViewWithoutMovingWorldTargetsOrSubmittingCommands" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="1585275303" result="Passed" start-time="2026-09-13 13:56:59Z" end-time="2026-09-13 13:57:00Z" duration="0.885548" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2222" name="MenuCleanupRemovesCommandHudAndInstallerReenableDoesNotDuplicateIt" fullname="AgentReproduction.Tests.MapCommandPresentationTests.MenuCleanupRemovesCommandHudAndInstallerReenableDoesNotDuplicateIt" methodname="MenuCleanupRemovesCommandHudAndInstallerReenableDoesNotDuplicateIt" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="1493630846" result="Passed" start-time="2026-09-13 13:57:00Z" end-time="2026-09-13 13:57:01Z" duration="0.774829" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2220" name="OverlappingTravellersCombineIdentitiesOnTheSameLine" fullname="AgentReproduction.Tests.MapCommandPresentationTests.OverlappingTravellersCombineIdentitiesOnTheSameLine" methodname="OverlappingTravellersCombineIdentitiesOnTheSameLine" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="604726209" result="Passed" start-time="2026-09-13 13:57:01Z" end-time="2026-09-13 13:57:03Z" duration="2.242028" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2221" name="RightClickDoesNotSubmitAndRejectedReplacementKeepsTheDisplayedRoot" fullname="AgentReproduction.Tests.MapCommandPresentationTests.RightClickDoesNotSubmitAndRejectedReplacementKeepsTheDisplayedRoot" methodname="RightClickDoesNotSubmitAndRejectedReplacementKeepsTheDisplayedRoot" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="693892346" result="Passed" start-time="2026-09-13 13:57:03Z" end-time="2026-09-13 13:57:04Z" duration="0.728141" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2216" name="SavedPrefabHasChineseFontAndFormalZonesHaveCenteredNamesAndStraightEdges" fullname="AgentReproduction.Tests.MapCommandPresentationTests.SavedPrefabHasChineseFontAndFormalZonesHaveCenteredNamesAndStraightEdges" methodname="SavedPrefabHasChineseFontAndFormalZonesHaveCenteredNamesAndStraightEdges" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="1401821569" result="Passed" start-time="2026-09-13 13:57:04Z" end-time="2026-09-13 13:57:05Z" duration="0.794929" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2219" name="SingleProcessingAgentIsOffsetAndRetaliationKeepsThatCluster" fullname="AgentReproduction.Tests.MapCommandPresentationTests.SingleProcessingAgentIsOffsetAndRetaliationKeepsThatCluster" methodname="SingleProcessingAgentIsOffsetAndRetaliationKeepsThatCluster" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="246343073" result="Passed" start-time="2026-09-13 13:57:05Z" end-time="2026-09-13 13:57:06Z" duration="1.611522" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2223" name="TwoProcessingMarkersRemainDistinctAndStableAfterOneAgentLeaves" fullname="AgentReproduction.Tests.MapCommandPresentationTests.TwoProcessingMarkersRemainDistinctAndStableAfterOneAgentLeaves" methodname="TwoProcessingMarkersRemainDistinctAndStableAfterOneAgentLeaves" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="895889250" result="Passed" start-time="2026-09-13 13:57:06Z" end-time="2026-09-13 13:57:07Z" duration="1.014941" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

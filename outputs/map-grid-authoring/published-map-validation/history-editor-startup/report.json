@@ -1,0 +1,32 @@
+﻿{
+    "schemaVersion":  1,
+    "runId":  "20260913-215849-946",
+    "mode":  "ManualRoutes",
+    "editorLifecycle":  "PROCESS_EXITED",
+    "processExitCode":  0,
+    "evidenceStatus":  "FAIL",
+    "gameStatus":  "NOT_FULL_RAID_VALIDATED",
+    "completionContracts":  null,
+    "routeContracts":  null,
+    "expectedRejections":  0,
+    "expectedExecutionFailures":  0,
+    "recoveredRouteFailures":  0,
+    "recoveredRouteSteps":  [
+
+                            ],
+    "unexpectedBehaviorFailures":  0,
+    "coverageStatus":  "NOT_APPLICABLE",
+    "gameErrors":  0,
+    "behaviorFailures":  0,
+    "warnings":  0,
+    "stagnationSuspicions":  0,
+    "diagnosticTiming":  null,
+    "counterSummaries":  [
+
+                         ],
+    "performanceAcceptance":  false,
+    "issues":  [
+                   "missing_audit",
+                   "invalid_or_missing_evidence:找不到路径“D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260913-215849-946\\result.json”，因为该路径不存在。"
+               ]
+}

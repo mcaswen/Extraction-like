@@ -51,7 +51,10 @@ namespace AgentReproduction.Tests
             Setup();var definition=AssetDatabase.LoadAssetAtPath<SO_MapGraphDefinition>("Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset");
             Map.Overlay.Initialize(definition,Map.Overlay.Theme,_=>{},(_,__)=>{});
             Map.Viewport.SetExpanded(true);Canvas.ForceUpdateCanvases();
-            Assert.That(Map.Overlay.ZoneViews.Count,Is.EqualTo(7));Assert.That(Map.Overlay.NodeViews.Count,Is.EqualTo(28));
+            Assert.That(definition.Nodes.Count,Is.GreaterThan(0));
+            CollectionAssert.AreEquivalent(definition.Zones.Select(z=>z.ZoneId),Map.Overlay.ZoneViews.Keys);
+            CollectionAssert.AreEquivalent(definition.Nodes.Select(n=>n.NodeId),Map.Overlay.NodeViews.Keys);
+            CollectionAssert.AreEquivalent(definition.Edges.Select(e=>e.EdgeId),Map.Overlay.EdgeViews.Keys);
             foreach(var view in Map.Overlay.ZoneViews.Values)
             {Assert.That(view.NameRect.anchoredPosition,Is.EqualTo(Vector2.zero));Assert.That(view.NameRect.position,Is.EqualTo(view.RectTransform.position));}
             foreach(var view in Map.Overlay.EdgeViews.Values)

@@ -1,0 +1,423 @@
+{
+  "comparison": "Original serialized bake lengths versus independently measured current navigation, not fallback costs",
+  "directions": 52,
+  "maxAbsoluteDifference": 3.131591796545763e-05,
+  "values": [
+    {
+      "edge": "edge_0b4a2920870e5819bb174efd9726d12e",
+      "from": "cluster_c23e0b41cec22f732e2535b2eb284fb2",
+      "to": "cluster_f0054beeabe50b81acbc97ddbc6791c0",
+      "saved": 39.716103,
+      "measured": 39.71610641479492,
+      "absoluteDifference": 3.4147949250495913e-06
+    },
+    {
+      "edge": "edge_0b4a2920870e5819bb174efd9726d12e",
+      "from": "cluster_f0054beeabe50b81acbc97ddbc6791c0",
+      "to": "cluster_c23e0b41cec22f732e2535b2eb284fb2",
+      "saved": 39.716103,
+      "measured": 39.71610641479492,
+      "absoluteDifference": 3.4147949250495913e-06
+    },
+    {
+      "edge": "edge_161d191832e507fcd3107cecb7bb6f50",
+      "from": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "to": "cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f",
+      "saved": 36.42273,
+      "measured": 36.4227294921875,
+      "absoluteDifference": 5.078125013824319e-07
+    },
+    {
+      "edge": "edge_161d191832e507fcd3107cecb7bb6f50",
+      "from": "cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f",
+      "to": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "saved": 36.42273,
+      "measured": 36.4227294921875,
+      "absoluteDifference": 5.078125013824319e-07
+    },
+    {
+      "edge": "edge_19303f6b854d910b49a4a07798c445fb",
+      "from": "cluster_3a148e744335b9648c8c429f7fe51985",
+      "to": "cluster_ae3336fb07b69b8f929439fab983b97c",
+      "saved": 141.11557,
+      "measured": 141.11557006835938,
+      "absoluteDifference": 6.835938393123797e-08
+    },
+    {
+      "edge": "edge_19303f6b854d910b49a4a07798c445fb",
+      "from": "cluster_ae3336fb07b69b8f929439fab983b97c",
+      "to": "cluster_3a148e744335b9648c8c429f7fe51985",
+      "saved": 141.11557,
+      "measured": 141.11557006835938,
+      "absoluteDifference": 6.835938393123797e-08
+    },
+    {
+      "edge": "edge_3c2997038103ae038f737b36073d1215",
+      "from": "cluster_9d02dfbf9e190218416afd8280324f29",
+      "to": "cluster_ac43e253ab1e05daa3c5146620ad0002",
+      "saved": 19.531374,
+      "measured": 19.531373977661133,
+      "absoluteDifference": 2.233886675639951e-08
+    },
+    {
+      "edge": "edge_3c2997038103ae038f737b36073d1215",
+      "from": "cluster_ac43e253ab1e05daa3c5146620ad0002",
+      "to": "cluster_9d02dfbf9e190218416afd8280324f29",
+      "saved": 19.531374,
+      "measured": 19.531373977661133,
+      "absoluteDifference": 2.233886675639951e-08
+    },
+    {
+      "edge": "edge_6364dbaf77f98f493e573540c0a19647",
+      "from": "cluster_773e939f7ea9caf80fb9456c516d3bea",
+      "to": "cluster_b4b57110749a44a77e972f12ac0416a0",
+      "saved": 42.348488,
+      "measured": 42.348487854003906,
+      "absoluteDifference": 1.4599609698962013e-07
+    },
+    {
+      "edge": "edge_6364dbaf77f98f493e573540c0a19647",
+      "from": "cluster_b4b57110749a44a77e972f12ac0416a0",
+      "to": "cluster_773e939f7ea9caf80fb9456c516d3bea",
+      "saved": 42.348488,
+      "measured": 42.348487854003906,
+      "absoluteDifference": 1.4599609698962013e-07
+    },
+    {
+      "edge": "edge_718cbb4d3aa3d85a2f761d5e9e2944b6",
+      "from": "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+      "to": "cluster_ac43e253ab1e05daa3c5146620ad0002",
+      "saved": 66.44339,
+      "measured": 66.44338989257812,
+      "absoluteDifference": 1.074218687335815e-07
+    },
+    {
+      "edge": "edge_718cbb4d3aa3d85a2f761d5e9e2944b6",
+      "from": "cluster_ac43e253ab1e05daa3c5146620ad0002",
+      "to": "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+      "saved": 66.44339,
+      "measured": 66.44338989257812,
+      "absoluteDifference": 1.074218687335815e-07
+    },
+    {
+      "edge": "edge_71a4e4531ee93ab969dfa431cad1fd9d",
+      "from": "cluster_02c8fd945d1342eab053fa8af41d469f",
+      "to": "cluster_773e939f7ea9caf80fb9456c516d3bea",
+      "saved": 32.888073,
+      "measured": 32.8880729675293,
+      "absoluteDifference": 3.247070168299615e-08
+    },
+    {
+      "edge": "edge_71a4e4531ee93ab969dfa431cad1fd9d",
+      "from": "cluster_773e939f7ea9caf80fb9456c516d3bea",
+      "to": "cluster_02c8fd945d1342eab053fa8af41d469f",
+      "saved": 32.888073,
+      "measured": 32.8880729675293,
+      "absoluteDifference": 3.247070168299615e-08
+    },
+    {
+      "edge": "edge_723c756e919d9d75ae4e4da2e2f15da5",
+      "from": "cluster_8a3f36926764590933b6f4b14f703f7b",
+      "to": "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+      "saved": 74.21642,
+      "measured": 74.21642303466797,
+      "absoluteDifference": 3.0346679693593615e-06
+    },
+    {
+      "edge": "edge_723c756e919d9d75ae4e4da2e2f15da5",
+      "from": "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+      "to": "cluster_8a3f36926764590933b6f4b14f703f7b",
+      "saved": 74.21642,
+      "measured": 74.21642303466797,
+      "absoluteDifference": 3.0346679693593615e-06
+    },
+    {
+      "edge": "edge_a366d891573c3bc6cb85fb8587333054",
+      "from": "cluster_8bf644b1ec01b2abdd8c6a783335b762",
+      "to": "cluster_ee48bab778b117a1ab3e609b606e0187",
+      "saved": 18.960924,
+      "measured": 18.960914611816406,
+      "absoluteDifference": 9.388183592307087e-06
+    },
+    {
+      "edge": "edge_a366d891573c3bc6cb85fb8587333054",
+      "from": "cluster_ee48bab778b117a1ab3e609b606e0187",
+      "to": "cluster_8bf644b1ec01b2abdd8c6a783335b762",
+      "saved": 18.960924,
+      "measured": 18.960914611816406,
+      "absoluteDifference": 9.388183592307087e-06
+    },
+    {
+      "edge": "edge_c84f19a79dd4a138e699e3be8a990e86",
+      "from": "cluster_3a148e744335b9648c8c429f7fe51985",
+      "to": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+      "saved": 94.223465,
+      "measured": 94.22346496582031,
+      "absoluteDifference": 3.4179691965618986e-08
+    },
+    {
+      "edge": "edge_c84f19a79dd4a138e699e3be8a990e86",
+      "from": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+      "to": "cluster_3a148e744335b9648c8c429f7fe51985",
+      "saved": 98.112595,
+      "measured": 98.11259460449219,
+      "absoluteDifference": 3.9550781139041646e-07
+    },
+    {
+      "edge": "edge_cb16fe6e2d6138de2adb3f829b774c69",
+      "from": "cluster_73607cab556336476bac9995b5e46c2b",
+      "to": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "saved": 72.36709,
+      "measured": 72.3670883178711,
+      "absoluteDifference": 1.6821289108293058e-06
+    },
+    {
+      "edge": "edge_cb16fe6e2d6138de2adb3f829b774c69",
+      "from": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "to": "cluster_73607cab556336476bac9995b5e46c2b",
+      "saved": 72.36709,
+      "measured": 72.3670883178711,
+      "absoluteDifference": 1.6821289108293058e-06
+    },
+    {
+      "edge": "edge_cd64478eb13afea326c14dd37c01defa",
+      "from": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+      "to": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+      "saved": 31.034466,
+      "measured": 31.034465789794922,
+      "absoluteDifference": 2.102050764563046e-07
+    },
+    {
+      "edge": "edge_cd64478eb13afea326c14dd37c01defa",
+      "from": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+      "to": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+      "saved": 31.034466,
+      "measured": 31.034465789794922,
+      "absoluteDifference": 2.102050764563046e-07
+    },
+    {
+      "edge": "edge_e329148a5b544f167b36cfcc2da44f09",
+      "from": "cluster_1d8e558540281854a4430a91743e5541",
+      "to": "cluster_67e8f29f081a045ff69fb516f44dd0c6",
+      "saved": 102.772675,
+      "measured": 102.77267456054688,
+      "absoluteDifference": 4.394531316620487e-07
+    },
+    {
+      "edge": "edge_e329148a5b544f167b36cfcc2da44f09",
+      "from": "cluster_67e8f29f081a045ff69fb516f44dd0c6",
+      "to": "cluster_1d8e558540281854a4430a91743e5541",
+      "saved": 102.772675,
+      "measured": 102.77267456054688,
+      "absoluteDifference": 4.394531316620487e-07
+    },
+    {
+      "edge": "edge_e79d7c2fd98272153db066c3b8552556",
+      "from": "cluster_ae3336fb07b69b8f929439fab983b97c",
+      "to": "cluster_b4b57110749a44a77e972f12ac0416a0",
+      "saved": 32.808987,
+      "measured": 32.80898666381836,
+      "absoluteDifference": 3.3618164252402494e-07
+    },
+    {
+      "edge": "edge_e79d7c2fd98272153db066c3b8552556",
+      "from": "cluster_b4b57110749a44a77e972f12ac0416a0",
+      "to": "cluster_ae3336fb07b69b8f929439fab983b97c",
+      "saved": 32.808987,
+      "measured": 32.80898666381836,
+      "absoluteDifference": 3.3618164252402494e-07
+    },
+    {
+      "edge": "edge_f18e08a96af7255fca98b203882b7cc4",
+      "from": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+      "to": "cluster_9d02dfbf9e190218416afd8280324f29",
+      "saved": 101.43747,
+      "measured": 101.43746948242188,
+      "absoluteDifference": 5.175781296884452e-07
+    },
+    {
+      "edge": "edge_f18e08a96af7255fca98b203882b7cc4",
+      "from": "cluster_9d02dfbf9e190218416afd8280324f29",
+      "to": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+      "saved": 101.01361,
+      "measured": 101.01361083984375,
+      "absoluteDifference": 8.398437501000444e-07
+    },
+    {
+      "edge": "edge_b0e18bd297863d9472c2d2f2d20a7326",
+      "from": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "to": "cluster_73607cab556336476bac9995b5e46c2b",
+      "saved": 82.07396,
+      "measured": 82.07395935058594,
+      "absoluteDifference": 6.494140620816324e-07
+    },
+    {
+      "edge": "edge_b0e18bd297863d9472c2d2f2d20a7326",
+      "from": "cluster_73607cab556336476bac9995b5e46c2b",
+      "to": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "saved": 82.07396,
+      "measured": 82.07395935058594,
+      "absoluteDifference": 6.494140620816324e-07
+    },
+    {
+      "edge": "edge_d9dd2dcc59337420b6ac25694b8be3c0",
+      "from": "cluster_02c8fd945d1342eab053fa8af41d469f",
+      "to": "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+      "saved": 187.36002,
+      "measured": 187.36001586914062,
+      "absoluteDifference": 4.130859366568984e-06
+    },
+    {
+      "edge": "edge_d9dd2dcc59337420b6ac25694b8be3c0",
+      "from": "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+      "to": "cluster_02c8fd945d1342eab053fa8af41d469f",
+      "saved": 185.1818,
+      "measured": 185.18179321289062,
+      "absoluteDifference": 6.787109384731593e-06
+    },
+    {
+      "edge": "edge_3d2e483d9e74709bd7d31aaa0e46d918",
+      "from": "cluster_8a3f36926764590933b6f4b14f703f7b",
+      "to": "cluster_a74bba773e45b99d0523beafcb31bc84",
+      "saved": 160.88013,
+      "measured": 160.880126953125,
+      "absoluteDifference": 3.0468750082945917e-06
+    },
+    {
+      "edge": "edge_3d2e483d9e74709bd7d31aaa0e46d918",
+      "from": "cluster_a74bba773e45b99d0523beafcb31bc84",
+      "to": "cluster_8a3f36926764590933b6f4b14f703f7b",
+      "saved": 160.88013,
+      "measured": 160.880126953125,
+      "absoluteDifference": 3.0468750082945917e-06
+    },
+    {
+      "edge": "edge_b2f51fdaec5d9b2440999cab191bb66f",
+      "from": "cluster_1d8e558540281854a4430a91743e5541",
+      "to": "cluster_91fa0341c45a4fa3c8a9d8d0aff044a8",
+      "saved": 88.37406,
+      "measured": 88.37406158447266,
+      "absoluteDifference": 1.5844726561908828e-06
+    },
+    {
+      "edge": "edge_b2f51fdaec5d9b2440999cab191bb66f",
+      "from": "cluster_91fa0341c45a4fa3c8a9d8d0aff044a8",
+      "to": "cluster_1d8e558540281854a4430a91743e5541",
+      "saved": 88.37406,
+      "measured": 88.37406158447266,
+      "absoluteDifference": 1.5844726561908828e-06
+    },
+    {
+      "edge": "edge_df309784db0b1c7ed278179610ea0f2e",
+      "from": "cluster_91fa0341c45a4fa3c8a9d8d0aff044a8",
+      "to": "cluster_57b311b262bc54d476dde1d6c528f5fa",
+      "saved": 243.44318,
+      "measured": 243.44317626953125,
+      "absoluteDifference": 3.730468762341843e-06
+    },
+    {
+      "edge": "edge_df309784db0b1c7ed278179610ea0f2e",
+      "from": "cluster_57b311b262bc54d476dde1d6c528f5fa",
+      "to": "cluster_91fa0341c45a4fa3c8a9d8d0aff044a8",
+      "saved": 243.46826,
+      "measured": 243.46826171875,
+      "absoluteDifference": 1.7187500134241418e-06
+    },
+    {
+      "edge": "edge_d2edb3a6f09dbf216944dd28801614ba",
+      "from": "cluster_67e8f29f081a045ff69fb516f44dd0c6",
+      "to": "cluster_f0054beeabe50b81acbc97ddbc6791c0",
+      "saved": 80.95422,
+      "measured": 80.9542236328125,
+      "absoluteDifference": 3.6328124934925654e-06
+    },
+    {
+      "edge": "edge_d2edb3a6f09dbf216944dd28801614ba",
+      "from": "cluster_f0054beeabe50b81acbc97ddbc6791c0",
+      "to": "cluster_67e8f29f081a045ff69fb516f44dd0c6",
+      "saved": 80.95422,
+      "measured": 80.9542236328125,
+      "absoluteDifference": 3.6328124934925654e-06
+    },
+    {
+      "edge": "edge_11c2b7b3767ce2a7ed22415b0024e103",
+      "from": "cluster_f0054beeabe50b81acbc97ddbc6791c0",
+      "to": "cluster_e351d521b0b236a2292a54c00835880b",
+      "saved": 206.79369,
+      "measured": 206.79368591308594,
+      "absoluteDifference": 4.086914060508207e-06
+    },
+    {
+      "edge": "edge_11c2b7b3767ce2a7ed22415b0024e103",
+      "from": "cluster_e351d521b0b236a2292a54c00835880b",
+      "to": "cluster_f0054beeabe50b81acbc97ddbc6791c0",
+      "saved": 197.90614,
+      "measured": 197.90614318847656,
+      "absoluteDifference": 3.188476568993792e-06
+    },
+    {
+      "edge": "edge_a938344b14f5bdb2bc27e0a8e8343e6d",
+      "from": "cluster_e351d521b0b236a2292a54c00835880b",
+      "to": "cluster_b232001ecd90d331fc0d2a4844eb5545",
+      "saved": 37.354286,
+      "measured": 37.354286193847656,
+      "absoluteDifference": 1.9384765437280294e-07
+    },
+    {
+      "edge": "edge_a938344b14f5bdb2bc27e0a8e8343e6d",
+      "from": "cluster_b232001ecd90d331fc0d2a4844eb5545",
+      "to": "cluster_e351d521b0b236a2292a54c00835880b",
+      "saved": 37.354286,
+      "measured": 37.354286193847656,
+      "absoluteDifference": 1.9384765437280294e-07
+    },
+    {
+      "edge": "edge_dffe8db8cffc2c2432776408de281bbc",
+      "from": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+      "to": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "saved": 196.39899,
+      "measured": 196.39898681640625,
+      "absoluteDifference": 3.183593747735358e-06
+    },
+    {
+      "edge": "edge_dffe8db8cffc2c2432776408de281bbc",
+      "from": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "to": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+      "saved": 196.39899,
+      "measured": 196.39898681640625,
+      "absoluteDifference": 3.183593747735358e-06
+    },
+    {
+      "edge": "edge_7b504b9e466734bf57f2084a4f781854",
+      "from": "cluster_8a3f36926764590933b6f4b14f703f7b",
+      "to": "cluster_1d8e558540281854a4430a91743e5541",
+      "saved": 255.58185,
+      "measured": 255.58184814453125,
+      "absoluteDifference": 1.8554687528649083e-06
+    },
+    {
+      "edge": "edge_7b504b9e466734bf57f2084a4f781854",
+      "from": "cluster_1d8e558540281854a4430a91743e5541",
+      "to": "cluster_8a3f36926764590933b6f4b14f703f7b",
+      "saved": 254.56485,
+      "measured": 254.56484985351562,
+      "absoluteDifference": 1.4648438195763447e-07
+    },
+    {
+      "edge": "edge_6bdd6a700445a20e8ec656ca8895fa1b",
+      "from": "cluster_c23e0b41cec22f732e2535b2eb284fb2",
+      "to": "cluster_ee48bab778b117a1ab3e609b606e0187",
+      "saved": 94.00187,
+      "measured": 94.00183868408203,
+      "absoluteDifference": 3.131591796545763e-05
+    },
+    {
+      "edge": "edge_6bdd6a700445a20e8ec656ca8895fa1b",
+      "from": "cluster_ee48bab778b117a1ab3e609b606e0187",
+      "to": "cluster_c23e0b41cec22f732e2535b2eb284fb2",
+      "saved": 91.40058,
+      "measured": 91.40056610107422,
+      "absoluteDifference": 1.3898925786293148e-05
+    }
+  ]
+}

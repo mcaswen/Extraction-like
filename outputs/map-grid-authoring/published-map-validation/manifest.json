@@ -1,0 +1,1263 @@
+{
+  "schemaVersion": 1,
+  "scope": "Published revision 5 functional validation; no production fix",
+  "runs": [
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-215049-614",
+      "label": "history-initial-audit",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "15b80f80471d24b45824403566fe3898196618d3596c7aa3f42c7c8c02840e20",
+          "matchesRun": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-215420-799",
+      "label": "scene-identities",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "a99b25be5e6072c3c90e009f1d90b9bd0b713e24d6a03fcbd09eb97f6aa94ad6",
+          "matchesRun": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-215447-172",
+      "label": "runtime-cache",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "a99b25be5e6072c3c90e009f1d90b9bd0b713e24d6a03fcbd09eb97f6aa94ad6",
+          "matchesRun": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-215612-633",
+      "label": "published-graph",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-215639-527",
+      "label": "presentation",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-215713-997",
+      "label": "visual",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-215849-946",
+      "label": "history-editor-startup",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-220113-067",
+      "label": "sc10-mr02",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    },
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-221017-510",
+      "label": "sc02",
+      "sourceCommit": "1e91729a10a3996c52f7ef5ec61bf6f2ac173a5c",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs.meta",
+          "currentSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "recordedSha256": "ffd817ec5cf991141d27c84189e5971277d56fb9536917c66c1ae564081e3845",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPresentationTests.cs",
+          "currentSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "recordedSha256": "22212036583fb4c4f5d955cad72c9ad80aa567fc72e3d23d4ad4361b76f29d00",
+          "matchesRun": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesRun": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesRun": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "history-initial-audit/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-215049-614/manifest.json",
+      "sourceBytes": 1592159,
+      "sourceSha256": "1256d9ea92d379b6129bfac34192ebbc3adbc3215d87479fb0986234761204e6",
+      "artifactSha256": "085f3302d78cc4b58535167bf697785ac2157a66137c54245f3326c87a24eba0"
+    },
+    {
+      "path": "history-initial-audit/published-graph.json",
+      "source": "Logs/AgentReproduction/20260913-215049-614/published-graph.json",
+      "sourceBytes": 306811,
+      "sourceSha256": "2538f5c329ebb7704f6df6f9031e2c6ee792d6d59e92743cb940b0cd7f6c5bde",
+      "artifactSha256": "2538f5c329ebb7704f6df6f9031e2c6ee792d6d59e92743cb940b0cd7f6c5bde"
+    },
+    {
+      "path": "history-initial-audit/report.md",
+      "source": "Logs/AgentReproduction/20260913-215049-614/report.md",
+      "sourceBytes": 472,
+      "sourceSha256": "57fe8a171e6e753f3c5e85088719e903d2c4120c7e6f9176c16aaa60de992514",
+      "artifactSha256": "57fe8a171e6e753f3c5e85088719e903d2c4120c7e6f9176c16aaa60de992514"
+    },
+    {
+      "path": "history-initial-audit/summary.json",
+      "source": "Logs/AgentReproduction/20260913-215049-614/summary.json",
+      "sourceBytes": 698,
+      "sourceSha256": "ccd397586ccc4b24ce10da168fa65b588a19f60f1af279cc3d3f789be4f3dcbf",
+      "artifactSha256": "ccd397586ccc4b24ce10da168fa65b588a19f60f1af279cc3d3f789be4f3dcbf"
+    },
+    {
+      "path": "history-initial-audit/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-215049-614/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "sourceBytes": 81133,
+      "sourceSha256": "3a9edaba96f97400b26f6248ccf75ca5dd117511123a360cedfc225787d854c3",
+      "artifactSha256": "3a9edaba96f97400b26f6248ccf75ca5dd117511123a360cedfc225787d854c3"
+    },
+    {
+      "path": "history-initial-audit/cases/F131EE39830146BB/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215049-614/cases/F131EE39830146BB/1/case.json",
+      "sourceBytes": 73677,
+      "sourceSha256": "482926129bc1602eb6192b07d35471f4139c9b4fb46f83454693b50c215a0e02",
+      "artifactSha256": "482926129bc1602eb6192b07d35471f4139c9b4fb46f83454693b50c215a0e02"
+    },
+    {
+      "path": "history-initial-audit/cases/F131EE39830146BB/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215049-614/cases/F131EE39830146BB/1/nunit-final.json",
+      "sourceBytes": 73617,
+      "sourceSha256": "5d127fbd04699c3b0201291eef17724104171a59fd413b5662e82532b5178b94",
+      "artifactSha256": "5d127fbd04699c3b0201291eef17724104171a59fd413b5662e82532b5178b94"
+    },
+    {
+      "path": "history-initial-audit/cases/F131EE39830146BB/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215049-614/cases/F131EE39830146BB/1/trace.jsonl",
+      "sourceBytes": 152,
+      "sourceSha256": "61580c7412a1f54b07010aea65a34798575daa788260eff52cd9ca2df6b4ac65",
+      "artifactSha256": "c819385a83f80583aa4dd38d51643c3a3abbfefc511dabd7d3245779be26cc52"
+    },
+    {
+      "path": "scene-identities/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-215420-799/manifest.json",
+      "sourceBytes": 1592159,
+      "sourceSha256": "2540452bff9edfa5e53ed95ce1ec063de483dcb42fb2e9b29f8ba809f27cf2f2",
+      "artifactSha256": "81f05445ada6f3f542da41452e5f3e7bb9de693116c2f0742c7d623f2b43fe1c"
+    },
+    {
+      "path": "scene-identities/map-scene-identities.json",
+      "source": "Logs/AgentReproduction/20260913-215420-799/map-scene-identities.json",
+      "sourceBytes": 6764,
+      "sourceSha256": "a9996e841e247f7097ed199247e14b0d2cf4b8c275b3fbc1c24164933eb5e09b",
+      "artifactSha256": "a9996e841e247f7097ed199247e14b0d2cf4b8c275b3fbc1c24164933eb5e09b"
+    },
+    {
+      "path": "scene-identities/report.md",
+      "source": "Logs/AgentReproduction/20260913-215420-799/report.md",
+      "sourceBytes": 477,
+      "sourceSha256": "2848ed33fc99f7a1111ac0707c6e033b0798adc188b126f13d949ad4548ee8c2",
+      "artifactSha256": "2848ed33fc99f7a1111ac0707c6e033b0798adc188b126f13d949ad4548ee8c2"
+    },
+    {
+      "path": "scene-identities/summary.json",
+      "source": "Logs/AgentReproduction/20260913-215420-799/summary.json",
+      "sourceBytes": 707,
+      "sourceSha256": "759ddcf7fd26bc74fcd23eda9f39a4b6782a1a32975f2631677e2ccf07796fec",
+      "artifactSha256": "759ddcf7fd26bc74fcd23eda9f39a4b6782a1a32975f2631677e2ccf07796fec"
+    },
+    {
+      "path": "scene-identities/groups/MapGraphSceneSynchronization-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-215420-799/groups/MapGraphSceneSynchronization-1/test-results.xml",
+      "sourceBytes": 6704,
+      "sourceSha256": "d2d8b2043e06c8626b71907c56a247031f59a752df2c915dd4995547d0c5998e",
+      "artifactSha256": "d2d8b2043e06c8626b71907c56a247031f59a752df2c915dd4995547d0c5998e"
+    },
+    {
+      "path": "scene-identities/cases/B152EB49EDCA8D14/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215420-799/cases/B152EB49EDCA8D14/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "e8e632ce353de41fd50a9dcf43db228d06ba54ec212c084d41712773ff61032c",
+      "artifactSha256": "e8e632ce353de41fd50a9dcf43db228d06ba54ec212c084d41712773ff61032c"
+    },
+    {
+      "path": "scene-identities/cases/B152EB49EDCA8D14/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215420-799/cases/B152EB49EDCA8D14/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "cdc0293be32ebf5fbb4c56dc89c03f375c86da8903d61fcaa6bc5f216a5d338d",
+      "artifactSha256": "cdc0293be32ebf5fbb4c56dc89c03f375c86da8903d61fcaa6bc5f216a5d338d"
+    },
+    {
+      "path": "scene-identities/cases/B152EB49EDCA8D14/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215420-799/cases/B152EB49EDCA8D14/1/trace.jsonl",
+      "sourceBytes": 114,
+      "sourceSha256": "59dc11e381da8c416daec757e449cd62d66c0767f9b3e4d16b7913e052ebaa19",
+      "artifactSha256": "85a75550984748264dbc44eeb6c973f23924770a47212d3c33119769d178bcf4"
+    },
+    {
+      "path": "runtime-cache/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-215447-172/manifest.json",
+      "sourceBytes": 1592159,
+      "sourceSha256": "3f93a8d149cca1ae2457b0c343efd164759d9fdad2c8276066cb6123b527703b",
+      "artifactSha256": "f54a16d095d5dc2a4b592c728bd4a4ded1657de0dcf6cdb6d49e61090e0d2a43"
+    },
+    {
+      "path": "runtime-cache/report.md",
+      "source": "Logs/AgentReproduction/20260913-215447-172/report.md",
+      "sourceBytes": 470,
+      "sourceSha256": "c6a9123751a0511eba7d5b3ef8e30f6f93dd705579037467882b920457fec179",
+      "artifactSha256": "c6a9123751a0511eba7d5b3ef8e30f6f93dd705579037467882b920457fec179"
+    },
+    {
+      "path": "runtime-cache/runtime-cache.json",
+      "source": "Logs/AgentReproduction/20260913-215447-172/runtime-cache.json",
+      "sourceBytes": 3514,
+      "sourceSha256": "e20e794004d40e7f1d3a9464388ebe6faa724b956b818d08b62749fbbd129eb4",
+      "artifactSha256": "e20e794004d40e7f1d3a9464388ebe6faa724b956b818d08b62749fbbd129eb4"
+    },
+    {
+      "path": "runtime-cache/summary.json",
+      "source": "Logs/AgentReproduction/20260913-215447-172/summary.json",
+      "sourceBytes": 694,
+      "sourceSha256": "55a5e7d2fd8ff1d7b61e8c29e0d24024397ee6703d97e93c091ad21bae7dc8f5",
+      "artifactSha256": "55a5e7d2fd8ff1d7b61e8c29e0d24024397ee6703d97e93c091ad21bae7dc8f5"
+    },
+    {
+      "path": "runtime-cache/groups/MapCommandRuntimeCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-215447-172/groups/MapCommandRuntimeCache-1/test-results.xml",
+      "sourceBytes": 20508,
+      "sourceSha256": "6c088a0b3d0d2ca53dd5c27d70fdbe38a8d512f6240a3760f60acfd2e09dbe3d",
+      "artifactSha256": "6c088a0b3d0d2ca53dd5c27d70fdbe38a8d512f6240a3760f60acfd2e09dbe3d"
+    },
+    {
+      "path": "runtime-cache/cases/C22755D4D1AC5421/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215447-172/cases/C22755D4D1AC5421/1/case.json",
+      "sourceBytes": 1673,
+      "sourceSha256": "0e59561d19fa86243ad2ee544db498c2b2b87b6b4f16a48481e1c0c3d2d049f8",
+      "artifactSha256": "0e59561d19fa86243ad2ee544db498c2b2b87b6b4f16a48481e1c0c3d2d049f8"
+    },
+    {
+      "path": "runtime-cache/cases/C22755D4D1AC5421/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215447-172/cases/C22755D4D1AC5421/1/nunit-final.json",
+      "sourceBytes": 1593,
+      "sourceSha256": "f3d13bb436fe63d3eed4b83bcb0b9de2a5db92d6db320137e511ea0e4edf5683",
+      "artifactSha256": "f3d13bb436fe63d3eed4b83bcb0b9de2a5db92d6db320137e511ea0e4edf5683"
+    },
+    {
+      "path": "runtime-cache/cases/C22755D4D1AC5421/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215447-172/cases/C22755D4D1AC5421/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "60111cb327fe754ea59847de8005630acdead6751488d068a189cf6891930444",
+      "artifactSha256": "e71c891af17cb7e8c6c4442e067ff8d8250d2b665cb00cd2d8988fa91f7bad11"
+    },
+    {
+      "path": "published-graph/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-215612-633/manifest.json",
+      "sourceBytes": 1592159,
+      "sourceSha256": "dc8994595e04ac0c4e373893f0abec8b66b10a6bdf8336472f769fcda91d3072",
+      "artifactSha256": "616bc411dff62d9cebcb30bf244be78ae50ddb296c54e3212a19437199294834"
+    },
+    {
+      "path": "published-graph/published-graph.json",
+      "source": "Logs/AgentReproduction/20260913-215612-633/published-graph.json",
+      "sourceBytes": 543326,
+      "sourceSha256": "57abd70c16ce8b69daa55c3d2aa145f8fffcf0f756599026d37714ebc5e62790",
+      "artifactSha256": "57abd70c16ce8b69daa55c3d2aa145f8fffcf0f756599026d37714ebc5e62790"
+    },
+    {
+      "path": "published-graph/report.md",
+      "source": "Logs/AgentReproduction/20260913-215612-633/report.md",
+      "sourceBytes": 473,
+      "sourceSha256": "2501a4ea5fcb4f2da4d3ab77642515ce5726e626c498a134b0a765cf0b0787da",
+      "artifactSha256": "2501a4ea5fcb4f2da4d3ab77642515ce5726e626c498a134b0a765cf0b0787da"
+    },
+    {
+      "path": "published-graph/summary.json",
+      "source": "Logs/AgentReproduction/20260913-215612-633/summary.json",
+      "sourceBytes": 699,
+      "sourceSha256": "80782babd23b6abeda326f96742c9cbf775f6c378d1395acc37b77a34784d3e8",
+      "artifactSha256": "80782babd23b6abeda326f96742c9cbf775f6c378d1395acc37b77a34784d3e8"
+    },
+    {
+      "path": "published-graph/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-215612-633/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "sourceBytes": 6720,
+      "sourceSha256": "b7e6204b97e1434b8df7c8a7c524b1c7232279c0abef9fa4914ee9da4255ef1d",
+      "artifactSha256": "b7e6204b97e1434b8df7c8a7c524b1c7232279c0abef9fa4914ee9da4255ef1d"
+    },
+    {
+      "path": "published-graph/cases/F131EE39830146BB/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215612-633/cases/F131EE39830146BB/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "886fdb047f8fd64c4eadfeece2c7cb9ef54eb8035f39410eb51e18d7389889d5",
+      "artifactSha256": "886fdb047f8fd64c4eadfeece2c7cb9ef54eb8035f39410eb51e18d7389889d5"
+    },
+    {
+      "path": "published-graph/cases/F131EE39830146BB/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215612-633/cases/F131EE39830146BB/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "2f47a87d8e7c166b0b149293e457a17267713d4fd95d72c655bc5bafb84c8e20",
+      "artifactSha256": "2f47a87d8e7c166b0b149293e457a17267713d4fd95d72c655bc5bafb84c8e20"
+    },
+    {
+      "path": "published-graph/cases/F131EE39830146BB/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215612-633/cases/F131EE39830146BB/1/trace.jsonl",
+      "sourceBytes": 150,
+      "sourceSha256": "afe55760339a4b4b0d68842100201b8accacd55253341555b9e7bc57dd1b0df6",
+      "artifactSha256": "b2c631cc892ed563b44df1e2ad010fb96045f583878cc4f810c0d53d50e06456"
+    },
+    {
+      "path": "presentation/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/manifest.json",
+      "sourceBytes": 1592159,
+      "sourceSha256": "3b5fcc8d83b4936cc3636f84319fcf67e9860bbc826f6da6c527c251e76288fe",
+      "artifactSha256": "01dedfb7455095a42f7b52f26511742c9490f218bed863c5309450ceb4b49261"
+    },
+    {
+      "path": "presentation/report.md",
+      "source": "Logs/AgentReproduction/20260913-215639-527/report.md",
+      "sourceBytes": 471,
+      "sourceSha256": "f8eac83f43cfa8912d8471c412499870c99d968b4636df1489041debe52cd8cc",
+      "artifactSha256": "f8eac83f43cfa8912d8471c412499870c99d968b4636df1489041debe52cd8cc"
+    },
+    {
+      "path": "presentation/summary.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/summary.json",
+      "sourceBytes": 695,
+      "sourceSha256": "321012c99c64a2f7262ba595f4e07490171921cefe79310ac965b6eb58f46d55",
+      "artifactSha256": "321012c99c64a2f7262ba595f4e07490171921cefe79310ac965b6eb58f46d55"
+    },
+    {
+      "path": "presentation/groups/MapCommandPresentation-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-215639-527/groups/MapCommandPresentation-1/test-results.xml",
+      "sourceBytes": 12280,
+      "sourceSha256": "3423ad701a7a91cc5c5ec335fa0614975477ea53e85e7eddc761c3bb045f1ff1",
+      "artifactSha256": "3423ad701a7a91cc5c5ec335fa0614975477ea53e85e7eddc761c3bb045f1ff1"
+    },
+    {
+      "path": "presentation/cases/FF07C4328429FDAF/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/FF07C4328429FDAF/1/case.json",
+      "sourceBytes": 330,
+      "sourceSha256": "5ce3301a9a22d18692bc14f56fae94e82d2302734a72d332b48b096d04c93067",
+      "artifactSha256": "5ce3301a9a22d18692bc14f56fae94e82d2302734a72d332b48b096d04c93067"
+    },
+    {
+      "path": "presentation/cases/FF07C4328429FDAF/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/FF07C4328429FDAF/1/nunit-final.json",
+      "sourceBytes": 256,
+      "sourceSha256": "dcbc2aeac81fc772bbf0f7f0a32811f4e58c6c92b2a5d0792141b0d66e04aad5",
+      "artifactSha256": "dcbc2aeac81fc772bbf0f7f0a32811f4e58c6c92b2a5d0792141b0d66e04aad5"
+    },
+    {
+      "path": "presentation/cases/FF07C4328429FDAF/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/FF07C4328429FDAF/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/FB0261409D7A562E/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/FB0261409D7A562E/1/case.json",
+      "sourceBytes": 315,
+      "sourceSha256": "fe9954d37557295bc9141618cb6057ef9516a0378a64dafa1bbc8408768d1a51",
+      "artifactSha256": "fe9954d37557295bc9141618cb6057ef9516a0378a64dafa1bbc8408768d1a51"
+    },
+    {
+      "path": "presentation/cases/FB0261409D7A562E/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/FB0261409D7A562E/1/nunit-final.json",
+      "sourceBytes": 241,
+      "sourceSha256": "447ccac1384d3bdc6e033e96bfc626c140549021f0345f1871972ddb93b3f6cf",
+      "artifactSha256": "447ccac1384d3bdc6e033e96bfc626c140549021f0345f1871972ddb93b3f6cf"
+    },
+    {
+      "path": "presentation/cases/FB0261409D7A562E/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/FB0261409D7A562E/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/D8EDFE2E246D0F6E/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/D8EDFE2E246D0F6E/1/case.json",
+      "sourceBytes": 336,
+      "sourceSha256": "df296caacfb62d1d18bf34b00aa09b03445758b80e037c02bc3e38ef6e890ec6",
+      "artifactSha256": "df296caacfb62d1d18bf34b00aa09b03445758b80e037c02bc3e38ef6e890ec6"
+    },
+    {
+      "path": "presentation/cases/D8EDFE2E246D0F6E/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/D8EDFE2E246D0F6E/1/nunit-final.json",
+      "sourceBytes": 262,
+      "sourceSha256": "3c5c1e7ca3d31161fc6ab43517901ec57d03f2f2534bfeeb379daa7821dbd3c9",
+      "artifactSha256": "3c5c1e7ca3d31161fc6ab43517901ec57d03f2f2534bfeeb379daa7821dbd3c9"
+    },
+    {
+      "path": "presentation/cases/D8EDFE2E246D0F6E/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/D8EDFE2E246D0F6E/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/D2906341FE010421/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/D2906341FE010421/1/case.json",
+      "sourceBytes": 323,
+      "sourceSha256": "98970c2eac8b582b33abaaf666e6758a94a86c7efc7ccc85d35a4a96f797d150",
+      "artifactSha256": "98970c2eac8b582b33abaaf666e6758a94a86c7efc7ccc85d35a4a96f797d150"
+    },
+    {
+      "path": "presentation/cases/D2906341FE010421/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/D2906341FE010421/1/nunit-final.json",
+      "sourceBytes": 249,
+      "sourceSha256": "a6a4e49a6b6153a8657723c87096ec39429f20277a03e163f0b99c0c533ac7cd",
+      "artifactSha256": "a6a4e49a6b6153a8657723c87096ec39429f20277a03e163f0b99c0c533ac7cd"
+    },
+    {
+      "path": "presentation/cases/D2906341FE010421/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/D2906341FE010421/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/93EB92D2B25F7C94/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/93EB92D2B25F7C94/1/case.json",
+      "sourceBytes": 312,
+      "sourceSha256": "da83a67acd495c7f288fc14317b953c0d4cb1330286977706ce1383d3943dc12",
+      "artifactSha256": "da83a67acd495c7f288fc14317b953c0d4cb1330286977706ce1383d3943dc12"
+    },
+    {
+      "path": "presentation/cases/93EB92D2B25F7C94/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/93EB92D2B25F7C94/1/nunit-final.json",
+      "sourceBytes": 238,
+      "sourceSha256": "85547531bbfa9d4c912a6ded83af0aa660f4e1279d656fafe2631c9ff2a11c06",
+      "artifactSha256": "85547531bbfa9d4c912a6ded83af0aa660f4e1279d656fafe2631c9ff2a11c06"
+    },
+    {
+      "path": "presentation/cases/93EB92D2B25F7C94/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/93EB92D2B25F7C94/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/86444761E9FD6670/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/86444761E9FD6670/1/case.json",
+      "sourceBytes": 339,
+      "sourceSha256": "d1e42a01b8b48b9a597da5da2b89db1a0c7993bb756a50787e5873287192a51b",
+      "artifactSha256": "d1e42a01b8b48b9a597da5da2b89db1a0c7993bb756a50787e5873287192a51b"
+    },
+    {
+      "path": "presentation/cases/86444761E9FD6670/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/86444761E9FD6670/1/nunit-final.json",
+      "sourceBytes": 265,
+      "sourceSha256": "59868a117eab602f8f56ddee4ced0ca0581d795fa618b9f6e1a3b01aa8fa7505",
+      "artifactSha256": "59868a117eab602f8f56ddee4ced0ca0581d795fa618b9f6e1a3b01aa8fa7505"
+    },
+    {
+      "path": "presentation/cases/86444761E9FD6670/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/86444761E9FD6670/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/60583B3B952A2A7D/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/60583B3B952A2A7D/1/case.json",
+      "sourceBytes": 326,
+      "sourceSha256": "a3c0712e85c2b9fe2516221a4e60e4270a4d5e0be529c7deeee558785ae39055",
+      "artifactSha256": "a3c0712e85c2b9fe2516221a4e60e4270a4d5e0be529c7deeee558785ae39055"
+    },
+    {
+      "path": "presentation/cases/60583B3B952A2A7D/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/60583B3B952A2A7D/1/nunit-final.json",
+      "sourceBytes": 252,
+      "sourceSha256": "08b452603df9f64d2f5eb06264a1582067ed8be53a5102b77332d3d72bad4170",
+      "artifactSha256": "08b452603df9f64d2f5eb06264a1582067ed8be53a5102b77332d3d72bad4170"
+    },
+    {
+      "path": "presentation/cases/60583B3B952A2A7D/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/60583B3B952A2A7D/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/45E7886F4B298968/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/45E7886F4B298968/1/case.json",
+      "sourceBytes": 323,
+      "sourceSha256": "87bfffc1765fed46fa4c2ef75634c0449e0def6c455ca78e33e14d710f074375",
+      "artifactSha256": "87bfffc1765fed46fa4c2ef75634c0449e0def6c455ca78e33e14d710f074375"
+    },
+    {
+      "path": "presentation/cases/45E7886F4B298968/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/45E7886F4B298968/1/nunit-final.json",
+      "sourceBytes": 249,
+      "sourceSha256": "2f3c7b2faa39d2143261ff466c6acc8b666872bd7115da29b74d70fc63ead93d",
+      "artifactSha256": "2f3c7b2faa39d2143261ff466c6acc8b666872bd7115da29b74d70fc63ead93d"
+    },
+    {
+      "path": "presentation/cases/45E7886F4B298968/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/45E7886F4B298968/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "presentation/cases/0E6F56FB57B84BAD/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/0E6F56FB57B84BAD/1/case.json",
+      "sourceBytes": 330,
+      "sourceSha256": "b1c80ea425d61a8a070089b3110f8e8dea191b5b365aaa97a5b1d2e0e36abd24",
+      "artifactSha256": "b1c80ea425d61a8a070089b3110f8e8dea191b5b365aaa97a5b1d2e0e36abd24"
+    },
+    {
+      "path": "presentation/cases/0E6F56FB57B84BAD/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/0E6F56FB57B84BAD/1/nunit-final.json",
+      "sourceBytes": 256,
+      "sourceSha256": "b5048388f3c6babcd484153ca8f14180dca1a94eed63e23fc76ef41a93e4b55b",
+      "artifactSha256": "b5048388f3c6babcd484153ca8f14180dca1a94eed63e23fc76ef41a93e4b55b"
+    },
+    {
+      "path": "presentation/cases/0E6F56FB57B84BAD/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215639-527/cases/0E6F56FB57B84BAD/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "f1a9bf2fd84b06ec738e0d582cc2057e581e95b93c51cbc79505e09fd7faded5",
+      "artifactSha256": "5741d65352371c4dd3103acf252bf1aec2b9f214a8156e80311d411e73769f99"
+    },
+    {
+      "path": "visual/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-215713-997/manifest.json",
+      "sourceBytes": 1592159,
+      "sourceSha256": "fb3ee58f8a031b99d5041d6b9236f5449c48bc4121ddc0e18932c5b9eba97e46",
+      "artifactSha256": "88434267fb61ea4c5a3abe0963c3e2f10791eeda6fb793077d8f56e92df2b55c"
+    },
+    {
+      "path": "visual/report.md",
+      "source": "Logs/AgentReproduction/20260913-215713-997/report.md",
+      "sourceBytes": 465,
+      "sourceSha256": "eccd87d51d94dc514bc2043d8975f1f4afe514c5fce897b47c08b41842bb750c",
+      "artifactSha256": "eccd87d51d94dc514bc2043d8975f1f4afe514c5fce897b47c08b41842bb750c"
+    },
+    {
+      "path": "visual/summary.json",
+      "source": "Logs/AgentReproduction/20260913-215713-997/summary.json",
+      "sourceBytes": 683,
+      "sourceSha256": "f9167e47bc0b5e1552a1a7ef09dcf9ee0ee60f894011baa4c7083fce4bcd0ea9",
+      "artifactSha256": "f9167e47bc0b5e1552a1a7ef09dcf9ee0ee60f894011baa4c7083fce4bcd0ea9"
+    },
+    {
+      "path": "visual/visual/01-compact-hud.json",
+      "source": "Logs/AgentReproduction/20260913-215713-997/visual/01-compact-hud.json",
+      "sourceBytes": 1100,
+      "sourceSha256": "ab79a2750ab737b965d1ae5e98a7d9ab51ecf2eaedab4ca8f31f58f6041f0fc5",
+      "artifactSha256": "ab79a2750ab737b965d1ae5e98a7d9ab51ecf2eaedab4ca8f31f58f6041f0fc5"
+    },
+    {
+      "path": "visual/visual/01-compact-hud.png",
+      "source": "Logs/AgentReproduction/20260913-215713-997/visual/01-compact-hud.png",
+      "sourceBytes": 5140477,
+      "sourceSha256": "f642fee21b215e2c8c4810a309280921b0b3d059c0747b17de0cceb3a3e324bb",
+      "artifactSha256": "f642fee21b215e2c8c4810a309280921b0b3d059c0747b17de0cceb3a3e324bb"
+    },
+    {
+      "path": "visual/visual/02-expanded-map.json",
+      "source": "Logs/AgentReproduction/20260913-215713-997/visual/02-expanded-map.json",
+      "sourceBytes": 1097,
+      "sourceSha256": "026e3d69e086ba5a74f1b29936591242df876d089e3ed881ba0d101f22c28edb",
+      "artifactSha256": "026e3d69e086ba5a74f1b29936591242df876d089e3ed881ba0d101f22c28edb"
+    },
+    {
+      "path": "visual/visual/02-expanded-map.png",
+      "source": "Logs/AgentReproduction/20260913-215713-997/visual/02-expanded-map.png",
+      "sourceBytes": 2025549,
+      "sourceSha256": "70fe75b48b05b513da2b018839996a6ab4953e4af6b12061f4acbec7b28af863",
+      "artifactSha256": "70fe75b48b05b513da2b018839996a6ab4953e4af6b12061f4acbec7b28af863"
+    },
+    {
+      "path": "visual/groups/MapCommandVisual-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-215713-997/groups/MapCommandVisual-1/test-results.xml",
+      "sourceBytes": 20744,
+      "sourceSha256": "22d43d856108e7e4becbf37cd7c6bb96ba3e8bfdeabd5bd6a61e2fc7e13319e3",
+      "artifactSha256": "22d43d856108e7e4becbf37cd7c6bb96ba3e8bfdeabd5bd6a61e2fc7e13319e3"
+    },
+    {
+      "path": "visual/cases/4391457C2CBFAD28/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-215713-997/cases/4391457C2CBFAD28/1/case.json",
+      "sourceBytes": 311,
+      "sourceSha256": "c204c29162114165382032e1b1809cbb93a82e191d44718339a50aff204b449a",
+      "artifactSha256": "c204c29162114165382032e1b1809cbb93a82e191d44718339a50aff204b449a"
+    },
+    {
+      "path": "visual/cases/4391457C2CBFAD28/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-215713-997/cases/4391457C2CBFAD28/1/nunit-final.json",
+      "sourceBytes": 237,
+      "sourceSha256": "47d1b2162a19202369eb076ddc563acb36cb6d99dbb50a280687fcd86193e6c2",
+      "artifactSha256": "47d1b2162a19202369eb076ddc563acb36cb6d99dbb50a280687fcd86193e6c2"
+    },
+    {
+      "path": "visual/cases/4391457C2CBFAD28/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-215713-997/cases/4391457C2CBFAD28/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "b3475feda25b3a3d5218973920d5ed248559e7a8867ce8d993da5467eb07b3ea",
+      "artifactSha256": "c5b71670eec86334c35666965816064a75859b315be2a641f49472b20a3babe9"
+    },
+    {
+      "path": "history-editor-startup/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-215849-946/manifest.json",
+      "sourceBytes": 1592334,
+      "sourceSha256": "07252c88ab1a25cf68978cd841289e53aa60467f67e81d05d1a6769c9a716a7b",
+      "artifactSha256": "16b1c38ad403000c9a80c240c1d15c04b5f6437c778d4c7601d64ed1d2cc3c04"
+    },
+    {
+      "path": "history-editor-startup/report.json",
+      "source": "Logs/SceneRaid/20260913-215849-946/report.json",
+      "sourceBytes": 1064,
+      "sourceSha256": "0a4c34b01ab57c174880509fe9bde4a449093dae5d0798c49796417cb4157e64",
+      "artifactSha256": "0a4c34b01ab57c174880509fe9bde4a449093dae5d0798c49796417cb4157e64"
+    },
+    {
+      "path": "history-editor-startup/config.json",
+      "source": "Logs/SceneRaid/20260913-215849-946/config.json",
+      "sourceBytes": 916,
+      "sourceSha256": "38e40acac804630d7c760bea679f956a2eafbcd3400f662952a9f9c03fbc000c",
+      "artifactSha256": "38e40acac804630d7c760bea679f956a2eafbcd3400f662952a9f9c03fbc000c"
+    },
+    {
+      "path": "history-editor-startup/process.json",
+      "source": "Logs/SceneRaid/20260913-215849-946/process.json",
+      "sourceBytes": 196,
+      "sourceSha256": "1141412176ff65fade623bdc03b5c4da628a9fc847472295cdaedf5965449cb9",
+      "artifactSha256": "1141412176ff65fade623bdc03b5c4da628a9fc847472295cdaedf5965449cb9"
+    },
+    {
+      "path": "history-editor-startup/process-start.json",
+      "source": "Logs/SceneRaid/20260913-215849-946/process-start.json",
+      "sourceBytes": 314,
+      "sourceSha256": "06b011e3ae9373a4a116d676516aee1fec4179dd14a177a92d321f6203049829",
+      "artifactSha256": "06b011e3ae9373a4a116d676516aee1fec4179dd14a177a92d321f6203049829"
+    },
+    {
+      "path": "sc10-mr02/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-220113-067/manifest.json",
+      "sourceBytes": 1592334,
+      "sourceSha256": "f42132ab6db58d48989ed9659c2d073480fef7ceba499fd8688cea0612a0e566",
+      "artifactSha256": "c2ded2e5ecb823aa9000e274582422021aa1559c999f21acfb281ffe2229bd0b"
+    },
+    {
+      "path": "sc10-mr02/result.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/result.json",
+      "sourceBytes": 2567,
+      "sourceSha256": "168f7d219d269aeda03b16ee8bcae8f34019a05348b8a4af9c3e95ca8162e590",
+      "artifactSha256": "168f7d219d269aeda03b16ee8bcae8f34019a05348b8a4af9c3e95ca8162e590"
+    },
+    {
+      "path": "sc10-mr02/report.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/report.json",
+      "sourceBytes": 96364,
+      "sourceSha256": "74428937529d45177f4873b4099c899625b086d2b9099f8f52e93adb1d418d50",
+      "artifactSha256": "74428937529d45177f4873b4099c899625b086d2b9099f8f52e93adb1d418d50"
+    },
+    {
+      "path": "sc10-mr02/contracts.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/contracts.json",
+      "sourceBytes": 249,
+      "sourceSha256": "589105bab9460d8a904668ed2dfa5208cebe70eac367c3fecfd6184dab893b54",
+      "artifactSha256": "589105bab9460d8a904668ed2dfa5208cebe70eac367c3fecfd6184dab893b54"
+    },
+    {
+      "path": "sc10-mr02/route-contracts.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/route-contracts.json",
+      "sourceBytes": 25345,
+      "sourceSha256": "acdf71c6391fe7bc0345a2e28047d0bd7c6767752ab34b081ec83c790bebaece",
+      "artifactSha256": "acdf71c6391fe7bc0345a2e28047d0bd7c6767752ab34b081ec83c790bebaece"
+    },
+    {
+      "path": "sc10-mr02/config.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/config.json",
+      "sourceBytes": 916,
+      "sourceSha256": "edb489e07430428f3c5713f4265051a0478a5f2536629107d187c988abe02f1f",
+      "artifactSha256": "edb489e07430428f3c5713f4265051a0478a5f2536629107d187c988abe02f1f"
+    },
+    {
+      "path": "sc10-mr02/process.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/process.json",
+      "sourceBytes": 197,
+      "sourceSha256": "c21a17f377e2528b7c653d0b8364286bd3b713965c5e6607fc1a17bf019e57aa",
+      "artifactSha256": "c21a17f377e2528b7c653d0b8364286bd3b713965c5e6607fc1a17bf019e57aa"
+    },
+    {
+      "path": "sc10-mr02/process-start.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/process-start.json",
+      "sourceBytes": 313,
+      "sourceSha256": "c17e458f7ab47a444b5bd85ae7b6fd4e5e7d398df04ca3c3ab663e7b76210923",
+      "artifactSha256": "c17e458f7ab47a444b5bd85ae7b6fd4e5e7d398df04ca3c3ab663e7b76210923"
+    },
+    {
+      "path": "sc10-mr02/cleanup.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/cleanup.json",
+      "sourceBytes": 22,
+      "sourceSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb",
+      "artifactSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb"
+    },
+    {
+      "path": "sc10-mr02/scene-audit.json.gz",
+      "source": "Logs/SceneRaid/20260913-220113-067/scene-audit.json",
+      "sourceBytes": 1895430,
+      "sourceSha256": "94c8816b6ccbd604bf88c3d57c50bc5765e754b50af3e7a87590e8bb59cf73a3",
+      "artifactSha256": "166106d23950dc68def069d626547f5a9506c2490144287817c59460fe832193"
+    },
+    {
+      "path": "sc10-mr02/runtime-world.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/runtime-world.json",
+      "sourceBytes": 19022,
+      "sourceSha256": "f8088beb00c081ec7d7f18b87dc66d1b2c7465f756f9a6fb31d6826c7c4b88c0",
+      "artifactSha256": "f8088beb00c081ec7d7f18b87dc66d1b2c7465f756f9a6fb31d6826c7c4b88c0"
+    },
+    {
+      "path": "sc10-mr02/events.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-220113-067/events.jsonl",
+      "sourceBytes": 10945926,
+      "sourceSha256": "990dc82fa80c7e1a46ae507833f54fe0713c4089b385189e63ea2347914d46ae",
+      "artifactSha256": "bbcad359e0626907f1346869c112566361ae52d2aeeeb09ad00f0b2ab184c005"
+    },
+    {
+      "path": "sc10-mr02/frames.csv.gz",
+      "source": "Logs/SceneRaid/20260913-220113-067/frames.csv",
+      "sourceBytes": 2665048,
+      "sourceSha256": "8e225e0b2124dbc6c6c567a66bdc7ba2536be3bba0487852bc092244edee3392",
+      "artifactSha256": "04c2d0c32518ce946957c31ddeba5c2b5c8df2c1ed36ea15f3985c471befb509"
+    },
+    {
+      "path": "sc10-mr02/counters.csv.gz",
+      "source": "Logs/SceneRaid/20260913-220113-067/counters.csv",
+      "sourceBytes": 27391862,
+      "sourceSha256": "5626f058b3bf399aafa31038ebb26de22b661cb611de8a415fc25e3e3dc8cf60",
+      "artifactSha256": "a7717c2420df4c3ecb9898768a323faffdd76bb2f32a836bdafb83a057c5f5e9"
+    },
+    {
+      "path": "sc10-mr02/render-final.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/render-final.json",
+      "sourceBytes": 645,
+      "sourceSha256": "e5c4a710fb545f70ad76f686712c79f100da07051eeccefa6d6408ab11455345",
+      "artifactSha256": "e5c4a710fb545f70ad76f686712c79f100da07051eeccefa6d6408ab11455345"
+    },
+    {
+      "path": "sc10-mr02/warehouse-final.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/warehouse-final.json",
+      "sourceBytes": 5088,
+      "sourceSha256": "c8ce4e6ef4ba3a8c89ab8b7f5eab1e6a1107b51f53e8dfc4a92fd8633d98fe0b",
+      "artifactSha256": "c8ce4e6ef4ba3a8c89ab8b7f5eab1e6a1107b51f53e8dfc4a92fd8633d98fe0b"
+    },
+    {
+      "path": "sc10-mr02/warehouse-initial.json",
+      "source": "Logs/SceneRaid/20260913-220113-067/warehouse-initial.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "sc10-mr02/shutdown-phases.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-220113-067/shutdown-phases.jsonl",
+      "sourceBytes": 409,
+      "sourceSha256": "33818ea20c00e87ec66a83f8d1a73534aeb7d64d004463c9576a7e683a56ee27",
+      "artifactSha256": "321a35745610cd86db667e8feb2abf6da6ea8c5fe4e4b0caad3e292990904351"
+    },
+    {
+      "path": "sc02/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-221017-510/manifest.json",
+      "sourceBytes": 1592593,
+      "sourceSha256": "4a9f0cfb639e3b57e0a9c3ae5324afbe03581df82c296350c0dd88ee5103cbf1",
+      "artifactSha256": "b478236709385a7fa67a6174a02e8f37fb992f7efa5f16283154853c07f3fc26"
+    },
+    {
+      "path": "sc02/result.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/result.json",
+      "sourceBytes": 2561,
+      "sourceSha256": "640ac41ac7f9819102eb1bb3977a5c31f8725835ce3321fbab84fd3e1e8d1ae6",
+      "artifactSha256": "640ac41ac7f9819102eb1bb3977a5c31f8725835ce3321fbab84fd3e1e8d1ae6"
+    },
+    {
+      "path": "sc02/report.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/report.json",
+      "sourceBytes": 157817,
+      "sourceSha256": "1c5709ee394af88361b45cf80149a2da9658a93be35b94ed94663b103cbafdbd",
+      "artifactSha256": "1c5709ee394af88361b45cf80149a2da9658a93be35b94ed94663b103cbafdbd"
+    },
+    {
+      "path": "sc02/contracts.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/contracts.json",
+      "sourceBytes": 249,
+      "sourceSha256": "589105bab9460d8a904668ed2dfa5208cebe70eac367c3fecfd6184dab893b54",
+      "artifactSha256": "589105bab9460d8a904668ed2dfa5208cebe70eac367c3fecfd6184dab893b54"
+    },
+    {
+      "path": "sc02/route-contracts.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/route-contracts.json",
+      "sourceBytes": 18877,
+      "sourceSha256": "b8f14a20794fdf47f471adfb2e7e6883d444d40b9dddae31a12e6226e55a1f87",
+      "artifactSha256": "b8f14a20794fdf47f471adfb2e7e6883d444d40b9dddae31a12e6226e55a1f87"
+    },
+    {
+      "path": "sc02/config.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/config.json",
+      "sourceBytes": 589,
+      "sourceSha256": "e17cebc382c71ad24d9d91a77b1f5206baeeee3f4a27fd49b34279c50b7973d6",
+      "artifactSha256": "e17cebc382c71ad24d9d91a77b1f5206baeeee3f4a27fd49b34279c50b7973d6"
+    },
+    {
+      "path": "sc02/process.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/process.json",
+      "sourceBytes": 197,
+      "sourceSha256": "22b6f6af9758c03ee4cd52b1603befd18e0681a64302b8ca760a5b78023fb032",
+      "artifactSha256": "22b6f6af9758c03ee4cd52b1603befd18e0681a64302b8ca760a5b78023fb032"
+    },
+    {
+      "path": "sc02/process-start.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/process-start.json",
+      "sourceBytes": 317,
+      "sourceSha256": "94bca6552c50dff8f8f2cf6cb2739a5183087dfb8ed18261429a868c196c24f7",
+      "artifactSha256": "94bca6552c50dff8f8f2cf6cb2739a5183087dfb8ed18261429a868c196c24f7"
+    },
+    {
+      "path": "sc02/cleanup.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/cleanup.json",
+      "sourceBytes": 22,
+      "sourceSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb",
+      "artifactSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb"
+    },
+    {
+      "path": "sc02/scene-audit.json.gz",
+      "source": "Logs/SceneRaid/20260913-221017-510/scene-audit.json",
+      "sourceBytes": 1895430,
+      "sourceSha256": "b47beb046aa80270c3b6ef7e08633f4faa407a8451464e3aa782ddbb26149a92",
+      "artifactSha256": "98d448a883ed90614a384887658f3e7504abb54891f99ca5cfcc455535681688"
+    },
+    {
+      "path": "sc02/runtime-world.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/runtime-world.json",
+      "sourceBytes": 19022,
+      "sourceSha256": "b9b9d46996452c373f6212915cba0f103e84cf702a2109a936fe0904b8a1b22a",
+      "artifactSha256": "b9b9d46996452c373f6212915cba0f103e84cf702a2109a936fe0904b8a1b22a"
+    },
+    {
+      "path": "sc02/events.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-221017-510/events.jsonl",
+      "sourceBytes": 5996648,
+      "sourceSha256": "e371d839ca2f2f0f5d8f92024ce0abbccafd68a82ceab1bbb446dda6bb8c6850",
+      "artifactSha256": "7a2dc91665905d7baf7116387ffab1201678947aa9844ab8c6d502c7faa6f80f"
+    },
+    {
+      "path": "sc02/frames.csv.gz",
+      "source": "Logs/SceneRaid/20260913-221017-510/frames.csv",
+      "sourceBytes": 827326,
+      "sourceSha256": "b32031672f29b5f2ac968ada639c97fbebc86f80648abc5cb5df764b84e5ba42",
+      "artifactSha256": "3307b3d9e401a39ac86666abc04fc9c953a60177b9491150018c1965075b6d81"
+    },
+    {
+      "path": "sc02/counters.csv.gz",
+      "source": "Logs/SceneRaid/20260913-221017-510/counters.csv",
+      "sourceBytes": 8428250,
+      "sourceSha256": "435405b5ec3ebbde9df5550580eacd6a9a87b809cd082d2c0086664711e127f0",
+      "artifactSha256": "d416b835a61429ea0e3109b54793782450d5fae9558d6ec50f691f60192acf06"
+    },
+    {
+      "path": "sc02/render-final.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/render-final.json",
+      "sourceBytes": 644,
+      "sourceSha256": "0beb462f5c9f47cf5cd77406bfb2cba0c32e0049f42cbdd434354ef5276a85f6",
+      "artifactSha256": "0beb462f5c9f47cf5cd77406bfb2cba0c32e0049f42cbdd434354ef5276a85f6"
+    },
+    {
+      "path": "sc02/warehouse-final.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/warehouse-final.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "sc02/warehouse-initial.json",
+      "source": "Logs/SceneRaid/20260913-221017-510/warehouse-initial.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "sc02/shutdown-phases.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-221017-510/shutdown-phases.jsonl",
+      "sourceBytes": 409,
+      "sourceSha256": "f36a5a61d5db0edc8c4b580512b88b1b93f776270322f0a5af0f28c99f9b9855",
+      "artifactSha256": "cc9e19533fa1bf18f6188cd07de2ed86be54322ba687d64aa7e759c3ceea8ceb"
+    }
+  ]
+}

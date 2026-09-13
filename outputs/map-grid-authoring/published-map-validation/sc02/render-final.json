@@ -1,0 +1,25 @@
+{
+    "pipelineAsset": "URP-HighFidelity",
+    "pipelineType": "UnityEngine.Rendering.Universal.UniversalRenderPipeline",
+    "qualityPipeline": "URP-HighFidelity",
+    "screenMode": "Windowed",
+    "focused": true,
+    "width": 3840,
+    "height": 2160,
+    "renderInterval": 1,
+    "contexts": 11461,
+    "renderedFrames": 11461,
+    "cameras": [
+        {
+            "name": "Main Camera",
+            "type": "Game",
+            "targetTexture": "null",
+            "enabled": true,
+            "active": true,
+            "width": 3840,
+            "height": 2160,
+            "display": 0,
+            "cullingMask": -1
+        }
+    ]
+}

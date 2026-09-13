@@ -1,6 +1,6 @@
 # 网格地图作者流程架构审查
 
-日期：2026-09-13。当前结论：G6 允许连线穿过名称框通过架构审查，65/65 定向回归通过。下文保留 G1–G5 的历史证据；文件边界和依赖符合已确认规划。
+日期：2026-09-13。当前结论：G7 发布图验证的测试边界符合规划，功能验收发现路线阻塞和缓存未命中，尚未修复。下文保留 G1–G6 的历史证据，旧阶段通过不代表当前发布图已通过整局验收。
 
 ## 1. 文件归属和依赖
 
@@ -58,3 +58,13 @@ Window 只在普通 Shift 双选时只读查找既有连接，选择动作不写
 65 项定向通过，保留 NodeOverName、EdgeThroughNode、横竖、端口和不可达反向条件。真实窗口 Shift 穿名连接经导航补证据后完成，保存重载保持原边身份；测试用最终可观察草稿状态等待异步完成，未引入绕过导航的测试入口。两次测试时序失败及最终成功证据可追溯。已检查手动连线和重载两张实际截图。
 
 性能变化仅减少 Editor 校验和坐标求解的检查、分配；没有新增导航、运行时扫描或跨层依赖。源场景和正式地图未修改。结论：符合已确认模块边界，不需要新系统或方案调整。见 [验收报告](../../outputs/map-grid-authoring/name-crossings/validation_report.md)。
+
+## 8. G7 发布图验证审查
+
+依据：[g7_published_map_validation.md](g7_published_map_validation.md)。新增 MapCommandPublishedGraphTests.cs 独立承担实际发布资产的只读验收，复用 SceneCollector、Binding、NavigationSegmentQuery 和预算成本服务。Floyd 仅作为测试中的独立最短路径对照，不进入运行时，也不替换生产 Dijkstra。测试成本为 O(N³ + N² 次路线查询 + E 次双向导航)，只在定向验收执行。
+
+MapCommandPresentationTests.cs、MapCommandVisualTests.cs 用实际发布资产的完整身份集合替代旧数量断言，没有放宽漏节点/漏边检查。缓存是否零补算仍由未修改的 RuntimeCache 用例裁决，发布图功能审计记录初始失效原因，再验证原预算补算后的成本和路线，避免同一缓存失效派生数百条假不可达。两者证据和状态独立保留。
+
+SceneRaid 继续复用原指令驱动、背包驱动、探针及合同；没有新增 Gameplay 诊断接口或更改玩家优先级。截图经过实际 SRP 渲染后采集，未用模型图替代。定向 12 通过、1 缓存失败；两轮真实场景均复现存活 Agent 在龙骨礁敌人群处理失败后无法继续，不能用采集 PASS 替代玩法 PASS。正常战死和容量撤离按已确认规则处理。
+
+没有新增 Runtime→Editor 依赖、重复持久化、场景生成副作用或生产热路径开销。用户地图和场景原样保留，最终哈希对应运行输入；独立验证工作区不覆盖用户编辑副本。结论：测试实现通过架构审查，当前发布图的完整功能未通过，两个未修复问题及后续定位文件见 [验证报告](../../outputs/map-grid-authoring/published-map-validation/validation_report.md)。

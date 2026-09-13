@@ -1,0 +1,397 @@
+{
+    "targets": [
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_1593cb32d05d4513b0e0bf4f73534cfe",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]/EnemySourceCluster_A[3]",
+            "targetId": "EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/BossSourceCluster[4]/BossSourceCluster_ActiveEnemyCluster[1]",
+            "targetId": "ActiveEnemyCluster_1f0a6e708bfe463f8bb0e773fdb21d31",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/BossSourceCluster[4]",
+            "targetId": "EnemySourceCluster_eeadbc6896f14bbfb813062339d96bb8",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[3]",
+            "targetId": "ActiveEnemyCluster_2613c0aba4be459a98ac61c511613eca",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]/EnemySourceCluster_A[3]",
+            "targetId": "EnemySourceCluster_cc6c15ae7ec64e2980c87183a105410b",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/EnemySourceCluster_B[2]/EnemySourceCluster_B_ActiveEnemyCluster[3]",
+            "targetId": "ActiveEnemyCluster_99910b305ae341969b3561593863eb6f",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/EnemySourceCluster_B[2]",
+            "targetId": "EnemySourceCluster_782d9b9898ca4dd189184662b8d2edb9",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_ab7da64720384fda88998aec2de804ef",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]/EnemySourceCluster_B[4]",
+            "targetId": "EnemySourceCluster_2a3184aff4564e778ed2b51e3640d94b",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_116479a203c44ac19f6976a4c5bfa6d6",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]/EnemySourceCluster[2]",
+            "targetId": "EnemySourceCluster_be56bf4c898141649907ae9874431cf9",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]/ResourceCluster_B[2]",
+            "targetId": "ResourceCluster_6337291b19c540d899f77b3fd15d3d5b",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_A[0]",
+            "targetId": "ResourceCluster_02e0d2a86bc1435f9f6dbe082ace36d5",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]/ResourceCluster_A[2]",
+            "targetId": "ResourceCluster_48c7929adca544548ea8a1f1c4bbb1e3",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工宿舍[19]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]/EnemySourceCluster_B[4]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_3ef1adebe3fd4dfb882e294b3e534d06",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]/EnemySourceCluster_B[4]",
+            "targetId": "EnemySourceCluster_5c598cc5039444d595c35de718fde311",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]/ResourceCluster_A[1]",
+            "targetId": "ResourceCluster_8bce7dcce3db4d55bda8778c2d23fbc5",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-奇点塔[15]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ExtractionCluster[5]",
+            "targetId": "ExtractionCluster_39c2d8cee6694b72bcb8e98b74ea4c84",
+            "kind": "Extraction",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ResourceCluster_A[3]",
+            "targetId": "ResourceCluster_68c6139824a846b3a926130f06394f78",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ResourceCluster_B (1)[4]",
+            "targetId": "ResourceCluster_c2912d65d10840ad9f11654eb748551a",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]/EnemySourceCluster[3]/EnemySourceCluster_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_710bee7c329f43b3b0ef141201887ba7",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]/EnemySourceCluster[3]",
+            "targetId": "EnemySourceCluster_83367333ab134a3587e15e7ca1743b6a",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ResourceCluster_B[2]",
+            "targetId": "ResourceCluster_c39cbad78c5241a7a01d0518a0e02d75",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]/ResourceCluster_B[1]",
+            "targetId": "ResourceCluster_0694d5ae28ee42959c35e415f3809d85",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/ResourceCluster_B[1]",
+            "targetId": "ResourceCluster_47ddc8f8246b4c5bb43e55f0e47b6eba",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]/EnemySourceCluster_B[3]/EnemySourceCluster_B_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_c90517d03fc04b2c8456d9768d5d0603",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]/EnemySourceCluster_B[3]",
+            "targetId": "EnemySourceCluster_a339f7e205764480adcbf8fb29770094",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]/EnemySourceCluster_A[2]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_b924a86f2ad04f87a3ef4a8ac05a1e08",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]/EnemySourceCluster_A[2]",
+            "targetId": "EnemySourceCluster_9ad0ac2a39524c4db40e777589c68c7e",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ResourceCluster_C[1]",
+            "targetId": "ResourceCluster_ca141e837bb641b9a43fc9dfb1e3d60a",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]/EnemySourceCluster_ActiveEnemyCluster[3]",
+            "targetId": "ActiveEnemyCluster_027e70438ddc4fd08cc8a5bdc860d026",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]/EnemySourceCluster[2]",
+            "targetId": "EnemySourceCluster_ddf325a77152406882815e5c21ca9880",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-渔村[14]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/EnemySourceCluster_A[3]/EnemySourceCluster_A_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_e02f3079d0ff49ecadfcaa85ffe5bbe6",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/EnemySourceCluster_A[3]",
+            "targetId": "EnemySourceCluster_af61b375705d441faffd60c84c9cbeb7",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]",
+            "targetId": "ExtractionCluster_dbf3fda1cd614ffab8e9cb2e2757cc12",
+            "kind": "Extraction",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]/ResourceCluster_B[4]",
+            "targetId": "ResourceCluster_eb4efe56164346b687198fdac5af82dd",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-员工食堂[18]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]/ResourceCluster_A[0]",
+            "targetId": "ResourceCluster_3c6eb67065ab4033b623acf9a93a7968",
+            "kind": "Resource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-实验室[16]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/EnemySourceCluster[0]/EnemySourceCluster_ActiveEnemyCluster[2]",
+            "targetId": "ActiveEnemyCluster_865a8b2bdac74112af7792384a7e5d30",
+            "kind": "Enemy",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        },
+        {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/EnemySourceCluster[0]",
+            "targetId": "EnemySourceCluster_8ee24f258ffc4f70bdaf015fa36497db",
+            "kind": "EnemySource",
+            "zone": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]",
+            "active": true,
+            "completed": false
+        }
+    ],
+    "extractionPaths": [
+        {
+            "agent": "2",
+            "point": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ExtractionCluster[5]/ExtractionPoint[0]",
+            "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ExtractionCluster[5]",
+            "status": "PathComplete",
+            "length": 528.9434814453125,
+            "start": {
+                "x": 203.20001220703126,
+                "y": 3.2383575439453127,
+                "z": 23.5
+            },
+            "end": {
+                "x": -61.0,
+                "y": -0.120025634765625,
+                "z": 221.35000610351563
+            }
+        },
+        {
+            "agent": "1",
+            "point": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ExtractionCluster[5]/ExtractionPoint[0]",
+            "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-雨林[17]/ExtractionCluster[5]",
+            "status": "PathComplete",
+            "length": 582.672119140625,
+            "start": {
+                "x": 221.41152954101563,
+                "y": 15.705879211425782,
+                "z": 82.03179931640625
+            },
+            "end": {
+                "x": -61.0,
+                "y": -0.120025634765625,
+                "z": 221.35000610351563
+            }
+        },
+        {
+            "agent": "2",
+            "point": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]/ExtractionPoint[0]",
+            "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]",
+            "status": "PathComplete",
+            "length": 291.49761962890627,
+            "start": {
+                "x": 203.20001220703126,
+                "y": 3.2383575439453127,
+                "z": 23.5
+            },
+            "end": {
+                "x": 385.6000061035156,
+                "y": 6.942241191864014,
+                "z": 239.23001098632813
+            }
+        },
+        {
+            "agent": "1",
+            "point": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]/ExtractionPoint[0]",
+            "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]",
+            "status": "PathComplete",
+            "length": 230.15182495117188,
+            "start": {
+                "x": 221.41152954101563,
+                "y": 15.705879211425782,
+                "z": 82.03179931640625
+            },
+            "end": {
+                "x": 385.6000061035156,
+                "y": 6.942241191864014,
+                "z": 239.23001098632813
+            }
+        }
+    ],
+    "raidInstances": [
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/RaidFlowController[4] | Large Island Wall Layout | owner=True"
+    ]
+}

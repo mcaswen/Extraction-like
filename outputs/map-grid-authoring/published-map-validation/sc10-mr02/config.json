@@ -1,0 +1,21 @@
+﻿{
+    "schemaVersion":  3,
+    "routeEvidenceVersion":  1,
+    "runId":  "20260913-220113-067",
+    "outputPath":  "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260913-220113-067",
+    "scenePath":  "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "mode":  "ManualRoutes",
+    "seed":  731,
+    "observeSeconds":  300,
+    "simulationSpeed":  4,
+    "width":  3840,
+    "height":  2160,
+    "profile":  false,
+    "binaryProfile":  false,
+    "enabled":  true,
+    "keepEditorOpen":  true,
+    "buildPlayer":  false,
+    "captureCommandCatalog":  false,
+    "scenarioJson":  "{\"schemaVersion\":1,\"id\":\"MR02\",\"agent\":\"2\",\"nearMinimum\":10,\"farMinimum\":150,\"movementBeforeReplacement\":3,\"wallDeadline\":60,\"operations\":[\"Near\",\"FarCrossZone\",\"InvalidPreserves\"]}",
+    "scenarioSha256":  "6d1a343ff9c38923f33c72e3bfc59e9e4bbc315862cc05b50b10022c7532f195"
+}

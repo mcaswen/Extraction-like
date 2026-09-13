@@ -1,0 +1,7 @@
+﻿{
+    "caseId":  "AgentReproduction.Tests.MapCommandVisualTests.FormalSceneRendersTheRealCompactAndExpandedCommandHud",
+    "contract":  "PASS",
+    "message":  "",
+    "execution":  "COMPLETED",
+    "nunitResult":  "Passed"
+}

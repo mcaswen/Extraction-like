@@ -1,6 +1,12 @@
 {
   "groups": [
     {
+      "name": "MapCommandPublishedGraph",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandPublishedGraphTests",
+      "expected": ["PublishedConnectionsMatchNavigationAndAllPairShortestRoutes"]
+    },
+    {
       "name": "MapGraphSceneMerge",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphSceneMergeTests",

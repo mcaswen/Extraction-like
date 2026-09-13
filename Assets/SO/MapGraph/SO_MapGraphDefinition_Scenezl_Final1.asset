@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_MapGraphDefinition_Scenezl_Final1
   m_EditorClassIdentifier: 
   _schemaVersion: 2
-  _revision: 4
+  _revision: 5
   _mapId: map_graph
   _displayName: "\u533A\u57DF\u6307\u6325\u56FE"
   _startNodeId: 
@@ -31,435 +31,409 @@ MonoBehaviour:
   - _nodeId: cluster_02c8fd945d1342eab053fa8af41d469f
     _displayName: ResourceCluster_B
     _nodeKind: 2
-    _position: {x: -80.00001, y: -119.60184}
+    _position: {x: 0, y: -135}
     _description: "Zone-\u5947\u70B9\u5854/ResourceCluster_B"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_bd785f4955941f5ef39b762e534aeed5
-    _rowId: row-cluster_02c8fd945d1342eab053fa8af41d469f
-    _columnId: column-cluster_02c8fd945d1342eab053fa8af41d469f
+    _rowId: grid-Horizontal--240
+    _columnId: grid-Vertical--30
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-94253630
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-    _displayName: EnemySourceCluster
-    _nodeKind: 3
-    _position: {x: -84.69177, y: -33.21675}
-    _description: "Zone-\u5B9E\u9A8C\u5BA4/Env/\u5B9E\u9A8C\u5BA4/EnemySourceCluster"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
-    _rowId: row-cluster_065e3bcfbc8e922239efcb8b0a222710
-    _columnId: column-cluster_065e3bcfbc8e922239efcb8b0a222710
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-6431816093595122837-0
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_1d8e558540281854a4430a91743e5541
     _displayName: EnemySourceCluster
     _nodeKind: 3
-    _position: {x: -134.59244, y: -186.7336}
-    _description: "Zone-\u96E8\u6797/EnemySourceCluster"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_065e3bcfbc8e922239efcb8b0a222710
-    _columnId: column-cluster_1d8e558540281854a4430a91743e5541
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1519466335
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
-    _displayName: EnemySourceCluster_B
-    _nodeKind: 3
-    _position: {x: 85.90546, y: -39.999996}
-    _description: "Zone-\u5458\u5DE5\u98DF\u5802/EnemySourceCluster_B"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
-    _rowId: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _columnId: column-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1576772075
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_3a148e744335b9648c8c429f7fe51985
-    _displayName: EnemySourceCluster_A
-    _nodeKind: 3
-    _position: {x: -85.905426, y: -39.999996}
-    _description: "Zone-\u5458\u5DE5\u98DF\u5802/EnemySourceCluster_A"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
-    _rowId: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _columnId: column-cluster_3a148e744335b9648c8c429f7fe51985
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1653989894
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
-    _displayName: ResourceCluster_A
-    _nodeKind: 2
-    _position: {x: -0.15707397, y: -45.42964}
-    _description: "Zone-\u5458\u5DE5\u5BBF\u820D/ResourceCluster_A"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_1d01c1036a8261658e9935ed9f006458
-    _rowId: row-cluster_02c8fd945d1342eab053fa8af41d469f
-    _columnId: column-cluster_49f0d5f8886bf9b95eb54fe91c863fc7
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-806267694
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
-    _displayName: ResourceCluster_B
-    _nodeKind: 2
-    _position: {x: -84.69177, y: 52.937653}
-    _description: "Zone-\u5B9E\u9A8C\u5BA4/ResourceCluster_B"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
-    _rowId: row-cluster_57b311b262bc54d476dde1d6c528f5fa
-    _columnId: column-cluster_065e3bcfbc8e922239efcb8b0a222710
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1550666496
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
-    _displayName: ResourceCluster_A
-    _nodeKind: 2
-    _position: {x: 4.691742, y: -33.21675}
-    _description: "Zone-\u5B9E\u9A8C\u5BA4/ResourceCluster_A"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
-    _rowId: row-cluster_065e3bcfbc8e922239efcb8b0a222710
-    _columnId: column-cluster_67e8f29f081a045ff69fb516f44dd0c6
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-2009893638
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_73607cab556336476bac9995b5e46c2b
-    _displayName: EnemySourceCluster_A
-    _nodeKind: 3
-    _position: {x: -0.2793274, y: 40}
-    _description: "Zone-\u9F99\u9AA8\u7901/EnemySourceCluster_A"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_bec781aa3ebe55b15c57cd445fb85883
-    _rowId: row-cluster_73607cab556336476bac9995b5e46c2b
-    _columnId: column-cluster_73607cab556336476bac9995b5e46c2b
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-187720463
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
-    _displayName: EnemySourceCluster_B
-    _nodeKind: 3
-    _position: {x: -80.00001, y: -39.601837}
-    _description: "Zone-\u5947\u70B9\u5854/EnemySourceCluster_B"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_bd785f4955941f5ef39b762e534aeed5
-    _rowId: row-cluster_773e939f7ea9caf80fb9456c516d3bea
-    _columnId: column-cluster_02c8fd945d1342eab053fa8af41d469f
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-873998147
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_8a3f36926764590933b6f4b14f703f7b
-    _displayName: ResourceCluster_A
-    _nodeKind: 2
-    _position: {x: 68.09564, y: -91.77133}
-    _description: "Zone-\u6E14\u6751/ResourceCluster_A"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_1a5c503a20eaa4b61337291d8a58d169
-    _rowId: row-cluster_8a3f36926764590933b6f4b14f703f7b
-    _columnId: column-cluster_1d8e558540281854a4430a91743e5541
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-687329775
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _displayName: ResourceCluster_B
-    _nodeKind: 2
-    _position: {x: 54.606163, y: -52.965027}
-    _description: "Zone-\u96E8\u6797/ResourceCluster_B"
-    _icon: {fileID: 0}
-    _iconKind: 0
-    _resourceTier: 0
-    _dangerTier: 0
-    _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _columnId: column-cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1522635425
-    _footprint: {x: 28, y: 28}
-    _positionLocked: 0
-  - _nodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-    _displayName: EnemySourceCluster
-    _nodeKind: 3
-    _position: {x: -84.69177, y: -132.93764}
+    _position: {x: 75, y: -105}
     _description: "Zone-\u5B9E\u9A8C\u5BA4/EnemySourceCluster"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
-    _rowId: row-cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-    _columnId: column-cluster_065e3bcfbc8e922239efcb8b0a222710
+    _rowId: grid-Horizontal-240
+    _columnId: grid-Vertical--330
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1519466335
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
+    _displayName: EnemySourceCluster_B
+    _nodeKind: 3
+    _position: {x: 105, y: -45}
+    _description: "Zone-\u5458\u5DE5\u98DF\u5802/EnemySourceCluster_B"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
+    _rowId: grid-Horizontal-0
+    _columnId: grid-Vertical-390
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1576772075
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_3a148e744335b9648c8c429f7fe51985
+    _displayName: EnemySourceCluster_A
+    _nodeKind: 3
+    _position: {x: -75, y: -45}
+    _description: "Zone-\u5458\u5DE5\u98DF\u5802/EnemySourceCluster_A"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
+    _rowId: grid-Horizontal-0
+    _columnId: grid-Vertical-210
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1653989894
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
+    _displayName: ResourceCluster_A
+    _nodeKind: 2
+    _position: {x: 0, y: -105}
+    _description: "Zone-\u5458\u5DE5\u5BBF\u820D/ResourceCluster_A"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_1d01c1036a8261658e9935ed9f006458
+    _rowId: grid-Horizontal--330
+    _columnId: grid-Vertical-390
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-806267694
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
+    _displayName: ResourceCluster_B
+    _nodeKind: 2
+    _position: {x: -75, y: 75}
+    _description: "Zone-\u5B9E\u9A8C\u5BA4/ResourceCluster_B"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
+    _rowId: grid-Horizontal-420
+    _columnId: grid-Vertical--480
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1550666496
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
+    _displayName: ResourceCluster_A
+    _nodeKind: 2
+    _position: {x: 75, y: 75}
+    _description: "Zone-\u5B9E\u9A8C\u5BA4/ResourceCluster_A"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
+    _rowId: grid-Horizontal-420
+    _columnId: grid-Vertical--330
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-2009893638
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_73607cab556336476bac9995b5e46c2b
+    _displayName: EnemySourceCluster_A
+    _nodeKind: 3
+    _position: {x: 60, y: -45}
+    _description: "Zone-\u9F99\u9AA8\u7901/EnemySourceCluster_A"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_bec781aa3ebe55b15c57cd445fb85883
+    _rowId: grid-Horizontal-330
+    _columnId: grid-Vertical-540
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-187720463
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
+    _displayName: EnemySourceCluster_B
+    _nodeKind: 3
+    _position: {x: 0, y: -45}
+    _description: "Zone-\u5947\u70B9\u5854/EnemySourceCluster_B"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_bd785f4955941f5ef39b762e534aeed5
+    _rowId: grid-Horizontal--150
+    _columnId: grid-Vertical--30
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-873998147
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+    _displayName: ResourceCluster_A
+    _nodeKind: 2
+    _position: {x: 45, y: 120}
+    _description: "Zone-\u6E14\u6751/ResourceCluster_A"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_1a5c503a20eaa4b61337291d8a58d169
+    _rowId: grid-Horizontal-0
+    _columnId: grid-Vertical--330
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-687329775
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
+    _displayName: ResourceCluster_B
+    _nodeKind: 2
+    _position: {x: 165, y: 60}
+    _description: "Zone-\u96E8\u6797/ResourceCluster_B"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
+    _rowId: grid-Horizontal-420
+    _columnId: grid-Vertical-210
+    _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1522635425
+    _footprint: {x: 28, y: 28}
+    _positionLocked: 0
+  - _nodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+    _displayName: EnemySourceCluster
+    _nodeKind: 3
+    _position: {x: -75, y: -105}
+    _description: "Zone-\u5B9E\u9A8C\u5BA4/EnemySourceCluster"
+    _icon: {fileID: 0}
+    _iconKind: 0
+    _resourceTier: 0
+    _dangerTier: 0
+    _zoneId: zone_b33dcb211b8d084ce0fc978eb076db44
+    _rowId: grid-Horizontal-240
+    _columnId: grid-Vertical--480
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-492151349
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_9d02dfbf9e190218416afd8280324f29
     _displayName: EnemySourceCluster_A
     _nodeKind: 3
-    _position: {x: 80.157104, y: 45.429688}
+    _position: {x: 0, y: 75}
     _description: "Zone-\u5458\u5DE5\u5BBF\u820D/EnemySourceCluster_A"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_1d01c1036a8261658e9935ed9f006458
-    _rowId: row-cluster_9d02dfbf9e190218416afd8280324f29
-    _columnId: column-cluster_1fdefe80ef2edccd45207db5a80a9123
+    _rowId: grid-Horizontal--150
+    _columnId: grid-Vertical-390
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-27217506
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_a74bba773e45b99d0523beafcb31bc84
     _displayName: ResourceCluster_B
     _nodeKind: 2
-    _position: {x: -68.09564, y: 91.77133}
+    _position: {x: -75, y: 120}
     _description: "Zone-\u6E14\u6751/ResourceCluster_B"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_1a5c503a20eaa4b61337291d8a58d169
-    _rowId: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _columnId: column-cluster_a74bba773e45b99d0523beafcb31bc84
+    _rowId: grid-Horizontal-0
+    _columnId: grid-Vertical--450
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1566286469
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
     _displayName: ExtractionCluster
     _nodeKind: 5
-    _position: {x: -80.27933, y: 40}
+    _position: {x: 60, y: 75}
     _description: "Zone-\u9F99\u9AA8\u7901/ExtractionCluster"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_bec781aa3ebe55b15c57cd445fb85883
-    _rowId: row-cluster_73607cab556336476bac9995b5e46c2b
-    _columnId: column-cluster_1fdefe80ef2edccd45207db5a80a9123
+    _rowId: grid-Horizontal-450
+    _columnId: grid-Vertical-540
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-9068098947778029321-1990788660
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
     _displayName: EnemySourceCluster_B
     _nodeKind: 3
-    _position: {x: 80.157104, y: -45.42964}
+    _position: {x: 0, y: -45}
     _description: "Zone-\u5458\u5DE5\u5BBF\u820D/EnemySourceCluster_B"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_1d01c1036a8261658e9935ed9f006458
-    _rowId: row-cluster_02c8fd945d1342eab053fa8af41d469f
-    _columnId: column-cluster_1fdefe80ef2edccd45207db5a80a9123
+    _rowId: grid-Horizontal--270
+    _columnId: grid-Vertical-390
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-477127443
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_ae3336fb07b69b8f929439fab983b97c
     _displayName: EnemySourceCluster_A
     _nodeKind: 3
-    _position: {x: -80.00001, y: 119.60182}
+    _position: {x: 0, y: 105}
     _description: "Zone-\u5947\u70B9\u5854/EnemySourceCluster_A"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_bd785f4955941f5ef39b762e534aeed5
-    _rowId: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _columnId: column-cluster_02c8fd945d1342eab053fa8af41d469f
+    _rowId: grid-Horizontal-0
+    _columnId: grid-Vertical--30
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-206812183
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
     _displayName: ExtractionCluster
     _nodeKind: 5
-    _position: {x: -134.59244, y: 26.733612}
+    _position: {x: 75, y: -60}
     _description: "Zone-\u96E8\u6797/ExtractionCluster"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_b232001ecd90d331fc0d2a4844eb5545
-    _columnId: column-cluster_1d8e558540281854a4430a91743e5541
+    _rowId: grid-Horizontal-300
+    _columnId: grid-Vertical-120
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-9068098947778029321-1366059836
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_b4b57110749a44a77e972f12ac0416a0
     _displayName: ResourceCluster_A
     _nodeKind: 2
-    _position: {x: -80.00001, y: 39.60182}
+    _position: {x: 0, y: 45}
     _description: "Zone-\u5947\u70B9\u5854/ResourceCluster_A"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_bd785f4955941f5ef39b762e534aeed5
-    _rowId: row-cluster_b4b57110749a44a77e972f12ac0416a0
-    _columnId: column-cluster_02c8fd945d1342eab053fa8af41d469f
+    _rowId: grid-Horizontal--60
+    _columnId: grid-Vertical--30
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-767002675
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
     _displayName: ResourceCluster_A
     _nodeKind: 2
-    _position: {x: -25.393837, y: -52.965027}
+    _position: {x: -45, y: 60}
     _description: "Zone-\u96E8\u6797/ResourceCluster_A"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _columnId: column-cluster_02c8fd945d1342eab053fa8af41d469f
+    _rowId: grid-Horizontal-420
+    _columnId: grid-Vertical-0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1481449956
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
     _displayName: EnemySourceCluster_B
     _nodeKind: 3
-    _position: {x: 0.2793274, y: -40}
+    _position: {x: -90, y: -45}
     _description: "Zone-\u9F99\u9AA8\u7901/EnemySourceCluster_B"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_bec781aa3ebe55b15c57cd445fb85883
-    _rowId: row-cluster_c5edf6fa8d78064f44e8c5237b17de37
-    _columnId: column-cluster_c5edf6fa8d78064f44e8c5237b17de37
+    _rowId: grid-Horizontal-330
+    _columnId: grid-Vertical-390
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-64209955
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_e003c321c8d54767f3e93234ce7e48c5
     _displayName: ResourceCluster_B
     _nodeKind: 2
-    _position: {x: -5.905426, y: -39.999996}
+    _position: {x: 15, y: -45}
     _description: "Zone-\u5458\u5DE5\u98DF\u5802/ResourceCluster_B"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
-    _rowId: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _columnId: column-cluster_e003c321c8d54767f3e93234ce7e48c5
+    _rowId: grid-Horizontal-0
+    _columnId: grid-Vertical-300
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1993952240
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_e351d521b0b236a2292a54c00835880b
     _displayName: ResourceCluster_C
     _nodeKind: 2
-    _position: {x: -25.393837, y: -132.96503}
+    _position: {x: -165, y: -60}
     _description: "Zone-\u96E8\u6797/ResourceCluster_C"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_e351d521b0b236a2292a54c00835880b
-    _columnId: column-cluster_02c8fd945d1342eab053fa8af41d469f
+    _rowId: grid-Horizontal-300
+    _columnId: grid-Vertical--120
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-1680951179
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
     _displayName: ResourceCluster_B (1)
     _nodeKind: 2
-    _position: {x: -80.27933, y: -40}
+    _position: {x: -90, y: 75}
     _description: "Zone-\u9F99\u9AA8\u7901/ResourceCluster_B (1)"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_bec781aa3ebe55b15c57cd445fb85883
-    _rowId: row-cluster_c5edf6fa8d78064f44e8c5237b17de37
-    _columnId: column-cluster_1fdefe80ef2edccd45207db5a80a9123
+    _rowId: grid-Horizontal-450
+    _columnId: grid-Vertical-390
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-5466805027850277127-672118188
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_ee48bab778b117a1ab3e609b606e0187
     _displayName: BossSourceCluster
     _nodeKind: 3
-    _position: {x: 134.59244, y: -52.965027}
+    _position: {x: 45, y: 60}
     _description: "Zone-\u96E8\u6797/BossSourceCluster"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _columnId: column-cluster_ee48bab778b117a1ab3e609b606e0187
+    _rowId: grid-Horizontal-420
+    _columnId: grid-Vertical-90
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-7145147231377341779-202635494
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
     _displayName: EnemySourceCluster
     _nodeKind: 3
-    _position: {x: -134.59244, y: -52.965027}
+    _position: {x: -165, y: 60}
     _description: "Zone-\u96E8\u6797/EnemySourceCluster"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_ffc2e84b51ef0595daa63cb7d058a117
-    _rowId: row-cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _columnId: column-cluster_1d8e558540281854a4430a91743e5541
+    _rowId: grid-Horizontal-420
+    _columnId: grid-Vertical--120
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-4111936733065926357-0
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   - _nodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
     _displayName: EnemySourceCluster
     _nodeKind: 3
-    _position: {x: 68.09564, y: 91.77133}
+    _position: {x: 45, y: -120}
     _description: "Zone-\u6E14\u6751/EnemySourceCluster"
     _icon: {fileID: 0}
     _iconKind: 0
     _resourceTier: 0
     _dangerTier: 0
     _zoneId: zone_1a5c503a20eaa4b61337291d8a58d169
-    _rowId: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-    _columnId: column-cluster_1d8e558540281854a4430a91743e5541
+    _rowId: grid-Horizontal--240
+    _columnId: grid-Vertical--330
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3233236453141996006-1698125062
     _footprint: {x: 28, y: 28}
     _positionLocked: 0
   _edges:
-  - _edgeId: edge_007a63b2bd5f43ab4c0d7fb8b2665e6c
-    _fromNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
-    _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
   - _edgeId: edge_0b4a2920870e5819bb174efd9726d12e
     _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
     _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
@@ -475,7 +449,7 @@ MonoBehaviour:
     _fromNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
     _toNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
     _lengthUnits: 1
-    _axis: 1
+    _axis: 2
     _origin: 1
     _fromInset: 0
     _toInset: 0
@@ -493,64 +467,9 @@ MonoBehaviour:
     _widthOverride: 0
     _useColorOverride: 0
     _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_1d43c16f4fa3ec49b97bb39dc9ae6a7e
-    _fromNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
-    _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-    _lengthUnits: 1
-    _axis: 1
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
   - _edgeId: edge_3c2997038103ae038f737b36073d1215
     _fromNodeId: cluster_9d02dfbf9e190218416afd8280324f29
     _toNodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_43954c1450d02fe7bc01a75c057a364f
-    _fromNodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
-    _toNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_44afc0b5dfee7f9ca1d2fe46acef8a11
-    _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
-    _toNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_571195866bbca08ec6a84f269e4e9242
-    _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
-    _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_61d5655ab77826a6269c24d6b6b589ed
-    _fromNodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-    _toNodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
     _lengthUnits: 1
     _axis: 2
     _origin: 1
@@ -574,7 +493,7 @@ MonoBehaviour:
     _fromNodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
     _toNodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
     _lengthUnits: 1
-    _axis: 1
+    _axis: 2
     _origin: 1
     _fromInset: 0
     _toInset: 0
@@ -603,77 +522,11 @@ MonoBehaviour:
     _widthOverride: 0
     _useColorOverride: 0
     _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_813277c0bf197f76087440dcec2fa1f1
-    _fromNodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-    _toNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_85446ae0c55397a341f681cd50a28215
-    _fromNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
-    _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_8fcc82256d02f720e6dcbc97cd471256
-    _fromNodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-    _toNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
-    _lengthUnits: 1
-    _axis: 1
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_921435057e7aac0a0c890473c353efe7
-    _fromNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
-    _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-    _lengthUnits: 1
-    _axis: 1
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
   - _edgeId: edge_a366d891573c3bc6cb85fb8587333054
     _fromNodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
     _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
     _lengthUnits: 1
     _axis: 1
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_a40decd4f3aae688cbc802fe8e85c12f
-    _fromNodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
-    _toNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
-    _lengthUnits: 1
-    _axis: 1
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_c1d91f40709794bcb89c1a17dd868203
-    _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
-    _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
-    _lengthUnits: 1
-    _axis: 2
     _origin: 1
     _fromInset: 0
     _toInset: 0
@@ -695,7 +548,7 @@ MonoBehaviour:
     _fromNodeId: cluster_73607cab556336476bac9995b5e46c2b
     _toNodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
     _lengthUnits: 1
-    _axis: 1
+    _axis: 2
     _origin: 1
     _fromInset: 0
     _toInset: 0
@@ -713,22 +566,11 @@ MonoBehaviour:
     _widthOverride: 0
     _useColorOverride: 0
     _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_d6fd30a7b51b4217c1bd3e41d2e68f28
-    _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
-    _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-    _lengthUnits: 1
-    _axis: 2
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
   - _edgeId: edge_e329148a5b544f167b36cfcc2da44f09
     _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
     _toNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
     _lengthUnits: 1
-    _axis: 1
+    _axis: 2
     _origin: 1
     _fromInset: 0
     _toInset: 0
@@ -746,17 +588,6 @@ MonoBehaviour:
     _widthOverride: 0
     _useColorOverride: 0
     _colorOverride: {r: 0, g: 0, b: 0, a: 0}
-  - _edgeId: edge_ee33c46db13e3991c54258783a54f565
-    _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
-    _toNodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
-    _lengthUnits: 1
-    _axis: 1
-    _origin: 1
-    _fromInset: 0
-    _toInset: 0
-    _widthOverride: 0
-    _useColorOverride: 0
-    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
   - _edgeId: edge_f18e08a96af7255fca98b203882b7cc4
     _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
     _toNodeId: cluster_9d02dfbf9e190218416afd8280324f29
@@ -768,15 +599,136 @@ MonoBehaviour:
     _widthOverride: 0
     _useColorOverride: 0
     _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_b0e18bd297863d9472c2d2f2d20a7326
+    _fromNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+    _toNodeId: cluster_73607cab556336476bac9995b5e46c2b
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_d9dd2dcc59337420b6ac25694b8be3c0
+    _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
+    _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_3d2e483d9e74709bd7d31aaa0e46d918
+    _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+    _toNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_b2f51fdaec5d9b2440999cab191bb66f
+    _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
+    _toNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_df309784db0b1c7ed278179610ea0f2e
+    _fromNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+    _toNodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
+    _lengthUnits: 1
+    _axis: 2
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_d2edb3a6f09dbf216944dd28801614ba
+    _fromNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
+    _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_11c2b7b3767ce2a7ed22415b0024e103
+    _fromNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+    _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
+    _lengthUnits: 1
+    _axis: 2
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_a938344b14f5bdb2bc27e0a8e8343e6d
+    _fromNodeId: cluster_e351d521b0b236a2292a54c00835880b
+    _toNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_dffe8db8cffc2c2432776408de281bbc
+    _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
+    _toNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+    _lengthUnits: 1
+    _axis: 2
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_7b504b9e466734bf57f2084a4f781854
+    _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+    _toNodeId: cluster_1d8e558540281854a4430a91743e5541
+    _lengthUnits: 1
+    _axis: 2
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
+  - _edgeId: edge_6bdd6a700445a20e8ec656ca8895fa1b
+    _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
+    _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
+    _lengthUnits: 1
+    _axis: 1
+    _origin: 2
+    _fromInset: 0
+    _toInset: 0
+    _widthOverride: 0
+    _useColorOverride: 0
+    _colorOverride: {r: 0, g: 0, b: 0, a: 0}
   _zones:
   - _zoneId: zone_137f480bca8846b6c6e46bfe5e75ec94
     _displayName: "\u5458\u5DE5\u98DF\u5802"
     _bounds:
       serializedVersion: 2
-      x: 150.15271
-      y: -72.267624
-      width: 279.8109
-      height: 188
+      x: 150
+      y: -30
+      width: 270
+      height: 150
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-922218180-0
@@ -785,10 +737,10 @@ MonoBehaviour:
     _displayName: "\u6E14\u6751"
     _bounds:
       serializedVersion: 2
-      x: -389.94647
-      y: -255.81029
-      width: 244.19128
-      height: 291.54266
+      x: -510
+      y: -270
+      width: 270
+      height: 300
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-3387003-0
@@ -797,10 +749,10 @@ MonoBehaviour:
     _displayName: "\u5458\u5DE5\u5BBF\u820D"
     _bounds:
       serializedVersion: 2
-      x: 161.64941
-      y: -311.4713
-      width: 268.3142
-      height: 198.85934
+      x: 300
+      y: -360
+      width: 180
+      height: 270
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-20146627-0
@@ -809,10 +761,10 @@ MonoBehaviour:
     _displayName: "\u5B9E\u9A8C\u5BA4"
     _bounds:
       serializedVersion: 2
-      x: -549.37836
-      y: 79.43947
-      width: 277.38354
-      height: 373.87527
+      x: -540
+      y: 210
+      width: 270
+      height: 270
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-1279994158-0
@@ -821,10 +773,10 @@ MonoBehaviour:
     _displayName: "\u5947\u70B9\u5854"
     _bounds:
       serializedVersion: 2
-      x: -144.55658
-      y: -311.47128
-      width: 268
-      height: 347.20367
+      x: -150
+      y: -270
+      width: 240
+      height: 330
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-317829572-0
@@ -833,10 +785,10 @@ MonoBehaviour:
     _displayName: "\u9F99\u9AA8\u7901"
     _bounds:
       serializedVersion: 2
-      x: 321.96362
-      y: 147.9129
-      width: 268.55865
-      height: 188
+      x: 330
+      y: 270
+      width: 300
+      height: 210
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-279692725-0
@@ -845,10 +797,10 @@ MonoBehaviour:
     _displayName: "\u96E8\u6797"
     _bounds:
       serializedVersion: 2
-      x: -253.75519
-      y: 179.16035
-      width: 377.18488
-      height: 481.4672
+      x: -150
+      y: 210
+      width: 390
+      height: 300
     _nameSafeSize: {x: 100, y: 28}
     _layoutLocked: 0
     _sourceObjectId: GlobalObjectId_V1-2-69063e03d98f74ebfb96e57bcf01f6e9-1414847388-0
@@ -872,120 +824,126 @@ MonoBehaviour:
     _crossingWeight: 8
   _layoutConstraints:
     _alignments:
-    - _id: row-cluster_02c8fd945d1342eab053fa8af41d469f
+    - _id: grid-Horizontal--240
       _axis: 1
-      _coordinate: -257.47128
+      _coordinate: -240
       _locked: 0
-    - _id: column-cluster_02c8fd945d1342eab053fa8af41d469f
+    - _id: grid-Vertical--30
       _axis: 2
-      _coordinate: -90.55659
+      _coordinate: -30
       _locked: 0
-    - _id: row-cluster_065e3bcfbc8e922239efcb8b0a222710
+    - _id: grid-Horizontal-240
       _axis: 1
-      _coordinate: 233.16035
+      _coordinate: 240
       _locked: 0
-    - _id: column-cluster_065e3bcfbc8e922239efcb8b0a222710
+    - _id: grid-Vertical--330
       _axis: 2
-      _coordinate: -495.37836
+      _coordinate: -330
       _locked: 0
-    - _id: column-cluster_1d8e558540281854a4430a91743e5541
+    - _id: grid-Horizontal-0
+      _axis: 1
+      _coordinate: 0
+      _locked: 0
+    - _id: grid-Vertical-390
       _axis: 2
-      _coordinate: -199.75519
+      _coordinate: 390
       _locked: 0
-    - _id: row-cluster_1fdefe80ef2edccd45207db5a80a9123
-      _axis: 1
-      _coordinate: -18.26762
-      _locked: 0
-    - _id: column-cluster_1fdefe80ef2edccd45207db5a80a9123
+    - _id: grid-Vertical-210
       _axis: 2
-      _coordinate: 375.96362
+      _coordinate: 210
       _locked: 0
-    - _id: column-cluster_3a148e744335b9648c8c429f7fe51985
+    - _id: grid-Horizontal--330
+      _axis: 1
+      _coordinate: -330
+      _locked: 0
+    - _id: grid-Horizontal-420
+      _axis: 1
+      _coordinate: 420
+      _locked: 0
+    - _id: grid-Vertical--480
       _axis: 2
-      _coordinate: 204.15274
+      _coordinate: -480
       _locked: 0
-    - _id: column-cluster_49f0d5f8886bf9b95eb54fe91c863fc7
+    - _id: grid-Horizontal-330
+      _axis: 1
+      _coordinate: 330
+      _locked: 0
+    - _id: grid-Vertical-540
       _axis: 2
-      _coordinate: 295.64944
+      _coordinate: 540
       _locked: 0
-    - _id: row-cluster_57b311b262bc54d476dde1d6c528f5fa
+    - _id: grid-Horizontal--150
       _axis: 1
-      _coordinate: 319.31476
+      _coordinate: -150
       _locked: 0
-    - _id: column-cluster_67e8f29f081a045ff69fb516f44dd0c6
+    - _id: grid-Vertical--450
       _axis: 2
-      _coordinate: -405.99484
+      _coordinate: -450
       _locked: 0
-    - _id: row-cluster_73607cab556336476bac9995b5e46c2b
+    - _id: grid-Horizontal-450
       _axis: 1
-      _coordinate: 281.9129
+      _coordinate: 450
       _locked: 0
-    - _id: column-cluster_73607cab556336476bac9995b5e46c2b
+    - _id: grid-Horizontal--270
+      _axis: 1
+      _coordinate: -270
+      _locked: 0
+    - _id: grid-Horizontal-300
+      _axis: 1
+      _coordinate: 300
+      _locked: 0
+    - _id: grid-Vertical-120
       _axis: 2
-      _coordinate: 455.96362
+      _coordinate: 120
       _locked: 0
-    - _id: row-cluster_773e939f7ea9caf80fb9456c516d3bea
+    - _id: grid-Horizontal--60
       _axis: 1
-      _coordinate: -177.47128
+      _coordinate: -60
       _locked: 0
-    - _id: row-cluster_8a3f36926764590933b6f4b14f703f7b
-      _axis: 1
-      _coordinate: -201.81029
-      _locked: 0
-    - _id: row-cluster_8bf644b1ec01b2abdd8c6a783335b762
-      _axis: 1
-      _coordinate: 366.92892
-      _locked: 0
-    - _id: column-cluster_8bf644b1ec01b2abdd8c6a783335b762
+    - _id: grid-Vertical-0
       _axis: 2
-      _coordinate: -10.556586
+      _coordinate: 0
       _locked: 0
-    - _id: row-cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-      _axis: 1
-      _coordinate: 133.43947
-      _locked: 0
-    - _id: row-cluster_9d02dfbf9e190218416afd8280324f29
-      _axis: 1
-      _coordinate: -166.61195
-      _locked: 0
-    - _id: column-cluster_a74bba773e45b99d0523beafcb31bc84
+    - _id: grid-Vertical-300
       _axis: 2
-      _coordinate: -335.94647
+      _coordinate: 300
       _locked: 0
-    - _id: row-cluster_b232001ecd90d331fc0d2a4844eb5545
-      _axis: 1
-      _coordinate: 446.62756
-      _locked: 0
-    - _id: row-cluster_b4b57110749a44a77e972f12ac0416a0
-      _axis: 1
-      _coordinate: -98.267624
-      _locked: 0
-    - _id: row-cluster_c5edf6fa8d78064f44e8c5237b17de37
-      _axis: 1
-      _coordinate: 201.9129
-      _locked: 0
-    - _id: column-cluster_c5edf6fa8d78064f44e8c5237b17de37
+    - _id: grid-Vertical--120
       _axis: 2
-      _coordinate: 456.52228
+      _coordinate: -120
       _locked: 0
-    - _id: column-cluster_e003c321c8d54767f3e93234ce7e48c5
+    - _id: grid-Vertical-90
       _axis: 2
-      _coordinate: 284.15274
+      _coordinate: 90
       _locked: 0
-    - _id: row-cluster_e351d521b0b236a2292a54c00835880b
-      _axis: 1
-      _coordinate: 286.92892
-      _locked: 0
-    - _id: column-cluster_ee48bab778b117a1ab3e609b606e0187
-      _axis: 2
-      _coordinate: 69.42968
-      _locked: 0
-    _excludedConnections: []
+    _excludedConnections:
+    - _firstNodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
+      _secondNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
+    - _firstNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
+      _secondNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
+    - _firstNodeId: cluster_1d8e558540281854a4430a91743e5541
+      _secondNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+    - _firstNodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
+      _secondNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
+    - _firstNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
+      _secondNodeId: cluster_e351d521b0b236a2292a54c00835880b
+    - _firstNodeId: cluster_1d8e558540281854a4430a91743e5541
+      _secondNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+    - _firstNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
+      _secondNodeId: cluster_e351d521b0b236a2292a54c00835880b
+    - _firstNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
+      _secondNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+    - _firstNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
+      _secondNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+    - _firstNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
+      _secondNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+    - _firstNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
+      _secondNodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
   _navigationBake:
-    _sceneFingerprint: c4b98292069985510081738d638f4f1c
-    _navigationFingerprint: 179862da593f796734528c98a3799bb6
-    _runtimeNavigationFingerprint: 0d08ddbf700007774f593a480da8040b514c19a493559446099ae6cbaae60981
-    _revision: 4
+    _sceneFingerprint: 7d001a037f9567ef2f48a59880645072
+    _navigationFingerprint: 1047d03d1b7fbfa81a4b3f04b5d458ff
+    _runtimeNavigationFingerprint: 6947f505e7a4a3af037c797e2dec2bb74e9a4e172dfc373feb488361c0aba771
+    _revision: 5
     _profile:
       _profileId: 099981250ab080edf0d9c4b48851bffa
       _agentTypeId: 0
@@ -1026,37 +984,26 @@ MonoBehaviour:
       - 1
       - 1
     _edges:
-    - _edgeId: edge_007a63b2bd5f43ab4c0d7fb8b2665e6c
-      _fromNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
-      _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
-      _fromAnchor: {x: -1.6525879, y: 0.16669464, z: -60.306763}
-      _toAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 292.3929
-      _reverseLength: 292.3929
-      _forwardFailure: 
-      _reverseFailure: 
     - _edgeId: edge_0b4a2920870e5819bb174efd9726d12e
       _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
       _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
       _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11986}
-      _toAnchor: {x: -212.60245, y: 0.16669464, z: 206.54913}
+      _toAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 37.705254
-      _reverseLength: 37.705254
+      _forwardLength: 39.716103
+      _reverseLength: 39.716103
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_161d191832e507fcd3107cecb7bb6f50
       _fromNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
       _toNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
-      _fromAnchor: {x: 253.25, y: 6.833351, z: 219.23999}
+      _fromAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
       _toAnchor: {x: 254.72882, y: 6.833351, z: 216.1243}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 3.448833
-      _reverseLength: 3.448833
+      _forwardLength: 36.42273
+      _reverseLength: 36.42273
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_19303f6b854d910b49a4a07798c445fb
@@ -1070,70 +1017,15 @@ MonoBehaviour:
       _reverseLength: 141.11557
       _forwardFailure: 
       _reverseFailure: 
-    - _edgeId: edge_1d43c16f4fa3ec49b97bb39dc9ae6a7e
-      _fromNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
-      _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-      _fromAnchor: {x: -1.6525879, y: 0.16669464, z: -60.306763}
-      _toAnchor: {x: -184.73907, y: 0.21791458, z: -82.54874}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 239.12436
-      _reverseLength: 234.54016
-      _forwardFailure: 
-      _reverseFailure: 
     - _edgeId: edge_3c2997038103ae038f737b36073d1215
       _fromNodeId: cluster_9d02dfbf9e190218416afd8280324f29
       _toNodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
-      _fromAnchor: {x: 225.10925, y: 0.16669464, z: -119.25067}
-      _toAnchor: {x: 215.63098, y: 0.16669464, z: -147.66132}
+      _fromAnchor: {x: 226.66083, y: 0.16669464, z: -98.81357}
+      _toAnchor: {x: 224.92004, y: 0.16669464, z: -118.26721}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 29.949997
-      _reverseLength: 29.949997
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_43954c1450d02fe7bc01a75c057a364f
-      _fromNodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
-      _toNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
-      _fromAnchor: {x: 385.60004, y: 7.666664, z: 239.23001}
-      _toAnchor: {x: 254.72882, y: 6.833351, z: 216.1243}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 151.51338
-      _reverseLength: 151.49779
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_44afc0b5dfee7f9ca1d2fe46acef8a11
-      _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
-      _toNodeId: cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f
-      _fromAnchor: {x: 208.82791, y: 0.33335114, z: -41.77086}
-      _toAnchor: {x: 254.72882, y: 6.833351, z: 216.1243}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 275.95758
-      _reverseLength: 276.38834
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_571195866bbca08ec6a84f269e4e9242
-      _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
-      _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-      _fromAnchor: {x: -206.31067, y: 0.16669464, z: 175.83829}
-      _toAnchor: {x: -184.73907, y: 0.21791458, z: -82.54874}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 284.40814
-      _reverseLength: 283.24945
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_61d5655ab77826a6269c24d6b6b589ed
-      _fromNodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-      _toNodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
-      _fromAnchor: {x: -330.67456, y: 0.16669464, z: 139.36237}
-      _toAnchor: {x: -381.2504, y: 0.19578552, z: 249.08707}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 242.0805
-      _reverseLength: 242.10486
+      _forwardLength: 19.531374
+      _reverseLength: 19.531374
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_6364dbaf77f98f493e573540c0a19647
@@ -1151,11 +1043,11 @@ MonoBehaviour:
       _fromNodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
       _toNodeId: cluster_ac43e253ab1e05daa3c5146620ad0002
       _fromAnchor: {x: 183.01791, y: 0.16669464, z: -167.59167}
-      _toAnchor: {x: 215.63098, y: 0.16669464, z: -147.66132}
+      _toAnchor: {x: 224.92004, y: 0.16669464, z: -118.26721}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 38.220825
-      _reverseLength: 38.220825
+      _forwardLength: 66.44339
+      _reverseLength: 66.44339
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_71a4e4531ee93ab969dfa431cad1fd9d
@@ -1180,81 +1072,15 @@ MonoBehaviour:
       _reverseLength: 74.21642
       _forwardFailure: 
       _reverseFailure: 
-    - _edgeId: edge_813277c0bf197f76087440dcec2fa1f1
-      _fromNodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-      _toNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-      _fromAnchor: {x: -330.67456, y: 0.16669464, z: 139.36237}
-      _toAnchor: {x: -329.77454, y: 0.16669464, z: 138.25641}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 1.425898
-      _reverseLength: 1.425898
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_85446ae0c55397a341f681cd50a28215
-      _fromNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
-      _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-      _fromAnchor: {x: -190.23108, y: 0.6392021, z: 260.42438}
-      _toAnchor: {x: -212.60245, y: 0.16669464, z: 206.54913}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 58.337322
-      _reverseLength: 58.337322
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_8fcc82256d02f720e6dcbc97cd471256
-      _fromNodeId: cluster_065e3bcfbc8e922239efcb8b0a222710
-      _toNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
-      _fromAnchor: {x: -330.67456, y: 0.16669464, z: 139.36237}
-      _toAnchor: {x: -284.56174, y: 0.16669464, z: 158.53415}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 121.92051
-      _reverseLength: 123.19786
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_921435057e7aac0a0c890473c353efe7
-      _fromNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
-      _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-      _fromAnchor: {x: -260.95108, y: 0.16669464, z: -39.77023}
-      _toAnchor: {x: -184.73907, y: 0.21791458, z: -82.54874}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 90.060715
-      _reverseLength: 90.060715
-      _forwardFailure: 
-      _reverseFailure: 
     - _edgeId: edge_a366d891573c3bc6cb85fb8587333054
       _fromNodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
       _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
       _fromAnchor: {x: -136.39096, y: 14.708893, z: 209.66173}
-      _toAnchor: {x: -123.824646, y: 14.666695, z: 213.98634}
+      _toAnchor: {x: -118.231155, y: 14.666695, z: 214.19328}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 14.103628
-      _reverseLength: 14.103628
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_a40decd4f3aae688cbc802fe8e85c12f
-      _fromNodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
-      _toNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
-      _fromAnchor: {x: -136.39096, y: 14.708893, z: 209.66173}
-      _toAnchor: {x: -175.05347, y: 0.1859932, z: 203.11986}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 72.66166
-      _reverseLength: 72.66166
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_c1d91f40709794bcb89c1a17dd868203
-      _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
-      _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
-      _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11986}
-      _toAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 173.2719
-      _reverseLength: 163.06842
+      _forwardLength: 18.960924
+      _reverseLength: 18.960924
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_c84f19a79dd4a138e699e3be8a990e86
@@ -1271,45 +1097,34 @@ MonoBehaviour:
     - _edgeId: edge_cb16fe6e2d6138de2adb3f829b774c69
       _fromNodeId: cluster_73607cab556336476bac9995b5e46c2b
       _toNodeId: cluster_a84fd1c0b6b5590d95cbf011798b2e2a
-      _fromAnchor: {x: 364.62994, y: 7.0000076, z: 238.40002}
+      _fromAnchor: {x: 331.40997, y: 8.000008, z: 191.48001}
       _toAnchor: {x: 385.60004, y: 7.666664, z: 239.23001}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 20.997097
-      _reverseLength: 20.997097
+      _forwardLength: 72.36709
+      _reverseLength: 72.36709
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_cd64478eb13afea326c14dd37c01defa
       _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
       _toNodeId: cluster_e003c321c8d54767f3e93234ce7e48c5
-      _fromAnchor: {x: 208.82791, y: 0.33335114, z: -41.77086}
+      _fromAnchor: {x: 208.82791, y: 0.23931503, z: -2.5999985}
       _toAnchor: {x: 203.27869, y: 0.3227234, z: -32.549953}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 10.761929
-      _reverseLength: 10.761929
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_d6fd30a7b51b4217c1bd3e41d2e68f28
-      _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
-      _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-      _fromAnchor: {x: -206.31067, y: 0.16669464, z: 175.83829}
-      _toAnchor: {x: -212.60245, y: 0.16669464, z: 206.54913}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 31.348724
-      _reverseLength: 31.348724
+      _forwardLength: 31.034466
+      _reverseLength: 31.034466
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_e329148a5b544f167b36cfcc2da44f09
       _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
       _toNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
-      _fromAnchor: {x: -206.31067, y: 0.16669464, z: 175.83829}
-      _toAnchor: {x: -284.56174, y: 0.16669464, z: 158.53415}
+      _fromAnchor: {x: -266.3202, y: 0.17308807, z: 78.164795}
+      _toAnchor: {x: -284.56174, y: 0.16669464, z: 162.46658}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 80.68117
-      _reverseLength: 88.132805
+      _forwardLength: 102.772675
+      _reverseLength: 102.772675
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_e79d7c2fd98272153db066c3b8552556
@@ -1323,25 +1138,135 @@ MonoBehaviour:
       _reverseLength: 32.808987
       _forwardFailure: 
       _reverseFailure: 
-    - _edgeId: edge_ee33c46db13e3991c54258783a54f565
-      _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
-      _toNodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
-      _fromAnchor: {x: -17.474915, y: 0.16669464, z: -148.81897}
-      _toAnchor: {x: 183.01791, y: 0.16669464, z: -167.59167}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 204.28365
-      _reverseLength: 204.82721
-      _forwardFailure: 
-      _reverseFailure: 
     - _edgeId: edge_f18e08a96af7255fca98b203882b7cc4
       _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
       _toNodeId: cluster_9d02dfbf9e190218416afd8280324f29
-      _fromAnchor: {x: 208.82791, y: 0.33335114, z: -41.77086}
-      _toAnchor: {x: 225.10925, y: 0.16669464, z: -119.25067}
+      _fromAnchor: {x: 208.82791, y: 0.23931503, z: -2.5999985}
+      _toAnchor: {x: 226.66083, y: 0.16669464, z: -98.81357}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 81.07273
-      _reverseLength: 81.07273
+      _forwardLength: 101.43747
+      _reverseLength: 101.01361
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_b0e18bd297863d9472c2d2f2d20a7326
+      _fromNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+      _toNodeId: cluster_73607cab556336476bac9995b5e46c2b
+      _fromAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
+      _toAnchor: {x: 331.40997, y: 8.000008, z: 191.48001}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 82.07396
+      _reverseLength: 82.07396
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_d9dd2dcc59337420b6ac25694b8be3c0
+      _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
+      _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+      _fromAnchor: {x: -17.474915, y: 0.16669464, z: -148.81897}
+      _toAnchor: {x: -184.73907, y: 0.21791458, z: -82.54874}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 187.36002
+      _reverseLength: 185.1818
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_3d2e483d9e74709bd7d31aaa0e46d918
+      _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+      _toNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
+      _fromAnchor: {x: -142.01297, y: 0.16669464, z: -35.788277}
+      _toAnchor: {x: -260.95108, y: 0.16669464, z: -39.77023}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 160.88013
+      _reverseLength: 160.88013
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_b2f51fdaec5d9b2440999cab191bb66f
+      _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
+      _toNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+      _fromAnchor: {x: -266.3202, y: 0.17308807, z: 78.164795}
+      _toAnchor: {x: -329.77454, y: 0.16669464, z: 138.25641}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 88.37406
+      _reverseLength: 88.37406
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_df309784db0b1c7ed278179610ea0f2e
+      _fromNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+      _toNodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
+      _fromAnchor: {x: -329.77454, y: 0.16669464, z: 138.25641}
+      _toAnchor: {x: -381.2504, y: 0.19578552, z: 249.08707}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 243.44318
+      _reverseLength: 243.46826
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_d2edb3a6f09dbf216944dd28801614ba
+      _fromNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
+      _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+      _fromAnchor: {x: -284.56174, y: 0.16669464, z: 162.46658}
+      _toAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 80.95422
+      _reverseLength: 80.95422
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_11c2b7b3767ce2a7ed22415b0024e103
+      _fromNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+      _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
+      _fromAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
+      _toAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 206.79369
+      _reverseLength: 197.90614
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_a938344b14f5bdb2bc27e0a8e8343e6d
+      _fromNodeId: cluster_e351d521b0b236a2292a54c00835880b
+      _toNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
+      _fromAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
+      _toAnchor: {x: -61, y: 0.6666641, z: 221.35}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 37.354286
+      _reverseLength: 37.354286
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_dffe8db8cffc2c2432776408de281bbc
+      _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
+      _toNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+      _fromAnchor: {x: 208.82791, y: 0.23931503, z: -2.5999985}
+      _toAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 196.39899
+      _reverseLength: 196.39899
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_7b504b9e466734bf57f2084a4f781854
+      _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+      _toNodeId: cluster_1d8e558540281854a4430a91743e5541
+      _fromAnchor: {x: -142.01297, y: 0.16669464, z: -35.788277}
+      _toAnchor: {x: -266.3202, y: 0.17308807, z: 78.164795}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 255.58185
+      _reverseLength: 254.56485
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_6bdd6a700445a20e8ec656ca8895fa1b
+      _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
+      _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
+      _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11986}
+      _toAnchor: {x: -118.231155, y: 14.666695, z: 214.19328}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 94.00187
+      _reverseLength: 91.40058
       _forwardFailure: 
       _reverseFailure: 

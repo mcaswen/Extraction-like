@@ -1,0 +1,7 @@
+﻿{
+    "caseId":  "AgentReproduction.Tests.MapGraphSceneSynchronizationTests.SavedSceneAndBoundMapHaveMatchingNodeIdentities",
+    "contract":  "PASS",
+    "message":  "",
+    "execution":  "COMPLETED",
+    "nunitResult":  "Passed"
+}

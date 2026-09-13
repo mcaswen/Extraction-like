@@ -1,0 +1,19 @@
+﻿{
+    "schemaVersion":  1,
+    "routeEvidenceVersion":  1,
+    "runId":  "20260913-221017-510",
+    "outputPath":  "D:\\Unity-Projects\\Extraction-like\\Logs\\SceneRaid\\20260913-221017-510",
+    "scenePath":  "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "mode":  "Autonomous",
+    "seed":  731,
+    "observeSeconds":  120,
+    "simulationSpeed":  4,
+    "width":  3840,
+    "height":  2160,
+    "profile":  false,
+    "binaryProfile":  false,
+    "enabled":  true,
+    "keepEditorOpen":  true,
+    "buildPlayer":  false,
+    "captureCommandCatalog":  false
+}

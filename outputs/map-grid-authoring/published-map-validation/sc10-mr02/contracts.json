@@ -1,0 +1,15 @@
+﻿{
+    "status":  "NOT_COMPLETE",
+    "failures":  [
+                     "raid_not_completed"
+                 ],
+    "coverage":  {
+
+                 },
+    "expected":  {
+
+                 },
+    "actual":  {
+
+               }
+}
