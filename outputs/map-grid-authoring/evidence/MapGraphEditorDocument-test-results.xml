@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="14" result="Passed" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.8240311">
+  <test-suite type="TestSuite" id="1844" name="AgentRepro_20260913-182500-240" fullname="AgentRepro_20260913-182500-240" runstate="Runnable" testcasecount="681" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.824031" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2681" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="681" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.805389" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="64284" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2682" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="681" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.799799" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2683" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="681" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.794557" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2280" name="MapGraphEditorDocumentTests" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" testcasecount="14" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.782228" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2289" name="AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput" methodname="AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="1393562433" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:16Z" duration="0.102474" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2287" name="BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections" methodname="BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="1103907058" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:16Z" duration="0.030667" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2285" name="ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset" methodname="ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="500875378" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:16Z" duration="0.135023" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2290" name="EditingAfterStartingAPreviewRejectsTheEarlierPreview" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.EditingAfterStartingAPreviewRejectsTheEarlierPreview" methodname="EditingAfterStartingAPreviewRejectsTheEarlierPreview" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="126060109" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:16Z" duration="0.026227" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2293" name="ExplicitConnectionRejectsDuplicatesAndRebindsWithoutChangingStyle" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.ExplicitConnectionRejectsDuplicatesAndRebindsWithoutChangingStyle" methodname="ExplicitConnectionRejectsDuplicatesAndRebindsWithoutChangingStyle" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="418185485" result="Passed" start-time="2026-09-13 10:25:16Z" end-time="2026-09-13 10:25:17Z" duration="0.032143" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2286" name="ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement" methodname="ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="1211231671" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.116281" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2281" name="FirstGenerationUndoRedoRestoresGraphAndBakeAtomically" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.FirstGenerationUndoRedoRestoresGraphAndBakeAtomically" methodname="FirstGenerationUndoRedoRestoresGraphAndBakeAtomically" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="32253379" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.029672" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2288" name="IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake" methodname="IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="1059309435" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.028131" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2282" name="MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch" methodname="MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="277666500" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.026718" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2294" name="NavigationRefreshDoesNotReplaceRecoveredInvalidPlacement" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.NavigationRefreshDoesNotReplaceRecoveredInvalidPlacement" methodname="NavigationRefreshDoesNotReplaceRecoveredInvalidPlacement" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="1764492304" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.116985" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2292" name="PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft" methodname="PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="516281207" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.032635" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2291" name="PlacementPreviewUsesRealNavigationAndUndoRestoresTheUnpublishedDraft" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.PlacementPreviewUsesRealNavigationAndUndoRestoresTheUnpublishedDraft" methodname="PlacementPreviewUsesRealNavigationAndUndoRestoresTheUnpublishedDraft" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="1502999884" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.033168" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2283" name="ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument" methodname="ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="717975744" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.031146" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2284" name="SceneChangeRejectsReadyGenerationWithoutCreatingUndoState" fullname="AgentReproduction.Tests.MapGraphEditorDocumentTests.SceneChangeRejectsReadyGenerationWithoutCreatingUndoState" methodname="SceneChangeRejectsReadyGenerationWithoutCreatingUndoState" classname="AgentReproduction.Tests.MapGraphEditorDocumentTests" runstate="Runnable" seed="84235271" result="Passed" start-time="2026-09-13 10:25:17Z" end-time="2026-09-13 10:25:17Z" duration="0.026997" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

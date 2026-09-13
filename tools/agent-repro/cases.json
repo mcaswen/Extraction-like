@@ -1,6 +1,36 @@
 {
   "groups": [
     {
+      "name": "MapGraphPlacementConnections",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphPlacementConnectionsTests",
+      "expected": [
+        "FixedConnectionsKeepCoordinatesAndPreferUnobstructedNeighbours",
+        "PhysicalIslandsAndManualExclusionsDoNotInventConnections",
+        "ManualIdentityDirectionAndStyleSurviveFixedGeneration",
+        "DiagonalPlacementRequiresExplicitBoundedAdjustment",
+        "PinnedNodesAndZonesCannotMoveToRepairADiagonal",
+        "NameObstructionAndUnavailableManualEdgesAreReported",
+        "BudgetAndCancellationNeverPublishPartialSuggestions",
+        "TwentyEightNodeGridKeepsIncrementalWorkWithinAnInteractiveBudget",
+        "IncompleteMeasurementsFailBeforeAnyLayoutSearch"
+      ]
+    },
+    {
+      "name": "MapGraphEditorCanvas",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.MapGraphEditorCanvasTests",
+      "expected": [
+        "ViewportRoundTripAndCursorZoomKeepTheMapPointFixed",
+        "HitTestingPrefersRealNodesThenEdgesThenZones",
+        "RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence",
+        "RecoveryDoesNotEraseAnExternalSourceConflict",
+        "ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates",
+        "GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow"
+      ]
+    },
+    {
       "name": "MapGraphEditorDocument",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphEditorDocumentTests",
@@ -16,22 +46,20 @@
         "AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput",
         "EditingAfterStartingAPreviewRejectsTheEarlierPreview",
         "PlacementPreviewUsesRealNavigationAndUndoRestoresTheUnpublishedDraft",
-        "PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft"
+        "PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft",
+        "ExplicitConnectionRejectsDuplicatesAndRebindsWithoutChangingStyle",
+        "NavigationRefreshDoesNotReplaceRecoveredInvalidPlacement"
       ]
     },
     {
-      "name": "MapGraphPlacementConnections",
+      "name": "MapGraphConnectionSelection",
       "suite": "Core",
-      "filter": "AgentReproduction.Tests.MapGraphPlacementConnectionsTests",
+      "filter": "AgentReproduction.Tests.MapGraphConnectionSelectionTests",
       "expected": [
-        "FixedConnectionsKeepCoordinatesAndPreferUnobstructedNeighbours",
-        "PhysicalIslandsAndManualExclusionsDoNotInventConnections",
-        "ManualIdentityDirectionAndStyleSurviveFixedGeneration",
-        "DiagonalPlacementRequiresExplicitBoundedAdjustment",
-        "PinnedNodesAndZonesCannotMoveToRepairADiagonal",
-        "NameObstructionAndUnavailableManualEdgesAreReported",
-        "BudgetAndCancellationNeverPublishPartialSuggestions",
-        "IncompleteMeasurementsFailBeforeAnyLayoutSearch"
+        "PlainThenShiftAndTwoShiftClicksPreserveEndpointOrder",
+        "FailedPairKeepsStartAndThirdShiftReplacesEndWithoutSelfLoops",
+        "RebindingRequiresExplicitModeAndCancelClearsIt",
+        "RevisionAndMissingIdentityInvalidateTransientEndpoints"
       ]
     },
     {
@@ -408,18 +436,6 @@
         "MissingRealZoneCannotPretendToBeAnUnassignedDisplayZone",
         "SourceLabelsRefreshWhileAuthoredLayoutAndStylesStayFixed",
         "AnEditCannotChangeARealZonesIdentityIntoSynthetic"
-      ]
-    },
-    {
-      "name": "MapGraphEditorCanvas",
-      "suite": "Core",
-      "filter": "AgentReproduction.Tests.MapGraphEditorCanvasTests",
-      "expected": [
-        "ViewportRoundTripAndCursorZoomKeepTheMapPointFixed",
-        "HitTestingPrefersRealNodesThenEdgesThenZones",
-        "RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence",
-        "RecoveryDoesNotEraseAnExternalSourceConflict",
-        "ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates"
       ]
     },
     {

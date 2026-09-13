@@ -107,6 +107,21 @@ namespace AgentReproduction.Tests
             cancelled.Advance(1); cancelled.Cancel(); Assert.That(cancelled.Advance(100), Is.Zero); Assert.That(cancelled.Result, Is.Null);
             Assert.That(cancelled.IsCancelled, Is.True);
         }
+        [Test] public void TwentyEightNodeGridKeepsIncrementalWorkWithinAnInteractiveBudget()
+        {
+            var zones = new List<MapGraphZoneDefinition>(); var nodes = new List<MapGraphNodeDefinition>();
+            for (int z = 0; z < 7; z++)
+            {
+                string zoneId = "z" + z; zones.Add(new MapGraphZoneDefinition(zoneId, zoneId, new Rect(z * 480 - 160, -160, 320, 320), new Vector2(60, 20)));
+                for (int n = 0; n < 4; n++) nodes.Add(new MapGraphNodeDefinition(zoneId + "n" + n, MapGraphNodeKind.Resource,
+                    new Vector2(n % 2 == 0 ? -80 : 80, n < 2 ? -80 : 80), zoneId: zoneId));
+            }
+            var draft = MapGraphGridPlacement.WithPositions(new MapGraphLayoutDraft(zones, nodes, Array.Empty<MapGraphEdgeDefinition>()), null);
+            var watch = Stopwatch.StartNew(); var planner = Run(draft, matrix: Matrix(draft, (a, b) => Vector2.Distance(draft.Graph.GetNodePosition(a), draft.Graph.GetNodePosition(b))));
+            Assert.That(planner.Result, Is.Not.Null, string.Join(";", planner.Diagnostics)); Assert.That(planner.SearchStates, Is.EqualTo(1));
+            Assert.That(watch.Elapsed.TotalSeconds, Is.LessThan(5)); Assert.That(planner.Result.Edges.Count, Is.GreaterThanOrEqualTo(27));
+        }
+
         [Test] public void IncompleteMeasurementsFailBeforeAnyLayoutSearch()
         {
             var draft = MapGraphGridPlacementTests.Fixture(); var planner = Run(draft, matrix: Matrix(draft).Take(1).ToList());

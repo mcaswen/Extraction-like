@@ -69,6 +69,55 @@ namespace AnomalySearch.Editor.MapGraph
             return PendingGeneration;
         }
 
+        public MapGraphGenerationController BeginNavigationRefresh(Scene scene)
+            => BeginNavigationRefresh(() => MapGraphSceneCollector.Capture(scene));
+
+        internal MapGraphGenerationController BeginNavigationRefresh(Func<MapGraphSceneSnapshot> capture)
+        {
+            EnsureOpen(); PendingGeneration?.Cancel(); PendingEdit?.Cancel(); PendingEdit = null;
+            _pendingCapture = capture;
+            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, Layout,
+                MapGraphGenerationMode.ValidateOnly, Revision, Placement.GridSpacing, Placement.AdjustmentCells);
+            return PendingGeneration;
+        }
+
+        public bool TryRefreshNavigationEvidence(MapGraphGenerationController request, out string failure)
+        {
+            failure = ""; EnsureOpen();
+            if (request == null || request != PendingGeneration || request.InputRevision != Revision || request.Mode != MapGraphGenerationMode.ValidateOnly)
+            { failure = "GenerationRequestSuperseded"; return false; }
+            if (!request.TryGetCurrentResult(out var result)) { failure = "GenerationResultUnavailable:" + request.Stage; return false; }
+            LastVerifiedInput = result; _verifiedCapture = _pendingCapture; PendingGeneration = null; Changed?.Invoke(); return true;
+        }
+
+        public bool TryConnectPlacement(string from, string to, MapGraphAxis axis, string rebindEdgeId, out string edgeId, out string failure)
+        {
+            EnsureOpen(); edgeId = ""; failure = "";
+            try
+            {
+                var original = AuthoringLayout;
+                if (original == null) { failure = "请先创建地图。"; return false; }
+                var next = string.IsNullOrEmpty(rebindEdgeId) ? MapGraphEditOperations.AddEdge(original, from, to, axis) :
+                    MapGraphEditOperations.RebindEdge(original, rebindEdgeId, from, to, axis);
+                next = MapGraphGridPlacement.WithPositions(next, null);
+                // 摆放草稿允许既有参考线失效，但新增/重绑操作不能引入新的几何错误。
+                var existingIssues = new System.Collections.Generic.HashSet<string>(MapGraphValidation.Validate(original).Issues.Where(i => i.IsError).Select(i => i.ToString()));
+                next.Graph.TryGetEdgeBetween(from, to, out var editedEdge);
+                var errors = MapGraphValidation.Validate(next).Issues.Where(i => i.IsError &&
+                    (i.SubjectId == editedEdge.EdgeId || i.RelatedId == editedEdge.EdgeId || !existingIssues.Contains(i.ToString()))).ToArray();
+                if (errors.Length > 0) { failure = string.Join("；", errors.Select(i => i.ToString())); return false; }
+                if (!TryVerifySceneEvidence(false, out var evidence, out failure)) return false;
+                foreach (var profile in evidence.Scene.Profiles)
+                {
+                    var report = MapGraphNavigationValidation.Validate(next, evidence.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), false);
+                    if (!report.IsValid) { failure = string.Join("；", report.Issues.Select(i => i.ToString())); return false; }
+                }
+                EditPlacement(_ => next, string.IsNullOrEmpty(rebindEdgeId) ? "Shift 连接群" : "重绑连接端点");
+                next.Graph.TryGetEdgeBetween(from, to, out var edge); edgeId = edge.EdgeId; return true;
+            }
+            catch (Exception exception) { failure = exception.Message; return false; }
+        }
+
         public bool TryApplyGeneration(MapGraphGenerationController request, out string failure)
         {
             EnsureOpen(); failure = "";
@@ -95,6 +144,12 @@ namespace AnomalySearch.Editor.MapGraph
         {
             EnsureOpen(); input = null; failure = "";
             if (HasPlacementDraft) { failure = "PlacementNeedsValidation:摆放草稿尚未应用有效线路预览。"; return false; }
+            return TryVerifySceneEvidence(true, out input, out failure);
+        }
+
+        private bool TryVerifySceneEvidence(bool requireBake, out MapGraphGenerationResult input, out string failure)
+        {
+            input = null; failure = "";
             if (Layout == null || LastVerifiedInput == null || _verifiedCapture == null) { failure = "MapNeedsValidation"; return false; }
             if (PendingGeneration != null && PendingGeneration.IsRunning) { failure = "GenerationStillRunning"; return false; }
             if (HasSourceConflict) { failure = "SourceAssetChanged"; return false; }
@@ -103,7 +158,7 @@ namespace AnomalySearch.Editor.MapGraph
                 Physics.SyncTransforms(); var current = _verifiedCapture(); var verified = LastVerifiedInput.Scene;
                 if (current == null || !current.IsValid || current.SceneGuid != verified.SceneGuid || current.ScenePath != verified.ScenePath ||
                     current.SceneFingerprint != verified.SceneFingerprint || current.NavigationFingerprint != verified.NavigationFingerprint ||
-                    WorkingDefinition.NavigationBake.SceneFingerprint != verified.SceneFingerprint || WorkingDefinition.NavigationBake.NavigationFingerprint != verified.NavigationFingerprint)
+                    requireBake && (WorkingDefinition.NavigationBake.SceneFingerprint != verified.SceneFingerprint || WorkingDefinition.NavigationBake.NavigationFingerprint != verified.NavigationFingerprint))
                 { failure = "GenerationInputsChanged"; return false; }
                 input = LastVerifiedInput; return true;
             }

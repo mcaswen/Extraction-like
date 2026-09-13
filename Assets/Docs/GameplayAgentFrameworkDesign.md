@@ -14,6 +14,14 @@
 
 `AgentCombatController` 保留技能运行实例和普攻锁；同 SkillId 配置仅保留首次定义，重复项不生成第二份冷却。受控配置替换由 SkillBase 迁移截止时间，SO 仅保存配置。
 
+## 2026-09-13 网格地图作者流程
+
+作者输入采用“摆放草稿→线路候选→已验证工作图→正式发布”。`Assets/Scripts/Editor/MapGraph/MapGraphPlacementState.cs` 保存 Editor 专用草稿，`MapGraphGridPlacement.cs` 处理吸附和行列；不修改 Runtime SO，也不查询 NavMesh。群拖动在 MouseUp 提交一次 Undo，拖动中只显示参考位置。
+
+`MapGraphPlacementConnectionPlanner.cs` 复用冻结导航矩阵，固定模式保持位置，微调模式受格数、人工锁、队列宽度和预算约束；最终复用几何、导航与作者意图的独立校验。`MapGraphConnectionSelection.cs` 只拥有临时有序端点，Add/Rebind/Delete 的图语义仍由 EditOperations 负责。Document 继续拥有版本和事务，Window 的 SessionState 仅负责同一次 Editor 会话内草稿重开；源 SO/Binding 只通过原 AuthoringTransaction 更新。
+
+详细文件职责、自动验证和限制见 [网格作者规划](../../.planning/2026-09-13-map-grid-authoring/task_plan.md)、[架构审查](../../.planning/2026-09-13-map-grid-authoring/architecture_review.md)、[验收与截图](../../outputs/map-grid-authoring/validation_report.md)。运行时根路线和玩家/自主目标语义未变化。
+
 ## 2026-09-13 地图指挥与统一根路线
 
 本节为已实现的新入口和所有权说明，后文保留原 Agent 基础设计。正式场景为 `Assets/Scenes/Scene_DB/Scenezl_Final 1.unity`，由场景 Binding 安装共享图、执行环境和 HUD；未绑定的历史场景保留明确兼容模式。设计与证据见 [大规划](../../.planning/2026-09-12-map-command/task_plan.md)、[架构审查](../../.planning/2026-09-12-map-command/architecture_review.md)、[验收报告](../../outputs/map_command_validation_report.md)。

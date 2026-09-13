@@ -1,0 +1,8 @@
+[
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=3; ms=10.6775; max-step-ms=7.5078"
+  }
+]

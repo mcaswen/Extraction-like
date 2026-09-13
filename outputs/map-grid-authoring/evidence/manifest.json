@@ -1,0 +1,63 @@
+[
+  {
+    "group": "MapGraphGridPlacement",
+    "run": "20260913-182342-011",
+    "tests": 5
+  },
+  {
+    "group": "MapGraphPlacementConnections",
+    "run": "20260913-182408-333",
+    "tests": 9
+  },
+  {
+    "group": "MapGraphConnectionSelection",
+    "run": "20260913-182434-240",
+    "tests": 4
+  },
+  {
+    "group": "MapGraphEditorDocument",
+    "run": "20260913-182500-240",
+    "tests": 14
+  },
+  {
+    "group": "MapGraphEditorCanvas",
+    "run": "20260913-182834-300",
+    "tests": 6
+  },
+  {
+    "image": "01-grid-ready.png",
+    "source": "Logs/AgentReproduction/20260913-182834-300/visual/01-grid-ready.png",
+    "sha256": "fb9c2d457db87e6489ef076eee4d063f290a17df28cd4a27c9e71ac70ae51916",
+    "openedAndReviewed": true
+  },
+  {
+    "image": "02-shift-alignment-feedback.png",
+    "source": "Logs/AgentReproduction/20260913-182834-300/visual/02-shift-alignment-feedback.png",
+    "sha256": "d36f9d05910636f1807c0368a852b77d8e8e78ed27306915d55d2c80386af0dc",
+    "openedAndReviewed": true
+  },
+  {
+    "image": "03-adjustment-preview.png",
+    "source": "Logs/AgentReproduction/20260913-182834-300/visual/03-adjustment-preview.png",
+    "sha256": "be2d8ca8a066ba5920fd21a5271d44b2fa5f4ee92a094a15c5ccb295ab01a413",
+    "openedAndReviewed": true
+  },
+  {
+    "image": "04-shift-line-style.png",
+    "source": "Logs/AgentReproduction/20260913-182834-300/visual/04-shift-line-style.png",
+    "sha256": "42ec8b46a7477408176f37d0a85ede4b34db61280b4d9b81638385887beb7d7a",
+    "openedAndReviewed": true
+  },
+  {
+    "image": "05-published-reopened.png",
+    "source": "Logs/AgentReproduction/20260913-182834-300/visual/05-published-reopened.png",
+    "sha256": "66ff7ce6efe8d54e597e990ac480493b915096381b2c56673c68b539a0018db7",
+    "openedAndReviewed": true
+  },
+  {
+    "image": "06-project-map-grid-editor.png",
+    "source": "Logs/AgentReproduction/20260913-182834-300/visual/06-project-map-grid-editor.png",
+    "sha256": "7070746f6cd3295b8fe7184398b4d0a61951153e97fd9b0834f755fc936ef26d",
+    "openedAndReviewed": true
+  }
+]

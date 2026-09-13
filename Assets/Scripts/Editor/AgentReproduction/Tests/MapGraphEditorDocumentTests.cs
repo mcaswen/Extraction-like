@@ -207,6 +207,35 @@ namespace AgentReproduction.Tests
             Assert.That(second.Stage, Is.EqualTo(MapGraphGenerationStage.Stale)); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(draft));
         }
 
+        [Test] public void ExplicitConnectionRejectsDuplicatesAndRebindsWithoutChangingStyle()
+        {
+            var document = Document(); Generate(document); var edge = document.Layout.Edges[0]; string before = document.Layout.ContentFingerprint;
+            Assert.That(document.TryConnectPlacement(edge.FromNodeId, edge.ToNodeId, edge.Axis, "", out _, out string failure), Is.False);
+            StringAssert.Contains("ConnectionAlreadyExists", failure); Assert.That(document.HasPlacementDraft, Is.False);
+            document.EditPlacement(g => MapGraphEditOperations.StyleEdge(g, edge.EdgeId, 2, 3, 4, true, Color.cyan), "样式");
+            Assert.That(document.TryConnectPlacement(edge.ToNodeId, edge.FromNodeId, edge.Axis, edge.EdgeId, out string id, out failure), Is.True, failure);
+            Assert.That(id, Is.EqualTo(edge.EdgeId)); var changed = document.AuthoringLayout.Edges[0];
+            Assert.That(changed.FromNodeId, Is.EqualTo(edge.ToNodeId)); Assert.That(changed.FromInset, Is.EqualTo(2)); Assert.That(changed.ColorOverride, Is.EqualTo(Color.cyan));
+            document.EditPlacement(g => MapGraphEditOperations.DeleteEdge(g, id), "删除");
+            Assert.That(document.AuthoringLayout.Constraints.IsExcluded(edge.FromNodeId, edge.ToNodeId), Is.True);
+            Assert.That(document.TryConnectPlacement(edge.FromNodeId, edge.ToNodeId, edge.Axis, "", out _, out failure), Is.True, failure);
+            Assert.That(document.AuthoringLayout.Constraints.IsExcluded(edge.FromNodeId, edge.ToNodeId), Is.False);
+            Assert.That(document.Layout.ContentFingerprint, Is.EqualTo(before));
+        }
+
+        [Test] public void NavigationRefreshDoesNotReplaceRecoveredInvalidPlacement()
+        {
+            var source = CreateSourceAsset(); var first = Document(source);
+            first.EditPlacement(g => MapGraphGridPlacement.MoveNode(g, g.Nodes[0].NodeId, Vector2.one * 9000, 80), "未完成摆放");
+            var restored = new MapGraphEditorDocument(source, first.ExportWorkingCopy(), first.SourceBaseline, first.ExportPlacement()); _documents.Add(restored);
+            string draft = restored.AuthoringLayout.ContentFingerprint;
+            var request = restored.BeginNavigationRefresh(() => _snapshot); Complete(request);
+            Assert.That(restored.TryRefreshNavigationEvidence(request, out string failure), Is.True, failure);
+            Assert.That(restored.HasPlacementDraft, Is.True); Assert.That(restored.AuthoringLayout.ContentFingerprint, Is.EqualTo(draft));
+            Assert.That(restored.PendingGeneration, Is.Null); Assert.That(restored.LastVerifiedInput, Is.Not.Null);
+            Assert.That(restored.TryVerifyForSave(out _, out _), Is.False);
+        }
+
         private MapGraphEditorDocument Document(SO_MapGraphDefinition source = null)
         { var document = new MapGraphEditorDocument(source); _documents.Add(document); return document; }
         private void Generate(MapGraphEditorDocument document)

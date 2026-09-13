@@ -183,3 +183,16 @@ MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载�
 `SceneRaid.RouteRecovery.Contracts.psm1` 首版仅识别同根唯一一次 MoveTo/NoProgress，精确失败子指令、来源/终点一致，版本 +1 的 Planning→Accepted→Completed/Extracted，8 秒规划预算内接受且真实平面位移至少 0.25 米。更多失败、改根、缺证据、取消/战死均继续计为未恢复。只有独立全局路线合同通过的 Autonomous/ManualRoutes 才扣减 `unexpectedBehaviorFailures`；`behaviorFailures` 原始值不变，另列 `recoveredRouteFailures` 和逐事件证明。恢复合同 43 个正反例、原路线 18+11 项、原报告 79 项通过。
 
 历史报告如需按新合同复核，执行 `Review-SceneRaidPlayer.ps1 -RunPath <构建目录>/PlayerRun`。它仅支持冻结、正常退出的 1× 自主 Player，重新检查原输入、EXE/程序集哈希、完整帧/库存/路线/视口；调用报告的 `-ReadOnly`，对全部原文件做前后哈希核对，生成新的 `report-reviewed.json`，已存在时拒绝覆盖。原 `report.json` 和 FAIL/launcher-error 保留，审核工具单独保存 SHA256，不把当前工具冒称原构建输入。采样器的 `performanceAcceptance=false` 不是独立裁决结果，最终读取 `diagnosticTiming.thresholdsMet` 和 Player `runAcceptance`。
+
+
+## 网格地图编辑验证（2026-09-13）
+
+定向组：`MapGraphGridPlacement`（5）、`MapGraphPlacementConnections`（9）、`MapGraphConnectionSelection`（4）、`MapGraphEditorDocument`（14）、`MapGraphEditorCanvas`（6，真实图形设备）。合计 38 项。Canvas 组使用测试拥有的场景和 NavMesh，程序发送 IMGUI 拖动/Shift 事件，验证暂存关闭、发布和重载，生成 `visual/*.png`；正式场景只读截图，不保存。
+
+在 Ubuntu WSL 中调用 Windows Unity Runner，例如：
+
+```bash
+/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -File D:/Unity-Projects/Extraction-like/tools/agent-repro/Invoke-AgentRepro.ps1 -Mode Regression -Group MapGraphEditorCanvas -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchRegression -TimeoutSeconds 300
+```
+
+每次只运行一个 Runner，运行期间冻结源码、Assets、Packages、ProjectSettings 和工具。`AnomalySearchFinal/Project` 已有用户手动编辑，本轮不将它作为可覆盖的验证副本。原始报告、成本证据和截图归档见 [网格作者验收](../../outputs/map-grid-authoring/validation_report.md)。

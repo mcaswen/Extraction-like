@@ -74,17 +74,11 @@ namespace AnomalySearch.Editor.MapGraph
                 {
                     _original.Graph.TryGetZone(node.ZoneId, out var zone);
                     if (node.PositionLocked || zone.LayoutLocked) continue;
-                    Vector2 initial = _original.Graph.GetNodePosition(node.NodeId), snapped = MapGraphGridPlacement.Snap(initial, _spacing);
+                    Vector2 initial = _original.Graph.GetNodePosition(node.NodeId);
                     bool rowLocked = _original.Constraints.Alignments.Any(a => a.Id == node.RowId && a.Locked);
                     bool columnLocked = _original.Constraints.Alignments.Any(a => a.Id == node.ColumnId && a.Locked);
-                    for (int radius = 0; radius <= _cells; radius++)
-                        for (int x = -radius; x <= radius; x++)
-                            for (int y = -radius; y <= radius; y++)
+                    foreach (var point in AdjustmentPoints(initial, rowLocked, columnLocked))
                             {
-                                if (Math.Max(Math.Abs(x), Math.Abs(y)) != radius) continue;
-                                var point = snapped + new Vector2(x, y) * _spacing;
-                                if (columnLocked) point.x = initial.x;
-                                if (rowLocked) point.y = initial.y;
                                 if (Mathf.Abs(point.x - initial.x) > _spacing * _cells + MapGraphGeometry.Epsilon ||
                                     Mathf.Abs(point.y - initial.y) > _spacing * _cells + MapGraphGeometry.Epsilon ||
                                     MapGraphGeometry.Near(point, current.Layout.Graph.GetNodePosition(node.NodeId))) continue;
@@ -105,6 +99,19 @@ namespace AnomalySearch.Editor.MapGraph
             _diagnostics.AddRange(best.Issues);
             _diagnostics.Add(new MapGraphValidationIssue("PlacementAdjustmentNotFound", "graph",
                 detail: $"已检查 {SearchStates} 个布局，位移上限 {_cells} 格，预算 {_budget}；预算内未找到合法建议。请调整摆放或约束。"));
+        }
+
+        private IEnumerable<Vector2> AdjustmentPoints(Vector2 initial, bool rowLocked, bool columnLocked)
+        {
+            var snapped = MapGraphGridPlacement.Snap(initial, _spacing); var points = new HashSet<Vector2>();
+            for (int x = -_cells; x <= _cells; x++) for (int y = -_cells; y <= _cells; y++)
+            {
+                var point = snapped + new Vector2(x, y) * _spacing;
+                if (columnLocked) point.x = initial.x;
+                if (rowLocked) point.y = initial.y;
+                points.Add(point);
+            }
+            return points.OrderBy(p => (p - initial).sqrMagnitude).ThenBy(p => p.x).ThenBy(p => p.y);
         }
 
         private IEnumerable<int> Evaluate(MapGraphLayoutDraft placement, Action<CandidateLayout> complete)

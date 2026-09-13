@@ -1,4 +1,16 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AgentReproduction.World;
+using Gameplay.Agent.Core;
+using Gameplay.MapGraph.Binding;
+using Gameplay.Targets.Authoring;
+using Unity.AI.Navigation;
+using UnityEditor.SceneManagement;
+using UnityEngine.AI;
+using UnityEngine.TestTools;
 using AgentReproduction.Infrastructure;
 using AgentReproduction.Reporting;
 using AnomalySearch.Editor.MapGraph;
@@ -66,6 +78,130 @@ namespace AgentReproduction.Tests
             Assert.That(reset.Edges, Is.Empty); Assert.That(reset.Graph.GetNodePosition("a"), Is.EqualTo(original.Graph.GetNodePosition("a")));
             Assert.Throws<ArgumentException>(() => MapGraphEditOperations.LockNode(original, "missing", true));
             Assert.Throws<ArgumentException>(() => MapGraphEditOperations.StyleEdge(original, "missing", 0, 0, 0, false, Color.white));
+        }
+        [UnityTest] public IEnumerator GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow()
+        {
+            Assert.That(TestRunContext.Load().graphics, Is.True);
+            Assert.That(Application.companyName, Is.EqualTo("AnomalySearch.Automation"));
+            const string scenePath = "Assets/MapGridCanvas_Reproduction.unity", assetPath = "Assets/MapGridCanvas_Reproduction.asset", navPath = "Assets/MapGridCanvas_Nav_Reproduction.asset";
+            Assert.That(File.Exists(scenePath) || File.Exists(assetPath) || File.Exists(navPath), Is.False);
+            MapGraphEditorWindow window = null;
+            using var world = new TestWorldBuilder();
+            try
+            {
+                var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                var ground = world.Cube("Grid fixture ground", new Vector3(0, -0.1f, 0), new Vector3(60, 0.2f, 40));
+                var surface = ground.AddComponent<NavMeshSurface>();
+                var zone = world.Root("网格编辑验收区").AddComponent<TargetZoneAuthoring>();
+                RuntimeFixtureAccess.Configure(zone, "_displayName", "网格编辑验收区");
+                for (int i = 0; i < 3; i++)
+                {
+                    var cluster = TargetFactory.Extraction(world, new Vector3((i - 1) * 10, 0, 4));
+                    cluster.transform.SetParent(zone.transform);
+                    RuntimeFixtureAccess.Configure(cluster, "_zone", zone);
+                    RuntimeFixtureAccess.Configure(cluster, "_displayName", new[] { "西侧群", "中央群", "东侧群" }[i]);
+                    zone.RegisterCluster(cluster);
+                }
+                var actor = world.Root("Map navigation profile"); actor.AddComponent<NavMeshAgent>(); actor.AddComponent<AgentPawnRoot>();
+                surface.BuildNavMesh(); Assert.That(surface.navMeshData, Is.Not.Null);
+                AssetDatabase.CreateAsset(surface.navMeshData, navPath); AssetDatabase.SaveAssetIfDirty(surface.navMeshData);
+                Assert.That(EditorSceneManager.SaveScene(scene, scenePath), Is.True);
+                yield return null;
+                var sceneInput = MapGraphSceneCollector.Capture(scene); Assert.That(sceneInput.IsValid, Is.True, string.Join(";", sceneInput.Diagnostics));
+                var poses = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToDictionary(t => t, t => t.position);
+                window = ScriptableObject.CreateInstance<MapGraphEditorWindow>(); window.position = new Rect(80, 80, 1280, 820); window.ShowUtility(); window.Focus();
+                window.BeginGeneration(); yield return Ready(window); Assert.That(window.ApplyPreview(), Is.True, window.Status);
+                var document = window.Document;
+                var ordered = document.Layout.Nodes.OrderBy(n => sceneInput.Nodes.Single(t => t.Id == n.NodeId).WorldCenter.x).ToArray();
+                string a = ordered[0].NodeId, b = ordered[1].NodeId, c = ordered[2].NodeId;
+                document.EditPlacement(g => MapGraphGridPlacement.MoveZone(g, g.Zones[0].ZoneId, new Rect(-320, -240, 640, 480), 80, true), "区域摆放");
+                document.EditPlacement(g => MapGraphGridPlacement.WithPositions(g, new Dictionary<string, Vector2> { [a] = new Vector2(-160, 80), [b] = new Vector2(0, 80), [c] = new Vector2(160, 80) }), "群网格摆放");
+                window.BeginGeneration(MapGraphGenerationMode.PlacementConnections); yield return Ready(window); Assert.That(window.ApplyPreview(), Is.True, window.Status);
+                Assert.That(window.SaveTo(assetPath), Is.True, window.Status);
+                string sourceBefore = EditorJsonUtility.ToJson(document.SourceDefinition);
+                window.Canvas.Fit(document.AuthoringLayout, window.Canvas.ViewRect); window.Repaint(); yield return null;
+                CaptureGrid(window, "01-grid-ready");
+                var from = window.Canvas.ToScreen(document.AuthoringLayout.Graph.GetNodePosition(b), window.Canvas.ViewRect);
+                var to = window.Canvas.ToScreen(new Vector2(0, 160), window.Canvas.ViewRect);
+                long revision = document.Revision;
+                window.SendEvent(new Event { type = EventType.MouseDown, button = 0, mousePosition = from });
+                window.SendEvent(new Event { type = EventType.MouseDrag, button = 0, mousePosition = to, delta = to - from });
+                Assert.That(document.Revision, Is.EqualTo(revision), "拖动期间不提交求解或 Undo。");
+                window.SendEvent(new Event { type = EventType.MouseUp, button = 0, mousePosition = to });
+                Assert.That(document.Revision, Is.EqualTo(revision + 1));
+                Assert.That(document.AuthoringLayout.Graph.GetNodePosition(b), Is.EqualTo(new Vector2(0, 160)));
+                Assert.That(document.AuthoringLayout.Graph.GetNodePosition(a), Is.EqualTo(new Vector2(-160, 80)));
+                Assert.That(document.PendingGeneration, Is.Null); Assert.That(document.PendingEdit, Is.Null);
+                ClickGrid(window, a, false); ClickGrid(window, b, true);
+                Assert.That(window.Canvas.ConnectionSelection.HasPair, Is.True); StringAssert.Contains("同行", window.Status);
+                CaptureGrid(window, "02-shift-alignment-feedback");
+                window.SendEvent(new Event { type = EventType.KeyDown, keyCode = KeyCode.Escape });
+                Assert.That(window.Canvas.ConnectionSelection.HasPair, Is.False);
+                string storedDraft = document.AuthoringLayout.ContentFingerprint;
+                window.KeepDraftAndClose(); window = null;
+                window = ScriptableObject.CreateInstance<MapGraphEditorWindow>(); window.position = new Rect(80, 80, 1280, 820); window.ShowUtility(); window.Focus();
+                document = window.Document;
+                Assert.That(document.HasPlacementDraft, Is.True); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(storedDraft));
+                Assert.That(document.PendingGeneration?.IsRunning, Is.True);
+                Assert.That(window.CanEditPlacement, Is.True, "打开窗口的导航补证据不能阻塞网格摆放。");
+                window.Cancel();
+                window.BeginGeneration(MapGraphGenerationMode.PlacementAdjustment); yield return Ready(window);
+                Assert.That(document.HasPlacementDraft, Is.True); CaptureGrid(window, "03-adjustment-preview");
+                Assert.That(window.ApplyPreview(), Is.True, window.Status);
+                var originalEdge = document.Layout.Edges.First();
+                document.EditPlacement(g => MapGraphEditOperations.DeleteEdge(g, originalEdge.EdgeId), "删除连接");
+                int beforeEdges = document.AuthoringLayout.Edges.Count;
+                ClickGrid(window, originalEdge.ToNodeId, false); ClickGrid(window, originalEdge.FromNodeId, true);
+                Assert.That(document.AuthoringLayout.Edges.Count, Is.EqualTo(beforeEdges + 1), window.Status);
+                Assert.That(window.Canvas.SelectionKind, Is.EqualTo(MapGraphSelectionKind.Edge)); Assert.That(window.Canvas.ConnectionSelection.HasPair, Is.False);
+                string manualId = window.Canvas.SelectionId;
+                document.EditPlacement(g => MapGraphEditOperations.StyleEdge(g, manualId, 3, 6, 3, true, new Color32(110, 211, 189, 255)), "线样式");
+                CaptureGrid(window, "04-shift-line-style");
+                Assert.That(EditorJsonUtility.ToJson(document.SourceDefinition), Is.EqualTo(sourceBefore));
+                window.BeginGeneration(MapGraphGenerationMode.ValidateOnly); yield return Ready(window); Assert.That(window.ApplyPreview(), Is.True, window.Status);
+                Assert.That(window.SaveTo(), Is.True, window.Status); string final = document.Layout.ContentFingerprint;
+                foreach (var pose in poses) Assert.That(pose.Key.position, Is.EqualTo(pose.Value), "编辑不移动世界对象。");
+                window.DiscardChanges(); window.Close(); window = null;
+                scene = EditorSceneManager.OpenScene(scenePath); yield return null;
+                var binding = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MapGraphBindingAuthoring>(true)).Single();
+                Assert.That(binding.IsValid, Is.True); Assert.That(MapGraphLayoutDraft.FromDefinition(binding.MapDefinition).ContentFingerprint, Is.EqualTo(final));
+                window = ScriptableObject.CreateInstance<MapGraphEditorWindow>(); window.position = new Rect(80, 80, 1280, 820); window.ShowUtility(); window.Focus();
+                for (int i = 0; window.Document.PendingGeneration?.IsRunning == true && i < 500; i++) yield return null;
+                Assert.That(window.Document.HasPlacementDraft, Is.False); Assert.That(window.Document.Layout.ContentFingerprint, Is.EqualTo(final));
+                CaptureGrid(window, "05-published-reopened");
+                window.DiscardChanges(); window.Close(); window = null;
+                // 正式图只读外观检查，保存/重载合同已在上方独立场景验证。
+                EditorSceneManager.OpenScene("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"); yield return null;
+                window = ScriptableObject.CreateInstance<MapGraphEditorWindow>(); window.position = new Rect(80, 80, 1440, 900); window.ShowUtility(); window.Focus();
+                Assert.That(window.Document.AuthoringLayout, Is.Not.Null); window.Cancel(); window.Repaint(); yield return null;
+                CaptureGrid(window, "06-project-map-grid-editor");
+                CaseArtifactWriter.Trace("grid-delivery", "Actual IMGUI drag/Shift, independent scene save/reload, formal map read-only screenshot.");
+            }
+            finally
+            {
+                if (window != null) { window.DiscardChanges(); window.Close(); }
+                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                NavMesh.RemoveAllNavMeshData(); AssetDatabase.DeleteAsset(scenePath); AssetDatabase.DeleteAsset(assetPath); AssetDatabase.DeleteAsset(navPath);
+            }
+        }
+        private static IEnumerator Ready(MapGraphEditorWindow window)
+        {
+            var request = window.Document.PendingGeneration; Assert.That(request, Is.Not.Null, window.Status);
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            while (request.IsRunning && watch.Elapsed.TotalSeconds < 30) { request.Advance(32, 6); yield return null; }
+            Assert.That(request.Stage, Is.EqualTo(MapGraphGenerationStage.Ready), string.Join(";", request.Diagnostics));
+        }
+        private static void ClickGrid(MapGraphEditorWindow window, string id, bool shift)
+        {
+            var point = window.Canvas.ToScreen(window.Document.AuthoringLayout.Graph.GetNodePosition(id), window.Canvas.ViewRect);
+            window.SendEvent(new Event { type = EventType.MouseDown, button = 0, mousePosition = point, modifiers = shift ? EventModifiers.Shift : EventModifiers.None });
+            window.SendEvent(new Event { type = EventType.MouseUp, button = 0, mousePosition = point, modifiers = shift ? EventModifiers.Shift : EventModifiers.None });
+        }
+        private static void CaptureGrid(MapGraphEditorWindow window, string name)
+        {
+            string path = Path.Combine(TestRunContext.Load().outputPath, "visual", name + ".png");
+            UnityEditorViewCapture.Capture(window, path, 0.3f);
+            CaseArtifactWriter.Trace("grid-screenshot", path);
         }
     }
 }

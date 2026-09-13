@@ -21,6 +21,9 @@ namespace AnomalySearch.Editor.MapGraph
         private string _connectFrom;
         private MapGraphAxis _connectAxis;
         private double _lastPreview;
+        public MapGraphConnectionSelection ConnectionSelection { get; } = new MapGraphConnectionSelection();
+        public long DocumentRevision { get; set; }
+        public event Action ConnectionRequested;
         public bool GridPlacement { get; set; }
         public float GridSpacing { get; set; } = 80;
         public float Zoom { get; private set; } = 1;
@@ -66,7 +69,7 @@ namespace AnomalySearch.Editor.MapGraph
         }
         public void Draw(Rect rect, MapGraphLayoutDraft layout, MapGraphLayoutDraft preview, bool editable)
         {
-            ViewRect = rect; EnsureStyles();
+            ViewRect = rect; EnsureStyles(); ConnectionSelection.Synchronize(layout, DocumentRevision);
             if (!_fitted) Fit(layout ?? preview, rect);
             // Clip all drawing, including pan/zoom, to the canvas; coordinates inside are local.
             GUI.BeginGroup(rect); var local = new Rect(0, 0, rect.width, rect.height);
@@ -94,6 +97,14 @@ namespace AnomalySearch.Editor.MapGraph
                         Handles.color = SelectionKind == MapGraphSelectionKind.Edge && SelectionId == edge.EdgeId ? Accent : edge.UseColorOverride ? edge.ColorOverride : new Color32(86, 115, 123, 255);
                         Handles.DrawAAPolyLine(Mathf.Max(1, (edge.WidthOverride > 0 ? edge.WidthOverride : 2) * Zoom), ToScreen(a, local), ToScreen(b, local));
                     }
+                if (preview != null && layout != null)
+                    foreach (var node in layout.Nodes)
+                        if (preview.Graph.TryGetNode(node.NodeId, out _) && !MapGraphGeometry.Near(layout.Graph.GetNodePosition(node.NodeId), preview.Graph.GetNodePosition(node.NodeId)))
+                        {
+                            var a = ToScreen(layout.Graph.GetNodePosition(node.NodeId), local); var b = ToScreen(preview.Graph.GetNodePosition(node.NodeId), local);
+                            Handles.color = new Color(0.85f, 0.75f, 0.45f, 0.65f); Handles.DrawDottedLine(a, b, 4);
+                            Box(new Rect(a - Vector2.one * 7, Vector2.one * 14), Color.clear, Handles.color, 1);
+                        }
                 foreach (var node in visible.Nodes) DrawNode(visible, node, local);
                 if (_dragging)
                 {
@@ -108,9 +119,10 @@ namespace AnomalySearch.Editor.MapGraph
                         Box(new Rect(ToScreen(GridPlacement ? MapGraphGridPlacement.Snap(_positionStart + _ghost - _mouseStart, GridSpacing) : _ghost, local) - Vector2.one * 10, Vector2.one * 20), Color.clear, Accent, 1);
                 }
                 Handles.EndGUI();
+                if (preview != null) GUI.Label(new Rect(15, 10, local.width - 30, 22), "候选预览 · 金色虚线表示位置调整，实际连接仍为横竖直线", _smallLabel);
                 if (layout != null) HandleInput(layout, local, editable);
             }
-            GUI.Label(new Rect(15, local.height - 26, local.width - 30, 20), "滚轮缩放  ·  中键平移  ·  拖动群 / 区域  ·  从群端口拖线", _smallLabel);
+            GUI.Label(new Rect(15, local.height - 26, local.width - 30, 20), "滚轮缩放  ·  中键平移  ·  网格拖动  ·  Shift 选两群连线  ·  Esc 取消", _smallLabel);
             GUI.EndGroup();
         }
         private void DrawNode(MapGraphLayoutDraft layout, MapGraphNodeDefinition node, Rect rect)
@@ -132,8 +144,15 @@ namespace AnomalySearch.Editor.MapGraph
                 Handles.DrawAAPolyLine(1.5f, p + new Vector2(r, 0), p + new Vector2(r * 0.4f, r * 0.55f));
             }
             else Handles.DrawAAPolyLine(1.5f, p + Vector2.up * r, p + Vector2.right * r, p + Vector2.down * r, p + Vector2.left * r, p + Vector2.up * r);
-            if (selected)
+            if (selected && !GridPlacement)
                 for (int i = 0; i < 4; i++) EditorGUI.DrawRect(new Rect(Port(bounds, i) - Vector2.one * 3, Vector2.one * 6), Accent);
+            if (node.NodeId == ConnectionSelection.FromNodeId || node.NodeId == ConnectionSelection.ToNodeId)
+            {
+                bool from = node.NodeId == ConnectionSelection.FromNodeId;
+                var marker = from ? Accent : (Color)new Color32(237, 185, 105, 255);
+                Box(Expanded(bounds, 4), Color.clear, marker, 2);
+                GUI.Label(new Rect(p.x - 23, bounds.yMin - 23, 80, 20), from ? "起点" : "终点", _smallLabel);
+            }
             if (bounds.Contains(Event.current.mousePosition)) GUI.Label(new Rect(p.x + 18, p.y - 24, 300, 22), node.DisplayName, _smallLabel);
         }
         private void HandleInput(MapGraphLayoutDraft layout, Rect rect, bool editable)
@@ -143,13 +162,25 @@ namespace AnomalySearch.Editor.MapGraph
             if (ev.type == EventType.MouseDown && ev.button == 2 && rect.Contains(ev.mousePosition)) { _panning = true; ev.Use(); }
             if (_panning && ev.type == EventType.MouseDrag) { Center += new Vector2(-ev.delta.x, ev.delta.y) / Zoom; ev.Use(); }
             if (_panning && ev.type == EventType.MouseUp) { _panning = false; ev.Use(); }
-            if (ev.type == EventType.KeyDown && ev.keyCode == KeyCode.Escape) { _dragging = false; _connectFrom = null; CancelRequested?.Invoke(); ev.Use(); }
+            if (ev.type == EventType.KeyDown && ev.keyCode == KeyCode.Escape) { _dragging = false; _connectFrom = null; ConnectionSelection.Cancel(); CancelRequested?.Invoke(); ev.Use(); }
             if (ev.type == EventType.KeyDown && ev.keyCode == KeyCode.Delete && editable && SelectionKind == MapGraphSelectionKind.Edge)
             { string id = SelectionId; EditRequested?.Invoke(g => MapGraphEditOperations.DeleteEdge(g, id), "删除连接", true); ev.Use(); }
             if (ev.type == EventType.MouseDown && ev.button == 0 && rect.Contains(ev.mousePosition))
             {
                 _connectFrom = null;
-                if (editable && SelectionKind == MapGraphSelectionKind.Node && layout.Graph.TryGetNode(SelectionId, out var selected))
+                var clicked = Hit(layout, ev.mousePosition, rect);
+                if (editable && ev.shift && clicked.kind == MapGraphSelectionKind.Node)
+                {
+                    _dragging = false;
+                    if (ConnectionSelection.FromNodeId.Length == 0 && SelectionKind == MapGraphSelectionKind.Node && SelectionId != clicked.id)
+                        ConnectionSelection.Pick(layout, SelectionId, false, DocumentRevision);
+                    bool ready = ConnectionSelection.Pick(layout, clicked.id, true, DocumentRevision);
+                    Select(clicked.kind, clicked.id);
+                    if (ready) ConnectionRequested?.Invoke(); ev.Use(); return;
+                }
+                if (clicked.kind == MapGraphSelectionKind.Node) ConnectionSelection.Pick(layout, clicked.id, false, DocumentRevision);
+                else ConnectionSelection.Cancel();
+                if (!GridPlacement && editable && SelectionKind == MapGraphSelectionKind.Node && layout.Graph.TryGetNode(SelectionId, out var selected))
                 {
                     var bounds = ToScreen(MapGraphGeometry.NodeBounds(layout, selected), rect);
                     for (int i = 0; i < 4; i++) if (Vector2.Distance(ev.mousePosition, Port(bounds, i)) <= 7)

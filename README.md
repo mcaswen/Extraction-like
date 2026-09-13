@@ -238,13 +238,17 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 
 ### 场景 → 指挥地图生成与编辑
 
-1. 打开 Scenezl_Final 1，进入 `Tools/Anomaly Search/地图指挥编辑器`，窗口自动读取当前场景 Binding 对应的地图资产。
-2. 采集真实 Zone、群、Prefab 覆写和导航锚点，校验候选连接，联合生成矩形布局及无折点横竖直边。无解或冲突会给出诊断，不能保存斜线或假可达边。
-3. 拖动 Zone／群、增删连接、重绑定端点，调整线宽、颜色、端点留白。显示位置编辑不移动世界对象；相连节点按行列约束联动预览，人工锁定和禁连意图保留。
-4. 验证后保存图 SO 和场景 Binding，支持 Undo/Redo、保存重开。普通重排不改变拓扑，重新生成保留手工覆写，只有显式重置才清除。
-5. 世界群、导航或 profile 改动后重新验证成本。运行时共享缓存按预算补验失效连接，不采用过期路长。
+1. 打开目标场景，进入 `Tools/Anomaly Search/地图指挥编辑器`。窗口读取 Binding，并在顶部显示当前工程和场景路径；新场景先点“从场景创建地图”。
+2. **先网格摆放**：侧栏设置网格间距，直接拖群吸附；一次拖动只移动该群，拖 Zone 携带成员。右下角可缩放区域，世界物体不动。固定开关约束后续算法，手动拖动不会自动固定节点。
+3. **生成连接**：固定全部摆放位置，按实际导航长度筛选同行/同列直线，保留人工边、样式和禁连。断连或几何冲突会给出原因，草稿继续保留。
+4. **微调建议**：需要时单独点击，默认每个坐标轴最多移动 1 格，可调 1～4 格；固定群、固定区域和锁定行列受到保护。金色虚线仅表示位置变化，真正连接仍为横竖直线。查看候选后点击“应用预览”，取消不改草稿。
+5. **Shift 连线**：先点起点，再按 Shift 点终点；也可连续 Shift 点两群。成功后选中线，可调线宽、颜色、两端留白。失败保留双选，第三次 Shift 替换终点，Esc/空白取消。选中已有线后点“重选端点”才进入重绑，不再从列表挑端点。
+6. **校验和发布**：手画线路后点“校验线路”→“应用预览”→“发布地图”，保存图 SO 和场景 Binding。未验证草稿不能发布。支持 Undo/Redo、编译恢复和“暂存关闭”；暂存可在同一次 Editor 会话中重开，不会覆盖游戏使用的图。
+7. 世界群、区域身份或 NavMesh 改动后重新核对场景。身份增删仍需明确同步，位置编辑不会静默删除旧节点。有限微调未找到候选不代表数学无解，可继续调整网格位置。
 
-正式资产是 [SO_MapGraphDefinition_Scenezl_Final1](Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset)，样式在 [SO_MapGraphTheme_Raid](Assets/SO/MapGraph/SO_MapGraphTheme_Raid.asset)，HUD 为 [Pfb_RaidCommandMap](Assets/Resources/HUD/Pfb_RaidCommandMap.prefab)，中文使用 [MapGraphChinese SDF](Assets/Font/MapGraphChinese%20SDF.asset)。独立的 [NavMesh-CommandRoutes](Assets/Scenes/Scene_DB/Scenezl_Final%201/NavMesh-CommandRoutes.asset) 修正龙骨礁撤离可达性，原导航资产保留。
+自动验证、6 张实际窗口截图及性能边界见 [网格编辑验收](outputs/map-grid-authoring/validation_report.md)，具体设计见 [网格编辑规划](.planning/2026-09-13-map-grid-authoring/task_plan.md)。
+
+正式资产是 [SO_MapGraphDefinition_Scenezl_Final1](Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset)，样式在 [SO_MapGraphTheme_Raid](Assets/SO/MapGraph/SO_MapGraphTheme_Raid.asset)，HUD 为 [Pfb_RaidCommandMap](Assets/Resources/HUD/Pfb_RaidCommandMap.prefab)，中文使用 [MapGraphChinese SDF](Assets/Font/MapGraphChinese%20SDF.asset)。当前导航资产以场景内 NavMesh Surface 的实际引用为准；早期性能验收使用的导航版本见对应历史报告。
 
 ### 表现与场景制作工具
 
