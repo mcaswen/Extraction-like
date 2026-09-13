@@ -1,0 +1,29 @@
+﻿{
+    "schemaVersion":  1,
+    "status":  "PASS",
+    "failures":  [
+
+                 ],
+    "coverage":  {
+                     "accepted":  9,
+                     "states":  118,
+                     "frames":  243,
+                     "synchronizedDisplays":  474,
+                     "travelling":  171,
+                     "waiting":  14,
+                     "retaliation":  9,
+                     "completed":  7,
+                     "extracted":  0,
+                     "dead":  0,
+                     "player":  0,
+                     "autonomous":  114
+                 },
+    "rejections":  [
+
+                   ],
+    "rootFailures":  [
+
+                     ],
+    "terminalAcceptance":  "RequiresIndependentRaidSettlement",
+    "sampledStatesDoNotProveEveryIntermediateFrame":  true
+}

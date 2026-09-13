@@ -1,0 +1,2304 @@
+[
+  {
+    "sequence": 841,
+    "wallSeconds": 62.231212199999995,
+    "gameSeconds": 183.98976077511907,
+    "frame": 5360,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+      "directive": "EnemyTarget",
+      "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 842,
+    "wallSeconds": 62.231496799999995,
+    "gameSeconds": 183.98976077511907,
+    "frame": 5360,
+    "kind": "diagnostic.directive",
+    "detail": {
+      "stage": "Accepted",
+      "reason": "None",
+      "failureOrigin": "",
+      "hasNavigation": false,
+      "agent": {
+        "id": "2",
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+        "state": "Explore",
+        "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+        "directive": "EnemyTarget",
+        "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+        "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+        "suspendedCommand": "",
+        "position": {
+          "x": 326.8519287109375,
+          "y": 11.035144805908203,
+          "z": 188.7328643798828
+        },
+        "velocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "desiredVelocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "progressAnchor": {
+          "x": 326.8519287109375,
+          "y": 11.035144805908203,
+          "z": 188.7328643798828
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 58.92250442504883,
+          "z": 0.0
+        },
+        "localScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "worldScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "nextPosition": {
+          "x": 326.8519287109375,
+          "y": 11.035144805908203,
+          "z": 188.7328643798828
+        },
+        "steeringTarget": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "directivePosition": {
+          "x": 345.53778076171875,
+          "y": 9.863719940185547,
+          "z": 200.8018341064453
+        },
+        "bodyBoundsCenter": {
+          "x": 326.8519287109375,
+          "y": 10.861347198486328,
+          "z": 188.7328643798828
+        },
+        "bodyBoundsSize": {
+          "x": 3.0,
+          "y": 9.064929962158203,
+          "z": 3.0
+        },
+        "lastMovementTarget": {
+          "x": 331.40997314453125,
+          "y": 8.000007629394531,
+          "z": 191.48001098632812
+        },
+        "lastNavigationStatus": "Moving",
+        "health": 87,
+        "onNavMesh": true,
+        "hasPath": false,
+        "pathPending": false,
+        "stopped": false,
+        "remainingDistance": -1.0,
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "stoppingDistance": 0.25,
+        "progressAge": 0.0,
+        "progressTimeout": 3.0,
+        "secondsSinceSetPath": 1182.98974609375,
+        "avoidancePriority": 51,
+        "avoidance": "HighQualityObstacleAvoidance",
+        "pathStatus": "PathComplete",
+        "targetDistance3D": 22.27539825439453,
+        "targetDistancePlanar": 22.24457550048828,
+        "destinationDistancePlanar": -1.0,
+        "transformToNavDistance": 0.0,
+        "attackRange": 8.0,
+        "lastShotResult": "Visible",
+        "lastShotFailure": "None",
+        "attackReady": true,
+        "hasEnemy": true,
+        "hasResource": false,
+        "hasDirectivePosition": true,
+        "inventoryRequiresExtraction": false,
+        "enemy": {
+          "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+          "bodyVisibility": "OutOfRange",
+          "position": {
+            "x": 345.53778076171875,
+            "y": 9.863719940185547,
+            "z": 200.8018341064453
+          },
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 176.2329559326172,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 3.0000009536743164,
+            "y": 3.0,
+            "z": 3.0000009536743164
+          },
+          "aimPosition": {
+            "x": 345.53778076171875,
+            "y": 9.863719940185547,
+            "z": 200.8018341064453
+          },
+          "navigationPosition": {
+            "x": 345.53778076171875,
+            "y": 6.863719940185547,
+            "z": 200.8018341064453
+          },
+          "navNextPosition": {
+            "x": 345.53778076171875,
+            "y": 9.863719940185547,
+            "z": 200.8018341064453
+          },
+          "bodyCenter": {
+            "x": 345.38592529296875,
+            "y": 9.862884521484375,
+            "z": 200.79458618164062
+          },
+          "bodySize": {
+            "x": 3.0,
+            "y": 6.0,
+            "z": 3.0
+          },
+          "navBaseOffset": 1.0,
+          "navReady": true,
+          "health": 250.0,
+          "maximumHealth": 250.0,
+          "shield": 0.0,
+          "distance3D": 22.27539825439453,
+          "distancePlanar": 22.24457550048828,
+          "aimDistance": 22.26693344116211,
+          "active": true,
+          "died": false
+        },
+        "resource": {
+          "identity": "",
+          "phase": "",
+          "lootState": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "navigationPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderCenter": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderSize": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "distancePlanar": 0.0,
+          "navigationDistancePlanar": 0.0,
+          "active": false,
+          "looted": false
+        },
+        "route": {
+          "agent": "2",
+          "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+          "source": "Autonomous",
+          "stage": "Accepted",
+          "failure": "None",
+          "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+          "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+          "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+          "entryFrom": "",
+          "stepPhase": "WaitingForMember",
+          "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+          "pendingId": "",
+          "pendingGoal": "",
+          "installed": true,
+          "hasRoute": true,
+          "active": true,
+          "pending": false,
+          "retaliating": false,
+          "dead": false,
+          "version": 4,
+          "graphRevision": 7,
+          "costRevision": 1,
+          "bindingRevision": 1,
+          "environmentVersion": 1,
+          "currentCostRevision": 1,
+          "cursor": 4,
+          "aliveMembers": 1,
+          "health": 87,
+          "nodes": [
+            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+            "cluster_9d02dfbf9e190218416afd8280324f29",
+            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+            "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+            "cluster_73607cab556336476bac9995b5e46c2b",
+            "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+          ],
+          "position": {
+            "x": 326.8519287109375,
+            "y": 11.035144805908203,
+            "z": 188.7328643798828
+          },
+          "anchor": {
+            "x": 331.40997314453125,
+            "y": 8.000007629394531,
+            "z": 191.48001098632812
+          },
+          "anchorDistance3D": 6.126552104949951,
+          "anchorDistancePlanar": 5.321896553039551
+        }
+      },
+      "navigation": {
+        "pawnPosition": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "queryRadius": 10.0,
+        "colliderBufferFull": false,
+        "pathCalculated": false,
+        "pathStatus": "",
+        "pathCorners": [],
+        "bodies": [],
+        "agents": [],
+        "obstacles": []
+      }
+    }
+  },
+  {
+    "sequence": 843,
+    "wallSeconds": 62.2638882,
+    "gameSeconds": 184.11136277392507,
+    "frame": 5363,
+    "kind": "route.state",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "entryFrom": "",
+      "stepPhase": "Processing",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 4,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 4,
+      "aliveMembers": 1,
+      "health": 87,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 326.93719482421875,
+        "y": 11.033927917480469,
+        "z": 188.8130645751953
+      },
+      "anchor": {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      },
+      "anchorDistance3D": 6.026858329772949,
+      "anchorDistancePlanar": 5.207528114318848
+    }
+  },
+  {
+    "sequence": 845,
+    "wallSeconds": 62.639852499999996,
+    "gameSeconds": 185.63115759007633,
+    "frame": 5405,
+    "kind": "directive.Completed",
+    "detail": {
+      "agent": "1",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_1",
+      "directive": "MoveTo",
+      "targetId": "cluster_73607cab556336476bac9995b5e46c2b",
+      "target": "",
+      "stage": "Completed",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 847,
+    "wallSeconds": 62.6797336,
+    "gameSeconds": 185.79035319015384,
+    "frame": 5410,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "1",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+      "directive": "EnemyTarget",
+      "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 848,
+    "wallSeconds": 62.6799172,
+    "gameSeconds": 185.79035319015384,
+    "frame": 5410,
+    "kind": "diagnostic.directive",
+    "detail": {
+      "stage": "Accepted",
+      "reason": "None",
+      "failureOrigin": "",
+      "hasNavigation": false,
+      "agent": {
+        "id": "1",
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+        "state": "Explore",
+        "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+        "directive": "EnemyTarget",
+        "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+        "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+        "suspendedCommand": "",
+        "position": {
+          "x": 331.17724609375,
+          "y": 11.000007629394531,
+          "z": 191.43490600585938
+        },
+        "velocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "desiredVelocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "progressAnchor": {
+          "x": 331.17724609375,
+          "y": 11.000007629394531,
+          "z": 191.43490600585938
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 79.03437805175781,
+          "z": 0.0
+        },
+        "localScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "worldScale": {
+          "x": 3.0000009536743164,
+          "y": 3.0,
+          "z": 3.0000009536743164
+        },
+        "nextPosition": {
+          "x": 331.17724609375,
+          "y": 11.000007629394531,
+          "z": 191.43490600585938
+        },
+        "steeringTarget": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "directivePosition": {
+          "x": 351.83270263671875,
+          "y": 9.875843048095703,
+          "z": 201.1024627685547
+        },
+        "bodyBoundsCenter": {
+          "x": 331.17724609375,
+          "y": 10.826210021972656,
+          "z": 191.43490600585938
+        },
+        "bodyBoundsSize": {
+          "x": 3.0,
+          "y": 9.064929962158203,
+          "z": 3.0
+        },
+        "lastMovementTarget": {
+          "x": 331.40997314453125,
+          "y": 8.000007629394531,
+          "z": 191.48001098632812
+        },
+        "lastNavigationStatus": "Arrived",
+        "health": 211,
+        "onNavMesh": true,
+        "hasPath": false,
+        "pathPending": false,
+        "stopped": false,
+        "remainingDistance": -1.0,
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "stoppingDistance": 0.25,
+        "progressAge": 0.0,
+        "progressTimeout": 3.0,
+        "secondsSinceSetPath": 1184.7904052734375,
+        "avoidancePriority": 50,
+        "avoidance": "HighQualityObstacleAvoidance",
+        "pathStatus": "PathComplete",
+        "targetDistance3D": 22.833599090576172,
+        "targetDistancePlanar": 22.805910110473633,
+        "destinationDistancePlanar": -1.0,
+        "transformToNavDistance": 0.0,
+        "attackRange": 8.0,
+        "lastShotResult": "Visible",
+        "lastShotFailure": "None",
+        "attackReady": true,
+        "hasEnemy": true,
+        "hasResource": false,
+        "hasDirectivePosition": true,
+        "inventoryRequiresExtraction": false,
+        "enemy": {
+          "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+          "bodyVisibility": "OutOfRange",
+          "position": {
+            "x": 351.83270263671875,
+            "y": 9.875843048095703,
+            "z": 201.1024627685547
+          },
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 87.31556701660156,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 3.000000238418579,
+            "y": 3.0,
+            "z": 3.000000238418579
+          },
+          "aimPosition": {
+            "x": 351.83270263671875,
+            "y": 9.875843048095703,
+            "z": 201.1024627685547
+          },
+          "navigationPosition": {
+            "x": 351.83270263671875,
+            "y": 6.875843048095703,
+            "z": 201.1024627685547
+          },
+          "navNextPosition": {
+            "x": 351.83270263671875,
+            "y": 9.875843048095703,
+            "z": 201.1024627685547
+          },
+          "bodyCenter": {
+            "x": 351.73956298828125,
+            "y": 9.875755310058594,
+            "z": 201.09800720214844
+          },
+          "bodySize": {
+            "x": 3.0,
+            "y": 6.0,
+            "z": 3.0
+          },
+          "navBaseOffset": 1.0,
+          "navReady": true,
+          "health": 250.0,
+          "maximumHealth": 250.0,
+          "shield": 0.0,
+          "distance3D": 22.833599090576172,
+          "distancePlanar": 22.805910110473633,
+          "aimDistance": 22.825702667236328,
+          "active": true,
+          "died": false
+        },
+        "resource": {
+          "identity": "",
+          "phase": "",
+          "lootState": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "navigationPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderCenter": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderSize": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "distancePlanar": 0.0,
+          "navigationDistancePlanar": 0.0,
+          "active": false,
+          "looted": false
+        },
+        "route": {
+          "agent": "1",
+          "requestId": "Route_385922d28f22492b90968611e27af5a0",
+          "source": "Autonomous",
+          "stage": "Accepted",
+          "failure": "None",
+          "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+          "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+          "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+          "entryFrom": "",
+          "stepPhase": "Processing",
+          "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+          "pendingId": "",
+          "pendingGoal": "",
+          "installed": true,
+          "hasRoute": true,
+          "active": true,
+          "pending": false,
+          "retaliating": false,
+          "dead": false,
+          "version": 5,
+          "graphRevision": 7,
+          "costRevision": 1,
+          "bindingRevision": 1,
+          "environmentVersion": 1,
+          "currentCostRevision": 1,
+          "cursor": 4,
+          "aliveMembers": 1,
+          "health": 211,
+          "nodes": [
+            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+            "cluster_9d02dfbf9e190218416afd8280324f29",
+            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+            "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+            "cluster_73607cab556336476bac9995b5e46c2b",
+            "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+          ],
+          "position": {
+            "x": 331.17724609375,
+            "y": 11.000007629394531,
+            "z": 191.43490600585938
+          },
+          "anchor": {
+            "x": 331.40997314453125,
+            "y": 8.000007629394531,
+            "z": 191.48001098632812
+          },
+          "anchorDistance3D": 3.0093514919281006,
+          "anchorDistancePlanar": 0.2370576709508896
+        }
+      },
+      "navigation": {
+        "pawnPosition": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "queryRadius": 10.0,
+        "colliderBufferFull": false,
+        "pathCalculated": false,
+        "pathStatus": "",
+        "pathCorners": [],
+        "bodies": [],
+        "agents": [],
+        "obstacles": []
+      }
+    }
+  },
+  {
+    "sequence": 849,
+    "wallSeconds": 62.7025772,
+    "gameSeconds": 185.86512078903615,
+    "frame": 5412,
+    "kind": "route.state",
+    "detail": {
+      "agent": "1",
+      "requestId": "Route_385922d28f22492b90968611e27af5a0",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "entryFrom": "",
+      "stepPhase": "Processing",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 5,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 4,
+      "aliveMembers": 1,
+      "health": 211,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 331.190673828125,
+        "y": 11.000007629394531,
+        "z": 191.45147705078125
+      },
+      "anchor": {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      },
+      "anchorDistance3D": 3.0081400871276855,
+      "anchorDistancePlanar": 0.22114786505699158
+    }
+  },
+  {
+    "sequence": 854,
+    "wallSeconds": 62.9968273,
+    "gameSeconds": 187.05367878824472,
+    "frame": 5445,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "2",
+      "commandId": "CombatDamageInterrupt_-490378_760f35f6f32f40b3b1619802ebdfe12b",
+      "directive": "EnemyTarget",
+      "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 855,
+    "wallSeconds": 62.997111999999994,
+    "gameSeconds": 187.05367878824472,
+    "frame": 5445,
+    "kind": "diagnostic.directive",
+    "detail": {
+      "stage": "Accepted",
+      "reason": "None",
+      "failureOrigin": "",
+      "hasNavigation": false,
+      "agent": {
+        "id": "2",
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+        "state": "Combat",
+        "commandId": "CombatDamageInterrupt_-490378_760f35f6f32f40b3b1619802ebdfe12b",
+        "directive": "EnemyTarget",
+        "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+        "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+        "suspendedCommand": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+        "position": {
+          "x": 347.7420654296875,
+          "y": 9.865306854248047,
+          "z": 200.5771026611328
+        },
+        "velocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "desiredVelocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "progressAnchor": {
+          "x": 347.7420654296875,
+          "y": 9.865306854248047,
+          "z": 200.5771026611328
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 97.58911895751953,
+          "z": 0.0
+        },
+        "localScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "worldScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "nextPosition": {
+          "x": 347.7420654296875,
+          "y": 9.865306854248047,
+          "z": 200.5771026611328
+        },
+        "steeringTarget": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "directivePosition": {
+          "x": 355.642578125,
+          "y": 9.879486083984375,
+          "z": 201.2839813232422
+        },
+        "bodyBoundsCenter": {
+          "x": 347.7420654296875,
+          "y": 9.691509246826172,
+          "z": 200.5771026611328
+        },
+        "bodyBoundsSize": {
+          "x": 3.0,
+          "y": 9.064929962158203,
+          "z": 3.0
+        },
+        "lastMovementTarget": {
+          "x": 355.57781982421875,
+          "y": 6.879432678222656,
+          "z": 201.2812957763672
+        },
+        "lastNavigationStatus": "Moving",
+        "health": 73,
+        "onNavMesh": true,
+        "hasPath": false,
+        "pathPending": false,
+        "stopped": false,
+        "remainingDistance": -1.0,
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "stoppingDistance": 0.10000000149011612,
+        "progressAge": 0.0,
+        "progressTimeout": 3.0,
+        "secondsSinceSetPath": 1186.0537109375,
+        "avoidancePriority": 51,
+        "avoidance": "HighQualityObstacleAvoidance",
+        "pathStatus": "PathComplete",
+        "targetDistance3D": 7.9320855140686035,
+        "targetDistancePlanar": 7.932072639465332,
+        "destinationDistancePlanar": -1.0,
+        "transformToNavDistance": 0.0,
+        "attackRange": 8.0,
+        "lastShotResult": "Visible",
+        "lastShotFailure": "None",
+        "attackReady": false,
+        "hasEnemy": true,
+        "hasResource": false,
+        "hasDirectivePosition": true,
+        "inventoryRequiresExtraction": false,
+        "enemy": {
+          "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+          "bodyVisibility": "Visible",
+          "position": {
+            "x": 355.642578125,
+            "y": 9.879486083984375,
+            "z": 201.2839813232422
+          },
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 264.88720703125,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+          },
+          "aimPosition": {
+            "x": 355.642578125,
+            "y": 9.879486083984375,
+            "z": 201.2839813232422
+          },
+          "navigationPosition": {
+            "x": 355.642578125,
+            "y": 6.879486083984375,
+            "z": 201.2839813232422
+          },
+          "navNextPosition": {
+            "x": 355.642578125,
+            "y": 9.879486083984375,
+            "z": 201.2839813232422
+          },
+          "bodyCenter": {
+            "x": 355.6217041015625,
+            "y": 9.879474639892578,
+            "z": 201.28338623046875
+          },
+          "bodySize": {
+            "x": 3.0,
+            "y": 6.0,
+            "z": 3.0
+          },
+          "navBaseOffset": 1.0,
+          "navReady": true,
+          "health": 178.0,
+          "maximumHealth": 250.0,
+          "shield": 0.0,
+          "distance3D": 7.9320855140686035,
+          "distancePlanar": 7.932072639465332,
+          "aimDistance": 7.934299945831299,
+          "active": true,
+          "died": false
+        },
+        "resource": {
+          "identity": "",
+          "phase": "",
+          "lootState": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "navigationPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderCenter": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderSize": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "distancePlanar": 0.0,
+          "navigationDistancePlanar": 0.0,
+          "active": false,
+          "looted": false
+        },
+        "route": {
+          "agent": "2",
+          "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+          "source": "Autonomous",
+          "stage": "Accepted",
+          "failure": "None",
+          "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+          "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+          "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+          "entryFrom": "",
+          "stepPhase": "Processing",
+          "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+          "pendingId": "",
+          "pendingGoal": "",
+          "installed": true,
+          "hasRoute": true,
+          "active": true,
+          "pending": false,
+          "retaliating": true,
+          "dead": false,
+          "version": 4,
+          "graphRevision": 7,
+          "costRevision": 1,
+          "bindingRevision": 1,
+          "environmentVersion": 1,
+          "currentCostRevision": 1,
+          "cursor": 4,
+          "aliveMembers": 1,
+          "health": 73,
+          "nodes": [
+            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+            "cluster_9d02dfbf9e190218416afd8280324f29",
+            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+            "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+            "cluster_73607cab556336476bac9995b5e46c2b",
+            "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+          ],
+          "position": {
+            "x": 347.7420654296875,
+            "y": 9.865306854248047,
+            "z": 200.5771026611328
+          },
+          "anchor": {
+            "x": 331.40997314453125,
+            "y": 8.000007629394531,
+            "z": 191.48001098632812
+          },
+          "anchorDistance3D": 18.787593841552734,
+          "anchorDistancePlanar": 18.694766998291016
+        }
+      },
+      "navigation": {
+        "pawnPosition": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "queryRadius": 10.0,
+        "colliderBufferFull": false,
+        "pathCalculated": false,
+        "pathStatus": "",
+        "pathCorners": [],
+        "bodies": [],
+        "agents": [],
+        "obstacles": []
+      }
+    }
+  },
+  {
+    "sequence": 857,
+    "wallSeconds": 63.0286457,
+    "gameSeconds": 187.1685655862093,
+    "frame": 5448,
+    "kind": "route.state",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "entryFrom": "",
+      "stepPhase": "Processing",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": true,
+      "dead": false,
+      "version": 4,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 4,
+      "aliveMembers": 1,
+      "health": 73,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 347.20074462890625,
+        "y": 9.864044189453125,
+        "z": 200.51422119140625
+      },
+      "anchor": {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      },
+      "anchorDistance3D": 18.287702560424805,
+      "anchorDistancePlanar": 18.192455291748047
+    }
+  },
+  {
+    "sequence": 860,
+    "wallSeconds": 63.437854599999994,
+    "gameSeconds": 188.82233158499002,
+    "frame": 5499,
+    "kind": "directive.Failed",
+    "detail": {
+      "agent": "1",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+      "directive": "EnemyTarget",
+      "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+      "stage": "Failed",
+      "reason": "LostSight"
+    }
+  },
+  {
+    "sequence": 861,
+    "wallSeconds": 63.443683199999995,
+    "gameSeconds": 188.82233158499002,
+    "frame": 5499,
+    "kind": "diagnostic.directive",
+    "detail": {
+      "stage": "Failed",
+      "reason": "LostSight",
+      "failureOrigin": "  at Gameplay.Agent.Commands.AgentDirectiveFeedbackChannel.Publish (Gameplay.Agent.Commands.AgentDirectiveResult result) [0x00000] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.Commands.AgentDirectiveLifecycleController.Publish (Gameplay.Agent.Data.AgentDirectiveRequest request, Gameplay.Agent.Commands.AgentDirectiveStage stage, Gameplay.Agent.Commands.AgentDirectiveFailure reason) [0x0001e] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.Commands.AgentDirectiveLifecycleController.Finish (System.String commandId, Gameplay.Agent.Commands.AgentDirectiveFailure failure) [0x00050] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.Core.AgentPawnRoot.FinishDirective (System.String commandId, Gameplay.Agent.Commands.AgentDirectiveFailure failure) [0x00000] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.AI.Actions.AgentActionNodeBase.FailPendingDirective (Core.BehaviorTree.Runtime.BehaviorTreeContext context, Gameplay.Agent.Commands.AgentDirectiveFailure failure) [0x00029] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.AI.Actions.EngageEnemyActionNode.Tick (Core.BehaviorTree.Runtime.BehaviorTreeContext context) [0x002bb] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Core.BehaviorTree.Nodes.BehaviorNode.Execute (Core.BehaviorTree.Runtime.BehaviorTreeContext context) [0x00016] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Core.BehaviorTree.Runtime.BehaviorTreeRunner.Tick (System.Single deltaTime, System.Double timeSeconds) [0x00065] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Core.StateMachine.Runtime.StateMachineState.Update (Core.StateMachine.Runtime.StateMachineContext context) [0x0000f] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Core.StateMachine.Runtime.HierarchicalStateMachine.UpdateActiveStatePath () [0x00024] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Core.StateMachine.Runtime.HierarchicalStateMachine.Update (System.Single deltaTime, System.Double timeSeconds) [0x00048] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.Core.AgentBrainController.Tick (System.Single deltaTime, System.Double timeSeconds) [0x00001] in <5b7029758fde49a4ac2c089d86a15556>:0 \r\n  at Gameplay.Agent.Core.AgentPawnRoot.Update () [0x000bd] in <5b7029758fde49a4ac2c089d86a15556>:0 ",
+      "hasNavigation": true,
+      "agent": {
+        "id": "1",
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+        "state": "Combat",
+        "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+        "directive": "EnemyTarget",
+        "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+        "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+        "suspendedCommand": "",
+        "position": {
+          "x": 348.33673095703125,
+          "y": 9.862777709960938,
+          "z": 200.4511260986328
+        },
+        "velocity": {
+          "x": 5.863597393035889,
+          "y": 0.005765336100012064,
+          "z": 0.2877654731273651
+        },
+        "desiredVelocity": {
+          "x": 6.656226634979248,
+          "y": 0.0,
+          "z": 2.3459537029266357
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "progressAnchor": {
+          "x": 348.33673095703125,
+          "y": 9.862777709960938,
+          "z": 200.4511260986328
+        },
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 86.00413513183594,
+          "z": 0.0
+        },
+        "localScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "worldScale": {
+          "x": 3.0,
+          "y": 3.0,
+          "z": 3.0
+        },
+        "nextPosition": {
+          "x": 348.33673095703125,
+          "y": 9.862777709960938,
+          "z": 200.4511260986328
+        },
+        "steeringTarget": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "directivePosition": {
+          "x": 355.185302734375,
+          "y": 9.878181457519531,
+          "z": 201.2189483642578
+        },
+        "bodyBoundsCenter": {
+          "x": 348.15826416015625,
+          "y": 9.688804626464844,
+          "z": 200.44236755371094
+        },
+        "bodyBoundsSize": {
+          "x": 3.0,
+          "y": 9.06492805480957,
+          "z": 3.0
+        },
+        "lastMovementTarget": {
+          "x": 355.19854736328125,
+          "y": 6.8784942626953125,
+          "z": 201.23452758789062
+        },
+        "lastNavigationStatus": "Moving",
+        "health": 211,
+        "onNavMesh": true,
+        "hasPath": false,
+        "pathPending": false,
+        "stopped": false,
+        "remainingDistance": -1.0,
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "stoppingDistance": 0.10000000149011612,
+        "progressAge": 0.0,
+        "progressTimeout": 3.0,
+        "secondsSinceSetPath": 1187.822265625,
+        "avoidancePriority": 50,
+        "avoidance": "HighQualityObstacleAvoidance",
+        "pathStatus": "PathComplete",
+        "targetDistance3D": 6.891496658325195,
+        "targetDistancePlanar": 6.8914794921875,
+        "destinationDistancePlanar": -1.0,
+        "transformToNavDistance": 0.0,
+        "attackRange": 8.0,
+        "lastShotResult": "Occluded",
+        "lastShotFailure": "Occluded",
+        "attackReady": true,
+        "hasEnemy": true,
+        "hasResource": false,
+        "hasDirectivePosition": true,
+        "inventoryRequiresExtraction": false,
+        "enemy": {
+          "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+          "bodyVisibility": "Occluded",
+          "position": {
+            "x": 355.185302734375,
+            "y": 9.878181457519531,
+            "z": 201.2189483642578
+          },
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 252.49288940429688,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 3.0,
+            "y": 3.0,
+            "z": 3.0
+          },
+          "aimPosition": {
+            "x": 355.185302734375,
+            "y": 9.878181457519531,
+            "z": 201.2189483642578
+          },
+          "navigationPosition": {
+            "x": 355.185302734375,
+            "y": 6.878181457519531,
+            "z": 201.2189483642578
+          },
+          "navNextPosition": {
+            "x": 355.185302734375,
+            "y": 9.878181457519531,
+            "z": 201.2189483642578
+          },
+          "bodyCenter": {
+            "x": 355.19854736328125,
+            "y": 9.878494262695312,
+            "z": 201.23452758789062
+          },
+          "bodySize": {
+            "x": 3.0,
+            "y": 6.0,
+            "z": 3.0
+          },
+          "navBaseOffset": 1.0,
+          "navReady": true,
+          "health": 106.0,
+          "maximumHealth": 250.0,
+          "shield": 0.0,
+          "distance3D": 6.891496658325195,
+          "distancePlanar": 6.8914794921875,
+          "aimDistance": 6.894075870513916,
+          "active": true,
+          "died": false
+        },
+        "resource": {
+          "identity": "",
+          "phase": "",
+          "lootState": "",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "navigationPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderCenter": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "colliderSize": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "distancePlanar": 0.0,
+          "navigationDistancePlanar": 0.0,
+          "active": false,
+          "looted": false
+        },
+        "route": {
+          "agent": "1",
+          "requestId": "Route_385922d28f22492b90968611e27af5a0",
+          "source": "Autonomous",
+          "stage": "Accepted",
+          "failure": "None",
+          "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+          "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+          "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+          "entryFrom": "",
+          "stepPhase": "Processing",
+          "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+          "pendingId": "",
+          "pendingGoal": "",
+          "installed": true,
+          "hasRoute": true,
+          "active": true,
+          "pending": false,
+          "retaliating": false,
+          "dead": false,
+          "version": 5,
+          "graphRevision": 7,
+          "costRevision": 1,
+          "bindingRevision": 1,
+          "environmentVersion": 1,
+          "currentCostRevision": 1,
+          "cursor": 4,
+          "aliveMembers": 1,
+          "health": 211,
+          "nodes": [
+            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+            "cluster_9d02dfbf9e190218416afd8280324f29",
+            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+            "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+            "cluster_73607cab556336476bac9995b5e46c2b",
+            "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+          ],
+          "position": {
+            "x": 348.33673095703125,
+            "y": 9.862777709960938,
+            "z": 200.4511260986328
+          },
+          "anchor": {
+            "x": 331.40997314453125,
+            "y": 8.000007629394531,
+            "z": 191.48001098632812
+          },
+          "anchorDistance3D": 19.24749183654785,
+          "anchorDistancePlanar": 19.157140731811523
+        }
+      },
+      "navigation": {
+        "pawnPosition": {
+          "x": 348.33673095703125,
+          "y": 9.862777709960938,
+          "z": 200.4511260986328
+        },
+        "destination": {
+          "x": 355.185302734375,
+          "y": 6.878181457519531,
+          "z": 201.2189483642578
+        },
+        "queryRadius": 10.0,
+        "colliderBufferFull": false,
+        "pathCalculated": true,
+        "pathStatus": "PathComplete",
+        "pathCorners": [
+          {
+            "x": 348.33673095703125,
+            "y": 6.8627777099609375,
+            "z": 200.4511260986328
+          },
+          {
+            "x": 355.185302734375,
+            "y": 6.878181457519531,
+            "z": 201.2189483642578
+          }
+        ],
+        "bodies": [
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]",
+            "type": "BoxCollider",
+            "layer": "Default",
+            "center": {
+              "x": 385.6000061035156,
+              "y": 7.062236309051514,
+              "z": 238.8800048828125
+            },
+            "size": {
+              "x": 126.0,
+              "y": 0.875,
+              "z": 126.0
+            },
+            "closestToPawn": {
+              "x": 348.33673095703125,
+              "y": 7.499736309051514,
+              "z": 200.4511260986328
+            },
+            "closestToDestination": {
+              "x": 355.185302734375,
+              "y": 6.878181457519531,
+              "z": 201.2189483642578
+            },
+            "trigger": true,
+            "closestUsesBounds": false
+          },
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+            "type": "CapsuleCollider",
+            "layer": "Default",
+            "center": {
+              "x": 355.19854736328125,
+              "y": 9.878494262695312,
+              "z": 201.23452758789062
+            },
+            "size": {
+              "x": 3.0,
+              "y": 6.0,
+              "z": 3.0
+            },
+            "closestToPawn": {
+              "x": 353.69464111328125,
+              "y": 9.862777709960938,
+              "z": 201.05181884765625
+            },
+            "closestToDestination": {
+              "x": 355.185302734375,
+              "y": 6.878181457519531,
+              "z": 201.2189483642578
+            },
+            "trigger": false,
+            "closestUsesBounds": false
+          },
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Terrain[26]",
+            "type": "TerrainCollider",
+            "layer": "Default",
+            "center": {
+              "x": 11.0,
+              "y": 87.87767791748047,
+              "z": 20.0
+            },
+            "size": {
+              "x": 1000.0,
+              "y": 175.75535583496094,
+              "z": 1000.0
+            },
+            "closestToPawn": {
+              "x": 348.33673095703125,
+              "y": 9.862777709960938,
+              "z": 200.4511260986328
+            },
+            "closestToDestination": {
+              "x": 355.185302734375,
+              "y": 6.878181457519531,
+              "z": 201.2189483642578
+            },
+            "trigger": false,
+            "closestUsesBounds": true
+          },
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "type": "CapsuleCollider",
+            "layer": "Agent",
+            "center": {
+              "x": 348.15826416015625,
+              "y": 9.688804626464844,
+              "z": 200.44236755371094
+            },
+            "size": {
+              "x": 3.0,
+              "y": 9.06492805480957,
+              "z": 3.0
+            },
+            "closestToPawn": {
+              "x": 348.33673095703125,
+              "y": 9.862777709960938,
+              "z": 200.4511260986328
+            },
+            "closestToDestination": {
+              "x": 349.827392578125,
+              "y": 6.878181457519531,
+              "z": 200.61825561523438
+            },
+            "trigger": false,
+            "closestUsesBounds": false
+          },
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "type": "CapsuleCollider",
+            "layer": "Agent",
+            "center": {
+              "x": 351.09735107421875,
+              "y": 9.676876068115234,
+              "z": 199.84759521484375
+            },
+            "size": {
+              "x": 3.0,
+              "y": 9.06492805480957,
+              "z": 3.0
+            },
+            "closestToPawn": {
+              "x": 349.8006591796875,
+              "y": 9.862777709960938,
+              "z": 200.13107299804688
+            },
+            "closestToDestination": {
+              "x": 352.6777038574219,
+              "y": 6.878181457519531,
+              "z": 200.3179168701172
+            },
+            "trigger": false,
+            "closestUsesBounds": false
+          }
+        ],
+        "agents": [
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+            "avoidance": "HighQualityObstacleAvoidance",
+            "position": {
+              "x": 355.185302734375,
+              "y": 9.878181457519531,
+              "z": 201.2189483642578
+            },
+            "nextPosition": {
+              "x": 355.185302734375,
+              "y": 9.878181457519531,
+              "z": 201.2189483642578
+            },
+            "velocity": {
+              "x": -0.43515753746032715,
+              "y": -0.010277338325977325,
+              "z": -0.5118615627288818
+            },
+            "destination": {
+              "x": 351.09735107421875,
+              "y": 6.850673675537109,
+              "z": 199.84759521484375
+            },
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "priority": 50,
+            "agentTypeId": 0,
+            "areaMask": -1,
+            "ready": true,
+            "hasPath": true,
+            "stopped": false,
+            "hasLife": true,
+            "alive": true,
+            "health": 106.0
+          },
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+            "avoidance": "HighQualityObstacleAvoidance",
+            "position": {
+              "x": 348.33673095703125,
+              "y": 9.862777709960938,
+              "z": 200.4511260986328
+            },
+            "nextPosition": {
+              "x": 348.33673095703125,
+              "y": 9.862777709960938,
+              "z": 200.4511260986328
+            },
+            "velocity": {
+              "x": 5.863597393035889,
+              "y": 0.005765336100012064,
+              "z": 0.2877654731273651
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "priority": 50,
+            "agentTypeId": 0,
+            "areaMask": -1,
+            "ready": true,
+            "hasPath": false,
+            "stopped": false,
+            "hasLife": true,
+            "alive": true,
+            "health": 211.0
+          },
+          {
+            "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_02[0]",
+            "avoidance": "HighQualityObstacleAvoidance",
+            "position": {
+              "x": 351.26605224609375,
+              "y": 9.849929809570312,
+              "z": 199.81069946289062
+            },
+            "nextPosition": {
+              "x": 351.26605224609375,
+              "y": 9.849929809570312,
+              "z": 199.81069946289062
+            },
+            "velocity": {
+              "x": 5.542743682861328,
+              "y": -0.024440011009573936,
+              "z": -1.2122246026992798
+            },
+            "destination": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "radius": 0.5,
+            "height": 2.0,
+            "baseOffset": 1.0,
+            "priority": 51,
+            "agentTypeId": 0,
+            "areaMask": -1,
+            "ready": true,
+            "hasPath": false,
+            "stopped": false,
+            "hasLife": true,
+            "alive": true,
+            "health": 73.0
+          }
+        ],
+        "obstacles": []
+      }
+    }
+  },
+  {
+    "sequence": 864,
+    "wallSeconds": 63.5213435,
+    "gameSeconds": 189.15090118348598,
+    "frame": 5507,
+    "kind": "route.state",
+    "detail": {
+      "agent": "1",
+      "requestId": "Route_385922d28f22492b90968611e27af5a0",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "entryFrom": "",
+      "stepPhase": "WaitingForMember",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_4_3",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 5,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 4,
+      "aliveMembers": 1,
+      "health": 211,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 348.33673095703125,
+        "y": 9.862777709960938,
+        "z": 200.4511260986328
+      },
+      "anchor": {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      },
+      "anchorDistance3D": 19.24749183654785,
+      "anchorDistancePlanar": 19.157140731811523
+    }
+  },
+  {
+    "sequence": 866,
+    "wallSeconds": 63.7229099,
+    "gameSeconds": 189.95671718008816,
+    "frame": 5530,
+    "kind": "directive.Completed",
+    "detail": {
+      "agent": "2",
+      "commandId": "CombatDamageInterrupt_-490378_760f35f6f32f40b3b1619802ebdfe12b",
+      "directive": "EnemyTarget",
+      "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+      "stage": "Completed",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 867,
+    "wallSeconds": 63.722940599999994,
+    "gameSeconds": 189.95671718008816,
+    "frame": 5530,
+    "kind": "directive.Completed",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+      "directive": "EnemyTarget",
+      "targetId": "ActiveEnemyCluster_c3f0e5af0fcc419dbd7b83b1abf55a8f",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[97]",
+      "stage": "Completed",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 868,
+    "wallSeconds": 63.733350099999996,
+    "gameSeconds": 189.99393997900188,
+    "frame": 5531,
+    "kind": "route.state",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "entryFrom": "",
+      "stepPhase": "Processing",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_3",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 4,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 4,
+      "aliveMembers": 1,
+      "health": 64,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 351.26751708984375,
+        "y": 9.849925994873047,
+        "z": 199.81040954589844
+      },
+      "anchor": {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      },
+      "anchorDistance3D": 21.61341667175293,
+      "anchorDistancePlanar": 21.534103393554688
+    }
+  },
+  {
+    "sequence": 870,
+    "wallSeconds": 63.7500833,
+    "gameSeconds": 190.07155877538025,
+    "frame": 5533,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "1",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_5_1",
+      "directive": "MoveTo",
+      "targetId": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "target": "",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 871,
+    "wallSeconds": 63.750354699999995,
+    "gameSeconds": 190.07155877538025,
+    "frame": 5533,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_4",
+      "directive": "MoveTo",
+      "targetId": "cluster_73607cab556336476bac9995b5e46c2b",
+      "target": "",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 873,
+    "wallSeconds": 63.7864003,
+    "gameSeconds": 190.20743757672608,
+    "frame": 5537,
+    "kind": "route.state",
+    "detail": {
+      "agent": "1",
+      "requestId": "Route_385922d28f22492b90968611e27af5a0",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "previousNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "entryFrom": "",
+      "stepPhase": "Travelling",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_5_1",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 5,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 5,
+      "aliveMembers": 0,
+      "health": 211,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 348.41253662109375,
+        "y": 9.864360809326172,
+        "z": 200.53004455566406
+      },
+      "anchor": {
+        "x": 385.60003662109375,
+        "y": 7.666664123535156,
+        "z": 239.23001098632812
+      },
+      "anchorDistance3D": 53.7161750793457,
+      "anchorDistancePlanar": 53.671199798583984
+    }
+  },
+  {
+    "sequence": 874,
+    "wallSeconds": 63.786450499999994,
+    "gameSeconds": 190.20743757672608,
+    "frame": 5537,
+    "kind": "route.state",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "previousNode": "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+      "entryFrom": "",
+      "stepPhase": "Travelling",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_4",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 4,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 4,
+      "aliveMembers": 0,
+      "health": 64,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 351.30743408203125,
+        "y": 9.848640441894531,
+        "z": 199.74635314941406
+      },
+      "anchor": {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      },
+      "anchorDistance3D": 21.62541961669922,
+      "anchorDistancePlanar": 21.546260833740234
+    }
+  },
+  {
+    "sequence": 877,
+    "wallSeconds": 64.3945042,
+    "gameSeconds": 192.6450199689716,
+    "frame": 5603,
+    "kind": "directive.Completed",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_4_4",
+      "directive": "MoveTo",
+      "targetId": "cluster_73607cab556336476bac9995b5e46c2b",
+      "target": "",
+      "stage": "Completed",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 878,
+    "wallSeconds": 64.4098494,
+    "gameSeconds": 192.7104427702725,
+    "frame": 5605,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_5_1",
+      "directive": "MoveTo",
+      "targetId": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "target": "",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 879,
+    "wallSeconds": 64.4476672,
+    "gameSeconds": 192.85180196911097,
+    "frame": 5609,
+    "kind": "route.state",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "previousNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "entryFrom": "",
+      "stepPhase": "Travelling",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_5_1",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 4,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 5,
+      "aliveMembers": 0,
+      "health": 64,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 331.60076904296875,
+        "y": 11.000007629394531,
+        "z": 191.77125549316406
+      },
+      "anchor": {
+        "x": 385.60003662109375,
+        "y": 7.666664123535156,
+        "z": 239.23001098632812
+      },
+      "anchorDistance3D": 71.96781158447266,
+      "anchorDistancePlanar": 71.89057159423828
+    }
+  },
+  {
+    "sequence": 885,
+    "wallSeconds": 65.5292063,
+    "gameSeconds": 197.18842235393822,
+    "frame": 5755,
+    "kind": "directive.Completed",
+    "detail": {
+      "agent": "1",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_5_1",
+      "directive": "MoveTo",
+      "targetId": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "target": "",
+      "stage": "Completed",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 886,
+    "wallSeconds": 65.53683889999999,
+    "gameSeconds": 197.2169639542699,
+    "frame": 5756,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "1",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_5_2",
+      "directive": "Extract",
+      "targetId": "ExtractionCluster_faa830991c42439880d4fe0725d7cfe8",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]/ExtractionPoint[0]",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 887,
+    "wallSeconds": 65.5883351,
+    "gameSeconds": 197.41250435635448,
+    "frame": 5763,
+    "kind": "route.state",
+    "detail": {
+      "agent": "1",
+      "requestId": "Route_385922d28f22492b90968611e27af5a0",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "previousNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "entryFrom": "",
+      "stepPhase": "Extracting",
+      "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_5_2",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 5,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 5,
+      "aliveMembers": 0,
+      "health": 211,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 385.51800537109375,
+        "y": 10.666664123535156,
+        "z": 239.14468383789062
+      },
+      "anchor": {
+        "x": 385.60003662109375,
+        "y": 7.666664123535156,
+        "z": 239.23001098632812
+      },
+      "anchorDistance3D": 3.0023341178894043,
+      "anchorDistancePlanar": 0.11836320161819458
+    }
+  },
+  {
+    "sequence": 893,
+    "wallSeconds": 66.3012548,
+    "gameSeconds": 200.21293395012617,
+    "frame": 5852,
+    "kind": "route.result",
+    "detail": {
+      "agent": "1",
+      "requestId": "Route_385922d28f22492b90968611e27af5a0",
+      "source": "Autonomous",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "stage": "Extracted",
+      "reason": "None",
+      "detail": "",
+      "version": 5,
+      "replan": false,
+      "snapshot": {
+        "agent": "1",
+        "requestId": "Route_385922d28f22492b90968611e27af5a0",
+        "source": "Autonomous",
+        "stage": "Extracted",
+        "failure": "None",
+        "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+        "currentNode": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+        "previousNode": "cluster_73607cab556336476bac9995b5e46c2b",
+        "entryFrom": "",
+        "stepPhase": "Cancelled",
+        "commandId": "RouteStep_Route_385922d28f22492b90968611e27af5a0_5_5_2",
+        "pendingId": "",
+        "pendingGoal": "",
+        "installed": true,
+        "hasRoute": true,
+        "active": false,
+        "pending": false,
+        "retaliating": false,
+        "dead": false,
+        "version": 5,
+        "graphRevision": 7,
+        "costRevision": 1,
+        "bindingRevision": 1,
+        "environmentVersion": 1,
+        "currentCostRevision": 1,
+        "cursor": 5,
+        "aliveMembers": 0,
+        "health": 211,
+        "nodes": [
+          "cluster_ac43e253ab1e05daa3c5146620ad0002",
+          "cluster_9d02dfbf9e190218416afd8280324f29",
+          "cluster_1fdefe80ef2edccd45207db5a80a9123",
+          "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+          "cluster_73607cab556336476bac9995b5e46c2b",
+          "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+        ],
+        "position": {
+          "x": 385.51800537109375,
+          "y": 10.666664123535156,
+          "z": 239.14468383789062
+        },
+        "anchor": {
+          "x": 385.60003662109375,
+          "y": 7.666664123535156,
+          "z": 239.23001098632812
+        },
+        "anchorDistance3D": 3.0023341178894043,
+        "anchorDistancePlanar": 0.11836320161819458
+      }
+    }
+  },
+  {
+    "sequence": 895,
+    "wallSeconds": 66.4237076,
+    "gameSeconds": 200.7656227517873,
+    "frame": 5866,
+    "kind": "directive.Completed",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_5_1",
+      "directive": "MoveTo",
+      "targetId": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "target": "",
+      "stage": "Completed",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 896,
+    "wallSeconds": 66.4401963,
+    "gameSeconds": 200.8317587506026,
+    "frame": 5868,
+    "kind": "directive.Accepted",
+    "detail": {
+      "agent": "2",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_5_2",
+      "directive": "Extract",
+      "targetId": "ExtractionCluster_faa830991c42439880d4fe0725d7cfe8",
+      "target": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]/ExtractionPoint[0]",
+      "stage": "Accepted",
+      "reason": "None"
+    }
+  },
+  {
+    "sequence": 897,
+    "wallSeconds": 66.4489041,
+    "gameSeconds": 200.86147155053914,
+    "frame": 5869,
+    "kind": "route.state",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "stage": "Accepted",
+      "failure": "None",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "currentNode": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "previousNode": "cluster_73607cab556336476bac9995b5e46c2b",
+      "entryFrom": "",
+      "stepPhase": "Extracting",
+      "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_5_2",
+      "pendingId": "",
+      "pendingGoal": "",
+      "installed": true,
+      "hasRoute": true,
+      "active": true,
+      "pending": false,
+      "retaliating": false,
+      "dead": false,
+      "version": 4,
+      "graphRevision": 7,
+      "costRevision": 1,
+      "bindingRevision": 1,
+      "environmentVersion": 1,
+      "currentCostRevision": 1,
+      "cursor": 5,
+      "aliveMembers": 0,
+      "health": 64,
+      "nodes": [
+        "cluster_ac43e253ab1e05daa3c5146620ad0002",
+        "cluster_9d02dfbf9e190218416afd8280324f29",
+        "cluster_1fdefe80ef2edccd45207db5a80a9123",
+        "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+        "cluster_73607cab556336476bac9995b5e46c2b",
+        "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+      ],
+      "position": {
+        "x": 385.716064453125,
+        "y": 10.666664123535156,
+        "z": 239.3856964111328
+      },
+      "anchor": {
+        "x": 385.60003662109375,
+        "y": 7.666664123535156,
+        "z": 239.23001098632812
+      },
+      "anchorDistance3D": 3.006276845932007,
+      "anchorDistancePlanar": 0.1941659301519394
+    }
+  },
+  {
+    "sequence": 903,
+    "wallSeconds": 67.20789049999999,
+    "gameSeconds": 203.8590559400618,
+    "frame": 5968,
+    "kind": "route.result",
+    "detail": {
+      "agent": "2",
+      "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+      "source": "Autonomous",
+      "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+      "stage": "Extracted",
+      "reason": "None",
+      "detail": "",
+      "version": 4,
+      "replan": false,
+      "snapshot": {
+        "agent": "2",
+        "requestId": "Route_bdbb097ed5ca4c45b31d52c168618037",
+        "source": "Autonomous",
+        "stage": "Extracted",
+        "failure": "None",
+        "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+        "currentNode": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+        "previousNode": "cluster_73607cab556336476bac9995b5e46c2b",
+        "entryFrom": "",
+        "stepPhase": "Cancelled",
+        "commandId": "RouteStep_Route_bdbb097ed5ca4c45b31d52c168618037_4_5_2",
+        "pendingId": "",
+        "pendingGoal": "",
+        "installed": true,
+        "hasRoute": true,
+        "active": false,
+        "pending": false,
+        "retaliating": false,
+        "dead": false,
+        "version": 4,
+        "graphRevision": 7,
+        "costRevision": 1,
+        "bindingRevision": 1,
+        "environmentVersion": 1,
+        "currentCostRevision": 1,
+        "cursor": 5,
+        "aliveMembers": 0,
+        "health": 64,
+        "nodes": [
+          "cluster_ac43e253ab1e05daa3c5146620ad0002",
+          "cluster_9d02dfbf9e190218416afd8280324f29",
+          "cluster_1fdefe80ef2edccd45207db5a80a9123",
+          "cluster_c5edf6fa8d78064f44e8c5237b17de37",
+          "cluster_73607cab556336476bac9995b5e46c2b",
+          "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+        ],
+        "position": {
+          "x": 385.66070556640625,
+          "y": 10.666664123535156,
+          "z": 239.3114013671875
+        },
+        "anchor": {
+          "x": 385.60003662109375,
+          "y": 7.666664123535156,
+          "z": 239.23001098632812
+        },
+        "anchorDistance3D": 3.0017170906066895,
+        "anchorDistancePlanar": 0.10151411592960358
+      }
+    }
+  }
+]

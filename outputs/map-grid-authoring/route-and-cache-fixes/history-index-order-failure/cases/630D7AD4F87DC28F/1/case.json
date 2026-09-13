@@ -1,0 +1,7 @@
+{
+    "caseId": "AgentReproduction.Tests.MapCommandNavigationCacheTests.RegisteredGeometryOrderDoesNotInvalidateRuntimeBake",
+    "execution": "COMPLETED",
+    "contract": "FAIL",
+    "message": "  同一导航几何重新注册的顺序不应使发布缓存失效\r\n  String lengths are both 64. Strings differ at index 0.\r\n  Expected: \"e5c8e96480eae0d59e417fc3ece008178e1377e469f2761a10220d3180343ce8\"\r\n  But was:  \"4a228afbe85cee665eee08c26d93bd53d363b9a964de68615da340d410b62c0c\"\r\n  -----------^\r\n",
+    "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260913-230615-636"
+}

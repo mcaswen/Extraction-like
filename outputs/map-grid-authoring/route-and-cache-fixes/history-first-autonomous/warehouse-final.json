@@ -1,0 +1,117 @@
+{
+    "Version": 1,
+    "Players": [
+        {
+            "AgentId": "default_player",
+            "Pages": [
+                {
+                    "PageIndex": 0,
+                    "Items": [
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "organic_fiber",
+                            "Amount": 1,
+                            "X": 0,
+                            "Y": 0,
+                            "IsRotated": false
+                        },
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "organic_fiber",
+                            "Amount": 1,
+                            "X": 2,
+                            "Y": 0,
+                            "IsRotated": false
+                        },
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "equip_totem_green",
+                            "Amount": 1,
+                            "X": 4,
+                            "Y": 0,
+                            "IsRotated": false
+                        },
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "notebook",
+                            "Amount": 1,
+                            "X": 5,
+                            "Y": 0,
+                            "IsRotated": false
+                        },
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "equip_head_blue",
+                            "Amount": 1,
+                            "X": 0,
+                            "Y": 2,
+                            "IsRotated": false
+                        },
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "equip_head_blue",
+                            "Amount": 1,
+                            "X": 2,
+                            "Y": 2,
+                            "IsRotated": false
+                        },
+                        {
+                            "RuntimeItemId": "",
+                            "ItemID": "pocket_watch",
+                            "Amount": 1,
+                            "X": 5,
+                            "Y": 1,
+                            "IsRotated": false
+                        }
+                    ],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 1,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 2,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 3,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 4,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 5,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 6,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 7,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 8,
+                    "Items": [],
+                    "CellStates": []
+                },
+                {
+                    "PageIndex": 9,
+                    "Items": [],
+                    "CellStates": []
+                }
+            ]
+        }
+    ]
+}

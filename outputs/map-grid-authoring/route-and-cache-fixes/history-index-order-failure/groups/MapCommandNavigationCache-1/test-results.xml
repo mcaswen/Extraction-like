@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="8" result="Failed(Child)" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:42Z" duration="6.8883116">
+  <test-suite type="TestSuite" id="1870" name="AgentRepro_20260913-230615-636" fullname="AgentRepro_20260913-230615-636" runstate="Runnable" testcasecount="704" result="Failed" site="Child" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:42Z" duration="6.888312" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="2733" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="704" result="Failed" site="Child" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:42Z" duration="6.852717" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="5096" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="2734" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="704" result="Failed" site="Child" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:42Z" duration="6.848485" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="2735" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="704" result="Failed" site="Child" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:42Z" duration="6.844456" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="2209" name="MapCommandNavigationCacheTests" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" testcasecount="8" result="Failed" site="Child" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:42Z" duration="6.829349" total="8" passed="7" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="2214" name="ActiveLinksRequireRevalidationOfNativeConnectivity" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.ActiveLinksRequireRevalidationOfNativeConnectivity" methodname="ActiveLinksRequireRevalidationOfNativeConnectivity" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="43079738" result="Passed" start-time="2026-09-13 15:06:35Z" end-time="2026-09-13 15:06:36Z" duration="1.001983" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Removed 1 instance of leaked navmesh links while exiting play-mode.
+Use NavMesh.RemoveLink to remove navmesh link that has been added with NavMesh.AddLink.
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+            </test-case>
+            <test-case id="2210" name="FingerprintTracksRealNavigationAndLinkConfigurationOnly" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.FingerprintTracksRealNavigationAndLinkConfigurationOnly" methodname="FingerprintTracksRealNavigationAndLinkConfigurationOnly" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="423145465" result="Passed" start-time="2026-09-13 15:06:36Z" end-time="2026-09-13 15:06:37Z" duration="0.815544" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2216" name="GeometrySignaturePreservesExactGeometryAreasAndWinding" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.GeometrySignaturePreservesExactGeometryAreasAndWinding" methodname="GeometrySignaturePreservesExactGeometryAreasAndWinding" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="2084795212" result="Passed" start-time="2026-09-13 15:06:37Z" end-time="2026-09-13 15:06:38Z" duration="0.809695" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="2211" name="MatchingRuntimeBakeLoadsWithoutEditorFingerprintsOrQueries" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.MatchingRuntimeBakeLoadsWithoutEditorFingerprintsOrQueries" methodname="MatchingRuntimeBakeLoadsWithoutEditorFingerprintsOrQueries" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="656474571" result="Passed" start-time="2026-09-13 15:06:38Z" end-time="2026-09-13 15:06:39Z" duration="0.825139" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2212" name="MissingOrChangedRuntimeSignatureUsesOnlyBudgetedSavedEdges" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.MissingOrChangedRuntimeSignatureUsesOnlyBudgetedSavedEdges" methodname="MissingOrChangedRuntimeSignatureUsesOnlyBudgetedSavedEdges" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="63314173" result="Passed" start-time="2026-09-13 15:06:39Z" end-time="2026-09-13 15:06:40Z" duration="0.828331" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Removed 1 instance of leaked navmesh links while exiting play-mode.
+Use NavMesh.RemoveLink to remove navmesh link that has been added with NavMesh.AddLink.
+]]></output>
+            </test-case>
+            <test-case id="2215" name="RegisteredGeometryOrderDoesNotInvalidateRuntimeBake" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.RegisteredGeometryOrderDoesNotInvalidateRuntimeBake" methodname="RegisteredGeometryOrderDoesNotInvalidateRuntimeBake" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="527667659" result="Failed" start-time="2026-09-13 15:06:40Z" end-time="2026-09-13 15:06:41Z" duration="0.828540" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <failure>
+                <message><![CDATA[  同一导航几何重新注册的顺序不应使发布缓存失效
+  String lengths are both 64. Strings differ at index 0.
+  Expected: "e5c8e96480eae0d59e417fc3ece008178e1377e469f2761a10220d3180343ce8"
+  But was:  "4a228afbe85cee665eee08c26d93bd53d363b9a964de68615da340d410b62c0c"
+  -----------^
+]]></message>
+                <stack-trace><![CDATA[at AgentReproduction.Tests.MapCommandNavigationCacheTests+<RegisteredGeometryOrderDoesNotInvalidateRuntimeBake>d__12.MoveNext () [0x00107] in D:\Unity-Projects\.agent-repro\AnomalySearchRegression\Project\Assets\Scripts\Editor\AgentReproduction\Tests\MapCommandNavigationCacheTests.cs:130
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\Library\PackageCache\com.unity.test-framework@1.1.33\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:46
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2217" name="RuntimeFingerprintSurvivesAssetSaveUnloadAndReadback" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.RuntimeFingerprintSurvivesAssetSaveUnloadAndReadback" methodname="RuntimeFingerprintSurvivesAssetSaveUnloadAndReadback" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="1289149123" result="Passed" start-time="2026-09-13 15:06:41Z" end-time="2026-09-13 15:06:41Z" duration="0.912061" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="2213" name="RuntimeSignatureCannotHideProfileOrAnchorMismatch" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.RuntimeSignatureCannotHideProfileOrAnchorMismatch" methodname="RuntimeSignatureCannotHideProfileOrAnchorMismatch" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="569781429" result="Passed" start-time="2026-09-13 15:06:41Z" end-time="2026-09-13 15:06:42Z" duration="0.793358" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

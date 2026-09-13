@@ -1,0 +1,352 @@
+{
+  "agent": "1",
+  "node": "cluster_73607cab556336476bac9995b5e46c2b",
+  "cluster": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/EnemySourceCluster_A[3]",
+  "position": {
+    "x": 331.21258544921875,
+    "y": 11.000007629394531,
+    "z": 191.3046417236328
+  },
+  "groundOrigin": {
+    "x": 331.21258544921875,
+    "y": 8.000007629394531,
+    "z": 191.3046417236328
+  },
+  "bodyAim": {
+    "x": 331.21258544921875,
+    "y": 10.826210021972656,
+    "z": 191.3046417236328
+  },
+  "range": 8.0,
+  "enemies": [
+    {
+      "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_TidalAberration_00[105]",
+      "validation": "Unreachable",
+      "visibility": "OutOfRange",
+      "directPathStatus": "PathComplete",
+      "position": {
+        "x": 354.9884033203125,
+        "y": 9.920387268066406,
+        "z": 205.6564178466797
+      },
+      "aim": {
+        "x": 354.9884033203125,
+        "y": 9.920387268066406,
+        "z": 205.6564178466797
+      },
+      "navigation": {
+        "x": 354.9884033203125,
+        "y": 6.920387268066406,
+        "z": 205.6564178466797
+      },
+      "approach": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "independentFiringPosition": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "health": 250.0,
+      "aimDistance": 27.78639030456543,
+      "directCalculated": true,
+      "directQueryFailed": false,
+      "approachResolved": false,
+      "independentFiringFound": false,
+      "approachQueries": 1,
+      "pathCorners": [
+        {
+          "x": 331.21258544921875,
+          "y": 8.000007629394531,
+          "z": 191.3046417236328
+        },
+        {
+          "x": 335.97802734375,
+          "y": 8.000007629394531,
+          "z": 197.31748962402344
+        },
+        {
+          "x": 337.97802734375,
+          "y": 6.833351135253906,
+          "z": 198.98416137695312
+        },
+        {
+          "x": 354.9884033203125,
+          "y": 6.920387268066406,
+          "z": 205.6564178466797
+        }
+      ],
+      "aimOverlaps": [
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/tripo_convert_cfc50981-c500-4787-94ae-f41149c942c9[1]/Torus[29]/Range[0]"
+      ]
+    },
+    {
+      "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[106]",
+      "validation": "Unreachable",
+      "visibility": "Occluded",
+      "directPathStatus": "PathComplete",
+      "position": {
+        "x": 332.88262939453125,
+        "y": 8.000007629394531,
+        "z": 192.81243896484375
+      },
+      "aim": {
+        "x": 332.88262939453125,
+        "y": 9.500007629394531,
+        "z": 192.81243896484375
+      },
+      "navigation": {
+        "x": 332.88262939453125,
+        "y": 8.000007629394531,
+        "z": 192.81243896484375
+      },
+      "approach": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "independentFiringPosition": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "health": 300.0,
+      "aimDistance": 2.6117641925811768,
+      "directCalculated": true,
+      "directQueryFailed": false,
+      "approachResolved": false,
+      "independentFiringFound": false,
+      "approachQueries": 17,
+      "pathCorners": [
+        {
+          "x": 331.21258544921875,
+          "y": 8.000007629394531,
+          "z": 191.3046417236328
+        },
+        {
+          "x": 332.88262939453125,
+          "y": 8.000007629394531,
+          "z": 192.81243896484375
+        }
+      ],
+      "aimOverlaps": [
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/tripo_convert_cfc50981-c500-4787-94ae-f41149c942c9[1]/Torus[29]/Range[0]"
+      ]
+    }
+  ],
+  "neighborhood": {
+    "pawnPosition": {
+      "x": 331.21258544921875,
+      "y": 11.000007629394531,
+      "z": 191.3046417236328
+    },
+    "destination": {
+      "x": 331.40997314453125,
+      "y": 8.000007629394531,
+      "z": 191.48001098632812
+    },
+    "queryRadius": 10.0,
+    "colliderBufferFull": false,
+    "pathCalculated": true,
+    "pathStatus": "PathComplete",
+    "pathCorners": [
+      {
+        "x": 331.21258544921875,
+        "y": 8.000007629394531,
+        "z": 191.3046417236328
+      },
+      {
+        "x": 331.40997314453125,
+        "y": 8.000007629394531,
+        "z": 191.48001098632812
+      }
+    ],
+    "bodies": [
+      {
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/ExtractionCluster[0]",
+        "type": "BoxCollider",
+        "layer": "Default",
+        "center": {
+          "x": 385.6000061035156,
+          "y": 7.062236309051514,
+          "z": 238.8800048828125
+        },
+        "size": {
+          "x": 126.0,
+          "y": 0.875,
+          "z": 126.0
+        },
+        "closestToPawn": {
+          "x": 331.21258544921875,
+          "y": 7.499736309051514,
+          "z": 191.3046417236328
+        },
+        "closestToDestination": {
+          "x": 331.40997314453125,
+          "y": 7.499736309051514,
+          "z": 191.48001098632812
+        },
+        "trigger": true,
+        "closestUsesBounds": false
+      },
+      {
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[106]",
+        "type": "CapsuleCollider",
+        "layer": "Default",
+        "center": {
+          "x": 332.88262939453125,
+          "y": 9.500007629394531,
+          "z": 192.81243896484375
+        },
+        "size": {
+          "x": 1.5,
+          "y": 3.0,
+          "z": 1.5
+        },
+        "closestToPawn": {
+          "x": 332.3545227050781,
+          "y": 10.487178802490234,
+          "z": 192.33563232421875
+        },
+        "closestToDestination": {
+          "x": 332.3623352050781,
+          "y": 8.48503589630127,
+          "z": 192.34170532226562
+        },
+        "trigger": false,
+        "closestUsesBounds": false
+      },
+      {
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Zone-龙骨礁[20]/tripo_convert_cfc50981-c500-4787-94ae-f41149c942c9[1]/Torus[29]/Range[0]",
+        "type": "BoxCollider",
+        "layer": "Default",
+        "center": {
+          "x": 310.609619140625,
+          "y": 9.748583793640137,
+          "z": 233.24606323242188
+        },
+        "size": {
+          "x": 151.38121032714844,
+          "y": 0.5232524871826172,
+          "z": 183.53790283203125
+        },
+        "closestToPawn": {
+          "x": 331.21258544921875,
+          "y": 10.010209083557129,
+          "z": 191.30462646484375
+        },
+        "closestToDestination": {
+          "x": 331.40997314453125,
+          "y": 9.486958503723145,
+          "z": 191.47999572753906
+        },
+        "trigger": false,
+        "closestUsesBounds": false
+      },
+      {
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+        "type": "CapsuleCollider",
+        "layer": "Agent",
+        "center": {
+          "x": 331.21258544921875,
+          "y": 10.826210021972656,
+          "z": 191.3046417236328
+        },
+        "size": {
+          "x": 3.0,
+          "y": 9.06492805480957,
+          "z": 3.0
+        },
+        "closestToPawn": {
+          "x": 331.21258544921875,
+          "y": 11.000007629394531,
+          "z": 191.3046417236328
+        },
+        "closestToDestination": {
+          "x": 331.40997314453125,
+          "y": 8.000007629394531,
+          "z": 191.48001098632812
+        },
+        "trigger": false,
+        "closestUsesBounds": false
+      }
+    ],
+    "agents": [
+      {
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Pfb_Enemy_Common_AncientStrander_00[106]",
+        "avoidance": "HighQualityObstacleAvoidance",
+        "position": {
+          "x": 332.88262939453125,
+          "y": 8.000007629394531,
+          "z": 192.81243896484375
+        },
+        "nextPosition": {
+          "x": 332.88262939453125,
+          "y": 8.000007629394531,
+          "z": 192.81243896484375
+        },
+        "velocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 321.89495849609375,
+          "y": 8.105968475341797,
+          "z": 189.6388397216797
+        },
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 0.0,
+        "priority": 50,
+        "agentTypeId": 0,
+        "areaMask": -1,
+        "ready": true,
+        "hasPath": true,
+        "stopped": true,
+        "hasLife": true,
+        "alive": true,
+        "health": 300.0
+      },
+      {
+        "identity": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity/Agent_01[1]",
+        "avoidance": "HighQualityObstacleAvoidance",
+        "position": {
+          "x": 331.21258544921875,
+          "y": 11.000007629394531,
+          "z": 191.3046417236328
+        },
+        "nextPosition": {
+          "x": 331.21258544921875,
+          "y": 11.000007629394531,
+          "z": 191.3046417236328
+        },
+        "velocity": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "destination": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "radius": 0.5,
+        "height": 2.0,
+        "baseOffset": 1.0,
+        "priority": 50,
+        "agentTypeId": 0,
+        "areaMask": -1,
+        "ready": true,
+        "hasPath": false,
+        "stopped": false,
+        "hasLife": true,
+        "alive": true,
+        "health": 61.0
+      }
+    ],
+    "obstacles": []
+  }
+}

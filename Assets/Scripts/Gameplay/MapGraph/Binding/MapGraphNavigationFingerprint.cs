@@ -18,17 +18,13 @@ namespace Gameplay.MapGraph.Binding
             using var scope = CaptureMarker.Auto();
             if (!scene.IsValid() || !scene.isLoaded) return string.Empty;
             var triangulation = NavMesh.CalculateTriangulation();
-            if (triangulation.vertices.Length == 0 || triangulation.indices.Length == 0) return string.Empty;
+            string geometry = MapGraphNavigationGeometrySignature.Capture(triangulation);
+            if (geometry.Length == 0) return string.Empty;
             using var stream = new MemoryStream();
             using var writer = new BinaryWriter(stream);
-            writer.Write("MapNavigation:v1");
-            // 原生顺序改变会保守地使缓存失效，不以容易碰撞的顶点数量或 Bounds 替代几何。
-            writer.Write(triangulation.vertices.Length);
-            foreach (var vertex in triangulation.vertices) Write(writer, vertex);
-            writer.Write(triangulation.indices.Length);
-            foreach (int index in triangulation.indices) writer.Write(index);
-            writer.Write(triangulation.areas.Length);
-            foreach (int area in triangulation.areas) writer.Write(area);
+            writer.Write("MapNavigation:v2");
+            // 原生注册/重载顺序不影响几何内容；精确顶点、区域、绕序和重复数量仍参与签名。
+            writer.Write(geometry);
             var signatures = new List<string>();
             bool hasLiveLinks = false;
             foreach (var root in scene.GetRootGameObjects())

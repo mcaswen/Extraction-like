@@ -107,6 +107,28 @@ namespace AgentReproduction.Tests
             Assert.That(MapGraphAuthoringTransaction.TrySave(document,scene,null,out binding,out failure),Is.True,failure);
             CaseArtifactWriter.Trace("cache.saved",binding.MapDefinition.NavigationBake.RuntimeNavigationFingerprint);
         }
+        [UnityTest] public IEnumerator RefreshGraphBakeFromSavedBindingsWithoutChangingLayout()
+        {
+            Assert.That(Application.companyName,Is.EqualTo("AnomalySearch.Automation"));
+            Assert.That(Application.dataPath.Replace('\\','/'),Does.Contain("/.agent-repro/"));
+            Assert.That(Application.isPlaying,Is.False);
+            var scene=EditorSceneManager.OpenScene(ScenePath);yield return null;
+            byte[] sceneBefore=File.ReadAllBytes(ScenePath);
+            var binding=Object.FindObjectOfType<MapGraphBindingAuthoring>();Assert.That(binding.IsValid,Is.True);
+            var snapshot=MapGraphSceneCollector.Capture(scene);Assert.That(snapshot.IsValid,Is.True,string.Join(";",snapshot.Diagnostics));
+            Assert.That(snapshot.Profiles.Count,Is.EqualTo(1),"本维护用例针对当前单一实际导航 profile");
+            var definition=binding.MapDefinition;
+            var costs=new MapGraphNavigationCostService(definition,binding,snapshot.Profiles[0].QueryProfile,"","","");
+            while(costs.PendingEdgeCount>0){costs.ProcessPending(2);yield return null;}
+            Assert.That(costs.Snapshot.Count,Is.EqualTo(definition.Edges.Count),"所有保存连接必须双向完整");
+            var bake=costs.CreateBakeData(snapshot.SceneFingerprint,snapshot.NavigationFingerprint,snapshot.RuntimeNavigationFingerprint);
+            // 显式隔离维护只补算已有绑定的导航成本，不执行会重新选择锚点的布局生成。
+            definition.ApplyCommandData(definition.MapId,definition.DisplayName,definition.StartNodeId,definition.Zones,definition.Nodes,
+                definition.Edges,definition.LayoutConstraints,bake,definition.GenerationSettings);
+            EditorUtility.SetDirty(definition);AssetDatabase.SaveAssetIfDirty(definition);
+            CollectionAssert.AreEqual(sceneBefore,File.ReadAllBytes(ScenePath),"缓存维护不保存场景或更换群导航锚点");
+            CaseArtifactWriter.Trace("cache.saved-bindings",definition.NavigationBake.RuntimeNavigationFingerprint+"; queries="+costs.CalculationCount);
+        }
         // XZ 重心插值只读取指定可见地板的三角形，不能用无碰撞 FBX 下方的 Terrain 代替。
         private static float FindSurfaceHeight(MeshFilter filter,Vector3 location)
         {

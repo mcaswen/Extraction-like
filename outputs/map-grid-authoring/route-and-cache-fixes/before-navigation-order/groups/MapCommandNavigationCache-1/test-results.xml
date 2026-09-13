@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.9687202">
+  <test-suite type="TestSuite" id="1868" name="AgentRepro_20260913-225009-599" fullname="AgentRepro_20260913-225009-599" runstate="Runnable" testcasecount="702" result="Failed" site="Child" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.968720" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="2729" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="702" result="Failed" site="Child" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.949880" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="6996" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="2730" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="702" result="Failed" site="Child" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.945532" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="2731" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="702" result="Failed" site="Child" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.941136" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="2207" name="MapCommandNavigationCacheTests" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" testcasecount="7" result="Failed" site="Child" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.925974" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="2213" name="RegisteredGeometryOrderDoesNotInvalidateRuntimeBake" fullname="AgentReproduction.Tests.MapCommandNavigationCacheTests.RegisteredGeometryOrderDoesNotInvalidateRuntimeBake" methodname="RegisteredGeometryOrderDoesNotInvalidateRuntimeBake" classname="AgentReproduction.Tests.MapCommandNavigationCacheTests" runstate="Runnable" seed="561972060" result="Failed" start-time="2026-09-13 14:50:26Z" end-time="2026-09-13 14:50:27Z" duration="0.915532" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <failure>
+                <message><![CDATA[  同一导航几何重新注册的顺序不应使发布缓存失效
+  String lengths are both 64. Strings differ at index 0.
+  Expected: "22096c5433744f644dbd90b3f5e2d2deb5179afbf2f8c6a2991b4ebb4ad7b277"
+  But was:  "15d52ad64461e9bf53e51b0f6257cd91d42f2a985d5ffb2627949301d4527c20"
+  -----------^
+]]></message>
+                <stack-trace><![CDATA[at AgentReproduction.Tests.MapCommandNavigationCacheTests+<RegisteredGeometryOrderDoesNotInvalidateRuntimeBake>d__12.MoveNext () [0x00107] in D:\Unity-Projects\.agent-repro\AnomalySearchRegression\Project\Assets\Scripts\Editor\AgentReproduction\Tests\MapCommandNavigationCacheTests.cs:130
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\Library\PackageCache\com.unity.test-framework@1.1.33\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:46
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

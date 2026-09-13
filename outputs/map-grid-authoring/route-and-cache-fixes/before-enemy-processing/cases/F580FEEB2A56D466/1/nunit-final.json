@@ -1,0 +1,7 @@
+﻿{
+    "caseId":  "AgentReproduction.Tests.MapCommandEnemyProcessingTests.FormalDragonboneRangeCannotBlockEnemyProcessing",
+    "contract":  "FAIL",
+    "message":  "  淇濆瓨鍦烘櫙涓嶈兘閲嶆柊鍚敤闃绘尅浜ゆ垬鐨勮緟鍔╃洅\n  Expected: False\n  But was:  True\n",
+    "execution":  "COMPLETED",
+    "nunitResult":  "Failed"
+}

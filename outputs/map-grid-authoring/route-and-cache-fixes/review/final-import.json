@@ -1,0 +1,13 @@
+{
+  "runId": "20260913-230947-325",
+  "sourceAssetSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+  "generatedAssetSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+  "sourceSceneSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+  "beforeRevision": 6,
+  "afterRevision": 7,
+  "layoutFieldsEqual": true,
+  "sceneBindingEqual": true,
+  "importedScene": false,
+  "beforeFingerprint": "6a119d96c554edd4bd8835ded39bc14a056cd65428fac24b158e91f58eb0744f",
+  "afterFingerprint": "bf5f5c4322e4fedb54c007895bc885c76e580fd97d87889392f6f23e20123636"
+}

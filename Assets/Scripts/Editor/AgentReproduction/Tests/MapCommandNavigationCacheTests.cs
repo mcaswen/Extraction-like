@@ -109,6 +109,62 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator RegisteredGeometryOrderDoesNotInvalidateRuntimeBake()
+        {
+            Build();
+            NavMeshData Tile(float x)
+            {
+                var sources=new System.Collections.Generic.List<NavMeshBuildSource>{new NavMeshBuildSource{
+                    shape=NavMeshBuildSourceShape.Box,size=new Vector3(20,.2f,20),
+                    transform=Matrix4x4.TRS(new Vector3(x,-.1f,0),Quaternion.identity,Vector3.one),area=0}};
+                return World.Own(NavMeshBuilder.BuildNavMeshData(NavMesh.GetSettingsByIndex(0),sources,
+                    new Bounds(new Vector3(x,0,0),new Vector3(24,10,24)),Vector3.zero,Quaternion.identity));
+            }
+            var first=Tile(100);var second=Tile(140);
+            var a=NavMesh.AddNavMeshData(first);var b=NavMesh.AddNavMeshData(second);
+            string original=Fingerprint();Bake(original);
+            a.Remove();b.Remove();
+            b=NavMesh.AddNavMeshData(second);a=NavMesh.AddNavMeshData(first);
+            string reordered=Fingerprint();
+            AgentReproduction.Reporting.CaseArtifactWriter.Trace("navigation-order","before="+original+"; after="+reordered);
+            Assert.That(reordered,Is.EqualTo(original),"同一导航几何重新注册的顺序不应使发布缓存失效");
+            Assert.That(Service(reordered).PendingEdgeCount,Is.Zero);
+            ContractCompleted=true;yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator GeometrySignaturePreservesExactGeometryAreasAndWinding()
+        {
+            var original=new NavMeshTriangulation{vertices=new[]{Vector3.zero,Vector3.right*4,Vector3.forward*4,new Vector3(4,0,4)},
+                indices=new[]{0,2,1,1,2,3},areas=new[]{0,2}};
+            string signature=MapGraphNavigationGeometrySignature.Capture(original);
+            var reordered=new NavMeshTriangulation{vertices=new[]{new Vector3(4,0,4),Vector3.forward*4,Vector3.right*4,Vector3.zero},
+                indices=new[]{1,0,2,1,2,3},areas=new[]{2,0}};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(reordered),Is.EqualTo(signature));
+            var changed=original;changed.areas=new[]{0,3};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Not.EqualTo(signature));
+            changed=original;changed.indices=new[]{0,1,2,1,2,3};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Not.EqualTo(signature),"反转绕序仍失效");
+            changed=original;changed.vertices=(Vector3[])original.vertices.Clone();changed.vertices[1]+=Vector3.up*.0001f;
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Not.EqualTo(signature),"不能用 Bounds 或量化隐藏几何变化");
+            changed=original;changed.indices=new[]{0,2,3,0,3,1};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Not.EqualTo(signature),"相同顶点的不同三角连接仍失效");
+            changed=original;changed.indices=new[]{0,2,1,1,2,3,0,2,1};changed.areas=new[]{0,2,0};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Not.EqualTo(signature),"重复几何不能被集合去重");
+            changed=original;changed.vertices=(Vector3[])original.vertices.Clone();changed.vertices[1]=new Vector3(float.NaN,0,0);
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Empty);
+            changed=original;changed.indices=new[]{0,2,99,1,2,3};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(changed),Is.Empty);
+            var coincident=new NavMeshTriangulation{vertices=new[]{Vector3.zero,Vector3.right,Vector3.forward,Vector3.zero},
+                indices=new[]{0,2,1,0,1,2},areas=new[]{0,0}};
+            var split=coincident;split.indices=new[]{0,2,1,3,1,2};
+            Assert.That(MapGraphNavigationGeometrySignature.Capture(split),Is.Not.EqualTo(MapGraphNavigationGeometrySignature.Capture(coincident)),
+                "相同坐标的独立顶点不可合并，否则会隐藏原有顶点连接关系");
+            Assert.That(original.vertices[1],Is.EqualTo(Vector3.right*4));
+            ContractCompleted=true;yield break;
+        }
+
+        [UnityTest]
         public IEnumerator RuntimeFingerprintSurvivesAssetSaveUnloadAndReadback()
         {
             Build(); string signature=Fingerprint(); Bake(signature);

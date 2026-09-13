@@ -1,0 +1,20 @@
+﻿{
+    "mode":  "Regression",
+    "infrastructureFailed":  false,
+    "businessFailed":  true,
+    "exitCode":  1,
+    "groups":  [
+                   {
+                       "group":  "MapCommandEnemyProcessing",
+                       "repeat":  1,
+                       "exitCode":  2,
+                       "timedOut":  false,
+                       "total":  1,
+                       "failed":  1,
+                       "missing":  [
+
+                                   ],
+                       "output":  "D:\\Unity-Projects\\Extraction-like\\Logs\\AgentReproduction\\20260913-224939-069\\groups\\MapCommandEnemyProcessing-1"
+                   }
+               ]
+}

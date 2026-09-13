@@ -1,0 +1,7 @@
+{
+    "caseId": "AgentReproduction.Tests.MapCommandEnemyProcessingTests.FormalDragonboneRangeCannotBlockEnemyProcessing",
+    "execution": "COMPLETED",
+    "contract": "FAIL",
+    "message": "  保存场景不能重新启用阻挡交战的辅助盒\r\n  Expected: False\r\n  But was:  True\r\n",
+    "persistentDataPath": "C:/Users/mcaswen/AppData/LocalLow/AnomalySearch_Automation/AgentRepro_20260913-224939-069"
+}

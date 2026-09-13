@@ -1,0 +1,10 @@
+{
+  "baselineCommit": "48bbaa3",
+  "sceneChange": "BoxCollider 959548491 m_Enabled: 1 -> 0",
+  "allOtherSceneBytesEqualAfterLineEndingNormalization": true,
+  "mapLayoutAndSettingsEqual": true,
+  "beforeRevision": 5,
+  "afterRevision": 7,
+  "sceneSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+  "mapSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79"
+}

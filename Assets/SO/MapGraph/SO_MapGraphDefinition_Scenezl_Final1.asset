@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_MapGraphDefinition_Scenezl_Final1
   m_EditorClassIdentifier: 
   _schemaVersion: 2
-  _revision: 5
+  _revision: 7
   _mapId: map_graph
   _displayName: "\u533A\u57DF\u6307\u6325\u56FE"
   _startNodeId: 
@@ -940,10 +940,10 @@ MonoBehaviour:
     - _firstNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
       _secondNodeId: cluster_49f0d5f8886bf9b95eb54fe91c863fc7
   _navigationBake:
-    _sceneFingerprint: 7d001a037f9567ef2f48a59880645072
+    _sceneFingerprint: df0d40d5ae1fdc01083ad097ab8ec3dc
     _navigationFingerprint: 1047d03d1b7fbfa81a4b3f04b5d458ff
-    _runtimeNavigationFingerprint: 6947f505e7a4a3af037c797e2dec2bb74e9a4e172dfc373feb488361c0aba771
-    _revision: 5
+    _runtimeNavigationFingerprint: bf5f5c4322e4fedb54c007895bc885c76e580fd97d87889392f6f23e20123636
+    _revision: 14
     _profile:
       _profileId: 099981250ab080edf0d9c4b48851bffa
       _agentTypeId: 0
@@ -987,12 +987,23 @@ MonoBehaviour:
     - _edgeId: edge_0b4a2920870e5819bb174efd9726d12e
       _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
       _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-      _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11986}
+      _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11987}
       _toAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 39.716103
-      _reverseLength: 39.716103
+      _forwardLength: 39.716106
+      _reverseLength: 39.716106
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_11c2b7b3767ce2a7ed22415b0024e103
+      _fromNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+      _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
+      _fromAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
+      _toAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 206.79369
+      _reverseLength: 197.90614
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_161d191832e507fcd3107cecb7bb6f50
@@ -1010,7 +1021,7 @@ MonoBehaviour:
       _fromNodeId: cluster_3a148e744335b9648c8c429f7fe51985
       _toNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
       _fromAnchor: {x: 128.29065, y: 0.16669464, z: -71.45322}
-      _toAnchor: {x: -1.6525879, y: 0.16669464, z: -60.306763}
+      _toAnchor: {x: -1.6525874, y: 0.16669464, z: -60.306763}
       _forwardAvailable: 1
       _reverseAvailable: 1
       _forwardLength: 141.11557
@@ -1028,15 +1039,37 @@ MonoBehaviour:
       _reverseLength: 19.531374
       _forwardFailure: 
       _reverseFailure: 
+    - _edgeId: edge_3d2e483d9e74709bd7d31aaa0e46d918
+      _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+      _toNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
+      _fromAnchor: {x: -142.01297, y: 0.166695, z: -35.788277}
+      _toAnchor: {x: -260.95108, y: 0.166695, z: -39.77023}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 160.88013
+      _reverseLength: 160.88013
+      _forwardFailure: 
+      _reverseFailure: 
     - _edgeId: edge_6364dbaf77f98f493e573540c0a19647
       _fromNodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
       _toNodeId: cluster_b4b57110749a44a77e972f12ac0416a0
-      _fromAnchor: {x: -1.9023438, y: 0.16669464, z: -123.096664}
+      _fromAnchor: {x: -1.9023433, y: 0.16669464, z: -123.096664}
       _toAnchor: {x: -18.559952, y: 0.16669464, z: -88.40939}
       _forwardAvailable: 1
       _reverseAvailable: 1
       _forwardLength: 42.348488
       _reverseLength: 42.348488
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_6bdd6a700445a20e8ec656ca8895fa1b
+      _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
+      _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
+      _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11987}
+      _toAnchor: {x: -118.231155, y: 14.666695, z: 214.1933}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 94.00184
+      _reverseLength: 91.400566
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_718cbb4d3aa3d85a2f761d5e9e2944b6
@@ -1054,7 +1087,7 @@ MonoBehaviour:
       _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
       _toNodeId: cluster_773e939f7ea9caf80fb9456c516d3bea
       _fromAnchor: {x: -17.474915, y: 0.16669464, z: -148.81897}
-      _toAnchor: {x: -1.9023438, y: 0.16669464, z: -123.096664}
+      _toAnchor: {x: -1.9023433, y: 0.16669464, z: -123.096664}
       _forwardAvailable: 1
       _reverseAvailable: 1
       _forwardLength: 32.888073
@@ -1064,23 +1097,67 @@ MonoBehaviour:
     - _edgeId: edge_723c756e919d9d75ae4e4da2e2f15da5
       _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
       _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-      _fromAnchor: {x: -142.01297, y: 0.16669464, z: -35.788277}
-      _toAnchor: {x: -184.73907, y: 0.21791458, z: -82.54874}
+      _fromAnchor: {x: -142.01297, y: 0.166695, z: -35.788277}
+      _toAnchor: {x: -184.73907, y: 0.21791351, z: -82.54874}
       _forwardAvailable: 1
       _reverseAvailable: 1
       _forwardLength: 74.21642
       _reverseLength: 74.21642
       _forwardFailure: 
       _reverseFailure: 
+    - _edgeId: edge_7b504b9e466734bf57f2084a4f781854
+      _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
+      _toNodeId: cluster_1d8e558540281854a4430a91743e5541
+      _fromAnchor: {x: -142.01297, y: 0.166695, z: -35.788277}
+      _toAnchor: {x: -266.3202, y: 0.17308044, z: 78.164795}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 255.58185
+      _reverseLength: 254.56485
+      _forwardFailure: 
+      _reverseFailure: 
     - _edgeId: edge_a366d891573c3bc6cb85fb8587333054
       _fromNodeId: cluster_8bf644b1ec01b2abdd8c6a783335b762
       _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
-      _fromAnchor: {x: -136.39096, y: 14.708893, z: 209.66173}
-      _toAnchor: {x: -118.231155, y: 14.666695, z: 214.19328}
+      _fromAnchor: {x: -136.39096, y: 14.708893, z: 209.66174}
+      _toAnchor: {x: -118.231155, y: 14.666695, z: 214.1933}
       _forwardAvailable: 1
       _reverseAvailable: 1
-      _forwardLength: 18.960924
-      _reverseLength: 18.960924
+      _forwardLength: 18.960915
+      _reverseLength: 18.960915
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_a938344b14f5bdb2bc27e0a8e8343e6d
+      _fromNodeId: cluster_e351d521b0b236a2292a54c00835880b
+      _toNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
+      _fromAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
+      _toAnchor: {x: -61, y: 0.6666641, z: 221.35}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 37.354286
+      _reverseLength: 37.354286
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_b0e18bd297863d9472c2d2f2d20a7326
+      _fromNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+      _toNodeId: cluster_73607cab556336476bac9995b5e46c2b
+      _fromAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
+      _toAnchor: {x: 331.40997, y: 8.000008, z: 191.48001}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 82.07396
+      _reverseLength: 82.07396
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_b2f51fdaec5d9b2440999cab191bb66f
+      _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
+      _toNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+      _fromAnchor: {x: -266.3202, y: 0.17308044, z: 78.164795}
+      _toAnchor: {x: -329.77454, y: 0.16670227, z: 138.25641}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 88.37406
+      _reverseLength: 88.37406
       _forwardFailure: 
       _reverseFailure: 
     - _edgeId: edge_c84f19a79dd4a138e699e3be8a990e86
@@ -1116,11 +1193,55 @@ MonoBehaviour:
       _reverseLength: 31.034466
       _forwardFailure: 
       _reverseFailure: 
+    - _edgeId: edge_d2edb3a6f09dbf216944dd28801614ba
+      _fromNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
+      _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
+      _fromAnchor: {x: -284.56174, y: 0.16670227, z: 162.46658}
+      _toAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 80.95422
+      _reverseLength: 80.95422
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_d9dd2dcc59337420b6ac25694b8be3c0
+      _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
+      _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
+      _fromAnchor: {x: -17.474915, y: 0.16669464, z: -148.81897}
+      _toAnchor: {x: -184.73907, y: 0.21791351, z: -82.54874}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 187.36002
+      _reverseLength: 185.1818
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_df309784db0b1c7ed278179610ea0f2e
+      _fromNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
+      _toNodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
+      _fromAnchor: {x: -329.77454, y: 0.16670227, z: 138.25641}
+      _toAnchor: {x: -381.2504, y: 0.19578552, z: 249.08707}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 243.44318
+      _reverseLength: 243.46826
+      _forwardFailure: 
+      _reverseFailure: 
+    - _edgeId: edge_dffe8db8cffc2c2432776408de281bbc
+      _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
+      _toNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
+      _fromAnchor: {x: 208.82791, y: 0.23931503, z: -2.5999985}
+      _toAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
+      _forwardAvailable: 1
+      _reverseAvailable: 1
+      _forwardLength: 196.39899
+      _reverseLength: 196.39899
+      _forwardFailure: 
+      _reverseFailure: 
     - _edgeId: edge_e329148a5b544f167b36cfcc2da44f09
       _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
       _toNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
-      _fromAnchor: {x: -266.3202, y: 0.17308807, z: 78.164795}
-      _toAnchor: {x: -284.56174, y: 0.16669464, z: 162.46658}
+      _fromAnchor: {x: -266.3202, y: 0.17308044, z: 78.164795}
+      _toAnchor: {x: -284.56174, y: 0.16670227, z: 162.46658}
       _forwardAvailable: 1
       _reverseAvailable: 1
       _forwardLength: 102.772675
@@ -1130,7 +1251,7 @@ MonoBehaviour:
     - _edgeId: edge_e79d7c2fd98272153db066c3b8552556
       _fromNodeId: cluster_ae3336fb07b69b8f929439fab983b97c
       _toNodeId: cluster_b4b57110749a44a77e972f12ac0416a0
-      _fromAnchor: {x: -1.6525879, y: 0.16669464, z: -60.306763}
+      _fromAnchor: {x: -1.6525874, y: 0.16669464, z: -60.306763}
       _toAnchor: {x: -18.559952, y: 0.16669464, z: -88.40939}
       _forwardAvailable: 1
       _reverseAvailable: 1
@@ -1147,126 +1268,5 @@ MonoBehaviour:
       _reverseAvailable: 1
       _forwardLength: 101.43747
       _reverseLength: 101.01361
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_b0e18bd297863d9472c2d2f2d20a7326
-      _fromNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
-      _toNodeId: cluster_73607cab556336476bac9995b5e46c2b
-      _fromAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
-      _toAnchor: {x: 331.40997, y: 8.000008, z: 191.48001}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 82.07396
-      _reverseLength: 82.07396
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_d9dd2dcc59337420b6ac25694b8be3c0
-      _fromNodeId: cluster_02c8fd945d1342eab053fa8af41d469f
-      _toNodeId: cluster_f1018dd91d6dd2c1befd6e28e14355be
-      _fromAnchor: {x: -17.474915, y: 0.16669464, z: -148.81897}
-      _toAnchor: {x: -184.73907, y: 0.21791458, z: -82.54874}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 187.36002
-      _reverseLength: 185.1818
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_3d2e483d9e74709bd7d31aaa0e46d918
-      _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
-      _toNodeId: cluster_a74bba773e45b99d0523beafcb31bc84
-      _fromAnchor: {x: -142.01297, y: 0.16669464, z: -35.788277}
-      _toAnchor: {x: -260.95108, y: 0.16669464, z: -39.77023}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 160.88013
-      _reverseLength: 160.88013
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_b2f51fdaec5d9b2440999cab191bb66f
-      _fromNodeId: cluster_1d8e558540281854a4430a91743e5541
-      _toNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-      _fromAnchor: {x: -266.3202, y: 0.17308807, z: 78.164795}
-      _toAnchor: {x: -329.77454, y: 0.16669464, z: 138.25641}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 88.37406
-      _reverseLength: 88.37406
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_df309784db0b1c7ed278179610ea0f2e
-      _fromNodeId: cluster_91fa0341c45a4fa3c8a9d8d0aff044a8
-      _toNodeId: cluster_57b311b262bc54d476dde1d6c528f5fa
-      _fromAnchor: {x: -329.77454, y: 0.16669464, z: 138.25641}
-      _toAnchor: {x: -381.2504, y: 0.19578552, z: 249.08707}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 243.44318
-      _reverseLength: 243.46826
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_d2edb3a6f09dbf216944dd28801614ba
-      _fromNodeId: cluster_67e8f29f081a045ff69fb516f44dd0c6
-      _toNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-      _fromAnchor: {x: -284.56174, y: 0.16669464, z: 162.46658}
-      _toAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 80.95422
-      _reverseLength: 80.95422
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_11c2b7b3767ce2a7ed22415b0024e103
-      _fromNodeId: cluster_f0054beeabe50b81acbc97ddbc6791c0
-      _toNodeId: cluster_e351d521b0b236a2292a54c00835880b
-      _fromAnchor: {x: -211.32016, y: 0.16669464, z: 187.8648}
-      _toAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 206.79369
-      _reverseLength: 197.90614
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_a938344b14f5bdb2bc27e0a8e8343e6d
-      _fromNodeId: cluster_e351d521b0b236a2292a54c00835880b
-      _toNodeId: cluster_b232001ecd90d331fc0d2a4844eb5545
-      _fromAnchor: {x: -25.952087, y: 0.16669464, z: 230.40189}
-      _toAnchor: {x: -61, y: 0.6666641, z: 221.35}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 37.354286
-      _reverseLength: 37.354286
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_dffe8db8cffc2c2432776408de281bbc
-      _fromNodeId: cluster_1fdefe80ef2edccd45207db5a80a9123
-      _toNodeId: cluster_c5edf6fa8d78064f44e8c5237b17de37
-      _fromAnchor: {x: 208.82791, y: 0.23931503, z: -2.5999985}
-      _toAnchor: {x: 250.34998, y: 7.8737793, z: 184.13998}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 196.39899
-      _reverseLength: 196.39899
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_7b504b9e466734bf57f2084a4f781854
-      _fromNodeId: cluster_8a3f36926764590933b6f4b14f703f7b
-      _toNodeId: cluster_1d8e558540281854a4430a91743e5541
-      _fromAnchor: {x: -142.01297, y: 0.16669464, z: -35.788277}
-      _toAnchor: {x: -266.3202, y: 0.17308807, z: 78.164795}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 255.58185
-      _reverseLength: 254.56485
-      _forwardFailure: 
-      _reverseFailure: 
-    - _edgeId: edge_6bdd6a700445a20e8ec656ca8895fa1b
-      _fromNodeId: cluster_c23e0b41cec22f732e2535b2eb284fb2
-      _toNodeId: cluster_ee48bab778b117a1ab3e609b606e0187
-      _fromAnchor: {x: -175.05347, y: 0.1859932, z: 203.11986}
-      _toAnchor: {x: -118.231155, y: 14.666695, z: 214.19328}
-      _forwardAvailable: 1
-      _reverseAvailable: 1
-      _forwardLength: 94.00187
-      _reverseLength: 91.40058
       _forwardFailure: 
       _reverseFailure: 

@@ -21,7 +21,7 @@ namespace AgentReproduction.Tests
     public sealed class MapCommandRuntimeCacheTests:ReproductionTestFixture
     {
         private const string ScenePath="Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
-        [Serializable]private sealed class Evidence{public string saved,installed,current;public long installedQueries;public MapGraphNavigationProfileData bakedProfile;public Profile[] agents;}
+        [Serializable]private sealed class Evidence{public string saved,installed,current;public long installedQueries;public int vertices,triangles;public double captureMilliseconds;public MapGraphNavigationProfileData bakedProfile;public Profile[] agents;}
         [Serializable]private sealed class Profile{public string id,reason;public int pending;public MapGraphNavigationProfileData profile;}
         [Serializable]private sealed class SpawnRecord{public string source,enemy;public Vector3 position,aim;public string[] enclosing;}
         [Serializable]private sealed class SpawnEvidence{public SpawnRecord[] spawns;}
@@ -57,8 +57,12 @@ namespace AgentReproduction.Tests
                 var costs=new MapGraphNavigationCostService(definition,binding,profile,"","",installed);
                 return new Profile{id=p.AgentIdValue,pending=costs.PendingEdgeCount,reason=costs.LastInvalidationReason,profile=MapGraphNavigationCostService.CaptureProfile(profile)};
             }).ToArray();
+            var watch=System.Diagnostics.Stopwatch.StartNew();
+            string current=MapGraphNavigationFingerprint.Capture(SceneManager.GetActiveScene());watch.Stop();
+            var geometry=UnityEngine.AI.NavMesh.CalculateTriangulation();
             var record=new Evidence{saved=definition.NavigationBake.RuntimeNavigationFingerprint,installed=installed,
-                current=MapGraphNavigationFingerprint.Capture(SceneManager.GetActiveScene()),installedQueries=installer.Environments.CalculationCount,
+                current=current,installedQueries=installer.Environments.CalculationCount,vertices=geometry.vertices.Length,
+                triangles=geometry.indices.Length/3,captureMilliseconds=watch.Elapsed.TotalMilliseconds,
                 bakedProfile=definition.NavigationBake.Profile,agents=rows};
             File.WriteAllText(Path.Combine(TestRunContext.Load().outputPath,"runtime-cache.json"),JsonUtility.ToJson(record,true));
             Assert.That(rows.All(x=>x.pending==0),Is.True,JsonUtility.ToJson(record));

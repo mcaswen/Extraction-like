@@ -1,0 +1,27 @@
+﻿{
+    "status":  "PASS",
+    "outcome":  "EXPECTED_DEATH",
+    "failures":  [
+
+                 ],
+    "coverage":  {
+                     "movement:1":  true,
+                     "inventory:1":  true,
+                     "ledger:1":  true,
+                     "verifiedTransfer:1":  true,
+                     "movement:2":  true,
+                     "inventory:2":  true,
+                     "ledger:2":  true,
+                     "verifiedTransfer:2":  true,
+                     "combatDamage":  true,
+                     "pauseResume":  true,
+                     "capacityExtraction":  true,
+                     "retaliationResume":  true
+                 },
+    "expected":  {
+
+                 },
+    "actual":  {
+
+               }
+}

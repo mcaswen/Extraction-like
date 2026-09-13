@@ -1,0 +1,7 @@
+﻿{
+    "caseId":  "AgentReproduction.Tests.MapCommandNavigationCacheTests.RegisteredGeometryOrderDoesNotInvalidateRuntimeBake",
+    "contract":  "FAIL",
+    "message":  "  鍚屼竴瀵艰埅鍑犱綍閲嶆柊娉ㄥ唽鐨勯『搴忎笉搴斾娇鍙戝竷缂撳瓨澶辨晥\n  String lengths are both 64. Strings differ at index 0.\n  Expected: \"22096c5433744f644dbd90b3f5e2d2deb5179afbf2f8c6a2991b4ebb4ad7b277\"\n  But was:  \"15d52ad64461e9bf53e51b0f6257cd91d42f2a985d5ffb2627949301d4527c20\"\n  -----------^\n",
+    "execution":  "COMPLETED",
+    "nunitResult":  "Failed"
+}

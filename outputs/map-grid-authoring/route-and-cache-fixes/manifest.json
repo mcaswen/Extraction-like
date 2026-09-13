@@ -1,0 +1,3585 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "48bbaa3",
+  "runs": [
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-224234-988",
+      "label": "before-sc02",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": null,
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "e8ce55e1f90dbfec275c991bc7f32f7e05f3a2c27810629547b89c39c4a23be9",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "23a91998492ce229fb25c619c1a490735b360530da458c3e1178378391ed805e",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": null,
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "075a9838c5ac3e095f6fa8b1904ce7d7ccd86ef157abba7412d01b37b440893e",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "09ee7f4205992cf69a008e54505fb15002a4aaf06c6aea640defb2a41db4d76d",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "bd97602dd90d1684d218e25ef60d8ded5d65a78b536a9f4494ffe6af9145b189",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "cbf2a164a6a84a6dcb3d816b689dde9f9c05bea3bd36e7676da9fe7de1dcfdc1",
+          "matchesFinal": false
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-224939-069",
+      "label": "before-enemy-processing",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": null,
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "e8ce55e1f90dbfec275c991bc7f32f7e05f3a2c27810629547b89c39c4a23be9",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "23a91998492ce229fb25c619c1a490735b360530da458c3e1178378391ed805e",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "60f23bfc27f4969706ecf9a2bbcea0289e798f06608d2191e9f0dd150e88ef12",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "1a5a6809f9a5291c3e1a39f7ba91a7ab7a08ea163affb55263c674aa7f45f3ba",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "09ee7f4205992cf69a008e54505fb15002a4aaf06c6aea640defb2a41db4d76d",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "bd97602dd90d1684d218e25ef60d8ded5d65a78b536a9f4494ffe6af9145b189",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "546f9f52cf0685b65557bd32094b664cee19a4d745dad1b05f011368c38812b8",
+          "matchesFinal": false
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-225009-599",
+      "label": "before-navigation-order",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "e69f6c552530cd352e4e0415521ad1c13739a355228b2190b149333b3c698892",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": null,
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "e8ce55e1f90dbfec275c991bc7f32f7e05f3a2c27810629547b89c39c4a23be9",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "23a91998492ce229fb25c619c1a490735b360530da458c3e1178378391ed805e",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "60f23bfc27f4969706ecf9a2bbcea0289e798f06608d2191e9f0dd150e88ef12",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "1a5a6809f9a5291c3e1a39f7ba91a7ab7a08ea163affb55263c674aa7f45f3ba",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "09ee7f4205992cf69a008e54505fb15002a4aaf06c6aea640defb2a41db4d76d",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "bd97602dd90d1684d218e25ef60d8ded5d65a78b536a9f4494ffe6af9145b189",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "546f9f52cf0685b65557bd32094b664cee19a4d745dad1b05f011368c38812b8",
+          "matchesFinal": false
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-225357-350",
+      "label": "history-first-enemy-pass",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "09ee7f4205992cf69a008e54505fb15002a4aaf06c6aea640defb2a41db4d76d",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "bd97602dd90d1684d218e25ef60d8ded5d65a78b536a9f4494ffe6af9145b189",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "28098d3486835dd9ea7affd14b606c4a9e0d7db43398dbe8f136988f8f5525c0",
+          "matchesFinal": false
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-225434-992",
+      "label": "history-coordinate-signature",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "09ee7f4205992cf69a008e54505fb15002a4aaf06c6aea640defb2a41db4d76d",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "bd97602dd90d1684d218e25ef60d8ded5d65a78b536a9f4494ffe6af9145b189",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "28098d3486835dd9ea7affd14b606c4a9e0d7db43398dbe8f136988f8f5525c0",
+          "matchesFinal": false
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-225642-761",
+      "label": "history-validate-only-not-imported",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "bd97602dd90d1684d218e25ef60d8ded5d65a78b536a9f4494ffe6af9145b189",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "28098d3486835dd9ea7affd14b606c4a9e0d7db43398dbe8f136988f8f5525c0",
+          "matchesFinal": false
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230101-262",
+      "label": "history-first-cache-refresh",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "99a08ceaf7231fab63c6d3e229c41a981f7b25de8bdf6829bc0e593602006e02",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230233-051",
+      "label": "history-first-runtime-cache",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230302-245",
+      "label": "history-first-published-graph",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230329-921",
+      "label": "history-first-visual",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-230233-280",
+      "label": "history-first-autonomous",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "78899b750e78f9d1f01b09e10652a6e71ff36e558f16d82ae942b70b28865f39",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "eb9f140465bd6c354d96683a947c4f43025ea452f5e8ab944f21b99b0280bdf3",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230615-636",
+      "label": "history-index-order-failure",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "1816f8de2bcecc85c704a4525c856313610d3aed6556e750c3ec80f506f295d2",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230648-906",
+      "label": "history-index-bake-not-imported",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "1816f8de2bcecc85c704a4525c856313610d3aed6556e750c3ec80f506f295d2",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230914-684",
+      "label": "final-cache-logic",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-230947-325",
+      "label": "final-cache-refresh",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "3775ae9794a7c1e87ecff8699642f8532b1a2e08dc4804281fc2661a65701f55",
+          "matchesFinal": false
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-231201-245",
+      "label": "final-runtime-cache",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-231231-300",
+      "label": "final-published-graph",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-231259-520",
+      "label": "final-enemy-processing",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "AgentReproduction",
+      "runId": "20260913-231330-997",
+      "label": "final-visual",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-231201-495",
+      "label": "final-sc02",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    },
+    {
+      "family": "SceneRaid",
+      "runId": "20260913-231338-815",
+      "label": "final-sc10-mr02",
+      "sourceCommit": "48bbaa3d4d000197280e4e037cc41c2f8a610a0b",
+      "inputs": [
+        {
+          "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+          "currentSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "recordedSha256": "5d1b3ecd8fdc55cc456f927927fe696ea7bd182a3f4dcd3dd9555fd7c79fcc79",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+          "currentSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "recordedSha256": "8a37fc8b7c8df44f8590abccd7717d4b63fbdfc28961fd975f974771c8b066e7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationGeometrySignature.cs",
+          "currentSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "recordedSha256": "8e305a8bbea8a4f75613b3b469194541db5b99e3bfd4f9796a05590cddbe43ef",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Gameplay/MapGraph/Binding/MapGraphNavigationFingerprint.cs",
+          "currentSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "recordedSha256": "3330e6b376aad614ec764312866642b6bd86babd921d9b00eaae5471356804ba",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidEnemyProcessingProbe.cs",
+          "currentSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "recordedSha256": "33c093dfb23206865c1a3246754cf0980c26f62dab48087d0b0296c5aa2d6229",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Automation/SceneRaid/Commands/SceneRaidRouteEvidence.cs",
+          "currentSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "recordedSha256": "9da0e7ba526c5e6246f2fbf781b00e2807607a3d1f5dc8ff4b705f42c4893e51",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEnemyProcessingTests.cs",
+          "currentSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "recordedSha256": "7f8f754015792d9e6d753809525164821dfdbeadbb0cbe8d85e9192184e7c4a7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandNavigationCacheTests.cs",
+          "currentSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "recordedSha256": "fc42e609d66cfc6ca4d4ce3719c2920158a9445b360310c46c0846aa95286392",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs",
+          "currentSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "recordedSha256": "36f4aaf1209795cad4bc6c7163c83409b9bd73fc46809ff5544825b355f286f4",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandSceneRepairTests.cs",
+          "currentSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "recordedSha256": "3c04f1f58c64b71cde62b26f33a14fed3605bbfe8eff8987154f2353b58f51f7",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandPublishedGraphTests.cs",
+          "currentSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "recordedSha256": "943c83d55602962c34dcd9bd6ab7228349454c266a0f93aa3eee220b9e3a6026",
+          "matchesFinal": true
+        },
+        {
+          "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandVisualTests.cs",
+          "currentSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "recordedSha256": "a90ac197a626198213eef46cbfc26496de12295b4123b73c773975c1aa6e74d9",
+          "matchesFinal": true
+        },
+        {
+          "path": "tools/agent-repro/cases.json",
+          "currentSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "recordedSha256": "d9fa96ea99f789127744ee0e7ef15e44c43983177f9b20b0539cec5663317941",
+          "matchesFinal": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "before-sc02/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-224234-988/manifest.json",
+      "sourceBytes": 1592864,
+      "sourceSha256": "b2fbe07e59c02a4b763cb8162a156a3002c3f2135fcf0375d5a484012e480177",
+      "artifactSha256": "aeea43a263fb42676131a37c307e63b15dd7c1412b1a7d6b0d6a8394ebe75244"
+    },
+    {
+      "path": "before-sc02/config.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/config.json",
+      "sourceBytes": 589,
+      "sourceSha256": "28f69223f30b46507d3eeed2d9e40279df6cf9d4a7a3d904a3358462c27b24b6",
+      "artifactSha256": "28f69223f30b46507d3eeed2d9e40279df6cf9d4a7a3d904a3358462c27b24b6"
+    },
+    {
+      "path": "before-sc02/result.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/result.json",
+      "sourceBytes": 2569,
+      "sourceSha256": "935c33a062669b0d333e12d353a1cb6b54cf7ce42a35a4c3f588615334d57776",
+      "artifactSha256": "935c33a062669b0d333e12d353a1cb6b54cf7ce42a35a4c3f588615334d57776"
+    },
+    {
+      "path": "before-sc02/report.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/report.json",
+      "sourceBytes": 180404,
+      "sourceSha256": "2b8dcebac68c3ce1153ab6ce06db23615037a6be2201b152b17458444733636e",
+      "artifactSha256": "2b8dcebac68c3ce1153ab6ce06db23615037a6be2201b152b17458444733636e"
+    },
+    {
+      "path": "before-sc02/route-contracts.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/route-contracts.json",
+      "sourceBytes": 18882,
+      "sourceSha256": "6765f3e877328ceb95140052d17e60dd5200a1a08b81fad032aada8d82b36fc5",
+      "artifactSha256": "6765f3e877328ceb95140052d17e60dd5200a1a08b81fad032aada8d82b36fc5"
+    },
+    {
+      "path": "before-sc02/contracts.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/contracts.json",
+      "sourceBytes": 249,
+      "sourceSha256": "589105bab9460d8a904668ed2dfa5208cebe70eac367c3fecfd6184dab893b54",
+      "artifactSha256": "589105bab9460d8a904668ed2dfa5208cebe70eac367c3fecfd6184dab893b54"
+    },
+    {
+      "path": "before-sc02/events.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-224234-988/events.jsonl",
+      "sourceBytes": 5910521,
+      "sourceSha256": "2091e1cfd769a1a74abe588141bd7048b64bd49ee91accd32ee868de9622b907",
+      "artifactSha256": "67097c06e06a45d26546cddd0563528cf341bbb60a69ad15a822b2864c6f2d0b"
+    },
+    {
+      "path": "before-sc02/process.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/process.json",
+      "sourceBytes": 197,
+      "sourceSha256": "75dfb38a71f05aa66f577c0c85002fab2785af93d4191334f0b5328486deb020",
+      "artifactSha256": "75dfb38a71f05aa66f577c0c85002fab2785af93d4191334f0b5328486deb020"
+    },
+    {
+      "path": "before-sc02/process-start.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/process-start.json",
+      "sourceBytes": 317,
+      "sourceSha256": "549ed10039a9664cc5421c0503cc5912454a00cbbe2d2421d2898bc7d9e59bf1",
+      "artifactSha256": "549ed10039a9664cc5421c0503cc5912454a00cbbe2d2421d2898bc7d9e59bf1"
+    },
+    {
+      "path": "before-sc02/cleanup.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/cleanup.json",
+      "sourceBytes": 22,
+      "sourceSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb",
+      "artifactSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb"
+    },
+    {
+      "path": "before-sc02/warehouse-final.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/warehouse-final.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "before-sc02/warehouse-initial.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/warehouse-initial.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "before-sc02/render-final.json",
+      "source": "Logs/SceneRaid/20260913-224234-988/render-final.json",
+      "sourceBytes": 644,
+      "sourceSha256": "1e7bd057ec3e0226be5a71659f4c0f1f1104d67af077577aea752db61212e8a8",
+      "artifactSha256": "1e7bd057ec3e0226be5a71659f4c0f1f1104d67af077577aea752db61212e8a8"
+    },
+    {
+      "path": "before-enemy-processing/dragonbone-processing.json",
+      "source": "Logs/AgentReproduction/20260913-224939-069/dragonbone-processing.json",
+      "sourceBytes": 1121,
+      "sourceSha256": "94b8e3d7f5a7c8d60dd4826960e94d6ecbb0ecabe9c449b516aa659e43a288b0",
+      "artifactSha256": "94b8e3d7f5a7c8d60dd4826960e94d6ecbb0ecabe9c449b516aa659e43a288b0"
+    },
+    {
+      "path": "before-enemy-processing/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-224939-069/manifest.json",
+      "sourceBytes": 1593405,
+      "sourceSha256": "a68c2d865626465c96fe1ff57329e3ed2405c714824d0518cdbcdd200ee98ec4",
+      "artifactSha256": "b35e35b3eadb9ef4d54a1a7c1918996330771b5c293659df5246d7f691c5c48b"
+    },
+    {
+      "path": "before-enemy-processing/report.md",
+      "source": "Logs/AgentReproduction/20260913-224939-069/report.md",
+      "sourceBytes": 473,
+      "sourceSha256": "24b21b7c61bf6e64bcdca8c76783e7226f1c4281848849169b830dd30579aece",
+      "artifactSha256": "24b21b7c61bf6e64bcdca8c76783e7226f1c4281848849169b830dd30579aece"
+    },
+    {
+      "path": "before-enemy-processing/summary.json",
+      "source": "Logs/AgentReproduction/20260913-224939-069/summary.json",
+      "sourceBytes": 700,
+      "sourceSha256": "9b9d6bdce867f92a53549622448e8038ebf6414e70087e34e9f7db410d859dea",
+      "artifactSha256": "9b9d6bdce867f92a53549622448e8038ebf6414e70087e34e9f7db410d859dea"
+    },
+    {
+      "path": "before-enemy-processing/groups/MapCommandEnemyProcessing-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-224939-069/groups/MapCommandEnemyProcessing-1/test-results.xml",
+      "sourceBytes": 19187,
+      "sourceSha256": "6f8aa106b58ce86a8271741b5ed511758fe6f10a7a4237ebc67f6a714e848cf6",
+      "artifactSha256": "6f8aa106b58ce86a8271741b5ed511758fe6f10a7a4237ebc67f6a714e848cf6"
+    },
+    {
+      "path": "before-enemy-processing/cases/F580FEEB2A56D466/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-224939-069/cases/F580FEEB2A56D466/1/case.json",
+      "sourceBytes": 415,
+      "sourceSha256": "05bae12dae8b1e620ec3ff0418822f17bd24408cc03bcfea2560062c5bd1fbf3",
+      "artifactSha256": "05bae12dae8b1e620ec3ff0418822f17bd24408cc03bcfea2560062c5bd1fbf3"
+    },
+    {
+      "path": "before-enemy-processing/cases/F580FEEB2A56D466/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-224939-069/cases/F580FEEB2A56D466/1/nunit-final.json",
+      "sourceBytes": 362,
+      "sourceSha256": "3e3fd30fdc25410d6af956bd85761bf79d4484f9512647c6c57049cf6ba631ca",
+      "artifactSha256": "3e3fd30fdc25410d6af956bd85761bf79d4484f9512647c6c57049cf6ba631ca"
+    },
+    {
+      "path": "before-enemy-processing/cases/F580FEEB2A56D466/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-224939-069/cases/F580FEEB2A56D466/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "b7d3bf053751935ec111c3c4362bb6f3ab637f7d274861de0923c33344810192",
+      "artifactSha256": "e18bb27b2bed049c91ddc8240a1c43e102ac991cccc446e6a5c87cc79b2b072a"
+    },
+    {
+      "path": "before-navigation-order/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-225009-599/manifest.json",
+      "sourceBytes": 1593405,
+      "sourceSha256": "3d7842324ad7b4681351ff2821aab6dd1f0a6f007f5099f095bd562bcf4eefad",
+      "artifactSha256": "3ebfbeca6d67a90f5a29030ac5cec0964676991e96f0804eca0456f4500fd635"
+    },
+    {
+      "path": "before-navigation-order/report.md",
+      "source": "Logs/AgentReproduction/20260913-225009-599/report.md",
+      "sourceBytes": 473,
+      "sourceSha256": "bcc14d9b24d681ebbed477c916cce354b3dc739c6bf57a933dd0913c4b51abbf",
+      "artifactSha256": "bcc14d9b24d681ebbed477c916cce354b3dc739c6bf57a933dd0913c4b51abbf"
+    },
+    {
+      "path": "before-navigation-order/summary.json",
+      "source": "Logs/AgentReproduction/20260913-225009-599/summary.json",
+      "sourceBytes": 700,
+      "sourceSha256": "b9cfffdec0247a872e483140ef8fdf9b21a415297fd0f356343cd102345986f2",
+      "artifactSha256": "b9cfffdec0247a872e483140ef8fdf9b21a415297fd0f356343cd102345986f2"
+    },
+    {
+      "path": "before-navigation-order/groups/MapCommandNavigationCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-225009-599/groups/MapCommandNavigationCache-1/test-results.xml",
+      "sourceBytes": 5434,
+      "sourceSha256": "dc706ed04ceaac23ab5cac02e146bc9fefffcb28b2a68a026cdd4f2de28040da",
+      "artifactSha256": "dc706ed04ceaac23ab5cac02e146bc9fefffcb28b2a68a026cdd4f2de28040da"
+    },
+    {
+      "path": "before-navigation-order/cases/630D7AD4F87DC28F/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225009-599/cases/630D7AD4F87DC28F/1/case.json",
+      "sourceBytes": 636,
+      "sourceSha256": "3e41581c29ce531ba747e7be19d79323ce78c8fa504bb86c44ef7ba784f20219",
+      "artifactSha256": "3e41581c29ce531ba747e7be19d79323ce78c8fa504bb86c44ef7ba784f20219"
+    },
+    {
+      "path": "before-navigation-order/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225009-599/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "sourceBytes": 585,
+      "sourceSha256": "9a1d801aff431243925177dea295e9d96f7861d92e932e85cd3a6427031b5019",
+      "artifactSha256": "9a1d801aff431243925177dea295e9d96f7861d92e932e85cd3a6427031b5019"
+    },
+    {
+      "path": "before-navigation-order/cases/630D7AD4F87DC28F/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225009-599/cases/630D7AD4F87DC28F/1/trace.jsonl",
+      "sourceBytes": 376,
+      "sourceSha256": "06e6093ed7acb053a0a8164cf6ce63f16ea1919972a2d9905d454861ef9dbe03",
+      "artifactSha256": "e8da5318fedb8977839109d8ea7cc832fa3c6aee20694f3a73ebe3c33005c927"
+    },
+    {
+      "path": "history-first-enemy-pass/dragonbone-processing.json",
+      "source": "Logs/AgentReproduction/20260913-225357-350/dragonbone-processing.json",
+      "sourceBytes": 1123,
+      "sourceSha256": "cd00d05150dc188565b6db4396502841772ae5745a83d77f03b007730450f7d7",
+      "artifactSha256": "cd00d05150dc188565b6db4396502841772ae5745a83d77f03b007730450f7d7"
+    },
+    {
+      "path": "history-first-enemy-pass/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-225357-350/manifest.json",
+      "sourceBytes": 1594393,
+      "sourceSha256": "7a3d5df54641b5e27a4a837bca307518014ca6b4d5e544f8e1909a23157557cc",
+      "artifactSha256": "a516a16f313f373ed3abbf93e0b7708a3c4249750e0755688a29e3f5f04f4ef3"
+    },
+    {
+      "path": "history-first-enemy-pass/report.md",
+      "source": "Logs/AgentReproduction/20260913-225357-350/report.md",
+      "sourceBytes": 474,
+      "sourceSha256": "3ce77514c35a5af3b21bd45b2a72bcd7b3b9bc5fc0727cb3050d49da641d5002",
+      "artifactSha256": "3ce77514c35a5af3b21bd45b2a72bcd7b3b9bc5fc0727cb3050d49da641d5002"
+    },
+    {
+      "path": "history-first-enemy-pass/summary.json",
+      "source": "Logs/AgentReproduction/20260913-225357-350/summary.json",
+      "sourceBytes": 701,
+      "sourceSha256": "8dceb619194307796203fd38556051848fe2c321dcb18248645f14fb93e04781",
+      "artifactSha256": "8dceb619194307796203fd38556051848fe2c321dcb18248645f14fb93e04781"
+    },
+    {
+      "path": "history-first-enemy-pass/groups/MapCommandEnemyProcessing-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-225357-350/groups/MapCommandEnemyProcessing-1/test-results.xml",
+      "sourceBytes": 17901,
+      "sourceSha256": "86febd34c28714001f9ac9728ce4136061dc639654d6b1eadcd6e1930d779f94",
+      "artifactSha256": "86febd34c28714001f9ac9728ce4136061dc639654d6b1eadcd6e1930d779f94"
+    },
+    {
+      "path": "history-first-enemy-pass/cases/F580FEEB2A56D466/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225357-350/cases/F580FEEB2A56D466/1/case.json",
+      "sourceBytes": 314,
+      "sourceSha256": "244441c2edba959acb2cf4be9de021f2bbe70068c020981ed6eba63b821c8b01",
+      "artifactSha256": "244441c2edba959acb2cf4be9de021f2bbe70068c020981ed6eba63b821c8b01"
+    },
+    {
+      "path": "history-first-enemy-pass/cases/F580FEEB2A56D466/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225357-350/cases/F580FEEB2A56D466/1/nunit-final.json",
+      "sourceBytes": 240,
+      "sourceSha256": "6fde0004444c0d877a67ca16daa6e94f9dec7ce0ef699ee3d18b537b5247ae40",
+      "artifactSha256": "6fde0004444c0d877a67ca16daa6e94f9dec7ce0ef699ee3d18b537b5247ae40"
+    },
+    {
+      "path": "history-first-enemy-pass/cases/F580FEEB2A56D466/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225357-350/cases/F580FEEB2A56D466/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "ccd1108baabe3107924479f6bec6298c9e59df4cf21595264f00f7ec9232ec16",
+      "artifactSha256": "52bd495f5ca0fc2a2f0e15b1cac4cc6e539ad612937edf4aa82c5fefaa671a0d"
+    },
+    {
+      "path": "history-coordinate-signature/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/manifest.json",
+      "sourceBytes": 1594393,
+      "sourceSha256": "25b72b6ba07234d128cb45cd29583457bf94585d4912137414040e409c17ddf3",
+      "artifactSha256": "f04e987741939e833484b1bd72044ef7e5bc689b44eaab6cf70577d1c9e52783"
+    },
+    {
+      "path": "history-coordinate-signature/report.md",
+      "source": "Logs/AgentReproduction/20260913-225434-992/report.md",
+      "sourceBytes": 474,
+      "sourceSha256": "56bdc8517f4c173e420dd7c72b67b33c10aaebd2ffaec66d061374cddb622946",
+      "artifactSha256": "56bdc8517f4c173e420dd7c72b67b33c10aaebd2ffaec66d061374cddb622946"
+    },
+    {
+      "path": "history-coordinate-signature/summary.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/summary.json",
+      "sourceBytes": 701,
+      "sourceSha256": "39525b3133c99daa9c8f30ed4a49da980cc22d922c73b19195751db59efcd863",
+      "artifactSha256": "39525b3133c99daa9c8f30ed4a49da980cc22d922c73b19195751db59efcd863"
+    },
+    {
+      "path": "history-coordinate-signature/groups/MapCommandNavigationCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-225434-992/groups/MapCommandNavigationCache-1/test-results.xml",
+      "sourceBytes": 10024,
+      "sourceSha256": "7dcae8db6570f543606bd13ed73b75bf756974c70986d27ddbcb60f183bada4e",
+      "artifactSha256": "7dcae8db6570f543606bd13ed73b75bf756974c70986d27ddbcb60f183bada4e"
+    },
+    {
+      "path": "history-coordinate-signature/cases/F99E832044A31E02/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/F99E832044A31E02/1/case.json",
+      "sourceBytes": 316,
+      "sourceSha256": "29c218b17ff94b5bd3174be7974b2f4ec827d2e8829fad06dfbc63a1f7c4e792",
+      "artifactSha256": "29c218b17ff94b5bd3174be7974b2f4ec827d2e8829fad06dfbc63a1f7c4e792"
+    },
+    {
+      "path": "history-coordinate-signature/cases/F99E832044A31E02/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/F99E832044A31E02/1/nunit-final.json",
+      "sourceBytes": 242,
+      "sourceSha256": "df9d8263639cec1eaa817bec03b909573ba7ee570e4b650277c9e0573450b13c",
+      "artifactSha256": "df9d8263639cec1eaa817bec03b909573ba7ee570e4b650277c9e0573450b13c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/F99E832044A31E02/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/F99E832044A31E02/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/6B078261CDC6979A/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/6B078261CDC6979A/1/case.json",
+      "sourceBytes": 319,
+      "sourceSha256": "9b8b4f475f438248932787cd5a4360a790af72466796e70008b9611fdcb2f612",
+      "artifactSha256": "9b8b4f475f438248932787cd5a4360a790af72466796e70008b9611fdcb2f612"
+    },
+    {
+      "path": "history-coordinate-signature/cases/6B078261CDC6979A/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/6B078261CDC6979A/1/nunit-final.json",
+      "sourceBytes": 245,
+      "sourceSha256": "bde352cb73c35bc8d02604bfdf8ce298ada0c10c40a24e1044d70b4f5053637c",
+      "artifactSha256": "bde352cb73c35bc8d02604bfdf8ce298ada0c10c40a24e1044d70b4f5053637c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/6B078261CDC6979A/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/6B078261CDC6979A/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/630D7AD4F87DC28F/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/630D7AD4F87DC28F/1/case.json",
+      "sourceBytes": 318,
+      "sourceSha256": "7f23d15ae6f3597ffc7a082f83c9988b8f820cbce2991ed27943a5530c634e9d",
+      "artifactSha256": "7f23d15ae6f3597ffc7a082f83c9988b8f820cbce2991ed27943a5530c634e9d"
+    },
+    {
+      "path": "history-coordinate-signature/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "sourceBytes": 244,
+      "sourceSha256": "7d892f08c2dc409bf9284f37eaf2a3940e79fbbae6b78acb84c76943eb961fad",
+      "artifactSha256": "7d892f08c2dc409bf9284f37eaf2a3940e79fbbae6b78acb84c76943eb961fad"
+    },
+    {
+      "path": "history-coordinate-signature/cases/630D7AD4F87DC28F/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/630D7AD4F87DC28F/1/trace.jsonl",
+      "sourceBytes": 376,
+      "sourceSha256": "5f838542a218035d2ab1953b233a5c34ac0b886cd04369ed5f359b3b5fa2af86",
+      "artifactSha256": "d4b2c88d5bec74e910ab67bf35b5170054b5a47e450cd67c9d69941144ef4db2"
+    },
+    {
+      "path": "history-coordinate-signature/cases/2B0728DA257EF007/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/2B0728DA257EF007/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "3d14a92aa7c3f8a90a4545196e00fc0996adb82203c1a156d52508eb6325b7ca",
+      "artifactSha256": "3d14a92aa7c3f8a90a4545196e00fc0996adb82203c1a156d52508eb6325b7ca"
+    },
+    {
+      "path": "history-coordinate-signature/cases/2B0728DA257EF007/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/2B0728DA257EF007/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "80617db39f338bdfbbd21355c7e5012c4a731218ddc441d7495ef9934c33cf3e",
+      "artifactSha256": "80617db39f338bdfbbd21355c7e5012c4a731218ddc441d7495ef9934c33cf3e"
+    },
+    {
+      "path": "history-coordinate-signature/cases/2B0728DA257EF007/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/2B0728DA257EF007/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/16A1BAB12EC7B23B/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/16A1BAB12EC7B23B/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "15f92a465ccc58f32788b263e34953e7250dd3751a00809b32a28ff899330c81",
+      "artifactSha256": "15f92a465ccc58f32788b263e34953e7250dd3751a00809b32a28ff899330c81"
+    },
+    {
+      "path": "history-coordinate-signature/cases/16A1BAB12EC7B23B/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/16A1BAB12EC7B23B/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "0738d7091a3595662ae9d098ad77f46889f0c1a023f56a0d9ba0b5bbdfacaaee",
+      "artifactSha256": "0738d7091a3595662ae9d098ad77f46889f0c1a023f56a0d9ba0b5bbdfacaaee"
+    },
+    {
+      "path": "history-coordinate-signature/cases/16A1BAB12EC7B23B/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/16A1BAB12EC7B23B/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/10064CC8AEA4BC35/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/10064CC8AEA4BC35/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "c976d04199f95612e33161b26e23a6d92c94c40d7a7ded66bdd4f9ceb54d1e2c",
+      "artifactSha256": "c976d04199f95612e33161b26e23a6d92c94c40d7a7ded66bdd4f9ceb54d1e2c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/10064CC8AEA4BC35/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/10064CC8AEA4BC35/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "048f361d779e058028441ef10b72645cbcc9a4ba7c3212dfb858a4a23d63cd11",
+      "artifactSha256": "048f361d779e058028441ef10b72645cbcc9a4ba7c3212dfb858a4a23d63cd11"
+    },
+    {
+      "path": "history-coordinate-signature/cases/10064CC8AEA4BC35/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/10064CC8AEA4BC35/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/0C37DF2754C4C74E/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/0C37DF2754C4C74E/1/case.json",
+      "sourceBytes": 322,
+      "sourceSha256": "555653a1b509915aab6a403610f3eaf56b7d643e16d6ff834d0c1fb0a2cfd56a",
+      "artifactSha256": "555653a1b509915aab6a403610f3eaf56b7d643e16d6ff834d0c1fb0a2cfd56a"
+    },
+    {
+      "path": "history-coordinate-signature/cases/0C37DF2754C4C74E/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/0C37DF2754C4C74E/1/nunit-final.json",
+      "sourceBytes": 248,
+      "sourceSha256": "914bdbf69d29d6dd86582b8397e61e0c43d6d9bf0aeb95e72a906a7278451222",
+      "artifactSha256": "914bdbf69d29d6dd86582b8397e61e0c43d6d9bf0aeb95e72a906a7278451222"
+    },
+    {
+      "path": "history-coordinate-signature/cases/0C37DF2754C4C74E/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/0C37DF2754C4C74E/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-coordinate-signature/cases/0BAF5B22C7161586/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/0BAF5B22C7161586/1/case.json",
+      "sourceBytes": 321,
+      "sourceSha256": "afbd832267cf7f9880690e86c47314a11271cb04fa294de2f93ac84ef0255d93",
+      "artifactSha256": "afbd832267cf7f9880690e86c47314a11271cb04fa294de2f93ac84ef0255d93"
+    },
+    {
+      "path": "history-coordinate-signature/cases/0BAF5B22C7161586/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/0BAF5B22C7161586/1/nunit-final.json",
+      "sourceBytes": 247,
+      "sourceSha256": "7bd379b3dd8ecbc1bc36a14e29994debe17566d291c16e659a2b8d4268bf125d",
+      "artifactSha256": "7bd379b3dd8ecbc1bc36a14e29994debe17566d291c16e659a2b8d4268bf125d"
+    },
+    {
+      "path": "history-coordinate-signature/cases/0BAF5B22C7161586/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225434-992/cases/0BAF5B22C7161586/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "5c2cb77dd0345ae1d54793005440cf708e1de756db25a3c39d8ab956a959ff24",
+      "artifactSha256": "401c6ac5166e896f3fdcdd2614e59f605d2df7c7e7f131d2ca6d40da36a4952c"
+    },
+    {
+      "path": "history-validate-only-not-imported/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-225642-761/manifest.json",
+      "sourceBytes": 1594495,
+      "sourceSha256": "2657961d572eeba0a76ed320a03c62a51d2fba4325fb69fe5428da148fd56149",
+      "artifactSha256": "f1a45cb403035be39fa239c836bf3a5696926105dd75301fc400e3022671b712"
+    },
+    {
+      "path": "history-validate-only-not-imported/report.md",
+      "source": "Logs/AgentReproduction/20260913-225642-761/report.md",
+      "sourceBytes": 470,
+      "sourceSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32",
+      "artifactSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32"
+    },
+    {
+      "path": "history-validate-only-not-imported/summary.json",
+      "source": "Logs/AgentReproduction/20260913-225642-761/summary.json",
+      "sourceBytes": 693,
+      "sourceSha256": "a8281b27a16e2f21e288ddc790e77ad106119d36f754d723f221453609b6b1bf",
+      "artifactSha256": "a8281b27a16e2f21e288ddc790e77ad106119d36f754d723f221453609b6b1bf"
+    },
+    {
+      "path": "history-validate-only-not-imported/groups/MapCommandSceneRepair-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-225642-761/groups/MapCommandSceneRepair-1/test-results.xml",
+      "sourceBytes": 7129,
+      "sourceSha256": "58e39db9f7e9ae7041f53e5395c38002d34c0f58040cbe1048c50e1490b605e0",
+      "artifactSha256": "58e39db9f7e9ae7041f53e5395c38002d34c0f58040cbe1048c50e1490b605e0"
+    },
+    {
+      "path": "history-validate-only-not-imported/cases/5A77D627AF02BE7A/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-225642-761/cases/5A77D627AF02BE7A/1/case.json",
+      "sourceBytes": 293,
+      "sourceSha256": "63b638bc2fa4c35e91f140db87406b2f644625955a81bc4e206514cfd2b7e906",
+      "artifactSha256": "63b638bc2fa4c35e91f140db87406b2f644625955a81bc4e206514cfd2b7e906"
+    },
+    {
+      "path": "history-validate-only-not-imported/cases/5A77D627AF02BE7A/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-225642-761/cases/5A77D627AF02BE7A/1/nunit-final.json",
+      "sourceBytes": 219,
+      "sourceSha256": "ccc59e2533a47f5cbed54f77911e536a07dbe1fd8e9a6ccd14211798cbef0af0",
+      "artifactSha256": "ccc59e2533a47f5cbed54f77911e536a07dbe1fd8e9a6ccd14211798cbef0af0"
+    },
+    {
+      "path": "history-validate-only-not-imported/cases/5A77D627AF02BE7A/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-225642-761/cases/5A77D627AF02BE7A/1/trace.jsonl",
+      "sourceBytes": 137,
+      "sourceSha256": "9a92342a7d30e227df8790fd79fec1e340f5f555ad1811b57e0dc69a164fdd51",
+      "artifactSha256": "cd04091508b2401366aaf33dc6f4ad9254dbea7c44701139b024a0c88c1758b5"
+    },
+    {
+      "path": "history-first-cache-refresh/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230101-262/manifest.json",
+      "sourceBytes": 1594597,
+      "sourceSha256": "08d72f986c7068c823877019c702a794fc5842832a820067fe04014c59e96929",
+      "artifactSha256": "f0a11145df29f0360c096ce56e2c0b103a688efa8cfe84fb4d1ced8f2f053b32"
+    },
+    {
+      "path": "history-first-cache-refresh/report.md",
+      "source": "Logs/AgentReproduction/20260913-230101-262/report.md",
+      "sourceBytes": 470,
+      "sourceSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32",
+      "artifactSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32"
+    },
+    {
+      "path": "history-first-cache-refresh/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230101-262/summary.json",
+      "sourceBytes": 693,
+      "sourceSha256": "4dbcc7240b5938e0ae4e863893ff773db67a15fb3ca4b2833e6fd011b523680b",
+      "artifactSha256": "4dbcc7240b5938e0ae4e863893ff773db67a15fb3ca4b2833e6fd011b523680b"
+    },
+    {
+      "path": "history-first-cache-refresh/groups/MapCommandSceneRepair-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230101-262/groups/MapCommandSceneRepair-1/test-results.xml",
+      "sourceBytes": 7201,
+      "sourceSha256": "6464a0a102e24bf2d8dc4e28f16cae63ab8fd3f27d8318008284af6b64d2d0ad",
+      "artifactSha256": "6464a0a102e24bf2d8dc4e28f16cae63ab8fd3f27d8318008284af6b64d2d0ad"
+    },
+    {
+      "path": "history-first-cache-refresh/cases/8465DDE9F9E4C3DD/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230101-262/cases/8465DDE9F9E4C3DD/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "8c65932e9af0089a1f89cbb044f1ae0253e464c080389a498463a04044b5766b",
+      "artifactSha256": "8c65932e9af0089a1f89cbb044f1ae0253e464c080389a498463a04044b5766b"
+    },
+    {
+      "path": "history-first-cache-refresh/cases/8465DDE9F9E4C3DD/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230101-262/cases/8465DDE9F9E4C3DD/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "41dcc5e22942db3ea67692aadeeabdc60cb3b2040ec6e87bbf9c07d8733bfd92",
+      "artifactSha256": "41dcc5e22942db3ea67692aadeeabdc60cb3b2040ec6e87bbf9c07d8733bfd92"
+    },
+    {
+      "path": "history-first-cache-refresh/cases/8465DDE9F9E4C3DD/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230101-262/cases/8465DDE9F9E4C3DD/1/trace.jsonl",
+      "sourceBytes": 141,
+      "sourceSha256": "a4a76a1949d451ea5a0a386c4ddad9ce980228d2de82827ce490493d21ab0668",
+      "artifactSha256": "ecafa1a92096d16bd8f1bf3587320f7cbc86f9c4fed138fddf4cd54ce7e16cac"
+    },
+    {
+      "path": "history-first-runtime-cache/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230233-051/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "903e99a99c65576c623dc7700445a51f0711fe4547ed89d919b53e6b31eb8d8d",
+      "artifactSha256": "4b230fa760dd71dd253fc876b237d246bbf94074200f63e31a04c899df6678e0"
+    },
+    {
+      "path": "history-first-runtime-cache/report.md",
+      "source": "Logs/AgentReproduction/20260913-230233-051/report.md",
+      "sourceBytes": 471,
+      "sourceSha256": "8f480850afbb4b1a06c9d016607498630ecf8ed988cb3973a399ad5bafa14bce",
+      "artifactSha256": "8f480850afbb4b1a06c9d016607498630ecf8ed988cb3973a399ad5bafa14bce"
+    },
+    {
+      "path": "history-first-runtime-cache/runtime-cache.json",
+      "source": "Logs/AgentReproduction/20260913-230233-051/runtime-cache.json",
+      "sourceBytes": 3602,
+      "sourceSha256": "780abba6fcc8af88f3e33b51be80d25c433509a7081f3459bba703581a90b8e7",
+      "artifactSha256": "780abba6fcc8af88f3e33b51be80d25c433509a7081f3459bba703581a90b8e7"
+    },
+    {
+      "path": "history-first-runtime-cache/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230233-051/summary.json",
+      "sourceBytes": 695,
+      "sourceSha256": "a9a01dac1686068c3d058662cdf437a56912994b7c43b3128c01036d33422fa1",
+      "artifactSha256": "a9a01dac1686068c3d058662cdf437a56912994b7c43b3128c01036d33422fa1"
+    },
+    {
+      "path": "history-first-runtime-cache/groups/MapCommandRuntimeCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230233-051/groups/MapCommandRuntimeCache-1/test-results.xml",
+      "sourceBytes": 17944,
+      "sourceSha256": "339af0716afc31d26cc736869573093d387ee8e3fc0fd70ac29dfcc7b5e1f9b0",
+      "artifactSha256": "339af0716afc31d26cc736869573093d387ee8e3fc0fd70ac29dfcc7b5e1f9b0"
+    },
+    {
+      "path": "history-first-runtime-cache/cases/C22755D4D1AC5421/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230233-051/cases/C22755D4D1AC5421/1/case.json",
+      "sourceBytes": 328,
+      "sourceSha256": "66640fda19017c9e354bd39acdb8ceeb708548701c5040eab62db62e104a3855",
+      "artifactSha256": "66640fda19017c9e354bd39acdb8ceeb708548701c5040eab62db62e104a3855"
+    },
+    {
+      "path": "history-first-runtime-cache/cases/C22755D4D1AC5421/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230233-051/cases/C22755D4D1AC5421/1/nunit-final.json",
+      "sourceBytes": 254,
+      "sourceSha256": "807493fd8a7db8c40c4398e2056a852080c7520995368a228ce9d9376b1d18b0",
+      "artifactSha256": "807493fd8a7db8c40c4398e2056a852080c7520995368a228ce9d9376b1d18b0"
+    },
+    {
+      "path": "history-first-runtime-cache/cases/C22755D4D1AC5421/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230233-051/cases/C22755D4D1AC5421/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "600a94e2a04e01488418df62bfd3eb20302f455b39090787c6b34f6d3308fe9f",
+      "artifactSha256": "86bdcbef1370ff6f7d5c289a6e4549e4194243639521c27df7531fa6eddb4ee4"
+    },
+    {
+      "path": "history-first-published-graph/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230302-245/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "79903164d3f91730e1e63aeaa42b1567cd74e3060c6dc8c20ae1a5288da398f8",
+      "artifactSha256": "d07be09075a9cc786c00fe1bb9c130c5189d317adfc5ff1080fa9508cbac882d"
+    },
+    {
+      "path": "history-first-published-graph/published-graph.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230302-245/published-graph.json",
+      "sourceBytes": 543275,
+      "sourceSha256": "f01898dce9991075f85d31c5f3cffab79b999dcbbbc8d197d5c13bcbc0bb855a",
+      "artifactSha256": "1dc2555471840b3d2677e77247c90bdafb5c39053fa1000d42797c88bf0988a2"
+    },
+    {
+      "path": "history-first-published-graph/report.md",
+      "source": "Logs/AgentReproduction/20260913-230302-245/report.md",
+      "sourceBytes": 473,
+      "sourceSha256": "2501a4ea5fcb4f2da4d3ab77642515ce5726e626c498a134b0a765cf0b0787da",
+      "artifactSha256": "2501a4ea5fcb4f2da4d3ab77642515ce5726e626c498a134b0a765cf0b0787da"
+    },
+    {
+      "path": "history-first-published-graph/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230302-245/summary.json",
+      "sourceBytes": 699,
+      "sourceSha256": "f9e6a22e1de4210d1fd6e531d365af91e32c4834faabec67bb86a65ef8fa43c6",
+      "artifactSha256": "f9e6a22e1de4210d1fd6e531d365af91e32c4834faabec67bb86a65ef8fa43c6"
+    },
+    {
+      "path": "history-first-published-graph/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230302-245/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "sourceBytes": 6719,
+      "sourceSha256": "8b42cb1aed383ae166f19b2b3c7dcfad3346fa8f4831e5d9d1af3e060c23672f",
+      "artifactSha256": "8b42cb1aed383ae166f19b2b3c7dcfad3346fa8f4831e5d9d1af3e060c23672f"
+    },
+    {
+      "path": "history-first-published-graph/cases/F131EE39830146BB/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230302-245/cases/F131EE39830146BB/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "25cfbdc2a9fb529242ae47a4d2822fae042894156b5733628886420008609731",
+      "artifactSha256": "25cfbdc2a9fb529242ae47a4d2822fae042894156b5733628886420008609731"
+    },
+    {
+      "path": "history-first-published-graph/cases/F131EE39830146BB/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230302-245/cases/F131EE39830146BB/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "2f47a87d8e7c166b0b149293e457a17267713d4fd95d72c655bc5bafb84c8e20",
+      "artifactSha256": "2f47a87d8e7c166b0b149293e457a17267713d4fd95d72c655bc5bafb84c8e20"
+    },
+    {
+      "path": "history-first-published-graph/cases/F131EE39830146BB/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230302-245/cases/F131EE39830146BB/1/trace.jsonl",
+      "sourceBytes": 150,
+      "sourceSha256": "cf97ade214c373f2377cbf5f1116e98a1c6d013ce91895e95258d181cc5f5b6c",
+      "artifactSha256": "df537576a4ce0f26a236aa7016dd799a1a1489b99d8e6a37548e4f28f0cfc8e0"
+    },
+    {
+      "path": "history-first-visual/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230329-921/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "60519cd0adc778af7bc2a9cdacba44d9d3ffc1583cc9dbe047925d6623706631",
+      "artifactSha256": "86534f9808762978a776d474d0986f5a50528d97b6c6863e89d7b9b6fde18bb9"
+    },
+    {
+      "path": "history-first-visual/report.md",
+      "source": "Logs/AgentReproduction/20260913-230329-921/report.md",
+      "sourceBytes": 465,
+      "sourceSha256": "eccd87d51d94dc514bc2043d8975f1f4afe514c5fce897b47c08b41842bb750c",
+      "artifactSha256": "eccd87d51d94dc514bc2043d8975f1f4afe514c5fce897b47c08b41842bb750c"
+    },
+    {
+      "path": "history-first-visual/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230329-921/summary.json",
+      "sourceBytes": 683,
+      "sourceSha256": "a6018eba76dcac4a7334172e373055a4b5791787ee15e6a1d3469d43b067cc82",
+      "artifactSha256": "a6018eba76dcac4a7334172e373055a4b5791787ee15e6a1d3469d43b067cc82"
+    },
+    {
+      "path": "history-first-visual/groups/MapCommandVisual-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230329-921/groups/MapCommandVisual-1/test-results.xml",
+      "sourceBytes": 21063,
+      "sourceSha256": "39a46b82f998cb9f5d9de92a7648e8c0624ccb7fcc2347379480de5017eaead7",
+      "artifactSha256": "39a46b82f998cb9f5d9de92a7648e8c0624ccb7fcc2347379480de5017eaead7"
+    },
+    {
+      "path": "history-first-visual/cases/4391457C2CBFAD28/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230329-921/cases/4391457C2CBFAD28/1/case.json",
+      "sourceBytes": 311,
+      "sourceSha256": "4edec1967631d0d4a0296af140ee0f636a7d5a788a0adfa1fe73be28b1b2333e",
+      "artifactSha256": "4edec1967631d0d4a0296af140ee0f636a7d5a788a0adfa1fe73be28b1b2333e"
+    },
+    {
+      "path": "history-first-visual/cases/4391457C2CBFAD28/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230329-921/cases/4391457C2CBFAD28/1/nunit-final.json",
+      "sourceBytes": 237,
+      "sourceSha256": "47d1b2162a19202369eb076ddc563acb36cb6d99dbb50a280687fcd86193e6c2",
+      "artifactSha256": "47d1b2162a19202369eb076ddc563acb36cb6d99dbb50a280687fcd86193e6c2"
+    },
+    {
+      "path": "history-first-visual/cases/4391457C2CBFAD28/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230329-921/cases/4391457C2CBFAD28/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "dcd1627d8318376e4c39e1ed2fa54de78565215bce9118f23c7aa36d8a7e203e",
+      "artifactSha256": "265a6c949300718d88d8fe19012e34c49955c541e09452c3edb9be728740781b"
+    },
+    {
+      "path": "history-first-autonomous/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-230233-280/manifest.json",
+      "sourceBytes": 1595376,
+      "sourceSha256": "446b7968e3e37c97412ea8fbf9274b35e0dbe141f0d6a179b4820f5aff25c038",
+      "artifactSha256": "814c5f8b3ca627ef90e5e7bfa8e2676395684bb93bdc1cdad0f8cec0ce948e34"
+    },
+    {
+      "path": "history-first-autonomous/config.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/config.json",
+      "sourceBytes": 589,
+      "sourceSha256": "84b74a0b922c0e705a27754a9a34e869a85b057e118e320b7a5e8201e20e9802",
+      "artifactSha256": "84b74a0b922c0e705a27754a9a34e869a85b057e118e320b7a5e8201e20e9802"
+    },
+    {
+      "path": "history-first-autonomous/result.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/result.json",
+      "sourceBytes": 2585,
+      "sourceSha256": "41705741f5278e041ad5ae70d9f50d13622e9fd3ad8b49c259c3888ea66d67fe",
+      "artifactSha256": "41705741f5278e041ad5ae70d9f50d13622e9fd3ad8b49c259c3888ea66d67fe"
+    },
+    {
+      "path": "history-first-autonomous/report.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/report.json",
+      "sourceBytes": 200091,
+      "sourceSha256": "da63428f9f5ce51080681a3425d317810b3ef032a6d82b0c029d3b30144253b5",
+      "artifactSha256": "da63428f9f5ce51080681a3425d317810b3ef032a6d82b0c029d3b30144253b5"
+    },
+    {
+      "path": "history-first-autonomous/route-contracts.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/route-contracts.json",
+      "sourceBytes": 5296,
+      "sourceSha256": "eca683bafe51214c962963b8f9bd26e3b71ba480c6072a3acc3c549cb69d943a",
+      "artifactSha256": "eca683bafe51214c962963b8f9bd26e3b71ba480c6072a3acc3c549cb69d943a"
+    },
+    {
+      "path": "history-first-autonomous/contracts.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/contracts.json",
+      "sourceBytes": 1194,
+      "sourceSha256": "b6dc129068132e993a4612fd96d2f11da7dc4e9a1df3603bfc4b0e558445b31a",
+      "artifactSha256": "b6dc129068132e993a4612fd96d2f11da7dc4e9a1df3603bfc4b0e558445b31a"
+    },
+    {
+      "path": "history-first-autonomous/events.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-230233-280/events.jsonl",
+      "sourceBytes": 3425695,
+      "sourceSha256": "1c5df5349d527953a08a26c18349c3eb6fe8509d1099910e340edc89225a6351",
+      "artifactSha256": "82601f52ece0556a476282ad9f8eb4421e384b6fd628af89833d29f6db370995"
+    },
+    {
+      "path": "history-first-autonomous/process.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/process.json",
+      "sourceBytes": 197,
+      "sourceSha256": "cbad7f8a2d5bbcb977759c71dcefa4baa5198de063ad3fd607e233530812c752",
+      "artifactSha256": "cbad7f8a2d5bbcb977759c71dcefa4baa5198de063ad3fd607e233530812c752"
+    },
+    {
+      "path": "history-first-autonomous/process-start.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/process-start.json",
+      "sourceBytes": 318,
+      "sourceSha256": "73d2389397455e87faf2b0bcfcfddbc6ae4f59a06441d674a902095d9d4c08f4",
+      "artifactSha256": "73d2389397455e87faf2b0bcfcfddbc6ae4f59a06441d674a902095d9d4c08f4"
+    },
+    {
+      "path": "history-first-autonomous/cleanup.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/cleanup.json",
+      "sourceBytes": 22,
+      "sourceSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb",
+      "artifactSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb"
+    },
+    {
+      "path": "history-first-autonomous/warehouse-final.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/warehouse-final.json",
+      "sourceBytes": 3812,
+      "sourceSha256": "72590337aeb725548dce169d8e5f1340a44ca706537899497d57610bfdf0cbdf",
+      "artifactSha256": "72590337aeb725548dce169d8e5f1340a44ca706537899497d57610bfdf0cbdf"
+    },
+    {
+      "path": "history-first-autonomous/warehouse-initial.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/warehouse-initial.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "history-first-autonomous/render-final.json",
+      "source": "Logs/SceneRaid/20260913-230233-280/render-final.json",
+      "sourceBytes": 642,
+      "sourceSha256": "a3c491830fae27cfd1514607fbcc093c9b85f6c720a29dd7edb3ed3d5ec8227d",
+      "artifactSha256": "a3c491830fae27cfd1514607fbcc093c9b85f6c720a29dd7edb3ed3d5ec8227d"
+    },
+    {
+      "path": "history-index-order-failure/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "dabc2ab85fcf2d3275838a4b59af80895bab153063d791f278fc8d616c656a5d",
+      "artifactSha256": "f09dc3c48a67d197e762d403fa5a12231e8a9273ddb21ea0fb4faaa52eab12e8"
+    },
+    {
+      "path": "history-index-order-failure/report.md",
+      "source": "Logs/AgentReproduction/20260913-230615-636/report.md",
+      "sourceBytes": 473,
+      "sourceSha256": "09cb61af604360f8afd0b98374b48f80bbd5877878e8f43dbf67aa832bc72865",
+      "artifactSha256": "09cb61af604360f8afd0b98374b48f80bbd5877878e8f43dbf67aa832bc72865"
+    },
+    {
+      "path": "history-index-order-failure/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/summary.json",
+      "sourceBytes": 700,
+      "sourceSha256": "c223054d01da890adfa54c2a3fc449b7d46f7b16ab7ec83c7a1270ebfd960dca",
+      "artifactSha256": "c223054d01da890adfa54c2a3fc449b7d46f7b16ab7ec83c7a1270ebfd960dca"
+    },
+    {
+      "path": "history-index-order-failure/groups/MapCommandNavigationCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230615-636/groups/MapCommandNavigationCache-1/test-results.xml",
+      "sourceBytes": 11420,
+      "sourceSha256": "7f5c044a44333fb9232ed7be62856f13509b36b98cbddc9584401ad71a420186",
+      "artifactSha256": "7f5c044a44333fb9232ed7be62856f13509b36b98cbddc9584401ad71a420186"
+    },
+    {
+      "path": "history-index-order-failure/cases/F99E832044A31E02/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/F99E832044A31E02/1/case.json",
+      "sourceBytes": 316,
+      "sourceSha256": "52dc113fc6e887dda781c9a2700ac2c8edf54942a8a072c8617a72fa1c5c59c9",
+      "artifactSha256": "52dc113fc6e887dda781c9a2700ac2c8edf54942a8a072c8617a72fa1c5c59c9"
+    },
+    {
+      "path": "history-index-order-failure/cases/F99E832044A31E02/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/F99E832044A31E02/1/nunit-final.json",
+      "sourceBytes": 242,
+      "sourceSha256": "df9d8263639cec1eaa817bec03b909573ba7ee570e4b650277c9e0573450b13c",
+      "artifactSha256": "df9d8263639cec1eaa817bec03b909573ba7ee570e4b650277c9e0573450b13c"
+    },
+    {
+      "path": "history-index-order-failure/cases/F99E832044A31E02/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/F99E832044A31E02/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-order-failure/cases/6B078261CDC6979A/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/6B078261CDC6979A/1/case.json",
+      "sourceBytes": 319,
+      "sourceSha256": "d56b30c98973765f9ae30d6c5f606035a193272f045bc8b5dc6bab6bc543b2b3",
+      "artifactSha256": "d56b30c98973765f9ae30d6c5f606035a193272f045bc8b5dc6bab6bc543b2b3"
+    },
+    {
+      "path": "history-index-order-failure/cases/6B078261CDC6979A/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/6B078261CDC6979A/1/nunit-final.json",
+      "sourceBytes": 245,
+      "sourceSha256": "bde352cb73c35bc8d02604bfdf8ce298ada0c10c40a24e1044d70b4f5053637c",
+      "artifactSha256": "bde352cb73c35bc8d02604bfdf8ce298ada0c10c40a24e1044d70b4f5053637c"
+    },
+    {
+      "path": "history-index-order-failure/cases/6B078261CDC6979A/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/6B078261CDC6979A/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-order-failure/cases/630D7AD4F87DC28F/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/630D7AD4F87DC28F/1/case.json",
+      "sourceBytes": 636,
+      "sourceSha256": "8646d6003b192f5e076b19e43629083a23d9e83015f41869f81bd7d2ad96284f",
+      "artifactSha256": "8646d6003b192f5e076b19e43629083a23d9e83015f41869f81bd7d2ad96284f"
+    },
+    {
+      "path": "history-index-order-failure/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "sourceBytes": 585,
+      "sourceSha256": "9f74fe4b5282fbfac6dc2b935cb786a447782fa476e5cd37a3e37921fccb9a89",
+      "artifactSha256": "9f74fe4b5282fbfac6dc2b935cb786a447782fa476e5cd37a3e37921fccb9a89"
+    },
+    {
+      "path": "history-index-order-failure/cases/630D7AD4F87DC28F/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/630D7AD4F87DC28F/1/trace.jsonl",
+      "sourceBytes": 376,
+      "sourceSha256": "dbbbc4158de50292b1bfdaa24bd438118b6fae93654a6826dc6473cd3f33c89d",
+      "artifactSha256": "1cd9f891abc6a216c554dfe0f46ff3b922a099d3d0c4d449a9f604b4ebd9cdec"
+    },
+    {
+      "path": "history-index-order-failure/cases/2B0728DA257EF007/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/2B0728DA257EF007/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "ac12c0eb9258bdd82b2e2dc838acf06c15ea3d6c686953ea3f493d581f4caf15",
+      "artifactSha256": "ac12c0eb9258bdd82b2e2dc838acf06c15ea3d6c686953ea3f493d581f4caf15"
+    },
+    {
+      "path": "history-index-order-failure/cases/2B0728DA257EF007/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/2B0728DA257EF007/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "80617db39f338bdfbbd21355c7e5012c4a731218ddc441d7495ef9934c33cf3e",
+      "artifactSha256": "80617db39f338bdfbbd21355c7e5012c4a731218ddc441d7495ef9934c33cf3e"
+    },
+    {
+      "path": "history-index-order-failure/cases/2B0728DA257EF007/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/2B0728DA257EF007/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-order-failure/cases/16A1BAB12EC7B23B/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/16A1BAB12EC7B23B/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "a48bb9880bc27031f803c47256a9598b7f4c6bde20774cce30dffea00e4cb244",
+      "artifactSha256": "a48bb9880bc27031f803c47256a9598b7f4c6bde20774cce30dffea00e4cb244"
+    },
+    {
+      "path": "history-index-order-failure/cases/16A1BAB12EC7B23B/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/16A1BAB12EC7B23B/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "0738d7091a3595662ae9d098ad77f46889f0c1a023f56a0d9ba0b5bbdfacaaee",
+      "artifactSha256": "0738d7091a3595662ae9d098ad77f46889f0c1a023f56a0d9ba0b5bbdfacaaee"
+    },
+    {
+      "path": "history-index-order-failure/cases/16A1BAB12EC7B23B/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/16A1BAB12EC7B23B/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-order-failure/cases/10064CC8AEA4BC35/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/10064CC8AEA4BC35/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "df5e8889315bc69c74bba488f53be382ebcccdddc4e68b14537f6f272f7fb443",
+      "artifactSha256": "df5e8889315bc69c74bba488f53be382ebcccdddc4e68b14537f6f272f7fb443"
+    },
+    {
+      "path": "history-index-order-failure/cases/10064CC8AEA4BC35/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/10064CC8AEA4BC35/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "048f361d779e058028441ef10b72645cbcc9a4ba7c3212dfb858a4a23d63cd11",
+      "artifactSha256": "048f361d779e058028441ef10b72645cbcc9a4ba7c3212dfb858a4a23d63cd11"
+    },
+    {
+      "path": "history-index-order-failure/cases/10064CC8AEA4BC35/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/10064CC8AEA4BC35/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-order-failure/cases/0C37DF2754C4C74E/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/0C37DF2754C4C74E/1/case.json",
+      "sourceBytes": 322,
+      "sourceSha256": "ad13937a7996e2937cbc49bb3555503d4e1e429a9d5fc5a08f99d40c7c3e0f46",
+      "artifactSha256": "ad13937a7996e2937cbc49bb3555503d4e1e429a9d5fc5a08f99d40c7c3e0f46"
+    },
+    {
+      "path": "history-index-order-failure/cases/0C37DF2754C4C74E/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/0C37DF2754C4C74E/1/nunit-final.json",
+      "sourceBytes": 248,
+      "sourceSha256": "914bdbf69d29d6dd86582b8397e61e0c43d6d9bf0aeb95e72a906a7278451222",
+      "artifactSha256": "914bdbf69d29d6dd86582b8397e61e0c43d6d9bf0aeb95e72a906a7278451222"
+    },
+    {
+      "path": "history-index-order-failure/cases/0C37DF2754C4C74E/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/0C37DF2754C4C74E/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-order-failure/cases/0BAF5B22C7161586/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/0BAF5B22C7161586/1/case.json",
+      "sourceBytes": 321,
+      "sourceSha256": "1af35c2382179b70970a88d22d2975fe8954e4e0b3d67bd1152df5899317124c",
+      "artifactSha256": "1af35c2382179b70970a88d22d2975fe8954e4e0b3d67bd1152df5899317124c"
+    },
+    {
+      "path": "history-index-order-failure/cases/0BAF5B22C7161586/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/0BAF5B22C7161586/1/nunit-final.json",
+      "sourceBytes": 247,
+      "sourceSha256": "7bd379b3dd8ecbc1bc36a14e29994debe17566d291c16e659a2b8d4268bf125d",
+      "artifactSha256": "7bd379b3dd8ecbc1bc36a14e29994debe17566d291c16e659a2b8d4268bf125d"
+    },
+    {
+      "path": "history-index-order-failure/cases/0BAF5B22C7161586/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230615-636/cases/0BAF5B22C7161586/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "904e8ee848bb914320f2a20314bd04659b166be7b523594349cf4853e2efcd22",
+      "artifactSha256": "d1a2ead2aad81811af022d1f55d76cbe90a4f33d20d5294b25f0e074277fd01c"
+    },
+    {
+      "path": "history-index-bake-not-imported/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230648-906/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "e7a7ec0707a5559985effaf92a7d1079a05e6be1626e6f0353414845b184eede",
+      "artifactSha256": "03d3bb55f5da3546c1cccb8c7a895ededc55fe02cacd35c47101f7f541c0d5fa"
+    },
+    {
+      "path": "history-index-bake-not-imported/report.md",
+      "source": "Logs/AgentReproduction/20260913-230648-906/report.md",
+      "sourceBytes": 470,
+      "sourceSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32",
+      "artifactSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32"
+    },
+    {
+      "path": "history-index-bake-not-imported/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230648-906/summary.json",
+      "sourceBytes": 693,
+      "sourceSha256": "72b730fee6e8b411c7e46dd544597e929e4564abcf675e3b5835b59e57902860",
+      "artifactSha256": "72b730fee6e8b411c7e46dd544597e929e4564abcf675e3b5835b59e57902860"
+    },
+    {
+      "path": "history-index-bake-not-imported/groups/MapCommandSceneRepair-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230648-906/groups/MapCommandSceneRepair-1/test-results.xml",
+      "sourceBytes": 7201,
+      "sourceSha256": "2e8db76499350c0b3b2b151471f2feffcefba957a9d3ec74777db6fd8ce6ee6b",
+      "artifactSha256": "2e8db76499350c0b3b2b151471f2feffcefba957a9d3ec74777db6fd8ce6ee6b"
+    },
+    {
+      "path": "history-index-bake-not-imported/cases/8465DDE9F9E4C3DD/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230648-906/cases/8465DDE9F9E4C3DD/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "34dbcbab91df403b8c21d086ce22dd7641edf3c89e15b54efb664163ab2a1fb1",
+      "artifactSha256": "34dbcbab91df403b8c21d086ce22dd7641edf3c89e15b54efb664163ab2a1fb1"
+    },
+    {
+      "path": "history-index-bake-not-imported/cases/8465DDE9F9E4C3DD/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230648-906/cases/8465DDE9F9E4C3DD/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "41dcc5e22942db3ea67692aadeeabdc60cb3b2040ec6e87bbf9c07d8733bfd92",
+      "artifactSha256": "41dcc5e22942db3ea67692aadeeabdc60cb3b2040ec6e87bbf9c07d8733bfd92"
+    },
+    {
+      "path": "history-index-bake-not-imported/cases/8465DDE9F9E4C3DD/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230648-906/cases/8465DDE9F9E4C3DD/1/trace.jsonl",
+      "sourceBytes": 141,
+      "sourceSha256": "2ec2fda26a6872fe3db095ce7436c76a6c684c6655550df14e5235d402531087",
+      "artifactSha256": "2f8a2582f0da2adb44e99deefcf1f5b4ce9904b7786487513215aa374a4987e6"
+    },
+    {
+      "path": "final-cache-logic/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "47e2c34e887562e814aad61b8d191e45e5e3eda64df34a78580c1d9990351f31",
+      "artifactSha256": "3aab8beb17234a56c071e96e08e2f83639f9a9b27c16c077f958d45754f2aeee"
+    },
+    {
+      "path": "final-cache-logic/report.md",
+      "source": "Logs/AgentReproduction/20260913-230914-684/report.md",
+      "sourceBytes": 474,
+      "sourceSha256": "56bdc8517f4c173e420dd7c72b67b33c10aaebd2ffaec66d061374cddb622946",
+      "artifactSha256": "56bdc8517f4c173e420dd7c72b67b33c10aaebd2ffaec66d061374cddb622946"
+    },
+    {
+      "path": "final-cache-logic/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/summary.json",
+      "sourceBytes": 701,
+      "sourceSha256": "609d361f0ef9d1ae17ae3f388fa345f13227379379f30b48c3fea162a9424754",
+      "artifactSha256": "609d361f0ef9d1ae17ae3f388fa345f13227379379f30b48c3fea162a9424754"
+    },
+    {
+      "path": "final-cache-logic/groups/MapCommandNavigationCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230914-684/groups/MapCommandNavigationCache-1/test-results.xml",
+      "sourceBytes": 9812,
+      "sourceSha256": "8ecdc393e6e68528ae3ce195f229059da6cf7e40de5a290ac7a6a90757915555",
+      "artifactSha256": "8ecdc393e6e68528ae3ce195f229059da6cf7e40de5a290ac7a6a90757915555"
+    },
+    {
+      "path": "final-cache-logic/cases/F99E832044A31E02/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/F99E832044A31E02/1/case.json",
+      "sourceBytes": 316,
+      "sourceSha256": "a1efe4da3560b88f46e913d53ec0e28242f2472d4245616daba479fe9187451a",
+      "artifactSha256": "a1efe4da3560b88f46e913d53ec0e28242f2472d4245616daba479fe9187451a"
+    },
+    {
+      "path": "final-cache-logic/cases/F99E832044A31E02/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/F99E832044A31E02/1/nunit-final.json",
+      "sourceBytes": 242,
+      "sourceSha256": "df9d8263639cec1eaa817bec03b909573ba7ee570e4b650277c9e0573450b13c",
+      "artifactSha256": "df9d8263639cec1eaa817bec03b909573ba7ee570e4b650277c9e0573450b13c"
+    },
+    {
+      "path": "final-cache-logic/cases/F99E832044A31E02/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/F99E832044A31E02/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-logic/cases/6B078261CDC6979A/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/6B078261CDC6979A/1/case.json",
+      "sourceBytes": 319,
+      "sourceSha256": "08a672efe6478668605e3d3a954c42d1c350743e28e1e3205abb2beb26531ddb",
+      "artifactSha256": "08a672efe6478668605e3d3a954c42d1c350743e28e1e3205abb2beb26531ddb"
+    },
+    {
+      "path": "final-cache-logic/cases/6B078261CDC6979A/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/6B078261CDC6979A/1/nunit-final.json",
+      "sourceBytes": 245,
+      "sourceSha256": "bde352cb73c35bc8d02604bfdf8ce298ada0c10c40a24e1044d70b4f5053637c",
+      "artifactSha256": "bde352cb73c35bc8d02604bfdf8ce298ada0c10c40a24e1044d70b4f5053637c"
+    },
+    {
+      "path": "final-cache-logic/cases/6B078261CDC6979A/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/6B078261CDC6979A/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-logic/cases/630D7AD4F87DC28F/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/630D7AD4F87DC28F/1/case.json",
+      "sourceBytes": 318,
+      "sourceSha256": "54182fe5d16f1d2500b5b80b8368202ac26b3c43d8ca3c21435d7ac20bce1462",
+      "artifactSha256": "54182fe5d16f1d2500b5b80b8368202ac26b3c43d8ca3c21435d7ac20bce1462"
+    },
+    {
+      "path": "final-cache-logic/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/630D7AD4F87DC28F/1/nunit-final.json",
+      "sourceBytes": 244,
+      "sourceSha256": "7d892f08c2dc409bf9284f37eaf2a3940e79fbbae6b78acb84c76943eb961fad",
+      "artifactSha256": "7d892f08c2dc409bf9284f37eaf2a3940e79fbbae6b78acb84c76943eb961fad"
+    },
+    {
+      "path": "final-cache-logic/cases/630D7AD4F87DC28F/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/630D7AD4F87DC28F/1/trace.jsonl",
+      "sourceBytes": 376,
+      "sourceSha256": "5b8ebba787ff2d6ba1f60c600d11671596afa3cdca733a5d8384cc2d3de9ded8",
+      "artifactSha256": "57e9d7b27bc44d40daedd76cd5bd23428989b5490d784b06a0ca64e4ebd6b5f2"
+    },
+    {
+      "path": "final-cache-logic/cases/2B0728DA257EF007/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/2B0728DA257EF007/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "cc2ecbd51c95015d720cdcdfc5173f4dcf9d0d5be9123f179af166aa2d9b9535",
+      "artifactSha256": "cc2ecbd51c95015d720cdcdfc5173f4dcf9d0d5be9123f179af166aa2d9b9535"
+    },
+    {
+      "path": "final-cache-logic/cases/2B0728DA257EF007/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/2B0728DA257EF007/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "80617db39f338bdfbbd21355c7e5012c4a731218ddc441d7495ef9934c33cf3e",
+      "artifactSha256": "80617db39f338bdfbbd21355c7e5012c4a731218ddc441d7495ef9934c33cf3e"
+    },
+    {
+      "path": "final-cache-logic/cases/2B0728DA257EF007/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/2B0728DA257EF007/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-logic/cases/16A1BAB12EC7B23B/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/16A1BAB12EC7B23B/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "580e93e4da0a3fba5b5d364045706d85d9f9265413476c6cbc08515a1bcfab5d",
+      "artifactSha256": "580e93e4da0a3fba5b5d364045706d85d9f9265413476c6cbc08515a1bcfab5d"
+    },
+    {
+      "path": "final-cache-logic/cases/16A1BAB12EC7B23B/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/16A1BAB12EC7B23B/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "0738d7091a3595662ae9d098ad77f46889f0c1a023f56a0d9ba0b5bbdfacaaee",
+      "artifactSha256": "0738d7091a3595662ae9d098ad77f46889f0c1a023f56a0d9ba0b5bbdfacaaee"
+    },
+    {
+      "path": "final-cache-logic/cases/16A1BAB12EC7B23B/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/16A1BAB12EC7B23B/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-logic/cases/10064CC8AEA4BC35/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/10064CC8AEA4BC35/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "3b224d1405910add45223d73680d615c72e4dd2c9260ae6a5ae4e077b31bc547",
+      "artifactSha256": "3b224d1405910add45223d73680d615c72e4dd2c9260ae6a5ae4e077b31bc547"
+    },
+    {
+      "path": "final-cache-logic/cases/10064CC8AEA4BC35/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/10064CC8AEA4BC35/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "048f361d779e058028441ef10b72645cbcc9a4ba7c3212dfb858a4a23d63cd11",
+      "artifactSha256": "048f361d779e058028441ef10b72645cbcc9a4ba7c3212dfb858a4a23d63cd11"
+    },
+    {
+      "path": "final-cache-logic/cases/10064CC8AEA4BC35/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/10064CC8AEA4BC35/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-logic/cases/0C37DF2754C4C74E/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/0C37DF2754C4C74E/1/case.json",
+      "sourceBytes": 322,
+      "sourceSha256": "ad6502a3a07c1dac709b7234cefabc603f0b3f56ca4c10d4cda99aca92a635e7",
+      "artifactSha256": "ad6502a3a07c1dac709b7234cefabc603f0b3f56ca4c10d4cda99aca92a635e7"
+    },
+    {
+      "path": "final-cache-logic/cases/0C37DF2754C4C74E/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/0C37DF2754C4C74E/1/nunit-final.json",
+      "sourceBytes": 248,
+      "sourceSha256": "914bdbf69d29d6dd86582b8397e61e0c43d6d9bf0aeb95e72a906a7278451222",
+      "artifactSha256": "914bdbf69d29d6dd86582b8397e61e0c43d6d9bf0aeb95e72a906a7278451222"
+    },
+    {
+      "path": "final-cache-logic/cases/0C37DF2754C4C74E/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/0C37DF2754C4C74E/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-logic/cases/0BAF5B22C7161586/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/0BAF5B22C7161586/1/case.json",
+      "sourceBytes": 321,
+      "sourceSha256": "482ba26472b5bc1a16553f5b7be28c5120b1646e6cd5ee5e2237754f492aa70f",
+      "artifactSha256": "482ba26472b5bc1a16553f5b7be28c5120b1646e6cd5ee5e2237754f492aa70f"
+    },
+    {
+      "path": "final-cache-logic/cases/0BAF5B22C7161586/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/0BAF5B22C7161586/1/nunit-final.json",
+      "sourceBytes": 247,
+      "sourceSha256": "7bd379b3dd8ecbc1bc36a14e29994debe17566d291c16e659a2b8d4268bf125d",
+      "artifactSha256": "7bd379b3dd8ecbc1bc36a14e29994debe17566d291c16e659a2b8d4268bf125d"
+    },
+    {
+      "path": "final-cache-logic/cases/0BAF5B22C7161586/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230914-684/cases/0BAF5B22C7161586/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "6145da7ca9e6c4f86385b232dfc8c2b78825b3413f00a988957a604f8d7c1473",
+      "artifactSha256": "72534ecb65a763f94ed4f4f9b9797288cf46cd867f525bb6a10b21988045eb9e"
+    },
+    {
+      "path": "final-cache-refresh/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-230947-325/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "65575b67b7e4a0f76b7ae90d125deea70cd18e9a47d112633972d3a0d397b50b",
+      "artifactSha256": "80eb8b96109179228e68db0483a77ecb21c58faf768a902a81b82321708f2e13"
+    },
+    {
+      "path": "final-cache-refresh/report.md",
+      "source": "Logs/AgentReproduction/20260913-230947-325/report.md",
+      "sourceBytes": 470,
+      "sourceSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32",
+      "artifactSha256": "8949159a5cdc32ba9fb1474d582e100461ec6c29ee0150dfb61f68cb11776f32"
+    },
+    {
+      "path": "final-cache-refresh/summary.json",
+      "source": "Logs/AgentReproduction/20260913-230947-325/summary.json",
+      "sourceBytes": 693,
+      "sourceSha256": "d42d4b40c6f7fb9781d5a295931526c98f1c464ba8e211fcb9766afa0295b0fa",
+      "artifactSha256": "d42d4b40c6f7fb9781d5a295931526c98f1c464ba8e211fcb9766afa0295b0fa"
+    },
+    {
+      "path": "final-cache-refresh/groups/MapCommandSceneRepair-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-230947-325/groups/MapCommandSceneRepair-1/test-results.xml",
+      "sourceBytes": 7201,
+      "sourceSha256": "64564af62b0e9d6ce2598e383a699092f2f141d2857fc4326bb7cb30aadcfdd1",
+      "artifactSha256": "64564af62b0e9d6ce2598e383a699092f2f141d2857fc4326bb7cb30aadcfdd1"
+    },
+    {
+      "path": "final-cache-refresh/cases/8465DDE9F9E4C3DD/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-230947-325/cases/8465DDE9F9E4C3DD/1/case.json",
+      "sourceBytes": 317,
+      "sourceSha256": "329ec3814b23ca731416995c02daf95a82f7a14b7344c0817c5179fe1c4fe877",
+      "artifactSha256": "329ec3814b23ca731416995c02daf95a82f7a14b7344c0817c5179fe1c4fe877"
+    },
+    {
+      "path": "final-cache-refresh/cases/8465DDE9F9E4C3DD/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-230947-325/cases/8465DDE9F9E4C3DD/1/nunit-final.json",
+      "sourceBytes": 243,
+      "sourceSha256": "41dcc5e22942db3ea67692aadeeabdc60cb3b2040ec6e87bbf9c07d8733bfd92",
+      "artifactSha256": "41dcc5e22942db3ea67692aadeeabdc60cb3b2040ec6e87bbf9c07d8733bfd92"
+    },
+    {
+      "path": "final-cache-refresh/cases/8465DDE9F9E4C3DD/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-230947-325/cases/8465DDE9F9E4C3DD/1/trace.jsonl",
+      "sourceBytes": 141,
+      "sourceSha256": "6c7c19b2a8ddbb408365b8c16cc97dfcbea62ff9174c7944830775ffa69b15d2",
+      "artifactSha256": "276a90d6037d81527dfff51e4e0ad3c8a8fc4d9794cc50159365eabd1ec9ba95"
+    },
+    {
+      "path": "final-runtime-cache/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-231201-245/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "46e54497e550039d283b09d70d4cb1554e6fa81b8c3048722e3e518c2bbbb1cb",
+      "artifactSha256": "da3a3320123ef09206639a83ec7b8e11c23e231bc8d4c83c1d1444816f29cc6a"
+    },
+    {
+      "path": "final-runtime-cache/report.md",
+      "source": "Logs/AgentReproduction/20260913-231201-245/report.md",
+      "sourceBytes": 471,
+      "sourceSha256": "8f480850afbb4b1a06c9d016607498630ecf8ed988cb3973a399ad5bafa14bce",
+      "artifactSha256": "8f480850afbb4b1a06c9d016607498630ecf8ed988cb3973a399ad5bafa14bce"
+    },
+    {
+      "path": "final-runtime-cache/runtime-cache.json",
+      "source": "Logs/AgentReproduction/20260913-231201-245/runtime-cache.json",
+      "sourceBytes": 3592,
+      "sourceSha256": "72846f840e15a950a9cfaa72cff2773ffa199a93d3823af1e5ea62463b05c3ff",
+      "artifactSha256": "72846f840e15a950a9cfaa72cff2773ffa199a93d3823af1e5ea62463b05c3ff"
+    },
+    {
+      "path": "final-runtime-cache/summary.json",
+      "source": "Logs/AgentReproduction/20260913-231201-245/summary.json",
+      "sourceBytes": 695,
+      "sourceSha256": "b82923c808036543eb53565ae6ad17385a83add9e1257d6c9d9ec83801ffec63",
+      "artifactSha256": "b82923c808036543eb53565ae6ad17385a83add9e1257d6c9d9ec83801ffec63"
+    },
+    {
+      "path": "final-runtime-cache/groups/MapCommandRuntimeCache-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-231201-245/groups/MapCommandRuntimeCache-1/test-results.xml",
+      "sourceBytes": 18149,
+      "sourceSha256": "7471b821962517236ba8baaeb0aae4bb5453e71ab44f4e780d1858b70887703a",
+      "artifactSha256": "7471b821962517236ba8baaeb0aae4bb5453e71ab44f4e780d1858b70887703a"
+    },
+    {
+      "path": "final-runtime-cache/cases/C22755D4D1AC5421/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-231201-245/cases/C22755D4D1AC5421/1/case.json",
+      "sourceBytes": 328,
+      "sourceSha256": "dcc17e4d38fb132427f03a9a2b033a6868f63979e5e1920ea01f60671ec6eddb",
+      "artifactSha256": "dcc17e4d38fb132427f03a9a2b033a6868f63979e5e1920ea01f60671ec6eddb"
+    },
+    {
+      "path": "final-runtime-cache/cases/C22755D4D1AC5421/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-231201-245/cases/C22755D4D1AC5421/1/nunit-final.json",
+      "sourceBytes": 254,
+      "sourceSha256": "807493fd8a7db8c40c4398e2056a852080c7520995368a228ce9d9376b1d18b0",
+      "artifactSha256": "807493fd8a7db8c40c4398e2056a852080c7520995368a228ce9d9376b1d18b0"
+    },
+    {
+      "path": "final-runtime-cache/cases/C22755D4D1AC5421/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-231201-245/cases/C22755D4D1AC5421/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "255fa238938bbdd016586878fb34a6ad1790c8caf5adb735fa8994254337bc15",
+      "artifactSha256": "2e6ccd8bc0747f7c5d2588d15d11de2d451a741e9eab141ba72ca9d2cd9c0f8e"
+    },
+    {
+      "path": "final-published-graph/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-231231-300/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "43fe644ccee80165d71c289529e1fa7ccd61daa754b3f68c2c364189fdc9dcb5",
+      "artifactSha256": "7272c9b0e82e454139ad9678235fdc3df72c2a1058539464e00e254bca57730b"
+    },
+    {
+      "path": "final-published-graph/published-graph.json.gz",
+      "source": "Logs/AgentReproduction/20260913-231231-300/published-graph.json",
+      "sourceBytes": 543275,
+      "sourceSha256": "029c6ce336e5749428dbb86473b2c8223ae556bb5776072face46d62aacc57fb",
+      "artifactSha256": "31d668453a1b6fab34eb0b96e580e8f9e49f334be0b7c0d1844612f2a7430a46"
+    },
+    {
+      "path": "final-published-graph/report.md",
+      "source": "Logs/AgentReproduction/20260913-231231-300/report.md",
+      "sourceBytes": 473,
+      "sourceSha256": "2501a4ea5fcb4f2da4d3ab77642515ce5726e626c498a134b0a765cf0b0787da",
+      "artifactSha256": "2501a4ea5fcb4f2da4d3ab77642515ce5726e626c498a134b0a765cf0b0787da"
+    },
+    {
+      "path": "final-published-graph/summary.json",
+      "source": "Logs/AgentReproduction/20260913-231231-300/summary.json",
+      "sourceBytes": 699,
+      "sourceSha256": "1665c4823687ab145164e2da4e9780537075ddab852abc1a6ba6f922daf0fdec",
+      "artifactSha256": "1665c4823687ab145164e2da4e9780537075ddab852abc1a6ba6f922daf0fdec"
+    },
+    {
+      "path": "final-published-graph/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-231231-300/groups/MapCommandPublishedGraph-1/test-results.xml",
+      "sourceBytes": 6720,
+      "sourceSha256": "ce51684982600e3215f7e903767478ad26cbee23b522a2cd2342a548820b03ae",
+      "artifactSha256": "ce51684982600e3215f7e903767478ad26cbee23b522a2cd2342a548820b03ae"
+    },
+    {
+      "path": "final-published-graph/cases/F131EE39830146BB/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-231231-300/cases/F131EE39830146BB/1/case.json",
+      "sourceBytes": 325,
+      "sourceSha256": "954427ac3482440a8f6e2049580ccdd2ade229841d10150e614256e1540df566",
+      "artifactSha256": "954427ac3482440a8f6e2049580ccdd2ade229841d10150e614256e1540df566"
+    },
+    {
+      "path": "final-published-graph/cases/F131EE39830146BB/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-231231-300/cases/F131EE39830146BB/1/nunit-final.json",
+      "sourceBytes": 251,
+      "sourceSha256": "2f47a87d8e7c166b0b149293e457a17267713d4fd95d72c655bc5bafb84c8e20",
+      "artifactSha256": "2f47a87d8e7c166b0b149293e457a17267713d4fd95d72c655bc5bafb84c8e20"
+    },
+    {
+      "path": "final-published-graph/cases/F131EE39830146BB/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-231231-300/cases/F131EE39830146BB/1/trace.jsonl",
+      "sourceBytes": 150,
+      "sourceSha256": "d1330d6bf2f42446d86665c4ca8b881ebd4cb272d00560e17ccf222421cb8fc0",
+      "artifactSha256": "e352ef7ecc22061e0d1e266c3897e8865a81e56d5c4d06f93a1deb1b3f69a7cb"
+    },
+    {
+      "path": "final-enemy-processing/dragonbone-processing.json",
+      "source": "Logs/AgentReproduction/20260913-231259-520/dragonbone-processing.json",
+      "sourceBytes": 1123,
+      "sourceSha256": "cd00d05150dc188565b6db4396502841772ae5745a83d77f03b007730450f7d7",
+      "artifactSha256": "cd00d05150dc188565b6db4396502841772ae5745a83d77f03b007730450f7d7"
+    },
+    {
+      "path": "final-enemy-processing/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-231259-520/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "5b08bb746ccfafb33a91892d3b7868088c97c05aae9e66081785fecaa863a668",
+      "artifactSha256": "9763dc8ce384b09c0e120eb0817d8f58a72c842527751b1810b262090fef1a19"
+    },
+    {
+      "path": "final-enemy-processing/report.md",
+      "source": "Logs/AgentReproduction/20260913-231259-520/report.md",
+      "sourceBytes": 474,
+      "sourceSha256": "3ce77514c35a5af3b21bd45b2a72bcd7b3b9bc5fc0727cb3050d49da641d5002",
+      "artifactSha256": "3ce77514c35a5af3b21bd45b2a72bcd7b3b9bc5fc0727cb3050d49da641d5002"
+    },
+    {
+      "path": "final-enemy-processing/summary.json",
+      "source": "Logs/AgentReproduction/20260913-231259-520/summary.json",
+      "sourceBytes": 701,
+      "sourceSha256": "8ae9f4b541ecc021034800174c9e16f8b2302eeab4c34fb8b0e65ecc487bb679",
+      "artifactSha256": "8ae9f4b541ecc021034800174c9e16f8b2302eeab4c34fb8b0e65ecc487bb679"
+    },
+    {
+      "path": "final-enemy-processing/groups/MapCommandEnemyProcessing-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-231259-520/groups/MapCommandEnemyProcessing-1/test-results.xml",
+      "sourceBytes": 17795,
+      "sourceSha256": "78485e508ba7e4f44c8eb789ce585c200d3c4c17a4138545fe61ad00c746723f",
+      "artifactSha256": "78485e508ba7e4f44c8eb789ce585c200d3c4c17a4138545fe61ad00c746723f"
+    },
+    {
+      "path": "final-enemy-processing/cases/F580FEEB2A56D466/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-231259-520/cases/F580FEEB2A56D466/1/case.json",
+      "sourceBytes": 314,
+      "sourceSha256": "bf0bf0374e571fc130d4d472dfb0f99af48047cf59b05f568b04db76e1801e32",
+      "artifactSha256": "bf0bf0374e571fc130d4d472dfb0f99af48047cf59b05f568b04db76e1801e32"
+    },
+    {
+      "path": "final-enemy-processing/cases/F580FEEB2A56D466/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-231259-520/cases/F580FEEB2A56D466/1/nunit-final.json",
+      "sourceBytes": 240,
+      "sourceSha256": "6fde0004444c0d877a67ca16daa6e94f9dec7ce0ef699ee3d18b537b5247ae40",
+      "artifactSha256": "6fde0004444c0d877a67ca16daa6e94f9dec7ce0ef699ee3d18b537b5247ae40"
+    },
+    {
+      "path": "final-enemy-processing/cases/F580FEEB2A56D466/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-231259-520/cases/F580FEEB2A56D466/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "b55f3d7f87a21dc1144aad45b7da3d2e7a8304e681921ccab23d610c9649e0f3",
+      "artifactSha256": "323c1be491786ec047d31b6593921b71afa1805ff0a0eac938d728d1b89bfd63"
+    },
+    {
+      "path": "final-visual/manifest.json.gz",
+      "source": "Logs/AgentReproduction/20260913-231330-997/manifest.json",
+      "sourceBytes": 1594684,
+      "sourceSha256": "bef7728d687314c39d3b970fc8ab9f1ef4ee818db0d802b99ba351510686ae91",
+      "artifactSha256": "5c992b524f478fad5993d9658b67d9858f999b4446c4df6635dae5724c2e99f7"
+    },
+    {
+      "path": "final-visual/report.md",
+      "source": "Logs/AgentReproduction/20260913-231330-997/report.md",
+      "sourceBytes": 465,
+      "sourceSha256": "eccd87d51d94dc514bc2043d8975f1f4afe514c5fce897b47c08b41842bb750c",
+      "artifactSha256": "eccd87d51d94dc514bc2043d8975f1f4afe514c5fce897b47c08b41842bb750c"
+    },
+    {
+      "path": "final-visual/summary.json",
+      "source": "Logs/AgentReproduction/20260913-231330-997/summary.json",
+      "sourceBytes": 683,
+      "sourceSha256": "b35ed616bc668ba11314bc97275327ca072390a2fc6f0af5c4852aee681ce468",
+      "artifactSha256": "b35ed616bc668ba11314bc97275327ca072390a2fc6f0af5c4852aee681ce468"
+    },
+    {
+      "path": "final-visual/visual/01-compact-hud.json",
+      "source": "Logs/AgentReproduction/20260913-231330-997/visual/01-compact-hud.json",
+      "sourceBytes": 1098,
+      "sourceSha256": "86c655f5346f61036b8461bcb269f5129833f9b3da10827e3fc0453db705ffa1",
+      "artifactSha256": "86c655f5346f61036b8461bcb269f5129833f9b3da10827e3fc0453db705ffa1"
+    },
+    {
+      "path": "final-visual/visual/01-compact-hud.png",
+      "source": "Logs/AgentReproduction/20260913-231330-997/visual/01-compact-hud.png",
+      "sourceBytes": 5150805,
+      "sourceSha256": "83b2e5313242785df6b6001e29cca924ded3da228a4ef3ea63b1e22b73e72a58",
+      "artifactSha256": "83b2e5313242785df6b6001e29cca924ded3da228a4ef3ea63b1e22b73e72a58"
+    },
+    {
+      "path": "final-visual/visual/02-expanded-map.json",
+      "source": "Logs/AgentReproduction/20260913-231330-997/visual/02-expanded-map.json",
+      "sourceBytes": 1100,
+      "sourceSha256": "6d11d30302f31a17eb149405a27f80e332e06b4f108e0b281d747da742bbb189",
+      "artifactSha256": "6d11d30302f31a17eb149405a27f80e332e06b4f108e0b281d747da742bbb189"
+    },
+    {
+      "path": "final-visual/visual/02-expanded-map.png",
+      "source": "Logs/AgentReproduction/20260913-231330-997/visual/02-expanded-map.png",
+      "sourceBytes": 2042995,
+      "sourceSha256": "2f5d2cca8694da3d82e0ae921dd0f3ed7393d51bfc3c11aacfd140d20faa7347",
+      "artifactSha256": "2f5d2cca8694da3d82e0ae921dd0f3ed7393d51bfc3c11aacfd140d20faa7347"
+    },
+    {
+      "path": "final-visual/groups/MapCommandVisual-1/test-results.xml",
+      "source": "Logs/AgentReproduction/20260913-231330-997/groups/MapCommandVisual-1/test-results.xml",
+      "sourceBytes": 21593,
+      "sourceSha256": "2b12ad96597e6bfa8be5afd094ec63de19d0cb2de959e2321c86bbe647dbf630",
+      "artifactSha256": "2b12ad96597e6bfa8be5afd094ec63de19d0cb2de959e2321c86bbe647dbf630"
+    },
+    {
+      "path": "final-visual/cases/4391457C2CBFAD28/1/case.json",
+      "source": "Logs/AgentReproduction/20260913-231330-997/cases/4391457C2CBFAD28/1/case.json",
+      "sourceBytes": 311,
+      "sourceSha256": "0f49aad3b7aecf0c305d8690d9080ccd97b2ee963321c7e53399dccd14652fca",
+      "artifactSha256": "0f49aad3b7aecf0c305d8690d9080ccd97b2ee963321c7e53399dccd14652fca"
+    },
+    {
+      "path": "final-visual/cases/4391457C2CBFAD28/1/nunit-final.json",
+      "source": "Logs/AgentReproduction/20260913-231330-997/cases/4391457C2CBFAD28/1/nunit-final.json",
+      "sourceBytes": 237,
+      "sourceSha256": "47d1b2162a19202369eb076ddc563acb36cb6d99dbb50a280687fcd86193e6c2",
+      "artifactSha256": "47d1b2162a19202369eb076ddc563acb36cb6d99dbb50a280687fcd86193e6c2"
+    },
+    {
+      "path": "final-visual/cases/4391457C2CBFAD28/1/trace.jsonl.gz",
+      "source": "Logs/AgentReproduction/20260913-231330-997/cases/4391457C2CBFAD28/1/trace.jsonl",
+      "sourceBytes": 155,
+      "sourceSha256": "2ed176debaa32f088395e81b637ffe5cfef40e11c1e2876f36e7a8ad4b50f726",
+      "artifactSha256": "93da10ba3725470ec811b934a9717a724c11604a8b6078f5c427447f22d59030"
+    },
+    {
+      "path": "final-sc02/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-231201-495/manifest.json",
+      "sourceBytes": 1595371,
+      "sourceSha256": "40795c45b2a9b5180ad770f01dc8f4e34101a6a22f988d6a862567fa149a2e7c",
+      "artifactSha256": "5411e174879c693273eb2bddab1dd1fd04673c54bfb289b274d8f06ee788dce1"
+    },
+    {
+      "path": "final-sc02/config.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/config.json",
+      "sourceBytes": 589,
+      "sourceSha256": "251e7b8748132d014f2188f5ec09edf749f4e632ce9beeacd395dfb95ad57efb",
+      "artifactSha256": "251e7b8748132d014f2188f5ec09edf749f4e632ce9beeacd395dfb95ad57efb"
+    },
+    {
+      "path": "final-sc02/result.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/result.json",
+      "sourceBytes": 2590,
+      "sourceSha256": "50a4c1b8d87f300ea511dddf6ff005d0a293a92453ef0d912172bf660189134a",
+      "artifactSha256": "50a4c1b8d87f300ea511dddf6ff005d0a293a92453ef0d912172bf660189134a"
+    },
+    {
+      "path": "final-sc02/report.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/report.json",
+      "sourceBytes": 87477,
+      "sourceSha256": "1bdc898c95bebbb0c2f81aec4b7c157406afe3215d33e94aba429c77768dd614",
+      "artifactSha256": "1bdc898c95bebbb0c2f81aec4b7c157406afe3215d33e94aba429c77768dd614"
+    },
+    {
+      "path": "final-sc02/route-contracts.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/route-contracts.json",
+      "sourceBytes": 842,
+      "sourceSha256": "d4589c352a053192792d1641e8359c1ecd7299691516481e611f98800931cab2",
+      "artifactSha256": "d4589c352a053192792d1641e8359c1ecd7299691516481e611f98800931cab2"
+    },
+    {
+      "path": "final-sc02/contracts.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/contracts.json",
+      "sourceBytes": 1714,
+      "sourceSha256": "9518e3ec013c460d66b6ed0a87d2b2de33b4cda7557d950e5d5b5ba85da51de7",
+      "artifactSha256": "9518e3ec013c460d66b6ed0a87d2b2de33b4cda7557d950e5d5b5ba85da51de7"
+    },
+    {
+      "path": "final-sc02/events.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-231201-495/events.jsonl",
+      "sourceBytes": 3418084,
+      "sourceSha256": "03d656fa44a0c0b17a1c476ce2efb6d59e03a27ae5e54833f086dbcd41a097a4",
+      "artifactSha256": "b60d05123e741c6245f15435c1adb13b4824fe7e622924bffbcd533e525b8c40"
+    },
+    {
+      "path": "final-sc02/process.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/process.json",
+      "sourceBytes": 197,
+      "sourceSha256": "0f18205eed1b79714658a212d7afddddfbeb82bfdb459cdea23b15cca19f6d00",
+      "artifactSha256": "0f18205eed1b79714658a212d7afddddfbeb82bfdb459cdea23b15cca19f6d00"
+    },
+    {
+      "path": "final-sc02/process-start.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/process-start.json",
+      "sourceBytes": 318,
+      "sourceSha256": "34ae82a12a03ba930b3783c3f5a6dc5ceb5f1c7dac0d4aad3edb3806c15cba7e",
+      "artifactSha256": "34ae82a12a03ba930b3783c3f5a6dc5ceb5f1c7dac0d4aad3edb3806c15cba7e"
+    },
+    {
+      "path": "final-sc02/cleanup.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/cleanup.json",
+      "sourceBytes": 22,
+      "sourceSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb",
+      "artifactSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb"
+    },
+    {
+      "path": "final-sc02/warehouse-final.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/warehouse-final.json",
+      "sourceBytes": 6681,
+      "sourceSha256": "da692275c56cfe0c89bec6f9ceccb2705b3d1146bf8b15bd62482eb58263eab0",
+      "artifactSha256": "da692275c56cfe0c89bec6f9ceccb2705b3d1146bf8b15bd62482eb58263eab0"
+    },
+    {
+      "path": "final-sc02/warehouse-initial.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/warehouse-initial.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "final-sc02/render-final.json",
+      "source": "Logs/SceneRaid/20260913-231201-495/render-final.json",
+      "sourceBytes": 642,
+      "sourceSha256": "9960215dcc62a4bef3b2d1c1a18a9b9dbbf2d1a8fbbe48d151018b1fc2373944",
+      "artifactSha256": "9960215dcc62a4bef3b2d1c1a18a9b9dbbf2d1a8fbbe48d151018b1fc2373944"
+    },
+    {
+      "path": "final-sc02/frames.csv.gz",
+      "source": "Logs/SceneRaid/20260913-231201-495/frames.csv",
+      "sourceBytes": 432968,
+      "sourceSha256": "74da8d92c653e5f39758887299f26146f7972b6c8beac76d7a070e94d19a2452",
+      "artifactSha256": "88050549e8f7a50e1e79e0f165f0de27a893ca536ed260087e5ceda3973924ac"
+    },
+    {
+      "path": "final-sc02/counters.csv.gz",
+      "source": "Logs/SceneRaid/20260913-231201-495/counters.csv",
+      "sourceBytes": 4425251,
+      "sourceSha256": "2c32fcc6a9ba8261d0a31d13c00e67177197a6bceec1b33f98adcd19b20e891c",
+      "artifactSha256": "33c78ebd6bc619603d52cd8d6da00a33a94756435d7a142618b5f99c1c2a3711"
+    },
+    {
+      "path": "final-sc10-mr02/manifest.json.gz",
+      "source": "Logs/SceneRaid/20260913-231338-815/manifest.json",
+      "sourceBytes": 1595371,
+      "sourceSha256": "d11dcfdcabd11d454d1a6d3378e5e63f7354146a5cce4a8bdcba20a2b5e7e1bb",
+      "artifactSha256": "546df95105d6963e3c6dc3e78bc5fc15561d9008ec664c6285c7970731c31544"
+    },
+    {
+      "path": "final-sc10-mr02/config.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/config.json",
+      "sourceBytes": 916,
+      "sourceSha256": "ab6649a0f0fefbeaae4178879e55b1bc612087f2dbd300be40b1a90e21ec869d",
+      "artifactSha256": "ab6649a0f0fefbeaae4178879e55b1bc612087f2dbd300be40b1a90e21ec869d"
+    },
+    {
+      "path": "final-sc10-mr02/result.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/result.json",
+      "sourceBytes": 2589,
+      "sourceSha256": "fa147864c91b7a80dfedfcb883d460c662cfed9c432845750413a12e7e49c99f",
+      "artifactSha256": "fa147864c91b7a80dfedfcb883d460c662cfed9c432845750413a12e7e49c99f"
+    },
+    {
+      "path": "final-sc10-mr02/report.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/report.json",
+      "sourceBytes": 180583,
+      "sourceSha256": "d7dae28310642867e41af362e8e8e697006f6236e90fd78ac6f14b939ff8c455",
+      "artifactSha256": "d7dae28310642867e41af362e8e8e697006f6236e90fd78ac6f14b939ff8c455"
+    },
+    {
+      "path": "final-sc10-mr02/route-contracts.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/route-contracts.json",
+      "sourceBytes": 11595,
+      "sourceSha256": "9d900d0c7dca34eb74c86ccc6bcccf0503d64c4c007927780afbbc4ef18f8a7e",
+      "artifactSha256": "9d900d0c7dca34eb74c86ccc6bcccf0503d64c4c007927780afbbc4ef18f8a7e"
+    },
+    {
+      "path": "final-sc10-mr02/contracts.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/contracts.json",
+      "sourceBytes": 780,
+      "sourceSha256": "222e8ca9b2ea66b7eee60f6f9f6d380a4399431dcf192550b761d364f139b3a8",
+      "artifactSha256": "222e8ca9b2ea66b7eee60f6f9f6d380a4399431dcf192550b761d364f139b3a8"
+    },
+    {
+      "path": "final-sc10-mr02/events.jsonl.gz",
+      "source": "Logs/SceneRaid/20260913-231338-815/events.jsonl",
+      "sourceBytes": 3524628,
+      "sourceSha256": "f14f536a2c1c492c0a3706beb8c842bcb1c0b02c2d63135eebc501c20fbbf76d",
+      "artifactSha256": "e279155f0f17cf386b1bac222e6eb281868e03b25673bb6f9b9b4b252fdf2f5c"
+    },
+    {
+      "path": "final-sc10-mr02/process.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/process.json",
+      "sourceBytes": 197,
+      "sourceSha256": "65ba07b2f850fc9756c34a196c945c990d9875b5fd1cc5f73cb31fc7ff93c270",
+      "artifactSha256": "65ba07b2f850fc9756c34a196c945c990d9875b5fd1cc5f73cb31fc7ff93c270"
+    },
+    {
+      "path": "final-sc10-mr02/process-start.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/process-start.json",
+      "sourceBytes": 318,
+      "sourceSha256": "f07a9923b2c0d9247629178bf578075ae98fed213d6c6d7f91125fb1c528b237",
+      "artifactSha256": "f07a9923b2c0d9247629178bf578075ae98fed213d6c6d7f91125fb1c528b237"
+    },
+    {
+      "path": "final-sc10-mr02/cleanup.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/cleanup.json",
+      "sourceBytes": 22,
+      "sourceSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb",
+      "artifactSha256": "2d01f6fda2f4ac4f0fea76e18d5d11c96d68fbaad43f78d62650bbdb3090febb"
+    },
+    {
+      "path": "final-sc10-mr02/warehouse-final.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/warehouse-final.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "final-sc10-mr02/warehouse-initial.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/warehouse-initial.json",
+      "sourceBytes": 26,
+      "sourceSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52",
+      "artifactSha256": "4dcf4b17b5deb4371246db999f9f719b55e9c3845e7c3b353293109e5f860c52"
+    },
+    {
+      "path": "final-sc10-mr02/render-final.json",
+      "source": "Logs/SceneRaid/20260913-231338-815/render-final.json",
+      "sourceBytes": 642,
+      "sourceSha256": "20089f70f33fefa89cd37fb12477ecc99c1b2481f42366cc7efcee30301ca0af",
+      "artifactSha256": "20089f70f33fefa89cd37fb12477ecc99c1b2481f42366cc7efcee30301ca0af"
+    },
+    {
+      "path": "final-sc10-mr02/frames.csv.gz",
+      "source": "Logs/SceneRaid/20260913-231338-815/frames.csv",
+      "sourceBytes": 297713,
+      "sourceSha256": "3fb8a14dc35ff697d8ea36bbe3785e7a9f471eb748af254c6d378cf2ba412c29",
+      "artifactSha256": "763a14313cf3d1ebf2190b1b77b67655bb4445a70bd0889d79c75d5f1da40000"
+    },
+    {
+      "path": "final-sc10-mr02/counters.csv.gz",
+      "source": "Logs/SceneRaid/20260913-231338-815/counters.csv",
+      "sourceBytes": 3016666,
+      "sourceSha256": "db244a1adfcd146be78961aa1806c7270c40860bed5fb21f05c3a85f1b51d59c",
+      "artifactSha256": "32570dd5bedbd2337fb8d6cb9fd04d68c70069dbe7aec38e4bf744e4cd69d4f9"
+    },
+    {
+      "path": "review/processing-probe.json",
+      "source": "Logs/processing-probe.json",
+      "sourceBytes": 9406,
+      "sourceSha256": "e0cf1274c8347e8d176c0d7a54d80332e535776faa3e5bb2c5cc5d9105cc9c75",
+      "artifactSha256": "e0cf1274c8347e8d176c0d7a54d80332e535776faa3e5bb2c5cc5d9105cc9c75"
+    },
+    {
+      "path": "review/map-fix-scope-review.json",
+      "source": "Logs/map-fix-scope-review.json",
+      "sourceBytes": 407,
+      "sourceSha256": "ad3a5c499f1e25c09b22ad0369b0b8f3050bee434ad0f42eb30c49db5957c475",
+      "artifactSha256": "ad3a5c499f1e25c09b22ad0369b0b8f3050bee434ad0f42eb30c49db5957c475"
+    },
+    {
+      "path": "review/first-import.json",
+      "source": "Logs/map-fix-bake-backup/import.json",
+      "sourceBytes": 623,
+      "sourceSha256": "98c94bdfb0f3e8291660292fc16934e2aefaf424e19df3ec2682504387e9e109",
+      "artifactSha256": "98c94bdfb0f3e8291660292fc16934e2aefaf424e19df3ec2682504387e9e109"
+    },
+    {
+      "path": "review/final-import.json",
+      "source": "Logs/map-fix-bake-backup/20260913-230947-325/import.json",
+      "sourceBytes": 623,
+      "sourceSha256": "879eb1851d918cd580be2f8613bf3bbb0138c19b9846dc753afe09111728eba1",
+      "artifactSha256": "879eb1851d918cd580be2f8613bf3bbb0138c19b9846dc753afe09111728eba1"
+    }
+  ]
+}

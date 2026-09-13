@@ -1,0 +1,179 @@
+﻿{
+    "schemaVersion":  1,
+    "status":  "PASS",
+    "failures":  [
+
+                 ],
+    "coverage":  {
+                     "accepted":  8,
+                     "states":  94,
+                     "frames":  204,
+                     "synchronizedDisplays":  408,
+                     "travelling":  131,
+                     "waiting":  9,
+                     "retaliation":  11,
+                     "completed":  3,
+                     "extracted":  0,
+                     "dead":  2,
+                     "player":  46,
+                     "autonomous":  44
+                 },
+    "rejections":  [
+                       {
+                           "agent":  "2",
+                           "requestId":  "Route_f91ad17358204ef78d246f2119e78cf6",
+                           "source":  "Player",
+                           "goal":  "__invalid_map_command_node__",
+                           "stage":  "Rejected",
+                           "reason":  "MissingTarget",
+                           "detail":  "",
+                           "version":  0,
+                           "replan":  false,
+                           "snapshot":  {
+                                            "agent":  "2",
+                                            "requestId":  "Route_fa1c42cea7b24128a17b787beeb5b9fc",
+                                            "source":  "Player",
+                                            "stage":  "Accepted",
+                                            "failure":  "None",
+                                            "goal":  "cluster_57b311b262bc54d476dde1d6c528f5fa",
+                                            "currentNode":  "cluster_1fdefe80ef2edccd45207db5a80a9123",
+                                            "previousNode":  "",
+                                            "entryFrom":  "",
+                                            "stepPhase":  "Travelling",
+                                            "commandId":  "RouteStep_Route_fa1c42cea7b24128a17b787beeb5b9fc_3_0_1",
+                                            "pendingId":  "",
+                                            "pendingGoal":  "",
+                                            "installed":  true,
+                                            "hasRoute":  true,
+                                            "active":  true,
+                                            "pending":  false,
+                                            "retaliating":  false,
+                                            "dead":  false,
+                                            "version":  3,
+                                            "graphRevision":  7,
+                                            "costRevision":  1,
+                                            "bindingRevision":  1,
+                                            "environmentVersion":  1,
+                                            "currentCostRevision":  1,
+                                            "cursor":  0,
+                                            "aliveMembers":  0,
+                                            "health":  156,
+                                            "nodes":  [
+                                                          "cluster_1fdefe80ef2edccd45207db5a80a9123",
+                                                          "cluster_e003c321c8d54767f3e93234ce7e48c5",
+                                                          "cluster_3a148e744335b9648c8c429f7fe51985",
+                                                          "cluster_ae3336fb07b69b8f929439fab983b97c",
+                                                          "cluster_b4b57110749a44a77e972f12ac0416a0",
+                                                          "cluster_773e939f7ea9caf80fb9456c516d3bea",
+                                                          "cluster_02c8fd945d1342eab053fa8af41d469f",
+                                                          "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+                                                          "cluster_8a3f36926764590933b6f4b14f703f7b",
+                                                          "cluster_1d8e558540281854a4430a91743e5541",
+                                                          "cluster_91fa0341c45a4fa3c8a9d8d0aff044a8",
+                                                          "cluster_57b311b262bc54d476dde1d6c528f5fa"
+                                                      ],
+                                            "position":  {
+                                                             "x":  214.59576416015626,
+                                                             "y":  3.3094329833984377,
+                                                             "z":  -12.510692596435547
+                                                         },
+                                            "anchor":  {
+                                                           "x":  208.82791137695313,
+                                                           "y":  0.23931503295898438,
+                                                           "z":  -2.5999984741210939
+                                                       },
+                                            "anchorDistance3D":  11.870787620544434,
+                                            "anchorDistancePlanar":  11.46690845489502
+                                        }
+                       }
+                   ],
+    "rootFailures":  [
+                         {
+                             "agent":  "2",
+                             "requestId":  "Route_fa1c42cea7b24128a17b787beeb5b9fc",
+                             "source":  "Player",
+                             "goal":  "cluster_57b311b262bc54d476dde1d6c528f5fa",
+                             "stage":  "Failed",
+                             "reason":  "CapacityExtraction",
+                             "detail":  "",
+                             "version":  3,
+                             "replan":  false,
+                             "snapshot":  {
+                                              "agent":  "2",
+                                              "requestId":  "Route_fa1c42cea7b24128a17b787beeb5b9fc",
+                                              "source":  "Player",
+                                              "stage":  "Failed",
+                                              "failure":  "CapacityExtraction",
+                                              "goal":  "cluster_57b311b262bc54d476dde1d6c528f5fa",
+                                              "currentNode":  "cluster_02c8fd945d1342eab053fa8af41d469f",
+                                              "previousNode":  "cluster_773e939f7ea9caf80fb9456c516d3bea",
+                                              "entryFrom":  "",
+                                              "stepPhase":  "Failed",
+                                              "commandId":  "RouteStep_Route_fa1c42cea7b24128a17b787beeb5b9fc_3_6_2",
+                                              "pendingId":  "",
+                                              "pendingGoal":  "",
+                                              "installed":  true,
+                                              "hasRoute":  true,
+                                              "active":  false,
+                                              "pending":  false,
+                                              "retaliating":  false,
+                                              "dead":  false,
+                                              "version":  3,
+                                              "graphRevision":  7,
+                                              "costRevision":  1,
+                                              "bindingRevision":  1,
+                                              "environmentVersion":  1,
+                                              "currentCostRevision":  1,
+                                              "cursor":  6,
+                                              "aliveMembers":  0,
+                                              "health":  61,
+                                              "nodes":  [
+                                                            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+                                                            "cluster_e003c321c8d54767f3e93234ce7e48c5",
+                                                            "cluster_3a148e744335b9648c8c429f7fe51985",
+                                                            "cluster_ae3336fb07b69b8f929439fab983b97c",
+                                                            "cluster_b4b57110749a44a77e972f12ac0416a0",
+                                                            "cluster_773e939f7ea9caf80fb9456c516d3bea",
+                                                            "cluster_02c8fd945d1342eab053fa8af41d469f",
+                                                            "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+                                                            "cluster_8a3f36926764590933b6f4b14f703f7b",
+                                                            "cluster_1d8e558540281854a4430a91743e5541",
+                                                            "cluster_91fa0341c45a4fa3c8a9d8d0aff044a8",
+                                                            "cluster_57b311b262bc54d476dde1d6c528f5fa"
+                                                        ],
+                                              "position":  {
+                                                               "x":  -19.97271728515625,
+                                                               "y":  3.1666946411132814,
+                                                               "z":  -148.71742248535157
+                                                           },
+                                              "anchor":  {
+                                                             "x":  -17.47491455078125,
+                                                             "y":  0.16669464111328126,
+                                                             "z":  -148.8189697265625
+                                                         },
+                                              "anchorDistance3D":  3.905039072036743,
+                                              "anchorDistancePlanar":  2.499866008758545
+                                          }
+                         }
+                     ],
+    "terminalAcceptance":  "RequiresIndependentRaidSettlement",
+    "sampledStatesDoNotProveEveryIntermediateFrame":  true,
+    "script":  {
+                   "status":  "PASS",
+                   "failures":  [
+
+                                ],
+                   "coverage":  {
+                                    "near":  true,
+                                    "far":  true,
+                                    "invalidPreserves":  true,
+                                    "nearMoved":  true,
+                                    "farMoved":  true,
+                                    "farPassedNodes":  true,
+                                    "playerRetaliation":  5,
+                                    "playerRetaliationResumed":  5,
+                                    "otherAutonomous":  true
+                                },
+                   "submitted":  3
+               }
+}

@@ -1,0 +1,1419 @@
+﻿{
+    "schemaVersion":  1,
+    "runId":  "20260913-231201-495",
+    "mode":  "Autonomous",
+    "editorLifecycle":  "EDITOR_RETAINED",
+    "processExitCode":  null,
+    "evidenceStatus":  "PASS",
+    "gameStatus":  "ISSUES_OBSERVED",
+    "completionContracts":  {
+                                "status":  "PASS",
+                                "outcome":  "ALL_EXTRACTED",
+                                "failures":  [
+
+                                             ],
+                                "coverage":  {
+                                                 "movement:1":  true,
+                                                 "inventory:1":  true,
+                                                 "ledger:1":  true,
+                                                 "verifiedTransfer:1":  true,
+                                                 "movement:2":  true,
+                                                 "inventory:2":  true,
+                                                 "ledger:2":  true,
+                                                 "verifiedTransfer:2":  true,
+                                                 "combatDamage":  true,
+                                                 "pauseResume":  true,
+                                                 "capacityExtraction":  false,
+                                                 "retaliationResume":  true
+                                             },
+                                "expected":  {
+                                                 "organic_fiber":  2,
+                                                 "equip_totem_green":  2,
+                                                 "notebook":  1,
+                                                 "top_organic_fiber":  1,
+                                                 "equip_head_blue":  4,
+                                                 "equip_head_green":  1,
+                                                 "military_radio":  1,
+                                                 "equip_face_blue":  1,
+                                                 "equip_headphone_blue":  1,
+                                                 "book":  1,
+                                                 "pocket_watch":  1
+                                             },
+                                "actual":  {
+                                               "organic_fiber":  2,
+                                               "equip_totem_green":  2,
+                                               "notebook":  1,
+                                               "top_organic_fiber":  1,
+                                               "equip_head_blue":  4,
+                                               "equip_head_green":  1,
+                                               "military_radio":  1,
+                                               "equip_face_blue":  1,
+                                               "equip_headphone_blue":  1,
+                                               "book":  1,
+                                               "pocket_watch":  1
+                                           }
+                            },
+    "routeContracts":  {
+                           "schemaVersion":  1,
+                           "status":  "PASS",
+                           "failures":  [
+
+                                        ],
+                           "coverage":  {
+                                            "accepted":  9,
+                                            "states":  118,
+                                            "frames":  243,
+                                            "synchronizedDisplays":  474,
+                                            "travelling":  171,
+                                            "waiting":  14,
+                                            "retaliation":  9,
+                                            "completed":  7,
+                                            "extracted":  0,
+                                            "dead":  0,
+                                            "player":  0,
+                                            "autonomous":  114
+                                        },
+                           "rejections":  [
+
+                                          ],
+                           "rootFailures":  [
+
+                                            ],
+                           "terminalAcceptance":  "RequiresIndependentRaidSettlement",
+                           "sampledStatesDoNotProveEveryIntermediateFrame":  true
+                       },
+    "expectedRejections":  0,
+    "expectedExecutionFailures":  0,
+    "recoveredRouteFailures":  0,
+    "recoveredRouteSteps":  [
+
+                            ],
+    "unexpectedBehaviorFailures":  1,
+    "coverageStatus":  "NOT_APPLICABLE",
+    "gameErrors":  0,
+    "behaviorFailures":  1,
+    "warnings":  58,
+    "stagnationSuspicions":  0,
+    "diagnosticTiming":  {
+                             "targetFps":  60,
+                             "frameBudgetMs":  16.666666666666668,
+                             "maximumBudgetMs":  33.333333333333336,
+                             "validIntervals":  6059,
+                             "averageFps":  90.673332354298836,
+                             "p99Ms":  20.2904,
+                             "maxMs":  477.7182,
+                             "onePercentLowFps":  30.713933295278267,
+                             "minimumOneSecondFps":  58,
+                             "windowCount":  262,
+                             "startupIncluded":  true,
+                             "slowFrameCount":  230,
+                             "slowFrames":  [
+                                                {
+                                                    "ms":  477.7182,
+                                                    "wallSeconds":  1.428842,
+                                                    "frame":  2
+                                                },
+                                                {
+                                                    "ms":  24.6077,
+                                                    "wallSeconds":  1.45345,
+                                                    "frame":  3
+                                                },
+                                                {
+                                                    "ms":  24.8547,
+                                                    "wallSeconds":  1.478305,
+                                                    "frame":  4
+                                                },
+                                                {
+                                                    "ms":  34.2972,
+                                                    "wallSeconds":  1.527075,
+                                                    "frame":  6
+                                                },
+                                                {
+                                                    "ms":  21.4396,
+                                                    "wallSeconds":  1.565133,
+                                                    "frame":  8
+                                                },
+                                                {
+                                                    "ms":  16.8221,
+                                                    "wallSeconds":  1.581955,
+                                                    "frame":  9
+                                                },
+                                                {
+                                                    "ms":  26.7812,
+                                                    "wallSeconds":  1.637052,
+                                                    "frame":  12
+                                                },
+                                                {
+                                                    "ms":  18.6127,
+                                                    "wallSeconds":  1.655664,
+                                                    "frame":  13
+                                                },
+                                                {
+                                                    "ms":  22.6161,
+                                                    "wallSeconds":  1.67828,
+                                                    "frame":  14
+                                                },
+                                                {
+                                                    "ms":  21.5828,
+                                                    "wallSeconds":  1.895489,
+                                                    "frame":  30
+                                                },
+                                                {
+                                                    "ms":  20.4868,
+                                                    "wallSeconds":  2.064355,
+                                                    "frame":  42
+                                                },
+                                                {
+                                                    "ms":  19.8601,
+                                                    "wallSeconds":  2.122212,
+                                                    "frame":  46
+                                                },
+                                                {
+                                                    "ms":  20.8861,
+                                                    "wallSeconds":  2.155786,
+                                                    "frame":  48
+                                                },
+                                                {
+                                                    "ms":  38.1937,
+                                                    "wallSeconds":  2.221893,
+                                                    "frame":  51
+                                                },
+                                                {
+                                                    "ms":  22.1863,
+                                                    "wallSeconds":  2.244079,
+                                                    "frame":  52
+                                                },
+                                                {
+                                                    "ms":  17.8595,
+                                                    "wallSeconds":  2.261938,
+                                                    "frame":  53
+                                                },
+                                                {
+                                                    "ms":  18.1942,
+                                                    "wallSeconds":  2.317998,
+                                                    "frame":  57
+                                                },
+                                                {
+                                                    "ms":  22.4263,
+                                                    "wallSeconds":  2.380873,
+                                                    "frame":  61
+                                                },
+                                                {
+                                                    "ms":  32.4771,
+                                                    "wallSeconds":  2.452603,
+                                                    "frame":  65
+                                                },
+                                                {
+                                                    "ms":  18.417,
+                                                    "wallSeconds":  2.47102,
+                                                    "frame":  66
+                                                },
+                                                {
+                                                    "ms":  18.3192,
+                                                    "wallSeconds":  2.502067,
+                                                    "frame":  68
+                                                },
+                                                {
+                                                    "ms":  20.3538,
+                                                    "wallSeconds":  2.719313,
+                                                    "frame":  84
+                                                },
+                                                {
+                                                    "ms":  16.8082,
+                                                    "wallSeconds":  2.880497,
+                                                    "frame":  96
+                                                },
+                                                {
+                                                    "ms":  16.6716,
+                                                    "wallSeconds":  2.933221,
+                                                    "frame":  100
+                                                },
+                                                {
+                                                    "ms":  17.9977,
+                                                    "wallSeconds":  3.485497,
+                                                    "frame":  142
+                                                },
+                                                {
+                                                    "ms":  17.9324,
+                                                    "wallSeconds":  3.539495,
+                                                    "frame":  146
+                                                },
+                                                {
+                                                    "ms":  18.4413,
+                                                    "wallSeconds":  3.595619,
+                                                    "frame":  150
+                                                },
+                                                {
+                                                    "ms":  19.8978,
+                                                    "wallSeconds":  3.650345,
+                                                    "frame":  154
+                                                },
+                                                {
+                                                    "ms":  20.2608,
+                                                    "wallSeconds":  3.709884,
+                                                    "frame":  158
+                                                },
+                                                {
+                                                    "ms":  16.9455,
+                                                    "wallSeconds":  3.765344,
+                                                    "frame":  162
+                                                },
+                                                {
+                                                    "ms":  16.9295,
+                                                    "wallSeconds":  3.819662,
+                                                    "frame":  166
+                                                },
+                                                {
+                                                    "ms":  17.5205,
+                                                    "wallSeconds":  3.837183,
+                                                    "frame":  167
+                                                },
+                                                {
+                                                    "ms":  19.8728,
+                                                    "wallSeconds":  3.913522,
+                                                    "frame":  172
+                                                },
+                                                {
+                                                    "ms":  16.8475,
+                                                    "wallSeconds":  3.941818,
+                                                    "frame":  174
+                                                },
+                                                {
+                                                    "ms":  19.423,
+                                                    "wallSeconds":  4.165749,
+                                                    "frame":  190
+                                                },
+                                                {
+                                                    "ms":  18.502,
+                                                    "wallSeconds":  4.277402,
+                                                    "frame":  198
+                                                },
+                                                {
+                                                    "ms":  17.2574,
+                                                    "wallSeconds":  4.381601,
+                                                    "frame":  206
+                                                },
+                                                {
+                                                    "ms":  18.2827,
+                                                    "wallSeconds":  4.501484,
+                                                    "frame":  214
+                                                },
+                                                {
+                                                    "ms":  18.9256,
+                                                    "wallSeconds":  4.613482,
+                                                    "frame":  222
+                                                },
+                                                {
+                                                    "ms":  18.0848,
+                                                    "wallSeconds":  4.723543,
+                                                    "frame":  230
+                                                },
+                                                {
+                                                    "ms":  17.0692,
+                                                    "wallSeconds":  4.922865,
+                                                    "frame":  244
+                                                },
+                                                {
+                                                    "ms":  18.1794,
+                                                    "wallSeconds":  4.956649,
+                                                    "frame":  246
+                                                },
+                                                {
+                                                    "ms":  20.7805,
+                                                    "wallSeconds":  5.017557,
+                                                    "frame":  250
+                                                },
+                                                {
+                                                    "ms":  17.7805,
+                                                    "wallSeconds":  5.071796,
+                                                    "frame":  254
+                                                },
+                                                {
+                                                    "ms":  19.631,
+                                                    "wallSeconds":  5.18032,
+                                                    "frame":  262
+                                                },
+                                                {
+                                                    "ms":  20.9034,
+                                                    "wallSeconds":  5.287474,
+                                                    "frame":  269
+                                                },
+                                                {
+                                                    "ms":  27.1846,
+                                                    "wallSeconds":  5.314658,
+                                                    "frame":  270
+                                                },
+                                                {
+                                                    "ms":  18.2218,
+                                                    "wallSeconds":  5.361492,
+                                                    "frame":  273
+                                                },
+                                                {
+                                                    "ms":  22.2633,
+                                                    "wallSeconds":  5.424049,
+                                                    "frame":  277
+                                                },
+                                                {
+                                                    "ms":  23.8663,
+                                                    "wallSeconds":  5.447915,
+                                                    "frame":  278
+                                                },
+                                                {
+                                                    "ms":  26.5827,
+                                                    "wallSeconds":  5.488243,
+                                                    "frame":  280
+                                                },
+                                                {
+                                                    "ms":  17.2393,
+                                                    "wallSeconds":  5.505482,
+                                                    "frame":  281
+                                                },
+                                                {
+                                                    "ms":  22.0063,
+                                                    "wallSeconds":  5.54205,
+                                                    "frame":  283
+                                                },
+                                                {
+                                                    "ms":  17.7415,
+                                                    "wallSeconds":  5.598607,
+                                                    "frame":  287
+                                                },
+                                                {
+                                                    "ms":  17.6136,
+                                                    "wallSeconds":  5.62885,
+                                                    "frame":  289
+                                                },
+                                                {
+                                                    "ms":  17.6095,
+                                                    "wallSeconds":  5.658684,
+                                                    "frame":  291
+                                                },
+                                                {
+                                                    "ms":  18.9905,
+                                                    "wallSeconds":  5.722144,
+                                                    "frame":  295
+                                                },
+                                                {
+                                                    "ms":  16.7936,
+                                                    "wallSeconds":  5.738937,
+                                                    "frame":  296
+                                                },
+                                                {
+                                                    "ms":  22.5136,
+                                                    "wallSeconds":  5.761451,
+                                                    "frame":  297
+                                                },
+                                                {
+                                                    "ms":  27.8305,
+                                                    "wallSeconds":  5.789282,
+                                                    "frame":  298
+                                                },
+                                                {
+                                                    "ms":  18.2272,
+                                                    "wallSeconds":  5.82312,
+                                                    "frame":  300
+                                                },
+                                                {
+                                                    "ms":  17.9481,
+                                                    "wallSeconds":  5.841068,
+                                                    "frame":  301
+                                                },
+                                                {
+                                                    "ms":  18.011,
+                                                    "wallSeconds":  5.887459,
+                                                    "frame":  304
+                                                },
+                                                {
+                                                    "ms":  21.2784,
+                                                    "wallSeconds":  5.908738,
+                                                    "frame":  305
+                                                },
+                                                {
+                                                    "ms":  17.127,
+                                                    "wallSeconds":  5.967338,
+                                                    "frame":  309
+                                                },
+                                                {
+                                                    "ms":  16.9292,
+                                                    "wallSeconds":  5.997512,
+                                                    "frame":  311
+                                                },
+                                                {
+                                                    "ms":  19.1913,
+                                                    "wallSeconds":  6.061377,
+                                                    "frame":  315
+                                                },
+                                                {
+                                                    "ms":  21.7031,
+                                                    "wallSeconds":  6.096731,
+                                                    "frame":  317
+                                                },
+                                                {
+                                                    "ms":  17.7536,
+                                                    "wallSeconds":  6.147136,
+                                                    "frame":  320
+                                                },
+                                                {
+                                                    "ms":  17.1267,
+                                                    "wallSeconds":  6.164262,
+                                                    "frame":  321
+                                                },
+                                                {
+                                                    "ms":  17.2755,
+                                                    "wallSeconds":  6.181538,
+                                                    "frame":  322
+                                                },
+                                                {
+                                                    "ms":  17.927,
+                                                    "wallSeconds":  6.242983,
+                                                    "frame":  326
+                                                },
+                                                {
+                                                    "ms":  17.6737,
+                                                    "wallSeconds":  6.291659,
+                                                    "frame":  329
+                                                },
+                                                {
+                                                    "ms":  19.6515,
+                                                    "wallSeconds":  6.311311,
+                                                    "frame":  330
+                                                },
+                                                {
+                                                    "ms":  32.8533,
+                                                    "wallSeconds":  6.356352,
+                                                    "frame":  332
+                                                },
+                                                {
+                                                    "ms":  31.5566,
+                                                    "wallSeconds":  6.387908,
+                                                    "frame":  333
+                                                },
+                                                {
+                                                    "ms":  17.7681,
+                                                    "wallSeconds":  6.431177,
+                                                    "frame":  336
+                                                },
+                                                {
+                                                    "ms":  18.5793,
+                                                    "wallSeconds":  6.489813,
+                                                    "frame":  340
+                                                },
+                                                {
+                                                    "ms":  21.8636,
+                                                    "wallSeconds":  6.610252,
+                                                    "frame":  348
+                                                },
+                                                {
+                                                    "ms":  19.2794,
+                                                    "wallSeconds":  6.629531,
+                                                    "frame":  349
+                                                },
+                                                {
+                                                    "ms":  20.7083,
+                                                    "wallSeconds":  6.666579,
+                                                    "frame":  351
+                                                },
+                                                {
+                                                    "ms":  24.2737,
+                                                    "wallSeconds":  6.690853,
+                                                    "frame":  352
+                                                },
+                                                {
+                                                    "ms":  18.5785,
+                                                    "wallSeconds":  6.725264,
+                                                    "frame":  354
+                                                },
+                                                {
+                                                    "ms":  72.1804,
+                                                    "wallSeconds":  6.797444,
+                                                    "frame":  355
+                                                },
+                                                {
+                                                    "ms":  20.6465,
+                                                    "wallSeconds":  6.81809,
+                                                    "frame":  356
+                                                },
+                                                {
+                                                    "ms":  18.6081,
+                                                    "wallSeconds":  6.945685,
+                                                    "frame":  365
+                                                },
+                                                {
+                                                    "ms":  16.805,
+                                                    "wallSeconds":  6.96249,
+                                                    "frame":  366
+                                                },
+                                                {
+                                                    "ms":  20.5044,
+                                                    "wallSeconds":  7.167539,
+                                                    "frame":  380
+                                                },
+                                                {
+                                                    "ms":  28.2203,
+                                                    "wallSeconds":  7.19576,
+                                                    "frame":  381
+                                                },
+                                                {
+                                                    "ms":  29.0354,
+                                                    "wallSeconds":  7.234922,
+                                                    "frame":  383
+                                                },
+                                                {
+                                                    "ms":  19.9928,
+                                                    "wallSeconds":  7.254915,
+                                                    "frame":  384
+                                                },
+                                                {
+                                                    "ms":  22.1573,
+                                                    "wallSeconds":  7.699631,
+                                                    "frame":  417
+                                                },
+                                                {
+                                                    "ms":  18.7003,
+                                                    "wallSeconds":  7.880845,
+                                                    "frame":  430
+                                                },
+                                                {
+                                                    "ms":  22.2695,
+                                                    "wallSeconds":  7.929452,
+                                                    "frame":  433
+                                                },
+                                                {
+                                                    "ms":  18.2946,
+                                                    "wallSeconds":  8.131696,
+                                                    "frame":  450
+                                                },
+                                                {
+                                                    "ms":  23.7923,
+                                                    "wallSeconds":  8.155488,
+                                                    "frame":  451
+                                                },
+                                                {
+                                                    "ms":  20.0281,
+                                                    "wallSeconds":  8.345049,
+                                                    "frame":  466
+                                                },
+                                                {
+                                                    "ms":  19.2337,
+                                                    "wallSeconds":  8.404694,
+                                                    "frame":  470
+                                                },
+                                                {
+                                                    "ms":  21.961,
+                                                    "wallSeconds":  8.458544,
+                                                    "frame":  473
+                                                },
+                                                {
+                                                    "ms":  17.3515,
+                                                    "wallSeconds":  8.475896,
+                                                    "frame":  474
+                                                },
+                                                {
+                                                    "ms":  19.0193,
+                                                    "wallSeconds":  8.510982,
+                                                    "frame":  476
+                                                },
+                                                {
+                                                    "ms":  18.969,
+                                                    "wallSeconds":  8.567774,
+                                                    "frame":  480
+                                                },
+                                                {
+                                                    "ms":  17.5961,
+                                                    "wallSeconds":  8.673635,
+                                                    "frame":  489
+                                                },
+                                                {
+                                                    "ms":  17.2337,
+                                                    "wallSeconds":  8.79172,
+                                                    "frame":  499
+                                                },
+                                                {
+                                                    "ms":  21.8263,
+                                                    "wallSeconds":  9.22569,
+                                                    "frame":  534
+                                                },
+                                                {
+                                                    "ms":  17.6988,
+                                                    "wallSeconds":  9.243389,
+                                                    "frame":  535
+                                                },
+                                                {
+                                                    "ms":  19.1163,
+                                                    "wallSeconds":  10.808388,
+                                                    "frame":  666
+                                                },
+                                                {
+                                                    "ms":  17.6538,
+                                                    "wallSeconds":  10.869068,
+                                                    "frame":  670
+                                                },
+                                                {
+                                                    "ms":  22.1108,
+                                                    "wallSeconds":  10.928524,
+                                                    "frame":  674
+                                                },
+                                                {
+                                                    "ms":  18.173,
+                                                    "wallSeconds":  11.038609,
+                                                    "frame":  682
+                                                },
+                                                {
+                                                    "ms":  18.8812,
+                                                    "wallSeconds":  11.099274,
+                                                    "frame":  686
+                                                },
+                                                {
+                                                    "ms":  16.9371,
+                                                    "wallSeconds":  11.152289,
+                                                    "frame":  690
+                                                },
+                                                {
+                                                    "ms":  16.9713,
+                                                    "wallSeconds":  11.255609,
+                                                    "frame":  698
+                                                },
+                                                {
+                                                    "ms":  17.026,
+                                                    "wallSeconds":  11.361022,
+                                                    "frame":  706
+                                                },
+                                                {
+                                                    "ms":  17.4252,
+                                                    "wallSeconds":  11.469924,
+                                                    "frame":  714
+                                                },
+                                                {
+                                                    "ms":  17.7845,
+                                                    "wallSeconds":  11.577111,
+                                                    "frame":  722
+                                                },
+                                                {
+                                                    "ms":  18.1637,
+                                                    "wallSeconds":  11.686177,
+                                                    "frame":  730
+                                                },
+                                                {
+                                                    "ms":  16.8959,
+                                                    "wallSeconds":  11.738171,
+                                                    "frame":  734
+                                                },
+                                                {
+                                                    "ms":  18.6732,
+                                                    "wallSeconds":  11.793415,
+                                                    "frame":  738
+                                                },
+                                                {
+                                                    "ms":  17.3944,
+                                                    "wallSeconds":  11.849598,
+                                                    "frame":  742
+                                                },
+                                                {
+                                                    "ms":  18.1797,
+                                                    "wallSeconds":  11.903236,
+                                                    "frame":  746
+                                                },
+                                                {
+                                                    "ms":  17.769,
+                                                    "wallSeconds":  11.958562,
+                                                    "frame":  750
+                                                },
+                                                {
+                                                    "ms":  17.9274,
+                                                    "wallSeconds":  12.014181,
+                                                    "frame":  754
+                                                },
+                                                {
+                                                    "ms":  16.8389,
+                                                    "wallSeconds":  12.25072,
+                                                    "frame":  772
+                                                },
+                                                {
+                                                    "ms":  17.2937,
+                                                    "wallSeconds":  12.35161,
+                                                    "frame":  779
+                                                },
+                                                {
+                                                    "ms":  17.423,
+                                                    "wallSeconds":  12.459513,
+                                                    "frame":  787
+                                                },
+                                                {
+                                                    "ms":  18.1568,
+                                                    "wallSeconds":  12.567753,
+                                                    "frame":  795
+                                                },
+                                                {
+                                                    "ms":  16.6756,
+                                                    "wallSeconds":  12.969605,
+                                                    "frame":  828
+                                                },
+                                                {
+                                                    "ms":  18.4915,
+                                                    "wallSeconds":  13.016845,
+                                                    "frame":  831
+                                                },
+                                                {
+                                                    "ms":  16.9978,
+                                                    "wallSeconds":  13.128516,
+                                                    "frame":  840
+                                                },
+                                                {
+                                                    "ms":  21.4144,
+                                                    "wallSeconds":  13.160501,
+                                                    "frame":  842
+                                                },
+                                                {
+                                                    "ms":  16.9994,
+                                                    "wallSeconds":  14.312414,
+                                                    "frame":  947
+                                                },
+                                                {
+                                                    "ms":  23.2432,
+                                                    "wallSeconds":  14.351742,
+                                                    "frame":  949
+                                                },
+                                                {
+                                                    "ms":  18.0688,
+                                                    "wallSeconds":  14.399493,
+                                                    "frame":  952
+                                                },
+                                                {
+                                                    "ms":  17.809,
+                                                    "wallSeconds":  14.417302,
+                                                    "frame":  953
+                                                },
+                                                {
+                                                    "ms":  19.0581,
+                                                    "wallSeconds":  14.43636,
+                                                    "frame":  954
+                                                },
+                                                {
+                                                    "ms":  16.8429,
+                                                    "wallSeconds":  14.453203,
+                                                    "frame":  955
+                                                },
+                                                {
+                                                    "ms":  18.1025,
+                                                    "wallSeconds":  14.48634,
+                                                    "frame":  957
+                                                },
+                                                {
+                                                    "ms":  17.6564,
+                                                    "wallSeconds":  14.503997,
+                                                    "frame":  958
+                                                },
+                                                {
+                                                    "ms":  18.2765,
+                                                    "wallSeconds":  14.522273,
+                                                    "frame":  959
+                                                },
+                                                {
+                                                    "ms":  23.6611,
+                                                    "wallSeconds":  14.545934,
+                                                    "frame":  960
+                                                },
+                                                {
+                                                    "ms":  18.8034,
+                                                    "wallSeconds":  14.579987,
+                                                    "frame":  962
+                                                },
+                                                {
+                                                    "ms":  19.3634,
+                                                    "wallSeconds":  14.59935,
+                                                    "frame":  963
+                                                },
+                                                {
+                                                    "ms":  19.6319,
+                                                    "wallSeconds":  14.618982,
+                                                    "frame":  964
+                                                },
+                                                {
+                                                    "ms":  19.1028,
+                                                    "wallSeconds":  14.638085,
+                                                    "frame":  965
+                                                },
+                                                {
+                                                    "ms":  23.7333,
+                                                    "wallSeconds":  14.661818,
+                                                    "frame":  966
+                                                },
+                                                {
+                                                    "ms":  24.3028,
+                                                    "wallSeconds":  14.686121,
+                                                    "frame":  967
+                                                },
+                                                {
+                                                    "ms":  19.4782,
+                                                    "wallSeconds":  14.705599,
+                                                    "frame":  968
+                                                },
+                                                {
+                                                    "ms":  18.5339,
+                                                    "wallSeconds":  14.724133,
+                                                    "frame":  969
+                                                },
+                                                {
+                                                    "ms":  27.9491,
+                                                    "wallSeconds":  14.752082,
+                                                    "frame":  970
+                                                },
+                                                {
+                                                    "ms":  17.5454,
+                                                    "wallSeconds":  14.769628,
+                                                    "frame":  971
+                                                },
+                                                {
+                                                    "ms":  17.9778,
+                                                    "wallSeconds":  14.860882,
+                                                    "frame":  977
+                                                },
+                                                {
+                                                    "ms":  17.6337,
+                                                    "wallSeconds":  14.921253,
+                                                    "frame":  981
+                                                },
+                                                {
+                                                    "ms":  17.9215,
+                                                    "wallSeconds":  14.979934,
+                                                    "frame":  985
+                                                },
+                                                {
+                                                    "ms":  16.7564,
+                                                    "wallSeconds":  15.094632,
+                                                    "frame":  994
+                                                },
+                                                {
+                                                    "ms":  16.7525,
+                                                    "wallSeconds":  15.312752,
+                                                    "frame":  1011
+                                                },
+                                                {
+                                                    "ms":  16.7071,
+                                                    "wallSeconds":  15.641733,
+                                                    "frame":  1037
+                                                },
+                                                {
+                                                    "ms":  18.5725,
+                                                    "wallSeconds":  16.180172,
+                                                    "frame":  1079
+                                                },
+                                                {
+                                                    "ms":  16.9338,
+                                                    "wallSeconds":  16.288961,
+                                                    "frame":  1088
+                                                },
+                                                {
+                                                    "ms":  17.2726,
+                                                    "wallSeconds":  16.396896,
+                                                    "frame":  1097
+                                                },
+                                                {
+                                                    "ms":  21.8189,
+                                                    "wallSeconds":  16.99322,
+                                                    "frame":  1146
+                                                },
+                                                {
+                                                    "ms":  17.4279,
+                                                    "wallSeconds":  18.464094,
+                                                    "frame":  1296
+                                                },
+                                                {
+                                                    "ms":  19.0722,
+                                                    "wallSeconds":  18.521672,
+                                                    "frame":  1300
+                                                },
+                                                {
+                                                    "ms":  18.0654,
+                                                    "wallSeconds":  18.582923,
+                                                    "frame":  1304
+                                                },
+                                                {
+                                                    "ms":  17.8199,
+                                                    "wallSeconds":  18.747848,
+                                                    "frame":  1317
+                                                },
+                                                {
+                                                    "ms":  18.2483,
+                                                    "wallSeconds":  19.401525,
+                                                    "frame":  1369
+                                                },
+                                                {
+                                                    "ms":  17.8569,
+                                                    "wallSeconds":  19.612341,
+                                                    "frame":  1386
+                                                },
+                                                {
+                                                    "ms":  17.7067,
+                                                    "wallSeconds":  19.630048,
+                                                    "frame":  1387
+                                                },
+                                                {
+                                                    "ms":  20.1515,
+                                                    "wallSeconds":  19.736942,
+                                                    "frame":  1395
+                                                },
+                                                {
+                                                    "ms":  18.7253,
+                                                    "wallSeconds":  19.849553,
+                                                    "frame":  1403
+                                                },
+                                                {
+                                                    "ms":  18.9063,
+                                                    "wallSeconds":  21.054433,
+                                                    "frame":  1498
+                                                },
+                                                {
+                                                    "ms":  17.4558,
+                                                    "wallSeconds":  21.166607,
+                                                    "frame":  1507
+                                                },
+                                                {
+                                                    "ms":  16.9484,
+                                                    "wallSeconds":  21.381505,
+                                                    "frame":  1524
+                                                },
+                                                {
+                                                    "ms":  17.1124,
+                                                    "wallSeconds":  21.711543,
+                                                    "frame":  1554
+                                                },
+                                                {
+                                                    "ms":  19.5198,
+                                                    "wallSeconds":  23.148682,
+                                                    "frame":  1684
+                                                },
+                                                {
+                                                    "ms":  16.8688,
+                                                    "wallSeconds":  23.932089,
+                                                    "frame":  1751
+                                                },
+                                                {
+                                                    "ms":  17.4587,
+                                                    "wallSeconds":  24.321877,
+                                                    "frame":  1785
+                                                },
+                                                {
+                                                    "ms":  19.7298,
+                                                    "wallSeconds":  24.375336,
+                                                    "frame":  1789
+                                                },
+                                                {
+                                                    "ms":  17.4899,
+                                                    "wallSeconds":  25.413085,
+                                                    "frame":  1876
+                                                },
+                                                {
+                                                    "ms":  16.8859,
+                                                    "wallSeconds":  25.429971,
+                                                    "frame":  1877
+                                                },
+                                                {
+                                                    "ms":  21.16,
+                                                    "wallSeconds":  25.478816,
+                                                    "frame":  1880
+                                                },
+                                                {
+                                                    "ms":  16.9183,
+                                                    "wallSeconds":  25.526404,
+                                                    "frame":  1883
+                                                },
+                                                {
+                                                    "ms":  22.4401,
+                                                    "wallSeconds":  25.564825,
+                                                    "frame":  1885
+                                                },
+                                                {
+                                                    "ms":  18.0586,
+                                                    "wallSeconds":  25.975182,
+                                                    "frame":  1921
+                                                },
+                                                {
+                                                    "ms":  17.4507,
+                                                    "wallSeconds":  26.028316,
+                                                    "frame":  1925
+                                                },
+                                                {
+                                                    "ms":  18.7022,
+                                                    "wallSeconds":  26.763382,
+                                                    "frame":  1987
+                                                },
+                                                {
+                                                    "ms":  17.4146,
+                                                    "wallSeconds":  27.466533,
+                                                    "frame":  2052
+                                                },
+                                                {
+                                                    "ms":  17.8879,
+                                                    "wallSeconds":  30.323788,
+                                                    "frame":  2326
+                                                },
+                                                {
+                                                    "ms":  17.0807,
+                                                    "wallSeconds":  30.435868,
+                                                    "frame":  2335
+                                                },
+                                                {
+                                                    "ms":  17.0689,
+                                                    "wallSeconds":  31.71989,
+                                                    "frame":  2457
+                                                },
+                                                {
+                                                    "ms":  17.1557,
+                                                    "wallSeconds":  31.953703,
+                                                    "frame":  2477
+                                                },
+                                                {
+                                                    "ms":  16.7425,
+                                                    "wallSeconds":  32.005108,
+                                                    "frame":  2481
+                                                },
+                                                {
+                                                    "ms":  19.0661,
+                                                    "wallSeconds":  32.387585,
+                                                    "frame":  2510
+                                                },
+                                                {
+                                                    "ms":  18.0268,
+                                                    "wallSeconds":  32.443776,
+                                                    "frame":  2514
+                                                },
+                                                {
+                                                    "ms":  18.4947,
+                                                    "wallSeconds":  32.504585,
+                                                    "frame":  2519
+                                                },
+                                                {
+                                                    "ms":  16.8941,
+                                                    "wallSeconds":  32.620576,
+                                                    "frame":  2528
+                                                },
+                                                {
+                                                    "ms":  21.5714,
+                                                    "wallSeconds":  32.654219,
+                                                    "frame":  2530
+                                                },
+                                                {
+                                                    "ms":  18.1639,
+                                                    "wallSeconds":  34.991359,
+                                                    "frame":  2743
+                                                },
+                                                {
+                                                    "ms":  26.8262,
+                                                    "wallSeconds":  35.018185,
+                                                    "frame":  2744
+                                                },
+                                                {
+                                                    "ms":  17.0359,
+                                                    "wallSeconds":  35.190424,
+                                                    "frame":  2759
+                                                },
+                                                {
+                                                    "ms":  16.9044,
+                                                    "wallSeconds":  35.684903,
+                                                    "frame":  2800
+                                                },
+                                                {
+                                                    "ms":  19.0282,
+                                                    "wallSeconds":  36.00433,
+                                                    "frame":  2824
+                                                },
+                                                {
+                                                    "ms":  19.7679,
+                                                    "wallSeconds":  36.062779,
+                                                    "frame":  2828
+                                                },
+                                                {
+                                                    "ms":  17.4324,
+                                                    "wallSeconds":  36.173077,
+                                                    "frame":  2836
+                                                },
+                                                {
+                                                    "ms":  17.9853,
+                                                    "wallSeconds":  36.226553,
+                                                    "frame":  2840
+                                                },
+                                                {
+                                                    "ms":  16.8638,
+                                                    "wallSeconds":  36.281738,
+                                                    "frame":  2844
+                                                },
+                                                {
+                                                    "ms":  17.3158,
+                                                    "wallSeconds":  36.338534,
+                                                    "frame":  2848
+                                                },
+                                                {
+                                                    "ms":  18.9402,
+                                                    "wallSeconds":  36.394998,
+                                                    "frame":  2852
+                                                },
+                                                {
+                                                    "ms":  17.7854,
+                                                    "wallSeconds":  36.453217,
+                                                    "frame":  2856
+                                                },
+                                                {
+                                                    "ms":  17.2156,
+                                                    "wallSeconds":  36.508965,
+                                                    "frame":  2860
+                                                },
+                                                {
+                                                    "ms":  17.2531,
+                                                    "wallSeconds":  36.561211,
+                                                    "frame":  2864
+                                                },
+                                                {
+                                                    "ms":  20.2904,
+                                                    "wallSeconds":  36.62587,
+                                                    "frame":  2868
+                                                },
+                                                {
+                                                    "ms":  21.7883,
+                                                    "wallSeconds":  36.682983,
+                                                    "frame":  2872
+                                                },
+                                                {
+                                                    "ms":  16.8632,
+                                                    "wallSeconds":  36.974736,
+                                                    "frame":  2896
+                                                },
+                                                {
+                                                    "ms":  16.7804,
+                                                    "wallSeconds":  37.080316,
+                                                    "frame":  2904
+                                                },
+                                                {
+                                                    "ms":  22.0494,
+                                                    "wallSeconds":  37.126462,
+                                                    "frame":  2907
+                                                },
+                                                {
+                                                    "ms":  24.2066,
+                                                    "wallSeconds":  41.892341,
+                                                    "frame":  3352
+                                                },
+                                                {
+                                                    "ms":  21.4118,
+                                                    "wallSeconds":  45.278584,
+                                                    "frame":  3658
+                                                },
+                                                {
+                                                    "ms":  16.7871,
+                                                    "wallSeconds":  47.313987,
+                                                    "frame":  3849
+                                                },
+                                                {
+                                                    "ms":  17.2753,
+                                                    "wallSeconds":  47.373336,
+                                                    "frame":  3853
+                                                },
+                                                {
+                                                    "ms":  17.0883,
+                                                    "wallSeconds":  48.060126,
+                                                    "frame":  3912
+                                                },
+                                                {
+                                                    "ms":  23.8522,
+                                                    "wallSeconds":  54.546027,
+                                                    "frame":  4534
+                                                },
+                                                {
+                                                    "ms":  17.4676,
+                                                    "wallSeconds":  55.928444,
+                                                    "frame":  4673
+                                                },
+                                                {
+                                                    "ms":  17.1172,
+                                                    "wallSeconds":  56.049415,
+                                                    "frame":  4683
+                                                },
+                                                {
+                                                    "ms":  17.1073,
+                                                    "wallSeconds":  56.15229,
+                                                    "frame":  4692
+                                                },
+                                                {
+                                                    "ms":  16.871,
+                                                    "wallSeconds":  56.818852,
+                                                    "frame":  4757
+                                                },
+                                                {
+                                                    "ms":  16.8324,
+                                                    "wallSeconds":  56.911719,
+                                                    "frame":  4765
+                                                },
+                                                {
+                                                    "ms":  16.9479,
+                                                    "wallSeconds":  61.289074,
+                                                    "frame":  5253
+                                                },
+                                                {
+                                                    "ms":  38.4996,
+                                                    "wallSeconds":  66.313435,
+                                                    "frame":  5852
+                                                },
+                                                {
+                                                    "ms":  32.0705,
+                                                    "wallSeconds":  67.21856,
+                                                    "frame":  5968
+                                                }
+                                            ],
+                             "acceptancePolicy":  "AverageFpsGreaterThanTarget",
+                             "tailMetricsDiagnosticOnly":  true,
+                             "thresholdsMet":  true
+                         },
+    "counterSummaries":  [
+                             {
+                                 "name":  "PlayerLoop",
+                                 "validSamples":  6059,
+                                 "averageRaw":  9382377.6200693175,
+                                 "maxRaw":  136301900,
+                                 "averageCalls":  2.9998349562634097
+                             },
+                             {
+                                 "name":  "GC Allocated In Frame",
+                                 "validSamples":  6059,
+                                 "averageRaw":  38732.411123947844,
+                                 "maxRaw":  3176981,
+                                 "averageCalls":  1
+                             },
+                             {
+                                 "name":  "Anomaly.Discovery.Update",
+                                 "validSamples":  6059,
+                                 "averageRaw":  23223.56824558508,
+                                 "maxRaw":  18259600,
+                                 "averageCalls":  0.99983495626340979
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Update",
+                                 "validSamples":  6059,
+                                 "averageRaw":  254007.80656874072,
+                                 "maxRaw":  20227700,
+                                 "averageCalls":  1.950486879022941
+                             },
+                             {
+                                 "name":  "Anomaly.Zone.Update",
+                                 "validSamples":  6059,
+                                 "averageRaw":  250045.10645321009,
+                                 "maxRaw":  3377200,
+                                 "averageCalls":  6.9988446938438686
+                             },
+                             {
+                                 "name":  "Anomaly.Discovery.ScanAgent",
+                                 "validSamples":  6059,
+                                 "averageRaw":  5016.3063211751114,
+                                 "maxRaw":  17409300,
+                                 "averageCalls":  0.0014853936293117676
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Facts",
+                                 "validSamples":  6059,
+                                 "averageRaw":  36676.299719425646,
+                                 "maxRaw":  392100,
+                                 "averageCalls":  1.950486879022941
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Lifecycle",
+                                 "validSamples":  6059,
+                                 "averageRaw":  20710.892886614954,
+                                 "maxRaw":  833400,
+                                 "averageCalls":  1.950486879022941
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Brain",
+                                 "validSamples":  6059,
+                                 "averageRaw":  170520.01980524839,
+                                 "maxRaw":  16229100,
+                                 "averageCalls":  1.950486879022941
+                             },
+                             {
+                                 "name":  "Anomaly.Zone.State",
+                                 "validSamples":  6059,
+                                 "averageRaw":  10256.510975408482,
+                                 "maxRaw":  125500,
+                                 "averageCalls":  6.9988446938438686
+                             },
+                             {
+                                 "name":  "Anomaly.Zone.Shape",
+                                 "validSamples":  6059,
+                                 "averageRaw":  238715.23353688727,
+                                 "maxRaw":  3343700,
+                                 "averageCalls":  6.9988446938438686
+                             },
+                             {
+                                 "name":  "Anomaly.Navigation.Check",
+                                 "validSamples":  6059,
+                                 "averageRaw":  20645.997689387688,
+                                 "maxRaw":  1930100,
+                                 "averageCalls":  0.56362436045552067
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.LateUpdate",
+                                 "validSamples":  6059,
+                                 "averageRaw":  412502.29410793859,
+                                 "maxRaw":  6811800,
+                                 "averageCalls":  40
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.State",
+                                 "validSamples":  6059,
+                                 "averageRaw":  45368.130054464433,
+                                 "maxRaw":  248400,
+                                 "averageCalls":  26
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.Input",
+                                 "validSamples":  6059,
+                                 "averageRaw":  22277.752104307641,
+                                 "maxRaw":  298700,
+                                 "averageCalls":  7.3338834791219671
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.Range",
+                                 "validSamples":  6059,
+                                 "averageRaw":  325698.1845188975,
+                                 "maxRaw":  6281200,
+                                 "averageCalls":  7.3338834791219671
+                             },
+                             {
+                                 "name":  "Anomaly.Range.Geometry",
+                                 "validSamples":  6059,
+                                 "averageRaw":  39392.259448753917,
+                                 "maxRaw":  556300,
+                                 "averageCalls":  0.9432249546129724
+                             },
+                             {
+                                 "name":  "Anomaly.Range.Projection",
+                                 "validSamples":  6059,
+                                 "averageRaw":  462839.84155801288,
+                                 "maxRaw":  6218000,
+                                 "averageCalls":  3.7590361445783134
+                             },
+                             {
+                                 "name":  "Anomaly.Range.Line",
+                                 "validSamples":  6059,
+                                 "averageRaw":  7310.5462947681135,
+                                 "maxRaw":  272700,
+                                 "averageCalls":  0.95345766628156459
+                             },
+                             {
+                                 "name":  "Anomaly.Ground.Raycast",
+                                 "validSamples":  6059,
+                                 "averageRaw":  114520.81201518403,
+                                 "maxRaw":  1295500,
+                                 "averageCalls":  152.61627331242778
+                             },
+                             {
+                                 "name":  "Anomaly.Ground.Filter",
+                                 "validSamples":  6059,
+                                 "averageRaw":  285575.47450074268,
+                                 "maxRaw":  4096300,
+                                 "averageCalls":  231.79055949826704
+                             }
+                         ],
+    "performanceAcceptance":  false,
+    "issues":  [
+
+               ]
+}

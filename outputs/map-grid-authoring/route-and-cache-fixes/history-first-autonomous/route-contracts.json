@@ -1,0 +1,89 @@
+﻿{
+    "schemaVersion":  1,
+    "status":  "PASS",
+    "failures":  [
+
+                 ],
+    "coverage":  {
+                     "accepted":  9,
+                     "states":  115,
+                     "frames":  242,
+                     "synchronizedDisplays":  481,
+                     "travelling":  175,
+                     "waiting":  14,
+                     "retaliation":  9,
+                     "completed":  7,
+                     "extracted":  0,
+                     "dead":  1,
+                     "player":  0,
+                     "autonomous":  111
+                 },
+    "rejections":  [
+
+                   ],
+    "rootFailures":  [
+                         {
+                             "agent":  "2",
+                             "requestId":  "Route_2a0fdae63ee3418f90fe89181cab5f5e",
+                             "source":  "Autonomous",
+                             "goal":  "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+                             "stage":  "Failed",
+                             "reason":  "CapacityExtraction",
+                             "detail":  "",
+                             "version":  3,
+                             "replan":  false,
+                             "snapshot":  {
+                                              "agent":  "2",
+                                              "requestId":  "Route_2a0fdae63ee3418f90fe89181cab5f5e",
+                                              "source":  "Autonomous",
+                                              "stage":  "Failed",
+                                              "failure":  "CapacityExtraction",
+                                              "goal":  "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+                                              "currentNode":  "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+                                              "previousNode":  "cluster_ac43e253ab1e05daa3c5146620ad0002",
+                                              "entryFrom":  "",
+                                              "stepPhase":  "Failed",
+                                              "commandId":  "RouteStep_Route_2a0fdae63ee3418f90fe89181cab5f5e_3_5_2",
+                                              "pendingId":  "",
+                                              "pendingGoal":  "",
+                                              "installed":  true,
+                                              "hasRoute":  true,
+                                              "active":  false,
+                                              "pending":  false,
+                                              "retaliating":  false,
+                                              "dead":  false,
+                                              "version":  3,
+                                              "graphRevision":  6,
+                                              "costRevision":  1,
+                                              "bindingRevision":  1,
+                                              "environmentVersion":  1,
+                                              "currentCostRevision":  1,
+                                              "cursor":  5,
+                                              "aliveMembers":  0,
+                                              "health":  49,
+                                              "nodes":  [
+                                                            "cluster_3a148e744335b9648c8c429f7fe51985",
+                                                            "cluster_e003c321c8d54767f3e93234ce7e48c5",
+                                                            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+                                                            "cluster_9d02dfbf9e190218416afd8280324f29",
+                                                            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+                                                            "cluster_49f0d5f8886bf9b95eb54fe91c863fc7"
+                                                        ],
+                                              "position":  {
+                                                               "x":  250.29833984375,
+                                                               "y":  3.1666946411132814,
+                                                               "z":  -138.28111267089845
+                                                           },
+                                              "anchor":  {
+                                                             "x":  183.01791381835938,
+                                                             "y":  0.16669464111328126,
+                                                             "z":  -167.5916748046875
+                                                         },
+                                              "anchorDistance3D":  73.44906616210938,
+                                              "anchorDistancePlanar":  73.38777160644531
+                                          }
+                         }
+                     ],
+    "terminalAcceptance":  "RequiresIndependentRaidSettlement",
+    "sampledStatesDoNotProveEveryIntermediateFrame":  true
+}

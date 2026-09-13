@@ -1,0 +1,20 @@
+﻿{
+    "mode":  "Regression",
+    "infrastructureFailed":  false,
+    "businessFailed":  false,
+    "exitCode":  0,
+    "groups":  [
+                   {
+                       "group":  "MapCommandPublishedGraph",
+                       "repeat":  1,
+                       "exitCode":  0,
+                       "timedOut":  false,
+                       "total":  1,
+                       "failed":  0,
+                       "missing":  [
+
+                                   ],
+                       "output":  "D:\\Unity-Projects\\Extraction-like\\Logs\\AgentReproduction\\20260913-230302-245\\groups\\MapCommandPublishedGraph-1"
+                   }
+               ]
+}

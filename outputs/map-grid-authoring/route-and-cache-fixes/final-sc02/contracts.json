@@ -1,0 +1,47 @@
+﻿{
+    "status":  "PASS",
+    "outcome":  "ALL_EXTRACTED",
+    "failures":  [
+
+                 ],
+    "coverage":  {
+                     "movement:1":  true,
+                     "inventory:1":  true,
+                     "ledger:1":  true,
+                     "verifiedTransfer:1":  true,
+                     "movement:2":  true,
+                     "inventory:2":  true,
+                     "ledger:2":  true,
+                     "verifiedTransfer:2":  true,
+                     "combatDamage":  true,
+                     "pauseResume":  true,
+                     "capacityExtraction":  false,
+                     "retaliationResume":  true
+                 },
+    "expected":  {
+                     "organic_fiber":  2,
+                     "equip_totem_green":  2,
+                     "notebook":  1,
+                     "top_organic_fiber":  1,
+                     "equip_head_blue":  4,
+                     "equip_head_green":  1,
+                     "military_radio":  1,
+                     "equip_face_blue":  1,
+                     "equip_headphone_blue":  1,
+                     "book":  1,
+                     "pocket_watch":  1
+                 },
+    "actual":  {
+                   "organic_fiber":  2,
+                   "equip_totem_green":  2,
+                   "notebook":  1,
+                   "top_organic_fiber":  1,
+                   "equip_head_blue":  4,
+                   "equip_head_green":  1,
+                   "military_radio":  1,
+                   "equip_face_blue":  1,
+                   "equip_headphone_blue":  1,
+                   "book":  1,
+                   "pocket_watch":  1
+               }
+}

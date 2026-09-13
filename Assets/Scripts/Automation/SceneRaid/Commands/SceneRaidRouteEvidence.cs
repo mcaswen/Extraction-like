@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 namespace AnomalySearch.Automation.SceneRaid.Commands
 {
-    /// <summary>只读根路线和显示证据。状态变化记录事件，普通位置最多 4 Hz，不发指令或导航查询。</summary>
+    /// <summary>只读根路线和显示证据。普通位置最多 4 Hz；失败事件可触发有次数上限的导航诊断，不发指令。</summary>
     public sealed class SceneRaidRouteEvidence : IDisposable
     {
         [Serializable] public sealed class RootRecord
@@ -71,6 +71,7 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
             public bool Sampled;
         }
         private readonly SceneRaidEvidenceWriter _writer;
+        private readonly SceneRaidEnemyProcessingProbe _processingProbe = new SceneRaidEnemyProcessingProbe();
         private readonly Dictionary<AgentPawnRoot,Subscription> _pawns=new Dictionary<AgentPawnRoot,Subscription>();
         private AgentRuntimeRegistry _registry;
         private RaidMapCommandInstaller _installer;
@@ -117,6 +118,11 @@ namespace AnomalySearch.Automation.SceneRaid.Commands
                 agent=result.Request.TargetAgentId.Value,requestId=result.Request.RequestId,source=result.Request.Source.ToString(),
                 goal=result.Request.TargetNodeId,stage=result.Stage.ToString(),reason=result.Reason.ToString(),detail=result.Detail,
                 version=result.RouteVersion,replan=result.IsReplan,snapshot=pawn!=null?Capture(pawn):null}));
+            if(result.Reason==AgentRouteFailure.Unreachable&&_installer!=null)
+            {
+                var probe=_processingProbe.CaptureOnce(pawn,_installer.Binding);
+                if(probe!=null)_writer.Add("diagnostic.enemyProcessing",JsonUtility.ToJson(probe));
+            }
         }
         public void Tick(bool force=false)
         {

@@ -1,0 +1,7 @@
+﻿{
+    "caseId":  "AgentReproduction.Tests.MapCommandNavigationCacheTests.GeometrySignaturePreservesExactGeometryAreasAndWinding",
+    "contract":  "PASS",
+    "message":  "",
+    "execution":  "COMPLETED",
+    "nunitResult":  "Passed"
+}

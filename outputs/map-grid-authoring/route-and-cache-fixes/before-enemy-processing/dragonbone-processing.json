@@ -1,0 +1,42 @@
+{
+    "originallyEnabled": true,
+    "enabledResolves": false,
+    "disabledResolves": true,
+    "pawn": {
+        "x": 331.40997314453127,
+        "y": 8.000007629394532,
+        "z": 191.48001098632813
+    },
+    "boxCenter": {
+        "x": 310.609619140625,
+        "y": 9.748583793640137,
+        "z": 233.24606323242188
+    },
+    "boxSize": {
+        "x": 151.38121032714845,
+        "y": 0.5232524871826172,
+        "z": 183.53790283203126
+    },
+    "candidates": [
+        {
+            "enemy": "Pfb_Enemy_Common_TidalAberration_00",
+            "enabledFailure": "Unreachable",
+            "disabledFailure": "None",
+            "aim": {
+                "x": 356.73004150390627,
+                "y": 9.929542541503907,
+                "z": 205.4000244140625
+            }
+        },
+        {
+            "enemy": "Pfb_Enemy_Common_AncientStrander_00",
+            "enabledFailure": "Unreachable",
+            "disabledFailure": "None",
+            "aim": {
+                "x": 331.40997314453127,
+                "y": 9.500007629394532,
+                "z": 191.48001098632813
+            }
+        }
+    ]
+}

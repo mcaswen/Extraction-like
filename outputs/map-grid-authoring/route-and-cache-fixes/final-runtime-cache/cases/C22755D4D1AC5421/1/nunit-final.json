@@ -1,0 +1,7 @@
+﻿{
+    "caseId":  "AgentReproduction.Tests.MapCommandRuntimeCacheTests.FormalPlayModeReusesSavedCostsWithTheActualNavigationAndProfiles",
+    "contract":  "PASS",
+    "message":  "",
+    "execution":  "COMPLETED",
+    "nunitResult":  "Passed"
+}
