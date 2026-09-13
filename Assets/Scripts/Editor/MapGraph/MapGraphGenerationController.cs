@@ -129,18 +129,31 @@ namespace AnomalySearch.Editor.MapGraph
             {
                 var current = _scene.Zones.FirstOrDefault(z => z.Id == zone.ZoneId);
                 if (current == null || current.SourceObjectId != zone.SourceObjectId)
-                    _diagnostics.Add(new MapGraphValidationIssue("ZoneSynchronizationRequired", zone.ZoneId));
+                    _diagnostics.Add(new MapGraphValidationIssue("ZoneSynchronizationRequired", zone.ZoneId, detail:
+                        current == null ? $"区域“{zone.DisplayName}”在当前场景中已不存在。旧来源：{zone.SourceObjectId}" :
+                        $"区域“{zone.DisplayName}”的来源身份变化：{zone.SourceObjectId} → {current.SourceObjectId}"));
             }
             foreach (var node in _previous.Nodes)
             {
                 var current = _scene.Nodes.FirstOrDefault(n => n.Id == node.NodeId);
                 if (current == null || current.SourceObjectId != node.SourceObjectId || current.ZoneId != node.ZoneId || current.Kind != node.NodeKind)
-                    _diagnostics.Add(new MapGraphValidationIssue("NodeSynchronizationRequired", node.NodeId));
+                {
+                    var changes = new List<string>();
+                    if (current == null) changes.Add($"群“{node.DisplayName}”在当前场景中已不存在。旧层级：{node.Description}；旧来源：{node.SourceObjectId}");
+                    else
+                    {
+                        changes.Add($"群“{current.Name}”，层级：{current.HierarchyPath}");
+                        if (current.SourceObjectId != node.SourceObjectId) changes.Add($"来源身份：{node.SourceObjectId} → {current.SourceObjectId}");
+                        if (current.ZoneId != node.ZoneId) changes.Add($"区域归属：{node.ZoneId} → {current.ZoneId}");
+                        if (current.Kind != node.NodeKind) changes.Add($"群类型：{node.NodeKind} → {current.Kind}");
+                    }
+                    _diagnostics.Add(new MapGraphValidationIssue("NodeSynchronizationRequired", node.NodeId, detail: string.Join("；", changes)));
+                }
             }
             if (Mode != MapGraphGenerationMode.ConnectionsAndLayout && (_scene.Nodes.Count != _previous.Nodes.Count || _scene.Zones.Count != _previous.Zones.Count))
                 _diagnostics.Add(new MapGraphValidationIssue("LayoutOnlyCannotSynchronizeTopology", "graph"));
             if (!_diagnostics.Any(i => i.IsError)) return true;
-            Fail("SceneSynchronizationRequired", "请先审查场景身份增删差异，再重新计算。"); return false;
+            Fail("SceneSynchronizationRequired", $"场景：{_scene.ScenePath}。请核对上方具体差异，再同步地图；重复点击生成不会清除旧节点。"); return false;
         }
 
         private void Publish()

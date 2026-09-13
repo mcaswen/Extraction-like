@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using AgentReproduction.Infrastructure;
 using AgentReproduction.Reporting;
@@ -28,6 +29,35 @@ namespace AgentReproduction.Tests
             CaseArtifactWriter.Complete("COMPLETED");
         }
         private static MapGraphSceneSnapshot Capture() => MapGraphSceneCollector.Capture(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        [Serializable] private sealed class IdentityEvidence
+        {
+            public string scene, fingerprint;
+            public string[] differences, nodes;
+        }
+        [Test] public void SavedSceneAndBoundMapHaveMatchingNodeIdentities()
+        {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var snapshot = Capture();
+            var binding = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MapGraphBindingAuthoring>(true)).Single();
+            var definition = binding.MapDefinition;
+            Assert.That(definition, Is.Not.Null);
+            var differences = new System.Collections.Generic.List<string>();
+            foreach (var saved in definition.Nodes)
+            {
+                var actual = snapshot.Nodes.FirstOrDefault(n => n.Id == saved.NodeId);
+                if (actual == null) { differences.Add("Missing:" + saved.NodeId + " source=" + saved.SourceObjectId); continue; }
+                if (saved.SourceObjectId != actual.SourceObjectId) differences.Add("Source:" + saved.NodeId + " old=" + saved.SourceObjectId + " new=" + actual.SourceObjectId);
+                if (saved.ZoneId != actual.ZoneId) differences.Add("Zone:" + saved.NodeId + " old=" + saved.ZoneId + " new=" + actual.ZoneId + " hierarchy=" + actual.HierarchyPath);
+                if (saved.NodeKind != actual.Kind) differences.Add("Kind:" + saved.NodeId + " old=" + saved.NodeKind + " new=" + actual.Kind);
+            }
+            foreach (var actual in snapshot.Nodes)
+                if (!definition.Nodes.Any(n => n.NodeId == actual.Id)) differences.Add("Added:" + actual.Id + " source=" + actual.SourceObjectId + " hierarchy=" + actual.HierarchyPath);
+            var evidence = new IdentityEvidence { scene = scene.path, fingerprint = snapshot.SceneFingerprint, differences = differences.ToArray(),
+                nodes = snapshot.Nodes.Select(n => n.Id + " source=" + n.SourceObjectId + " zone=" + n.ZoneId + " kind=" + n.Kind + " hierarchy=" + n.HierarchyPath).ToArray() };
+            File.WriteAllText(Path.Combine(TestRunContext.Load().outputPath, "map-scene-identities.json"), JsonUtility.ToJson(evidence, true));
+            Assert.That(snapshot.IsValid, Is.True, string.Join(";", snapshot.Diagnostics));
+            Assert.That(differences, Is.Empty, string.Join(";", differences));
+        }
         private MapGraphBindingAuthoring Bind(MapGraphSceneSnapshot snapshot, MapGraphLayoutDraft layout)
         {
             _definition = ScriptableObject.CreateInstance<SO_MapGraphDefinition>();

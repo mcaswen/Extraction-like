@@ -150,6 +150,7 @@ namespace AgentReproduction.Tests
                 initial.Nodes, initial.Edges, initial.Constraints);
             var orphan = new MapGraphGenerationController(() => _snapshot, new MapGraphGenerationSettings(), previous);
             orphan.Advance(1); Assert.That(orphan.Diagnostics.Any(d => d.Code == "ZoneSynchronizationRequired"), Is.True);
+            Assert.That(string.Join(";", orphan.Diagnostics), Does.Contain("已删除区域").And.Contain("在当前场景中已不存在"));
             Assert.That(orphan.Result, Is.Null); Assert.That(orphan.NavigationQueries, Is.Zero);
             var broken = new MapGraphGenerationController(() => throw new InvalidOperationException("scene closed"), new MapGraphGenerationSettings());
             broken.Advance(1); Assert.That(broken.Stage, Is.EqualTo(MapGraphGenerationStage.Failed)); Assert.That(broken.Result, Is.Null);
