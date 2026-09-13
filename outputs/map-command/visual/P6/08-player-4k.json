@@ -1,0 +1,32 @@
+{
+  "source": "Logs/SceneRaid/20260913-094704-506/PlayerRun/render-check.png",
+  "sha256": "be8948797996ed90c6e087315b4d3ab082c97329cf373dca30275a0e0d31df58",
+  "width": 3840,
+  "height": 2160,
+  "context": "Actual 1x Player initial render check after 30 rendered frames; not an extraction-state fixture.",
+  "renderStartup": {
+    "pipelineAsset": "URP-HighFidelity",
+    "pipelineType": "UnityEngine.Rendering.Universal.UniversalRenderPipeline",
+    "qualityPipeline": "URP-HighFidelity",
+    "screenMode": "FullScreenWindow",
+    "focused": true,
+    "width": 3840,
+    "height": 2160,
+    "renderInterval": 1,
+    "contexts": 2,
+    "renderedFrames": 2,
+    "cameras": [
+      {
+        "name": "Main Camera",
+        "type": "Game",
+        "targetTexture": "null",
+        "enabled": true,
+        "active": true,
+        "width": 3840,
+        "height": 2160,
+        "display": 0,
+        "cullingMask": -1
+      }
+    ]
+  }
+}

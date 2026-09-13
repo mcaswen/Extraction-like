@@ -1,0 +1,42 @@
+[
+  {
+    "image": "01-compact.png",
+    "source": "Logs/SceneRaid/20260913-082817-582/map-visual",
+    "sha256": "da58acd0c3fe9421b3a39b7637e40e59ad1581dd4f07213cae575e12e8f9c762"
+  },
+  {
+    "image": "03-retaliation.png",
+    "source": "Logs/SceneRaid/20260913-090113-360/map-visual",
+    "sha256": "a1c682d98c2c7557cae69c6aa56385f5554863622de6af11c976d168a56ee1f9"
+  },
+  {
+    "image": "04-waiting.png",
+    "source": "Logs/SceneRaid/20260913-082817-582/map-visual",
+    "sha256": "3c026ef2cc2d941506cb571ce54637b4d5f5e38f00f8260271397aaa7a566e4b"
+  },
+  {
+    "image": "06-mid-edge.png",
+    "source": "Logs/SceneRaid/20260913-082817-582/map-visual",
+    "sha256": "b0e93dd6f24f0fe00f28f828ee2f64fbecc296c93b4159e6b2802b9e2a5b2fae"
+  },
+  {
+    "image": "07-near-anchor.png",
+    "source": "Logs/SceneRaid/20260913-082817-582/map-visual",
+    "sha256": "ee35871526cedf95f2f58d1f13dc4dd3fd1b8516985efeb8d8ef6ecdf9a70751"
+  },
+  {
+    "image": "09-processing.png",
+    "source": "Logs/SceneRaid/20260913-090113-360/map-visual",
+    "sha256": "fc5b5d4d7ba8ba30de0f5d8f50d1d9e28a75d719418beb8b8f717928cc500287"
+  },
+  {
+    "image": "05-extracting.png",
+    "source": "Logs/AgentReproduction/20260913-094135-470/extraction-visual",
+    "sha256": "693329730ac8f97fb85f4cbb8a6e7d8a1aea16571d847123b57d0aa6ef2ec4c5"
+  },
+  {
+    "image": "08-player-4k.png",
+    "source": "Logs/SceneRaid/20260913-094704-506/PlayerRun",
+    "sha256": "be8948797996ed90c6e087315b4d3ab082c97329cf373dca30275a0e0d31df58"
+  }
+]

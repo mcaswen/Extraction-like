@@ -1,6 +1,6 @@
 # P6 真实场景、独立契约和交付
 
-状态：P5 已以 `977bb2c` 提交；P6a 探针和独立契约已实现，首次 MR01/SC02 正在验证。沿用已确认的大规划和用户“直接做完”的授权；逻辑 4×，真实渲染 1× 平均 FPS >60，战死是正常终态。
+状态：**P6 完成，P0–P6 大规划闭环完成。** MR01/MR02/MR03 和最终 MR04 已验证；1× 真实 Player 双人自主撤离、平均 172.93 FPS。原始 1 个子步骤失败经同根重规划实际恢复，报告独立复核 PASS，原 FAIL 保留；最终结果见本文件末节和 `outputs/map_command_validation_report.md`。以下按实施顺序保留小规划、失败和修复，不把历史“待验证”当作当前状态。逻辑 4×，真实渲染 1× 平均 FPS >60，战死是正常终态。
 
 ## P6a：根路线证据接入和自主场景
 
@@ -133,4 +133,33 @@ MR04 具体入口：Create `Assets/Scripts/Automation/SceneRaid/SceneRaidMapView
 
 `094108-476` 净空三项再次通过。`094135-470` 正式撤离画面/结算用例通过，真实 SRP 已绘制 29 帧，抓取 2240×1400 GameView，Agent 已实际打开查看：雨林出口的 2 号标记位于图标右上方，中心计时保留，原同一根后续 Extracted。图片及夹具起点/根/显示 JSON 已归档 `outputs/map-command/visual/P6/05-extracting.*`；其他六张真实整局动态截图也已归档并有来源和 SHA256，不能以该布置起点的截图替代自主整局。
 
+共享瞄准修改后的收尾回归：`094324-128` 感知 5/5，`094353-249` 根路线 18/18，全部通过。修复以 `6d5b75a` 提交（自然中文正文）。最终 SC07 `094704-506` 构建证据 PASS、0 编译/运行错误，常驻 Editor PID 38472 保留；同构建的 `PlayerRun` 已按 1×、3840×2160、URP High Fidelity、每帧实际渲染启动。有限展开/收起已发生，完整终态/帧率仍等待本轮结束后写入。
+
 更新 `README.md`、`Assets/Docs/GameplayAgentFrameworkDesign.md`、`outputs/map_command_validation_report.md`、本规划及 `architecture_review.md`。记录每轮输入/结果、真实覆盖缺口和剩余问题；各小步通过后中文提交，不推送，不提前宣称整项完成。
+
+### P6c 最终报告恢复分类小规划
+
+最终 `094704-506/PlayerRun` 两人均 Extracted，完整结算合同、根/显示合同 PASS，37335 个有效帧间隔平均 172.934 FPS，0 运行异常、0 停滞、0 丢事件。但原报告 FAIL：把 1 个 `MoveTo:NoProgress` 子步骤直接计为最终行为故障。原始事件 737→739→741→774 证明同一根 `Route_ff6d0b2eafb14066b79ff81d5ef2d44f` 从版本 4 有限重规划为 5，约 0.027 秒接受，3.082 秒内 Completed，实际位置改变约 6.95 米。原根控制器明确允许最多两次重规划，每次规划期限 8 秒；此处没有根失败或无限重试，不能为消除正确的子步骤超时改玩法。
+
+- Create `tools/agent-repro/SceneRaid.RouteRecovery.Contracts.psm1`：独立原始事件证明，归报告合同，不调用生产控制器。首版只识别同一根中唯一一次 MoveTo/NoProgress、精确旧 commandId 所有权、同来源/终点、版本 +1 的 Planning/Accepted、8 秒内接受和后续同版本 Completed/Extracted，要求真实平面位移至少 0.25 米。多个失败、改根、改来源、取消/战死、缺事件/非有限时间或无位移均不豁免；保守不分类的边界继续失败。
+- Extend `tools/agent-repro/SceneRaid.Report.psm1`：仅 Autonomous/ManualRoutes 且独立路线合同 PASS 才接入恢复证明，保留 behaviorFailures 原始值，单列 recoveredRouteFailures 和证明，unexpectedBehaviorFailures 只扣已证实恢复。原 MC 预期拒绝/执行失败分类不变。
+- Create `tools/agent-repro/Test-SceneRaidRouteRecovery.ps1`：独立正反例覆盖正确恢复、错误身份/所有者/版本/原因/时间、无移动、缺完成、重复失败和终态失败。Reuse `Test-SceneRaidRoutes.ps1`、`Test-SceneRaidReport.ps1` 回归原合同，避免报告修正放宽其他验收。
+- Create `tools/agent-repro/Review-SceneRaidPlayer.ps1`：离线重算冻结运行的完整报告，保存原始 report.json 及日志 SHA256，写独立 report-reviewed.json，附本次审核工具哈希和原判定；实际帧/结算/视口证据重新读取，不能修改原 FAIL 或借用驱动自报完成。来源冻结只声明原运行的 manifest/process 记录，不宣称审核工具修改后仍与旧构建一致。
+
+本步不改 Assets 或 Player，不需重跑相同完整渲染局；真实源代码和二进制仍对应此前冻结构建。最终文档同时列原 FAIL、复核原因、原始失败数、已恢复数和未恢复数，不能简写为零失败。完成合同测试和审查后再关闭 P6。
+
+恢复分类实现通过：43 个独立正反例覆盖自动/玩家、实际位移、精确旧子指令、版本/目标/来源/时间、重复失败和终态冲突；原路线 18+11 项、原报告 79 项通过（`Logs/SceneRaidReportProbes/20260913-101420-905`）。实现采取保守规则：下一组三个根结果必须依次是对应的 Planning、Accepted、Completed/Extracted；更多重规划或缺证据继续计为未恢复，不以根后来结束就豁免所有故障。
+
+离线审核新增 `Test-SceneRaidEvidence -ReadOnly`，不改原 contracts/route-contracts/report。`Review-SceneRaidPlayer.ps1` 独占该构建运行锁，核对原 process、build manifest、EXE/程序集哈希，审核前后核对 PlayerRun 中全部原文件 SHA256，写独立 `report-reviewed.json`。实际复核 exit 0、evidence/game/runAcceptance 均 PASS，原始 behaviorFailures=1、recoveredRouteFailures=1、unexpectedBehaviorFailures=0。原报告及复核全文、输入/工具哈希已归档到 `outputs/map-command/evidence/20260913-094704-506-report*.json`，没有覆盖原 FAIL 或 launcher-error。
+
+### 最终 MR04 与交付结果
+
+- 冻结构建 `20260913-094704-506`，实际可见 Player PID 14500 正常 exit 0，sourceUnchanged/binaryUnchanged=true，无退出超时；常驻场景 Editor PID 38472 保留。
+- NVIDIA GeForce RTX 5090 D、Direct3D11、URP High Fidelity、3840×2160、1×、Development，未开 Profiler，vSync=0、不限帧、renderInterval=1。37336 个帧样本、37335 个有效间隔及实际渲染帧，全量平均 **172.9341689 FPS**，p99=8.7224 ms、最低一秒 94 FPS、1% low=80.90 FPS；包含启动和采样/截图开销，未剔除慢帧。门槛仅平均 >60，尾部指标只作诊断。
+- 墙钟 217.3359 秒，游戏 198.7814 秒（背包会话暂停属于正式流程）；2 号于 171.2565 秒、1 号于 216.8669 秒实际 Extracted。10 次背包会话，25 次实际转移事件，两人真实移动/搜刮、交战、暂停恢复、容量撤离、反击恢复均覆盖，仓库 expected/actual 完全一致。
+- 0 运行异常、0 停滞疑点、0 丢事件；61 条警告保留。1 个子步骤 NoProgress 在 0.0272 秒后以同一根版本 5 接受重规划，3.0820 秒后 Completed，实际平面位移 6.9493 米；无未恢复执行故障。
+- 独立路线合同 PASS：816 次路线帧、1455 次同步显示、709 次行进、10 次等待、6 次反击、8 次完成采样。对象销毁前 Extracted 可能没有普通帧采样，但原始 route.result 中两个终态和正式结算独立完整。
+- 只切视口两次，展开 114 个样本，根身份/版本/游标不变，新增 UI 命令 0。最终冷 Player 启动成本补算 0，版本 4→5 恢复期间 edgeQueries 增为 2，之后不再增长；采样 pending 始终 0、指纹计算 1 次。收尾全流核对修正了把启动零补算泛化成整局零查询的描述，摘要保存 min/max/final。常驻 Editor 原生顺序差异仍按保守指纹触发一次补验，不改签名规则。
+- 七张状态图及实际 4K Player 第八张画面均已打开，深色地图、居中区域名、横竖连线、线上行进、群旁偏移和整体 HUD 已复核。每张来源、同刻证据或启动画面说明在 `outputs/map-command/visual/P6/`。
+
+P0–P6 均结束；正式游戏仍由玩家操作背包，测试代理完成自动验证，不新增生产自动取物。最终更新 README、框架文档、工具说明、大规划和架构审查；当前已确认范围没有遗留阻塞。用户未提交场景/原 NavMesh 修改保留，验收针对运行器记录的实际工作区输入，不冒称仅 HEAD 资产；当前菜单旧场景入口及未来非球形弹体是明确范围边界。

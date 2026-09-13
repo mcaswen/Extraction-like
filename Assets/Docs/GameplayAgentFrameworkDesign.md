@@ -14,6 +14,50 @@
 
 `AgentCombatController` 保留技能运行实例和普攻锁；同 SkillId 配置仅保留首次定义，重复项不生成第二份冷却。受控配置替换由 SkillBase 迁移截止时间，SO 仅保存配置。
 
+## 2026-09-13 地图指挥与统一根路线
+
+本节为已实现的新入口和所有权说明，后文保留原 Agent 基础设计。正式场景为 `Assets/Scenes/Scene_DB/Scenezl_Final 1.unity`，由场景 Binding 安装共享图、执行环境和 HUD；未绑定的历史场景保留明确兼容模式。设计与证据见 [大规划](../../.planning/2026-09-12-map-command/task_plan.md)、[架构审查](../../.planning/2026-09-12-map-command/architecture_review.md)、[验收报告](../../outputs/map_command_validation_report.md)。
+
+### 文件职责与依赖
+
+路径相对 `Assets/Scripts/Gameplay`，编辑器和验证目录另标。
+
+| 文件／模块 | 职责、依赖边界 |
+| --- | --- |
+| `MapGraph/Config/SO_MapGraphDefinition.cs`、`MapGraph/Config/MapGraphNodeDefinition.cs`、`MapGraph/Config/MapGraphEdgeDefinition.cs`、`MapGraph/Config/MapGraphZoneDefinition.cs` | 静态图、矩形布局、稳定身份和横竖直边，不保存本局 Agent 任务 |
+| `MapGraph/Runtime/MapGraphPathfindingService.cs`、`MapGraph/Runtime/IMapGraphCostProvider.cs`、`MapGraph/Runtime/MapGraphCostSnapshot.cs` | 纯图最短路和可替换成本接口，不引用 NavMesh、场景或 UI |
+| `MapGraph/Binding/MapGraphBindingAuthoring.cs`、`MapGraph/Binding/MapGraphTargetBinding.cs`、`MapGraph/Binding/MapGraphRouteTargetResolver.cs` | 真实身份和锚点、来源群规范化、整群完成和候选，实现 Agent 侧接口 |
+| `MapGraph/Binding/MapGraphNavigationCostService.cs`、`MapGraph/Binding/MapGraphNavigationFingerprint.cs`、`MapGraph/Binding/MapGraphRouteEnvironmentService.cs` | 实际导航成本、保守缓存失效、各 profile 共享环境和全局补验预算，不拥有角色路线 |
+| `Agent/Routes/AgentRouteController.cs`、`Agent/Routes/AgentRouteState.cs` | 唯一根请求、版本、序列、游标，原子接受、替换、重规划和结束 |
+| `Agent/Routes/AgentClusterStepExecutor.cs` | 当前群的实际访问、处理、候选重试和容量终止，动作继续交原 Lifecycle |
+| `Agent/Commands/AgentDirectiveLifecycleController.cs` | 唯一活动/挂起子指令和反击恢复，根层不复制第二份恢复状态 |
+| `Agent/Navigation/AgentNavigationSegmentQuery.cs`、`Agent/Navigation/AgentNavigationMotor.cs`、`Agent/Navigation/AgentCombatApproachQuery.cs` | 共用只读路段查询、实际运动进展、合法身体/枪口接近点，不决定根拓扑 |
+| `Agent/Combat/AgentCombatShooter.cs` | 正式球体弹丸尺寸、预测及实际枪口净空、发射，伤害仍由 BulletController 和 EnemyHealthController |
+| `Raid/RaidMapCommandInstaller.cs` | 场景、Registry、导航版本的组合和释放，正式 HUD 安装、多人导航配置拥有者 |
+| `MapGraph/Binding/AgentGraphProjectionController.cs`、`MapGraph/View/MapGraphPresenter.cs` | 读取真实根和实际距离、显示状态与请求转发，不自行寻路推进或完成群 |
+| `MapGraph/View/MapGraphViewport.cs`、各 View、`MapGraph/Config/SO_MapGraphTheme.cs` | 同一小图/M 图、输入遮罩、稳定处理偏移、线上多人身份、纯样式 |
+| `Assets/Scripts/Editor/MapGraph/` | 场景采集、导航候选、约束求解、独立几何校验、预览事务、Undo/保存，Runtime 不引用 Editor |
+| `Assets/Scripts/Automation/SceneRaid/`、`tools/agent-repro/` | 有限指令/背包驱动、只读探针、原始日志和独立验收，普通 Player 不自动接管背包 |
+
+### 控制流与完成语义
+
+世界点击群、地图 Handler、自主发现/评分 → AgentCommandRouter 根路线入口 → 共享成本和入图查询 → AgentRouteController 原子接受 → AgentClusterStepExecutor → 原 Lifecycle/Brain 的 MoveTo、Engage、SearchResource、Extract。子步骤带根身份、版本和游标，旧回调不能完成新请求；新目标规划期间保留旧有效路线。
+
+敌人群要求所有存活成员处理完成。合法射程内可先清理锚点占位，之后仍需实际访问锚点；已清空节点也按拓扑通行。资源正式等待背包，容量不足显式结束当前根并统一规划撤离，保留箱内剩余物品。中间撤离群只通行，最终 Extract 才启动 Raid 计时和入库。战死是正常终态，关闭该角色原生导航释放尸体占位。
+
+玩家优先权覆盖整条根路线和步骤间隙。原 Lifecycle 挂起当前有效子步骤，反击结束恢复同一根；路线层只冻结游标，不另存 Directive。新合法玩家根清理旧所属步骤，失败保留。结算、敌人生命、库存事实仍由各原系统独占。
+
+### 性能和显示
+
+首版纯图 Dijkstra 为 O(V²+E)，正式图 28 节点、29 边。实际开销主要在 NavMesh 查询，成本共享并按预算补验，入图查询也有限额；Editor 联合生成是有界启发式，无解时给出明确诊断，不承诺任意人工约束都能保持原位置且无折点。
+
+投影事实 4 Hz、位置显示 20 Hz，静态 UI 只在定义修订时重建。剩余距离对应当前根锚点，入边基线冻结，无效时保持；行进核心始终在线上，处理、等待、撤离计时错开在群旁。小图/M 图切换不改变根，接受和失败提示来自真实结果。
+
+NavigationMotor 用已有路径角点的剩余长度记录进展，目标实质变化重建基线；左右抖动不续期，正常绕行和暂停不误判。导航指纹保守保留原生拓扑顺序，保存重载的冷启动可直接复用成本；常驻 Editor 顺序差异会触发一次有预算补验，不以放宽拓扑校验追求零查询。
+
+P0–P6 已验收：MR01 自主、MR02 有限玩家路线、MR03 编辑后真实经过序列和 MR04 独立 Player 均有程序证据。最终双人正式撤离，RTX 5090 D、4K High Fidelity、1× 全量平均 172.93 FPS。路线内部一次 NoProgress 按原有上限重规划后完成；离线 `SceneRaid.RouteRecovery.Contracts.psm1` 独立证明精确根/版本/真实位移/终态，仅报告分类扩展，不在 Gameplay 添加特殊豁免。原 FAIL、复核 PASS 和所有输入哈希保留，详见验收报告。
+
+
 ## 0. 阅读导航
 
 1. 1 - 3 部分：主要信息、模块定位、总体架构

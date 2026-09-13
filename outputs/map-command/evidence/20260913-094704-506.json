@@ -1,0 +1,341 @@
+{
+  "runId": "20260913-094704-506",
+  "mode": "Autonomous",
+  "evidenceStatus": "PASS",
+  "gameStatus": "PASS",
+  "runAcceptance": "PASS",
+  "gameErrors": 0,
+  "behaviorFailures": 1,
+  "recoveredRouteFailures": 1,
+  "unexpectedBehaviorFailures": 0,
+  "recoveredRouteSteps": [
+    {
+      "agent": "2",
+      "requestId": "Route_ff6d0b2eafb14066b79ff81d5ef2d44f",
+      "source": "Autonomous",
+      "goal": "cluster_ac43e253ab1e05daa3c5146620ad0002",
+      "commandId": "RouteStep_Route_ff6d0b2eafb14066b79ff81d5ef2d44f_4_1_1",
+      "reason": "NoProgress",
+      "oldVersion": 4,
+      "recoveredVersion": 5,
+      "failureSequence": 737,
+      "planningSequence": 739,
+      "acceptedSequence": 741,
+      "terminalSequence": 774,
+      "failedWallSeconds": 85.46729739999999,
+      "acceptedWallSeconds": 85.49453199999999,
+      "terminalWallSeconds": 88.5492987,
+      "recoverySeconds": 3.0820013000000017,
+      "terminalStage": "Completed",
+      "actualPlanarDisplacement": 6.949313007388775,
+      "policy": "SingleNoProgressChild_SameRootNextVersion_ActualMovement_TerminalSuccess"
+    }
+  ],
+  "stagnationSuspicions": 0,
+  "issues": [],
+  "completionContracts": {
+    "status": "PASS",
+    "outcome": "ALL_EXTRACTED",
+    "failures": [],
+    "coverage": {
+      "movement:1": true,
+      "inventory:1": true,
+      "ledger:1": true,
+      "verifiedTransfer:1": true,
+      "movement:2": true,
+      "inventory:2": true,
+      "ledger:2": true,
+      "verifiedTransfer:2": true,
+      "combatDamage": true,
+      "pauseResume": true,
+      "capacityExtraction": true,
+      "retaliationResume": true
+    },
+    "expected": {
+      "organic_fiber": 2,
+      "equip_headphone_blue": 3,
+      "equip_body_green": 1,
+      "equip_head_green": 2,
+      "intel_file": 3,
+      "military_radio": 2,
+      "equip_totem_green": 1,
+      "usb_drive": 2,
+      "book": 2,
+      "notebook": 2,
+      "equip_face_blue": 1,
+      "equip_headphone_green": 1,
+      "equip_body_blue": 1,
+      "pure_gold_ring": 1,
+      "lesser_organic_fiber": 1
+    },
+    "actual": {
+      "book": 2,
+      "notebook": 2,
+      "equip_face_blue": 1,
+      "intel_file": 3,
+      "equip_headphone_green": 1,
+      "equip_body_blue": 1,
+      "organic_fiber": 2,
+      "equip_head_green": 2,
+      "pure_gold_ring": 1,
+      "lesser_organic_fiber": 1,
+      "military_radio": 2,
+      "equip_headphone_blue": 3,
+      "equip_body_green": 1,
+      "equip_totem_green": 1,
+      "usb_drive": 2
+    }
+  },
+  "routeContracts": {
+    "schemaVersion": 1,
+    "status": "PASS",
+    "failures": [],
+    "coverage": {
+      "accepted": 12,
+      "states": 93,
+      "frames": 816,
+      "synchronizedDisplays": 1455,
+      "travelling": 709,
+      "waiting": 10,
+      "retaliation": 6,
+      "completed": 8,
+      "extracted": 0,
+      "dead": 0,
+      "player": 0,
+      "autonomous": 89
+    },
+    "rejections": [],
+    "rootFailures": [
+      {
+        "agent": "2",
+        "requestId": "Route_0bdad2928f3e4081af7b3331a26d8619",
+        "source": "Autonomous",
+        "goal": "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+        "stage": "Failed",
+        "reason": "CapacityExtraction",
+        "detail": "",
+        "version": 6,
+        "replan": false,
+        "snapshot": {
+          "agent": "2",
+          "requestId": "Route_0bdad2928f3e4081af7b3331a26d8619",
+          "source": "Autonomous",
+          "stage": "Failed",
+          "failure": "CapacityExtraction",
+          "goal": "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+          "currentNode": "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+          "previousNode": "cluster_ac43e253ab1e05daa3c5146620ad0002",
+          "entryFrom": "",
+          "stepPhase": "Failed",
+          "commandId": "RouteStep_Route_0bdad2928f3e4081af7b3331a26d8619_6_1_2",
+          "pendingId": "",
+          "pendingGoal": "",
+          "installed": true,
+          "hasRoute": true,
+          "active": false,
+          "pending": false,
+          "retaliating": false,
+          "dead": false,
+          "version": 6,
+          "graphRevision": 4,
+          "costRevision": 3,
+          "bindingRevision": 1,
+          "environmentVersion": 3,
+          "currentCostRevision": 3,
+          "cursor": 1,
+          "aliveMembers": 0,
+          "health": 166,
+          "nodes": [
+            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+            "cluster_49f0d5f8886bf9b95eb54fe91c863fc7"
+          ],
+          "position": {
+            "x": 258.42913818359375,
+            "y": 3.1666946411132812,
+            "z": -153.90505981445312
+          },
+          "anchor": {
+            "x": 183.01791381835938,
+            "y": 0.16669464111328125,
+            "z": -167.5916748046875
+          },
+          "anchorDistance3D": 76.70186614990234,
+          "anchorDistancePlanar": 76.64317321777344
+        }
+      },
+      {
+        "agent": "1",
+        "requestId": "Route_8806e73276314d19be0dd65a52136e53",
+        "source": "Autonomous",
+        "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+        "stage": "Failed",
+        "reason": "CapacityExtraction",
+        "detail": "",
+        "version": 4,
+        "replan": false,
+        "snapshot": {
+          "agent": "1",
+          "requestId": "Route_8806e73276314d19be0dd65a52136e53",
+          "source": "Autonomous",
+          "stage": "Failed",
+          "failure": "CapacityExtraction",
+          "goal": "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+          "currentNode": "cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f",
+          "previousNode": "cluster_1fdefe80ef2edccd45207db5a80a9123",
+          "entryFrom": "",
+          "stepPhase": "Failed",
+          "commandId": "RouteStep_Route_8806e73276314d19be0dd65a52136e53_4_3_2",
+          "pendingId": "",
+          "pendingGoal": "",
+          "installed": true,
+          "hasRoute": true,
+          "active": false,
+          "pending": false,
+          "retaliating": false,
+          "dead": false,
+          "version": 4,
+          "graphRevision": 4,
+          "costRevision": 3,
+          "bindingRevision": 1,
+          "environmentVersion": 3,
+          "currentCostRevision": 3,
+          "cursor": 3,
+          "aliveMembers": 0,
+          "health": 92,
+          "nodes": [
+            "cluster_ac43e253ab1e05daa3c5146620ad0002",
+            "cluster_9d02dfbf9e190218416afd8280324f29",
+            "cluster_1fdefe80ef2edccd45207db5a80a9123",
+            "cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f",
+            "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+          ],
+          "position": {
+            "x": 255.1929931640625,
+            "y": 9.833351135253906,
+            "z": 214.43258666992188
+          },
+          "anchor": {
+            "x": 254.72882080078125,
+            "y": 6.833351135253906,
+            "z": 216.12429809570312
+          },
+          "anchorDistance3D": 3.4752471446990967,
+          "anchorDistancePlanar": 1.754235863685608
+        }
+      }
+    ],
+    "terminalAcceptance": "RequiresIndependentRaidSettlement",
+    "sampledStatesDoNotProveEveryIntermediateFrame": true
+  },
+  "mapViewportValidation": {
+    "passed": true,
+    "expandedSamples": 114,
+    "switches": 2,
+    "required": true
+  },
+  "diagnosticTiming": {
+    "targetFps": 60,
+    "frameBudgetMs": 16.666666666666668,
+    "maximumBudgetMs": 33.333333333333336,
+    "validIntervals": 37335,
+    "averageFps": 172.93416887873113,
+    "p99Ms": 8.7224,
+    "maxMs": 522.8103,
+    "onePercentLowFps": 80.8979341912177,
+    "minimumOneSecondFps": 94,
+    "windowCount": 858,
+    "startupIncluded": true,
+    "slowFrameCount": 10,
+    "acceptancePolicy": "AverageFpsGreaterThanTarget",
+    "tailMetricsDiagnosticOnly": true,
+    "thresholdsMet": true
+  },
+  "runtime": {
+    "graphicsDevice": "NVIDIA GeForce RTX 5090 D",
+    "unityVersion": "2022.3.62f2c1",
+    "graphicsApi": "Direct3D11",
+    "quality": "High Fidelity",
+    "developmentBuild": true,
+    "screenWidth": 3840,
+    "screenHeight": 2160,
+    "elapsedWallSeconds": 217.33587609999998,
+    "elapsedGameSeconds": 198.7813959428204,
+    "renderedFrames": 37335,
+    "frames": 37336,
+    "inventorySessions": 10,
+    "lostEvents": 0,
+    "warnings": 61,
+    "instrumentationMilliseconds": 1154.549099999973
+  },
+  "rendering": {
+    "pipelineAsset": "URP-HighFidelity",
+    "pipelineType": "UnityEngine.Rendering.Universal.UniversalRenderPipeline",
+    "qualityPipeline": "URP-HighFidelity",
+    "screenMode": "FullScreenWindow",
+    "focused": true,
+    "width": 3840,
+    "height": 2160,
+    "renderInterval": 1,
+    "contexts": 37335,
+    "renderedFrames": 37335,
+    "cameras": [
+      {
+        "name": "Main Camera",
+        "type": "Game",
+        "targetTexture": "null",
+        "enabled": true,
+        "active": true,
+        "width": 3840,
+        "height": 2160,
+        "display": 0,
+        "cullingMask": -1
+      }
+    ]
+  },
+  "extracted": [
+    {
+      "agent": "2",
+      "wallSeconds": 171.2564849,
+      "requestId": "Route_15c307a6711d4414a04868ab810d1332"
+    },
+    {
+      "agent": "1",
+      "wallSeconds": 216.8669133,
+      "requestId": "Route_f5780433f3ec4e1794b256d8eedac226"
+    }
+  ],
+  "process": {
+    "completedUtc": "2026-09-13T01:53:19.0379326Z",
+    "exitCode": 0,
+    "binaryUnchanged": true,
+    "pid": 14500,
+    "sourceUnchanged": true,
+    "terminationReason": ""
+  },
+  "sourceReport": "Logs/SceneRaid/20260913-094704-506/PlayerRun/report-reviewed.json",
+  "sourceSha256": "1dac6442402652eafd71935e34894ad9d5e05a2be69b30ca152e1995ea2f8497",
+  "originalReport": {
+    "path": "Logs/SceneRaid/20260913-094704-506/PlayerRun/report.json",
+    "sha256": "27745160425b59c574291e03421ef74ed4096a6677e84c5f4dbc1b8caf8326c3",
+    "runAcceptance": "FAIL"
+  },
+  "reviewScope": "Frozen original build/run manifest and process hashes; current reporting tools are separately hashed.",
+  "originalInputsUnchanged": true,
+  "navigationCache": {
+    "edgeQueries": {
+      "minimum": 0,
+      "maximum": 2,
+      "final": 2
+    },
+    "pendingEdges": {
+      "minimum": 0,
+      "maximum": 0,
+      "final": 0
+    },
+    "fingerprints": {
+      "minimum": 1,
+      "maximum": 1,
+      "final": 1
+    }
+  }
+}

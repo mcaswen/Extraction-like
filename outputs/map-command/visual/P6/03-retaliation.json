@@ -1,0 +1,222 @@
+{
+    "utc": "2026-09-13T01:01:45.8587220Z",
+    "name": "03-retaliation",
+    "width": 3840,
+    "height": 1965,
+    "expanded": true,
+    "timeScale": 4.0,
+    "captureSeconds": 0.27961990000039807,
+    "roots": [
+        {
+            "agent": "1",
+            "requestId": "Route_7210321d07a9407992a8e129609aec34",
+            "source": "Autonomous",
+            "stage": "Accepted",
+            "failure": "None",
+            "goal": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "currentNode": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "previousNode": "",
+            "entryFrom": "",
+            "stepPhase": "Travelling",
+            "commandId": "RouteStep_Route_7210321d07a9407992a8e129609aec34_2_0_1",
+            "pendingId": "",
+            "pendingGoal": "",
+            "installed": true,
+            "hasRoute": true,
+            "active": true,
+            "pending": false,
+            "retaliating": false,
+            "dead": false,
+            "version": 2,
+            "graphRevision": 4,
+            "costRevision": 30,
+            "bindingRevision": 1,
+            "environmentVersion": 16,
+            "currentCostRevision": 30,
+            "cursor": 0,
+            "aliveMembers": 2,
+            "health": 300,
+            "nodes": [
+                "cluster_3a148e744335b9648c8c429f7fe51985"
+            ],
+            "position": {
+                "x": 142.39553833007813,
+                "y": 3.1666946411132814,
+                "z": -49.81660842895508
+            },
+            "anchor": {
+                "x": 128.2906494140625,
+                "y": 0.16669464111328126,
+                "z": -71.45321655273438
+            },
+            "anchorDistance3D": 26.00174331665039,
+            "anchorDistancePlanar": 25.82809829711914
+        },
+        {
+            "agent": "2",
+            "requestId": "Route_061534df2b3e4bfb8110a5f756cfaec7",
+            "source": "Player",
+            "stage": "Accepted",
+            "failure": "None",
+            "goal": "cluster_57b311b262bc54d476dde1d6c528f5fa",
+            "currentNode": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "previousNode": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "entryFrom": "",
+            "stepPhase": "Travelling",
+            "commandId": "RouteStep_Route_061534df2b3e4bfb8110a5f756cfaec7_2_1_1",
+            "pendingId": "",
+            "pendingGoal": "",
+            "installed": true,
+            "hasRoute": true,
+            "active": true,
+            "pending": false,
+            "retaliating": true,
+            "dead": false,
+            "version": 2,
+            "graphRevision": 4,
+            "costRevision": 30,
+            "bindingRevision": 1,
+            "environmentVersion": 16,
+            "currentCostRevision": 30,
+            "cursor": 1,
+            "aliveMembers": 2,
+            "health": 256,
+            "nodes": [
+                "cluster_e003c321c8d54767f3e93234ce7e48c5",
+                "cluster_3a148e744335b9648c8c429f7fe51985",
+                "cluster_ae3336fb07b69b8f929439fab983b97c",
+                "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+                "cluster_1d8e558540281854a4430a91743e5541",
+                "cluster_67e8f29f081a045ff69fb516f44dd0c6",
+                "cluster_065e3bcfbc8e922239efcb8b0a222710",
+                "cluster_57b311b262bc54d476dde1d6c528f5fa"
+            ],
+            "position": {
+                "x": 124.54345703125,
+                "y": 3.1666946411132814,
+                "z": -62.87158203125
+            },
+            "anchor": {
+                "x": 128.2906494140625,
+                "y": 0.16669464111328126,
+                "z": -71.45321655273438
+            },
+            "anchorDistance3D": 9.83289909362793,
+            "anchorDistancePlanar": 9.36407470703125
+        }
+    ],
+    "displays": [
+        {
+            "agent": "1",
+            "requestId": "Route_7210321d07a9407992a8e129609aec34",
+            "goal": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "node": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "mode": "Entering",
+            "edge": "",
+            "from": "",
+            "to": "",
+            "distanceSource": "Unavailable",
+            "distanceFailure": "",
+            "markerIdentity": "1",
+            "version": 2,
+            "pathVersion": 0,
+            "queries": 0,
+            "cursor": 0,
+            "markerMembers": 1,
+            "onEdge": false,
+            "validDistance": false,
+            "hasPosition": true,
+            "retaliating": false,
+            "hasMarker": true,
+            "progress": 0.0,
+            "baselineProgress": 0.0,
+            "baselineDistance": 0.0,
+            "remainingDistance": 0.0,
+            "tolerance": 0.0,
+            "sampleTime": 0.0,
+            "sampleAnchor": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "graphPosition": {
+                "x": 204.15274047851563,
+                "y": -18.267620086669923
+            },
+            "fromPort": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "toPort": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "markerPosition": {
+                "x": 118.72025299072266,
+                "y": -125.63968658447266
+            },
+            "remaining": [
+                "cluster_3a148e744335b9648c8c429f7fe51985"
+            ]
+        },
+        {
+            "agent": "2",
+            "requestId": "Route_061534df2b3e4bfb8110a5f756cfaec7",
+            "goal": "cluster_57b311b262bc54d476dde1d6c528f5fa",
+            "node": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "mode": "Travelling",
+            "edge": "edge_c84f19a79dd4a138e699e3be8a990e86",
+            "from": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "to": "cluster_3a148e744335b9648c8c429f7fe51985",
+            "distanceSource": "CachedQuery",
+            "distanceFailure": "",
+            "markerIdentity": "2",
+            "version": 2,
+            "pathVersion": 2,
+            "queries": 1,
+            "cursor": 1,
+            "markerMembers": 1,
+            "onEdge": true,
+            "validDistance": true,
+            "hasPosition": true,
+            "retaliating": true,
+            "hasMarker": true,
+            "progress": 0.8075873255729675,
+            "baselineProgress": 0.0,
+            "baselineDistance": 44.575767517089847,
+            "remainingDistance": 8.778839111328125,
+            "tolerance": 0.25,
+            "sampleTime": 19.21014599999944,
+            "sampleAnchor": {
+                "x": 128.2906494140625,
+                "y": 0.16669464111328126,
+                "z": -71.45321655273438
+            },
+            "graphPosition": {
+                "x": 219.54576110839845,
+                "y": -18.267620086669923
+            },
+            "fromPort": {
+                "x": 184.85203552246095,
+                "y": -144.0244598388672
+            },
+            "toPort": {
+                "x": 149.1050262451172,
+                "y": -144.0244598388672
+            },
+            "markerPosition": {
+                "x": 155.9832000732422,
+                "y": -144.0244598388672
+            },
+            "remaining": [
+                "cluster_3a148e744335b9648c8c429f7fe51985",
+                "cluster_ae3336fb07b69b8f929439fab983b97c",
+                "cluster_f1018dd91d6dd2c1befd6e28e14355be",
+                "cluster_1d8e558540281854a4430a91743e5541",
+                "cluster_67e8f29f081a045ff69fb516f44dd0c6",
+                "cluster_065e3bcfbc8e922239efcb8b0a222710",
+                "cluster_57b311b262bc54d476dde1d6c528f5fa"
+            ]
+        }
+    ]
+}

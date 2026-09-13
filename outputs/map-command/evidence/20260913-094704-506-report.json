@@ -1,0 +1,445 @@
+﻿{
+    "schemaVersion":  1,
+    "runId":  "20260913-094704-506",
+    "mode":  "Autonomous",
+    "editorLifecycle":  "PLAYER_EXITED",
+    "processExitCode":  0,
+    "evidenceStatus":  "PASS",
+    "gameStatus":  "ISSUES_OBSERVED",
+    "completionContracts":  {
+                                "status":  "PASS",
+                                "outcome":  "ALL_EXTRACTED",
+                                "failures":  [
+
+                                             ],
+                                "coverage":  {
+                                                 "movement:1":  true,
+                                                 "inventory:1":  true,
+                                                 "ledger:1":  true,
+                                                 "verifiedTransfer:1":  true,
+                                                 "movement:2":  true,
+                                                 "inventory:2":  true,
+                                                 "ledger:2":  true,
+                                                 "verifiedTransfer:2":  true,
+                                                 "combatDamage":  true,
+                                                 "pauseResume":  true,
+                                                 "capacityExtraction":  true,
+                                                 "retaliationResume":  true
+                                             },
+                                "expected":  {
+                                                 "organic_fiber":  2,
+                                                 "equip_headphone_blue":  3,
+                                                 "equip_body_green":  1,
+                                                 "equip_head_green":  2,
+                                                 "intel_file":  3,
+                                                 "military_radio":  2,
+                                                 "equip_totem_green":  1,
+                                                 "usb_drive":  2,
+                                                 "book":  2,
+                                                 "notebook":  2,
+                                                 "equip_face_blue":  1,
+                                                 "equip_headphone_green":  1,
+                                                 "equip_body_blue":  1,
+                                                 "pure_gold_ring":  1,
+                                                 "lesser_organic_fiber":  1
+                                             },
+                                "actual":  {
+                                               "book":  2,
+                                               "notebook":  2,
+                                               "equip_face_blue":  1,
+                                               "intel_file":  3,
+                                               "equip_headphone_green":  1,
+                                               "equip_body_blue":  1,
+                                               "organic_fiber":  2,
+                                               "equip_head_green":  2,
+                                               "pure_gold_ring":  1,
+                                               "lesser_organic_fiber":  1,
+                                               "military_radio":  2,
+                                               "equip_headphone_blue":  3,
+                                               "equip_body_green":  1,
+                                               "equip_totem_green":  1,
+                                               "usb_drive":  2
+                                           }
+                            },
+    "routeContracts":  {
+                           "schemaVersion":  1,
+                           "status":  "PASS",
+                           "failures":  [
+
+                                        ],
+                           "coverage":  {
+                                            "accepted":  12,
+                                            "states":  93,
+                                            "frames":  816,
+                                            "synchronizedDisplays":  1455,
+                                            "travelling":  709,
+                                            "waiting":  10,
+                                            "retaliation":  6,
+                                            "completed":  8,
+                                            "extracted":  0,
+                                            "dead":  0,
+                                            "player":  0,
+                                            "autonomous":  89
+                                        },
+                           "rejections":  [
+
+                                          ],
+                           "rootFailures":  [
+                                                {
+                                                    "agent":  "2",
+                                                    "requestId":  "Route_0bdad2928f3e4081af7b3331a26d8619",
+                                                    "source":  "Autonomous",
+                                                    "goal":  "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+                                                    "stage":  "Failed",
+                                                    "reason":  "CapacityExtraction",
+                                                    "detail":  "",
+                                                    "version":  6,
+                                                    "replan":  false,
+                                                    "snapshot":  {
+                                                                     "agent":  "2",
+                                                                     "requestId":  "Route_0bdad2928f3e4081af7b3331a26d8619",
+                                                                     "source":  "Autonomous",
+                                                                     "stage":  "Failed",
+                                                                     "failure":  "CapacityExtraction",
+                                                                     "goal":  "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+                                                                     "currentNode":  "cluster_49f0d5f8886bf9b95eb54fe91c863fc7",
+                                                                     "previousNode":  "cluster_ac43e253ab1e05daa3c5146620ad0002",
+                                                                     "entryFrom":  "",
+                                                                     "stepPhase":  "Failed",
+                                                                     "commandId":  "RouteStep_Route_0bdad2928f3e4081af7b3331a26d8619_6_1_2",
+                                                                     "pendingId":  "",
+                                                                     "pendingGoal":  "",
+                                                                     "installed":  true,
+                                                                     "hasRoute":  true,
+                                                                     "active":  false,
+                                                                     "pending":  false,
+                                                                     "retaliating":  false,
+                                                                     "dead":  false,
+                                                                     "version":  6,
+                                                                     "graphRevision":  4,
+                                                                     "costRevision":  3,
+                                                                     "bindingRevision":  1,
+                                                                     "environmentVersion":  3,
+                                                                     "currentCostRevision":  3,
+                                                                     "cursor":  1,
+                                                                     "aliveMembers":  0,
+                                                                     "health":  166,
+                                                                     "nodes":  [
+                                                                                   "cluster_ac43e253ab1e05daa3c5146620ad0002",
+                                                                                   "cluster_49f0d5f8886bf9b95eb54fe91c863fc7"
+                                                                               ],
+                                                                     "position":  {
+                                                                                      "x":  258.42913818359377,
+                                                                                      "y":  3.1666946411132814,
+                                                                                      "z":  -153.90505981445313
+                                                                                  },
+                                                                     "anchor":  {
+                                                                                    "x":  183.01791381835938,
+                                                                                    "y":  0.16669464111328126,
+                                                                                    "z":  -167.5916748046875
+                                                                                },
+                                                                     "anchorDistance3D":  76.70186614990235,
+                                                                     "anchorDistancePlanar":  76.64317321777344
+                                                                 }
+                                                },
+                                                {
+                                                    "agent":  "1",
+                                                    "requestId":  "Route_8806e73276314d19be0dd65a52136e53",
+                                                    "source":  "Autonomous",
+                                                    "goal":  "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+                                                    "stage":  "Failed",
+                                                    "reason":  "CapacityExtraction",
+                                                    "detail":  "",
+                                                    "version":  4,
+                                                    "replan":  false,
+                                                    "snapshot":  {
+                                                                     "agent":  "1",
+                                                                     "requestId":  "Route_8806e73276314d19be0dd65a52136e53",
+                                                                     "source":  "Autonomous",
+                                                                     "stage":  "Failed",
+                                                                     "failure":  "CapacityExtraction",
+                                                                     "goal":  "cluster_a84fd1c0b6b5590d95cbf011798b2e2a",
+                                                                     "currentNode":  "cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f",
+                                                                     "previousNode":  "cluster_1fdefe80ef2edccd45207db5a80a9123",
+                                                                     "entryFrom":  "",
+                                                                     "stepPhase":  "Failed",
+                                                                     "commandId":  "RouteStep_Route_8806e73276314d19be0dd65a52136e53_4_3_2",
+                                                                     "pendingId":  "",
+                                                                     "pendingGoal":  "",
+                                                                     "installed":  true,
+                                                                     "hasRoute":  true,
+                                                                     "active":  false,
+                                                                     "pending":  false,
+                                                                     "retaliating":  false,
+                                                                     "dead":  false,
+                                                                     "version":  4,
+                                                                     "graphRevision":  4,
+                                                                     "costRevision":  3,
+                                                                     "bindingRevision":  1,
+                                                                     "environmentVersion":  3,
+                                                                     "currentCostRevision":  3,
+                                                                     "cursor":  3,
+                                                                     "aliveMembers":  0,
+                                                                     "health":  92,
+                                                                     "nodes":  [
+                                                                                   "cluster_ac43e253ab1e05daa3c5146620ad0002",
+                                                                                   "cluster_9d02dfbf9e190218416afd8280324f29",
+                                                                                   "cluster_1fdefe80ef2edccd45207db5a80a9123",
+                                                                                   "cluster_e9fdcdf2fb9817e8c60fb11ab6b43f8f",
+                                                                                   "cluster_a84fd1c0b6b5590d95cbf011798b2e2a"
+                                                                               ],
+                                                                     "position":  {
+                                                                                      "x":  255.1929931640625,
+                                                                                      "y":  9.833351135253907,
+                                                                                      "z":  214.43258666992188
+                                                                                  },
+                                                                     "anchor":  {
+                                                                                    "x":  254.72882080078126,
+                                                                                    "y":  6.833351135253906,
+                                                                                    "z":  216.12429809570313
+                                                                                },
+                                                                     "anchorDistance3D":  3.4752471446990969,
+                                                                     "anchorDistancePlanar":  1.754235863685608
+                                                                 }
+                                                }
+                                            ],
+                           "terminalAcceptance":  "RequiresIndependentRaidSettlement",
+                           "sampledStatesDoNotProveEveryIntermediateFrame":  true
+                       },
+    "expectedRejections":  0,
+    "expectedExecutionFailures":  0,
+    "unexpectedBehaviorFailures":  1,
+    "coverageStatus":  "NOT_APPLICABLE",
+    "gameErrors":  0,
+    "behaviorFailures":  1,
+    "warnings":  61,
+    "stagnationSuspicions":  0,
+    "diagnosticTiming":  {
+                             "targetFps":  60,
+                             "frameBudgetMs":  16.666666666666668,
+                             "maximumBudgetMs":  33.333333333333336,
+                             "validIntervals":  37335,
+                             "averageFps":  172.93416887873113,
+                             "p99Ms":  8.7224,
+                             "maxMs":  522.8103,
+                             "onePercentLowFps":  80.8979341912177,
+                             "minimumOneSecondFps":  94,
+                             "windowCount":  858,
+                             "startupIncluded":  true,
+                             "slowFrameCount":  10,
+                             "slowFrames":  [
+                                                {
+                                                    "ms":  522.8103,
+                                                    "wallSeconds":  1.498382,
+                                                    "frame":  2
+                                                },
+                                                {
+                                                    "ms":  20.0679,
+                                                    "wallSeconds":  1.699245,
+                                                    "frame":  31
+                                                },
+                                                {
+                                                    "ms":  413.2729,
+                                                    "wallSeconds":  2.112518,
+                                                    "frame":  32
+                                                },
+                                                {
+                                                    "ms":  17.8775,
+                                                    "wallSeconds":  2.130395,
+                                                    "frame":  33
+                                                },
+                                                {
+                                                    "ms":  19.1781,
+                                                    "wallSeconds":  2.180068,
+                                                    "frame":  38
+                                                },
+                                                {
+                                                    "ms":  48.1279,
+                                                    "wallSeconds":  8.035631,
+                                                    "frame":  1090
+                                                },
+                                                {
+                                                    "ms":  19.2941,
+                                                    "wallSeconds":  10.976262,
+                                                    "frame":  1582
+                                                },
+                                                {
+                                                    "ms":  18.5917,
+                                                    "wallSeconds":  11.428971,
+                                                    "frame":  1646
+                                                },
+                                                {
+                                                    "ms":  42.1466,
+                                                    "wallSeconds":  171.266391,
+                                                    "frame":  27945
+                                                },
+                                                {
+                                                    "ms":  18.6888,
+                                                    "wallSeconds":  216.866973,
+                                                    "frame":  37336
+                                                }
+                                            ],
+                             "acceptancePolicy":  "AverageFpsGreaterThanTarget",
+                             "tailMetricsDiagnosticOnly":  true,
+                             "thresholdsMet":  true
+                         },
+    "counterSummaries":  [
+                             {
+                                 "name":  "PlayerLoop",
+                                 "validSamples":  37335,
+                                 "averageRaw":  5760229.138877729,
+                                 "maxRaw":  392046400,
+                                 "averageCalls":  0.99997321548145168
+                             },
+                             {
+                                 "name":  "GC Allocated In Frame",
+                                 "validSamples":  37335,
+                                 "averageRaw":  15398.297629570108,
+                                 "maxRaw":  25177118,
+                                 "averageCalls":  1
+                             },
+                             {
+                                 "name":  "Anomaly.Discovery.Update",
+                                 "validSamples":  37335,
+                                 "averageRaw":  9512.9208517476891,
+                                 "maxRaw":  14019500,
+                                 "averageCalls":  0.99997321548145168
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Update",
+                                 "validSamples":  37335,
+                                 "averageRaw":  113144.6069371903,
+                                 "maxRaw":  11687600,
+                                 "averageCalls":  1.7484398017945628
+                             },
+                             {
+                                 "name":  "Anomaly.Zone.Update",
+                                 "validSamples":  37335,
+                                 "averageRaw":  119945.40243739118,
+                                 "maxRaw":  1948400,
+                                 "averageCalls":  6.9998125083701623
+                             },
+                             {
+                                 "name":  "Anomaly.Discovery.ScanAgent",
+                                 "validSamples":  37335,
+                                 "averageRaw":  688.26302397214408,
+                                 "maxRaw":  13194900,
+                                 "averageCalls":  0.00029462970403107
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Facts",
+                                 "validSamples":  37335,
+                                 "averageRaw":  20950.258470603992,
+                                 "maxRaw":  1019600,
+                                 "averageCalls":  1.7484398017945628
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Lifecycle",
+                                 "validSamples":  37335,
+                                 "averageRaw":  11053.799383956073,
+                                 "maxRaw":  3030400,
+                                 "averageCalls":  1.7484398017945628
+                             },
+                             {
+                                 "name":  "Anomaly.Pawn.Brain",
+                                 "validSamples":  37335,
+                                 "averageRaw":  74290.893263693579,
+                                 "maxRaw":  11619000,
+                                 "averageCalls":  1.7484398017945628
+                             },
+                             {
+                                 "name":  "Anomaly.Zone.State",
+                                 "validSamples":  37335,
+                                 "averageRaw":  6466.2890049551361,
+                                 "maxRaw":  81100,
+                                 "averageCalls":  6.9998125083701623
+                             },
+                             {
+                                 "name":  "Anomaly.Zone.Shape",
+                                 "validSamples":  37335,
+                                 "averageRaw":  112617.77956341235,
+                                 "maxRaw":  1942300,
+                                 "averageCalls":  6.9998125083701623
+                             },
+                             {
+                                 "name":  "Anomaly.Navigation.Check",
+                                 "validSamples":  37335,
+                                 "averageRaw":  5253.1137002812375,
+                                 "maxRaw":  1215800,
+                                 "averageCalls":  0.11766438998259006
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.LateUpdate",
+                                 "validSamples":  37335,
+                                 "averageRaw":  125743.23824829249,
+                                 "maxRaw":  3068000,
+                                 "averageCalls":  42
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.State",
+                                 "validSamples":  37335,
+                                 "averageRaw":  30018.660774072585,
+                                 "maxRaw":  269400,
+                                 "averageCalls":  28
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.Input",
+                                 "validSamples":  37335,
+                                 "averageRaw":  7929.160305343511,
+                                 "maxRaw":  245100,
+                                 "averageCalls":  4.2838891120932105
+                             },
+                             {
+                                 "name":  "Anomaly.Cluster.Range",
+                                 "validSamples":  37335,
+                                 "averageRaw":  77562.6088121066,
+                                 "maxRaw":  2896900,
+                                 "averageCalls":  4.2838891120932105
+                             },
+                             {
+                                 "name":  "Anomaly.Range.Geometry",
+                                 "validSamples":  37335,
+                                 "averageRaw":  18229.929021025848,
+                                 "maxRaw":  314300,
+                                 "averageCalls":  0.72827105932770864
+                             },
+                             {
+                                 "name":  "Anomaly.Range.Projection",
+                                 "validSamples":  37335,
+                                 "averageRaw":  125189.13619927682,
+                                 "maxRaw":  3568000,
+                                 "averageCalls":  1.2634793089594214
+                             },
+                             {
+                                 "name":  "Anomaly.Range.Line",
+                                 "validSamples":  37335,
+                                 "averageRaw":  3428.4639078612563,
+                                 "maxRaw":  104900,
+                                 "averageCalls":  0.73049417436721575
+                             },
+                             {
+                                 "name":  "Anomaly.Ground.Raycast",
+                                 "validSamples":  37335,
+                                 "averageRaw":  36859.209856702822,
+                                 "maxRaw":  958900,
+                                 "averageCalls":  64.048908530869156
+                             },
+                             {
+                                 "name":  "Anomaly.Ground.Filter",
+                                 "validSamples":  37335,
+                                 "averageRaw":  75916.919780366952,
+                                 "maxRaw":  2256000,
+                                 "averageCalls":  95.518655417168873
+                             }
+                         ],
+    "performanceAcceptance":  false,
+    "issues":  [
+
+               ],
+    "mapViewportValidation":  {
+                                  "expandedSamples":  114,
+                                  "switches":  2,
+                                  "passed":  true
+                              },
+    "runAcceptance":  "FAIL"
+}

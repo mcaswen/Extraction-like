@@ -2,6 +2,7 @@ Set-StrictMode -Version Latest
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Contracts.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.ClusterCommands.Contracts.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.Routes.Contracts.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'SceneRaid.RouteRecovery.Contracts.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.RouteConfig.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'SceneRaid.CommandConfig.psm1')
 function Get-SceneRaidFrameStatistics {
@@ -63,7 +64,7 @@ function Get-SceneRaidFrameStatistics {
 
 function Test-SceneRaidEvidence {
     param([string]$OutputPath, [object]$Config, [Nullable[int]]$ExitCode, [bool]$SourceUnchanged,
-        [switch]$EditorRetained, [int]$EditorProcessId, [switch]$PlayerRun)
+        [switch]$EditorRetained, [int]$EditorProcessId, [switch]$PlayerRun, [switch]$ReadOnly)
     $issues = [Collections.Generic.List[string]]::new()
     if ($PlayerRun -and $EditorRetained) { $issues.Add('player_cannot_be_retained_editor') }
     if ($EditorRetained) {
@@ -86,6 +87,7 @@ function Test-SceneRaidEvidence {
     $behaviorFailures = 0
     $expectedRejections = 0
     $expectedExecutionFailures = 0
+    $recoveredRouteSteps = @()
     $warnings = 0
     $stagnations = 0
     $timing = $null
@@ -140,7 +142,10 @@ function Test-SceneRaidEvidence {
                     $routes | Add-Member -NotePropertyName script -NotePropertyValue $scriptContract
                     if($scriptContract.status -ne 'PASS'){$routes.status='FAIL';$routes.failures+=@($scriptContract.failures)}
                 }
-                $routes | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $OutputPath 'route-contracts.json') -Encoding UTF8
+                if (!$ReadOnly) { $routes | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $OutputPath 'route-contracts.json') -Encoding UTF8 }
+                if ($Config.mode -in @('Autonomous','ManualRoutes') -and $routes.status -eq 'PASS') {
+                    $recoveredRouteSteps = @(Get-SceneRaidRecoveredRouteSteps $events)
+                }
             }
             if ($issues.Contains('no_graphical_frames')) {
                 throw 'Rendering evidence is invalid; raw counters are retained but timing aggregation is not applicable.'
@@ -176,14 +181,14 @@ function Test-SceneRaidEvidence {
             if ((@($result.observedAgents | Sort-Object) -join ',') -ne '1,2') { $issues.Add('expected_agents_missing') }
             if ($Config.mode -in @('Autonomous','ManualRoutes')) {
                 $completion = Test-SceneRaidCompletion $OutputPath $Config $events $result
-                $completion | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8
+                if (!$ReadOnly) { $completion | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8 }
             }
             elseif ($Config.mode -eq 'ManualCluster') {
                 $completion = Test-SceneRaidClusterCompletion $OutputPath $Config $events $result
                 $expectedRejections = $completion.expectedRejections
                 $expectedExecutionFailures = $completion.expectedExecutionFailures
                 if (@($completion.failures | Where-Object { $_ -like 'invalid_*' }).Count) { $issues.Add('invalid_command_or_carried_evidence') }
-                $completion | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8
+                if (!$ReadOnly) { $completion | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath (Join-Path $OutputPath 'contracts.json') -Encoding UTF8 }
             }
         } catch { $issues.Add('invalid_or_missing_evidence:' + $_.Exception.Message) }
     }
@@ -191,10 +196,12 @@ function Test-SceneRaidEvidence {
         schemaVersion=1; runId=$Config.runId; mode=$Config.mode
         editorLifecycle=$(if ($PlayerRun) {'PLAYER_EXITED'} elseif ($EditorRetained) {'EDITOR_RETAINED'} else {'PROCESS_EXITED'});processExitCode=$ExitCode
         evidenceStatus=$(if ($issues.Count -eq 0) {'PASS'} else {'FAIL'})
-        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or ($behaviorFailures-$expectedRejections-$expectedExecutionFailures) -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL') -or ($routes -and $routes.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
+        gameStatus=$(if (($result -and $result.status -eq 'BEHAVIOR_BLOCKED') -or $gameErrors -gt 0 -or ($behaviorFailures-$expectedRejections-$expectedExecutionFailures-$recoveredRouteSteps.Count) -gt 0 -or $stagnations -gt 0 -or ($completion -and $completion.status -eq 'FAIL') -or ($routes -and $routes.status -eq 'FAIL')) {'ISSUES_OBSERVED'} elseif ($issues.Count -eq 0 -and $completion -and $completion.status -eq 'PASS') { if ($completion.outcome -eq 'EXPECTED_DEATH') {'EXPECTED_DEATH'} else {'PASS'} } else {'NOT_FULL_RAID_VALIDATED'})
         completionContracts=$completion
         routeContracts=$routes
-        expectedRejections=$expectedRejections; expectedExecutionFailures=$expectedExecutionFailures; unexpectedBehaviorFailures=($behaviorFailures-$expectedRejections-$expectedExecutionFailures)
+        expectedRejections=$expectedRejections; expectedExecutionFailures=$expectedExecutionFailures
+        recoveredRouteFailures=$recoveredRouteSteps.Count; recoveredRouteSteps=$recoveredRouteSteps
+        unexpectedBehaviorFailures=($behaviorFailures-$expectedRejections-$expectedExecutionFailures-$recoveredRouteSteps.Count)
         coverageStatus=$(if($Config.mode -eq 'ManualCluster' -and $completion){$completion.coverageStatus}else{'NOT_APPLICABLE'})
         gameErrors=$gameErrors; behaviorFailures=$behaviorFailures; warnings=$warnings;stagnationSuspicions=$stagnations;diagnosticTiming=$timing;counterSummaries=$counterSummaries
         performanceAcceptance=$false; issues=$issues.ToArray()

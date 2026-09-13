@@ -1,0 +1,164 @@
+{
+    "fixture": "正式场景，仅把 2 号初始位置布置在雨林撤离群附近，后续由正式 Handler、导航和 Raid 执行",
+    "configuredStart": {
+        "x": -187.2310791015625,
+        "y": 0.3742485046386719,
+        "z": 260.42437744140627
+    },
+    "width": 2240,
+    "height": 1400,
+    "renderedFrames": 29,
+    "root": {
+        "agent": "2",
+        "requestId": "Route_388fe0d5482741f7b9ddc8b34d32309d",
+        "source": "Player",
+        "stage": "Accepted",
+        "failure": "None",
+        "goal": "cluster_b232001ecd90d331fc0d2a4844eb5545",
+        "currentNode": "cluster_b232001ecd90d331fc0d2a4844eb5545",
+        "previousNode": "",
+        "entryFrom": "",
+        "stepPhase": "Extracting",
+        "commandId": "RouteStep_Route_388fe0d5482741f7b9ddc8b34d32309d_1_0_2",
+        "pendingId": "",
+        "pendingGoal": "",
+        "installed": true,
+        "hasRoute": true,
+        "active": true,
+        "pending": false,
+        "retaliating": false,
+        "dead": false,
+        "version": 1,
+        "graphRevision": 4,
+        "costRevision": 1,
+        "bindingRevision": 1,
+        "environmentVersion": 1,
+        "currentCostRevision": 1,
+        "cursor": 0,
+        "aliveMembers": 0,
+        "health": 270,
+        "nodes": [
+            "cluster_b232001ecd90d331fc0d2a4844eb5545"
+        ],
+        "position": {
+            "x": -190.1490478515625,
+            "y": 3.6319580078125,
+            "z": 260.42437744140627
+        },
+        "anchor": {
+            "x": -190.2310791015625,
+            "y": 0.6392021179199219,
+            "z": 260.42437744140627
+        },
+        "anchorDistance3D": 2.993880033493042,
+        "anchorDistancePlanar": 0.08203125
+    },
+    "displays": [
+        {
+            "agent": "2",
+            "requestId": "Route_388fe0d5482741f7b9ddc8b34d32309d",
+            "goal": "cluster_b232001ecd90d331fc0d2a4844eb5545",
+            "node": "cluster_b232001ecd90d331fc0d2a4844eb5545",
+            "mode": "Extracting",
+            "edge": "",
+            "from": "",
+            "to": "",
+            "distanceSource": "Unavailable",
+            "distanceFailure": "",
+            "markerIdentity": "2",
+            "version": 1,
+            "pathVersion": 0,
+            "queries": 0,
+            "cursor": 0,
+            "markerMembers": 1,
+            "onEdge": false,
+            "validDistance": false,
+            "hasPosition": true,
+            "retaliating": false,
+            "hasMarker": true,
+            "progress": 0.0,
+            "baselineProgress": 0.0,
+            "baselineDistance": 0.0,
+            "remainingDistance": 0.0,
+            "tolerance": 0.0,
+            "sampleTime": 0.0,
+            "sampleAnchor": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "graphPosition": {
+                "x": -199.75518798828126,
+                "y": 446.6275634765625
+            },
+            "fromPort": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "toPort": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "markerPosition": {
+                "x": -146.163818359375,
+                "y": 221.56153869628907
+            },
+            "remaining": [
+                "cluster_b232001ecd90d331fc0d2a4844eb5545"
+            ]
+        },
+        {
+            "agent": "1",
+            "requestId": "Route_d18829ce7c4f46eaa893372474803f0e",
+            "goal": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "node": "cluster_e003c321c8d54767f3e93234ce7e48c5",
+            "mode": "Entering",
+            "edge": "",
+            "from": "",
+            "to": "",
+            "distanceSource": "Unavailable",
+            "distanceFailure": "",
+            "markerIdentity": "1",
+            "version": 1,
+            "pathVersion": 0,
+            "queries": 0,
+            "cursor": 0,
+            "markerMembers": 1,
+            "onEdge": false,
+            "validDistance": false,
+            "hasPosition": true,
+            "retaliating": false,
+            "hasMarker": true,
+            "progress": 0.0,
+            "baselineProgress": 0.0,
+            "baselineDistance": 0.0,
+            "remainingDistance": 0.0,
+            "tolerance": 0.0,
+            "sampleTime": 0.0,
+            "sampleAnchor": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "graphPosition": {
+                "x": 284.1527404785156,
+                "y": -18.267620086669923
+            },
+            "fromPort": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "toPort": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "markerPosition": {
+                "x": 215.23681640625,
+                "y": -162.40924072265626
+            },
+            "remaining": [
+                "cluster_e003c321c8d54767f3e93234ce7e48c5"
+            ]
+        }
+    ]
+}

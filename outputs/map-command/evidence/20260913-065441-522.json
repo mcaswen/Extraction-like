@@ -1,0 +1,69 @@
+{
+  "runId": "20260913-065441-522",
+  "mode": "Autonomous",
+  "evidenceStatus": "PASS",
+  "gameStatus": "EXPECTED_DEATH",
+  "gameErrors": 0,
+  "behaviorFailures": 0,
+  "stagnationSuspicions": 0,
+  "issues": [],
+  "completionContracts": {
+    "status": "PASS",
+    "outcome": "EXPECTED_DEATH",
+    "failures": [],
+    "coverage": {
+      "movement:1": true,
+      "inventory:1": true,
+      "ledger:1": true,
+      "verifiedTransfer:1": true,
+      "movement:2": true,
+      "inventory:2": true,
+      "ledger:2": true,
+      "verifiedTransfer:2": true,
+      "combatDamage": true,
+      "pauseResume": true,
+      "capacityExtraction": true,
+      "retaliationResume": true
+    },
+    "expected": {
+      "organic_fiber": 2,
+      "equip_head_green": 1,
+      "military_radio": 1,
+      "equip_totem_green": 1,
+      "top_organic_fiber": 1,
+      "equip_head_blue": 1,
+      "equip_headphone_blue": 1,
+      "book": 1
+    },
+    "actual": {
+      "organic_fiber": 2,
+      "equip_head_green": 1,
+      "military_radio": 1,
+      "equip_totem_green": 1,
+      "top_organic_fiber": 1,
+      "equip_head_blue": 1,
+      "equip_headphone_blue": 1,
+      "book": 1
+    }
+  },
+  "routeContracts": {
+    "status": "PASS",
+    "failures": [],
+    "coverage": {
+      "accepted": 9,
+      "states": 87,
+      "frames": 227,
+      "synchronizedDisplays": 452,
+      "travelling": 128,
+      "waiting": 7,
+      "retaliation": 10,
+      "completed": 7,
+      "extracted": 0,
+      "dead": 1,
+      "player": 0,
+      "autonomous": 83
+    }
+  },
+  "sourceReport": "Logs/SceneRaid/20260913-065441-522/report.json",
+  "sourceSha256": "22af9991a0d5954868e6c33ed26df1e8c85238b458023a09af50ae25e445e9e5"
+}

@@ -1,0 +1,51 @@
+{
+  "runId": "20260913-090113-360",
+  "mode": "ManualRoutes",
+  "evidenceStatus": "PASS",
+  "gameStatus": "EXPECTED_DEATH",
+  "gameErrors": 0,
+  "behaviorFailures": 0,
+  "stagnationSuspicions": 0,
+  "issues": [],
+  "completionContracts": {
+    "status": "PASS",
+    "outcome": "EXPECTED_DEATH",
+    "failures": [],
+    "coverage": {
+      "movement:1": true,
+      "inventory:1": true,
+      "ledger:1": true,
+      "verifiedTransfer:1": true,
+      "movement:2": true,
+      "inventory:2": true,
+      "ledger:2": true,
+      "verifiedTransfer:2": true,
+      "combatDamage": true,
+      "pauseResume": true,
+      "capacityExtraction": true,
+      "retaliationResume": true
+    },
+    "expected": {},
+    "actual": {}
+  },
+  "routeContracts": {
+    "status": "PASS",
+    "failures": [],
+    "coverage": {
+      "accepted": 6,
+      "states": 101,
+      "frames": 283,
+      "synchronizedDisplays": 566,
+      "travelling": 195,
+      "waiting": 9,
+      "retaliation": 15,
+      "completed": 2,
+      "extracted": 0,
+      "dead": 2,
+      "player": 54,
+      "autonomous": 43
+    }
+  },
+  "sourceReport": "Logs/SceneRaid/20260913-090113-360/report.json",
+  "sourceSha256": "dd8507ee00debbee47f4102e2205d83e0e5651fdfdad4ef4e474097f1272e877"
+}

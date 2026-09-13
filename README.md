@@ -11,15 +11,18 @@
 | 菜单与准备界面 | 已接入主要页面与跳转 | 主菜单、准备界面、元素选择、商店；设置和强化入口仍为占位 |
 | 岛屿关卡 | 已有集成场景与区域内容 | 包含资源、敌人来源、Boss、撤离点、建筑遮挡与区域连接；保留多份制作和测试场景 |
 | 多角色行动 | 已接入主场景 | 两个 Agent 独立行动，支持焦点切换、指定目标、镜头与背包跟随焦点 |
-| Agent 自主行为 | 已接入发现、指令生命周期与执行链 | 受击反击后恢复有效的玩家任务或撤离，导航失败释放任务，成员级目标选择；风险评分模块已实现，基础预制体默认关闭 |
+| Agent 自主行为 | 已接入发现、指令生命周期与执行链 | 自主和玩家目标统一生成群路线，反击后恢复有效路线，导航失败有界结束；风险评分模块已实现，基础预制体默认关闭 |
+| 地图指挥 | 已接入 Scenezl_Final 1 正式 HUD | 全图可见，矩形 Zone、横竖直边、小地图和 M 图共用状态，自动生成、编辑、逐群执行 |
 | 战斗与敌人 | 已有配置、预制体和运行时行为 | 冰／土两套 Agent 流派、四类特色普通敌人、Hunter Boss，以及基础近战／远程敌人 |
 | 搜刮与背包 | 已接入局内交互 | 固定背包、物品搜索、拖拽、堆叠、快捷转移、整理、装备槽和角色库存切换 |
 | 成长系统 | 已接入经验与天赋 | 击杀／开箱经验、等级、天赋点、冰／土天赋效果、图腾属性修正 |
 | 撤离结算 | 已实现局内到仓库的数据链 | 按 Agent 计时撤离、结算携带物品、展示时间／数量／价值；确认后目前重开本关 |
 | 仓库与商店 | 已有独立 UI 和本地持久化 | 分页仓库、出售物品、购买图腾、金币记录、按真实时间刷新商店库存 |
 | 画面与反馈 | 已有美术资源及多处玩法接入 | 角色与敌人动画、技能 VFX、HUD、顶部指令结果淡入淡出、音效、Toon 描边和墙体淡出 |
-| 自动回归 | 已有构造测试和正式场景运行器 | 已登记 355 个构造用例，按改动选择回归；编码 Agent 自动运行 Play Mode、操作正式背包、核对结算，另有独立 Player 渲染和性能验证 |
+| 自动回归 | 已有构造测试和正式场景运行器 | 用例目录随代码维护，按改动选择回归；编码 Agent 自动运行 Play Mode、操作正式背包、核对结算，另有独立 Player 渲染和性能验证 |
 | 内容生产 | 已有编辑器工具链 | 物品导表、预制体生成、敌人配置、白盒搭建、NavMesh、UI 构建与资源散布 |
+
+地图指挥 P0–P6 已完成。2026-09-13 在 RTX 5090 D 上运行 Scenezl_Final 1，1×、4K High Fidelity 独立 Player 两人自主搜打撤、正式结算通过，全量平均 **172.93 FPS**。测试程序代替玩家操作背包；1 次移动子步骤失败已通过同根重规划恢复，原始记录和复核过程见 [地图验收报告](outputs/map_command_validation_report.md)。
 
 ## 打开与体验
 
@@ -37,7 +40,7 @@
 1. 获取仓库后，确保 Git LFS 资源已下载；已有检出目录可执行 `git lfs pull`。
 2. 在 Unity Hub 中添加工程，使用上述编辑器版本打开，等待资源导入与脚本编译结束。包依赖记录在 [manifest.json](Packages/manifest.json)。
 3. 打开 [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) 后进入 Play Mode，体验菜单到关卡的流程。
-4. 直接验证局内玩法时，可打开 [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity)。该场景是当前元素选择页面指向的关卡。
+4. 体验当前地图指挥和搜打撤集成，请直接打开 [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity)。菜单仍指向 [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity)，不会自动切换到这份新场景。
 5. 构建时以 [EditorBuildSettings.asset](ProjectSettings/EditorBuildSettings.asset) 为准，主菜单目前位于构建列表首位。
 
 Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需要先执行它们。
@@ -50,7 +53,7 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | [Scene_PreparationInterface](Assets/Scenes/Scene_PreparationInterface.unity) | 进入商店或元素选择 |
 | [Scene_ElementSelectionMenu](Assets/Scenes/Scene_ElementSelectionMenu.unity) | 五种元素中选择两个，随后载入主玩法场景；阵容接线状态见下文 |
 | [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity) | 当前菜单流程使用的 3D Raid 集成场景，预置冰、土两个 Agent |
-| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 本次自主搜打撤和性能治理的实际场景，8 个 Zone、两个 Agent、30 个已注册敌人、两个有效撤离群 |
+| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 地图指挥及搜打撤集成场景，7 个 Zone、28 个静态群、29 条合法直边、两个 Agent、30 个出生配置、两个有效撤离群 |
 | [ShopCanvasTest](Assets/Scenes/ShopCanvasTest.unity) | 当前准备界面使用的商店场景，包含仓库、交易和返回按钮 |
 | [StorageCanvasTest](Assets/Scenes/StorageCanvasTest.unity) | 独立仓库验证场景，未列入当前构建列表 |
 | [Scene_StartMenu](Assets/Scenes/Scene_StartMenu.unity)、[Scene_sdw_test2](Assets/Scenes/Scene_sdw_test2.unity) | 保留的另一条启动与集成测试路径 |
@@ -64,14 +67,14 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 
 | 操作 | 效果 |
 | --- | --- |
-| 鼠标左键点击目标群 | 给当前焦点 Agent 指定资源、敌人或撤离目标 |
+| 鼠标左键点击世界或地图上的群 | 给焦点 Agent 规划到该群的完整路线，依次处理沿途各群 |
 | `Tab` | 切换焦点 Agent；背包打开时不切换 |
 | `F` | 与附近对象交互；无交互目标时打开背包，背包已打开时关闭 |
 | `I` | 开关背包 |
 | 拖拽物品 | 调整占格位置、转移物品或放入匹配的装备槽 |
 | `Ctrl` + 左键点击物品 | 在可用容器之间快捷转移 |
 | `P` / `Esc` | 打开或关闭天赋面板 / 关闭天赋面板 |
-| `M` | 切换完整地图显示 |
+| `M` | 切换同一指挥地图的小图／放大视口，放大图可滚轮缩放、拖动平移 |
 | 结算／失败后按 `R` | 重新开始当前场景 |
 
 Agent 的移动和常规战斗由 AI 驱动。背包与商店内的物品操作、天赋选择通过对应 UI 完成。
@@ -110,6 +113,19 @@ flowchart TD
 - 玩家搜索、交战等手动任务以及撤离受有效伤害后挂起，反击期间保持当前有效敌人，结束后继续仍然有效的原目标和原指令。连续受击只保留一份恢复记录，新手动命令、取消或死亡清理旧记录；反击期间已完成的原任务正常结束。
 - 指令接受前检查目标有效性和执行条件；导航丢失、动态断路或持续无进展会终止任务并释放锁。画面顶部显示“指令下达成功”或“指令下达失败：具体原因”，暂停时仍会淡入淡出。
 - 风险评分模块读取实际防御、所有唯一可见风险敌人和具体成员位置，支持当前目标奖励与低血量撤离倾向；基础 Agent 预制体默认未启用该模块。
+
+### 地图指挥与逐群路线
+
+当前功能绑定在 Scenezl_Final 1，未绑定地图的历史场景保留旧入口。开局显示全部区域，连接决定允许规划的相邻群；单条边始终是一段水平或垂直直线，转向发生在真实群节点。角色仍沿实际 NavMesh 绕过墙体和高低差。
+
+- 玩家点击与自主选择经统一根路线入口，首版按实际导航路程选路，成本模型保留扩展接口。新合法路线就绪后才替换焦点角色的剩余路线，失败保留旧任务并提示原因。
+- 资源群到箱旁等待玩家背包交互，正式游戏不自动拿走物品。敌人群清掉所有存活成员后继续；锚点被敌人占住时，可在合法射程内先交战，随后仍须实际访问锚点。
+- 已完成群仍按拓扑经过，中间撤离群只通行，最终撤离目标才启动正式计时和结算。容量不足会结束资源路线，自主撤离，箱内余物保留。
+- 自动和玩家目标使用相同节点、路线及状态表示，玩家路线优先。反击结束后恢复同一根路线，不回退到另一个自动目标。
+- 行进角色标记在线上，按到当前群锚点的实际剩余导航距离映射；无效距离冻结位置，不靠时间假装前进。处理、等待背包和撤离计时的标记稳定错开在群图标旁，多人保持身份和颜色。
+- 小图／M 图共用深色主题，Zone 名称居中。展开、缩放和平移只改变显示，死亡释放导航占位，终态停止路线推进。
+
+实际运行画面、自动验收和覆盖边界见 [地图指挥验收](outputs/map_command_validation_report.md)，模块设计见 [大规划](.planning/2026-09-12-map-command/task_plan.md)。
 
 ### 搜刮、背包与装备
 
@@ -193,11 +209,11 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 | 目录 | 当前规模 |
 | --- | --- |
 | `Assets/Art` | 83 个 FBX 文件、232 张 PNG／JPG／JPEG 图片、18 个 `.anim`、2 个 Controller、7 个 Override Controller |
-| `Assets/Prefabs` | 127 个预制体，另有 HUD／结算预制体位于 `Resources`；`Resources/HUD` 当前含 2 个预制体，包括新增指令反馈 |
-| `Assets/SO` | 70 份 `.asset`：52 份物品、7 份敌人、3 份 Agent、1 份 MapGraph、7 份旧 BoardGame 配置 |
+| `Assets/Prefabs` | 128 个预制体，另有 HUD／结算预制体位于 `Resources`；`Resources/HUD` 当前含 3 个预制体，包括指令反馈和地图指挥 |
+| `Assets/SO` | 72 份 `.asset`：52 份物品、7 份敌人、3 份 Agent、3 份 MapGraph（旧图、正式图、主题）、7 份旧 BoardGame 配置 |
 | `Assets/Scenes` | 35 个场景，其中 9 个位于 `Obsolete`；当前构建列表启用 8 个场景 |
 | `Assets/Resources/GameAudio` | 23 个音频文件，包含不同格式版本 |
-| `Assets/Scripts` | 407 个 C# 文件，其中 58 个位于顶层 `Editor`、63 个位于 `Obsolete` |
+| `Assets/Scripts` | 600 个 C# 文件，其中 172 个位于顶层 `Editor`、63 个位于 `Obsolete`；此处为 2026-09-13 盘点 |
 
 第三方目录另外包含 29 个示例场景和 233 个预制体，上表未将它们计入项目场景／预制体数量。美术目录中也存在白盒、生成与演示资源；当前画面以主场景及其预制体绑定为准。
 
@@ -219,6 +235,16 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 - 资源：配置物品与箱子 → 加入资源群 → 设置资源档位 → 核对碰撞体和可达交互位置 → 验证开箱、搜索、取物及群完成状态。
 - 撤离：配置撤离点、撤离群及计时 → 验证单角色和多角色进入／离开 → 核对结算物品与仓库数据。
 - 导航：使用已有 NavMesh Surface 与 `Tools/NavMesh/Scene NavMesh Align Tool` 核对场景导航，重点检查建筑、资源交互点与跨区域连接。
+
+### 场景 → 指挥地图生成与编辑
+
+1. 打开 Scenezl_Final 1，进入 `Tools/Anomaly Search/地图指挥编辑器`，窗口自动读取当前场景 Binding 对应的地图资产。
+2. 采集真实 Zone、群、Prefab 覆写和导航锚点，校验候选连接，联合生成矩形布局及无折点横竖直边。无解或冲突会给出诊断，不能保存斜线或假可达边。
+3. 拖动 Zone／群、增删连接、重绑定端点，调整线宽、颜色、端点留白。显示位置编辑不移动世界对象；相连节点按行列约束联动预览，人工锁定和禁连意图保留。
+4. 验证后保存图 SO 和场景 Binding，支持 Undo/Redo、保存重开。普通重排不改变拓扑，重新生成保留手工覆写，只有显式重置才清除。
+5. 世界群、导航或 profile 改动后重新验证成本。运行时共享缓存按预算补验失效连接，不采用过期路长。
+
+正式资产是 [SO_MapGraphDefinition_Scenezl_Final1](Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset)，样式在 [SO_MapGraphTheme_Raid](Assets/SO/MapGraph/SO_MapGraphTheme_Raid.asset)，HUD 为 [Pfb_RaidCommandMap](Assets/Resources/HUD/Pfb_RaidCommandMap.prefab)，中文使用 [MapGraphChinese SDF](Assets/Font/MapGraphChinese%20SDF.asset)。独立的 [NavMesh-CommandRoutes](Assets/Scenes/Scene_DB/Scenezl_Final%201/NavMesh-CommandRoutes.asset) 修正龙骨礁撤离可达性，原导航资产保留。
 
 ### 表现与场景制作工具
 
@@ -264,7 +290,7 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 | 新旧玩家能力 | 部分沉默、减益和魔法知识拾取仍依赖旧 Player 脚本，需要核对其对当前 Agent 的实际效果 |
 | 场景与资源收敛 | 存在多份测试／制作场景、旧桌游内容及生成资源；当前主入口以菜单绑定和 Build Settings 为准 |
 
-旧桌游原型验证过四 AI 在点线地图上的自主行动、共享战斗和资源交互，其代码保留于 `Assets/Scripts/Obsolete/BoardGame`。新的 `Gameplay/MapGraph` 提供图地图和 3D Agent 状态投影能力，目前主场景未绑定其 Overlay。两者可作为历史与扩展参考，不应直接套用为当前主关卡规则。
+旧桌游原型验证过四 AI 在点线地图上的自主行动、共享战斗和资源交互，其代码保留于 `Assets/Scripts/Obsolete/BoardGame`。当前 `Gameplay/MapGraph` 已在 Scenezl_Final 1 接入正式群路线和 HUD，旧桌游代码不参与当前路线执行。
 
 ## 工程导航与文档
 
@@ -299,6 +325,7 @@ Packages/           包依赖
 - [修复验收报告](outputs/implementation_validation_report.md)：F1–F7 / R1–R5 实现、构造证据、重复结果和覆盖边界。
 - [Scenezl_Final 1 场景验收](outputs/scenezl_final1_validation_report.md)：自主搜打撤、场景配置、结算契约、性能治理和最终有限矩阵。
 - [Cluster 指令验收](outputs/cluster_command_validation_report.md)：近远下令、连续改令、双人交接、故障修复、固定矩阵和单次提交成本。
+- [地图指挥验收](outputs/map_command_validation_report.md)：自动生成、作者编辑、统一根路线、实际群处理、截图和正常速度性能。
 - [同群接战和任务恢复](outputs/group_aggro_manual_resume_report.md)：同群响应、反击后恢复玩家任务、敌人根节点位置保护，附自动复现和真实场景结果。
 - [URP Toon 描边说明](Assets/Docs/Rendering/URPToonOutlineSystem.md)：网格处理、材质与 Renderer 配置。
 - [魔法知识散布指南](Assets/Docs/MagicKnowledgeScatterGuide.md)：旧知识拾取物的生成与场景散布。

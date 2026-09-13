@@ -127,7 +127,7 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 
 性能重算先校验完整 CSV，再取固定 10 秒预热后的连续区间，保留所有慢帧和相关事件，输出独立 `performance-warm10.json`；文件已存在时拒绝覆盖。`TIMING_THRESHOLDS_MET` 仅表示该轮时间指标满足，完整玩法、环境和重复矩阵仍单独验收。
 
-`warehouse-initial.json`、`warehouse-final.json`、`item-definitions.json` 和平面 `inventory.ledger` 支持独立数量/布局核对。`contracts.json` 核对两人的移动、真实转移、交战伤害、暂停恢复、撤离集合、箱子写回和仓库守恒。只有证据完整、无错误/失败指令且完成契约通过才报告 `gameStatus=PASS`；性能是否达标单独判定。缺少新证据的旧回合仍是 `NOT_FULL_RAID_VALIDATED`。
+`warehouse-initial.json`、`warehouse-final.json`、`item-definitions.json` 和平面 `inventory.ledger` 支持独立数量/布局核对。`contracts.json` 核对两人的移动、真实转移、交战伤害、暂停恢复、撤离集合、箱子写回和仓库守恒。只有证据完整、无运行错误/未恢复执行故障且完成契约通过才报告 `gameStatus=PASS`；原始失败和已证明恢复分别保留，性能是否达标单独判定。缺少新证据的旧回合仍是 `NOT_FULL_RAID_VALIDATED`。
 
 战死为预期玩法结果，不因战死进入修复。任务失败先记录 `RAID_OBSERVED_FAILURE`，只有确认所有角色均已撤离或血量为零、实际撤离者已结算且仓库/会话正确，才报告 `gameStatus=EXPECTED_DEATH`。它和全部撤离的 `PASS` 分列；未发生的搜刮/战斗只记覆盖缺失，不能冒充完整搜打撤。Player 对两类有效终态均要求正常退出、实际渲染、无运行异常和 1× 平均 FPS >60。终态、仓库和报告分别有 44、78 项构造检查。
 
@@ -163,3 +163,23 @@ SC07 复用常驻 Editor，审计后构建 Windows 64 位验证 Player，不进�
 `-Group ExtractionPresence` 的 14 项构造走真实物理 Trigger，覆盖双人同点、同角色多 Collider、禁用/销毁、范围边界和真实 Prefab 的正式指令撤离。快照 `extractionProgress` 只读每角色实际撤离点、当前秒数和配置时长，不改变读条或受击中断。
 
 `-Group SceneFrameSampler` 的 4 项构造验证长局帧容量，结果 `frameCapacity` 为 `max(100000, ceil(observeSeconds × 1000))`，600 秒最多保留 600000 帧。列表按实际样本增长，预算不限制游戏 FPS，超过仍报告采集失败。报告完整性反例现为 79 项，包含 HARNESS_FAILED 溢出终态；历史截断运行不能重算为合格性能。
+
+### 地图统一根路线验证
+
+正式 Scenezl_Final 1 使用根路线后，旧 MC 脚本保留历史子指令含义，不作为新地图验收。MR01 复用 SC02 自主 4×；SC10/ManualRoutes 使用独立版本的 `map-command-scenarios.json`，MR02 有限提交近群、实际移动后跨区远群、无效节点三次，另一角色自主，随后观察正式终局。世界位置、根/版本/游标、群成员生命、背包、实际距离投影和导航缓存证据分别保存，新增根合同检查不替代库存结算。
+
+以下从 Ubuntu/WSL 执行，Unity 和现有 Windows 运行器经互操作启动；保留 Editor，不反复开关进程。
+
+```bash
+cd /mnt/d/Unity-Projects/Extraction-like
+PS=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+"$PS" -NoProfile -File D:/Unity-Projects/Extraction-like/tools/agent-repro/Invoke-SceneRaid.ps1 -Case SC10 -ScenarioId MR02 -WorkspaceRoot D:/Unity-Projects/.agent-repro/AnomalySearchFinal
+"$PS" -NoProfile -File D:/Unity-Projects/Extraction-like/tools/agent-repro/Test-SceneRaidRoutes.ps1
+"$PS" -NoProfile -File D:/Unity-Projects/Extraction-like/tools/agent-repro/Test-SceneRaidRouteRecovery.ps1
+```
+
+MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载重读后核对实际经过序列。MR04 先 SC07 冻结构建，再用 `Invoke-SceneRaidPlayer.ps1 -BuildRunPath <构建目录> -ShowWindow -ExerciseMap -ObserveSeconds 600 -TimeoutSeconds 900`。只展开/收起视口两次、不发游戏命令；须有真实展开帧、根不变和完整搜打撤结算，1× 全量平均 >60 FPS。实际原局/截图和各阶段结果见 [地图验收报告](../../outputs/map_command_validation_report.md)。
+
+`SceneRaid.RouteRecovery.Contracts.psm1` 首版仅识别同根唯一一次 MoveTo/NoProgress，精确失败子指令、来源/终点一致，版本 +1 的 Planning→Accepted→Completed/Extracted，8 秒规划预算内接受且真实平面位移至少 0.25 米。更多失败、改根、缺证据、取消/战死均继续计为未恢复。只有独立全局路线合同通过的 Autonomous/ManualRoutes 才扣减 `unexpectedBehaviorFailures`；`behaviorFailures` 原始值不变，另列 `recoveredRouteFailures` 和逐事件证明。恢复合同 43 个正反例、原路线 18+11 项、原报告 79 项通过。
+
+历史报告如需按新合同复核，执行 `Review-SceneRaidPlayer.ps1 -RunPath <构建目录>/PlayerRun`。它仅支持冻结、正常退出的 1× 自主 Player，重新检查原输入、EXE/程序集哈希、完整帧/库存/路线/视口；调用报告的 `-ReadOnly`，对全部原文件做前后哈希核对，生成新的 `report-reviewed.json`，已存在时拒绝覆盖。原 `report.json` 和 FAIL/launcher-error 保留，审核工具单独保存 SHA256，不把当前工具冒称原构建输入。采样器的 `performanceAcceptance=false` 不是独立裁决结果，最终读取 `diagnosticTiming.thresholdsMet` 和 Player `runAcceptance`。
