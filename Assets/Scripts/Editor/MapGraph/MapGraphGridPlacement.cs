@@ -60,6 +60,8 @@ namespace AnomalySearch.Editor.MapGraph
                 var zone = zones.First(z => z.ZoneId == node.ZoneId);
                 nodes.Add(node.WithLayout(p - zone.Bounds.center, Line(p.y, MapGraphAxis.Horizontal), Line(p.x, MapGraphAxis.Vertical), node.PositionLocked));
             }
+            foreach (var previous in draft.Constraints.Alignments)
+                if (previous.Locked && !alignments.Any(a => a.Id == previous.Id)) alignments.Add(previous);
             return new MapGraphLayoutDraft(zones, nodes, draft.Edges, new MapGraphLayoutConstraints(alignments, draft.Constraints.ExcludedConnections), draft.StartNodeId);
         }
     }

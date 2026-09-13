@@ -1,6 +1,40 @@
 {
   "groups": [
     {
+      "name": "MapGraphEditorDocument",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphEditorDocumentTests",
+      "expected": [
+        "FirstGenerationUndoRedoRestoresGraphAndBakeAtomically",
+        "MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch",
+        "ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument",
+        "SceneChangeRejectsReadyGenerationWithoutCreatingUndoState",
+        "ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset",
+        "ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement",
+        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections",
+        "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake",
+        "AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput",
+        "EditingAfterStartingAPreviewRejectsTheEarlierPreview",
+        "PlacementPreviewUsesRealNavigationAndUndoRestoresTheUnpublishedDraft",
+        "PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft"
+      ]
+    },
+    {
+      "name": "MapGraphPlacementConnections",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphPlacementConnectionsTests",
+      "expected": [
+        "FixedConnectionsKeepCoordinatesAndPreferUnobstructedNeighbours",
+        "PhysicalIslandsAndManualExclusionsDoNotInventConnections",
+        "ManualIdentityDirectionAndStyleSurviveFixedGeneration",
+        "DiagonalPlacementRequiresExplicitBoundedAdjustment",
+        "PinnedNodesAndZonesCannotMoveToRepairADiagonal",
+        "NameObstructionAndUnavailableManualEdgesAreReported",
+        "BudgetAndCancellationNeverPublishPartialSuggestions",
+        "IncompleteMeasurementsFailBeforeAnyLayoutSearch"
+      ]
+    },
+    {
       "name": "MapGraphGridPlacement",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphGridPlacementTests",
@@ -445,23 +479,6 @@
         "ExistingAssetFailureAfterAssetWriteRollsBack",
         "ExistingAssetFailureAfterSceneWriteRollsBack",
         "NewAssetFailureAfterSceneWriteRemovesOnlyItsNewObjects"
-      ]
-    },
-    {
-      "name": "MapGraphEditorDocument",
-      "suite": "Core",
-      "filter": "AgentReproduction.Tests.MapGraphEditorDocumentTests",
-      "expected": [
-        "FirstGenerationUndoRedoRestoresGraphAndBakeAtomically",
-        "MetadataAndSettingsHaveIndependentUndoWithoutRevertingEpoch",
-        "ReplacedEditedAndUndoneRequestsCannotOverwriteTheDocument",
-        "SceneChangeRejectsReadyGenerationWithoutCreatingUndoState",
-        "ClosingOrEditingTheWorkingCopyNeverWritesTheSourceAsset",
-        "ExternalInspectorChangesAreDetectedWithoutASourceRevisionIncrement",
-        "BakeUsesAuthoredEdgeIdentityAndBothMeasuredDirections",
-        "IncompleteUnavailableOrWrongProfileEvidenceCannotProduceABake",
-        "AuthoredDeletionUsesUndoAndPreservesTheFrozenNavigationInput",
-        "EditingAfterStartingAPreviewRejectsTheEarlierPreview"
       ]
     },
     {

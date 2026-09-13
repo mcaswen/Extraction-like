@@ -20,6 +20,12 @@ namespace AnomalySearch.Editor.MapGraph
         private MapGraphSceneNavigationScan _scan;
         private MapGraphConnectionGenerator _connections;
         private MapGraphOrthogonalLayoutSolver _layout;
+        private MapGraphPlacementConnectionPlanner _placement;
+        private readonly float _gridSpacing;
+        private readonly int _adjustmentCells;
+        private bool PlacementMode => Mode == MapGraphGenerationMode.PlacementConnections || Mode == MapGraphGenerationMode.PlacementAdjustment || Mode == MapGraphGenerationMode.PlacementValidation;
+        private bool ValidationOnly => Mode == MapGraphGenerationMode.ValidateOnly || Mode == MapGraphGenerationMode.PlacementValidation;
+        private bool GeneratesConnections => Mode == MapGraphGenerationMode.ConnectionsAndLayout || Mode == MapGraphGenerationMode.PlacementConnections || Mode == MapGraphGenerationMode.PlacementAdjustment;
         public string RequestId { get; } = Guid.NewGuid().ToString("N");
         public long InputRevision { get; }
         public MapGraphGenerationMode Mode { get; }
@@ -30,7 +36,7 @@ namespace AnomalySearch.Editor.MapGraph
         public int WorkItems { get; private set; }
         public long NavigationQueries => _scan?.TotalQueryCount ?? 0;
         public int NavigationWorkItems => _scan?.WorkItemCount ?? 0;
-        public int SearchStates => (_connections?.SearchStates ?? 0) + (_layout?.SearchStates ?? 0);
+        public int SearchStates => (_connections?.SearchStates ?? 0) + (_layout?.SearchStates ?? 0) + (_placement?.SearchStates ?? 0);
         public int CoordinateIterations => (_connections?.CoordinateIterations ?? 0) + (_layout?.CoordinateIterations ?? 0);
         public double ElapsedMilliseconds { get; private set; }
         public double MaximumAdvanceMilliseconds { get; private set; }
@@ -38,16 +44,17 @@ namespace AnomalySearch.Editor.MapGraph
         public double CaptureMilliseconds { get; private set; }
 
         public MapGraphGenerationController(Scene scene, MapGraphGenerationSettings settings, MapGraphLayoutDraft previous = null,
-            MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout, long inputRevision = 0)
-            : this(() => MapGraphSceneCollector.Capture(scene), settings, previous, mode, inputRevision) { }
+            MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout, long inputRevision = 0, float gridSpacing = 80, int adjustmentCells = 1)
+            : this(() => MapGraphSceneCollector.Capture(scene), settings, previous, mode, inputRevision, gridSpacing, adjustmentCells) { }
 
         internal MapGraphGenerationController(Func<MapGraphSceneSnapshot> capture, MapGraphGenerationSettings settings,
-            MapGraphLayoutDraft previous = null, MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout, long inputRevision = 0)
+            MapGraphLayoutDraft previous = null, MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout, long inputRevision = 0, float gridSpacing = 80, int adjustmentCells = 1)
         {
             _capture = capture ?? throw new ArgumentNullException(nameof(capture));
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             // 设置由 Unity 序列化字段定义；任务冻结副本，窗口继续编辑原设置不会改变本次计算。
             _settings = JsonUtility.FromJson<MapGraphGenerationSettings>(JsonUtility.ToJson(settings));
+            _gridSpacing = MapGraphGridPlacement.ValidSpacing(gridSpacing); _adjustmentCells = Mathf.Clamp(adjustmentCells, 1, 4);
             _previous = previous; Mode = mode; InputRevision = inputRevision; Diagnostics = _diagnostics.AsReadOnly();
         }
 
@@ -97,7 +104,7 @@ namespace AnomalySearch.Editor.MapGraph
                     _scene = Capture();
                     if (_scene == null || !_scene.IsValid) { Fail("InvalidSceneInput", _scene == null ? "采集没有返回输入。" : string.Join("\n", _scene.Diagnostics)); return; }
                     if (!ValidateSynchronization()) return;
-                    _reference = Mode == MapGraphGenerationMode.ValidateOnly ? _previous : MapGraphLayoutGenerator.CreateReference(_scene, _settings, _previous);
+                    _reference = ValidationOnly || PlacementMode ? _previous : MapGraphLayoutGenerator.CreateReference(_scene, _settings, _previous);
                     _scan = new MapGraphSceneNavigationScan(_scene); Stage = MapGraphGenerationStage.ScanningNavigation; break;
                 case MapGraphGenerationStage.ScanningNavigation:
                     _scan.Advance(1);
@@ -105,15 +112,19 @@ namespace AnomalySearch.Editor.MapGraph
                     foreach (var anchor in _scan.Anchors.Where(a => !a.IsValid))
                         _diagnostics.Add(new MapGraphValidationIssue("MissingNavigationAnchor", anchor.NodeId, anchor.ProfileId, anchor.Failure));
                     if (_diagnostics.Any(i => i.IsError)) { Fail("NavigationScanFailed"); return; }
-                    if (Mode == MapGraphGenerationMode.ValidateOnly) { Stage = MapGraphGenerationStage.Validating; break; }
-                    if (Mode == MapGraphGenerationMode.ConnectionsAndLayout)
+                    if (ValidationOnly) { Stage = MapGraphGenerationStage.Validating; break; }
+                    if (PlacementMode)
+                        _placement = new MapGraphPlacementConnectionPlanner(_reference, _scan.Connections, _scene.Profiles.Select(p => p.Data.ProfileId), _settings,
+                            _gridSpacing, Mode == MapGraphGenerationMode.PlacementAdjustment ? _adjustmentCells : 0);
+                    else if (Mode == MapGraphGenerationMode.ConnectionsAndLayout)
                         _connections = new MapGraphConnectionGenerator(_reference, _scan.Connections, _scene.Profiles.Select(p => p.Data.ProfileId), _settings);
                     else
                         _layout = new MapGraphOrthogonalLayoutSolver(_reference, _previous.Edges, _settings,
                             maximumCoordinateIterations: Math.Max(_settings.MaximumLayoutIterations, _reference.Nodes.Count * 32));
                     Stage = MapGraphGenerationStage.Generating; break;
                 case MapGraphGenerationStage.Generating:
-                    if (_connections != null) { _connections.Advance(1); if (_connections.IsComplete) Stage = MapGraphGenerationStage.Validating; }
+                    if (_placement != null) { _placement.Advance(1); if (_placement.IsComplete) Stage = MapGraphGenerationStage.Validating; }
+                    else if (_connections != null) { _connections.Advance(1); if (_connections.IsComplete) Stage = MapGraphGenerationStage.Validating; }
                     else { _layout.Advance(1); if (_layout.IsComplete) Stage = MapGraphGenerationStage.Validating; }
                     break;
                 case MapGraphGenerationStage.Validating:
@@ -158,16 +169,17 @@ namespace AnomalySearch.Editor.MapGraph
 
         private void Publish()
         {
-            var draft = Mode == MapGraphGenerationMode.ValidateOnly ? _previous : _connections?.Result ?? _layout?.Result;
+            var draft = ValidationOnly ? _previous : _placement?.Result ?? _connections?.Result ?? _layout?.Result;
+            if (_placement != null) _diagnostics.AddRange(_placement.Diagnostics);
             if (_connections != null) _diagnostics.AddRange(_connections.Diagnostics);
             if (draft == null)
             { Fail("NoPublishableLayout", _layout == null ? "" : string.Join("\n", _layout.FailureCounts.Select(p => p.Key + "=" + p.Value))); return; }
             var intent = MapGraphIntentPreservation.AllIntent;
-            if (Mode != MapGraphGenerationMode.ConnectionsAndLayout) intent |= MapGraphIntentPreservation.Topology;
+            if (!GeneratesConnections) intent |= MapGraphIntentPreservation.Topology;
             _diagnostics.AddRange(MapGraphValidation.Validate(draft, _reference, intent).Issues);
             foreach (var profile in _scene.Profiles)
                 _diagnostics.AddRange(MapGraphNavigationValidation.Validate(draft,
-                    _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), Mode == MapGraphGenerationMode.ConnectionsAndLayout).Issues);
+                    _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), GeneratesConnections || Mode == MapGraphGenerationMode.PlacementValidation).Issues);
             if (_diagnostics.Any(i => i.IsError)) { Fail("GeneratedLayoutValidationFailed"); return; }
             if (!CheckCurrentInputs()) return;
             Result = new MapGraphGenerationResult(RequestId, InputRevision, Mode, _scene, draft, _scan.Anchors, _scan.Connections, JsonUtility.ToJson(_settings));
@@ -192,7 +204,7 @@ namespace AnomalySearch.Editor.MapGraph
         }
         private void Fail(string code, string detail = "", MapGraphGenerationStage stage = MapGraphGenerationStage.Failed)
         { _diagnostics.Add(new MapGraphValidationIssue(code, "graph", detail: detail)); StopTasks(); Result = null; Stage = stage; }
-        private void StopTasks() { _scan?.Cancel(); _connections?.Cancel(); _layout?.Cancel(); }
+        private void StopTasks() { _scan?.Cancel(); _connections?.Cancel(); _layout?.Cancel(); _placement?.Cancel(); }
         private static double MillisecondsSince(long started) => (Stopwatch.GetTimestamp() - started) * 1000d / Stopwatch.Frequency;
     }
 }

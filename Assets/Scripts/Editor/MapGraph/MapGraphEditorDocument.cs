@@ -64,7 +64,8 @@ namespace AnomalySearch.Editor.MapGraph
         {
             EnsureOpen(); PendingGeneration?.Cancel(); PendingEdit?.Cancel(); PendingEdit = null;
             _pendingCapture = capture;
-            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, AuthoringLayout, mode, Revision);
+            if (HasPlacementDraft && mode == MapGraphGenerationMode.ValidateOnly) mode = MapGraphGenerationMode.PlacementValidation;
+            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, AuthoringLayout, mode, Revision, Placement.GridSpacing, Placement.AdjustmentCells);
             return PendingGeneration;
         }
 

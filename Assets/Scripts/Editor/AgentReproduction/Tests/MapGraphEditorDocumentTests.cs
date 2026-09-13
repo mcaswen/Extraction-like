@@ -176,6 +176,37 @@ namespace AgentReproduction.Tests
             Assert.That(failure, Is.EqualTo("EditRequestSuperseded")); Assert.That(document.Layout.Edges.Count, Is.EqualTo(1));
         }
 
+        [Test] public void PlacementPreviewUsesRealNavigationAndUndoRestoresTheUnpublishedDraft()
+        {
+            var document = Document(); Generate(document); string before = document.Layout.ContentFingerprint;
+            var zone = document.Layout.Zones[0];
+            document.EditPlacement(g => MapGraphGridPlacement.MoveZone(g, zone.ZoneId, new Rect(zone.Bounds.position + Vector2.right * 80, zone.Bounds.size), 80), "移动区域草稿");
+            string draft = document.AuthoringLayout.ContentFingerprint;
+            var request = document.BeginGeneration(() => _snapshot, MapGraphGenerationMode.PlacementConnections); Complete(request);
+            Assert.That(request.NavigationQueries, Is.GreaterThan(0)); Assert.That(document.HasPlacementDraft, Is.True);
+            Assert.That(document.Layout.ContentFingerprint, Is.EqualTo(before));
+            Assert.That(document.TryApplyGeneration(request, out var failure), Is.True, failure);
+            Assert.That(document.HasPlacementDraft, Is.False); Assert.That(document.TryVerifyForSave(out _, out failure), Is.True, failure);
+            string accepted = document.Layout.ContentFingerprint;
+            Undo.PerformUndo(); Assert.That(document.HasPlacementDraft, Is.True); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(draft));
+            Assert.That(document.Layout.ContentFingerprint, Is.EqualTo(before)); Assert.That(document.TryVerifyForSave(out _, out _), Is.False);
+            Undo.PerformRedo(); Assert.That(document.HasPlacementDraft, Is.False); Assert.That(document.Layout.ContentFingerprint, Is.EqualTo(accepted));
+        }
+
+        [Test] public void PlacementEditAndSceneChangesRejectReadyCandidatesWithoutLosingDraft()
+        {
+            var document = Document(); Generate(document);
+            var request = document.BeginGeneration(() => _snapshot, MapGraphGenerationMode.PlacementConnections); Complete(request);
+            document.EditPlacement(g => MapGraphEditOperations.LockNode(g, g.Nodes[0].NodeId, true), "固定群");
+            Assert.That(document.TryApplyGeneration(request, out _), Is.False); Assert.That(document.HasPlacementDraft, Is.True);
+            var second = document.BeginGeneration(() => _snapshot, MapGraphGenerationMode.PlacementConnections); Complete(second);
+            string draft = document.AuthoringLayout.ContentFingerprint;
+            _snapshot = new MapGraphSceneSnapshot(_snapshot.ScenePath, _snapshot.SceneGuid, "changed", _snapshot.NavigationFingerprint,
+                _snapshot.Zones, _snapshot.Nodes, _snapshot.Profiles, _snapshot.Diagnostics);
+            Assert.That(document.TryApplyGeneration(second, out _), Is.False);
+            Assert.That(second.Stage, Is.EqualTo(MapGraphGenerationStage.Stale)); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(draft));
+        }
+
         private MapGraphEditorDocument Document(SO_MapGraphDefinition source = null)
         { var document = new MapGraphEditorDocument(source); _documents.Add(document); return document; }
         private void Generate(MapGraphEditorDocument document)
