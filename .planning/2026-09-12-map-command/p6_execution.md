@@ -115,4 +115,22 @@ MR03 `081933-869` 3/3 通过。作者编辑经正式预览求解/独立几何校
 
 MR04 具体入口：Create `Assets/Scripts/Automation/SceneRaid/SceneRaidMapViewportDriver.cs`，仅 `exerciseMapViewport` 验收开关启用，在墙钟 10 秒展开、40 秒收起同一个正式视口，写切换前后根身份/版本/游标和 UI 提交计数。Extend `SceneRaidScenarioConfig.cs`、`SceneRaidRunController.cs` 只做配置和编排，Extend `Invoke-SceneRaidPlayer.ps1 -ExerciseMap` 检查两次有限切换、根不变和真实展开采样；不开启时原脚本不变。没有截图循环或 UI 测试写根路线，性能数据保留全部帧。
 
+### 弹丸擦边小规划
+
+源码确认正式 `Assets/Prefabs/Bullet.prefab` 使用半径 0.5、缩放 0.2 的球形触发器（世界半径 0.1），`BulletController.cs` 另以 0.06 做连续扫掠，`AgentCombatShooter.cs` 的候选/实际开火只有中心射线。先 Create `Assets/Scripts/Editor/AgentReproduction/Tests/ProjectileClearanceTests.cs`：中心射线可见、实体距离 0.08 的确定构造，保留真实弹丸命中/消失、敌人血量和首次扫掠碰撞体；复现原 5×1×5 悬顶下的正式 Engage，1×/4× 不改尺寸。验证原因后 Extend `AgentCombatShooter.cs` 在自身已有候选与实际枪口校验中复用 `ProjectileSweepQuery.cs`，半径取现有 Prefab 球体和连续扫掠的较大值；默认弹体取现有配置半径。球形 Prefab 引用/尺寸归射击组件，不把碰撞尺寸放到导航或图算法。共用连续扫掠半径常量归 `BulletController.cs`，保持实际飞行/伤害不变。检查原远程空间、高处接近和本轮接近构造，再进行最终 Player。若真实日志不支持擦边原因，保留红灯，按实际证据调整。
+
+`090611-051` 三项稳定红灯，宽悬顶角色停在 `(4.72,3.13,-0.56)`、枪口 `(2.93,6.73,-0.35)`，中心射线 Visible、球形扫掠 firstHit=Wide overhead solid、敌人健康始终 1。修复射击净空后 `090840-058` 三项通过：相同宽悬顶 1×/4× 实际造成伤害，0.08 米净空拒绝，移除遮挡后正式 Prefab 弹丸实际伤害。此前宽悬顶现象得到独立红/绿证据，未改小掩体或忽略物理碰撞。
+
+撤离画面补证：Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandExtractionVisualTests.cs`，真实正式场景、HUD 和 SRP 渲染，夹具只设置 2 号初始位置在现有雨林出口附近，然后通过正式地图 Handler 下达该出口路线，等待真实 Extracting/Extracted。记录起点布置，截取实际撤离计时和根/显示快照，不伪造 UI 状态；这是确定性状态画面补证，不替代自主整局。复用 `UnityEditorViewCapture.cs`、原 NavMesh 和 Raid 结算，退出前先卸载正式场景。
+
+高处回归 `091300-060`、补过程中探针的 `091614-806` 均为 11/12，1× 导航恢复失败。新探针证明原地未移动且反击指令在第一帧已丢失，不应解释为单纯运行慢。加入接受/终态原因事件后 `092029-497` 12/12 通过，但暂不据此关闭。下一次把原单帧禁用固定为 0.2 游戏秒（仍远低于正式 2 秒导航准备限时），断言禁用期根反击保持，取得确定终态原因；归属仍在原 `ElevatedCombatApproachTests.cs`，不先放宽生产失败规则。
+
+固定等待 `092342-951` 两项、完整组 `092557-951` 12/12 通过，但保留原单帧用例，固定窗口作为额外两项。`092800-890`、`093125-435`、`093301-151` 再次捕获单帧 1× 首帧 Failed:Unreachable。对照证明原生和静态路径均 Complete，问题在射击候选；`093514-426` 准确记录身体瞄准点 `(0,-0.17,0)`，角色 Transform/nextPosition 均 `(0,3.13,0)`，枪口可见、身体 Occluded。正式 Capsule 本地中心 y=-0.057932537、缩放 3，`Collider.bounds.center` 仍停留在导航抬升前的物理帧，导致身体射线从地板下出发。
+
+修复小规划：Extend `Assets/Scripts/Gameplay/Perception/CombatAimPointResolver.cs`，Capsule/Sphere/Box 使用当前 Transform.TransformPoint(local center)，Mesh 使用本地 mesh.bounds.center，其他形状保留现有 bounds 后备；选择哪个有效实体的规则不变，不每次 Physics.SyncTransforms。Create `Assets/Scripts/Editor/AgentReproduction/Tests/CombatAimPointTests.cs` 构造禁止自动物理同步、同帧位移/旋转/缩放，独立验证四种真实形状中心。原单帧/固定窗口全部保留，定向高处、空间和净空组复核；不以延长失明/导航超时修复。
+
+`093749-537` 四种形状全部红灯，旧 bounds 与真实当前中心相差约 7.118 米。修复后 `093904-074` 4/4 通过；`093934-011` 原单帧、固定窗口及其余高处场景 14/14 全部通过，未放宽原 8 秒墙钟限时，`094019-620` 原远程空间组通过。保留发现过程中每轮失败及原因，不再把首帧丢令称为随机慢测试。
+
+`094108-476` 净空三项再次通过。`094135-470` 正式撤离画面/结算用例通过，真实 SRP 已绘制 29 帧，抓取 2240×1400 GameView，Agent 已实际打开查看：雨林出口的 2 号标记位于图标右上方，中心计时保留，原同一根后续 Extracted。图片及夹具起点/根/显示 JSON 已归档 `outputs/map-command/visual/P6/05-extracting.*`；其他六张真实整局动态截图也已归档并有来源和 SHA256，不能以该布置起点的截图替代自主整局。
+
 更新 `README.md`、`Assets/Docs/GameplayAgentFrameworkDesign.md`、`outputs/map_command_validation_report.md`、本规划及 `architecture_review.md`。记录每轮输入/结果、真实覆盖缺口和剩余问题；各小步通过后中文提交，不推送，不提前宣称整项完成。

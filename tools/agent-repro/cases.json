@@ -1,6 +1,36 @@
 {
   "groups": [
     {
+      "name": "CombatAimPoint",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.CombatAimPointTests",
+      "expected": [
+        "SameFramePoseUsesCurrentColliderCenterWithoutPhysicsSync(\"Capsule\")",
+        "SameFramePoseUsesCurrentColliderCenterWithoutPhysicsSync(\"Sphere\")",
+        "SameFramePoseUsesCurrentColliderCenterWithoutPhysicsSync(\"Box\")",
+        "SameFramePoseUsesCurrentColliderCenterWithoutPhysicsSync(\"Mesh\")"
+      ]
+    },
+    {
+      "name": "MapCommandExtractionVisual",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.MapCommandExtractionVisualTests",
+      "expected": [
+        "FormalExtractionCountdownRendersOffsetMarkerAndSettles"
+      ]
+    },
+    {
+      "name": "ProjectileClearance",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ProjectileClearanceTests",
+      "expected": [
+        "RayClearButPhysicalBulletBlockedIsNotAFiringPosition",
+        "WideOverhangEngageFindsPhysicalProjectileClearance(1)",
+        "WideOverhangEngageFindsPhysicalProjectileClearance(4)"
+      ]
+    },
+    {
       "name": "NavigationProgress",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.NavigationProgressTests",
@@ -1206,7 +1236,9 @@
         "ProjectedCandidatesRespectOcclusionAndRange(\"TargetTooHigh\")",
         "NavigationRebuildingStillAllowsBoundedRetaliation(1)",
         "NavigationRebuildingStillAllowsBoundedRetaliation(4)",
-        "RecordedSceneSentinelCanBeDamagedFromReachableGround"
+        "RecordedSceneSentinelCanBeDamagedFromReachableGround",
+        "FixedNavigationWaitKeepsTheAcceptedRetaliation(1)",
+        "FixedNavigationWaitKeepsTheAcceptedRetaliation(4)"
       ]
     },
     {

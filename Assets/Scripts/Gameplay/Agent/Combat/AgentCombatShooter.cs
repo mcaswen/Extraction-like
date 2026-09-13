@@ -19,7 +19,9 @@ namespace Gameplay.Agent.Combat
         {
             if (!IsConfigured || targetEnemy == null || !targetEnemy.IsAlive) return false;
             Vector3 offset = Quaternion.Inverse(transform.rotation) * (ResolveFirePosition() - transform.position);
-            return TargetVisibilityQuery.Check(transform, position + rotation * offset, targetEnemy.transform, range) == TargetVisibilityResult.Visible;
+            Vector3 muzzle = position + rotation * offset;
+            return TargetVisibilityQuery.Check(transform, muzzle, targetEnemy.transform, range) == TargetVisibilityResult.Visible &&
+                HasProjectileClearance(muzzle, targetEnemy.transform);
         }
         public bool CanShootAt(global::EnemyHealthController targetEnemy, float range)
         {
@@ -33,6 +35,8 @@ namespace Gameplay.Agent.Combat
             if (targetEnemy == null || !targetEnemy.IsAlive)
             { LastShotResult = TargetVisibilityResult.Invalid; LastShotFailure = AgentShotFailure.InvalidTarget; return false; }
             LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range);
+            if (LastShotResult == TargetVisibilityResult.Visible && !HasProjectileClearance(ResolveFirePosition(), targetEnemy.transform))
+                LastShotResult = TargetVisibilityResult.Occluded;
             if (LastShotResult != TargetVisibilityResult.Visible)
                 LastShotFailure = LastShotResult == TargetVisibilityResult.OutOfRange ? AgentShotFailure.OutOfRange : AgentShotFailure.Occluded;
             return LastShotResult == TargetVisibilityResult.Visible;
@@ -55,6 +59,8 @@ namespace Gameplay.Agent.Combat
         private AgentCombatElementType _configuredElement = AgentCombatElementType.Physical;
         private AgentCombatProjectileStatus _projectileStatus = AgentCombatProjectileStatus.None;
         private float _projectileMaxTravelDistance = -1f;
+        private GameObject _shapePrefab;
+        private SphereCollider[] _projectileSpheres;
         private static readonly Color EarthMagicCoreColor = new Color(0.86f, 0.57f, 0.18f, 1f);
         private static readonly Color EarthMagicRimColor = new Color(1f, 0.78f, 0.34f, 0.9f);
         private static readonly Color EarthMagicSparkColor = new Color(1f, 0.93f, 0.58f, 1f);
@@ -132,6 +138,33 @@ namespace Gameplay.Agent.Combat
                 return _firePoint.position;
 
             return transform.TransformPoint(_fallbackFirePointLocalOffset);
+        }
+
+        // 正式 Bullet 是球体。只缓存 Prefab 组件索引，半径/缩放仍读配置，候选不生成子弹。
+        private float ResolveProjectileRadius()
+        {
+            float radius = global::BulletController.ContinuousSweepRadius;
+            if (_bulletPrefab == null) return Mathf.Max(radius, Mathf.Max(.005f, _fallbackBulletRadius));
+            if (_shapePrefab != _bulletPrefab || _projectileSpheres == null)
+            {
+                _shapePrefab = _bulletPrefab;
+                _projectileSpheres = _bulletPrefab.GetComponentsInChildren<SphereCollider>(true);
+            }
+            foreach (var sphere in _projectileSpheres)
+            {
+                if (sphere == null || !sphere.enabled) continue;
+                Vector3 scale = sphere.transform.lossyScale;
+                float worldRadius = sphere.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+                float offset = (sphere.transform.TransformPoint(sphere.center) - _bulletPrefab.transform.position).magnitude;
+                radius = Mathf.Max(radius, worldRadius + offset);
+            }
+            return radius;
+        }
+
+        private bool HasProjectileClearance(Vector3 muzzle, Transform target)
+        {
+            return !ProjectileSweepQuery.TryFirstHit(null, transform, muzzle, CombatAimPointResolver.Resolve(target),
+                ResolveProjectileRadius(), out Collider first) || TargetVisibilityQuery.BelongsTo(first.transform, target);
         }
 
         private void FaceTarget(Vector3 aimPosition)

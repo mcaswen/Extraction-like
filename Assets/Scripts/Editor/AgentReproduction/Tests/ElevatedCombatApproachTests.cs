@@ -35,6 +35,13 @@ namespace AgentReproduction.Tests
 
         [UnityTest]
         public IEnumerator NavigationRebuildingStillAllowsBoundedRetaliation([ValueSource(nameof(Speeds))] int speed)
+        { yield return NavigationRecovery(speed, false); }
+
+        [UnityTest]
+        public IEnumerator FixedNavigationWaitKeepsTheAcceptedRetaliation([ValueSource(nameof(Speeds))] int speed)
+        { yield return NavigationRecovery(speed, true); }
+
+        private IEnumerator NavigationRecovery(int speed, bool fixedWindow)
         {
             TestNavMeshBuilder.Flat(World);
             var agent = AgentFactory.Create(World, "1", Vector3.zero, 8, false, false);
@@ -42,15 +49,66 @@ namespace AgentReproduction.Tests
             yield return null;
             Time.timeScale = speed;
             agent.NavMeshAgent.enabled = false;
+            agent.DirectiveLifecycle.ResultPublished += result =>
+            {
+                var nav = agent.NavMeshAgent;
+                CaseArtifactWriter.Trace("navigation-rebuild-result", result.Stage + ":" + result.Reason +
+                    "; game=" + Time.time + "; command=" + result.Request.CommandId + "; transform=" + agent.Position +
+                    "; next=" + (nav.enabled ? nav.nextPosition.ToString() : "disabled") + "; offset=" + nav.baseOffset +
+                    "; scale=" + agent.transform.lossyScale);
+                if (result.Stage == AgentDirectiveStage.Failed && nav.enabled)
+                {
+                    Vector3 floor = nav.nextPosition - Vector3.up * nav.baseOffset * agent.transform.lossyScale.y;
+                    Vector3 target = new Vector3(16, floor.y, 0);
+                    var path = new NavMeshPath(); bool native = nav.CalculatePath(target, path);
+                    CaseArtifactWriter.Trace("navigation-rebuild-query", "native=" + native + "; status=" + path.status + "; corners=" + path.corners.Length);
+                    bool shared = NavMesh.CalculatePath(floor, target, new NavMeshQueryFilter { agentTypeID = nav.agentTypeID, areaMask = nav.areaMask }, path);
+                    var probe = new AgentCombatApproachQuery.Buffer();
+                    bool approach = AgentCombatApproachQuery.TryResolve(agent, enemy, 8, probe, out var candidate);
+                    CaseArtifactWriter.Trace("navigation-rebuild-query", "static=" + shared + "; status=" + path.status + "; approach=" + approach +
+                        "; candidate=" + candidate + "; calculations=" + probe.CalculationCount);
+                    var shooter = agent.GetComponent<AgentCombatShooter>();
+                    var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                    Vector3 muzzle = (Vector3)typeof(AgentCombatShooter).GetMethod("ResolveFirePosition", flags).Invoke(shooter, null);
+                    Vector3 aim = Gameplay.Perception.CombatAimPointResolver.Resolve(enemy.transform);
+                    Vector3 bodyAim = Gameplay.Perception.CombatAimPointResolver.Resolve(agent.transform);
+                    Vector3 delta = target - floor;
+                    CaseArtifactWriter.Trace("navigation-rebuild-firing", "configured=" + shooter.IsConfigured + "; enemyAlive=" + enemy.IsAlive +
+                        "; body=" + bodyAim + "; muzzle=" + muzzle + "; aim=" + aim +
+                        "; predictedBody=" + Gameplay.Perception.TargetVisibilityQuery.Check(agent.transform, bodyAim + delta, enemy.transform, 8) +
+                        "; predictedMuzzle=" + Gameplay.Perception.TargetVisibilityQuery.Check(agent.transform, muzzle + delta, enemy.transform, 8) +
+                        "; radius=" + typeof(AgentCombatShooter).GetMethod("ResolveProjectileRadius", flags).Invoke(shooter, null));
+                }
+            };
             Assert.That(agent.TakeCombatDamage(10, agent.Position, Vector3.left, enemy.gameObject), Is.GreaterThan(0));
             Assert.That(AgentManualDirectiveLock.IsCombatDamageDirective(agent.DirectiveLifecycle.Active.Value), Is.True);
             string command = agent.DirectiveLifecycle.Active.Value.CommandId;
-            yield return null;
+            if (fixedWindow)
+            {
+                double restoreAt = Time.timeAsDouble + .2;
+                yield return RuntimeWait.Until(() => Time.timeAsDouble >= restoreAt, "固定导航准备观察窗口", 3);
+            }
+            else yield return null;
+            Assert.That(agent.DirectiveLifecycle.Active?.CommandId, Is.EqualTo(command), "导航暂未准备好不能立即丢弃已接受反击");
             agent.NavMeshAgent.enabled = true;
             float before = enemy.GetCurrentHealthRatio();
+            double nextProbe = 0;
             try
             {
-                yield return RuntimeWait.Until(() => enemy.GetCurrentHealthRatio() < before, "navigation recovery continues same retaliation", 8);
+                yield return RuntimeWait.Until(() =>
+                {
+                    if (Time.realtimeSinceStartupAsDouble >= nextProbe)
+                    {
+                        nextProbe = Time.realtimeSinceStartupAsDouble + .5;
+                        var nav = agent.NavMeshAgent;
+                        CaseArtifactWriter.Trace("navigation-rebuild-progress", "position=" + agent.Position + "; game=" + Time.time +
+                            "; scale=" + Time.timeScale + "; command=" + agent.DirectiveLifecycle.Active?.CommandId +
+                            "; health=" + enemy.GetCurrentHealthRatio() + "; destination=" + nav.destination +
+                            "; velocity=" + nav.velocity + "; hasPath=" + nav.hasPath + "; pending=" + nav.pathPending +
+                            "; shot=" + agent.GetComponent<AgentCombatShooter>().LastShotResult);
+                    }
+                    return enemy.GetCurrentHealthRatio() < before;
+                }, "navigation recovery continues same retaliation", 8);
             }
             finally
             {

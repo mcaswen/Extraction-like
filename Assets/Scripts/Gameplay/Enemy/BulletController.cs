@@ -8,6 +8,7 @@ using UnityEngine;
 /// </summary>
 public class BulletController : MonoBehaviour
 {
+    public const float ContinuousSweepRadius = 0.06f;
     /// <summary>
     /// 玩家子弹携带的元素类型。
     /// </summary>
@@ -80,7 +81,7 @@ public class BulletController : MonoBehaviour
     {
         if (_hasHitTarget || _rigidbody == null) return;
         Vector3 from = _rigidbody.position;
-        if (ProjectileSweepQuery.TryFirstHit(transform, SourceTransform, from, from + _rigidbody.velocity * Time.fixedDeltaTime, 0.06f, out Collider hit))
+        if (ProjectileSweepQuery.TryFirstHit(transform, SourceTransform, from, from + _rigidbody.velocity * Time.fixedDeltaTime, ContinuousSweepRadius, out Collider hit))
             HandleHit(hit);
     }
 
