@@ -29,20 +29,33 @@ namespace AnomalySearch.Editor.MapGraph
         public static Rect Expand(Rect rect, float amount)
             => Rect.MinMaxRect(rect.xMin - amount, rect.yMin - amount, rect.xMax + amount, rect.yMax + amount);
 
+        public static bool TryGetAxis(Vector2 from, Vector2 to, out MapGraphAxis axis)
+        {
+            axis = MapGraphAxis.Unspecified;
+            if (!Finite(from) || !Finite(to) || Near(from, to)) return false;
+            axis = Near(from.y, to.y) ? MapGraphAxis.Horizontal : Near(from.x, to.x) ? MapGraphAxis.Vertical : MapGraphAxis.Unspecified;
+            return axis != MapGraphAxis.Unspecified;
+        }
+
         public static bool TryGetVisibleSegment(MapGraphLayoutDraft draft, MapGraphEdgeDefinition edge,
             out Vector2 from, out Vector2 to)
+            => TryGetVisibleSegment(draft, edge, edge?.Axis ?? MapGraphAxis.Unspecified, edge?.FromInset ?? 0, edge?.ToInset ?? 0, out from, out to);
+
+        // Editor 警示表示可只读地使用当前方向/零留白，严格校验仍调用上方原始样式入口。
+        internal static bool TryGetVisibleSegment(MapGraphLayoutDraft draft, MapGraphEdgeDefinition edge,
+            MapGraphAxis axis, float fromInset, float toInset, out Vector2 from, out Vector2 to)
         {
             from = to = default;
-            if (edge == null || !draft.Graph.TryGetNode(edge.FromNodeId, out var first) ||
+            if (draft == null || edge == null || !draft.Graph.TryGetNode(edge.FromNodeId, out var first) ||
                 !draft.Graph.TryGetNode(edge.ToNodeId, out var second)) return false;
             var a = draft.Graph.GetNodePosition(first.NodeId); var b = draft.Graph.GetNodePosition(second.NodeId);
-            bool horizontal = edge.Axis == MapGraphAxis.Horizontal;
+            bool horizontal = axis == MapGraphAxis.Horizontal;
             if (!Finite(a) || !Finite(b) || !Positive(first.Footprint) || !Positive(second.Footprint) ||
-                !Finite(edge.FromInset) || !Finite(edge.ToInset) || edge.FromInset < 0 || edge.ToInset < 0 ||
-                (horizontal ? !Near(a.y, b.y) : edge.Axis != MapGraphAxis.Vertical || !Near(a.x, b.x))) return false;
+                !Finite(fromInset) || !Finite(toInset) || fromInset < 0 || toInset < 0 ||
+                (horizontal ? !Near(a.y, b.y) : axis != MapGraphAxis.Vertical || !Near(a.x, b.x))) return false;
             float delta = horizontal ? b.x - a.x : b.y - a.y;
-            float firstRadius = (horizontal ? first.Footprint.x : first.Footprint.y) * 0.5f + edge.FromInset;
-            float secondRadius = (horizontal ? second.Footprint.x : second.Footprint.y) * 0.5f + edge.ToInset;
+            float firstRadius = (horizontal ? first.Footprint.x : first.Footprint.y) * 0.5f + fromInset;
+            float secondRadius = (horizontal ? second.Footprint.x : second.Footprint.y) * 0.5f + toInset;
             if (!Finite(delta) || Mathf.Abs(delta) <= firstRadius + secondRadius + Epsilon) return false;
             Vector2 direction = (horizontal ? Vector2.right : Vector2.up) * Mathf.Sign(delta);
             from = a + direction * firstRadius; to = b - direction * secondRadius;

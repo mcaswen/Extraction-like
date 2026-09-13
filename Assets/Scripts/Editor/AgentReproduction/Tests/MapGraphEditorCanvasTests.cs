@@ -46,6 +46,88 @@ namespace AgentReproduction.Tests
             Assert.That(canvas.Hit(layout, canvas.ToScreen(Vector2.zero, rect), rect).kind, Is.EqualTo(MapGraphSelectionKind.Zone));
             Assert.That(canvas.Hit(layout, Vector2.zero, rect).kind, Is.EqualTo(MapGraphSelectionKind.None));
         }
+        [Test] public void ReefConnectionReproducesHiddenOldAxisAfterVerticalPlacement()
+        {
+            var source = AssetDatabase.LoadAssetAtPath<SO_MapGraphDefinition>("Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset");
+            string saved = EditorJsonUtility.ToJson(source);
+            var original = MapGraphLayoutDraft.FromDefinition(source);
+            string from = original.Nodes.Single(n => n.Description == "Zone-龙骨礁/EnemySourceCluster_A").NodeId;
+            string to = original.Nodes.Single(n => n.Description == "Zone-龙骨礁/ExtractionCluster").NodeId;
+            Assert.That(original.Graph.TryGetEdgeBetween(from, to, out var edge), Is.True);
+            var assetAxis = edge.Axis;
+            // 保存的作者图以后可以修正；复现明确构造截图中的旧水平方向，不要求源资产永久保留旧错误。
+            original = new MapGraphLayoutDraft(original.Zones, original.Nodes, original.Edges.Select(e => e.EdgeId == edge.EdgeId
+                ? e.WithPresentation(MapGraphAxis.Horizontal, 0, 0, e.WidthOverride, e.UseColorOverride, e.ColorOverride, e.Origin) : e), original.Constraints, original.StartNodeId);
+            original.Graph.TryGetNode(from, out var node); original.Graph.TryGetZone(node.ZoneId, out var zone);
+            var moved = MapGraphGridPlacement.WithPositions(original, new Dictionary<string, Vector2>
+                { [from] = zone.Bounds.center + new Vector2(80, -80), [to] = zone.Bounds.center + new Vector2(80, 80) });
+            Assert.That(moved.Graph.TryGetEdgeBetween(from, to, out var retained), Is.True);
+            Assert.That(MapGraphGeometry.TryGetVisibleSegment(moved, retained, out _, out _), Is.False);
+            StringAssert.Contains("ConnectionAlreadyExists", Assert.Throws<ArgumentException>(
+                () => MapGraphEditOperations.AddEdge(moved, from, to, MapGraphAxis.Vertical)).Message);
+            CaseArtifactWriter.Trace("hidden-edge-reproduction", retained.EdgeId + "; assetAxis=" + assetAxis + "; storedAxis=" + retained.Axis +
+                "; from=" + moved.Graph.GetNodePosition(from).ToString("R") + "; to=" + moved.Graph.GetNodePosition(to).ToString("R") + "; strictSegment=false; duplicate=true");
+            var presentation = MapGraphEditorEdgePresentation.Resolve(moved, retained);
+            Assert.That(presentation.HasSegment && presentation.RequiresAttention && presentation.CanRepairDirection, Is.True);
+            Assert.That(presentation.From.x, Is.EqualTo(presentation.To.x));
+            var repaired = MapGraphEditOperations.AlignEdgeToNodes(moved, retained.EdgeId);
+            repaired.Graph.TryGetEdge(retained.EdgeId, out var aligned);
+            Assert.That(aligned.Axis, Is.EqualTo(MapGraphAxis.Vertical));
+            Assert.That(MapGraphGeometry.TryGetVisibleSegment(repaired, aligned, out _, out _), Is.True);
+            Assert.That(EditorJsonUtility.ToJson(source), Is.EqualTo(saved));
+        }
+        [Test] public void WarningSegmentsAreSelectableAndDiagonalOrOverlappingEdgesStayUndrawn()
+        {
+            var original = Fixture();
+            var axisMismatch = MapGraphGridPlacement.MoveNode(original, "b", new Vector2(-100, -80), 20);
+            var largeInsets = MapGraphEditOperations.StyleEdge(original, "ab", 120, 120, 4, false, Color.white);
+            var transparent = MapGraphEditOperations.StyleEdge(original, "ab", 0, 0, 3, true, Color.clear);
+            foreach (var draft in new[] { axisMismatch, largeInsets, transparent })
+            {
+                string fingerprint = draft.ContentFingerprint;
+                var presentation = MapGraphEditorEdgePresentation.Resolve(draft, draft.Edges[0]);
+                Assert.That(presentation.HasSegment && presentation.RequiresAttention, Is.True);
+                Assert.That(MapGraphGeometry.TryGetAxis(presentation.From, presentation.To, out _), Is.True);
+                var canvas = new MapGraphEditorCanvas(); var rect = new Rect(0, 0, 900, 600); canvas.Fit(draft, rect);
+                Assert.That(canvas.Hit(draft, canvas.ToScreen((presentation.From + presentation.To) * .5f, rect), rect).id, Is.EqualTo("ab"));
+                Assert.That(draft.ContentFingerprint, Is.EqualTo(fingerprint));
+            }
+            foreach (var point in new[] { new Vector2(-40, -80), new Vector2(-100, 80), new Vector2(-100, 60) })
+            {
+                var draft = MapGraphGridPlacement.MoveNode(original, "b", point, 20);
+                var presentation = MapGraphEditorEdgePresentation.Resolve(draft, draft.Edges[0]);
+                Assert.That(presentation.RequiresAttention, Is.True); Assert.That(presentation.HasSegment, Is.False);
+                Assert.That(presentation.CanRepairDirection, Is.False); Assert.That(draft.Edges.Count, Is.EqualTo(1));
+            }
+            CaseArtifactWriter.Trace("hidden-edge-variants", "Axis mismatch, oversized insets, transparent style: selectable orthogonal warnings; diagonal and overlap: explicit warning, no invented line.");
+        }
+        [Test] public void DirectionRepairIsUndoableAndPreservesAllOtherAuthorData()
+        {
+            var original = MapGraphGridPlacement.WithPositions(MapGraphEditOperations.StyleEdge(Fixture(), "ab", 4, 7, 3, true, Color.cyan), null);
+            var source = ScriptableObject.CreateInstance<SO_MapGraphDefinition>();
+            source.ApplyCommandData("fixture", "方向修正", "", original.Zones, original.Nodes, original.Edges, original.Constraints, new MapGraphNavigationBakeData());
+            string saved = EditorJsonUtility.ToJson(source);
+            try
+            {
+                using var document = new MapGraphEditorDocument(source);
+                document.EditPlacement(g => MapGraphGridPlacement.MoveNode(g, "b", new Vector2(-100, -80), 20), "改为垂直摆放");
+                var before = document.AuthoringLayout;
+                document.EditPlacement(g => MapGraphEditOperations.AlignEdgeToNodes(g, "ab"), "修正方向");
+                var after = document.AuthoringLayout;
+                Assert.That(after.Edges.Count, Is.EqualTo(before.Edges.Count));
+                Assert.That(after.Edges[0].Axis, Is.EqualTo(MapGraphAxis.Vertical));
+                var repaired = after.Edges[0];
+                Assert.That(JsonUtility.ToJson(repaired.WithPresentation(MapGraphAxis.Horizontal, repaired.FromInset, repaired.ToInset,
+                    repaired.WidthOverride, repaired.UseColorOverride, repaired.ColorOverride, repaired.Origin)),
+                    Is.EqualTo(JsonUtility.ToJson(before.Edges[0])), "除 Axis 外全部连接数据保持。");
+                foreach (var node in before.Nodes) Assert.That(after.Graph.GetNodePosition(node.NodeId), Is.EqualTo(before.Graph.GetNodePosition(node.NodeId)));
+                Assert.That(document.TryVerifyForSave(out _, out _), Is.False);
+                Undo.PerformUndo(); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(before.ContentFingerprint));
+                Undo.PerformRedo(); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(after.ContentFingerprint));
+                Assert.That(EditorJsonUtility.ToJson(source), Is.EqualTo(saved));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(source); }
+        }
         [Test] public void RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence()
         {
             string saved;
@@ -122,6 +204,29 @@ namespace AgentReproduction.Tests
                 window.Canvas.Fit(document.AuthoringLayout, window.Canvas.ViewRect); window.Repaint(); yield return null;
                 CaptureGrid(window, "01-grid-ready");
                 var validPlacement = document.AuthoringLayout;
+                var oldDirection = validPlacement.Edges.First();
+                string other = validPlacement.Nodes.Single(n => n.NodeId != oldDirection.FromNodeId && n.NodeId != oldDirection.ToNodeId).NodeId;
+                document.EditPlacement(g => MapGraphEditOperations.StyleEdge(MapGraphGridPlacement.WithPositions(g, new Dictionary<string, Vector2>
+                    { [oldDirection.FromNodeId] = new Vector2(160,-80), [oldDirection.ToNodeId] = new Vector2(160,80), [other] = new Vector2(-160,80) }),
+                    oldDirection.EdgeId, 4, 7, 3, true, new Color32(110,211,189,255)), "构造旧水平线的垂直摆放");
+                long beforeExistingSelection = document.Revision; int retainedEdges = document.AuthoringLayout.Edges.Count;
+                var evidenceBeforeSelection = document.LastVerifiedInput;
+                window.Canvas.Fit(document.AuthoringLayout, window.Canvas.ViewRect); window.Repaint(); yield return null;
+                ClickGrid(window, oldDirection.FromNodeId, false); ClickGrid(window, oldDirection.ToNodeId, true);
+                Assert.That(window.Canvas.SelectionKind, Is.EqualTo(MapGraphSelectionKind.Edge)); Assert.That(window.Canvas.SelectionId, Is.EqualTo(oldDirection.EdgeId));
+                Assert.That(window.Status, Does.Contain("已选中原连接").And.Contain("修正方向").And.Not.Contain("ConnectionAlreadyExists"));
+                window.RequestConnection();
+                Assert.That(document.Revision, Is.EqualTo(beforeExistingSelection)); Assert.That(document.AuthoringLayout.Edges.Count, Is.EqualTo(retainedEdges));
+                Assert.That(document.PendingGeneration, Is.Null); Assert.That(document.LastVerifiedInput, Is.SameAs(evidenceBeforeSelection));
+                CaptureGrid(window, "10-existing-hidden-connection");
+                window.RequestEdit(g => MapGraphEditOperations.AlignEdgeToNodes(g, oldDirection.EdgeId), "按当前摆放修正连接方向", true);
+                document.AuthoringLayout.Graph.TryGetEdge(oldDirection.EdgeId, out var repairedDirection);
+                Assert.That(repairedDirection.Axis, Is.EqualTo(MapGraphAxis.Vertical));
+                Assert.That(MapGraphGeometry.TryGetVisibleSegment(document.AuthoringLayout, repairedDirection, out _, out _), Is.True);
+                Undo.PerformUndo(); Assert.That(MapGraphEditorEdgePresentation.Resolve(document.AuthoringLayout, document.AuthoringLayout.Edges.Single(e => e.EdgeId == oldDirection.EdgeId)).RequiresAttention, Is.True);
+                Undo.PerformRedo(); Assert.That(EditorJsonUtility.ToJson(document.SourceDefinition), Is.EqualTo(sourceBefore));
+                CaptureGrid(window, "11-repaired-existing-connection");
+                document.EditPlacement(_ => validPlacement, "恢复后继续生成发布回归");
                 document.EditPlacement(g =>
                 {
                     var conflict = MapGraphGridPlacement.WithPositions(g, new Dictionary<string, Vector2>

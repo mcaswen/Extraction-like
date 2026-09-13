@@ -38,8 +38,7 @@ namespace AnomalySearch.Editor.MapGraph
             if (!HasPair || !layout.Graph.TryGetNode(FromNodeId, out _) || !layout.Graph.TryGetNode(ToNodeId, out _)) return false;
             var from = layout.Graph.GetNodePosition(FromNodeId); var to = layout.Graph.GetNodePosition(ToNodeId);
             if (MapGraphGeometry.Near(from, to)) { Failure = "两个群的位置重叠，请先分开。"; return false; }
-            axis = MapGraphGeometry.Near(from.y, to.y) ? MapGraphAxis.Horizontal : MapGraphGeometry.Near(from.x, to.x) ? MapGraphAxis.Vertical : MapGraphAxis.Unspecified;
-            if (axis != MapGraphAxis.Unspecified) return true;
+            if (MapGraphGeometry.TryGetAxis(from, to, out axis)) return true;
             Failure = "两个群尚未同行或同列，请先网格对齐，或使用微调建议。"; return false;
         }
         public void Reject(string reason) { Failure = reason ?? ""; }

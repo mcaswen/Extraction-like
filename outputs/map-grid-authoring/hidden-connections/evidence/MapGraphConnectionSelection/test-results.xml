@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="4" result="Passed" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.0839197">
+  <test-suite type="TestSuite" id="1863" name="AgentRepro_20260913-203857-576" fullname="AgentRepro_20260913-203857-576" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.083920" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2719" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.067750" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="16948" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2720" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.063320" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2721" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.059132" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2270" name="MapGraphConnectionSelectionTests" fullname="AgentReproduction.Tests.MapGraphConnectionSelectionTests" classname="AgentReproduction.Tests.MapGraphConnectionSelectionTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.043314" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2272" name="FailedPairKeepsStartAndThirdShiftReplacesEndWithoutSelfLoops" fullname="AgentReproduction.Tests.MapGraphConnectionSelectionTests.FailedPairKeepsStartAndThirdShiftReplacesEndWithoutSelfLoops" methodname="FailedPairKeepsStartAndThirdShiftReplacesEndWithoutSelfLoops" classname="AgentReproduction.Tests.MapGraphConnectionSelectionTests" runstate="Runnable" seed="1584404431" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.021607" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2271" name="PlainThenShiftAndTwoShiftClicksPreserveEndpointOrder" fullname="AgentReproduction.Tests.MapGraphConnectionSelectionTests.PlainThenShiftAndTwoShiftClicksPreserveEndpointOrder" methodname="PlainThenShiftAndTwoShiftClicksPreserveEndpointOrder" classname="AgentReproduction.Tests.MapGraphConnectionSelectionTests" runstate="Runnable" seed="1627063934" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.005221" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2273" name="RebindingRequiresExplicitModeAndCancelClearsIt" fullname="AgentReproduction.Tests.MapGraphConnectionSelectionTests.RebindingRequiresExplicitModeAndCancelClearsIt" methodname="RebindingRequiresExplicitModeAndCancelClearsIt" classname="AgentReproduction.Tests.MapGraphConnectionSelectionTests" runstate="Runnable" seed="1471010910" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.003259" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2274" name="RevisionAndMissingIdentityInvalidateTransientEndpoints" fullname="AgentReproduction.Tests.MapGraphConnectionSelectionTests.RevisionAndMissingIdentityInvalidateTransientEndpoints" methodname="RevisionAndMissingIdentityInvalidateTransientEndpoints" classname="AgentReproduction.Tests.MapGraphConnectionSelectionTests" runstate="Runnable" seed="449313633" result="Passed" start-time="2026-09-13 12:39:21Z" end-time="2026-09-13 12:39:21Z" duration="0.003712" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

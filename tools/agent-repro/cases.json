@@ -51,6 +51,9 @@
       "expected": [
         "ViewportRoundTripAndCursorZoomKeepTheMapPointFixed",
         "HitTestingPrefersRealNodesThenEdgesThenZones",
+        "ReefConnectionReproducesHiddenOldAxisAfterVerticalPlacement",
+        "WarningSegmentsAreSelectableAndDiagonalOrOverlappingEdgesStayUndrawn",
+        "DirectionRepairIsUndoableAndPreservesAllOtherAuthorData",
         "RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence",
         "RecoveryDoesNotEraseAnExternalSourceConflict",
         "ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates",

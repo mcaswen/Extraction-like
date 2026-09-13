@@ -200,6 +200,15 @@ namespace AnomalySearch.Editor.MapGraph
         {
             var selection = _canvas.ConnectionSelection;
             selection.Synchronize(_document.AuthoringLayout, _document.Revision);
+            if (selection.HasPair && selection.RebindEdgeId.Length == 0 &&
+                _document.AuthoringLayout.Graph.TryGetEdgeBetween(selection.FromNodeId, selection.ToNodeId, out var existing))
+            {
+                var presentation = MapGraphEditorEdgePresentation.Resolve(_document.AuthoringLayout, existing);
+                _canvas.Select(MapGraphSelectionKind.Edge, existing.EdgeId);
+                if (presentation.RequiresAttention) selection.Reject(presentation.Message); else selection.Cancel();
+                _status = "两群已有连接，已选中原连接。" + (presentation.RequiresAttention ? presentation.Message : "可在右侧调整样式、重选端点或删除。");
+                Repaint(); return;
+            }
             if (!selection.TryGetAxis(_document.AuthoringLayout, out var axis)) { _status = selection.Failure; Repaint(); return; }
             if (_document.TryConnectPlacement(selection.FromNodeId, selection.ToNodeId, axis, selection.RebindEdgeId, out string edgeId, out string failure))
             {

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="7" result="Passed" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.1134807">
+  <test-suite type="TestSuite" id="1863" name="AgentRepro_20260913-203927-613" fullname="AgentRepro_20260913-203927-613" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.113481" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2719" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.096424" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="54200" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2720" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.091592" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2721" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.087046" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2288" name="MapGraphEditOperationTests" fullname="AgentReproduction.Tests.MapGraphEditOperationTests" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.074866" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2290" name="ConflictingLockedEndpointRejectsTheDrag" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.ConflictingLockedEndpointRejectsTheDrag" methodname="ConflictingLockedEndpointRejectsTheDrag" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="1505688142" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.032502" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2292" name="DeleteAndExplicitReaddRespectTheConnectionTombstone" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.DeleteAndExplicitReaddRespectTheConnectionTombstone" methodname="DeleteAndExplicitReaddRespectTheConnectionTombstone" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="368429777" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.006498" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2289" name="DragLocksTheRequestedPositionAndAlignsTheOtherEndpoint" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.DragLocksTheRequestedPositionAndAlignsTheOtherEndpoint" methodname="DragLocksTheRequestedPositionAndAlignsTheOtherEndpoint" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="344482887" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.009537" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2295" name="ExplicitDisconnectedGraphIsValidButGenerationStillRequiresConnectivity" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.ExplicitDisconnectedGraphIsValidButGenerationStillRequiresConnectivity" methodname="ExplicitDisconnectedGraphIsValidButGenerationStillRequiresConnectivity" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="552499813" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.005306" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2294" name="OversizedLineIsRejectedAndPendingPreviewCanBeCancelled" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.OversizedLineIsRejectedAndPendingPreviewCanBeCancelled" methodname="OversizedLineIsRejectedAndPendingPreviewCanBeCancelled" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="1165060432" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.003324" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2293" name="RebindingKeepsTheEdgeIdentityAndItsStyle" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.RebindingKeepsTheEdgeIdentityAndItsStyle" methodname="RebindingKeepsTheEdgeIdentityAndItsStyle" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="1911334372" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.003297" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2291" name="ZoneTranslationCarriesLockedMembersAsOneAuthoredMove" fullname="AgentReproduction.Tests.MapGraphEditOperationTests.ZoneTranslationCarriesLockedMembersAsOneAuthoredMove" methodname="ZoneTranslationCarriesLockedMembersAsOneAuthoredMove" classname="AgentReproduction.Tests.MapGraphEditOperationTests" runstate="Runnable" seed="1198541968" result="Passed" start-time="2026-09-13 12:39:43Z" end-time="2026-09-13 12:39:43Z" duration="0.003019" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -1,0 +1,2 @@
+{"frame": 2, "time": 0.019999999552965164, "kind": "hidden-edge-reproduction", "detail": "edge_cb16fe6e2d6138de2adb3f829b774c69; assetAxis=Horizontal; storedAxis=Horizontal; from=(536.2429, 161.9129); to=(536.2429, 321.9129); strictSegment=false; duplicate=true"}
+{"frame": 2, "time": 0.019999999552965164, "kind": "hidden-edge-variants", "detail": "Axis mismatch, oversized insets, transparent style: selectable orthogonal warnings; diagonal and overlap: explicit warning, no invented line."}

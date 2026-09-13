@@ -187,7 +187,7 @@ MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载�
 
 ## 网格地图编辑验证（2026-09-13）
 
-当前定向组：`MapGraphGridPlacement`（6）、`MapGraphPlacementConnections`（10）、`MapGraphDiagnostic`（3）、`MapGraphConnectionSelection`（4）、`MapGraphEditorDocument`（14）、`MapGraphEditorCanvas`（6，真实图形设备），清单合计 43 项。G4 修复选择其中 39 项验证，未重复运行无改动的 ConnectionSelection 组。Canvas 组使用测试拥有的场景和 NavMesh，程序发送 IMGUI 拖动/Shift 事件，验证暂存关闭、发布和重载，生成 `visual/*.png`；正式场景只读截图，不保存。
+当前定向组：`MapGraphGridPlacement`（6）、`MapGraphPlacementConnections`（10）、`MapGraphDiagnostic`（3）、`MapGraphConnectionSelection`（4）、`MapGraphEditorDocument`（14）、`MapGraphEditorCanvas`（9，真实图形设备），清单合计 46 项。G4 当时选择其中 39 项验证，未重复运行无改动的 ConnectionSelection 组；Canvas 后续增加了 3 项隐藏连接构造。Canvas 组使用测试拥有的场景和 NavMesh，程序发送 IMGUI 拖动/Shift 事件，验证暂存关闭、发布和重载，生成 `visual/*.png`；正式场景只读截图，不保存。
 
 在 Ubuntu WSL 中调用 Windows Unity Runner，例如：
 
@@ -197,6 +197,8 @@ MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载�
 
 每次只运行一个 Runner，运行期间冻结源码、Assets、Packages、ProjectSettings 和工具。`AnomalySearchFinal/Project` 已有用户手动编辑，本轮不将它作为可覆盖的验证副本。原始报告、成本证据和截图归档见 [网格作者验收](../../outputs/map-grid-authoring/validation_report.md)。
 
-场景同步补充验证：`MapGraphSceneMerge`（9）覆盖删除/新增、换区、改名、类型变化、作者数据保持、错误场景/过期拒绝、Undo/恢复、导航证据不能发布，以及正式保存场景的只读逐项核对。`MapGraphEditorCanvas`（6）现包含场景层级/保存事件自动同步、生成前改名同步，再生成/发布/重载的真实窗口链路，额外产出 `08-scene-synchronized.png` 和 `09-synchronized-published.png`。本轮选择这两组、`MapGraphGenerationController`（13）和 `MapGraphEditorDocument`（14），共 42 项通过；运行 ID、旧测试数量断言失败对照和截图见 [同步验收](../../outputs/map-grid-authoring/scene-sync/validation_report.md)。复用上述 Ubuntu 命令，更换 `-Group` 即可运行对应组。
+场景同步补充验证：`MapGraphSceneMerge`（9）覆盖删除/新增、换区、改名、类型变化、作者数据保持、错误场景/过期拒绝、Undo/恢复、导航证据不能发布，以及正式保存场景的只读逐项核对。`MapGraphEditorCanvas`（同步验收时 6 项）包含场景层级/保存事件自动同步、生成前改名同步，再生成/发布/重载的真实窗口链路，额外产出 `08-scene-synchronized.png` 和 `09-synchronized-published.png`。同步修复选择这两组、`MapGraphGenerationController`（13）和 `MapGraphEditorDocument`（14），共 42 项通过；运行 ID、旧测试数量断言失败对照和截图见 [同步验收](../../outputs/map-grid-authoring/scene-sync/validation_report.md)。复用上述 Ubuntu 命令，更换 `-Group` 即可运行对应组。
+
+G5 隐藏连接修复：Canvas 当前 9 项，增加正式龙骨礁端点的旧方向复现、警示线段/命中一致性、留白/透明/对角/重叠和方向修正 Undo/作者数据保持。真实窗口额外产出 `10-existing-hidden-connection.png`、`11-repaired-existing-connection.png`。本次选择 Canvas（9）、ConnectionSelection（4）、EditOperations（7）、LayoutValidation（21），共 41 项通过，原严格发布几何不放宽；复现前后证据见 [隐藏连接验收](../../outputs/map-grid-authoring/hidden-connections/validation_report.md)。
 
 G4 包含四类几何冲突、中文名称和定位、失败候选诊断上下文，以及 Undo 草稿/工作图隔离。真实窗口在三个入口拒绝同一错误草稿，然后完成合法编辑和发布闭环；证据见 [冲突诊断验收](../../outputs/map-grid-authoring/diagnostics/validation_report.md)。

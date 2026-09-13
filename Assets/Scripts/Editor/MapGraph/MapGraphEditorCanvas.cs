@@ -92,8 +92,11 @@ namespace AnomalySearch.Editor.MapGraph
             foreach (var node in layout.Nodes)
                 if (Expanded(ToScreen(MapGraphGeometry.NodeBounds(layout, node), rect), 4).Contains(screen)) return (MapGraphSelectionKind.Node, node.NodeId);
             foreach (var edge in layout.Edges)
-                if (MapGraphGeometry.TryGetVisibleSegment(layout, edge, out var a, out var b) &&
-                    DistanceToSegment(screen, ToScreen(a, rect), ToScreen(b, rect)) < 6) return (MapGraphSelectionKind.Edge, edge.EdgeId);
+            {
+                var presentation = MapGraphEditorEdgePresentation.Resolve(layout, edge);
+                if (presentation.HasSegment && DistanceToSegment(screen, ToScreen(presentation.From, rect), ToScreen(presentation.To, rect)) < 6)
+                    return (MapGraphSelectionKind.Edge, edge.EdgeId);
+            }
             foreach (var zone in layout.Zones)
                 if (ToScreen(zone.Bounds, rect).Contains(screen)) return (MapGraphSelectionKind.Zone, zone.ZoneId);
             return (MapGraphSelectionKind.None, "");
@@ -124,11 +127,17 @@ namespace AnomalySearch.Editor.MapGraph
                 Handles.BeginGUI();
                 if (GridPlacement) DrawGrid(local);
                 foreach (var edge in visible.Edges)
-                    if (MapGraphGeometry.TryGetVisibleSegment(visible, edge, out var a, out var b))
+                {
+                    var presentation = MapGraphEditorEdgePresentation.Resolve(visible, edge);
+                    if (presentation.HasSegment)
                     {
-                        Handles.color = SelectionKind == MapGraphSelectionKind.Edge && SelectionId == edge.EdgeId ? Accent : edge.UseColorOverride ? edge.ColorOverride : new Color32(86, 115, 123, 255);
-                        Handles.DrawAAPolyLine(Mathf.Max(1, (edge.WidthOverride > 0 ? edge.WidthOverride : 2) * Zoom), ToScreen(a, local), ToScreen(b, local));
+                        Handles.color = SelectionKind == MapGraphSelectionKind.Edge && SelectionId == edge.EdgeId ? Accent : presentation.RequiresAttention
+                            ? new Color32(244, 170, 83, 255) : edge.UseColorOverride ? edge.ColorOverride : new Color32(86, 115, 123, 255);
+                        var a = ToScreen(presentation.From, local); var b = ToScreen(presentation.To, local);
+                        if (presentation.RequiresAttention) Handles.DrawDottedLine(a, b, 4);
+                        else Handles.DrawAAPolyLine(Mathf.Max(1, (edge.WidthOverride > 0 ? edge.WidthOverride : 2) * Zoom), a, b);
                     }
+                }
                 if (preview != null && layout != null)
                     foreach (var node in layout.Nodes)
                         if (preview.Graph.TryGetNode(node.NodeId, out _) && !MapGraphGeometry.Near(layout.Graph.GetNodePosition(node.NodeId), preview.Graph.GetNodePosition(node.NodeId)))
@@ -170,8 +179,13 @@ namespace AnomalySearch.Editor.MapGraph
                 // 失效斜线只框端点，不将诊断辅助线伪装成新的斜向连接。
                 foreach (string endpoint in new[] { edge.FromNodeId, edge.ToNodeId })
                     if (TryObjectBounds(layout, endpoint, out var nodeBounds, out _)) Box(Expanded(ToScreen(nodeBounds, rect), 5), Color.clear, color, 2);
-                if (MapGraphGeometry.TryGetVisibleSegment(layout, edge, out var a, out var b))
-                { Handles.color = color; Handles.DrawAAPolyLine(3, ToScreen(a, rect), ToScreen(b, rect)); }
+                var presentation = MapGraphEditorEdgePresentation.Resolve(layout, edge);
+                if (presentation.HasSegment)
+                {
+                    Handles.color = color; var a = ToScreen(presentation.From, rect); var b = ToScreen(presentation.To, rect);
+                    if (presentation.RequiresAttention) Handles.DrawDottedLine(a, b, 4);
+                    else Handles.DrawAAPolyLine(3, a, b);
+                }
             }
             else Box(Expanded(ToScreen(bounds, rect), 3), new Color(color.r, color.g, color.b, 0.08f), color, 2);
         }

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="21" result="Passed" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.1592515">
+  <test-suite type="TestSuite" id="1863" name="AgentRepro_20260913-203949-408" fullname="AgentRepro_20260913-203949-408" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.159252" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2719" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.142625" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="60112" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2720" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.137266" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2721" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="698" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.132312" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2357" name="MapGraphLayoutValidationTests" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" testcasecount="21" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.118528" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2378" name="AGeometricCrossingNeverCreatesAnInterchange" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.AGeometricCrossingNeverCreatesAnInterchange" methodname="AGeometricCrossingNeverCreatesAnInterchange" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="193173373" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.027304" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2377" name="ExplicitExclusionsArePreservedWithoutInventingAForbiddenBridge" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.ExplicitExclusionsArePreservedWithoutInventingAForbiddenBridge" methodname="ExplicitExclusionsArePreservedWithoutInventingAForbiddenBridge" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1275580475" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.006717" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2375" name="IncompleteOrOneWayMeasurementsCannotUseLegacyDrawingLengths" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.IncompleteOrOneWayMeasurementsCannotUseLegacyDrawingLengths" methodname="IncompleteOrOneWayMeasurementsCannotUseLegacyDrawingLengths" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="641007515" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.005006" asserts="0">
+              <properties />
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="2370" name="InvalidGeometryHasSpecificIdentity" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.033448" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2359" name="InvalidGeometryHasSpecificIdentity(&quot;Diagonal&quot;,&quot;NonOrthogonalEdge&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;Diagonal&quot;,&quot;NonOrthogonalEdge&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1809039552" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.004500" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2360" name="InvalidGeometryHasSpecificIdentity(&quot;NodeOverlap&quot;,&quot;NodeOverlap&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;NodeOverlap&quot;,&quot;NodeOverlap&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="2103183323" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002876" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2361" name="InvalidGeometryHasSpecificIdentity(&quot;NodeOverName&quot;,&quot;NodeOverName&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;NodeOverName&quot;,&quot;NodeOverName&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="988113993" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002550" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2362" name="InvalidGeometryHasSpecificIdentity(&quot;ThroughNode&quot;,&quot;EdgeThroughNode&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;ThroughNode&quot;,&quot;EdgeThroughNode&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1945522994" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002251" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2363" name="InvalidGeometryHasSpecificIdentity(&quot;ThroughName&quot;,&quot;EdgeThroughName&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;ThroughName&quot;,&quot;EdgeThroughName&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="550067130" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002128" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2364" name="InvalidGeometryHasSpecificIdentity(&quot;PortOverlap&quot;,&quot;PortOverlap&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;PortOverlap&quot;,&quot;PortOverlap&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1849448248" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002550" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2365" name="InvalidGeometryHasSpecificIdentity(&quot;Insets&quot;,&quot;InvalidEdgeSpan&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;Insets&quot;,&quot;InvalidEdgeSpan&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="198137173" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002566" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2366" name="InvalidGeometryHasSpecificIdentity(&quot;WidthNaN&quot;,&quot;InvalidEdgeStyle&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;WidthNaN&quot;,&quot;InvalidEdgeStyle&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="622622805" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002307" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2367" name="InvalidGeometryHasSpecificIdentity(&quot;WidthTooLarge&quot;,&quot;EdgeWiderThanPort&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;WidthTooLarge&quot;,&quot;EdgeWiderThanPort&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="447616338" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002670" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2368" name="InvalidGeometryHasSpecificIdentity(&quot;PositionNaN&quot;,&quot;InvalidNodeGeometry&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;PositionNaN&quot;,&quot;InvalidNodeGeometry&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1552093367" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002775" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2369" name="InvalidGeometryHasSpecificIdentity(&quot;OutsideZone&quot;,&quot;NodeOutsideZone&quot;)" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.InvalidGeometryHasSpecificIdentity(&quot;OutsideZone&quot;,&quot;NodeOutsideZone&quot;)" methodname="InvalidGeometryHasSpecificIdentity" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="318471038" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002231" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-case id="2373" name="LayoutOnlyModeAndExplicitEdgeEditsHaveDifferentIntentRules" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.LayoutOnlyModeAndExplicitEdgeEditsHaveDifferentIntentRules" methodname="LayoutOnlyModeAndExplicitEdgeEditsHaveDifferentIntentRules" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1081583141" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.006216" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2374" name="LockedAlignmentCannotSurviveOnlyAsAnUnusedAlias" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.LockedAlignmentCannotSurviveOnlyAsAnUnusedAlias" methodname="LockedAlignmentCannotSurviveOnlyAsAnUnusedAlias" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1489803133" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.003699" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2376" name="PhysicalIslandsAndDroppedReachableBridgesAreDistinguished" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.PhysicalIslandsAndDroppedReachableBridgesAreDistinguished" methodname="PhysicalIslandsAndDroppedReachableBridgesAreDistinguished" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1409344118" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.003338" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2372" name="RegenerationPreservesLocksManualEdgesAndDeletedConnections" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.RegenerationPreservesLocksManualEdgesAndDeletedConnections" methodname="RegenerationPreservesLocksManualEdgesAndDeletedConnections" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="688468331" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.005620" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2379" name="ScoringPenalizesDisplacementReversalAndDistanceWithoutChangingPaths" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.ScoringPenalizesDisplacementReversalAndDistanceWithoutChangingPaths" methodname="ScoringPenalizesDisplacementReversalAndDistanceWithoutChangingPaths" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="220216654" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.007015" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2358" name="ValidCrossZoneRouteTurnsOnlyAtRealNodes" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.ValidCrossZoneRouteTurnsOnlyAtRealNodes" methodname="ValidCrossZoneRouteTurnsOnlyAtRealNodes" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="1691746614" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.002746" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2371" name="ZonesNamesAndAlignmentCoordinatesCannotSilentlyDrift" fullname="AgentReproduction.Tests.MapGraphLayoutValidationTests.ZonesNamesAndAlignmentCoordinatesCannotSilentlyDrift" methodname="ZonesNamesAndAlignmentCoordinatesCannotSilentlyDrift" classname="AgentReproduction.Tests.MapGraphLayoutValidationTests" runstate="Runnable" seed="2124016890" result="Passed" start-time="2026-09-13 12:40:05Z" end-time="2026-09-13 12:40:05Z" duration="0.004580" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

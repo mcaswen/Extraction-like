@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.0970441">
+  <test-suite type="TestSuite" id="1861" name="AgentRepro_20260913-202941-860" fullname="AgentRepro_20260913-202941-860" runstate="Runnable" testcasecount="696" result="Passed" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.097044" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2715" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="696" result="Passed" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.080138" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="54644" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2716" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="696" result="Passed" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.072958" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2717" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="696" result="Passed" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.067567" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2294" name="MapGraphEditorCanvasTests" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.051368" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2297" name="ReefConnectionReproducesHiddenOldAxisAfterVerticalPlacement" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.ReefConnectionReproducesHiddenOldAxisAfterVerticalPlacement" methodname="ReefConnectionReproducesHiddenOldAxisAfterVerticalPlacement" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="2017390387" result="Passed" start-time="2026-09-13 12:31:29Z" end-time="2026-09-13 12:31:29Z" duration="0.041552" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

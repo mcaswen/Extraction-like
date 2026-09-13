@@ -26,6 +26,8 @@ namespace AnomalySearch.Editor.MapGraph
             if (layout != null)
             {
                 EditorGUILayout.LabelField($"{layout.Zones.Count} 个区域  ·  {layout.Nodes.Count} 个群  ·  {layout.Edges.Count} 条连接", EditorStyles.miniLabel);
+                int attention = layout.Edges.Count(e => MapGraphEditorEdgePresentation.Resolve(layout, e).RequiresAttention);
+                if (attention > 0) EditorGUILayout.HelpBox($"{attention} 条连接的显示待修正。警示虚线可直接选中；无法显示时，Shift 选两端可查看原连接。", MessageType.Warning);
                 float spacing = EditorGUILayout.DelayedFloatField("网格间距", document.Placement.GridSpacing);
                 int cells = EditorGUILayout.IntSlider("微调最多格数", document.Placement.AdjustmentCells, 1, 4);
                 if (MapGraphGeometry.Finite(spacing) && spacing >= 1 && spacing <= 10000) document.SetPlacementSettings(spacing, cells);
@@ -60,6 +62,10 @@ namespace AnomalySearch.Editor.MapGraph
                         EditorGUILayout.LabelField("起点", layout.Graph.TryGetNode(edge.FromNodeId, out var from) ? from.DisplayName : edge.FromNodeId);
                         EditorGUILayout.LabelField("终点", layout.Graph.TryGetNode(edge.ToNodeId, out var to) ? to.DisplayName : edge.ToNodeId);
                         EditorGUILayout.LabelField("方向", edge.Axis == MapGraphAxis.Horizontal ? "水平" : "垂直");
+                        var presentation = MapGraphEditorEdgePresentation.Resolve(layout, edge);
+                        if (presentation.RequiresAttention) EditorGUILayout.HelpBox(presentation.Message, MessageType.Warning);
+                        if (presentation.CanRepairDirection && GUILayout.Button("按当前对齐修正方向"))
+                            edit(g => MapGraphEditOperations.AlignEdgeToNodes(g, id), "按当前摆放修正连接方向", true);
                         if (GUILayout.Button("重选端点")) canvas.ConnectionSelection.BeginRebind(layout, id, document.Revision);
                         EditorGUI.BeginChangeCheck();
                         float insetA = EditorGUILayout.DelayedFloatField("起点留白", edge.FromInset);

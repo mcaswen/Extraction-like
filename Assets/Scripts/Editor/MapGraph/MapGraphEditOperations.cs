@@ -63,6 +63,15 @@ namespace AnomalySearch.Editor.MapGraph
             return Copy(graph, edges: graph.Edges.Select(e => e.EdgeId == id ? e.WithPresentation(e.Axis, fromInset, toInset, width, useColor, color, e.Origin) : e));
         }
 
+        public static MapGraphLayoutDraft AlignEdgeToNodes(MapGraphLayoutDraft graph, string id)
+        {
+            if (!graph.Graph.TryGetEdge(id, out var edge)) throw new ArgumentException("UnknownEdge:" + id);
+            if (!MapGraphGeometry.TryGetAxis(graph.Graph.GetNodePosition(edge.FromNodeId), graph.Graph.GetNodePosition(edge.ToNodeId), out var axis))
+                throw new ArgumentException("两群必须同行或同列，且位置不能重叠。");
+            return Copy(graph, edges: graph.Edges.Select(e => e.EdgeId == id
+                ? e.WithPresentation(axis, e.FromInset, e.ToInset, e.WidthOverride, e.UseColorOverride, e.ColorOverride, e.Origin) : e));
+        }
+
         public static MapGraphLayoutDraft ResetOverrides(MapGraphLayoutDraft graph)
             => Copy(graph, zones: graph.Zones.Select(z => z.WithLayout(z.Bounds, false)),
                 nodes: graph.Nodes.Select(n => n.WithLayout(n.Position, n.RowId, n.ColumnId, false)),

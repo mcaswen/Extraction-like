@@ -1,0 +1,89 @@
+{
+  "finalTestsPassed": 41,
+  "runs": [
+    {
+      "label": "MapGraphEditorCanvas",
+      "runId": "20260913-203819-891",
+      "passed": 9,
+      "scope": "full selected group"
+    },
+    {
+      "label": "MapGraphConnectionSelection",
+      "runId": "20260913-203857-576",
+      "passed": 4,
+      "scope": "full selected group"
+    },
+    {
+      "label": "MapGraphEditOperations",
+      "runId": "20260913-203927-613",
+      "passed": 7,
+      "scope": "full selected group"
+    },
+    {
+      "label": "MapGraphLayoutValidation",
+      "runId": "20260913-203949-408",
+      "passed": 21,
+      "scope": "full selected group"
+    },
+    {
+      "label": "before-fix-reproduction",
+      "runId": "20260913-202941-860",
+      "passed": 1,
+      "scope": "defect-condition confirmation before implementation"
+    }
+  ],
+  "verifiedSourceFiles": [
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphGeometry.cs",
+      "sha256": "e9b4af312a01d9c7e1bc911280e2311b22b1b0cf02ed832d22c4ae4f7b93d733"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphEditorEdgePresentation.cs",
+      "sha256": "af0b4a9781f5292afa5b5f98737b39957fbcbd040faf4e84966b0509a9ed4bb8"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphConnectionSelection.cs",
+      "sha256": "2d4f4fa228838e4e3e73a102f98f4aa8d9f7a2f98b9bcc347d4fe32822e83393"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphEditOperations.cs",
+      "sha256": "a05a6121afdb44c497a109a603ca027a2b260143ee77112a80890bbe02b37d62"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+      "sha256": "eb5e323aac3e96a4546ef7cc387e742b43d9abafc4ff5e84fdd1252138e799b3"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphEditorInspector.cs",
+      "sha256": "96c2cd52440ddcb0ec4ae015f334f620ebd478ec35bb44ebb4a4500ce4c9a9bc"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphEditorWindow.cs",
+      "sha256": "c849212ab7bdd5fd63e7e308a0fc63951f466cae6677aebf0139a3fe28ab25bd"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorCanvasTests.cs",
+      "sha256": "c120d79225cf946ba44b29143a3ed80ae31984dd0a6f0707db50ce916bd04439"
+    },
+    {
+      "path": "tools/agent-repro/cases.json",
+      "sha256": "f1eec63e420e548d592f39a4de3dd7db67bd603ae5acf20d3e6550d0220f8fab"
+    },
+    {
+      "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+      "sha256": "d3c2dbaddb1efc05310d935c387214f27b6e3527abf19b0e1808c7a92b09b1c1"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "visual/10-existing-hidden-connection.png",
+      "sha256": "ef2a85c4cd322c4925c2246c22b9e31d03f0ad4e1dcb4ebcf2270e021a6d6ce6"
+    },
+    {
+      "path": "visual/11-repaired-existing-connection.png",
+      "sha256": "0a8ab0a78859e7aab7e34a2057e3b9bd50a13e00b69ce2691e9ef391087a1336"
+    }
+  ],
+  "sourceCommit": "a70b64a1dafb8e32e73cb4bb4b0cfb0fb2dd833d",
+  "sourceVerificationRun": "20260913-203949-408"
+}
