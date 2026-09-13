@@ -1,6 +1,18 @@
 {
   "groups": [
     {
+      "name": "MapGraphGridPlacement",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphGridPlacementTests",
+      "expected": [
+        "SnapHandlesNegativeHalfCellsAndViewportScaling",
+        "MovingOneNodeDoesNotSolveOldEdgesOrPinOtherNodes",
+        "ZoneTranslationCarriesMembersButResizingKeepsWorldMapPoints",
+        "DraftUndoRecoveryAndPublishGateDoNotWriteTheSource",
+        "RepeatedGridMovesHaveBoundedCostWithoutNavigationOrSearch"
+      ]
+    },
+    {
       "name": "CombatAimPoint",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.CombatAimPointTests",

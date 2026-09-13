@@ -21,6 +21,8 @@ namespace AnomalySearch.Editor.MapGraph
         private string _connectFrom;
         private MapGraphAxis _connectAxis;
         private double _lastPreview;
+        public bool GridPlacement { get; set; }
+        public float GridSpacing { get; set; } = 80;
         public float Zoom { get; private set; } = 1;
         public Vector2 Center { get; private set; }
         public MapGraphSelectionKind SelectionKind { get; private set; }
@@ -85,6 +87,7 @@ namespace AnomalySearch.Editor.MapGraph
                         EditorGUI.DrawRect(new Rect(bounds.xMax - 7, bounds.yMax - 7, 7, 7), Accent);
                 }
                 Handles.BeginGUI();
+                if (GridPlacement) DrawGrid(local);
                 foreach (var edge in visible.Edges)
                     if (MapGraphGeometry.TryGetVisibleSegment(visible, edge, out var a, out var b))
                     {
@@ -102,7 +105,7 @@ namespace AnomalySearch.Editor.MapGraph
                         Handles.DrawAAPolyLine(2, start, end);
                     }
                     else if (SelectionKind == MapGraphSelectionKind.Node)
-                        Box(new Rect(ToScreen(_ghost, local) - Vector2.one * 10, Vector2.one * 20), Color.clear, Accent, 1);
+                        Box(new Rect(ToScreen(GridPlacement ? MapGraphGridPlacement.Snap(_positionStart + _ghost - _mouseStart, GridSpacing) : _ghost, local) - Vector2.one * 10, Vector2.one * 20), Color.clear, Accent, 1);
                 }
                 Handles.EndGUI();
                 if (layout != null) HandleInput(layout, local, editable);
@@ -163,7 +166,7 @@ namespace AnomalySearch.Editor.MapGraph
             if (_dragging && ev.type == EventType.MouseDrag)
             {
                 _ghost = ToMap(ev.mousePosition, rect);
-                if (_connectFrom == null && EditorApplication.timeSinceStartup - _lastPreview > 0.15)
+                if (!GridPlacement && _connectFrom == null && EditorApplication.timeSinceStartup - _lastPreview > 0.15)
                 { RequestMove(false); _lastPreview = EditorApplication.timeSinceStartup; }
                 ev.Use();
             }
@@ -183,11 +186,29 @@ namespace AnomalySearch.Editor.MapGraph
         {
             var delta = _ghost - _mouseStart; string id = SelectionId;
             if (SelectionKind == MapGraphSelectionKind.Node)
-            { var position = _positionStart + delta; EditRequested?.Invoke(g => MapGraphEditOperations.MoveNode(g, id, position), "移动群", commit); }
+            { var position = _positionStart + delta; EditRequested?.Invoke(g => GridPlacement ? MapGraphGridPlacement.MoveNode(g, id, position, GridSpacing) : MapGraphEditOperations.MoveNode(g, id, position), "移动群", commit); }
             else if (SelectionKind == MapGraphSelectionKind.Zone)
             {
                 var bounds = _resizing ? Rect.MinMaxRect(_zoneStart.xMin, _zoneStart.yMin + delta.y, _zoneStart.xMax + delta.x, _zoneStart.yMax) : new Rect(_zoneStart.position + delta, _zoneStart.size);
-                EditRequested?.Invoke(g => MapGraphEditOperations.MoveZone(g, id, bounds), _resizing ? "缩放区域" : "移动区域", commit);
+                EditRequested?.Invoke(g => GridPlacement ? MapGraphGridPlacement.MoveZone(g, id, bounds, GridSpacing, _resizing) : MapGraphEditOperations.MoveZone(g, id, bounds), _resizing ? "缩放区域" : "移动区域", commit);
+            }
+        }
+        private void DrawGrid(Rect rect)
+        {
+            float spacing = MapGraphGridPlacement.ValidSpacing(GridSpacing);
+            while (spacing * Zoom < 12) spacing *= 2; // 缩小时省略次级网格，限制绘制线数。
+            var min = ToMap(new Vector2(0, rect.height), rect); var max = ToMap(new Vector2(rect.width, 0), rect);
+            Handles.color = new Color(0.3f, 0.45f, 0.5f, 0.18f);
+            for (float x = Mathf.Ceil(min.x / spacing) * spacing; x <= max.x; x += spacing)
+                Handles.DrawLine(ToScreen(new Vector2(x, min.y), rect), ToScreen(new Vector2(x, max.y), rect));
+            for (float y = Mathf.Ceil(min.y / spacing) * spacing; y <= max.y; y += spacing)
+                Handles.DrawLine(ToScreen(new Vector2(min.x, y), rect), ToScreen(new Vector2(max.x, y), rect));
+            if (_dragging && _connectFrom == null && SelectionKind == MapGraphSelectionKind.Node)
+            {
+                var point = MapGraphGridPlacement.Snap(_positionStart + _ghost - _mouseStart, GridSpacing);
+                Handles.color = new Color(0.43f, 0.83f, 0.74f, 0.5f);
+                Handles.DrawLine(ToScreen(new Vector2(point.x, min.y), rect), ToScreen(new Vector2(point.x, max.y), rect));
+                Handles.DrawLine(ToScreen(new Vector2(min.x, point.y), rect), ToScreen(new Vector2(max.x, point.y), rect));
             }
         }
         private void EnsureStyles()

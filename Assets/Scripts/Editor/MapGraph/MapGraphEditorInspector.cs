@@ -24,10 +24,13 @@ namespace AnomalySearch.Editor.MapGraph
             EditorGUILayout.LabelField("地图指挥", EditorStyles.boldLabel);
             var name = EditorGUILayout.DelayedTextField("地图名称", document.WorkingDefinition.DisplayName);
             if (!string.IsNullOrWhiteSpace(name) && name != document.WorkingDefinition.DisplayName) document.SetDisplayName(name);
-            var layout = document.Layout;
+            var layout = document.AuthoringLayout;
             if (layout != null)
             {
                 EditorGUILayout.LabelField($"{layout.Zones.Count} 个区域  ·  {layout.Nodes.Count} 个群  ·  {layout.Edges.Count} 条连接", EditorStyles.miniLabel);
+                float spacing = EditorGUILayout.DelayedFloatField("网格间距", document.Placement.GridSpacing);
+                int cells = EditorGUILayout.IntSlider("微调最多格数", document.Placement.AdjustmentCells, 1, 4);
+                if (MapGraphGeometry.Finite(spacing) && spacing >= 1 && spacing <= 10000) document.SetPlacementSettings(spacing, cells);
                 EditorGUILayout.Space(8);
                 using (new EditorGUI.DisabledScope(!editable))
                 {
@@ -37,7 +40,7 @@ namespace AnomalySearch.Editor.MapGraph
                         EditorGUILayout.LabelField(node.DisplayName, EditorStyles.boldLabel);
                         EditorGUILayout.LabelField(node.NodeKind.ToString(), EditorStyles.miniLabel);
                         var p = layout.Graph.GetNodePosition(id); var moved = EditorGUILayout.Vector2Field("全图位置", p);
-                        if (moved != p) edit(g => MapGraphEditOperations.MoveNode(g, id, moved), "调整群位置", true);
+                        if (moved != p) edit(g => MapGraphGridPlacement.MoveNode(g, id, moved, document.Placement.GridSpacing), "调整群位置", true);
                         bool locked = EditorGUILayout.Toggle("锁定位置", node.PositionLocked);
                         if (locked != node.PositionLocked) edit(g => MapGraphEditOperations.LockNode(g, id, locked), "锁定群位置", true);
                         AlignmentLock(node.RowId, "锁定整行", layout, edit);
@@ -47,8 +50,8 @@ namespace AnomalySearch.Editor.MapGraph
                         {
                             var target = layout.Graph.GetNodePosition(layout.Nodes[_alignment].NodeId);
                             EditorGUILayout.BeginHorizontal();
-                            if (GUILayout.Button("同一行")) edit(g => MapGraphEditOperations.MoveNode(g, id, new Vector2(p.x, target.y)), "对齐群行", true);
-                            if (GUILayout.Button("同一列")) edit(g => MapGraphEditOperations.MoveNode(g, id, new Vector2(target.x, p.y)), "对齐群列", true);
+                            if (GUILayout.Button("同一行")) edit(g => MapGraphGridPlacement.MoveNode(g, id, new Vector2(p.x, target.y), document.Placement.GridSpacing), "对齐群行", true);
+                            if (GUILayout.Button("同一列")) edit(g => MapGraphGridPlacement.MoveNode(g, id, new Vector2(target.x, p.y), document.Placement.GridSpacing), "对齐群列", true);
                             EditorGUILayout.EndHorizontal();
                         }
                     }
@@ -56,7 +59,7 @@ namespace AnomalySearch.Editor.MapGraph
                     {
                         EditorGUILayout.LabelField(zone.DisplayName, EditorStyles.boldLabel);
                         var bounds = EditorGUILayout.RectField("区域矩形", zone.Bounds);
-                        if (bounds != zone.Bounds) edit(g => MapGraphEditOperations.MoveZone(g, id, bounds), "调整区域矩形", true);
+                        if (bounds != zone.Bounds) edit(g => MapGraphGridPlacement.MoveZone(g, id, bounds, document.Placement.GridSpacing, bounds.size != zone.Bounds.size), "调整区域矩形", true);
                         bool locked = EditorGUILayout.Toggle("锁定矩形", zone.LayoutLocked);
                         if (locked != zone.LayoutLocked) edit(g => MapGraphEditOperations.LockZone(g, id, locked), "锁定区域", true);
                         EditorGUILayout.HelpBox("移动区域会携带成员；拖动右下角调整矩形大小。", MessageType.None);

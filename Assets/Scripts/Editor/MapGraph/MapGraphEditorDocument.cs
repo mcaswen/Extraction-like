@@ -19,6 +19,10 @@ namespace AnomalySearch.Editor.MapGraph
         private MapGraphLayoutDraft _layoutCache;
         public SO_MapGraphDefinition WorkingDefinition { get; private set; }
         public SO_MapGraphDefinition SourceDefinition => _source;
+        public MapGraphPlacementState Placement { get; private set; }
+        public MapGraphLayoutDraft AuthoringLayout => Placement.Draft ?? Layout;
+        public bool HasPlacementDraft => Placement.Active;
+        public string ExportPlacement() => EditorJsonUtility.ToJson(Placement);
         public string SourceBaseline => _sourceBaseline;
         public string ExportWorkingCopy() => EditorJsonUtility.ToJson(WorkingDefinition);
         public MapGraphLayoutDraft Layout => WorkingDefinition != null && WorkingDefinition.IsCommandGraph ? _layoutCache ??= MapGraphLayoutDraft.FromDefinition(WorkingDefinition) : null;
@@ -26,11 +30,11 @@ namespace AnomalySearch.Editor.MapGraph
         public MapGraphGenerationController PendingGeneration { get; private set; }
         public MapGraphGenerationResult LastVerifiedInput { get; private set; }
         public long Revision { get; private set; }
-        public bool IsDirty => !_disposed && EditorJsonUtility.ToJson(WorkingDefinition) != _workingBaseline;
+        public bool IsDirty => !_disposed && (HasPlacementDraft || EditorJsonUtility.ToJson(WorkingDefinition) != _workingBaseline);
         public bool HasSourceConflict => _hasSource && (_source == null || EditorJsonUtility.ToJson(_source) != _sourceBaseline);
         public event Action Changed;
 
-        public MapGraphEditorDocument(SO_MapGraphDefinition source = null, string recoveryJson = null, string sourceBaseline = null)
+        public MapGraphEditorDocument(SO_MapGraphDefinition source = null, string recoveryJson = null, string sourceBaseline = null, string placementRecovery = null)
         {
             if (source != null && !source.IsCommandGraph) throw new ArgumentException("请先显式转换旧图，不能在编辑时隐式迁移。", nameof(source));
             _source = source; _hasSource = source != null; _sourceBaseline = source != null ? EditorJsonUtility.ToJson(source) : "";
@@ -45,6 +49,11 @@ namespace AnomalySearch.Editor.MapGraph
                 if (!string.IsNullOrEmpty(sourceBaseline)) _sourceBaseline = sourceBaseline;
                 Revision++;
             }
+            Placement = ScriptableObject.CreateInstance<MapGraphPlacementState>();
+            Placement.hideFlags = HideFlags.HideAndDontSave;
+            Placement.SetSettings(WorkingDefinition.GenerationSettings.GridSpacing, 1);
+            if (!string.IsNullOrEmpty(placementRecovery))
+            { EditorJsonUtility.FromJsonOverwrite(placementRecovery, Placement); Placement.hideFlags = HideFlags.HideAndDontSave; Placement.Invalidate(); }
             Undo.undoRedoPerformed += OnUndoRedo;
         }
 
@@ -55,7 +64,7 @@ namespace AnomalySearch.Editor.MapGraph
         {
             EnsureOpen(); PendingGeneration?.Cancel(); PendingEdit?.Cancel(); PendingEdit = null;
             _pendingCapture = capture;
-            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, Layout, mode, Revision);
+            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, AuthoringLayout, mode, Revision);
             return PendingGeneration;
         }
 
@@ -76,14 +85,15 @@ namespace AnomalySearch.Editor.MapGraph
             catch (Exception exception) { failure = exception.Message; return false; }
             LastVerifiedInput = result;
             _verifiedCapture = _pendingCapture;
-            ApplyUndo("应用地图生成", () => WorkingDefinition.ApplyCommandData(WorkingDefinition.MapId, WorkingDefinition.DisplayName, result.Layout.StartNodeId,
-                result.Layout.Zones, result.Layout.Nodes, result.Layout.Edges, result.Layout.Constraints, bake, settings));
+            ApplyUndo("应用地图生成", () => { Placement.SetDraft(null); WorkingDefinition.ApplyCommandData(WorkingDefinition.MapId, WorkingDefinition.DisplayName, result.Layout.StartNodeId,
+                result.Layout.Zones, result.Layout.Nodes, result.Layout.Edges, result.Layout.Constraints, bake, settings); });
             return true;
         }
 
         public bool TryVerifyForSave(out MapGraphGenerationResult input, out string failure)
         {
             EnsureOpen(); input = null; failure = "";
+            if (HasPlacementDraft) { failure = "PlacementNeedsValidation:摆放草稿尚未应用有效线路预览。"; return false; }
             if (Layout == null || LastVerifiedInput == null || _verifiedCapture == null) { failure = "MapNeedsValidation"; return false; }
             if (PendingGeneration != null && PendingGeneration.IsRunning) { failure = "GenerationStillRunning"; return false; }
             if (HasSourceConflict) { failure = "SourceAssetChanged"; return false; }
@@ -107,7 +117,8 @@ namespace AnomalySearch.Editor.MapGraph
 
         public MapGraphEditOperation BeginEdit(Func<MapGraphLayoutDraft, MapGraphLayoutDraft> edit, string label)
         {
-            EnsureOpen(); if (Layout == null) throw new InvalidOperationException("MapNeedsGeneration");
+            EnsureOpen(); if (HasPlacementDraft) throw new InvalidOperationException("请使用摆放草稿编辑入口。");
+            if (Layout == null) throw new InvalidOperationException("MapNeedsGeneration");
             PendingGeneration?.Cancel(); PendingGeneration = null; PendingEdit?.Cancel();
             PendingEdit = new MapGraphEditOperation(Layout, edit(Layout), WorkingDefinition.GenerationSettings, Revision, label);
             return PendingEdit;
@@ -137,6 +148,27 @@ namespace AnomalySearch.Editor.MapGraph
             return true;
         }
 
+        public void EditPlacement(Func<MapGraphLayoutDraft, MapGraphLayoutDraft> edit, string label)
+        {
+            EnsureOpen(); var original = AuthoringLayout;
+            if (original == null) throw new InvalidOperationException("请先从场景创建地图。");
+            var next = edit(original) ?? throw new InvalidOperationException("摆放操作没有返回草稿。");
+            // 身份归属不属于位置编辑，仍由显式场景同步负责。
+            if (!next.Graph.IsValid || next.Nodes.Count != original.Nodes.Count || next.Zones.Count != original.Zones.Count ||
+                next.Nodes.Any(n => !original.Graph.TryGetNode(n.NodeId, out var old) || n.ZoneId != old.ZoneId || n.SourceObjectId != old.SourceObjectId || n.NodeKind != old.NodeKind) ||
+                next.Zones.Any(z => !original.Graph.TryGetZone(z.ZoneId, out var old) || z.SourceObjectId != old.SourceObjectId))
+                throw new InvalidOperationException("摆放操作不能改变群或区域身份。");
+            if (next.ContentFingerprint == original.ContentFingerprint) return;
+            ApplyUndo(label, () => Placement.SetDraft(next));
+        }
+
+        public void SetPlacementSettings(float spacing, int cells)
+        {
+            EnsureOpen(); MapGraphGridPlacement.ValidSpacing(spacing);
+            if (spacing == Placement.GridSpacing && Mathf.Clamp(cells, 1, 4) == Placement.AdjustmentCells) return;
+            ApplyUndo("调整网格设置", () => Placement.SetSettings(spacing, cells));
+        }
+
         public void SetGenerationSettings(MapGraphGenerationSettings settings)
         {
             EnsureOpen(); if (settings == null) throw new ArgumentNullException(nameof(settings));
@@ -156,7 +188,7 @@ namespace AnomalySearch.Editor.MapGraph
         private void ApplyUndo(string label, Action mutation)
         {
             Undo.IncrementCurrentGroup(); int group = Undo.GetCurrentGroup(); Undo.SetCurrentGroupName(label);
-            Undo.RegisterCompleteObjectUndo(WorkingDefinition, label);
+            Undo.RegisterCompleteObjectUndo(new UnityEngine.Object[] { WorkingDefinition, Placement }, label);
             try
             {
                 mutation(); WorkingDefinition.OnAfterDeserialize(); _layoutCache = null; EditorUtility.SetDirty(WorkingDefinition);
@@ -169,7 +201,7 @@ namespace AnomalySearch.Editor.MapGraph
         private void OnUndoRedo()
         {
             if (_disposed || WorkingDefinition == null) return;
-            WorkingDefinition.OnAfterDeserialize(); _layoutCache = null; AdvanceRevision();
+            WorkingDefinition.OnAfterDeserialize(); _layoutCache = null; Placement.Invalidate(); AdvanceRevision();
         }
         private void AdvanceRevision()
         {
@@ -182,6 +214,7 @@ namespace AnomalySearch.Editor.MapGraph
             if (_disposed) return; _disposed = true;
             Undo.undoRedoPerformed -= OnUndoRedo; PendingGeneration?.Cancel(); PendingGeneration = null; PendingEdit?.Cancel(); PendingEdit = null; LastVerifiedInput = null;
             if (WorkingDefinition != null) { Undo.ClearUndo(WorkingDefinition); UnityEngine.Object.DestroyImmediate(WorkingDefinition); WorkingDefinition = null; }
+            if (Placement != null) { Undo.ClearUndo(Placement); UnityEngine.Object.DestroyImmediate(Placement); Placement = null; }
             Changed = null;
         }
         private void EnsureOpen() { if (_disposed) throw new ObjectDisposedException(nameof(MapGraphEditorDocument)); }
