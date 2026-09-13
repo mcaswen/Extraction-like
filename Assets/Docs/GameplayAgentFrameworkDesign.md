@@ -20,7 +20,9 @@
 
 `MapGraphPlacementConnectionPlanner.cs` 复用冻结导航矩阵，固定模式保持位置，微调模式受格数、人工锁、队列宽度和预算约束；最终复用几何、导航与作者意图的独立校验。`MapGraphConnectionSelection.cs` 只拥有临时有序端点，Add/Rebind/Delete 的图语义仍由 EditOperations 负责。Document 继续拥有版本和事务，Window 的 SessionState 仅负责同一次 Editor 会话内草稿重开；源 SO/Binding 只通过原 AuthoringTransaction 更新。
 
-详细文件职责、自动验证和限制见 [网格作者规划](../../.planning/2026-09-13-map-grid-authoring/task_plan.md)、[架构审查](../../.planning/2026-09-13-map-grid-authoring/architecture_review.md)、[验收与截图](../../outputs/map-grid-authoring/validation_report.md)。运行时根路线和玩家/自主目标语义未变化。
+`MapGraphSceneSynchronizer.cs` 负责将场景身份、归属、类型和名称合并到地图草稿，`MapGraphSceneSynchronizationResult.cs` 保存提案及变化记录。Document 复核场景快照、版本和源资产冲突，单次 Undo 应用；Window 编排打开、场景事件去抖和生成前同步。场景拥有身份，地图拥有手工布局和样式，不通过生成器静默删除节点或直接覆盖已发布 SO。`NavigationEvidence` 模式允许基于当前草稿独立扫描导航，只供连接检查；Document 的应用和发布入口拒绝把它当成已通过几何校验的地图。
+
+详细文件职责、自动验证和限制见 [网格作者规划](../../.planning/2026-09-13-map-grid-authoring/task_plan.md)、[架构审查](../../.planning/2026-09-13-map-grid-authoring/architecture_review.md)、[验收与截图](../../outputs/map-grid-authoring/validation_report.md)。场景同步补充见 [同步小规划](../../.planning/2026-09-13-map-scene-sync/g2_apply_scene_changes.md)、[同步审查](../../.planning/2026-09-13-map-scene-sync/architecture_review.md)。运行时根路线和玩家/自主目标语义未变化。
 
 ## 2026-09-13 地图指挥与统一根路线
 

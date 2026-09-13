@@ -1,0 +1,20 @@
+﻿{
+    "mode":  "Regression",
+    "infrastructureFailed":  false,
+    "businessFailed":  true,
+    "exitCode":  1,
+    "groups":  [
+                   {
+                       "group":  "MapGraphGenerationController",
+                       "repeat":  1,
+                       "exitCode":  2,
+                       "timedOut":  false,
+                       "total":  13,
+                       "failed":  1,
+                       "missing":  [
+
+                                   ],
+                       "output":  "D:\\Unity-Projects\\Extraction-like\\Logs\\AgentReproduction\\20260913-194231-665\\groups\\MapGraphGenerationController-1"
+                   }
+               ]
+}

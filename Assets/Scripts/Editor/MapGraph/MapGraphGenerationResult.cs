@@ -4,10 +4,10 @@ using Gameplay.MapGraph.Config;
 
 namespace AnomalySearch.Editor.MapGraph
 {
-    public enum MapGraphGenerationMode { ConnectionsAndLayout, LayoutOnly, ValidateOnly, PlacementConnections, PlacementAdjustment, PlacementValidation }
+    public enum MapGraphGenerationMode { ConnectionsAndLayout, LayoutOnly, ValidateOnly, PlacementConnections, PlacementAdjustment, PlacementValidation, NavigationEvidence }
     public enum MapGraphGenerationStage { Collecting, ScanningNavigation, Generating, Validating, Ready, Failed, Stale, Cancelled }
 
-    /// <summary>已验证的计算结果。写入前由 Controller 复核场景，作者文档再核对请求身份和版本。</summary>
+    /// <summary>计算结果；NavigationEvidence 只证明导航输入，不证明布局可发布。文档核对用途、请求和版本。</summary>
     public sealed class MapGraphGenerationResult
     {
         public string RequestId { get; }

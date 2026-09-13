@@ -15,6 +15,7 @@ namespace AnomalySearch.Editor.MapGraph
         private string _sourceBaseline;
         private string _workingBaseline;
         private Func<MapGraphSceneSnapshot> _pendingCapture, _verifiedCapture;
+        private Func<MapGraphSceneSnapshot> _synchronizationCapture;
         private bool _disposed;
         private MapGraphLayoutDraft _layoutCache;
         public SO_MapGraphDefinition WorkingDefinition { get; private set; }
@@ -28,6 +29,7 @@ namespace AnomalySearch.Editor.MapGraph
         public MapGraphLayoutDraft Layout => WorkingDefinition != null && WorkingDefinition.IsCommandGraph ? _layoutCache ??= MapGraphLayoutDraft.FromDefinition(WorkingDefinition) : null;
         public MapGraphEditOperation PendingEdit { get; private set; }
         public MapGraphGenerationController PendingGeneration { get; private set; }
+        public MapGraphSceneSynchronizationResult PendingSynchronization { get; private set; }
         public MapGraphGenerationResult LastVerifiedInput { get; private set; }
         public long Revision { get; private set; }
         public bool IsDirty => !_disposed && (HasPlacementDraft || EditorJsonUtility.ToJson(WorkingDefinition) != _workingBaseline);
@@ -62,6 +64,7 @@ namespace AnomalySearch.Editor.MapGraph
 
         internal MapGraphGenerationController BeginGeneration(Func<MapGraphSceneSnapshot> capture, MapGraphGenerationMode mode = MapGraphGenerationMode.ConnectionsAndLayout)
         {
+            PendingSynchronization = null; _synchronizationCapture = null;
             EnsureOpen(); PendingGeneration?.Cancel(); PendingEdit?.Cancel(); PendingEdit = null;
             _pendingCapture = capture;
             if (HasPlacementDraft && mode == MapGraphGenerationMode.ValidateOnly) mode = MapGraphGenerationMode.PlacementValidation;
@@ -74,17 +77,53 @@ namespace AnomalySearch.Editor.MapGraph
 
         internal MapGraphGenerationController BeginNavigationRefresh(Func<MapGraphSceneSnapshot> capture)
         {
+            PendingSynchronization = null; _synchronizationCapture = null;
             EnsureOpen(); PendingGeneration?.Cancel(); PendingEdit?.Cancel(); PendingEdit = null;
             _pendingCapture = capture;
-            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, Layout,
-                MapGraphGenerationMode.ValidateOnly, Revision, Placement.GridSpacing, Placement.AdjustmentCells);
+            PendingGeneration = new MapGraphGenerationController(capture, WorkingDefinition.GenerationSettings, AuthoringLayout,
+                HasPlacementDraft ? MapGraphGenerationMode.NavigationEvidence : MapGraphGenerationMode.ValidateOnly, Revision, Placement.GridSpacing, Placement.AdjustmentCells);
             return PendingGeneration;
+        }
+
+        public MapGraphSceneSynchronizationResult PrepareSceneSynchronization(Scene scene)
+            => PrepareSceneSynchronization(() => MapGraphSceneCollector.Capture(scene));
+        internal MapGraphSceneSynchronizationResult PrepareSceneSynchronization(Func<MapGraphSceneSnapshot> capture)
+        {
+            EnsureOpen();
+            if (HasSourceConflict) throw new InvalidOperationException("源地图资产已被外部修改，请先处理工作副本冲突。");
+            PendingGeneration?.Cancel(); PendingGeneration = null; PendingEdit?.Cancel(); PendingEdit = null;
+            PendingSynchronization = null; _synchronizationCapture = null;
+            var result = MapGraphSceneSynchronizer.Prepare(capture(), AuthoringLayout, WorkingDefinition.GenerationSettings, Revision);
+            _synchronizationCapture = capture; PendingSynchronization = result; return result;
+        }
+        public bool TryApplySceneSynchronization(MapGraphSceneSynchronizationResult request, out string failure)
+        {
+            failure = ""; EnsureOpen();
+            if (request == null || request != PendingSynchronization || request.InputRevision != Revision ||
+                request.OriginalFingerprint != AuthoringLayout?.ContentFingerprint || _synchronizationCapture == null)
+            { failure = "场景同步提案已过期，请重新同步。"; return false; }
+            if (HasSourceConflict) { failure = "源地图资产已被外部修改，未应用同步。"; return false; }
+            try
+            {
+                var current = _synchronizationCapture(); var input = request.Scene;
+                if (current == null || !current.IsValid || current.SceneGuid != input.SceneGuid || current.ScenePath != input.ScenePath ||
+                    current.SceneFingerprint != input.SceneFingerprint || current.NavigationFingerprint != input.NavigationFingerprint ||
+                    current.RuntimeNavigationFingerprint != input.RuntimeNavigationFingerprint)
+                { failure = "场景在同步准备后发生变化，请重新同步。"; return false; }
+                if (request.HasChanges) ApplyUndo("同步场景群和区域", () => Placement.SetDraft(request.Layout));
+                if (request.HasChanges || LastVerifiedInput?.Scene.SceneFingerprint != current.SceneFingerprint ||
+                    LastVerifiedInput?.Scene.NavigationFingerprint != current.NavigationFingerprint)
+                { LastVerifiedInput = null; _verifiedCapture = null; }
+                PendingSynchronization = null; _synchronizationCapture = null; return true;
+            }
+            catch (Exception exception) { failure = exception.Message; return false; }
         }
 
         public bool TryRefreshNavigationEvidence(MapGraphGenerationController request, out string failure)
         {
             failure = ""; EnsureOpen();
-            if (request == null || request != PendingGeneration || request.InputRevision != Revision || request.Mode != MapGraphGenerationMode.ValidateOnly)
+            if (request == null || request != PendingGeneration || request.InputRevision != Revision ||
+                request.Mode != MapGraphGenerationMode.ValidateOnly && request.Mode != MapGraphGenerationMode.NavigationEvidence)
             { failure = "GenerationRequestSuperseded"; return false; }
             if (!request.TryGetCurrentResult(out var result)) { failure = "GenerationResultUnavailable:" + request.Stage; return false; }
             LastVerifiedInput = result; _verifiedCapture = _pendingCapture; PendingGeneration = null; Changed?.Invoke(); return true;
@@ -121,6 +160,8 @@ namespace AnomalySearch.Editor.MapGraph
         public bool TryApplyGeneration(MapGraphGenerationController request, out string failure)
         {
             EnsureOpen(); failure = "";
+            if (request?.Mode == MapGraphGenerationMode.NavigationEvidence)
+            { failure = "导航证据不能作为可发布的地图，请先生成或校验线路。"; return false; }
             if (request == null || request != PendingGeneration || request.InputRevision != Revision)
             { failure = "GenerationRequestSuperseded"; return false; }
             if (!request.TryGetCurrentResult(out var result)) { failure = "GenerationResultUnavailable:" + request.Stage; return false; }
@@ -151,6 +192,7 @@ namespace AnomalySearch.Editor.MapGraph
         {
             input = null; failure = "";
             if (Layout == null || LastVerifiedInput == null || _verifiedCapture == null) { failure = "MapNeedsValidation"; return false; }
+            if (requireBake && LastVerifiedInput.Mode == MapGraphGenerationMode.NavigationEvidence) { failure = "MapNeedsValidation"; return false; }
             if (PendingGeneration != null && PendingGeneration.IsRunning) { failure = "GenerationStillRunning"; return false; }
             if (HasSourceConflict) { failure = "SourceAssetChanged"; return false; }
             try
@@ -261,12 +303,14 @@ namespace AnomalySearch.Editor.MapGraph
         }
         private void AdvanceRevision()
         {
+            PendingSynchronization = null; _synchronizationCapture = null;
             Revision++; PendingGeneration?.Cancel(); PendingGeneration = null;
             PendingEdit?.Cancel(); PendingEdit = null;
             Changed?.Invoke();
         }
         public void Dispose()
         {
+            PendingSynchronization = null; _synchronizationCapture = null;
             if (_disposed) return; _disposed = true;
             Undo.undoRedoPerformed -= OnUndoRedo; PendingGeneration?.Cancel(); PendingGeneration = null; PendingEdit?.Cancel(); PendingEdit = null; LastVerifiedInput = null;
             if (WorkingDefinition != null) { Undo.ClearUndo(WorkingDefinition); UnityEngine.Object.DestroyImmediate(WorkingDefinition); WorkingDefinition = null; }

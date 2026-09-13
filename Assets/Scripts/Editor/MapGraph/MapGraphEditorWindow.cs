@@ -27,6 +27,12 @@ namespace AnomalySearch.Editor.MapGraph
         private Vector2 _diagnosticScroll;
         private string _reportedRequestId;
         private GUIStyle _diagnosticStyle;
+        private MapGraphSceneSynchronizationResult _sceneSynchronization;
+        private bool _showSynchronization, _sceneSyncQueued;
+        private double _sceneSyncAfter;
+        private string _lastSceneSynchronizationFingerprint;
+        private IReadOnlyList<MapGraphValidationIssue> DisplayIssues => _showSynchronization && _sceneSynchronization != null ? _sceneSynchronization.Changes : _diagnostics;
+        private MapGraphLayoutDraft DisplayIssueLayout => _showSynchronization ? _sceneSynchronization?.Layout : _diagnosticInput;
         [Serializable] private sealed class WindowRecovery
         { public string sourceGuid, working, baseline, placement; }
         private string RecoveryKey => "AnomalySearch.MapGridRecovery:" + Application.dataPath + ":" + _scenePath;
@@ -34,6 +40,7 @@ namespace AnomalySearch.Editor.MapGraph
         public MapGraphEditorCanvas Canvas => _canvas;
         public string Status => _status;
         public int DiagnosticCount => _diagnostics.Count;
+        public MapGraphSceneSynchronizationResult LastSceneSynchronization => _sceneSynchronization;
         public bool CanEditPlacement => _document?.AuthoringLayout != null && !EditorApplication.isPlayingOrWillChangePlaymode &&
             (_refreshEvidence && !_connectAfterRefresh || _document.PendingGeneration?.Result == null && _document.PendingGeneration?.IsRunning != true);
 
@@ -70,17 +77,21 @@ namespace AnomalySearch.Editor.MapGraph
             _canvas = new MapGraphEditorCanvas { GridPlacement = true }; _inspector = new MapGraphEditorInspector();
             _canvas.EditRequested += RequestEdit; _canvas.CancelRequested += Cancel; _canvas.ConnectionRequested += RequestConnection;
             _document.Changed += OnDocumentChanged;
+            EditorApplication.hierarchyChanged += QueueSceneSynchronization;
+            EditorSceneManager.sceneSaved += OnSceneSaved;
             if (string.IsNullOrEmpty(_scenePath)) _scenePath = SceneManager.GetActiveScene().path;
             _fit = true;
             if (_document.Layout != null && !EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                try { _diagnosticInput = _document.Layout; _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = true; }
+                try { if (SynchronizeScene()) { _diagnosticInput = _document.AuthoringLayout; _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = true; } }
                 catch (Exception exception) { _status = exception.Message; }
             }
             OnDocumentChanged();
         }
         private void OnDisable()
         {
+            EditorApplication.hierarchyChanged -= QueueSceneSynchronization;
+            EditorSceneManager.sceneSaved -= OnSceneSaved;
             if (_document == null) return;
             if (!_discarded) RememberDraft();
             _document.Changed -= OnDocumentChanged; _document.Dispose(); _document = null;
@@ -101,6 +112,7 @@ namespace AnomalySearch.Editor.MapGraph
 
         private void OnDocumentChanged()
         {
+            _showSynchronization = false;
             if (_diagnostics.Count > 0) _status = "地图已修改，旧诊断已清除。请重新生成或校验线路。";
             ClearDiagnostics();
             hasUnsavedChanges = _document.IsDirty;
@@ -112,10 +124,40 @@ namespace AnomalySearch.Editor.MapGraph
         { _diagnostics = Array.Empty<MapGraphValidationIssue>(); _diagnosticScroll = Vector2.zero; _canvas?.ClearDiagnostic(); }
         public bool FocusDiagnostic(int index)
         {
-            if (index < 0 || index >= _diagnostics.Count || _diagnosticInput?.ContentFingerprint != _document.AuthoringLayout?.ContentFingerprint) return false;
-            bool focused = _canvas.FocusDiagnostic(_diagnosticInput, _diagnostics[index]);
+            if (index < 0 || index >= DisplayIssues.Count || DisplayIssueLayout?.ContentFingerprint != _document.AuthoringLayout?.ContentFingerprint) return false;
+            bool focused = _canvas.FocusDiagnostic(DisplayIssueLayout, DisplayIssues[index]);
             if (focused) { _fit = false; Repaint(); }
             return focused;
+        }
+        private void QueueSceneSynchronization()
+        { _sceneSyncQueued = true; _sceneSyncAfter = EditorApplication.timeSinceStartup + 0.3; }
+        private void OnSceneSaved(Scene scene) { if (scene.path == _scenePath) QueueSceneSynchronization(); }
+        public bool SynchronizeScene(bool onlyWhenSceneChanged = false)
+        {
+            if (_document?.AuthoringLayout == null) return true;
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return false;
+            try
+            {
+                var scene = EditingScene();
+                if (onlyWhenSceneChanged)
+                {
+                    var current = MapGraphSceneCollector.Capture(scene);
+                    if (current.SceneFingerprint == _lastSceneSynchronizationFingerprint) return true;
+                }
+                var request = _document.PrepareSceneSynchronization(scene);
+                if (!_document.TryApplySceneSynchronization(request, out string failure)) { _status = failure; return false; }
+                _lastSceneSynchronizationFingerprint = request.Scene.SceneFingerprint;
+                _refreshEvidence = _connectAfterRefresh = false; _sceneSyncQueued = false;
+                ClearDiagnostics();
+                if (request.HasChanges)
+                {
+                    _sceneSynchronization = request; _showSynchronization = true;
+                    _status = $"已同步场景，{request.Changes.Count} 项变化进入可撤销草稿。请生成或校验线路后发布。";
+                }
+                else if (!onlyWhenSceneChanged) _status = "场景身份和归属已同步，地图摆放保持。";
+                Repaint(); return true;
+            }
+            catch (Exception exception) { _status = "场景同步未完成：" + exception.Message; return false; }
         }
         private Scene EditingScene()
         {
@@ -129,6 +171,8 @@ namespace AnomalySearch.Editor.MapGraph
             {
                 if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("请在 Edit Mode 编辑指挥图。");
                 var scene = EditingScene(); if (!scene.IsValid() || !scene.isLoaded || string.IsNullOrEmpty(scene.path)) throw new InvalidOperationException("请先打开并保存待编辑的场景。");
+                if (!SynchronizeScene()) return;
+                _showSynchronization = false;
                 _refreshEvidence = _connectAfterRefresh = false;
                 ClearDiagnostics(); _diagnosticInput = _document.AuthoringLayout;
                 _document.BeginGeneration(scene, mode); _status = "计算中，可随时取消。";
@@ -164,17 +208,20 @@ namespace AnomalySearch.Editor.MapGraph
             }
             else if (allowRefresh && (failure == "MapNeedsValidation" || failure == "GenerationInputsChanged"))
             {
-                try { ClearDiagnostics(); _diagnosticInput = _document.Layout; _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = _connectAfterRefresh = true; _status = "正在核对导航，完成后连接选中的两个群。"; }
+                try { ClearDiagnostics(); _diagnosticInput = _document.AuthoringLayout; _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = _connectAfterRefresh = true; _status = "正在核对导航，完成后连接选中的两个群。"; }
                 catch (Exception exception) { selection.Reject(exception.Message); _status = exception.Message; }
             }
             else { selection.Reject(failure); _status = "连线未应用：" + failure; }
             Repaint();
         }
         public void Cancel()
-        { _document.PendingGeneration?.Cancel(); _document.PendingEdit?.Cancel(); _refreshEvidence = _connectAfterRefresh = false; ClearDiagnostics(); _canvas.ConnectionSelection.Cancel(); _status = "已取消，工作副本保持。"; Repaint(); }
+        { _document.PendingGeneration?.Cancel(); _document.PendingEdit?.Cancel(); _refreshEvidence = _connectAfterRefresh = _showSynchronization = false; ClearDiagnostics(); _canvas.ConnectionSelection.Cancel(); _status = "已取消，工作副本保持。"; Repaint(); }
         private void Update()
         {
             if (_document == null) return;
+            if (_sceneSyncQueued && EditorApplication.timeSinceStartup >= _sceneSyncAfter && !EditorApplication.isCompiling &&
+                !EditorApplication.isPlayingOrWillChangePlaymode && _document.PendingGeneration?.IsRunning != true && _document.PendingGeneration?.Result == null)
+            { _sceneSyncQueued = false; SynchronizeScene(true); }
             var generation = _document.PendingGeneration;
             if (generation != null)
             {
@@ -200,6 +247,7 @@ namespace AnomalySearch.Editor.MapGraph
                     }
                     else if (generation.Stage != MapGraphGenerationStage.Cancelled)
                     {
+                        _showSynchronization = false;
                         string operation = _refreshEvidence ? "工作图校验" : generation.Mode == MapGraphGenerationMode.PlacementAdjustment ? "微调建议" :
                             generation.Mode == MapGraphGenerationMode.PlacementConnections ? "生成连接" : "线路校验";
                         _diagnostics = generation.Diagnostics.ToArray();
@@ -242,11 +290,13 @@ namespace AnomalySearch.Editor.MapGraph
                 { if (GUILayout.Button("从场景创建地图", EditorStyles.toolbarButton)) BeginGeneration(); }
                 else
                 {
+                    if (GUILayout.Button("同步场景", EditorStyles.toolbarButton)) SynchronizeScene();
                     if (GUILayout.Button("1  网格摆放", EditorStyles.toolbarButton)) Cancel();
                     if (GUILayout.Button("2  生成连接", EditorStyles.toolbarButton)) BeginGeneration(MapGraphGenerationMode.PlacementConnections);
                     if (GUILayout.Button("微调建议", EditorStyles.toolbarButton)) BeginGeneration(MapGraphGenerationMode.PlacementAdjustment);
                     if (GUILayout.Button("校验线路", EditorStyles.toolbarButton)) BeginGeneration(MapGraphGenerationMode.ValidateOnly);
                 }
+                if (_sceneSynchronization != null && GUILayout.Button("同步记录", EditorStyles.toolbarButton)) _showSynchronization = !_showSynchronization;
                 using (new EditorGUI.DisabledScope(_refreshEvidence || _document.PendingGeneration?.Result == null))
                     if (GUILayout.Button("应用预览", EditorStyles.toolbarButton)) ApplyPreview();
                 if (GUILayout.Button("取消", EditorStyles.toolbarButton)) Cancel();
@@ -259,7 +309,7 @@ namespace AnomalySearch.Editor.MapGraph
                     if (GUILayout.Button("3  发布地图", EditorStyles.toolbarButton)) SaveTo();
             }
             EditorGUI.LabelField(new Rect(10, 24, position.width - 20, 20), "工程：" + Application.dataPath.Replace("/Assets", "") + "   |   场景：" + _scenePath, EditorStyles.miniLabel);
-            float footerHeight = _diagnostics.Count > 0 ? Mathf.Min(240, position.height * 0.35f) : 83;
+            float footerHeight = DisplayIssues.Count > 0 ? Mathf.Min(240, position.height * 0.35f) : 83;
             var canvasRect = new Rect(0, 48, Mathf.Max(100, position.width - 310), position.height - 55 - footerHeight);
             var preview = _refreshEvidence ? null : _document.PendingGeneration?.Result?.Layout ?? _document.PendingEdit?.Result;
             if (_fit) { _canvas.Fit(preview ?? _document.AuthoringLayout, canvasRect); _fit = false; }
@@ -271,25 +321,26 @@ namespace AnomalySearch.Editor.MapGraph
         }
         private void DrawDiagnostics(Rect rect)
         {
+            var issues = DisplayIssues; var input = DisplayIssueLayout;
             string phase = _document.HasPlacementDraft ? "摆放草稿 · 待生成/校验线路" : _document.LastVerifiedInput == null ? "工作图 · 本会话待校验" : "已验证工作图";
-            if (_diagnostics.Count == 0) { EditorGUI.HelpBox(rect, phase + "\n" + _status, MessageType.None); return; }
+            if (issues.Count == 0) { EditorGUI.HelpBox(rect, phase + "\n" + _status, MessageType.None); return; }
             _diagnosticStyle ??= new GUIStyle(EditorStyles.label) { wordWrap = true, padding = new RectOffset(4, 4, 3, 3) };
             GUILayout.BeginArea(rect, EditorStyles.helpBox);
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label(phase, EditorStyles.boldLabel);
+                GUILayout.Label(_showSynchronization ? "场景同步记录 · 可撤销，尚未自动发布" : phase, EditorStyles.boldLabel);
                 if (GUILayout.Button("复制完整诊断", GUILayout.Width(100)))
-                    EditorGUIUtility.systemCopyBuffer = string.Join("\n\n", _diagnostics.Select(d => MapGraphDiagnosticFormatter.Format(d, _diagnosticInput) + "\n" + d));
+                    EditorGUIUtility.systemCopyBuffer = string.Join("\n\n", issues.Select(d => MapGraphDiagnosticFormatter.Format(d, input) + "\n" + d));
             }
             GUILayout.Label(_status, _diagnosticStyle);
             _diagnosticScroll = EditorGUILayout.BeginScrollView(_diagnosticScroll);
-            for (int i = 0; i < _diagnostics.Count; i++)
+            for (int i = 0; i < issues.Count; i++)
             {
-                var issue = _diagnostics[i];
+                var issue = issues[i];
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    GUILayout.Label(new GUIContent((issue.IsError ? "• " : "提示：") + MapGraphDiagnosticFormatter.Format(issue, _diagnosticInput), issue.ToString()), _diagnosticStyle, GUILayout.ExpandWidth(true));
-                    using (new EditorGUI.DisabledScope(_diagnosticInput?.ContentFingerprint != _document.AuthoringLayout?.ContentFingerprint || issue.SubjectId == "graph" && string.IsNullOrEmpty(issue.RelatedId)))
+                    GUILayout.Label(new GUIContent((issue.IsError ? "• " : "提示：") + MapGraphDiagnosticFormatter.Format(issue, input), issue.ToString()), _diagnosticStyle, GUILayout.ExpandWidth(true));
+                    using (new EditorGUI.DisabledScope(input?.ContentFingerprint != _document.AuthoringLayout?.ContentFingerprint || issue.SubjectId == "graph" && string.IsNullOrEmpty(issue.RelatedId)))
                         if (GUILayout.Button("定位", GUILayout.Width(48))) FocusDiagnostic(i);
                 }
             }

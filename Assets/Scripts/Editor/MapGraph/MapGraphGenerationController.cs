@@ -24,7 +24,7 @@ namespace AnomalySearch.Editor.MapGraph
         private readonly float _gridSpacing;
         private readonly int _adjustmentCells;
         private bool PlacementMode => Mode == MapGraphGenerationMode.PlacementConnections || Mode == MapGraphGenerationMode.PlacementAdjustment || Mode == MapGraphGenerationMode.PlacementValidation;
-        private bool ValidationOnly => Mode == MapGraphGenerationMode.ValidateOnly || Mode == MapGraphGenerationMode.PlacementValidation;
+        private bool ValidationOnly => Mode == MapGraphGenerationMode.ValidateOnly || Mode == MapGraphGenerationMode.PlacementValidation || Mode == MapGraphGenerationMode.NavigationEvidence;
         private bool GeneratesConnections => Mode == MapGraphGenerationMode.ConnectionsAndLayout || Mode == MapGraphGenerationMode.PlacementConnections || Mode == MapGraphGenerationMode.PlacementAdjustment;
         public string RequestId { get; } = Guid.NewGuid().ToString("N");
         public long InputRevision { get; }
@@ -176,10 +176,13 @@ namespace AnomalySearch.Editor.MapGraph
             { Fail("NoPublishableLayout", _layout == null ? "" : string.Join("\n", _layout.FailureCounts.Select(p => p.Key + "=" + p.Value))); return; }
             var intent = MapGraphIntentPreservation.AllIntent;
             if (!GeneratesConnections) intent |= MapGraphIntentPreservation.Topology;
-            _diagnostics.AddRange(MapGraphValidation.Validate(draft, _reference, intent).Issues);
-            foreach (var profile in _scene.Profiles)
-                _diagnostics.AddRange(MapGraphNavigationValidation.Validate(draft,
-                    _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), GeneratesConnections || Mode == MapGraphGenerationMode.PlacementValidation).Issues);
+            if (Mode != MapGraphGenerationMode.NavigationEvidence)
+            {
+                _diagnostics.AddRange(MapGraphValidation.Validate(draft, _reference, intent).Issues);
+                foreach (var profile in _scene.Profiles)
+                    _diagnostics.AddRange(MapGraphNavigationValidation.Validate(draft,
+                        _scan.Connections.Where(c => c.ProfileId == profile.Data.ProfileId).Select(c => c.Edge).ToArray(), GeneratesConnections || Mode == MapGraphGenerationMode.PlacementValidation).Issues);
+            }
             if (_diagnostics.Any(i => i.IsError)) { Fail("GeneratedLayoutValidationFailed"); return; }
             if (!CheckCurrentInputs()) return;
             Result = new MapGraphGenerationResult(RequestId, InputRevision, Mode, _scene, draft, _scan.Anchors, _scan.Connections, JsonUtility.ToJson(_settings));

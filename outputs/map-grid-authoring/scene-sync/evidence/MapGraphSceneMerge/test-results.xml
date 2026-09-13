@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="9" result="Passed" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="1.1134549">
+  <test-suite type="TestSuite" id="1860" name="AgentRepro_20260913-194559-115" fullname="AgentRepro_20260913-194559-115" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="1.113455" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2713" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="1.093431" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="35712" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2714" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="1.086794" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2715" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="1.081340" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2437" name="MapGraphSceneMergeTests" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="1.069004" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2446" name="ActualSavedSceneCanSynchronizeItsBoundMapWithoutWritingAssets" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.ActualSavedSceneCanSynchronizeItsBoundMapWithoutWritingAssets" methodname="ActualSavedSceneCanSynchronizeItsBoundMapWithoutWritingAssets" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1989296590" result="Passed" start-time="2026-09-13 11:46:18Z" end-time="2026-09-13 11:46:19Z" duration="0.971768" asserts="0">
+              <properties />
+              <output><![CDATA[Animator is not playing an AnimatorController
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+]]></output>
+            </test-case>
+            <test-case id="2440" name="AddedNodesAndRenamedZonesKeepExistingIdsAndCoordinates" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.AddedNodesAndRenamedZonesKeepExistingIdsAndCoordinates" methodname="AddedNodesAndRenamedZonesKeepExistingIdsAndCoordinates" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1693145476" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.008871" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2438" name="DeletedAndReassignedGroupsMergeWithoutResettingOtherAuthorData" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.DeletedAndReassignedGroupsMergeWithoutResettingOtherAuthorData" methodname="DeletedAndReassignedGroupsMergeWithoutResettingOtherAuthorData" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1955149786" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.009565" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2441" name="ForeignScenesAndIdentityCollisionsAreRejectedBeforeMutation" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.ForeignScenesAndIdentityCollisionsAreRejectedBeforeMutation" methodname="ForeignScenesAndIdentityCollisionsAreRejectedBeforeMutation" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1374593935" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.006895" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2445" name="NavigationEvidenceForSynchronizedDraftEnablesConnectionsButCannotPublish" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.NavigationEvidenceForSynchronizedDraftEnablesConnectionsButCannotPublish" methodname="NavigationEvidenceForSynchronizedDraftEnablesConnectionsButCannotPublish" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="539812102" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.023471" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2442" name="RemovedZonesAndChangedKindsFollowTheCurrentScene" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.RemovedZonesAndChangedKindsFollowTheCurrentScene" methodname="RemovedZonesAndChangedKindsFollowTheCurrentScene" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1767065817" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.007738" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2439" name="RepeatedSynchronizationIsIdempotentAndWorldMovementKeepsManualMapLayout" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.RepeatedSynchronizationIsIdempotentAndWorldMovementKeepsManualMapLayout" methodname="RepeatedSynchronizationIsIdempotentAndWorldMovementKeepsManualMapLayout" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1176142069" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.006679" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2444" name="SceneAndDocumentChangesRejectAnOutdatedSynchronizationProposal" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.SceneAndDocumentChangesRejectAnOutdatedSynchronizationProposal" methodname="SceneAndDocumentChangesRejectAnOutdatedSynchronizationProposal" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="293985783" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.008371" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2443" name="SynchronizationIsUndoableRecoverableAndDoesNotWritePublishedGraph" fullname="AgentReproduction.Tests.MapGraphSceneMergeTests.SynchronizationIsUndoableRecoverableAndDoesNotWritePublishedGraph" methodname="SynchronizationIsUndoableRecoverableAndDoesNotWritePublishedGraph" classname="AgentReproduction.Tests.MapGraphSceneMergeTests" runstate="Runnable" seed="1655206436" result="Passed" start-time="2026-09-13 11:46:19Z" end-time="2026-09-13 11:46:19Z" duration="0.013359" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

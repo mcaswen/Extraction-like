@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.6590255">
+  <test-suite type="TestSuite" id="1860" name="AgentRepro_20260913-194626-081" fullname="AgentRepro_20260913-194626-081" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.659026" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2713" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.643495" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="45208" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2714" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.638590" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2715" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.634035" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2293" name="MapGraphEditorCanvasTests" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.622487" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2298" name="ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates" methodname="ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="1622202719" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:43Z" duration="0.026851" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2299" name="GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow" methodname="GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="1434592271" result="Passed" start-time="2026-09-13 11:46:43Z" end-time="2026-09-13 11:46:47Z" duration="4.567073" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+]]></output>
+            </test-case>
+            <test-case id="2295" name="HitTestingPrefersRealNodesThenEdgesThenZones" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.HitTestingPrefersRealNodesThenEdgesThenZones" methodname="HitTestingPrefersRealNodesThenEdgesThenZones" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="315950211" result="Passed" start-time="2026-09-13 11:46:47Z" end-time="2026-09-13 11:46:47Z" duration="0.003202" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2297" name="RecoveryDoesNotEraseAnExternalSourceConflict" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.RecoveryDoesNotEraseAnExternalSourceConflict" methodname="RecoveryDoesNotEraseAnExternalSourceConflict" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="1406189083" result="Passed" start-time="2026-09-13 11:46:47Z" end-time="2026-09-13 11:46:47Z" duration="0.004286" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2296" name="RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence" methodname="RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="757280404" result="Passed" start-time="2026-09-13 11:46:47Z" end-time="2026-09-13 11:46:47Z" duration="0.004723" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2294" name="ViewportRoundTripAndCursorZoomKeepTheMapPointFixed" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.ViewportRoundTripAndCursorZoomKeepTheMapPointFixed" methodname="ViewportRoundTripAndCursorZoomKeepTheMapPointFixed" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="141158828" result="Passed" start-time="2026-09-13 11:46:47Z" end-time="2026-09-13 11:46:47Z" duration="0.004943" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

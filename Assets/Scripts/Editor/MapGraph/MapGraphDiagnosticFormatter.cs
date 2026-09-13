@@ -9,6 +9,7 @@ namespace AnomalySearch.Editor.MapGraph
         public static string Format(MapGraphValidationIssue issue, MapGraphLayoutDraft layout)
         {
             if (issue == null) return "";
+            if (issue.Code.StartsWith("Scene", StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(issue.Detail)) return issue.Detail;
             string subject = ObjectName(layout, issue.SubjectId), related = ObjectName(layout, issue.RelatedId);
             string text;
             switch (issue.Code)

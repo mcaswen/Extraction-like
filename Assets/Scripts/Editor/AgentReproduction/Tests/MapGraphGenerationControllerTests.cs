@@ -165,7 +165,9 @@ namespace AgentReproduction.Tests
             var deadline = System.Diagnostics.Stopwatch.StartNew();
             while (controller.IsRunning && deadline.Elapsed.TotalSeconds < 120)
             { Assert.That(controller.Advance(64, 6), Is.LessThanOrEqualTo(64)); yield return null; }
-            AssertReady(controller); Assert.That(controller.Result.Layout.Nodes.Count, Is.EqualTo(28)); Assert.That(controller.Result.Layout.Zones.Count, Is.EqualTo(7));
+            AssertReady(controller);
+            Assert.That(controller.Result.Layout.Nodes.Select(n => n.NodeId), Is.EquivalentTo(before.Nodes.Select(n => n.Id)), "生成必须覆盖当前真实群，允许作者增删场景内容。");
+            Assert.That(controller.Result.Layout.Zones.Select(z => z.ZoneId), Is.EquivalentTo(before.Zones.Select(z => z.Id)));
             Assert.That(controller.TryGetCurrentResult(out var result), Is.True);
             Assert.That(MapGraphSceneCollector.Capture(scene).SceneFingerprint, Is.EqualTo(before.SceneFingerprint)); Assert.That(scene.isDirty, Is.EqualTo(dirty));
             File.WriteAllText(Path.Combine(TestRunContext.Load().outputPath, "map-generation-controller.json"), JsonUtility.ToJson(new ControllerEvidence

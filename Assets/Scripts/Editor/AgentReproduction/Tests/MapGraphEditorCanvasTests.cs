@@ -208,6 +208,44 @@ namespace AgentReproduction.Tests
                 for (int i = 0; window.Document.PendingGeneration?.IsRunning == true && i < 500; i++) yield return null;
                 Assert.That(window.Document.HasPlacementDraft, Is.False); Assert.That(window.Document.Layout.ContentFingerprint, Is.EqualTo(final));
                 CaptureGrid(window, "05-published-reopened");
+                var beforeSceneEdit = MapGraphSceneCollector.Capture(scene);
+                var surviving = beforeSceneEdit.Nodes.Single(n => n.Id == a);
+                var transferred = beforeSceneEdit.Nodes.Single(n => n.Id == b);
+                var deleted = beforeSceneEdit.Nodes.Single(n => n.Id == c);
+                string publishedBeforeSync = EditorJsonUtility.ToJson(window.Document.SourceDefinition);
+                var newZone = new GameObject("迁移验收区").AddComponent<TargetZoneAuthoring>();
+                transferred.Target.Zone.UnregisterCluster(transferred.Target);
+                transferred.Target.transform.SetParent(newZone.transform, true);
+                RuntimeFixtureAccess.Configure(transferred.Target, "_zone", newZone); newZone.RegisterCluster(transferred.Target);
+                UnityEngine.Object.DestroyImmediate(deleted.Target.gameObject);
+                Assert.That(EditorSceneManager.SaveScene(scene), Is.True);
+                var synchronizationDeadline = System.Diagnostics.Stopwatch.StartNew();
+                while (window.Document.AuthoringLayout.Nodes.Count == 3 && synchronizationDeadline.Elapsed.TotalSeconds < 5) yield return null;
+                document = window.Document;
+                Assert.That(document.AuthoringLayout.Nodes.Count, Is.EqualTo(2));
+                Assert.That(window.LastSceneSynchronization.Changes.Any(i => i.Code == "SceneNodeRemoved"), Is.True);
+                Assert.That(window.LastSceneSynchronization.Changes.Any(i => i.Code == "SceneNodeReassigned"), Is.True);
+                Assert.That(EditorJsonUtility.ToJson(document.SourceDefinition), Is.EqualTo(publishedBeforeSync));
+                yield return null; CaptureGrid(window, "08-scene-synchronized");
+                string newZoneId = document.AuthoringLayout.Nodes.Single(n => n.NodeId == b).ZoneId;
+                Assert.That(newZoneId, Is.Not.EqualTo(surviving.ZoneId));
+                document.EditPlacement(g => MapGraphGridPlacement.MoveZone(g, newZoneId, new Rect(480,-240,640,480), 80, true), "摆放新区域");
+                document.EditPlacement(g => MapGraphGridPlacement.WithPositions(g, new Dictionary<string, Vector2>
+                    { [a] = new Vector2(-160,80), [b] = new Vector2(640,80) }), "对齐同步后的两群");
+                foreach (var edge in document.AuthoringLayout.Edges.ToArray())
+                    document.EditPlacement(g => MapGraphEditOperations.RebindEdge(g, edge.EdgeId, edge.FromNodeId, edge.ToNodeId, MapGraphAxis.Horizontal), "调整保留线方向");
+                RuntimeFixtureAccess.Configure(transferred.Target, "_displayName", "迁移后的群");
+                window.BeginGeneration(MapGraphGenerationMode.PlacementConnections); yield return Ready(window);
+                Assert.That(document.AuthoringLayout.Nodes.Single(n => n.NodeId == b).DisplayName, Is.EqualTo("迁移后的群"), "生成前同步未触发层级事件的字段修改。");
+                Assert.That(window.ApplyPreview(), Is.True, window.Status); Assert.That(window.SaveTo(), Is.True, window.Status);
+                window.DiscardChanges(); window.Close(); window = null;
+                scene = EditorSceneManager.OpenScene(scenePath); yield return null;
+                binding = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MapGraphBindingAuthoring>(true)).Single();
+                Assert.That(binding.IsValid, Is.True); Assert.That(binding.TargetBindings.Count, Is.EqualTo(2));
+                Assert.That(binding.MapDefinition.Nodes.Single(n => n.NodeId == b).ZoneId, Is.EqualTo(newZoneId));
+                window = ScriptableObject.CreateInstance<MapGraphEditorWindow>(); window.position = new Rect(80,80,1280,820); window.ShowUtility(); window.Focus();
+                window.Cancel(); window.Canvas.Fit(window.Document.AuthoringLayout, window.Canvas.ViewRect); yield return null;
+                CaptureGrid(window, "09-synchronized-published");
                 window.DiscardChanges(); window.Close(); window = null;
                 // 正式图只读外观检查，保存/重载合同已在上方独立场景验证。
                 EditorSceneManager.OpenScene("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"); yield return null;

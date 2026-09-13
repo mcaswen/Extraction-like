@@ -1,6 +1,22 @@
 {
   "groups": [
     {
+      "name": "MapGraphSceneMerge",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphSceneMergeTests",
+      "expected": [
+        "DeletedAndReassignedGroupsMergeWithoutResettingOtherAuthorData",
+        "RepeatedSynchronizationIsIdempotentAndWorldMovementKeepsManualMapLayout",
+        "AddedNodesAndRenamedZonesKeepExistingIdsAndCoordinates",
+        "ForeignScenesAndIdentityCollisionsAreRejectedBeforeMutation",
+        "RemovedZonesAndChangedKindsFollowTheCurrentScene",
+        "SynchronizationIsUndoableRecoverableAndDoesNotWritePublishedGraph",
+        "SceneAndDocumentChangesRejectAnOutdatedSynchronizationProposal",
+        "NavigationEvidenceForSynchronizedDraftEnablesConnectionsButCannotPublish",
+        "ActualSavedSceneCanSynchronizeItsBoundMapWithoutWritingAssets"
+      ]
+    },
+    {
       "name": "MapGraphDiagnostic",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphDiagnosticTests",

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="13" result="Failed(Child)" total="13" passed="12" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:52Z" duration="4.2933631">
+  <test-suite type="TestSuite" id="1859" name="AgentRepro_20260913-194231-665" fullname="AgentRepro_20260913-194231-665" runstate="Runnable" testcasecount="694" result="Failed" site="Child" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:52Z" duration="4.293363" total="13" passed="12" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="2711" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="694" result="Failed" site="Child" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:52Z" duration="4.277545" total="13" passed="12" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="51072" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="2712" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="694" result="Failed" site="Child" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:52Z" duration="4.273278" total="13" passed="12" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="2713" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="694" result="Failed" site="Child" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:52Z" duration="4.268960" total="13" passed="12" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="2314" name="MapGraphGenerationControllerTests" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" testcasecount="13" result="Failed" site="Child" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:52Z" duration="4.257570" total="13" passed="12" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="2328" name="ActualSceneControllerProducesAValidatedReadOnlyResult" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.ActualSceneControllerProducesAValidatedReadOnlyResult" methodname="ActualSceneControllerProducesAValidatedReadOnlyResult" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="494508083" result="Failed" start-time="2026-09-13 11:42:48Z" end-time="2026-09-13 11:42:51Z" duration="3.176253" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <failure>
+                <message><![CDATA[  Expected: 28
+  But was:  27
+]]></message>
+                <stack-trace><![CDATA[at AgentReproduction.Tests.MapGraphGenerationControllerTests+<ActualSceneControllerProducesAValidatedReadOnlyResult>d__11.MoveNext () [0x0013a] in D:\Unity-Projects\.agent-repro\AnomalySearchRegression\Project\Assets\Scripts\Editor\AgentReproduction\Tests\MapGraphGenerationControllerTests.cs:168
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\Library\PackageCache\com.unity.test-framework@1.1.33\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:46
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+Animator is not playing an AnimatorController
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+            </test-case>
+            <test-case id="2325" name="APreviouslyReadyPreviewMustBeRecheckedBeforeApplying" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.APreviouslyReadyPreviewMustBeRecheckedBeforeApplying" methodname="APreviouslyReadyPreviewMustBeRecheckedBeforeApplying" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="459908247" result="Passed" start-time="2026-09-13 11:42:51Z" end-time="2026-09-13 11:42:51Z" duration="0.027875" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2315" name="BudgetedPipelinePublishesOnlyValidatedResults" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.BudgetedPipelinePublishesOnlyValidatedResults" methodname="BudgetedPipelinePublishesOnlyValidatedResults" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1422183977" result="Passed" start-time="2026-09-13 11:42:51Z" end-time="2026-09-13 11:42:51Z" duration="0.030775" asserts="0">
+              <properties />
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="2320" name="CancellationStopsEveryOwnedStage" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.CancellationStopsEveryOwnedStage" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 11:42:51Z" end-time="2026-09-13 11:42:52Z" duration="0.072052" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <output><![CDATA[GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+              <test-case id="2317" name="CancellationStopsEveryOwnedStage(&quot;ScanningNavigation&quot;)" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.CancellationStopsEveryOwnedStage(&quot;ScanningNavigation&quot;)" methodname="CancellationStopsEveryOwnedStage" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1986908893" result="Passed" start-time="2026-09-13 11:42:51Z" end-time="2026-09-13 11:42:51Z" duration="0.021147" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2318" name="CancellationStopsEveryOwnedStage(&quot;Generating&quot;)" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.CancellationStopsEveryOwnedStage(&quot;Generating&quot;)" methodname="CancellationStopsEveryOwnedStage" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="501537126" result="Passed" start-time="2026-09-13 11:42:51Z" end-time="2026-09-13 11:42:51Z" duration="0.018531" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2319" name="CancellationStopsEveryOwnedStage(&quot;Ready&quot;)" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.CancellationStopsEveryOwnedStage(&quot;Ready&quot;)" methodname="CancellationStopsEveryOwnedStage" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="438242538" result="Passed" start-time="2026-09-13 11:42:51Z" end-time="2026-09-13 11:42:52Z" duration="0.026622" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="2324" name="InputChangesBeforePublicationRejectTheWholeResult" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.InputChangesBeforePublicationRejectTheWholeResult" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.065309" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <output><![CDATA[GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+              <test-case id="2321" name="InputChangesBeforePublicationRejectTheWholeResult(&quot;scene&quot;)" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.InputChangesBeforePublicationRejectTheWholeResult(&quot;scene&quot;)" methodname="InputChangesBeforePublicationRejectTheWholeResult" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1048291670" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.022681" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2322" name="InputChangesBeforePublicationRejectTheWholeResult(&quot;navigation&quot;)" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.InputChangesBeforePublicationRejectTheWholeResult(&quot;navigation&quot;)" methodname="InputChangesBeforePublicationRejectTheWholeResult" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1796951483" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.021213" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2323" name="InputChangesBeforePublicationRejectTheWholeResult(&quot;unavailable&quot;)" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.InputChangesBeforePublicationRejectTheWholeResult(&quot;unavailable&quot;)" methodname="InputChangesBeforePublicationRejectTheWholeResult" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1017382181" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.019612" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-case id="2326" name="LayoutOnlyKeepsConnectionsAndAuthoredStyles" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.LayoutOnlyKeepsConnectionsAndAuthoredStyles" methodname="LayoutOnlyKeepsConnectionsAndAuthoredStyles" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1436652092" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.026983" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2327" name="MissingOrChangedInputsCannotBeSilentlySynchronized" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.MissingOrChangedInputsCannotBeSilentlySynchronized" methodname="MissingOrChangedInputsCannotBeSilentlySynchronized" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1907311706" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.022534" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2316" name="NavigationTickLimitAndSettingsAreFrozenAtStart" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.NavigationTickLimitAndSettingsAreFrozenAtStart" methodname="NavigationTickLimitAndSettingsAreFrozenAtStart" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="370286527" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.022311" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2329" name="SceneFingerprintIncludesLabelsProfilesAndAgentOrigins" fullname="AgentReproduction.Tests.MapGraphGenerationControllerTests.SceneFingerprintIncludesLabelsProfilesAndAgentOrigins" methodname="SceneFingerprintIncludesLabelsProfilesAndAgentOrigins" classname="AgentReproduction.Tests.MapGraphGenerationControllerTests" runstate="Runnable" seed="1703633047" result="Passed" start-time="2026-09-13 11:42:52Z" end-time="2026-09-13 11:42:52Z" duration="0.802188" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+Animator is not playing an AnimatorController
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+GfxDevice renderer is null. Unity cannot update the Ambient Probe and Reflection Probes that the SkyManager generates. Run the Editor without the -nographics argument or generate lighting for your scene.
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

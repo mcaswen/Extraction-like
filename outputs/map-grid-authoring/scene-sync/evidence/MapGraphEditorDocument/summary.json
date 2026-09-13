@@ -1,0 +1,20 @@
+﻿{
+    "mode":  "Regression",
+    "infrastructureFailed":  false,
+    "businessFailed":  false,
+    "exitCode":  0,
+    "groups":  [
+                   {
+                       "group":  "MapGraphEditorDocument",
+                       "repeat":  1,
+                       "exitCode":  0,
+                       "timedOut":  false,
+                       "total":  14,
+                       "failed":  0,
+                       "missing":  [
+
+                                   ],
+                       "output":  "D:\\Unity-Projects\\Extraction-like\\Logs\\AgentReproduction\\20260913-193708-147\\groups\\MapGraphEditorDocument-1"
+                   }
+               ]
+}
