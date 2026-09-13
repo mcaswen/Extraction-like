@@ -1,0 +1,20 @@
+﻿{
+    "mode":  "Regression",
+    "infrastructureFailed":  false,
+    "businessFailed":  true,
+    "exitCode":  1,
+    "groups":  [
+                   {
+                       "group":  "MapGraphEditorCanvas",
+                       "repeat":  1,
+                       "exitCode":  2,
+                       "timedOut":  false,
+                       "total":  9,
+                       "failed":  1,
+                       "missing":  [
+
+                                   ],
+                       "output":  "D:\\Unity-Projects\\Extraction-like\\Logs\\AgentReproduction\\20260913-211510-994\\groups\\MapGraphEditorCanvas-1"
+                   }
+               ]
+}

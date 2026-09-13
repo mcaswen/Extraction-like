@@ -119,8 +119,6 @@ namespace AnomalySearch.Editor.MapGraph
                     Box(bounds, ZoneFill, SelectionKind == MapGraphSelectionKind.Zone && SelectionId == zone.ZoneId ? Accent : Border, 1);
                     var nameRect = ToScreen(zone.NameSafeBounds, local);
                     if (GridPlacement) Box(nameRect, new Color(0.75f, 0.61f, 0.34f, 0.06f), new Color(0.75f, 0.61f, 0.34f, 0.35f), 1);
-                    _zoneLabel.fontSize = Mathf.Clamp(Mathf.RoundToInt(21 * Zoom), 10, 25);
-                    GUI.Label(nameRect, zone.DisplayName, _zoneLabel);
                     if (SelectionKind == MapGraphSelectionKind.Zone && SelectionId == zone.ZoneId)
                         EditorGUI.DrawRect(new Rect(bounds.xMax - 7, bounds.yMax - 7, 7, 7), Accent);
                 }
@@ -165,10 +163,13 @@ namespace AnomalySearch.Editor.MapGraph
                         Box(new Rect(ToScreen(GridPlacement ? MapGraphGridPlacement.Snap(_positionStart + _ghost - _mouseStart, GridSpacing) : _ghost, local) - Vector2.one * 10, Vector2.one * 20), Color.clear, Accent, 1);
                 }
                 Handles.EndGUI();
+                // 连接允许穿过名称框，文字最后绘制，避免线条盖住字形。
+                _zoneLabel.fontSize = Mathf.Clamp(Mathf.RoundToInt(21 * Zoom), 10, 25);
+                foreach (var zone in visible.Zones) GUI.Label(ToScreen(zone.NameSafeBounds, local), zone.DisplayName, _zoneLabel);
                 if (preview != null) GUI.Label(new Rect(15, 10, local.width - 30, 22), "候选预览 · 金色虚线表示位置调整，实际连接仍为横竖直线", _smallLabel);
                 if (layout != null) HandleInput(layout, local, editable);
             }
-            GUI.Label(new Rect(15, local.height - 26, local.width - 30, 20), "滚轮缩放  ·  中键平移  ·  网格拖动  ·  Shift 选两群连线  ·  名称框需避让", _smallLabel);
+            GUI.Label(new Rect(15, local.height - 26, local.width - 30, 20), "滚轮缩放  ·  中键平移  ·  网格拖动  ·  Shift 选两群连线  ·  群图标避让名称框，连线可穿过", _smallLabel);
             GUI.EndGroup();
         }
         private void DrawDiagnosticObject(MapGraphLayoutDraft layout, string id, Rect rect, Color color)

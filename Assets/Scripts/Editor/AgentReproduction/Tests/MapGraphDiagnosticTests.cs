@@ -26,7 +26,8 @@ namespace AgentReproduction.Tests
         {
             var layout = Fixture(); string before = layout.ContentFingerprint;
             var issues = MapGraphValidation.Validate(layout).Issues;
-            foreach (string code in new[] { "NodeOverName", "EdgeThroughName", "EdgeThroughNode", "NonOrthogonalEdge" })
+            Assert.That(issues.Any(i => i.Code == "EdgeThroughName"), Is.False);
+            foreach (string code in new[] { "NodeOverName", "EdgeThroughNode", "NonOrthogonalEdge" })
             {
                 var issue = issues.First(i => i.Code == code);
                 string text = MapGraphDiagnosticFormatter.Format(issue, layout);
@@ -40,10 +41,13 @@ namespace AgentReproduction.Tests
         {
             var layout = Fixture(); var canvas = new MapGraphEditorCanvas(); canvas.Fit(layout, new Rect(0, 0, 900, 600));
             string before = layout.ContentFingerprint;
-            var issue = MapGraphValidation.Validate(layout).Issues.First(i => i.Code == "EdgeThroughName");
+            var issue = MapGraphValidation.Validate(layout).Issues.First(i => i.Code == "EdgeThroughNode");
             Assert.That(canvas.FocusDiagnostic(layout, issue), Is.True);
             Assert.That(canvas.SelectionKind, Is.EqualTo(MapGraphSelectionKind.Edge)); Assert.That(canvas.SelectionId, Is.EqualTo("edge_cross"));
             Assert.That(canvas.FocusedIssue, Is.SameAs(issue));
+            var nameIssue = MapGraphValidation.Validate(layout).Issues.First(i => i.Code == "NodeOverName");
+            Assert.That(canvas.FocusDiagnostic(layout, nameIssue), Is.True);
+            Assert.That(canvas.SelectionKind, Is.EqualTo(MapGraphSelectionKind.Node)); Assert.That(canvas.SelectionId, Is.EqualTo("cluster_middle"));
             Assert.That(layout.ContentFingerprint, Is.EqualTo(before));
             canvas.ClearDiagnostic(); Assert.That(canvas.FocusedIssue, Is.Null);
             Assert.That(canvas.FocusDiagnostic(layout, new MapGraphValidationIssue("Unknown", "removed")), Is.False);

@@ -92,7 +92,6 @@ namespace AgentReproduction.Tests
         [TestCase("NodeOverlap", "NodeOverlap")]
         [TestCase("NodeOverName", "NodeOverName")]
         [TestCase("ThroughNode", "EdgeThroughNode")]
-        [TestCase("ThroughName", "EdgeThroughName")]
         [TestCase("PortOverlap", "PortOverlap")]
         [TestCase("Insets", "InvalidEdgeSpan")]
         [TestCase("WidthNaN", "InvalidEdgeStyle")]
@@ -109,7 +108,6 @@ namespace AgentReproduction.Tests
                 case "NodeOverlap": points[1] = points[0]; break;
                 case "NodeOverName": points[1] = Vector2.zero; break;
                 case "ThroughNode": edges = new[] { Edge("A", "C") }; break;
-                case "ThroughName": points[0].y = 0; points[2].y = 0; edges = new[] { Edge("A", "C") }; break;
                 case "PortOverlap": edges = new[] { Edge("A", "B"), Edge("A", "C") }; break;
                 case "Insets": edges = new[] { Edge("A", "B", inset: 100) }; break;
                 case "WidthNaN": edges = new[] { Edge("A", "B", width: float.NaN) }; break;
@@ -121,6 +119,23 @@ namespace AgentReproduction.Tests
             Has(report, code);
             Assert.That(report.Issues.Where(i => i.Code == code).All(i => !string.IsNullOrEmpty(i.SubjectId)), Is.True);
             if (scenario == "PortOverlap") Has(report, "CollinearEdges");
+        }
+
+        [Test] public void ConnectionsMayCrossZoneNamesOnEitherAxis()
+        {
+            foreach (var axis in new[] { MapGraphAxis.Horizontal, MapGraphAxis.Vertical })
+            {
+                var points = (Vector2[])DefaultPoints.Clone();
+                points[0] = axis == MapGraphAxis.Horizontal ? new Vector2(-120, 0) : new Vector2(0, -100);
+                points[2] = axis == MapGraphAxis.Horizontal ? new Vector2(120, 0) : new Vector2(0, 100);
+                points[1] = new Vector2(80, 60);
+                var draft = Make(points, new[] { Edge("A", "C", axis) });
+                Assert.That(MapGraphGeometry.TryGetVisibleSegment(draft, draft.Edges[0], out var from, out var to), Is.True);
+                Assert.That(MapGraphGeometry.SegmentIntersectsRect(from, to, draft.Zones[0].NameSafeBounds, 2), Is.True);
+                var report = MapGraphValidation.Validate(draft);
+                Assert.That(report.IsValid, Is.True, string.Join(";", report.Issues));
+                CaseArtifactWriter.Trace("name-crossing-accepted", axis.ToString());
+            }
         }
 
         [Test] public void ZonesNamesAndAlignmentCoordinatesCannotSilentlyDrift()

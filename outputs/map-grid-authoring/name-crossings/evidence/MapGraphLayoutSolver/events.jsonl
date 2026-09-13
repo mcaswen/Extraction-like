@@ -1,0 +1,26 @@
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=4; valid=0; ms=0.1126; failures=LockedAlignmentConflict=2"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=1; valid=0; ms=0.0298; failures="}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=21; valid=8; ms=0.9276; failures=PortAlreadyUsed=2"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=61; valid=8; ms=2.9848; failures=PortAlreadyUsed=31"}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=0; valid=0; ms=0; failures=MoreThanFourPorts:A=1"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=22; valid=8; ms=0.8853; failures=PortAlreadyUsed=3"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=22; valid=8; ms=11.9416; failures=PortAlreadyUsed=3"}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=22; valid=8; ms=0.8429; failures=PortAlreadyUsed=3"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=8; valid=1; ms=0.1718; failures=LockedAlignmentConflict=2;FixedEdgeGapConflict:AB=1"}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=8; valid=1; ms=0.2462; failures=LockedAlignmentConflict=2;FixedEdgeGapConflict:AB=1"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=22; valid=8; ms=2.7238; failures=PortAlreadyUsed=2"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=22; valid=8; ms=1.5089; failures=PortAlreadyUsed=3"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure orthogonal solver."}
+{"frame":2,"time":0.019999999552965165,"kind":"solver","detail":"states=8; valid=0; ms=0.1832; failures=RepeatedCoordinateState:EdgeThroughNode:AB:C =1;LockedAlignmentConflict=2;FixedEdgeGapConflict:AB=1"}

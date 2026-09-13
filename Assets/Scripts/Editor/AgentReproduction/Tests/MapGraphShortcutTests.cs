@@ -128,13 +128,23 @@ namespace AgentReproduction.Tests
             Assert.That(generator.Attempts.SelectMany(a => a.Details).Any(d => d.Contains("LockedAlignmentMembershipChanged")), Is.True);
         }
 
-        [TestCase("Node")]
-        [TestCase("Name")]
-        public void AnAlignedShortcutCannotCrossLockedContent(string obstacle)
+        [Test] public void AnAlignedShortcutCannotCrossLockedNodes()
         {
-            var basis = Rectangle(locked: true, obstacle: obstacle); var generator = Run(basis, Matrix(basis));
+            var basis = Rectangle(locked: true, obstacle: "Node"); var generator = Run(basis, Matrix(basis));
             Assert.That(generator.AddedConnections, Is.Zero);
-            Assert.That(generator.Attempts.SelectMany(a => a.Details).Any(d => d.Contains(obstacle == "Node" ? "EdgeThroughNode" : "EdgeThroughName")), Is.True);
+            Assert.That(generator.Attempts.SelectMany(a => a.Details).Any(d => d.Contains("EdgeThroughNode")), Is.True);
+        }
+
+        [Test] public void AnAlignedShortcutCanCrossALockedZoneName()
+        {
+            var basis = Rectangle(locked: true, obstacle: "Name"); var generator = Run(basis, Matrix(basis));
+            Assert.That(generator.AddedConnections, Is.EqualTo(1));
+            Assert.That(generator.Result.Graph.TryGetEdgeBetween("A", "D", out var edge), Is.True);
+            Assert.That(MapGraphGeometry.TryGetVisibleSegment(generator.Result, edge, out var from, out var to), Is.True);
+            Assert.That(MapGraphGeometry.SegmentIntersectsRect(from, to, basis.Zones[0].NameSafeBounds, 2), Is.True);
+            Assert.That(generator.Result.Zones[0].Bounds, Is.EqualTo(basis.Zones[0].Bounds));
+            foreach (string node in basis.Graph.OrderedNodeIds)
+                Assert.That(generator.Result.Graph.GetNodePosition(node), Is.EqualTo(basis.Graph.GetNodePosition(node)));
         }
 
         [Test] public void BenefitIsRecheckedAfterAnEarlierShortcutChangesThePath()

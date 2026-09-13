@@ -1,6 +1,6 @@
 # 网格地图作者流程架构审查
 
-日期：2026-09-13。当前结论：G5 隐藏连接修复通过架构审查，41/41 定向回归通过。下文保留 G1–G3 的 38/38 和 G4 的 39/39 历史证据；文件边界和依赖符合已确认规划。
+日期：2026-09-13。当前结论：G6 允许连线穿过名称框通过架构审查，65/65 定向回归通过。下文保留 G1–G5 的历史证据；文件边界和依赖符合已确认规划。
 
 ## 1. 文件归属和依赖
 
@@ -48,3 +48,13 @@ Shift 的起终点来自画布顺序；底层新建仍拒绝同点、重复、�
 Window 只在普通 Shift 双选时只读查找既有连接，选择动作不写草稿、不查询导航；显式重绑与真正新增仍走原 Document 验证。`MapGraphEditOperations.AlignEdgeToNodes` 只改变 Axis，保持边 ID、端点、来源、长度和全部样式，通过原文档的独立草稿/Undo 提交。源 SO、场景及发布事务边界不变。
 
 41 项定向通过，包括原严格几何 21 项；程序化核对轴修正以外的全部边数据相等。真实窗口完成选择、修正和撤销，再继续既有发布重载，已检查两张实际截图。对角或重叠不画斜线/折线；留白和透明颜色提供警示而不自动覆盖作者参数。结论：没有新增反向依赖、重复持久化或导航逻辑，符合既有模块边界。完整证据见 [隐藏连接验收](../../outputs/map-grid-authoring/hidden-connections/validation_report.md)。
+
+## 7. G6 连线穿过名称框审查
+
+依据：[g6_edges_through_names.md](g6_edges_through_names.md)。本次明确修改既有规则：线可穿名，群图标仍须避让名称框。`MapGraphValidation.cs` 拥有最终验收规则，`MapGraphZoneLayout.cs` 拥有名称空位搜索，两处同步删除线/名称阻挡，未在 Window、Planner 或 Runtime 增加开关和第二套校验。
+
+`MapGraphLayoutCoordinates.cs` 删除失去用途的线段数组，内部 TryFit 不再接收连线；职责更明确，既有锁定、区域包含和节点分离保持。`MapGraphDiagnosticFormatter.cs` 删除已无生产者的报错文案。`MapGraphEditorCanvas.cs` 只改变文字绘制层次和帮助说明，不改连接端点、拓扑、世界对象或源 SO。
+
+65 项定向通过，保留 NodeOverName、EdgeThroughNode、横竖、端口和不可达反向条件。真实窗口 Shift 穿名连接经导航补证据后完成，保存重载保持原边身份；测试用最终可观察草稿状态等待异步完成，未引入绕过导航的测试入口。两次测试时序失败及最终成功证据可追溯。已检查手动连线和重载两张实际截图。
+
+性能变化仅减少 Editor 校验和坐标求解的检查、分配；没有新增导航、运行时扫描或跨层依赖。源场景和正式地图未修改。结论：符合已确认模块边界，不需要新系统或方案调整。见 [验收报告](../../outputs/map-grid-authoring/name-crossings/validation_report.md)。

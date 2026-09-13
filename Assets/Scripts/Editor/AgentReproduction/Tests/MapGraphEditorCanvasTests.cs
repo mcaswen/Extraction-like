@@ -248,7 +248,8 @@ namespace AgentReproduction.Tests
                     Assert.That(failed.Stage, Is.EqualTo(MapGraphGenerationStage.Failed));
                     Assert.That(window.DiagnosticCount, Is.EqualTo(failed.Diagnostics.Count));
                     Assert.That(window.Status, Does.Contain("当前摆放保留").And.Not.Contain("cluster_"));
-                    foreach (string code in new[] { "NodeOverName", "EdgeThroughName", "EdgeThroughNode", "NonOrthogonalEdge" })
+                    Assert.That(failed.Diagnostics.Any(i => i.Code == "EdgeThroughName"), Is.False);
+                    foreach (string code in new[] { "NodeOverName", "EdgeThroughNode", "NonOrthogonalEdge" })
                         Assert.That(failed.Diagnostics.Any(i => i.Code == code), Is.True, mode + ":" + code);
                     Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(conflictFingerprint));
                     Assert.That(document.TryVerifyForSave(out _, out _), Is.False);
@@ -336,9 +337,21 @@ namespace AgentReproduction.Tests
                 Assert.That(newZoneId, Is.Not.EqualTo(surviving.ZoneId));
                 document.EditPlacement(g => MapGraphGridPlacement.MoveZone(g, newZoneId, new Rect(480,-240,640,480), 80, true), "摆放新区域");
                 document.EditPlacement(g => MapGraphGridPlacement.WithPositions(g, new Dictionary<string, Vector2>
-                    { [a] = new Vector2(-160,80), [b] = new Vector2(640,80) }), "对齐同步后的两群");
+                    { [a] = new Vector2(-160,0), [b] = new Vector2(640,0) }), "对齐同步后的两群，连接穿过名称框");
                 foreach (var edge in document.AuthoringLayout.Edges.ToArray())
-                    document.EditPlacement(g => MapGraphEditOperations.RebindEdge(g, edge.EdgeId, edge.FromNodeId, edge.ToNodeId, MapGraphAxis.Horizontal), "调整保留线方向");
+                    document.EditPlacement(g => MapGraphEditOperations.DeleteEdge(g, edge.EdgeId), "准备重新手动连接");
+                window.Canvas.Fit(document.AuthoringLayout, window.Canvas.ViewRect); window.Repaint(); yield return null;
+                ClickGrid(window, a, false); ClickGrid(window, b, true);
+                // 场景同步后的首次连线会异步补齐导航证据；等待同一用户意图完成再验收。
+                var connectionDeadline = System.Diagnostics.Stopwatch.StartNew();
+                while (!document.AuthoringLayout.Graph.TryGetEdgeBetween(a, b, out _) && connectionDeadline.Elapsed.TotalSeconds < 10)
+                    yield return null;
+                Assert.That(document.AuthoringLayout.Graph.TryGetEdgeBetween(a, b, out var nameCrossing), Is.True, window.Status);
+                Assert.That(nameCrossing.Origin, Is.EqualTo(MapGraphEdgeOrigin.Manual));
+                Assert.That(MapGraphGeometry.TryGetVisibleSegment(document.AuthoringLayout, nameCrossing, out var crossFrom, out var crossTo), Is.True);
+                Assert.That(document.AuthoringLayout.Zones.Any(z => MapGraphGeometry.SegmentIntersectsRect(crossFrom, crossTo, z.NameSafeBounds, 2)), Is.True);
+                Assert.That(MapGraphValidation.Validate(document.AuthoringLayout).IsValid, Is.True);
+                CaptureGrid(window, "12-connection-through-zone-name");
                 RuntimeFixtureAccess.Configure(transferred.Target, "_displayName", "迁移后的群");
                 window.BeginGeneration(MapGraphGenerationMode.PlacementConnections); yield return Ready(window);
                 Assert.That(document.AuthoringLayout.Nodes.Single(n => n.NodeId == b).DisplayName, Is.EqualTo("迁移后的群"), "生成前同步未触发层级事件的字段修改。");
@@ -348,6 +361,12 @@ namespace AgentReproduction.Tests
                 binding = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MapGraphBindingAuthoring>(true)).Single();
                 Assert.That(binding.IsValid, Is.True); Assert.That(binding.TargetBindings.Count, Is.EqualTo(2));
                 Assert.That(binding.MapDefinition.Nodes.Single(n => n.NodeId == b).ZoneId, Is.EqualTo(newZoneId));
+                var publishedCrossing = MapGraphLayoutDraft.FromDefinition(binding.MapDefinition);
+                Assert.That(publishedCrossing.Graph.TryGetEdgeBetween(a, b, out var reloadedCrossing), Is.True);
+                Assert.That(reloadedCrossing.EdgeId, Is.EqualTo(nameCrossing.EdgeId));
+                Assert.That(MapGraphGeometry.TryGetVisibleSegment(publishedCrossing, reloadedCrossing, out var publishedFrom, out var publishedTo), Is.True);
+                Assert.That(publishedCrossing.Zones.Any(z => MapGraphGeometry.SegmentIntersectsRect(publishedFrom, publishedTo, z.NameSafeBounds, 2)), Is.True);
+                Assert.That(MapGraphValidation.Validate(publishedCrossing).IsValid, Is.True);
                 window = ScriptableObject.CreateInstance<MapGraphEditorWindow>(); window.position = new Rect(80,80,1280,820); window.ShowUtility(); window.Focus();
                 window.Cancel(); window.Canvas.Fit(window.Document.AuthoringLayout, window.Canvas.ViewRect); yield return null;
                 CaptureGrid(window, "09-synchronized-published");

@@ -1,0 +1,201 @@
+{
+  "finalTestsPassed": 65,
+  "runs": [
+    {
+      "label": "MapGraphLayoutValidation",
+      "runId": "20260913-211249-913",
+      "passed": 21,
+      "scope": "full selected group",
+      "verifiedFiles": [
+        "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutValidationTests.cs",
+        "tools/agent-repro/cases.json",
+        "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"
+      ]
+    },
+    {
+      "label": "MapGraphLayoutSolver",
+      "runId": "20260913-211322-609",
+      "passed": 13,
+      "scope": "full selected group",
+      "verifiedFiles": [
+        "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutSolverTests.cs",
+        "tools/agent-repro/cases.json",
+        "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"
+      ]
+    },
+    {
+      "label": "MapGraphPlacementConnections",
+      "runId": "20260913-211356-023",
+      "passed": 10,
+      "scope": "full selected group",
+      "verifiedFiles": [
+        "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPlacementConnectionsTests.cs",
+        "tools/agent-repro/cases.json",
+        "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"
+      ]
+    },
+    {
+      "label": "MapGraphShortcuts",
+      "runId": "20260913-211420-436",
+      "passed": 9,
+      "scope": "full selected group",
+      "verifiedFiles": [
+        "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphShortcutTests.cs",
+        "tools/agent-repro/cases.json",
+        "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"
+      ]
+    },
+    {
+      "label": "MapGraphDiagnostic",
+      "runId": "20260913-211446-459",
+      "passed": 3,
+      "scope": "full selected group",
+      "verifiedFiles": [
+        "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphDiagnosticTests.cs",
+        "tools/agent-repro/cases.json",
+        "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"
+      ]
+    },
+    {
+      "label": "MapGraphEditorCanvas",
+      "runId": "20260913-211915-856",
+      "passed": 9,
+      "scope": "full selected group",
+      "verifiedFiles": [
+        "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+        "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutValidationTests.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutSolverTests.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPlacementConnectionsTests.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphShortcutTests.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphDiagnosticTests.cs",
+        "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorCanvasTests.cs",
+        "tools/agent-repro/cases.json",
+        "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+        "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity"
+      ]
+    }
+  ],
+  "priorFailures": [
+    {
+      "runId": "20260913-211510-994",
+      "cause": "Window test asserted before asynchronous navigation refresh completed.",
+      "path": "evidence/window-await-20260913-211510-994"
+    },
+    {
+      "runId": "20260913-211734-464",
+      "cause": "Lazy nested test enumerator read a navigation request already consumed by the window.",
+      "path": "evidence/window-await-20260913-211734-464"
+    }
+  ],
+  "verifiedSourceFiles": [
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+      "sha256": "36942f9f05557ed7070e23dd73c7ee60af7a5d99a0eb2188eaead7a96f0f3812"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs",
+      "sha256": "b0dbf0b993547cb41df221036606eaa13e82f94b1a8c188164f90d7d4c64f312"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+      "sha256": "0f0eb799e7e99aa7167c8ba67f27db371548751e549138ceb19a12814583df37"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+      "sha256": "a3fd81cd17339ea6861f05ee7283f88aaecdfb960c820ba59618ee298a3659b3"
+    },
+    {
+      "path": "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+      "sha256": "ea1d248eae28c854aedad9e51d2df40a8ac3c35a5eeb6568cca81d077704b6ff"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutValidationTests.cs",
+      "sha256": "bc74836c92f37f2cd97e9a329944916c956dfc9be3eba37694f22d7eaf2b02e7"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutSolverTests.cs",
+      "sha256": "56bf592517fb793c14fbab8a7193446d51e37213c72fbc820ea189f5df101860"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPlacementConnectionsTests.cs",
+      "sha256": "a97226fd6141f10fe8ef59d2f009f627b4bdec01308c75fa68f814a6902c5ab9"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphShortcutTests.cs",
+      "sha256": "180aa6f171938346f0a051d702fb23516cbb56ca21f9823cbc44a4c6048a2e98"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphDiagnosticTests.cs",
+      "sha256": "9d8d9a8d1c1bdf55a8749b03b6173882b78d38f80720db9aba71479bd6aa50dc"
+    },
+    {
+      "path": "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorCanvasTests.cs",
+      "sha256": "d026396e233bef841d562c59d2126e1cee17b54f3a5d98d9b74a5169491ddf17"
+    },
+    {
+      "path": "tools/agent-repro/cases.json",
+      "sha256": "27d8935bae4b02ff13a2ed813b30e2b012c91647687477ddd0457a235375f869"
+    },
+    {
+      "path": "Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset",
+      "sha256": "d3c2dbaddb1efc05310d935c387214f27b6e3527abf19b0e1808c7a92b09b1c1"
+    },
+    {
+      "path": "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+      "sha256": "56ec89013458a59f64520b5e580785ed660d72842d45ccd206dc10e46feb66e1"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "visual/12-connection-through-zone-name.png",
+      "sha256": "d4eedd6d1008e32a125b5ac4599b5f149e766a64c1e138d91dc045ee23fbd928"
+    },
+    {
+      "path": "visual/09-synchronized-published.png",
+      "sha256": "c9f406e0e5a0eb3ea6b6f232271f9e1da5734e885da67be28d044ab2c565d75a"
+    }
+  ],
+  "sourceCommit": "415ae3fac4663d36d0fb205d544735196f95b38e",
+  "sourceVerificationRuns": [
+    "20260913-211249-913",
+    "20260913-211322-609",
+    "20260913-211356-023",
+    "20260913-211420-436",
+    "20260913-211446-459",
+    "20260913-211915-856"
+  ]
+}

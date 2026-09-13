@@ -73,6 +73,23 @@ namespace AgentReproduction.Tests
             Assert.That(solver.Result.Edges.Select(e => e.Axis).Distinct().Count(), Is.EqualTo(2));
         }
 
+        [Test] public void NameCrossingDoesNotDisplaceCenteredNamesOrLockedNodes()
+        {
+            foreach (bool lockZone in new[] { false, true })
+            {
+                var reference = Reference(new[] { new Vector2(-120, 0), new Vector2(120, 0) }, locked: true);
+                if (lockZone) reference = MapGraphEditOperations.LockZone(reference, "west", true);
+                var solver = Run(reference, new[] { Edge("A", "B", MapGraphAxis.Horizontal) });
+                Valid(solver, 2, 1);
+                Assert.That(solver.Result.Zones[0].Bounds.center, Is.EqualTo(Vector2.zero));
+                if (lockZone) Assert.That(solver.Result.Zones[0].Bounds, Is.EqualTo(reference.Zones[0].Bounds));
+                foreach (string node in reference.Graph.OrderedNodeIds)
+                    Assert.That(solver.Result.Graph.GetNodePosition(node), Is.EqualTo(reference.Graph.GetNodePosition(node)));
+                Assert.That(MapGraphGeometry.TryGetVisibleSegment(solver.Result, solver.Result.Edges[0], out var from, out var to), Is.True);
+                Assert.That(MapGraphGeometry.SegmentIntersectsRect(from, to, solver.Result.Zones[0].NameSafeBounds, 2), Is.True);
+            }
+        }
+
         [Test] public void OverlappingReferencePointsRemainDistinctRealClusters()
         {
             var reference = Reference(new[] { Vector2.zero, Vector2.zero, Vector2.zero });

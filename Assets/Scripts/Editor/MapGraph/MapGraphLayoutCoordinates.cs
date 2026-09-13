@@ -104,16 +104,13 @@ namespace AnomalySearch.Editor.MapGraph
             }
             if (!SeparateNodes() || !ConstrainLockedZones()) return;
             ReadPositions();
-            var segments = new (Vector2 from, Vector2 to, float width)[edges.Length];
-            for (int e = 0; e < edges.Length; e++)
-                segments[e] = (_points[_from[e]], _points[_to[e]], edges[e].WidthOverride > 0 ? edges[e].WidthOverride : 2);
             bool retry = false;
             for (int z = 0; z < zones.Length; z++)
             {
                 var original = _reference.Zones[z];
                 if (_members[z].Count == 0 && !original.LayoutLocked)
                     original = original.WithLayout(new Rect(original.Bounds.position + _emptyOffsets[z], original.Bounds.size), false);
-                if (MapGraphZoneLayout.TryFit(original, _reference.Nodes, _points, _members[z], segments, _settings, out zones[z])) continue;
+                if (MapGraphZoneLayout.TryFit(original, _reference.Nodes, _points, _members[z], _settings, out zones[z])) continue;
                 if (_members[z].Count == 0 && !original.LayoutLocked)
                 { _emptyOffsets[z] += Vector2.up * _settings.GridSpacing; retry = true; break; }
                 Fail("ZoneNameOrContainmentConflict:" + original.ZoneId); return;

@@ -87,14 +87,24 @@ namespace AgentReproduction.Tests
             draft = MapGraphEditOperations.ResetOverrides(draft); draft = MapGraphEditOperations.LockZone(draft, "z", true);
             Assert.That(Run(draft, 1).Result, Is.Null);
         }
-        [Test] public void NameObstructionAndUnavailableManualEdgesAreReported()
+        [Test] public void NameCrossingIsAllowedButUnavailableManualEdgesAreRejected()
         {
             var draft = MapGraphGridPlacementTests.Fixture();
             var points = new Dictionary<string, Vector2> { ["a"] = new Vector2(-160, 0), ["b"] = new Vector2(160, 0), ["c"] = new Vector2(160, 80) };
             draft = MapGraphGridPlacement.WithPositions(draft, points);
             var manual = new MapGraphEdgeDefinition("manual", "a", "b", 10, MapGraphAxis.Horizontal, MapGraphEdgeOrigin.Manual);
             draft = new MapGraphLayoutDraft(draft.Zones, draft.Nodes, new[] { manual }, draft.Constraints);
-            var blocked = Run(draft); Assert.That(blocked.Result, Is.Null); Assert.That(blocked.Diagnostics.Any(d => d.Code == "EdgeThroughName"), Is.True);
+            foreach (bool keepManual in new[] { true, false })
+            {
+                var input = keepManual ? draft : new MapGraphLayoutDraft(draft.Zones, draft.Nodes, Array.Empty<MapGraphEdgeDefinition>(), draft.Constraints);
+                var result = Run(input).Result; Assert.That(result, Is.Not.Null);
+                Assert.That(result.Graph.TryGetEdgeBetween("a", "b", out var crossing), Is.True);
+                if (keepManual) Assert.That(crossing.EdgeId, Is.EqualTo("manual"));
+                Assert.That(MapGraphGeometry.TryGetVisibleSegment(result, crossing, out var from, out var to), Is.True);
+                Assert.That(MapGraphGeometry.SegmentIntersectsRect(from, to, result.Zones[0].NameSafeBounds, 2), Is.True);
+                Assert.That(MapGraphValidation.Validate(result).IsValid, Is.True);
+                foreach (var point in points) Assert.That(result.Graph.GetNodePosition(point.Key), Is.EqualTo(point.Value));
+            }
             var unavailable = Run(draft, matrix: Matrix(draft, (a, b) => float.PositiveInfinity));
             Assert.That(unavailable.Result, Is.Null); Assert.That(unavailable.Diagnostics.Any(d => d.Code == "PinnedConnectionUnavailable"), Is.True);
         }

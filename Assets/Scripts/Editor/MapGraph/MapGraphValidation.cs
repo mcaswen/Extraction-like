@@ -130,9 +130,6 @@ namespace AnomalySearch.Editor.MapGraph
                     if (node.NodeId != a.NodeId && node.NodeId != b.NodeId &&
                         MapGraphGeometry.SegmentIntersectsRect(from, to, MapGraphGeometry.NodeBounds(draft, node), width))
                         issues.Add(new MapGraphValidationIssue("EdgeThroughNode", edge.EdgeId, node.NodeId));
-                foreach (var zone in draft.Zones)
-                    if (MapGraphGeometry.SegmentIntersectsRect(from, to, zone.NameSafeBounds, width))
-                        issues.Add(new MapGraphValidationIssue("EdgeThroughName", edge.EdgeId, zone.ZoneId));
             }
             for (int i = 0; i < segments.Count; i++)
                 for (int j = i + 1; j < segments.Count; j++)

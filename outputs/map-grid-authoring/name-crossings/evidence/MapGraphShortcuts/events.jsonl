@@ -1,0 +1,21 @@
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=0; states=0; ms=0.3325; attempts="}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=0; states=92; ms=3.2044; attempts=AD:RELAYOUT_REJECTED:LockedAlignmentMembershipChanged:D:left-d ,NoAlignedLayout,RepeatedCoordinateState:LockedAlignmentMembershipChanged:D:left-d ,PortAlreadyUsed,CoincidentAlignmentGroups,FixedEdgeGapConflict:edge_aef4c6e5cdf63ddad0b112f611e75bf7,CoordinateBudgetExhausted:CollinearEdges:AB:BC ,TotalCoordinateBudgetExhausted"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=0; states=0; ms=0.4361; attempts=AD:RELAYOUT_BUDGET:LockedAlignmentMembershipChanged:D:left-d "}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=0; states=0; ms=0.075; attempts="}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=0; states=296; ms=8.8194; attempts=AD:RELAYOUT_REJECTED:EdgeThroughNode:edge_aef4c6e5cdf63ddad0b112f611e75bf7:E ,NoAlignedLayout,RepeatedCoordinateState:EdgeThroughNode:edge_aef4c6e5cdf63ddad0b112f611e75bf7:E ,PortAlreadyUsed,FixedEdgeGapConflict:edge_aef4c6e5cdf63ddad0b112f611e75bf7,LockedAlignmentConflict,FixedEdgeGapConflict:CD,FixedEdgeGapConflict:BC,FixedEdgeGapConflict:AB"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=0; states=0; ms=0.1427; attempts="}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=1; states=0; ms=0.9526; attempts=AD:ADDED:"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=1; states=0; ms=10.7868; attempts=AD:ADDED:"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=1; states=0; ms=0.3355; attempts=AD:ADDED:"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=1; states=0; ms=0.8975; attempts=AD:ADDED:;AE:BENEFIT_DISAPPEARED:"}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=1; states=0; ms=0.4198; attempts=AD:ADDED:;AE:BENEFIT_DISAPPEARED:"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Independent rectangle navigation fixtures."}
+{"frame":2,"time":0.019999999552965165,"kind":"shortcuts","detail":"added=1; states=0; ms=0.5999; attempts=AD:ADDED:;AE:BENEFIT_DISAPPEARED:"}

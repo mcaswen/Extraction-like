@@ -1,0 +1,27 @@
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=35; ms=31.7658; max-step-ms=9.8524"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=0; work=0; ms=0.0388; max-step-ms=0.0316"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=3; ms=0.2809; max-step-ms=0.1173"}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=3; ms=0.2449; max-step-ms=0.1179"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=3; ms=0.4065; max-step-ms=0.1967"}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=4; ms=0.1907; max-step-ms=0.0661"}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=0; work=0; ms=0.0222; max-step-ms=0.0162"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=3; ms=0.2072; max-step-ms=0.0821"}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=11; work=32; ms=5.5028; max-step-ms=2.8904"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=2; ms=0.2348; max-step-ms=0.1771"}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=9; work=18; ms=3.9682; max-step-ms=2.6345"}
+{"frame":2,"time":0.019999999552965165,"kind":"failed-adjustment-context","detail":"NodeOverName:b:z \nNonOrthogonalEdge:pinned_wrong_axis \nLostReachableConnectivity:a:b \nPlacementAdjustmentNotFound:graph 已检查 9 个布局，位移上限 1 格，预算 512；初始冲突 3 项，搜索中最少 2 项。预算内未找到合法建议，请调整摆放或约束。"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=3; ms=0.1629; max-step-ms=0.0773"}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=4; ms=0.2649; max-step-ms=0.1287"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=3; ms=9.1597; max-step-ms=6.4675"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=5; ms=0.2395; max-step-ms=0.0806"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Fixed placement with frozen bidirectional navigation measurements."}
+{"frame":2,"time":0.019999999552965165,"kind":"planner-cost","detail":"states=1; work=4; ms=0.6628; max-step-ms=0.4605"}

@@ -15,7 +15,6 @@ namespace AnomalySearch.Editor.MapGraph
             switch (issue.Code)
             {
                 case "NodeOverName": text = $"群「{subject}」压住区域「{related}」的名称避让框。请将群移出框外。"; break;
-                case "EdgeThroughName": text = $"连线「{subject}」穿过区域「{related}」的名称避让框。请调整端点所在行/列，或删除该线后重新连接。"; break;
                 case "EdgeThroughNode": text = $"连线「{subject}」穿过群「{related}」。可经由这个群分成两条横竖连接，或调整摆放。"; break;
                 case "NonOrthogonalEdge": text = $"连线「{subject}」的端点不符合该线的横/竖方向。请对齐端点；旧自动线可通过“生成连接”重建，人工线需调整或重选端点。"; break;
                 case "NodeOverlap": text = $"群「{subject}」与「{related}」的图标重叠。请拉开距离。"; break;

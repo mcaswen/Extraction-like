@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="9" result="Passed" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.2427352">
+  <test-suite type="TestSuite" id="1863" name="AgentRepro_20260913-211420-436" fullname="AgentRepro_20260913-211420-436" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.242735" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2719" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.176501" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="65884" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2720" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.159731" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2721" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.135571" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2460" name="MapGraphShortcutTests" fullname="AgentReproduction.Tests.MapGraphShortcutTests" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.123006" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2466" name="AnAlignedShortcutCanCrossALockedZoneName" fullname="AgentReproduction.Tests.MapGraphShortcutTests.AnAlignedShortcutCanCrossALockedZoneName" methodname="AnAlignedShortcutCanCrossALockedZoneName" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="1208369526" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.049490" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2465" name="AnAlignedShortcutCannotCrossLockedNodes" fullname="AgentReproduction.Tests.MapGraphShortcutTests.AnAlignedShortcutCannotCrossLockedNodes" methodname="AnAlignedShortcutCannotCrossLockedNodes" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="2004391677" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.014657" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2467" name="BenefitIsRecheckedAfterAnEarlierShortcutChangesThePath" fullname="AgentReproduction.Tests.MapGraphShortcutTests.BenefitIsRecheckedAfterAnEarlierShortcutChangesThePath" methodname="BenefitIsRecheckedAfterAnEarlierShortcutChangesThePath" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="874087912" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.004879" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2468" name="BudgetsAndCancellationKeepTheValidatedBaseIsolated" fullname="AgentReproduction.Tests.MapGraphShortcutTests.BudgetsAndCancellationKeepTheValidatedBaseIsolated" methodname="BudgetsAndCancellationKeepTheValidatedBaseIsolated" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="1171901396" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.008375" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2464" name="DeletedConnectionAndSeparateLockedColumnsRemainAuthoritative" fullname="AgentReproduction.Tests.MapGraphShortcutTests.DeletedConnectionAndSeparateLockedColumnsRemainAuthoritative" methodname="DeletedConnectionAndSeparateLockedColumnsRemainAuthoritative" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="834670908" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.008749" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2462" name="LowNavigationBenefitDoesNotAddAVisuallyShortEdge" fullname="AgentReproduction.Tests.MapGraphShortcutTests.LowNavigationBenefitDoesNotAddAVisuallyShortEdge" methodname="LowNavigationBenefitDoesNotAddAVisuallyShortEdge" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="1357551619" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.003548" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2461" name="RectangleClosesARealThreeTimesDetourWithoutMovingIcons" fullname="AgentReproduction.Tests.MapGraphShortcutTests.RectangleClosesARealThreeTimesDetourWithoutMovingIcons" methodname="RectangleClosesARealThreeTimesDetourWithoutMovingIcons" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="572288000" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.008384" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2463" name="ReverseDirectionCostAndLegacyDisplayLengthAreHandledSeparately" fullname="AgentReproduction.Tests.MapGraphShortcutTests.ReverseDirectionCostAndLegacyDisplayLengthAreHandledSeparately" methodname="ReverseDirectionCostAndLegacyDisplayLengthAreHandledSeparately" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="283508600" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.003439" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2469" name="ShortcutSelectionDoesNotDependOnAdvanceBatchSize" fullname="AgentReproduction.Tests.MapGraphShortcutTests.ShortcutSelectionDoesNotDependOnAdvanceBatchSize" methodname="ShortcutSelectionDoesNotDependOnAdvanceBatchSize" classname="AgentReproduction.Tests.MapGraphShortcutTests" runstate="Runnable" seed="1987457634" result="Passed" start-time="2026-09-13 13:14:38Z" end-time="2026-09-13 13:14:38Z" duration="0.009554" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

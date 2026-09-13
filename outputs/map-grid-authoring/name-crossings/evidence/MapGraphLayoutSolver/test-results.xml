@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="13" result="Passed" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.165502">
+  <test-suite type="TestSuite" id="1863" name="AgentRepro_20260913-211322-609" fullname="AgentRepro_20260913-211322-609" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.165502" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2719" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.146763" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="17104" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2720" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.141103" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2721" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="699" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.135651" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2344" name="MapGraphLayoutSolverTests" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.123721" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2352" name="AdvancingWithDifferentBudgetsProducesTheSameLayout" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.AdvancingWithDifferentBudgetsProducesTheSameLayout" methodname="AdvancingWithDifferentBudgetsProducesTheSameLayout" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="1087959269" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.044021" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2351" name="BudgetExhaustionAndCancellationNeverPublishPartialGeometry" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.BudgetExhaustionAndCancellationNeverPublishPartialGeometry" methodname="BudgetExhaustionAndCancellationNeverPublishPartialGeometry" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="1332721770" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.003804" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2353" name="CancellationDuringCoordinateIterationStopsAllFurtherWork" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.CancellationDuringCoordinateIterationStopsAllFurtherWork" methodname="CancellationDuringCoordinateIterationStopsAllFurtherWork" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="126650674" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.003115" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2350" name="ConflictingLockedPositionsNeverModifyTheInput" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.ConflictingLockedPositionsNeverModifyTheInput" methodname="ConflictingLockedPositionsNeverModifyTheInput" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="1102231728" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.003802" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2356" name="CoordinateBudgetRetainsAnAlreadyValidatedCandidate" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.CoordinateBudgetRetainsAnAlreadyValidatedCandidate" methodname="CoordinateBudgetRetainsAnAlreadyValidatedCandidate" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="2144706347" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.002604" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2349" name="CrossZoneEdgesUseGlobalAlignmentCoordinates" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.CrossZoneEdgesUseGlobalAlignmentCoordinates" methodname="CrossZoneEdgesUseGlobalAlignmentCoordinates" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="483322148" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.008238" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2354" name="EmptyAuthoredZoneSurvivesWithoutObscuringTheRoute" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.EmptyAuthoredZoneSurvivesWithoutObscuringTheRoute" methodname="EmptyAuthoredZoneSurvivesWithoutObscuringTheRoute" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="405840701" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.005557" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2348" name="FourPortsCanFitButFiveCannotBeInvented" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.FourPortsCanFitButFiveCannotBeInvented" methodname="FourPortsCanFitButFiveCannotBeInvented" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="891221591" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.011267" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2346" name="NameCrossingDoesNotDisplaceCenteredNamesOrLockedNodes" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.NameCrossingDoesNotDisplaceCenteredNamesOrLockedNodes" methodname="NameCrossingDoesNotDisplaceCenteredNamesOrLockedNodes" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="1502172968" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.006337" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2347" name="OverlappingReferencePointsRemainDistinctRealClusters" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.OverlappingReferencePointsRemainDistinctRealClusters" methodname="OverlappingReferencePointsRemainDistinctRealClusters" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="136655974" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.006073" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2355" name="StationaryEdgeThroughNodeDoesNotRepeatTheIterationBudget" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.StationaryEdgeThroughNodeDoesNotRepeatTheIterationBudget" methodname="StationaryEdgeThroughNodeDoesNotRepeatTheIterationBudget" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="645825003" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.003647" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2345" name="ThreeClusterRouteHasSingleSegmentsAndCenteredNames" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.ThreeClusterRouteHasSingleSegmentsAndCenteredNames" methodname="ThreeClusterRouteHasSingleSegmentsAndCenteredNames" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="45380732" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.005385" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2357" name="WorldReferenceKeepsIdentityAndPreviousLockedLayout" fullname="AgentReproduction.Tests.MapGraphLayoutSolverTests.WorldReferenceKeepsIdentityAndPreviousLockedLayout" methodname="WorldReferenceKeepsIdentityAndPreviousLockedLayout" classname="AgentReproduction.Tests.MapGraphLayoutSolverTests" runstate="Runnable" seed="623389203" result="Passed" start-time="2026-09-13 13:13:47Z" end-time="2026-09-13 13:13:47Z" duration="0.007639" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

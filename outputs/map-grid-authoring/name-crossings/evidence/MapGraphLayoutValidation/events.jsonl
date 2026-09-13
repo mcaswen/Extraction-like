@@ -1,0 +1,52 @@
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"EdgeThroughNode"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"InvalidNodeGeometry"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"NodeOutsideZone"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"EdgeWiderThanPort"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"NodeOverlap"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"LockedNodeChanged"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"LockedZoneChanged"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"LockedAlignmentChanged"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"ManualEdgeChanged"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"ExclusionRemoved"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"ZoneOverlap"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"NameOutsideZone"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"AlignmentMismatch"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"EdgeAlignmentNotShared"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"score","detail":"same=0.0100000001490116; shifted=0.0725000001490116; reversed=23.860000000149"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"InvalidEdgeStyle"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"PortOverlap"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"CollinearEdges"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":2,"time":0.019999999552965165,"kind":"expected-rejection","detail":"IncompleteNavigationMatrix"}
+{"frame":2,"time":0.019999999552965165,"kind":"expected-rejection","detail":"MissingEdgeNavigation"}
+{"frame":2,"time":0.019999999552965165,"kind":"expected-rejection","detail":"UnavailableEdgeNavigation"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"LockedAlignmentMembershipChanged"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":2,"time":0.019999999552965165,"kind":"name-crossing-accepted","detail":"Horizontal"}
+{"frame":2,"time":0.019999999552965165,"kind":"name-crossing-accepted","detail":"Vertical"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"LostReachableConnectivity"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"InvalidEdgeSpan"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"NodeOverName"}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"TopologyEdgeChanged"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"ManualEdgeChanged"}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"ExcludedConnection"}
+{"frame":2,"time":0.019999999552965165,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"setup","detail":"Pure layout validation, no scene mutation or Play Mode."}
+{"frame":3,"time":0.11611100286245346,"kind":"expected-rejection","detail":"NonOrthogonalEdge"}
