@@ -87,5 +87,26 @@ namespace AgentReproduction.Tests
             Assert.That(watch.Elapsed.TotalSeconds, Is.LessThan(5));
             Assert.That(draft.Nodes.Count, Is.EqualTo(3));
         }
+        [Test] public void UndoReturningToAnEarlierLayoutKeepsDraftAndWorkingGraphIndependent()
+        {
+            var source = ScriptableObject.CreateInstance<SO_MapGraphDefinition>(); var fixture = Fixture();
+            source.ApplyCommandData("fixture", "Undo 隔离", "", fixture.Zones, fixture.Nodes, fixture.Edges, fixture.Constraints, new MapGraphNavigationBakeData());
+            try
+            {
+                using var document = new MapGraphEditorDocument(source);
+                var original = document.Layout;
+                for (int attempt = 0; attempt < 8; attempt++)
+                {
+                    document.EditPlacement(g => MapGraphGridPlacement.MoveNode(g, "b", Vector2.zero, 80), "进入冲突摆放");
+                    document.EditPlacement(_ => original, "恢复原摆放");
+                    Undo.PerformUndo();
+                    Assert.That(document.AuthoringLayout.Graph.GetNodePosition("b"), Is.EqualTo(Vector2.zero), "撤销应回到冲突摆放，轮次 " + attempt);
+                    Assert.That(document.Layout.Graph.GetNodePosition("b"), Is.EqualTo(new Vector2(0, 80)), "未发布工作图不应跟随草稿 Undo。");
+                    Undo.PerformRedo();
+                    Assert.That(document.AuthoringLayout.Graph.GetNodePosition("b"), Is.EqualTo(new Vector2(0, 80)));
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(source); }
+        }
     }
 }

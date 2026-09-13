@@ -1,0 +1,93 @@
+{
+  "runs": {
+    "MapGraphDiagnostic": [
+      "20260913-185950-178",
+      3
+    ],
+    "MapGraphPlacementConnections": [
+      "20260913-190024-157",
+      10
+    ],
+    "MapGraphGridPlacement": [
+      "20260913-190752-733",
+      6
+    ],
+    "MapGraphEditorDocument": [
+      "20260913-190818-356",
+      14
+    ],
+    "MapGraphEditorCanvas": [
+      "20260913-190842-331",
+      6
+    ]
+  },
+  "sourceMatchesFinalRun": [
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1.meta",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity.meta",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-NavMesh Surface 1.asset",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-NavMesh Surface 1.asset.meta",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-NavMesh Surface.asset",
+    "Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-NavMesh Surface.asset.meta",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphAuthoringTransactionTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphBindingTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphConnectionGeneratorTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphConnectionSelectionTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphDefinitionTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphDiagnosticTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditOperationTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorCanvasTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphEditorDocumentTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphGenerationControllerTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphGridPlacementTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutSolverTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphLayoutValidationTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphNavigationTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPathfindingTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPlacementConnectionsTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphPositionProjectionTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphRouteProjectionTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphRouteTargetTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphSceneCollectionTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphSceneLayoutTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphSceneSynchronizationTests.cs",
+    "Assets/Scripts/Editor/AgentReproduction/Tests/MapGraphShortcutTests.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphAuthoringTransaction.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphConnectionCandidates.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphConnectionGenerator.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphConnectionSeedBuilder.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphConnectionSelection.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphDiagnosticFormatter.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphEditOperation.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphEditOperations.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphEditorCanvas.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphEditorDocument.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphEditorInspector.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphEditorWindow.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphGenerationController.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphGenerationResult.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphGeometry.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphGridPlacement.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphLayoutCoordinates.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphLayoutDraft.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphLayoutGenerator.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphLayoutIntentValidation.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphLayoutScore.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphNavigationBakeBuilder.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphNavigationValidation.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphOrthogonalLayoutSolver.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphPlacementConnectionPlanner.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphPlacementState.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphSceneCollector.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphSceneNavigationScan.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphSceneSnapshot.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphShortcutGenerator.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphValidation.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphValidationResult.cs",
+    "Assets/Scripts/Editor/MapGraph/MapGraphZoneLayout.cs"
+  ],
+  "visualHashes": {
+    "06-project-map-grid-editor.png": "ed985f7ebad2d620dae2f1b378400702453d080966ebfc26ee8dfc3997c1386c",
+    "07-readable-conflicts.png": "a7275be8342f9626be7ba81f96088c14877ce2cab5ca1b8b0fdf2b929d605487"
+  }
+}

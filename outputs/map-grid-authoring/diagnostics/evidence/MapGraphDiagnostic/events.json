@@ -1,0 +1,26 @@
+[
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "readable-conflict",
+    "detail": "NodeOverName:cluster_middle:zone_test \n群「员工食堂 / 中央资源群」压住区域「员工食堂」的名称避让框。请将群移出框外。"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "readable-conflict",
+    "detail": "EdgeThroughName:edge_cross:zone_test \n连线「员工食堂 / 西侧敌人群 ↔ 员工食堂 / 东侧撤离群」穿过区域「员工食堂」的名称避让框。请调整端点所在行/列，或删除该线后重新连接。"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "readable-conflict",
+    "detail": "EdgeThroughNode:edge_cross:cluster_middle \n连线「员工食堂 / 西侧敌人群 ↔ 员工食堂 / 东侧撤离群」穿过群「员工食堂 / 中央资源群」。可经由这个群分成两条横竖连接，或调整摆放。"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "readable-conflict",
+    "detail": "NonOrthogonalEdge:edge_wrong_axis \n连线「员工食堂 / 东侧撤离群 ↔ 员工食堂 / 中央资源群」的端点不符合该线的横/竖方向。请对齐端点；旧自动线可通过“生成连接”重建，人工线需调整或重选端点。"
+  }
+]

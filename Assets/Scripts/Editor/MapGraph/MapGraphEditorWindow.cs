@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gameplay.MapGraph.Binding;
 using Gameplay.MapGraph.Config;
@@ -21,12 +22,18 @@ namespace AnomalySearch.Editor.MapGraph
         private string _status = "从当前场景生成地图，或打开已有指挥图。";
         private double _lastRepaint;
         private bool _discarded;
+        private IReadOnlyList<MapGraphValidationIssue> _diagnostics = Array.Empty<MapGraphValidationIssue>();
+        private MapGraphLayoutDraft _diagnosticInput;
+        private Vector2 _diagnosticScroll;
+        private string _reportedRequestId;
+        private GUIStyle _diagnosticStyle;
         [Serializable] private sealed class WindowRecovery
         { public string sourceGuid, working, baseline, placement; }
         private string RecoveryKey => "AnomalySearch.MapGridRecovery:" + Application.dataPath + ":" + _scenePath;
         public MapGraphEditorDocument Document => _document;
         public MapGraphEditorCanvas Canvas => _canvas;
         public string Status => _status;
+        public int DiagnosticCount => _diagnostics.Count;
         public bool CanEditPlacement => _document?.AuthoringLayout != null && !EditorApplication.isPlayingOrWillChangePlaymode &&
             (_refreshEvidence && !_connectAfterRefresh || _document.PendingGeneration?.Result == null && _document.PendingGeneration?.IsRunning != true);
 
@@ -67,7 +74,7 @@ namespace AnomalySearch.Editor.MapGraph
             _fit = true;
             if (_document.Layout != null && !EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                try { _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = true; }
+                try { _diagnosticInput = _document.Layout; _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = true; }
                 catch (Exception exception) { _status = exception.Message; }
             }
             OnDocumentChanged();
@@ -94,10 +101,21 @@ namespace AnomalySearch.Editor.MapGraph
 
         private void OnDocumentChanged()
         {
+            if (_diagnostics.Count > 0) _status = "地图已修改，旧诊断已清除。请重新生成或校验线路。";
+            ClearDiagnostics();
             hasUnsavedChanges = _document.IsDirty;
             _canvas?.ConnectionSelection.Synchronize(_document.AuthoringLayout, _document.Revision);
             saveChangesMessage = "地图工作副本尚未保存。";
             Repaint();
+        }
+        private void ClearDiagnostics()
+        { _diagnostics = Array.Empty<MapGraphValidationIssue>(); _diagnosticScroll = Vector2.zero; _canvas?.ClearDiagnostic(); }
+        public bool FocusDiagnostic(int index)
+        {
+            if (index < 0 || index >= _diagnostics.Count || _diagnosticInput?.ContentFingerprint != _document.AuthoringLayout?.ContentFingerprint) return false;
+            bool focused = _canvas.FocusDiagnostic(_diagnosticInput, _diagnostics[index]);
+            if (focused) { _fit = false; Repaint(); }
+            return focused;
         }
         private Scene EditingScene()
         {
@@ -112,6 +130,7 @@ namespace AnomalySearch.Editor.MapGraph
                 if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("请在 Edit Mode 编辑指挥图。");
                 var scene = EditingScene(); if (!scene.IsValid() || !scene.isLoaded || string.IsNullOrEmpty(scene.path)) throw new InvalidOperationException("请先打开并保存待编辑的场景。");
                 _refreshEvidence = _connectAfterRefresh = false;
+                ClearDiagnostics(); _diagnosticInput = _document.AuthoringLayout;
                 _document.BeginGeneration(scene, mode); _status = "计算中，可随时取消。";
             }
             catch (Exception exception) { _status = exception.Message; }
@@ -145,24 +164,28 @@ namespace AnomalySearch.Editor.MapGraph
             }
             else if (allowRefresh && (failure == "MapNeedsValidation" || failure == "GenerationInputsChanged"))
             {
-                try { _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = _connectAfterRefresh = true; _status = "正在核对导航，完成后连接选中的两个群。"; }
+                try { ClearDiagnostics(); _diagnosticInput = _document.Layout; _document.BeginNavigationRefresh(EditingScene()); _refreshEvidence = _connectAfterRefresh = true; _status = "正在核对导航，完成后连接选中的两个群。"; }
                 catch (Exception exception) { selection.Reject(exception.Message); _status = exception.Message; }
             }
             else { selection.Reject(failure); _status = "连线未应用：" + failure; }
             Repaint();
         }
         public void Cancel()
-        { _document.PendingGeneration?.Cancel(); _document.PendingEdit?.Cancel(); _refreshEvidence = _connectAfterRefresh = false; _canvas.ConnectionSelection.Cancel(); _status = "已取消，工作副本保持。"; Repaint(); }
+        { _document.PendingGeneration?.Cancel(); _document.PendingEdit?.Cancel(); _refreshEvidence = _connectAfterRefresh = false; ClearDiagnostics(); _canvas.ConnectionSelection.Cancel(); _status = "已取消，工作副本保持。"; Repaint(); }
         private void Update()
         {
             if (_document == null) return;
             var generation = _document.PendingGeneration;
-            if (generation != null && generation.IsRunning)
+            if (generation != null)
             {
-                generation.Advance();
-                _status = $"{generation.Stage}  ·  导航 {generation.NavigationQueries}  ·  搜索 {generation.SearchStates}  ·  计算 {generation.ElapsedMilliseconds:F0} ms";
-                if (!generation.IsRunning)
+                if (generation.IsRunning)
                 {
+                    generation.Advance();
+                    _status = $"{generation.Stage}  ·  导航 {generation.NavigationQueries}  ·  搜索 {generation.SearchStates}  ·  计算 {generation.ElapsedMilliseconds:F0} ms";
+                }
+                if (!generation.IsRunning && _reportedRequestId != generation.RequestId)
+                {
+                    _reportedRequestId = generation.RequestId;
                     if (generation.Result != null)
                     {
                         _fit = _document.Layout == null;
@@ -175,7 +198,15 @@ namespace AnomalySearch.Editor.MapGraph
                         }
                         else _status = "预览就绪：" + EdgeDifference(generation.Result.Layout) + "。检查后应用预览。";
                     }
-                    else _status = generation.Stage + "：" + string.Join("；", generation.Diagnostics.Select(d => d.ToString()));
+                    else if (generation.Stage != MapGraphGenerationStage.Cancelled)
+                    {
+                        string operation = _refreshEvidence ? "工作图校验" : generation.Mode == MapGraphGenerationMode.PlacementAdjustment ? "微调建议" :
+                            generation.Mode == MapGraphGenerationMode.PlacementConnections ? "生成连接" : "线路校验";
+                        _diagnostics = generation.Diagnostics.ToArray();
+                        _status = $"{operation}未通过，当前摆放保留。下方列出 {_diagnostics.Count} 项诊断，可滚动查看、定位对象。";
+                        if (_connectAfterRefresh) _canvas.ConnectionSelection.Reject("导航核对未完成，请先处理下方工作图诊断。");
+                        _refreshEvidence = _connectAfterRefresh = false;
+                    }
                 }
             }
             if (EditorApplication.timeSinceStartup - _lastRepaint >= 0.05)
@@ -228,14 +259,41 @@ namespace AnomalySearch.Editor.MapGraph
                     if (GUILayout.Button("3  发布地图", EditorStyles.toolbarButton)) SaveTo();
             }
             EditorGUI.LabelField(new Rect(10, 24, position.width - 20, 20), "工程：" + Application.dataPath.Replace("/Assets", "") + "   |   场景：" + _scenePath, EditorStyles.miniLabel);
-            var canvasRect = new Rect(0, 48, Mathf.Max(100, position.width - 310), position.height - 138);
+            float footerHeight = _diagnostics.Count > 0 ? Mathf.Min(240, position.height * 0.35f) : 83;
+            var canvasRect = new Rect(0, 48, Mathf.Max(100, position.width - 310), position.height - 55 - footerHeight);
             var preview = _refreshEvidence ? null : _document.PendingGeneration?.Result?.Layout ?? _document.PendingEdit?.Result;
             if (_fit) { _canvas.Fit(preview ?? _document.AuthoringLayout, canvasRect); _fit = false; }
             bool editable = CanEditPlacement;
             _canvas.GridSpacing = _document.Placement.GridSpacing; _canvas.DocumentRevision = _document.Revision;
             _canvas.Draw(canvasRect, _document.AuthoringLayout, preview, editable);
-            _inspector.Draw(new Rect(canvasRect.xMax + 4, 48, 302, position.height - 138), _document, _canvas, RequestEdit, editable);
-            EditorGUI.HelpBox(new Rect(8, position.height - 83, position.width - 16, 76), (_document.HasPlacementDraft ? "摆放草稿 · 待生成/校验线路\n" : _document.LastVerifiedInput == null ? "工作图 · 本会话待校验\n" : "已验证工作图\n") + _status, MessageType.None);
+            _inspector.Draw(new Rect(canvasRect.xMax + 4, 48, 302, canvasRect.height), _document, _canvas, RequestEdit, editable);
+            DrawDiagnostics(new Rect(8, position.height - footerHeight, position.width - 16, footerHeight - 7));
+        }
+        private void DrawDiagnostics(Rect rect)
+        {
+            string phase = _document.HasPlacementDraft ? "摆放草稿 · 待生成/校验线路" : _document.LastVerifiedInput == null ? "工作图 · 本会话待校验" : "已验证工作图";
+            if (_diagnostics.Count == 0) { EditorGUI.HelpBox(rect, phase + "\n" + _status, MessageType.None); return; }
+            _diagnosticStyle ??= new GUIStyle(EditorStyles.label) { wordWrap = true, padding = new RectOffset(4, 4, 3, 3) };
+            GUILayout.BeginArea(rect, EditorStyles.helpBox);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Label(phase, EditorStyles.boldLabel);
+                if (GUILayout.Button("复制完整诊断", GUILayout.Width(100)))
+                    EditorGUIUtility.systemCopyBuffer = string.Join("\n\n", _diagnostics.Select(d => MapGraphDiagnosticFormatter.Format(d, _diagnosticInput) + "\n" + d));
+            }
+            GUILayout.Label(_status, _diagnosticStyle);
+            _diagnosticScroll = EditorGUILayout.BeginScrollView(_diagnosticScroll);
+            for (int i = 0; i < _diagnostics.Count; i++)
+            {
+                var issue = _diagnostics[i];
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    GUILayout.Label(new GUIContent((issue.IsError ? "• " : "提示：") + MapGraphDiagnosticFormatter.Format(issue, _diagnosticInput), issue.ToString()), _diagnosticStyle, GUILayout.ExpandWidth(true));
+                    using (new EditorGUI.DisabledScope(_diagnosticInput?.ContentFingerprint != _document.AuthoringLayout?.ContentFingerprint || issue.SubjectId == "graph" && string.IsNullOrEmpty(issue.RelatedId)))
+                        if (GUILayout.Button("定位", GUILayout.Width(48))) FocusDiagnostic(i);
+                }
+            }
+            EditorGUILayout.EndScrollView(); GUILayout.EndArea();
         }
     }
 }

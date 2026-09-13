@@ -61,7 +61,7 @@ namespace AnomalySearch.Editor.MapGraph
             if (_cells == 0)
             {
                 _diagnostics.AddRange(first.Issues);
-                _diagnostics.Add(new MapGraphValidationIssue("PlacementConnectionsIncomplete", "graph", detail: "保持位置无法连通上列群，请对齐行列或使用微调建议。"));
+                _diagnostics.Add(new MapGraphValidationIssue("PlacementConnectionsIncomplete", "graph", detail: "固定位置无法同时满足摆放、人工线和连通约束。请先处理具体冲突，再对齐行列或使用微调建议。"));
                 yield break;
             }
             var frontier = new List<CandidateLayout> { first };
@@ -96,9 +96,10 @@ namespace AnomalySearch.Editor.MapGraph
                 }
             }
             Finished:
-            _diagnostics.AddRange(best.Issues);
+            // 失败不会应用 best 的位置。诊断必须对应作者仍在看的初始摆放。
+            _diagnostics.AddRange(first.Issues);
             _diagnostics.Add(new MapGraphValidationIssue("PlacementAdjustmentNotFound", "graph",
-                detail: $"已检查 {SearchStates} 个布局，位移上限 {_cells} 格，预算 {_budget}；预算内未找到合法建议。请调整摆放或约束。"));
+                detail: $"已检查 {SearchStates} 个布局，位移上限 {_cells} 格，预算 {_budget}；初始冲突 {first.Errors} 项，搜索中最少 {best.Errors} 项。预算内未找到合法建议，请调整摆放或约束。"));
         }
 
         private IEnumerable<Vector2> AdjustmentPoints(Vector2 initial, bool rowLocked, bool columnLocked)

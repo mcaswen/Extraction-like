@@ -1,6 +1,16 @@
 {
   "groups": [
     {
+      "name": "MapGraphDiagnostic",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapGraphDiagnosticTests",
+      "expected": [
+        "ScreenshotConflictTypesHaveReadableSubjectsAndActions",
+        "FocusSelectsEndpointsAndNameObstaclesWithoutEditingLayout",
+        "UnknownDiagnosticsKeepDetailsAndDuplicateNamesStayDistinct"
+      ]
+    },
+    {
       "name": "MapGraphPlacementConnections",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapGraphPlacementConnectionsTests",
@@ -13,7 +23,8 @@
         "NameObstructionAndUnavailableManualEdgesAreReported",
         "BudgetAndCancellationNeverPublishPartialSuggestions",
         "TwentyEightNodeGridKeepsIncrementalWorkWithinAnInteractiveBudget",
-        "IncompleteMeasurementsFailBeforeAnyLayoutSearch"
+        "IncompleteMeasurementsFailBeforeAnyLayoutSearch",
+        "FailedAdjustmentReportsTheVisibleDraftInsteadOfAnUnacceptedCandidate"
       ]
     },
     {
@@ -71,7 +82,8 @@
         "MovingOneNodeDoesNotSolveOldEdgesOrPinOtherNodes",
         "ZoneTranslationCarriesMembersButResizingKeepsWorldMapPoints",
         "DraftUndoRecoveryAndPublishGateDoNotWriteTheSource",
-        "RepeatedGridMovesHaveBoundedCostWithoutNavigationOrSearch"
+        "RepeatedGridMovesHaveBoundedCostWithoutNavigationOrSearch",
+        "UndoReturningToAnEarlierLayoutKeepsDraftAndWorkingGraphIndependent"
       ]
     },
     {

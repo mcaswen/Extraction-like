@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.1266147">
+  <test-suite type="TestSuite" id="1850" name="AgentRepro_20260913-190752-733" fullname="AgentRepro_20260913-190752-733" runstate="Runnable" testcasecount="686" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.126615" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2693" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="686" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.110957" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="17472" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2694" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="686" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.106132" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2695" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="686" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.101494" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2321" name="MapGraphGridPlacementTests" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.089584" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2325" name="DraftUndoRecoveryAndPublishGateDoNotWriteTheSource" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests.DraftUndoRecoveryAndPublishGateDoNotWriteTheSource" methodname="DraftUndoRecoveryAndPublishGateDoNotWriteTheSource" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" seed="1362794864" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.031646" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2323" name="MovingOneNodeDoesNotSolveOldEdgesOrPinOtherNodes" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests.MovingOneNodeDoesNotSolveOldEdgesOrPinOtherNodes" methodname="MovingOneNodeDoesNotSolveOldEdgesOrPinOtherNodes" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" seed="801069287" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.007004" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2326" name="RepeatedGridMovesHaveBoundedCostWithoutNavigationOrSearch" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests.RepeatedGridMovesHaveBoundedCostWithoutNavigationOrSearch" methodname="RepeatedGridMovesHaveBoundedCostWithoutNavigationOrSearch" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" seed="459379223" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.022960" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2322" name="SnapHandlesNegativeHalfCellsAndViewportScaling" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests.SnapHandlesNegativeHalfCellsAndViewportScaling" methodname="SnapHandlesNegativeHalfCellsAndViewportScaling" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" seed="1369646091" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.003475" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2327" name="UndoReturningToAnEarlierLayoutKeepsDraftAndWorkingGraphIndependent" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests.UndoReturningToAnEarlierLayoutKeepsDraftAndWorkingGraphIndependent" methodname="UndoReturningToAnEarlierLayoutKeepsDraftAndWorkingGraphIndependent" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" seed="2033461734" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.010609" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2324" name="ZoneTranslationCarriesMembersButResizingKeepsWorldMapPoints" fullname="AgentReproduction.Tests.MapGraphGridPlacementTests.ZoneTranslationCarriesMembersButResizingKeepsWorldMapPoints" methodname="ZoneTranslationCarriesMembersButResizingKeepsWorldMapPoints" classname="AgentReproduction.Tests.MapGraphGridPlacementTests" runstate="Runnable" seed="1395189197" result="Passed" start-time="2026-09-13 11:08:11Z" end-time="2026-09-13 11:08:11Z" duration="0.003984" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Gameplay.MapGraph.Config;
 using UnityEngine;
@@ -16,6 +17,13 @@ namespace AnomalySearch.Editor.MapGraph
         [SerializeField] private MapGraphLayoutConstraints _constraints = new MapGraphLayoutConstraints();
         [SerializeField] private string _start;
         private MapGraphLayoutDraft _cache;
+        [Serializable] private sealed class OwnedLayout
+        {
+            public List<MapGraphZoneDefinition> zones;
+            public List<MapGraphNodeDefinition> nodes;
+            public List<MapGraphEdgeDefinition> edges;
+            public MapGraphLayoutConstraints constraints;
+        }
         public bool Active => _active;
         public float GridSpacing => _gridSpacing;
         public int AdjustmentCells => _adjustmentCells;
@@ -25,10 +33,16 @@ namespace AnomalySearch.Editor.MapGraph
         public void SetDraft(MapGraphLayoutDraft draft)
         {
             _active = draft != null; _cache = null;
-            _zones = draft == null ? new List<MapGraphZoneDefinition>() : new List<MapGraphZoneDefinition>(draft.Zones);
-            _nodes = draft == null ? new List<MapGraphNodeDefinition>() : new List<MapGraphNodeDefinition>(draft.Nodes);
-            _edges = draft == null ? new List<MapGraphEdgeDefinition>() : new List<MapGraphEdgeDefinition>(draft.Edges);
-            _constraints = new MapGraphLayoutConstraints(draft?.Constraints.Alignments, draft?.Constraints.ExcludedConnections);
+            // List 的浅拷贝仍共用节点等内部对象。Unity Undo 会回填对象字段，必须隔离全部可序列化数据。
+            var owned = draft == null ? null : JsonUtility.FromJson<OwnedLayout>(JsonUtility.ToJson(new OwnedLayout
+            {
+                zones = new List<MapGraphZoneDefinition>(draft.Zones), nodes = new List<MapGraphNodeDefinition>(draft.Nodes),
+                edges = new List<MapGraphEdgeDefinition>(draft.Edges), constraints = draft.Constraints
+            }));
+            _zones = owned?.zones ?? new List<MapGraphZoneDefinition>();
+            _nodes = owned?.nodes ?? new List<MapGraphNodeDefinition>();
+            _edges = owned?.edges ?? new List<MapGraphEdgeDefinition>();
+            _constraints = owned?.constraints ?? new MapGraphLayoutConstraints();
             _start = draft?.StartNodeId ?? "";
         }
         public void Invalidate() { _cache = null; _constraints?.OnAfterDeserialize(); }

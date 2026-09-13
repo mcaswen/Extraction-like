@@ -128,5 +128,21 @@ namespace AgentReproduction.Tests
             Assert.That(planner.Result, Is.Null); Assert.That(planner.SearchStates, Is.Zero);
             Assert.That(planner.Diagnostics.Any(d => d.Code == "IncompleteNavigationMatrix"), Is.True);
         }
+        [Test] public void FailedAdjustmentReportsTheVisibleDraftInsteadOfAnUnacceptedCandidate()
+        {
+            var draft = MapGraphGridPlacement.MoveNode(MapGraphGridPlacementTests.Fixture(), "b", Vector2.zero, 80);
+            draft = MapGraphEditOperations.LockNode(draft, "a", true); draft = MapGraphEditOperations.LockNode(draft, "c", true);
+            // 锁定端点上的错误方向永远不可修，搜索仍能把 b 从名称上挪开，形成更好但无效的候选。
+            draft = new MapGraphLayoutDraft(draft.Zones, draft.Nodes,
+                new[] { new MapGraphEdgeDefinition("pinned_wrong_axis", "a", "c", 10, MapGraphAxis.Vertical, MapGraphEdgeOrigin.Manual) }, draft.Constraints);
+            string before = draft.ContentFingerprint;
+            var fixedReport = Run(draft); var adjusted = Run(draft, 1);
+            Assert.That(adjusted.Result, Is.Null); Assert.That(adjusted.SearchStates, Is.GreaterThan(1));
+            var originalIssues = fixedReport.Diagnostics.Where(i => i.Code != "PlacementConnectionsIncomplete").Select(i => i.ToString());
+            Assert.That(adjusted.Diagnostics.Where(i => i.Code != "PlacementAdjustmentNotFound").Select(i => i.ToString()), Is.EquivalentTo(originalIssues));
+            Assert.That(adjusted.Diagnostics.Any(i => i.Code == "NodeOverName" && i.SubjectId == "b"), Is.True);
+            Assert.That(draft.ContentFingerprint, Is.EqualTo(before));
+            CaseArtifactWriter.Trace("failed-adjustment-context", string.Join("\n", adjusted.Diagnostics));
+        }
     }
 }

@@ -121,6 +121,45 @@ namespace AgentReproduction.Tests
                 string sourceBefore = EditorJsonUtility.ToJson(document.SourceDefinition);
                 window.Canvas.Fit(document.AuthoringLayout, window.Canvas.ViewRect); window.Repaint(); yield return null;
                 CaptureGrid(window, "01-grid-ready");
+                var validPlacement = document.AuthoringLayout;
+                document.EditPlacement(g =>
+                {
+                    var conflict = MapGraphGridPlacement.WithPositions(g, new Dictionary<string, Vector2>
+                    { [a] = new Vector2(-160, 0), [b] = Vector2.zero, [c] = new Vector2(160, 0) });
+                    foreach (var node in conflict.Nodes.ToArray()) conflict = MapGraphEditOperations.LockNode(conflict, node.NodeId, true);
+                    return new MapGraphLayoutDraft(conflict.Zones, conflict.Nodes, new[]
+                    {
+                        new MapGraphEdgeDefinition("diagnostic_cross", a, c, 10, MapGraphAxis.Horizontal, MapGraphEdgeOrigin.Manual),
+                        new MapGraphEdgeDefinition("diagnostic_axis", b, c, 10, MapGraphAxis.Vertical, MapGraphEdgeOrigin.Manual)
+                    }, conflict.Constraints);
+                }, "构造名称、图标和方向冲突");
+                string conflictFingerprint = document.AuthoringLayout.ContentFingerprint;
+                foreach (var mode in new[] { MapGraphGenerationMode.ValidateOnly, MapGraphGenerationMode.PlacementConnections, MapGraphGenerationMode.PlacementAdjustment })
+                {
+                    window.BeginGeneration(mode); var failed = document.PendingGeneration;
+                    var deadline = System.Diagnostics.Stopwatch.StartNew();
+                    while (failed.IsRunning && deadline.Elapsed.TotalSeconds < 30) { failed.Advance(32, 6); yield return null; }
+                    yield return null;
+                    Assert.That(failed.Stage, Is.EqualTo(MapGraphGenerationStage.Failed));
+                    Assert.That(window.DiagnosticCount, Is.EqualTo(failed.Diagnostics.Count));
+                    Assert.That(window.Status, Does.Contain("当前摆放保留").And.Not.Contain("cluster_"));
+                    foreach (string code in new[] { "NodeOverName", "EdgeThroughName", "EdgeThroughNode", "NonOrthogonalEdge" })
+                        Assert.That(failed.Diagnostics.Any(i => i.Code == code), Is.True, mode + ":" + code);
+                    Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(conflictFingerprint));
+                    Assert.That(document.TryVerifyForSave(out _, out _), Is.False);
+                }
+                int focusIndex = document.PendingGeneration.Diagnostics.ToList().FindIndex(i => i.Code == "NodeOverName");
+                Assert.That(window.FocusDiagnostic(focusIndex), Is.True); yield return null;
+                CaptureGrid(window, "07-readable-conflicts");
+                CaseArtifactWriter.Trace("conflict-before-undo", document.ExportPlacement());
+                document.EditPlacement(_ => validPlacement, "恢复合法摆放");
+                Assert.That(window.DiagnosticCount, Is.Zero); Assert.That(window.Canvas.FocusedIssue, Is.Null);
+                Assert.That(window.Status, Does.Not.Contain("未通过"));
+                Undo.PerformUndo(); CaseArtifactWriter.Trace("conflict-after-undo", document.ExportPlacement());
+                Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(conflictFingerprint));
+                Assert.That(window.DiagnosticCount, Is.Zero); Assert.That(window.Canvas.FocusedIssue, Is.Null);
+                Undo.PerformRedo(); Assert.That(document.AuthoringLayout.ContentFingerprint, Is.EqualTo(validPlacement.ContentFingerprint));
+                window.Canvas.Fit(document.AuthoringLayout, window.Canvas.ViewRect); window.Repaint(); yield return null;
                 var from = window.Canvas.ToScreen(document.AuthoringLayout.Graph.GetNodePosition(b), window.Canvas.ViewRect);
                 var to = window.Canvas.ToScreen(new Vector2(0, 160), window.Canvas.ViewRect);
                 long revision = document.Revision;

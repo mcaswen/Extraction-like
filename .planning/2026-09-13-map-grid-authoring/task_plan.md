@@ -94,3 +94,7 @@
 28 群构造图固定连线约 29.50 ms，35 个可让出的工作项，最长约 8.76 ms；该数据不含场景导航扫描。6 张最终窗口截图已实际打开检查并归档。最终 Review 修复了初次导航扫描阻塞摆放的问题，去除窗口旧的即时求解编排；未改变已确认的模块边界。
 
 每阶段详细记录见 g1_execution.md、g2_execution.md、g3_execution.md；架构审查见 architecture_review.md。使用流程和归档证据见 ../../outputs/map-grid-authoring/validation_report.md。用户正在修改的场景、新旧 NavMesh 和 Final 验证副本保持，没有作为本轮编辑器提交的一部分。
+
+### G4 后续修复
+
+用户报告三个入口的几何错误后，完成可读诊断、名称框和冲突定位，修复微调失败诊断错用候选、Undo 浅拷贝污染工作图。39 项定向验证通过，小规划、修复前失败和最终验收分别见 g4_diagnostics.md、architecture_review.md、outputs/map-grid-authoring/diagnostics/validation_report.md。本次按最新授权提交用户已保存的相关场景、NavMesh 修改。

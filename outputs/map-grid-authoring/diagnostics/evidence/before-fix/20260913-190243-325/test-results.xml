@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Failed(Child)" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.3435431">
+  <test-suite type="TestSuite" id="1849" name="AgentRepro_20260913-190243-325" fullname="AgentRepro_20260913-190243-325" runstate="Runnable" testcasecount="685" result="Failed" site="Child" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.343543" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="2691" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="685" result="Failed" site="Child" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.330272" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="63892" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="2692" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="685" result="Failed" site="Child" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.325848" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="2693" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="685" result="Failed" site="Child" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.321756" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="2282" name="MapGraphEditorCanvasTests" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" testcasecount="6" result="Failed" site="Child" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.310108" total="6" passed="5" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="2287" name="ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates" methodname="ExplicitResetUnlocksIntentWithoutChangingGraphIdentityOrCoordinates" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="1041716966" result="Passed" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:03Z" duration="0.021631" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2288" name="GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow" methodname="GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="1032539037" result="Failed" start-time="2026-09-13 11:03:03Z" end-time="2026-09-13 11:03:04Z" duration="1.257759" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <failure>
+                <message><![CDATA[  String lengths are both 32. Strings differ at index 0.
+  Expected: "37f6321d41e2d997ce2a792b23d71a04"
+  But was:  "2a73c2bea01803877614d899288de2cf"
+  -----------^
+]]></message>
+                <stack-trace><![CDATA[at AgentReproduction.Tests.MapGraphEditorCanvasTests+<GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow>d__8.MoveNext () [0x00a9a] in D:\Unity-Projects\.agent-repro\AnomalySearchRegression\Project\Assets\Scripts\Editor\AgentReproduction\Tests\MapGraphEditorCanvasTests.cs:157
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\Library\PackageCache\com.unity.test-framework@1.1.33\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:46
+]]></stack-trace>
+              </failure>
+            </test-case>
+            <test-case id="2284" name="HitTestingPrefersRealNodesThenEdgesThenZones" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.HitTestingPrefersRealNodesThenEdgesThenZones" methodname="HitTestingPrefersRealNodesThenEdgesThenZones" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="2057686803" result="Passed" start-time="2026-09-13 11:03:04Z" end-time="2026-09-13 11:03:04Z" duration="0.002826" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2286" name="RecoveryDoesNotEraseAnExternalSourceConflict" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.RecoveryDoesNotEraseAnExternalSourceConflict" methodname="RecoveryDoesNotEraseAnExternalSourceConflict" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="183265025" result="Passed" start-time="2026-09-13 11:03:04Z" end-time="2026-09-13 11:03:04Z" duration="0.009685" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2285" name="RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence" methodname="RecoveryPreservesUncommittedDataButRequiresFreshNavigationEvidence" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="978285129" result="Passed" start-time="2026-09-13 11:03:04Z" end-time="2026-09-13 11:03:04Z" duration="0.004745" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2283" name="ViewportRoundTripAndCursorZoomKeepTheMapPointFixed" fullname="AgentReproduction.Tests.MapGraphEditorCanvasTests.ViewportRoundTripAndCursorZoomKeepTheMapPointFixed" methodname="ViewportRoundTripAndCursorZoomKeepTheMapPointFixed" classname="AgentReproduction.Tests.MapGraphEditorCanvasTests" runstate="Runnable" seed="943596451" result="Passed" start-time="2026-09-13 11:03:04Z" end-time="2026-09-13 11:03:04Z" duration="0.003735" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

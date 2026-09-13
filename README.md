@@ -246,6 +246,8 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 6. **校验和发布**：手画线路后点“校验线路”→“应用预览”→“发布地图”，保存图 SO 和场景 Binding。未验证草稿不能发布。支持 Undo/Redo、编译恢复和“暂存关闭”；暂存可在同一次 Editor 会话中重开，不会覆盖游戏使用的图。
 7. 世界群、区域身份或 NavMesh 改动后重新核对场景。身份增删仍需明确同步，位置编辑不会静默删除旧节点。有限微调未找到候选不代表数学无解，可继续调整网格位置。
 
+名称周围的细框是避让范围。出现几何冲突时，在底部逐条诊断中点“定位”，按名称和建议调整；列表可滚动，支持复制完整诊断。微调失败保留当前摆放，诊断对应当前草稿。已修复 Undo 共享内部节点导致工作图被连带改动的问题，见 [冲突诊断验收](outputs/map-grid-authoring/diagnostics/validation_report.md)。
+
 自动验证、6 张实际窗口截图及性能边界见 [网格编辑验收](outputs/map-grid-authoring/validation_report.md)，具体设计见 [网格编辑规划](.planning/2026-09-13-map-grid-authoring/task_plan.md)。
 
 正式资产是 [SO_MapGraphDefinition_Scenezl_Final1](Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset)，样式在 [SO_MapGraphTheme_Raid](Assets/SO/MapGraph/SO_MapGraphTheme_Raid.asset)，HUD 为 [Pfb_RaidCommandMap](Assets/Resources/HUD/Pfb_RaidCommandMap.prefab)，中文使用 [MapGraphChinese SDF](Assets/Font/MapGraphChinese%20SDF.asset)。当前导航资产以场景内 NavMesh Surface 的实际引用为准；早期性能验收使用的导航版本见对应历史报告。

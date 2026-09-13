@@ -34,6 +34,37 @@ namespace AnomalySearch.Editor.MapGraph
         public int PaintCount { get; private set; }
         public event Action<Func<MapGraphLayoutDraft, MapGraphLayoutDraft>, string, bool> EditRequested;
         public event Action CancelRequested;
+        public MapGraphValidationIssue FocusedIssue { get; private set; }
+
+        public void ClearDiagnostic() => FocusedIssue = null;
+        public bool FocusDiagnostic(MapGraphLayoutDraft layout, MapGraphValidationIssue issue)
+        {
+            if (layout == null || issue == null) return false;
+            if (!TryObjectBounds(layout, issue.SubjectId, out var bounds, out var kind))
+            {
+                if (!TryObjectBounds(layout, issue.RelatedId, out bounds, out kind)) return false;
+                Select(kind, issue.RelatedId);
+            }
+            else Select(kind, issue.SubjectId);
+            if (TryObjectBounds(layout, issue.RelatedId, out var related, out _))
+                bounds = MapGraphGeometry.Union(bounds, related);
+            FocusedIssue = issue; Center = bounds.center;
+            Zoom = Mathf.Clamp(Mathf.Min(Mathf.Max(100, ViewRect.width - 100) / Mathf.Max(100, bounds.width),
+                Mathf.Max(100, ViewRect.height - 100) / Mathf.Max(100, bounds.height)), 0.04f, 3);
+            _fitted = true; return true;
+        }
+        private static bool TryObjectBounds(MapGraphLayoutDraft layout, string id, out Rect bounds, out MapGraphSelectionKind kind)
+        {
+            bounds = default; kind = MapGraphSelectionKind.None;
+            if (string.IsNullOrEmpty(id)) return false;
+            if (layout.Graph.TryGetNode(id, out var node))
+            { bounds = MapGraphGeometry.NodeBounds(layout, node); kind = MapGraphSelectionKind.Node; return true; }
+            if (layout.Graph.TryGetZone(id, out var zone))
+            { bounds = zone.NameSafeBounds; kind = MapGraphSelectionKind.Zone; return true; }
+            if (layout.Graph.TryGetEdge(id, out var edge) && layout.Graph.TryGetNode(edge.FromNodeId, out var from) && layout.Graph.TryGetNode(edge.ToNodeId, out var to))
+            { bounds = MapGraphGeometry.Union(MapGraphGeometry.NodeBounds(layout, from), MapGraphGeometry.NodeBounds(layout, to)); kind = MapGraphSelectionKind.Edge; return true; }
+            return false;
+        }
 
         public Vector2 ToScreen(Vector2 point, Rect rect) => rect.center + new Vector2(point.x - Center.x, Center.y - point.y) * Zoom;
         public Vector2 ToMap(Vector2 point, Rect rect) => Center + new Vector2(point.x - rect.center.x, rect.center.y - point.y) / Zoom;
@@ -84,6 +115,7 @@ namespace AnomalySearch.Editor.MapGraph
                     var bounds = ToScreen(zone.Bounds, local);
                     Box(bounds, ZoneFill, SelectionKind == MapGraphSelectionKind.Zone && SelectionId == zone.ZoneId ? Accent : Border, 1);
                     var nameRect = ToScreen(zone.NameSafeBounds, local);
+                    if (GridPlacement) Box(nameRect, new Color(0.75f, 0.61f, 0.34f, 0.06f), new Color(0.75f, 0.61f, 0.34f, 0.35f), 1);
                     _zoneLabel.fontSize = Mathf.Clamp(Mathf.RoundToInt(21 * Zoom), 10, 25);
                     GUI.Label(nameRect, zone.DisplayName, _zoneLabel);
                     if (SelectionKind == MapGraphSelectionKind.Zone && SelectionId == zone.ZoneId)
@@ -106,6 +138,11 @@ namespace AnomalySearch.Editor.MapGraph
                             Box(new Rect(a - Vector2.one * 7, Vector2.one * 14), Color.clear, Handles.color, 1);
                         }
                 foreach (var node in visible.Nodes) DrawNode(visible, node, local);
+                if (FocusedIssue != null && preview == null)
+                {
+                    DrawDiagnosticObject(visible, FocusedIssue.SubjectId, local, new Color32(244, 170, 83, 255));
+                    DrawDiagnosticObject(visible, FocusedIssue.RelatedId, local, new Color32(230, 117, 145, 255));
+                }
                 if (_dragging)
                 {
                     Handles.color = Accent;
@@ -122,8 +159,21 @@ namespace AnomalySearch.Editor.MapGraph
                 if (preview != null) GUI.Label(new Rect(15, 10, local.width - 30, 22), "候选预览 · 金色虚线表示位置调整，实际连接仍为横竖直线", _smallLabel);
                 if (layout != null) HandleInput(layout, local, editable);
             }
-            GUI.Label(new Rect(15, local.height - 26, local.width - 30, 20), "滚轮缩放  ·  中键平移  ·  网格拖动  ·  Shift 选两群连线  ·  Esc 取消", _smallLabel);
+            GUI.Label(new Rect(15, local.height - 26, local.width - 30, 20), "滚轮缩放  ·  中键平移  ·  网格拖动  ·  Shift 选两群连线  ·  名称框需避让", _smallLabel);
             GUI.EndGroup();
+        }
+        private void DrawDiagnosticObject(MapGraphLayoutDraft layout, string id, Rect rect, Color color)
+        {
+            if (!TryObjectBounds(layout, id, out var bounds, out var kind)) return;
+            if (kind == MapGraphSelectionKind.Edge && layout.Graph.TryGetEdge(id, out var edge))
+            {
+                // 失效斜线只框端点，不将诊断辅助线伪装成新的斜向连接。
+                foreach (string endpoint in new[] { edge.FromNodeId, edge.ToNodeId })
+                    if (TryObjectBounds(layout, endpoint, out var nodeBounds, out _)) Box(Expanded(ToScreen(nodeBounds, rect), 5), Color.clear, color, 2);
+                if (MapGraphGeometry.TryGetVisibleSegment(layout, edge, out var a, out var b))
+                { Handles.color = color; Handles.DrawAAPolyLine(3, ToScreen(a, rect), ToScreen(b, rect)); }
+            }
+            else Box(Expanded(ToScreen(bounds, rect), 3), new Color(color.r, color.g, color.b, 0.08f), color, 2);
         }
         private void DrawNode(MapGraphLayoutDraft layout, MapGraphNodeDefinition node, Rect rect)
         {

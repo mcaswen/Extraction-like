@@ -1,0 +1,98 @@
+[
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=4; ms=0.5503; max-step-ms=0.3649"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=5; ms=0.2164; max-step-ms=0.063"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=3; ms=7.9526; max-step-ms=5.7666"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=3; ms=0.1472; max-step-ms=0.0672"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=4; ms=0.2448; max-step-ms=0.1202"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=2; ms=0.1928; max-step-ms=0.1445"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=9; work=18; ms=3.7831; max-step-ms=2.4718"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "failed-adjustment-context",
+    "detail": "NodeOverName:b:z \nNonOrthogonalEdge:pinned_wrong_axis \nLostReachableConnectivity:a:b \nPlacementAdjustmentNotFound:graph 已检查 9 个布局，位移上限 1 格，预算 512；初始冲突 3 项，搜索中最少 2 项。预算内未找到合法建议，请调整摆放或约束。"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=2; ms=0.1296; max-step-ms=0.0842"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=0; work=0; ms=0.0217; max-step-ms=0.015"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=3; ms=0.1631; max-step-ms=0.0654"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=11; work=32; ms=4.9816; max-step-ms=2.4328"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=3; ms=0.3079; max-step-ms=0.1008"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=3; ms=0.1765; max-step-ms=0.0709"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=0; work=0; ms=0.0266; max-step-ms=0.0216"
+  },
+  {
+    "frame": 2,
+    "time": 0.019999999552965164,
+    "kind": "planner-cost",
+    "detail": "states=1; work=35; ms=29.9532; max-step-ms=7.925"
+  }
+]

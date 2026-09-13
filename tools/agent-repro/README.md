@@ -187,7 +187,7 @@ MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载�
 
 ## 网格地图编辑验证（2026-09-13）
 
-定向组：`MapGraphGridPlacement`（5）、`MapGraphPlacementConnections`（9）、`MapGraphConnectionSelection`（4）、`MapGraphEditorDocument`（14）、`MapGraphEditorCanvas`（6，真实图形设备）。合计 38 项。Canvas 组使用测试拥有的场景和 NavMesh，程序发送 IMGUI 拖动/Shift 事件，验证暂存关闭、发布和重载，生成 `visual/*.png`；正式场景只读截图，不保存。
+当前定向组：`MapGraphGridPlacement`（6）、`MapGraphPlacementConnections`（10）、`MapGraphDiagnostic`（3）、`MapGraphConnectionSelection`（4）、`MapGraphEditorDocument`（14）、`MapGraphEditorCanvas`（6，真实图形设备），清单合计 43 项。G4 修复选择其中 39 项验证，未重复运行无改动的 ConnectionSelection 组。Canvas 组使用测试拥有的场景和 NavMesh，程序发送 IMGUI 拖动/Shift 事件，验证暂存关闭、发布和重载，生成 `visual/*.png`；正式场景只读截图，不保存。
 
 在 Ubuntu WSL 中调用 Windows Unity Runner，例如：
 
@@ -196,3 +196,5 @@ MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载�
 ```
 
 每次只运行一个 Runner，运行期间冻结源码、Assets、Packages、ProjectSettings 和工具。`AnomalySearchFinal/Project` 已有用户手动编辑，本轮不将它作为可覆盖的验证副本。原始报告、成本证据和截图归档见 [网格作者验收](../../outputs/map-grid-authoring/validation_report.md)。
+
+G4 包含四类几何冲突、中文名称和定位、失败候选诊断上下文，以及 Undo 草稿/工作图隔离。真实窗口在三个入口拒绝同一错误草稿，然后完成合法编辑和发布闭环；证据见 [冲突诊断验收](../../outputs/map-grid-authoring/diagnostics/validation_report.md)。

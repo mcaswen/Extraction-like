@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.1656764">
+  <test-suite type="TestSuite" id="1849" name="AgentRepro_20260913-190024-157" fullname="AgentRepro_20260913-190024-157" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.165676" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2691" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.149537" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="51692" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2692" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.144536" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2693" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.139648" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2383" name="MapGraphPlacementConnectionsTests" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.128627" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2390" name="BudgetAndCancellationNeverPublishPartialSuggestions" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.BudgetAndCancellationNeverPublishPartialSuggestions" methodname="BudgetAndCancellationNeverPublishPartialSuggestions" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="1750265418" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:40Z" duration="0.033929" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2387" name="DiagonalPlacementRequiresExplicitBoundedAdjustment" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.DiagonalPlacementRequiresExplicitBoundedAdjustment" methodname="DiagonalPlacementRequiresExplicitBoundedAdjustment" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="611914590" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:40Z" duration="0.011334" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2393" name="FailedAdjustmentReportsTheVisibleDraftInsteadOfAnUnacceptedCandidate" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.FailedAdjustmentReportsTheVisibleDraftInsteadOfAnUnacceptedCandidate" methodname="FailedAdjustmentReportsTheVisibleDraftInsteadOfAnUnacceptedCandidate" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="1371562434" result="Passed" start-time="2026-09-13 11:00:40Z" end-time="2026-09-13 11:00:41Z" duration="0.010562" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2384" name="FixedConnectionsKeepCoordinatesAndPreferUnobstructedNeighbours" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.FixedConnectionsKeepCoordinatesAndPreferUnobstructedNeighbours" methodname="FixedConnectionsKeepCoordinatesAndPreferUnobstructedNeighbours" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="1363053688" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.004193" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2392" name="IncompleteMeasurementsFailBeforeAnyLayoutSearch" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.IncompleteMeasurementsFailBeforeAnyLayoutSearch" methodname="IncompleteMeasurementsFailBeforeAnyLayoutSearch" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="1301836779" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.002993" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2386" name="ManualIdentityDirectionAndStyleSurviveFixedGeneration" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.ManualIdentityDirectionAndStyleSurviveFixedGeneration" methodname="ManualIdentityDirectionAndStyleSurviveFixedGeneration" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="150266350" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.004738" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2389" name="NameObstructionAndUnavailableManualEdgesAreReported" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.NameObstructionAndUnavailableManualEdgesAreReported" methodname="NameObstructionAndUnavailableManualEdgesAreReported" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="513324610" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.003905" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2385" name="PhysicalIslandsAndManualExclusionsDoNotInventConnections" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.PhysicalIslandsAndManualExclusionsDoNotInventConnections" methodname="PhysicalIslandsAndManualExclusionsDoNotInventConnections" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="30164694" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.004820" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2388" name="PinnedNodesAndZonesCannotMoveToRepairADiagonal" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.PinnedNodesAndZonesCannotMoveToRepairADiagonal" methodname="PinnedNodesAndZonesCannotMoveToRepairADiagonal" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="1354810292" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.005072" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2391" name="TwentyEightNodeGridKeepsIncrementalWorkWithinAnInteractiveBudget" fullname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests.TwentyEightNodeGridKeepsIncrementalWorkWithinAnInteractiveBudget" methodname="TwentyEightNodeGridKeepsIncrementalWorkWithinAnInteractiveBudget" classname="AgentReproduction.Tests.MapGraphPlacementConnectionsTests" runstate="Runnable" seed="357876810" result="Passed" start-time="2026-09-13 11:00:41Z" end-time="2026-09-13 11:00:41Z" duration="0.037779" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

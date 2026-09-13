@@ -44,3 +44,5 @@
 ![连接成功后的线条样式编辑](visual/04-shift-line-style.png)
 
 另有 [初始网格](visual/01-grid-ready.png)、[发布并重开的地图](visual/05-published-reopened.png)。详细文件边界、闭环记录见 [规划](../../.planning/2026-09-13-map-grid-authoring/task_plan.md) 和 [架构审查](../../.planning/2026-09-13-map-grid-authoring/architecture_review.md)。
+
+后续 G4：冲突诊断、名称避让框、定位和 Undo 数据隔离修复已完成，39 项定向验证通过，见 [修复验收](diagnostics/validation_report.md)。

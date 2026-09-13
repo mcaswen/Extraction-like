@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.0987941">
+  <test-suite type="TestSuite" id="1849" name="AgentRepro_20260913-185950-178" fullname="AgentRepro_20260913-185950-178" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.098794" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2691" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.078326" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="55952" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2692" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.073226" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2693" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="685" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.068373" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2270" name="MapGraphDiagnosticTests" fullname="AgentReproduction.Tests.MapGraphDiagnosticTests" classname="AgentReproduction.Tests.MapGraphDiagnosticTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.054685" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2272" name="FocusSelectsEndpointsAndNameObstaclesWithoutEditingLayout" fullname="AgentReproduction.Tests.MapGraphDiagnosticTests.FocusSelectsEndpointsAndNameObstaclesWithoutEditingLayout" methodname="FocusSelectsEndpointsAndNameObstaclesWithoutEditingLayout" classname="AgentReproduction.Tests.MapGraphDiagnosticTests" runstate="Runnable" seed="1016849394" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.027761" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2271" name="ScreenshotConflictTypesHaveReadableSubjectsAndActions" fullname="AgentReproduction.Tests.MapGraphDiagnosticTests.ScreenshotConflictTypesHaveReadableSubjectsAndActions" methodname="ScreenshotConflictTypesHaveReadableSubjectsAndActions" classname="AgentReproduction.Tests.MapGraphDiagnosticTests" runstate="Runnable" seed="1436589135" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.010096" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2273" name="UnknownDiagnosticsKeepDetailsAndDuplicateNamesStayDistinct" fullname="AgentReproduction.Tests.MapGraphDiagnosticTests.UnknownDiagnosticsKeepDetailsAndDuplicateNamesStayDistinct" methodname="UnknownDiagnosticsKeepDetailsAndDuplicateNamesStayDistinct" classname="AgentReproduction.Tests.MapGraphDiagnosticTests" runstate="Runnable" seed="1047831040" result="Passed" start-time="2026-09-13 11:00:17Z" end-time="2026-09-13 11:00:17Z" duration="0.003516" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
