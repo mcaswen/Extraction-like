@@ -21,6 +21,8 @@ namespace Gameplay.Agent.Navigation
         private bool _hasQuery;
         private Vector3 _target, _queryPosition;
         private float _distance, _radius, _height;
+        private float _bestRemaining = float.PositiveInfinity, _remaining;
+        private Vector3 _progressTarget;
         private int _areaMask;
         public long PathCalculationCount => _queryBuffer.CalculationCount;
         public AgentNavigationMotor(NavMeshAgent agent, float readyTimeout, float progressTimeout)
@@ -32,7 +34,7 @@ namespace Gameplay.Agent.Navigation
 
         public void Reset(string commandId)
         {
-            Stop(); _commandId = commandId; _notReadySince = -1f; _progressTime = Time.time;
+            Stop(); _bestRemaining = float.PositiveInfinity; _commandId = commandId; _notReadySince = -1f; _progressTime = Time.time;
             _progressPosition = _agent != null ? _agent.transform.position : default; _lastPathTime = -999f; _hasQuery = false;
         }
 
@@ -81,6 +83,11 @@ namespace Gameplay.Agent.Navigation
             if (query)
             {
                 _lastResult = AgentNavigationQuery.Check(_agent, target, distance, _queryBuffer);
+                if ((_progressTarget - target).sqrMagnitude > 0.01f)
+                { _progressTarget = target; _bestRemaining = float.PositiveInfinity; }
+                _remaining = 0;
+                for (int i = 1; i < _queryBuffer.LastCornerCount; i++)
+                    _remaining += Vector3.Distance(_queryBuffer.Corners[i - 1], _queryBuffer.Corners[i]);
                 _target = target; _distance = distance; _queryPosition = _agent.nextPosition;
                 _areaMask = _agent.areaMask; _radius = _agent.radius; _height = _agent.height;
                 _lastPathTime = Time.time; _hasQuery = true;
@@ -92,8 +99,10 @@ namespace Gameplay.Agent.Navigation
                 Stop(); _progressTime = Time.time; return result;
             }
             if (Time.timeScale <= 0f) { _progressTime = Time.time; return result; }
-            if (Vector3.Distance(_progressPosition, _agent.nextPosition) >= 0.05f)
-            { _progressPosition = _agent.nextPosition; _progressTime = Time.time; }
+            // 重算后的实际剩余路径必须缩短；原地左右抖动不能不断续期。
+            // 使用路径长度而非目标直线距离，正常绕墙的前进仍计入进展。
+            if (_bestRemaining - _remaining >= 0.05f)
+            { _bestRemaining = _remaining; _progressPosition = _agent.nextPosition; _progressTime = Time.time; }
             if (Time.time - _progressTime >= _progressTimeout)
             { Stop(); return new AgentNavigationResult(AgentNavigationStatus.Stalled); }
             _agent.speed = Mathf.Max(0f, speed);

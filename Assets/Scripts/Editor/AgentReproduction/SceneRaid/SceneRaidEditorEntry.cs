@@ -16,6 +16,7 @@ namespace AnomalySearch.Editor.SceneRaid
         private const string Phase = "SceneRaid.Phase";
         private static SceneRaidScenarioConfig _config;
         private static SceneRaidProfilerCapture _capture;
+        private static SceneRaidMapVisualCapture _mapCapture;
         private static double _nextIdlePoll;
 
         [Serializable] private sealed class EditorState
@@ -165,6 +166,11 @@ namespace AnomalySearch.Editor.SceneRaid
                 if (EditorApplication.isPlaying)
                 {
                     SessionState.SetString(Phase, "playing");
+                    if (_config.mode == "ManualRoutes")
+                    {
+                        if (_mapCapture == null) _mapCapture = new SceneRaidMapVisualCapture(_config);
+                        _mapCapture.Tick();
+                    }
                     if (_config.profile)
                     {
                         if (_capture == null) _capture = new SceneRaidProfilerCapture(_config);
@@ -209,6 +215,7 @@ namespace AnomalySearch.Editor.SceneRaid
         }
         private static void Finish(int exitCode)
         {
+            _mapCapture?.Dispose(); _mapCapture = null;
             SessionState.SetBool(Armed, false);
             Profiler.enabled = false;
             Profiler.enableBinaryLog = false;

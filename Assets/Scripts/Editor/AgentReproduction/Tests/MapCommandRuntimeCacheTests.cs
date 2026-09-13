@@ -26,18 +26,22 @@ namespace AgentReproduction.Tests
         [Serializable]private sealed class SpawnRecord{public string source,enemy;public Vector3 position,aim;public string[] enclosing;}
         [Serializable]private sealed class SpawnEvidence{public SpawnRecord[] spawns;}
         [UnityTest]public IEnumerator FormalStaticSentinelsDoNotEncloseAnotherAimPoint()
+        { yield return CheckSpawnOverlap(true); }
+        [UnityTest]public IEnumerator FormalSpawnedEnemiesDoNotEncloseAnotherAimPoint()
+        { yield return CheckSpawnOverlap(false); }
+        private IEnumerator CheckSpawnOverlap(bool onlyStatic)
         {
             var load=EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath,new LoadSceneParameters(LoadSceneMode.Single));
             yield return RuntimeWait.Until(()=>load.isDone,"静止敌人场景载入",60);
             yield return RuntimeWait.Until(()=>Object.FindObjectsOfType<EnemySpawnPoint>().Any(x=>x.SpawnedEnemy!=null),"正式生成",20);
             yield return null;Physics.SyncTransforms();
-            var sources=Object.FindObjectsOfType<EnemySpawnPoint>().Where(x=>x.SpawnedEnemy!=null&&x.SpawnedEnemy.GetComponent<AnchorSentinelBehaviorController>()!=null).ToArray();
+            var sources=Object.FindObjectsOfType<EnemySpawnPoint>().Where(x=>x.SpawnedEnemy!=null&&(!onlyStatic||x.SpawnedEnemy.GetComponent<AnchorSentinelBehaviorController>()!=null)).ToArray();
             var rows=sources.Select(x=>new SpawnRecord{source=Hierarchy(x.transform),enemy=x.SpawnedEnemy.name,position=x.SpawnedEnemy.transform.position,
                 aim=CombatAimPointResolver.Resolve(x.SpawnedEnemy.transform),enclosing=sources.Where(y=>y!=x&&y.SpawnedEnemy.GetComponentsInChildren<Collider>()
                     .Any(c=>c.enabled&&!c.isTrigger&&(c.ClosestPoint(CombatAimPointResolver.Resolve(x.SpawnedEnemy.transform))-CombatAimPointResolver.Resolve(x.SpawnedEnemy.transform)).sqrMagnitude<.0001f))
-                    .Select(y=>y.SpawnedEnemy.name).ToArray()}).ToArray();
-            File.WriteAllText(Path.Combine(TestRunContext.Load().outputPath,"static-sentinels.json"),JsonUtility.ToJson(new SpawnEvidence{spawns=rows},true));
-            Assert.That(rows.Length,Is.GreaterThan(1));Assert.That(rows.All(x=>x.enclosing.Length==0),Is.True,"静止哨兵瞄准点被相邻身体完全包住");ContractCompleted=true;
+                    .Select(y=>Hierarchy(y.transform)+"/"+y.SpawnedEnemy.name).ToArray()}).ToArray();
+            File.WriteAllText(Path.Combine(TestRunContext.Load().outputPath,onlyStatic?"static-sentinels.json":"all-spawn-overlap.json"),JsonUtility.ToJson(new SpawnEvidence{spawns=rows},true));
+            Assert.That(rows.Length,Is.GreaterThan(1));Assert.That(rows.All(x=>x.enclosing.Length==0),Is.True,"出生敌人瞄准点被相邻身体完全包住");ContractCompleted=true;
         }
         private static string Hierarchy(Transform item)=>item.parent==null?item.name:Hierarchy(item.parent)+"/"+item.name;
         [UnityTest]public IEnumerator FormalPlayModeReusesSavedCostsWithTheActualNavigationAndProfiles()

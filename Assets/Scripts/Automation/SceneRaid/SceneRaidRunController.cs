@@ -19,6 +19,7 @@ namespace AnomalySearch.Automation.SceneRaid
         private Commands.SceneRaidCommandEvidence _commandEvidence;
         private Commands.SceneRaidClusterCommandDriver _commands;
         private Commands.SceneRaidRouteCommandDriver _routeCommands;
+        private SceneRaidMapViewportDriver _mapViewport;
         private StreamWriter _carriedFile;
         private int _inventoryRevision = -1;
         private bool _initialInventoryCaptured;
@@ -40,6 +41,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _model = new SceneRaidReadModel(identity, _observer.LatestResource);
             _observer.CaptureDirective = _model.CaptureDirective;
             _observer.CaptureNavigation = _model.CaptureNavigation;
+            _contracts.CaptureNavigation = _model.CaptureNavigation;
             _routes = new Commands.SceneRaidRouteEvidence(_writer);
             if (config.mode == "Autonomous" || config.mode == "ManualCluster" || config.mode == "ManualRoutes")
                 _inventory = new SceneRaidInventoryDriver(_writer, identity, _observer.LatestResource);
@@ -55,6 +57,7 @@ namespace AnomalySearch.Automation.SceneRaid
             _sampler = new SceneRaidFrameSampler(config.observeSeconds);
             _writer.Add("bootstrap.beforeSceneLoad", JsonUtility.ToJson(config));
             if(config.mode=="ManualRoutes")_routeCommands=new Commands.SceneRaidRouteCommandDriver(config.ParseRouteScenario(),_writer);
+            if(config.exerciseMapViewport)_mapViewport=new SceneRaidMapViewportDriver(_writer);
             _writer.Flush();
             Application.runInBackground = true;
             Application.targetFrameRate = -1;
@@ -77,6 +80,7 @@ namespace AnomalySearch.Automation.SceneRaid
                 _updates++;
                 _sampler.Sample();
                 _routes.Tick();
+                _mapViewport?.Tick();
                 _routeCommands?.Tick();
                 _commandEvidence?.ObserveProgress();
                 if (_commands != null && !_initialInventoryCaptured && _updates >= 3)

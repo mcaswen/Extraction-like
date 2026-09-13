@@ -5,6 +5,7 @@ using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Config;
+using Gameplay.Perception;
 using UnityEngine;
 
 namespace Gameplay.Agent.Routes
@@ -21,7 +22,8 @@ namespace Gameplay.Agent.Routes
         private AgentRouteFailure _failure;
         private Vector3 _anchor;
         private string _commandId;
-        private bool _final, _skipResources, _capacity, _disposed;
+        private bool _final, _skipResources, _capacity, _disposed, _anchorVisited;
+        private double _nextCombatProbe;
         private int _attempt, _failedAttempts, _alive;
         private double _nextTick, _retryAt, _waitStarted;
         private AgentDirectiveResult? _terminalResult;
@@ -66,7 +68,7 @@ namespace Gameplay.Agent.Routes
 
             if (_phase == AgentClusterStepPhase.Travelling)
             {
-                if (!_terminalResult.HasValue) return;
+                if (!_terminalResult.HasValue) { TryStartNearbyCombat(facts, now); return; }
                 var result = ConsumeResult();
                 if (result.Stage != AgentDirectiveStage.Completed) { End(AgentClusterStepPhase.Failed, MapFailure(result.Reason)); return; }
                 float stop = _agent.Blackboard.GetValueOrDefault<float>(AgentBlackboardKeys.MoveStoppingDistance, 2f);
@@ -77,13 +79,17 @@ namespace Gameplay.Agent.Routes
                     else SubmitTravel();
                     return;
                 }
+                _anchorVisited = true;
                 _phase = AgentClusterStepPhase.Processing; _failedAttempts = 0; _waitStarted = now;
             }
             // 活动成员被同伴击杀时，先看整群事实，不能由单次 Engage 失败断言整群失败。
             if (facts.Status == AgentRouteTargetStatus.Completed ||
                 (facts.Kind == MapGraphNodeKind.Extraction && !_final) ||
                 (facts.Kind == MapGraphNodeKind.Resource && _skipResources))
-            { End(AgentClusterStepPhase.Completed); return; }
+            {
+                if (!_anchorVisited) { SubmitTravel(); return; }
+                End(AgentClusterStepPhase.Completed); return;
+            }
             if (facts.Status == AgentRouteTargetStatus.SpawnFailed)
             { End(AgentClusterStepPhase.Failed, AgentRouteFailure.SpawnFailed); return; }
             if (facts.Status == AgentRouteTargetStatus.WaitingSpawn)
@@ -113,6 +119,29 @@ namespace Gameplay.Agent.Routes
             var accepted = _lifecycle.SubmitRouteStep(directive.WithRouteContext(_context));
             if (!accepted.Accepted) { RetryOrFail(now, MapFailure(accepted.Reason)); return; }
             _phase = directive.DirectiveType == AgentDirectiveType.Extract ? AgentClusterStepPhase.Extracting : AgentClusterStepPhase.Processing;
+        }
+
+        // 敌人可能占住自己的群锚点。进入当前群攻击范围即可处理，但清群后仍须补完真实锚点访问。
+        private void TryStartNearbyCombat(AgentRouteTargetFacts facts, double now)
+        {
+            if (_anchorVisited || now < _nextCombatProbe || facts.Status != AgentRouteTargetStatus.Ready ||
+                (facts.Kind != MapGraphNodeKind.EnemySource && facts.Kind != MapGraphNodeKind.ActiveEnemy) ||
+                !_lifecycle.Active.HasValue || !Owns(_lifecycle.Active.Value)) return;
+            _nextCombatProbe = now + 0.25;
+            float range = _agent.Blackboard.GetValueOrDefault<float>(AgentBlackboardKeys.AttackRange, 6f);
+            Vector3 delta = _agent.Position - _anchor;
+            if (new Vector2(delta.x, delta.z).sqrMagnitude > range * range) return;
+            string command = NextCommandId();
+            if (!_resolver.TryCreateProcessingDirective(_context.NodeId, _agent.AgentId, command,
+                    _context.IsPlayerRoute ? 1000 : 0, out var directive, out _) || directive.DirectiveType != AgentDirectiveType.Engage) return;
+            var enemy = directive.TargetObject != null ? directive.TargetObject.GetComponentInParent<global::EnemyHealthController>() : null;
+            if (enemy == null || TargetVisibilityQuery.Check(_agent.CachedTransform,
+                    CombatAimPointResolver.Resolve(_agent.CachedTransform), enemy.transform, range) != TargetVisibilityResult.Visible) return;
+            // 先切换本步骤拥有的子指令 ID，旧 MoveTo 的替换取消不会被当作新战斗的终态。
+            _commandId = command; _terminalResult = null;
+            var accepted = _lifecycle.SubmitRouteStep(directive.WithRouteContext(_context));
+            if (!accepted.Accepted) { RetryOrFail(now, MapFailure(accepted.Reason)); return; }
+            _phase = AgentClusterStepPhase.Processing;
         }
 
         private bool SubmitTravel()

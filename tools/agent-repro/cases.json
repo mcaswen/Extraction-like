@@ -1,6 +1,26 @@
 {
   "groups": [
     {
+      "name": "NavigationProgress",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.NavigationProgressTests",
+      "expected": [
+        "SidewaysOscillationCannotRenewTheProgressDeadline(1)",
+        "SidewaysOscillationCannotRenewTheProgressDeadline(4)",
+        "ARealDetourCanMoveAwayFromTheGoalWithoutFalseStalling",
+        "MovingDestinationRebasesTheSameCommandsProgressBudget"
+      ]
+    },
+    {
+      "name": "MapCommandOccupiedAnchor",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandOccupiedAnchorTests",
+      "expected": [
+        "EnemyOccupyingAnchorIsClearedBeforePhysicalVisitAndRouteContinuation(1)",
+        "EnemyOccupyingAnchorIsClearedBeforePhysicalVisitAndRouteContinuation(4)"
+      ]
+    },
+    {
       "name": "MapCommandEditedRoute",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandEditedRouteTests",
@@ -26,7 +46,8 @@
       "filter": "AgentReproduction.Tests.MapCommandRuntimeCacheTests",
       "expected": [
         "FormalPlayModeReusesSavedCostsWithTheActualNavigationAndProfiles",
-        "FormalStaticSentinelsDoNotEncloseAnotherAimPoint"
+        "FormalStaticSentinelsDoNotEncloseAnotherAimPoint",
+        "FormalSpawnedEnemiesDoNotEncloseAnotherAimPoint"
       ]
     },
     {

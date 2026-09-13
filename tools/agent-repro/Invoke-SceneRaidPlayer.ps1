@@ -3,6 +3,7 @@ param(
     [ValidateRange(120,1200)][int]$TimeoutSeconds = 600,
     [switch]$ObserveOnly,
     [switch]$ShowWindow,
+    [switch]$ExerciseMap,
     [string]$ScenarioId,
     [ValidateRange(5,600)][Nullable[float]]$ObserveSeconds
 )
@@ -49,6 +50,7 @@ try {
     if ($null -ne $ObserveSeconds) { $config.observeSeconds = $ObserveSeconds }
     $config.buildPlayer = $false; $config.simulationSpeed = 1; $config.profile = $false; $config.binaryProfile = $false
     $config | Add-Member -NotePropertyName quitPlayerWhenComplete -NotePropertyValue $true -Force
+    $config | Add-Member -NotePropertyName exerciseMapViewport -NotePropertyValue $ExerciseMap.IsPresent -Force
     $configPath = Join-Path $output 'config.json'
     $config | ConvertTo-Json -Depth 16 | Set-Content -LiteralPath $configPath -Encoding UTF8
     @{runId=$config.runId;buildRunPath=$buildRoot;buildManifestSha256=(Get-FileHash -LiteralPath (Join-Path $buildRoot 'manifest.json')).Hash;
@@ -83,8 +85,21 @@ try {
     @{pid=$process.Id;exitCode=$code;sourceUnchanged=$unchanged;binaryUnchanged=$binaryUnchanged;terminationReason=$terminationReason;
         completedUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'process.json') -Encoding UTF8
     $report = Test-SceneRaidEvidence $output $config $code ($unchanged -and $binaryUnchanged) -PlayerRun
+    $mapPassed = $true
+    if ($ExerciseMap) {
+        $mapRows = @(Get-Content -LiteralPath (Join-Path $output 'events.jsonl') -Encoding UTF8 |
+            Where-Object { $_.Contains('"kind":"map.viewport"') } | ForEach-Object { ($_ | ConvertFrom-Json).detail | ConvertFrom-Json })
+        $expandedFrames = @(Get-Content -LiteralPath (Join-Path $output 'events.jsonl') -Encoding UTF8 |
+            Where-Object { $_.Contains('"kind":"route.frame"') } | ForEach-Object { ($_ | ConvertFrom-Json).detail | ConvertFrom-Json } |
+            Where-Object { $_.expanded }).Count
+        $mapPassed = $mapRows.Count -eq 2 -and $mapRows[0].expanded -and !$mapRows[1].expanded -and $expandedFrames -ge 20
+        foreach ($row in $mapRows) {
+            if (($row.before -join '|') -ne ($row.after -join '|') -or $row.submittedCommands -ne 0) { $mapPassed = $false }
+        }
+        $report | Add-Member -NotePropertyName mapViewportValidation -NotePropertyValue @{passed=$mapPassed;switches=$mapRows.Count;expandedSamples=$expandedFrames}
+    }
     $passed = !$terminationReason -and $report.evidenceStatus -eq 'PASS' -and
-        ($ObserveOnly -or ($report.gameStatus -in @('PASS','EXPECTED_DEATH') -and $report.diagnosticTiming.thresholdsMet))
+        $mapPassed -and ($ObserveOnly -or ($report.gameStatus -in @('PASS','EXPECTED_DEATH') -and $report.diagnosticTiming.thresholdsMet))
     $report | Add-Member -NotePropertyName runAcceptance -NotePropertyValue $(if (!$passed) {'FAIL'} elseif ($ObserveOnly) {'OBSERVATION_COMPLETE'} else {'PASS'})
     $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $output 'report.json') -Encoding UTF8
     $report | Select-Object runId,runAcceptance,evidenceStatus,gameStatus,gameErrors,behaviorFailures,expectedRejections,expectedExecutionFailures,unexpectedBehaviorFailures,coverageStatus,stagnationSuspicions,issues,

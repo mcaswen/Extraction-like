@@ -1,5 +1,9 @@
 #if UNITY_EDITOR || ANOMALY_SCENE_AUTOMATION
 using System.Collections.Generic;
+using System;
+using Gameplay.Agent.Data;
+using Gameplay.Agent.Commands;
+using Gameplay.Agent.Runtime;
 using UnityEngine;
 
 namespace AnomalySearch.Automation.SceneRaid
@@ -15,6 +19,8 @@ namespace AnomalySearch.Automation.SceneRaid
             public bool reported;
         }
         private readonly Dictionary<string, Progress> _progress = new Dictionary<string, Progress>();
+        public Func<AgentDirectiveRequest, SceneRaidNavigationEvidence.Record> CaptureNavigation { get; set; }
+        [Serializable] private sealed class StagnationEvidence { public string agent; public SceneRaidNavigationEvidence.Record navigation; }
         public void Observe(SceneRaidReadModel.Snapshot snapshot, SceneRaidEvidenceWriter writer)
         {
             foreach (var agent in snapshot.agents)
@@ -33,6 +39,14 @@ namespace AnomalySearch.Automation.SceneRaid
                 {
                     progress.reported = true;
                     writer.Add("contract.movementStagnationSuspected", JsonUtility.ToJson(agent));
+                    if (CaptureNavigation != null)
+                    {
+                        var request = new AgentDirectiveRequest(AgentDirectiveType.MoveTo,
+                            AgentTargetRef.FromAbstractPoint(AgentTargetKind.Location, agent.targetId, agent.destination),
+                            targetAgentId: new AgentId(agent.id), commandId: agent.commandId);
+                        writer.Add("diagnostic.stagnation", JsonUtility.ToJson(new StagnationEvidence {
+                            agent = agent.id, navigation = CaptureNavigation(request) }));
+                    }
                 }
             }
         }

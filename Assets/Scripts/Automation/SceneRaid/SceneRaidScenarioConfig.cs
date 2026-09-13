@@ -18,6 +18,7 @@ namespace AnomalySearch.Automation.SceneRaid
         public bool buildPlayer;
         public bool quitPlayerWhenComplete;
         public bool captureCommandCatalog;
+        public bool exerciseMapViewport;
         public string scenarioJson, scenarioSha256;
 
         public Commands.SceneRaidRouteScenario ParseRouteScenario()

@@ -23,6 +23,8 @@ namespace AnomalySearch.Automation.SceneRaid
             public float radius, height, baseOffset;
             public int priority, agentTypeId, areaMask;
             public bool ready, hasPath, stopped;
+            public bool hasLife, alive;
+            public float health;
         }
         [Serializable] public sealed class Obstacle
         {
@@ -59,7 +61,10 @@ namespace AnomalySearch.Automation.SceneRaid
             record.agents = UnityEngine.Object.FindObjectsOfType<NavMeshAgent>().Where(x => Near(x.transform.position)).Select(x =>
             {
                 bool ready = x.isActiveAndEnabled && x.isOnNavMesh;
+                var enemy = x.GetComponent<EnemyHealthController>(); var actor = x.GetComponent<AgentPawnRoot>();
                 return new NavigationAgent { identity = identity.Get(x), position = x.transform.position,
+                    hasLife = enemy != null || actor != null, alive = enemy != null ? enemy.IsAlive : actor != null && !actor.IsDead,
+                    health = enemy != null ? enemy.GetCurrentHealthRatio() * enemy.MaxHealth : actor != null ? actor.CurrentHealth : 0,
                     radius = x.radius, height = x.height, baseOffset = x.baseOffset, priority = x.avoidancePriority,
                     agentTypeId = x.agentTypeID, areaMask = x.areaMask,
                     avoidance = x.obstacleAvoidanceType.ToString(), ready = ready, hasPath = ready && x.hasPath,
