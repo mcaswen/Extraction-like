@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.9867012">
+  <test-suite type="TestSuite" id="1860" name="AgentRepro_20260913-201113-293" fullname="AgentRepro_20260913-201113-293" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.986701" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2713" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.965889" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="44724" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2714" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.952729" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2715" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.940843" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2589" name="SceneRaidInventoryTests" fullname="AgentReproduction.Tests.SceneRaidInventoryTests" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.760445" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2590" name="QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData" methodname="QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="1849857192" result="Passed" start-time="2026-09-13 12:11:37Z" end-time="2026-09-13 12:11:39Z" duration="1.748192" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

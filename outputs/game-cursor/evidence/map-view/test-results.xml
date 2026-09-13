@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 12:12:01Z" end-time="2026-09-13 12:12:04Z" duration="2.2983723">
+  <test-suite type="TestSuite" id="1860" name="AgentRepro_20260913-201145-289" fullname="AgentRepro_20260913-201145-289" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:12:01Z" end-time="2026-09-13 12:12:04Z" duration="2.298372" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2713" name="Assembly-CSharp-Editor.dll" fullname="D:/Unity-Projects/.agent-repro/AnomalySearchRegression/Project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:12:01Z" end-time="2026-09-13 12:12:04Z" duration="2.279120" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="1176" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2714" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:12:01Z" end-time="2026-09-13 12:12:04Z" duration="2.272424" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2715" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="695" result="Passed" start-time="2026-09-13 12:12:01Z" end-time="2026-09-13 12:12:04Z" duration="2.266912" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2210" name="MapCommandPresentationTests" fullname="AgentReproduction.Tests.MapCommandPresentationTests" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-13 12:12:02Z" end-time="2026-09-13 12:12:04Z" duration="2.098558" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2213" name="CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute" fullname="AgentReproduction.Tests.MapCommandPresentationTests.CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute" methodname="CompactExpandedZoomAndDragShareTheSameViewsAndExecutedRoute" classname="AgentReproduction.Tests.MapCommandPresentationTests" runstate="Runnable" seed="1390459488" result="Passed" start-time="2026-09-13 12:12:02Z" end-time="2026-09-13 12:12:04Z" duration="2.086064" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Enemy cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

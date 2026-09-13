@@ -1,0 +1,70 @@
+{
+  "runs": [
+    {
+      "label": "inventory",
+      "runId": "20260913-201113-293",
+      "passed": 1,
+      "scope": "TestFilter, one existing test"
+    },
+    {
+      "label": "map-view",
+      "runId": "20260913-201145-289",
+      "passed": 1,
+      "scope": "TestFilter, one existing test"
+    }
+  ],
+  "cursorWrites": [
+    {
+      "path": "Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs",
+      "line": 1255,
+      "code": "Cursor.lockState = CursorLockMode.None;"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs",
+      "line": 1256,
+      "code": "Cursor.visible = true;"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs",
+      "line": 1290,
+      "code": "Cursor.lockState = CursorLockMode.None;"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs",
+      "line": 1291,
+      "code": "Cursor.visible = true;"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs",
+      "line": 59,
+      "code": "Cursor.lockState = CursorLockMode.None;"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs",
+      "line": 60,
+      "code": "Cursor.visible = true;"
+    }
+  ],
+  "verifiedSourceFiles": [
+    {
+      "path": "Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs",
+      "sha256": "80219494e3c00568cd85a1fb8d83d3b64cd0a5cca315ce27b0f1f649d5fa01a9",
+      "runId": "20260913-201113-293"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs",
+      "sha256": "e6d4940b174f82690de8f019d51c9fe7891c449d9a00f55b2fbc7df7a97c578b",
+      "runId": "20260913-201113-293"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Targets/Input/PlayerInputManager.cs",
+      "sha256": "80219494e3c00568cd85a1fb8d83d3b64cd0a5cca315ce27b0f1f649d5fa01a9",
+      "runId": "20260913-201145-289"
+    },
+    {
+      "path": "Assets/Scripts/Gameplay/Backpack/InventoryScreenController.cs",
+      "sha256": "e6d4940b174f82690de8f019d51c9fe7891c449d9a00f55b2fbc7df7a97c578b",
+      "runId": "20260913-201145-289"
+    }
+  ]
+}

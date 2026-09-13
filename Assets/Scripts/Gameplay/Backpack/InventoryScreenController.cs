@@ -1286,8 +1286,9 @@ public class InventoryScreenController : MonoBehaviour
 
         InventoryItemInfoPanelController.Instance?.Hide();
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // 关闭背包后继续通过鼠标点击群和地图下令。
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         GameSfxPlayer.PlayInventoryClose();
     }
 

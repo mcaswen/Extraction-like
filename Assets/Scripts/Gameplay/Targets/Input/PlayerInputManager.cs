@@ -42,6 +42,24 @@ public sealed class PlayerInputManager : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        ShowGameplayCursor();
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus)
+            ShowGameplayCursor();
+    }
+
+    private static void ShowGameplayCursor()
+    {
+        // 点击群和地图下令需要自由移动的鼠标，进入游戏或切回窗口时恢复。
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
     private void Update()
     {
         if (!Input.GetMouseButtonDown(0))
