@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_MapGraphDefinition_Scenezl_Final1
   m_EditorClassIdentifier: 
   _schemaVersion: 2
-  _revision: 3
+  _revision: 4
   _mapId: map_graph
   _displayName: "\u533A\u57DF\u6307\u6325\u56FE"
   _startNodeId: 
@@ -982,10 +982,10 @@ MonoBehaviour:
       _locked: 0
     _excludedConnections: []
   _navigationBake:
-    _sceneFingerprint: fbdfb5b2343dac4212448646b49fefc1
+    _sceneFingerprint: c4b98292069985510081738d638f4f1c
     _navigationFingerprint: 179862da593f796734528c98a3799bb6
     _runtimeNavigationFingerprint: 0d08ddbf700007774f593a480da8040b514c19a493559446099ae6cbaae60981
-    _revision: 3
+    _revision: 4
     _profile:
       _profileId: 099981250ab080edf0d9c4b48851bffa
       _agentTypeId: 0

@@ -1,13 +1,13 @@
 {
   "groups": [
     {
-      "name": "MapCommandRouteScenario",
+      "name": "MapCommandEditedRoute",
       "suite": "Core",
-      "filter": "AgentReproduction.Tests.MapCommandRouteScenarioTests",
+      "filter": "AgentReproduction.Tests.MapCommandEditedRouteTests",
       "expected": [
-        "RouteScenarioRejectsWrongVersionHashAndUnboundedOperations",
-        "FiniteScriptUsesRealMovementReplacementAndPreservesTheOtherAgent",
-        "StopIsIdempotentAndCannotSubmitWithoutPrerequisites"
+        "SavedAuthorConnectionsDetermineTheActualVisitedGroups(\"Deleted\")",
+        "SavedAuthorConnectionsDetermineTheActualVisitedGroups(\"Restored\")",
+        "SavedAuthorConnectionsDetermineTheActualVisitedGroups(\"LayoutOnly\")"
       ]
     },
     {
@@ -15,8 +15,39 @@
       "suite": "Maintenance",
       "filter": "AgentReproduction.Tests.MapCommandSceneRepairTests",
       "expected": [
+        "SeparateOverlappingLaboratorySentinelSpawn",
         "GroundDragonboneMarkerAndRebakeOwnedNavigationAndMap",
         "RefreshGraphBakeFromSavedScene"
+      ]
+    },
+    {
+      "name": "MapCommandRuntimeCache",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandRuntimeCacheTests",
+      "expected": [
+        "FormalPlayModeReusesSavedCostsWithTheActualNavigationAndProfiles",
+        "FormalStaticSentinelsDoNotEncloseAnotherAimPoint"
+      ]
+    },
+    {
+      "name": "ReachableCombatApproach",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.ReachableCombatApproachTests",
+      "expected": [
+        "FullyEnclosedAimPointRejectsEveryFiringCandidate",
+        "ReachableButOccludedCenterDoesNotBypassFiringCandidateValidation",
+        "RealEngageRepositionsFromMuzzleCoverAndDamagesTarget(1)",
+        "RealEngageRepositionsFromMuzzleCoverAndDamagesTarget(4)"
+      ]
+    },
+    {
+      "name": "MapCommandRouteScenario",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.MapCommandRouteScenarioTests",
+      "expected": [
+        "RouteScenarioRejectsWrongVersionHashAndUnboundedOperations",
+        "FiniteScriptUsesRealMovementReplacementAndPreservesTheOtherAgent",
+        "StopIsIdempotentAndCannotSubmitWithoutPrerequisites"
       ]
     },
     {

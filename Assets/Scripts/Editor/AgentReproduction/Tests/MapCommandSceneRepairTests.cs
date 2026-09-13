@@ -22,6 +22,29 @@ namespace AgentReproduction.Tests
     {
         private const string ScenePath="Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
         private const string NavPath="Assets/Scenes/Scene_DB/Scenezl_Final 1/NavMesh-CommandRoutes.asset";
+        [UnityTest] public IEnumerator SeparateOverlappingLaboratorySentinelSpawn()
+        {
+            Assert.That(Application.companyName,Is.EqualTo("AnomalySearch.Automation"));
+            Assert.That(Application.dataPath.Replace('\\','/'),Does.Contain("/.agent-repro/"));
+            Assert.That(Application.isPlaying,Is.False);
+            var scene=EditorSceneManager.OpenScene(ScenePath);yield return null;
+            var group=GameObject.Find("Zone-实验室/Env/实验室/EnemySourceCluster");
+            Assert.That(group,Is.Not.Null);
+            var spawn=group.GetComponentsInChildren<EnemySpawnPoint>().Single(x=>Vector3.Distance(x.transform.position,new Vector3(-388.91922f,2.22719f,158.9296f))<.01f).gameObject;
+            Assert.That(spawn,Is.Not.Null);
+            var before=spawn.transform.position;
+            Assert.That(before.x,Is.EqualTo(-388.91922f).Within(.01f),"维护仅针对已确认的原出生点，避免重复偏移");
+            var after=before+Vector3.left*4;
+            Assert.That(NavMesh.SamplePosition(before,out var from,3,NavMesh.AllAreas),Is.True);
+            Assert.That(NavMesh.SamplePosition(after,out var to,3,NavMesh.AllAreas),Is.True);
+            var path=new NavMeshPath();Assert.That(NavMesh.CalculatePath(from.position,to.position,NavMesh.AllAreas,path),Is.True);
+            Assert.That(path.status,Is.EqualTo(NavMeshPathStatus.PathComplete));
+            var source=spawn.GetComponent<EnemySpawnPoint>();var serialized=EditorJsonUtility.ToJson(source);
+            spawn.transform.position=after;PrefabUtility.RecordPrefabInstancePropertyModifications(spawn.transform);
+            Assert.That(EditorJsonUtility.ToJson(source),Is.EqualTo(serialized));
+            EditorSceneManager.MarkSceneDirty(scene);Assert.That(EditorSceneManager.SaveScene(scene),Is.True);
+            CaseArtifactWriter.Trace("spawn.separated","before="+before+"; after="+after+"; local="+spawn.transform.localPosition);
+        }
         [UnityTest] public IEnumerator GroundDragonboneMarkerAndRebakeOwnedNavigationAndMap()
         {
             Assert.That(Application.companyName,Is.EqualTo("AnomalySearch.Automation"));

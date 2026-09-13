@@ -63,12 +63,40 @@ Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRouteScenarioTes
 
 MR02 驱动实现验证 `073348-620` 3/3 通过：错误版本/哈希/无限参数拒绝，真实近群移动后替换跨区远群，第三次无效请求保留根并最终走到远群 x=35±0.4，另一角色未被下令，脚本停止后反复 Tick 不再发令。独立合同原 18 项、新脚本 11 项正反例通过，旧报告 79 项通过（`073454-382`）。PowerShell 5.1 中文注释文件需要 UTF-8 BOM、条件管道返回单元素须显式数组包装，已在测试中修正。后续开始 SC10/MR02，不能把构造当作正式整局。
 
+### MR02 新发现：可导航到达但无法射击的近身落点
+
+`073729-136` 的三次有限指令均完成提交/真实前进前提，远群实际路程 1003.67 米、8 群路线，已推进到第 7 群。目标哨兵位于 `(-388.9192,3.1667,158.9296)`，附近另一个哨兵的胶囊体重叠；角色进入距目标 0.067 米处后身体/枪口射线 Occluded，连续 LostSight，根 NoExecutableMember，幸存者健康 41 后停止推进。源码 `AgentCombatApproachQuery.cs` 对导航可直达的目标中心直接返回成功，只有 NavMesh 路径失败才扫描可射击候选，所以“到得了但打不了”不会寻找侧方射击位置。
+
+Create `Assets/Scripts/Editor/AgentReproduction/Tests/ReachableCombatApproachTests.cs`：按上述真实身体、相邻碰撞体和近身坐标构造阻挡，先验证旧查询返回不能开火的落点，再验证完整正式 Engage 在 1×/4× 可换位并真实伤害。Extend `Assets/Scripts/Gameplay/Agent/Navigation/AgentCombatApproachQuery.cs`：可直达的落点同样必须通过既有身体/枪口候选约束，否则继续已有有限环扫描；不跳过遮挡、移动敌人或改血量。接近点选择仍归 Navigation，射击和完成仍归原战斗/生命周期。复跑高处接近和射线范围相关组，再同种子 MR02。另保留首个资源子步骤 NoProgress 和运行时缓存补算（EditMode 缓存虽通过，Play Mode 仍补 58 次）继续定位，不用此修复代替两者。
+
+MR02 首轮结束：证据 PASS、0 运行异常，整局因上述阻塞超时，175 个失败子步骤，不能验收。独立脚本合同 PASS，近/远真实移动、跨群推进、无效保留、另一人自主都有证据，玩家根自然反击 8 次并以同一身份恢复 8 次。4× Editor 诊断均帧 113.78，不作为 1× Player 性能成绩。
+
+运行时缓存补证归属：Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandRuntimeCacheTests.cs`，加载正式场景 Play Mode，记录 Installer 实际导航指纹、保存指纹、实际/保存 profile 和新只读成本服务的失效原因，区别原生顺序变化、profile 初始化差异、真实锚点变化；不因为 EditMode 已通过就略过 Play Mode。诊断自身查询不计入生产每帧开销。
+
+接近查询首轮 `074647-171` 3/3 红灯，确认原查询对完全被另一敌人体包住的中心仍返回“可接近”；加入射击候选校验后 `074925-212` 仍红，原因是构造的两个身体相互包含瞄准点，所有侧向也受挡，并不存在可开火位置。不能以忽略敌人/墙体射线来制造绿灯。将该极端构造的正确预期明确为拒绝无效落点，另用只挡枪口的局部遮挡构造验证有限扫描和真实伤害。
+
+场景实证两个实验室出生点：外层 `EnemySourceCluster/Pfb_EnemySpawn[0]` 为 `(-388.0192,3.1272,157.8237)`，内层 `Env/实验室/EnemySourceCluster/Pfb_EnemySpawn[0]` 为 `(-388.9192,2.2272,158.9296)`，相距 1.426 米但每个哨兵身体半径 1.5 米，均不移动，属于场景重叠配置。Extend `MapCommandSceneRepairTests.cs` 仅在副本将内层这个点向西分离 4 米，先检查同一 NavMesh 的完整可达路径，保留群、数量、Prefab 和战斗配置；更新地图验证指纹。Extend `MapCommandRuntimeCacheTests.cs` 在正式 Play Mode 同时输出出生对应物，断言静止哨兵没有互相包住瞄准点，作为场景红/绿证据。生产接近查询继续拒绝没有射击候选的落点；不更改战斗目标/伤害规则。
+
+`080357-221` 正式 Play Mode 两项中缓存通过、静止哨兵重叠失败；实际指纹/profile 全部匹配、29 边直接加载、0 新计算。`080503-985` 维护因将审计同名索引 `[0]` 误当物体名称失败，改为群路径内按已确认世界坐标唯一定位；`080549-814` 维护通过，只导出 Transform `6573334367530119521` 的一行位置。该点没有 Renderer/Collider，不改变静态 NavMesh；图锚点仍属于另一出生点。
+
+接近构造 `081320-284` 4/4 通过：完全包围拒绝，局部枪口遮挡选择真实可开火候选，1×/4× 正式 Engage 换位后实际造成伤害。局部遮挡只需约 0.1 米加转向即可解除，不强迫继续走满候选距离。扩大的 5 米悬顶实验 `080756-786`、`081036-576` 则记录到角色换位到约 4.72 米、射线 Visible 但弹丸未造成伤害；可能涉及有限体积弹丸擦边，尚未确认原因，作为独立射击边缘问题保留，不能把局部用例通过解释为任意掩体均已验证。
+
 MR03 在测试拥有的图副本删除/添加合法边，比较实际规划和经过序列，结合现有纯图、根重规划和 Editor 保存测试补证。当前龙骨礁撤离锚点可采样但跨区路径 Partial：先导出真实路径角点、附近几何/层级/导航面和画面，判断是锚点、通路还是烘焙配置问题；不得删节点、伪造可达或瞬移。用户已授权有证据的场景修复，只精确提交本次修改，隔离用户场景/NavMesh 增量。
 
 正式图的运行时导航指纹从 P5c 顺延到此步：先关闭真实导航问题，再按最终场景/导航采集签名，避免保存马上失效的缓存；不因此跳过最终缓存复用验证。
 
 ## P6c：渲染、截图和最终审查
 
+具体归属：Create `Assets/Scripts/Editor/AgentReproduction/SceneRaid/SceneRaidMapVisualCapture.cs`，仅 SC10 编辑器诊断运行启用的有限截图观察器，通过既有 GameView 像素工具记录紧凑、展开、行进、处理、反击、撤离画面及同刻根/显示数据；只切地图视口，不发游戏指令。Extend `SceneRaidEditorEntry.cs` 负责创建、轮询和结束释放，Player 性能运行不安装截图观察器。首次同时记录实际已安装导航签名、profile 和只读成本加载原因，解释整局补算，不改变签名算法。
+
+MR03 Create `Assets/Scripts/Editor/AgentReproduction/Tests/MapCommandEditedRouteTests.cs`：使用真实平面导航和四个已清空的敌人群，作者 API 删除、添加合法直边，保存测试拥有的 SO 后卸载重读，以正式 Installer 和 Pawn 根请求运行。独立采集根实际经过序列及每群锚点位置；同一开始/终点在不同拓扑下必须走不同群。移动图标和样式再保存，世界位置和最短实际路线不变；测试结束删除自己创建的资产。与 P2 编辑器事务/Undo/保存的已有证据互补，不直接给 Pawn 写路线或游标。
+
+MR03 `081933-869` 3/3 通过。作者编辑经正式预览求解/独立几何校验，真实资产保存、卸载、重读，然后实际走 `n0→n3→n2`；恢复连线改为 `n0→n1→n2`，移动区域/线样式不改变世界群位置或经过顺序。前两轮构造修正：`081529-196` 缺失正式行列约束，补用原 Editor 预览流程；`081801-895` 用帧采样错过空群同帧完成，改为观测游标离开时的真实位置，不能只凭最终序列判通过。
+
+场景分离后的 `082035-625` 两项全部通过，9 个正式静止哨兵均未互包瞄准点；缓存仍为 0 新查询。高处兼容 `082101-738` 12 项中 1× 导航恢复墙钟超时、其余 11 项通过；同一失败方法定向 `082321-078` 1×/4× 均通过。保留首次超时，不将一次重跑概括为所有时序均已稳定。
+
 复用 SC07 构建和已授权的可见 Player，MR04 1×、4K/High Fidelity、不限帧，正常处理资源/交战/撤离和预期战死。小/大地图切换只影响显示，不改变任务。截图开销单列，原始帧数据完整保留，平均 >60 为门槛。持续捕获实际行进、等待、反击、多人及撤离画面，打开查看后修正，未自然出现的状态由确定性构造补证。
+
+MR04 具体入口：Create `Assets/Scripts/Automation/SceneRaid/SceneRaidMapViewportDriver.cs`，仅 `exerciseMapViewport` 验收开关启用，在墙钟 10 秒展开、40 秒收起同一个正式视口，写切换前后根身份/版本/游标和 UI 提交计数。Extend `SceneRaidScenarioConfig.cs`、`SceneRaidRunController.cs` 只做配置和编排，Extend `Invoke-SceneRaidPlayer.ps1 -ExerciseMap` 检查两次有限切换、根不变和真实展开采样；不开启时原脚本不变。没有截图循环或 UI 测试写根路线，性能数据保留全部帧。
 
 更新 `README.md`、`Assets/Docs/GameplayAgentFrameworkDesign.md`、`outputs/map_command_validation_report.md`、本规划及 `architecture_review.md`。记录每轮输入/结果、真实覆盖缺口和剩余问题；各小步通过后中文提交，不推送，不提前宣称整项完成。

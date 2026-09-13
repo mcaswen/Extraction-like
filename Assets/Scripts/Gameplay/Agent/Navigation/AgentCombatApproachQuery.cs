@@ -22,7 +22,10 @@ namespace Gameplay.Agent.Navigation
             if (agent == null || enemy == null || !enemy.IsAlive || !AgentNavigationQuery.IsReady(agent.NavMeshAgent)) return false;
             long before = buffer.CalculationCount;
             var direct = AgentNavigationQuery.Check(agent.NavMeshAgent, destination, 0, buffer.Navigation);
-            if (!direct.Failed) { destination = direct.Destination; return true; }
+            // 能导航到敌人中心不代表身体和枪口能在该位置射击，例如与另一名敌人重叠。
+            // 复用刚得到的原生路径验证落点；射线受挡时继续既有有限侧方候选扫描。
+            if (!direct.Failed && CanFireFromNavigableCandidate(agent, enemy, attackRange, direct.Destination, buffer))
+            { destination = direct.Destination; return true; }
             var path = buffer.Navigation.Path;
             if (buffer.CalculationCount != before && path.status == NavMeshPathStatus.PathPartial)
             {
@@ -69,7 +72,16 @@ namespace Gameplay.Agent.Navigation
         {
             destination = default;
             var approach = AgentNavigationQuery.Check(agent.NavMeshAgent, candidate, 0, buffer.Navigation);
-            if (approach.Failed || Vector3.Distance(approach.Destination, candidate) > 0.05f || ReadCorners(buffer) < 1) return false;
+            if (approach.Failed || Vector3.Distance(approach.Destination, candidate) > 0.05f ||
+                !CanFireFromNavigableCandidate(agent, enemy, attackRange, approach.Destination, buffer)) return false;
+            destination = approach.Destination;
+            return true;
+        }
+
+        private static bool CanFireFromNavigableCandidate(IAgentReadOnly agent, global::EnemyHealthController enemy,
+            float attackRange, Vector3 candidate, Buffer buffer)
+        {
+            if (ReadCorners(buffer) < 1) return false;
             Vector3 surfaceOrigin = buffer.Navigation.Corners[0];
             // 身体和枪口保留实际缩放、baseOffset 和动画偏移，不把脚下点当射线起点。
             Vector3 prospectivePosition = agent.CachedTransform.position + candidate - surfaceOrigin;
@@ -80,7 +92,6 @@ namespace Gameplay.Agent.Navigation
             Vector3 facing = enemy.transform.position - prospectivePosition; facing.y = 0;
             Quaternion rotation = facing.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(facing, Vector3.up) : agent.CachedTransform.rotation;
             if (shooter == null || !shooter.CanShootFrom(enemy, attackRange, prospectivePosition, rotation)) return false;
-            destination = approach.Destination;
             return true;
         }
     }
