@@ -170,7 +170,7 @@ Material:
     - _DeepColor: {r: 0.02, g: 0.11999995, b: 0.21999997, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FoamColor: {r: 0.92, g: 0.95, b: 1, a: 1}
-    - _OceanOrigin: {r: 145, g: 6.3, b: 205, a: 0}
+    - _OceanOrigin: {r: -332, g: 6.12, b: -336, a: 0}
     - _RefractionTint: {r: 0.11676751, g: 0.3018868, b: 0.22227798, a: 1}
     - _ShallowColor: {r: 0.24999997, g: 0.54999995, b: 0.72, a: 1}
     - _ShoreWaveDir: {r: 0.95782626, g: 0, b: 0.28734788, a: 0}
