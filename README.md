@@ -40,7 +40,7 @@
 1. 获取仓库后，确保 Git LFS 资源已下载；已有检出目录可执行 `git lfs pull`。
 2. 在 Unity Hub 中添加工程，使用上述编辑器版本打开，等待资源导入与脚本编译结束。包依赖记录在 [manifest.json](Packages/manifest.json)。
 3. 打开 [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) 后进入 Play Mode，体验菜单到关卡的流程。
-4. 体验当前地图指挥和搜打撤集成，请直接打开 [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity)。菜单仍指向 [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity)，不会自动切换到这份新场景。
+4. 元素选择确认后会进入 [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity)，该场景是当前地图指挥和搜打撤正式入口。
 5. 构建时以 [EditorBuildSettings.asset](ProjectSettings/EditorBuildSettings.asset) 为准，主菜单目前位于构建列表首位。
 
 Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需要先执行它们。
@@ -52,14 +52,44 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) | 当前主入口，开始游戏后进入准备界面 |
 | [Scene_PreparationInterface](Assets/Scenes/Scene_PreparationInterface.unity) | 进入商店或元素选择 |
 | [Scene_ElementSelectionMenu](Assets/Scenes/Scene_ElementSelectionMenu.unity) | 五种元素中选择两个，随后载入主玩法场景；阵容接线状态见下文 |
-| [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity) | 当前菜单流程使用的 3D Raid 集成场景，预置冰、土两个 Agent |
-| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 地图指挥及搜打撤集成场景，7 个 Zone、28 个静态群、29 条合法直边、两个 Agent、30 个出生配置、两个有效撤离群 |
+| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 当前菜单流程使用的地图指挥及搜打撤正式场景，包含 7 个 Zone、28 个静态群、29 条合法直边、两个 Agent、30 个出生配置和两个有效撤离群 |
+| [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity) | 保留的历史 3D Raid 集成场景，不再由正式菜单流程载入 |
 | [ShopCanvasTest](Assets/Scenes/ShopCanvasTest.unity) | 当前准备界面使用的商店场景，包含仓库、交易和返回按钮 |
 | [StorageCanvasTest](Assets/Scenes/StorageCanvasTest.unity) | 独立仓库验证场景，未列入当前构建列表 |
 | [Scene_StartMenu](Assets/Scenes/Scene_StartMenu.unity)、[Scene_sdw_test2](Assets/Scenes/Scene_sdw_test2.unity) | 保留的另一条启动与集成测试路径 |
 | [Scene_lyl_IslandWhitebox](Assets/Scenes/Scene_lyl_IslandWhitebox.unity)、[RenderTest](Assets/Scenes/RenderTest.unity) | 白盒内容生产与渲染验证入口 |
 | `Assets/Scenes/Scene_DB`、`Scene_ZL` 及其他测试场景 | 关卡制作与联调版本；文件名中的 Final 不等同于当前菜单入口 |
 | `Assets/Scenes/Obsolete` | 历史场景，配合旧原型代码阅读 |
+
+### 天空盒与昼夜效果
+
+正式地图保留原明亮天空盒（版本 1），新增 Poly Haven CC0 日空 / 星空 HDR 昼夜版本（版本 2）。版本 2 完整周期为 160 秒，夜晚保留蓝色补光；编辑模式静态预览，Play 模式自动循环。
+
+菜单 `Tools > Extraction-like > Skybox` 中的 `Use 1 - Original Bright Sky` / `Use 2 - Day Night Cycle` 可切换并保存；Hierarchy 节点 `Aerospace_DayNight_Skybox_V2` 可调整周期、开始阶段及夜间亮度。
+
+素材在 `Assets/Art/External/Skyboxes_PolyHaven_CC0`，两个版本材质在 `Assets/Art/Environment/Skyboxes`。详细步骤见 [Unity 天空盒更换与昼夜循环教程](Docs/Unity天空盒更换与昼夜循环教程.md)。
+
+### 旧火箭调查景观
+
+正式地图新增视觉景观 `Aerospace_RocketCrash_Investigation_V2`：旧残骸褪色锈蚀、采样编号和静态无人调查设备。原版 `Aerospace_RocketCrash_V1` 保留并默认隐藏，可通过 `Tools > Extraction-like > Aerospace > Wreck Comparison` 切换对比。
+
+新增景观没有碰撞体、导航障碍或 AI，不参与导航烘焙，不修改地形、植被和玩法目标。素材组合在 `Assets/Art/Environment/AerospaceRocketInvestigation`，来源、行走保护、对比和撤回说明见 [旧火箭调查景观 V2](Docs/旧火箭调查景观V2说明.md)。
+
+### 龙骨区调查细节
+
+正式场景新增独立景观组 `Aerospace_Dragonbone_ResearchDetails_V1`：入口研究标牌、四个取样编号、两个固定扫描探头及短线缆。你移到外围的原调查站位置不变，只通过可撤回组件减弱其三个局部点光源的亮斑。新组没有碰撞或 AI，不参与导航烘焙；取消勾选可对比原场景并恢复旧灯光。素材位于 `Assets/Art/Environment/DragonboneResearchDetails_V1`，详见 [龙骨区调查细节 V1](Docs/龙骨区调查细节V1说明.md)。
+
+### 基地生活区与调查路线
+
+`Aerospace_BaseLivingArea_V1` 为原有食堂、宿舍外围补基地编号牌、维护柜和小型静态通信设备；`Aerospace_InvestigationRoute_V1` 增加三处双面方向牌和两只封闭仪器运输箱，连接基地、SITE-07 火箭调查区与 DB-01 遗骸观测区。两组没有碰撞、资源交互或新 AI，排除导航烘焙，可独立隐藏对比。素材与预制体位于 `Assets/Art/Environment/AerospaceBaseAndRoute_V1`，详见 [基地生活区与调查路线 V1](Docs/基地生活区与调查路线V1说明.md)。
+
+### 航空航天光照与植被调色
+
+正式场景新增 `Aerospace_LightingAndVegetation_V1`：中性日光、清晰夜间补光、基地暖色照明、灰绿植被、柔和阴影和轻微远景雾。取消整个节点勾选即可恢复本次修改前的光照与材质；天空盒素材及 160 秒周期保留。新资源均在 `Assets/Art/Environment/AerospaceLightingAndVegetation_V1`，原材质及地形资源不覆盖，两版地形布局一致且不重烘焙导航。查看、调节、对比、撤回和地形后续编辑注意事项见 [光照与植被调色 V1](Docs/光照与植被调色V1说明.md)。
+
+正式场景中的 `Aerospace_GameView_NightAndWreck_V1` 现在只保留橙色箭体轴线与三座低矮扫描锚点；原青色道路虚线和青色分段地面环已从场景、Prefab、控制绑定和网格资源中删除。它读取现有 160 秒昼夜相位，实体锚点夜间增强；整组无碰撞、无玩法对象并排除所有 Agent 类型的导航烘焙。详见 [游戏视角夜间火箭构图 V1](Docs/游戏视角夜间灯带与火箭构图V1说明.md)。
+
+正式场景新增独立景观 `Aerospace_CrashAtmosphere_Skyline_V1`：残骸断口冷却蒸汽、间歇电火花、缓慢扫描扇面与双危险信标；远景增加两组雷达/通信设施轮廓；残骸下方增加沿撞击方向分布的焦土、油污和灰烬斑块。全部按实际 60° 游戏相机校准，无碰撞、无玩法组件、不修改 TerrainData 且排除导航烘焙。资源位于 `Assets/Art/Environment/AerospaceCrashAtmosphereSkylineV1`，说明见 [坠毁动态、天际线与地表响应 V1](Docs/坠毁动态天际线与地表响应V1说明.md)。
 
 ### 常用操作
 
@@ -75,6 +105,8 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | `Ctrl` + 左键点击物品 | 在可用容器之间快捷转移 |
 | `P` / `Esc` | 打开或关闭天赋面板 / 关闭天赋面板 |
 | `M` | 切换同一指挥地图的小图／放大视口，放大图可滚轮缩放、拖动平移 |
+| `H` | 隐藏／恢复指挥地图，保留当前大小及缩放平移；隐藏时按 M 可直接打开大地图 |
+| `V` | 保留原有敌人视野扇形显示／隐藏开关 |
 | 结算／失败后按 `R` | 重新开始当前场景 |
 
 Agent 的移动和常规战斗由 AI 驱动。背包与商店内的物品操作、天赋选择通过对应 UI 完成。游戏内显示可自由移动的系统鼠标指针，关闭背包后保持显示，切回游戏窗口时自动恢复。

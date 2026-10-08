@@ -221,6 +221,7 @@ public class PlayerShootingController : MonoBehaviour
 
     private void Update()
     {
+        if (ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput) return;
         TickUnlockMessage();
 
         if (InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen)

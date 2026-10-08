@@ -62,6 +62,7 @@ public sealed class PlayerInputManager : MonoBehaviour
 
     private void Update()
     {
+        if (ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput) return;
         if (!Input.GetMouseButtonDown(0))
             return;
 

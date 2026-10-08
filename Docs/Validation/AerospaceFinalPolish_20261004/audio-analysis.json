@@ -1,0 +1,31 @@
+{
+  "design": "Original ASTRA rare discovery; CC0 foley + synthesized resonant reveal",
+  "source": "https://kenney.nl/assets/impact-sounds",
+  "license": "CC0-1.0",
+  "not_a_recreation_of": "Delta Force / 三角洲行动",
+  "audio": {
+    "duration_seconds": 1.95,
+    "sample_rate": 48000,
+    "channels": 2,
+    "sample_peak_dbfs": -1.6,
+    "true_peak_4x_dbfs": -1.6,
+    "rms_dbfs": -19.137,
+    "playback_volume": 0.85,
+    "playback_rms_dbfs": -20.548,
+    "first_400ms_rms_dbfs": -13.08,
+    "tail_last_200ms_rms_dbfs": -51.24,
+    "dc_per_channel": [
+      -7.958208393846822e-05,
+      -0.0001440465552175147
+    ],
+    "stereo_correlation": 0.9749163751436025,
+    "mono_fold_rms_change_db": -0.06099999999999994,
+    "full_scale_samples": 0,
+    "energy_20_80hz": 0.0001,
+    "energy_80_300hz": 0.1227,
+    "energy_300_600hz": 0.5005,
+    "energy_600_2500hz": 0.3716,
+    "energy_2500_8000hz": 0.0051
+  },
+  "output_sha256": "0c1088124fff20fe122805bd6cc9c607234e78ddfe6a8169543040262afa5dda"
+}

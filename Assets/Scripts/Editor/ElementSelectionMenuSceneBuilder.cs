@@ -10,7 +10,10 @@ using UnityEngine.UI;
 public static class ElementSelectionMenuSceneBuilder
 {
     private const string MenuScenePath = "Assets/Scenes/Scene_ElementSelectionMenu.unity";
-    private const string GameplayScenePath = "Assets/Scenes/Scene_lyl_test2 1.unity";
+    private const string GameplayScenePath = "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
+    private const string GameplaySceneName = "Scenezl_Final 1";
+    private const string LegacyGameplayScenePath = "Assets/Scenes/Scene_lyl_test2 1.unity";
+    private const string ObsoleteSampleScenePath = "Assets/Scenes/Obsolete/SampleScene.unity";
     private const string AttributeSpriteRoot = "Assets/Art/Sprites/Png_Item_attribute selection/";
     private const string BackgroundPath = AttributeSpriteRoot + "Png_Item_ background.PNG";
     private const string ButtonPath = AttributeSpriteRoot + "Png_Item_ button.PNG";
@@ -211,7 +214,7 @@ public static class ElementSelectionMenuSceneBuilder
             return;
 
         SerializedObject serializedController = new SerializedObject(controller);
-        serializedController.FindProperty("gameplaySceneName").stringValue = "Scene_lyl_test2 1";
+        serializedController.FindProperty("gameplaySceneName").stringValue = GameplaySceneName;
         serializedController.FindProperty("requiredSelectionCount").intValue = 2;
         serializedController.FindProperty("referenceResolution").vector2Value = ReferenceResolution;
         serializedController.FindProperty("highlightRoot").objectReferenceValue = highlightRoot;
@@ -289,6 +292,10 @@ public static class ElementSelectionMenuSceneBuilder
         foreach (EditorBuildSettingsScene existingScene in EditorBuildSettings.scenes)
         {
             if (existingScene == null || string.IsNullOrEmpty(existingScene.path))
+                continue;
+
+            if (existingScene.path == LegacyGameplayScenePath ||
+                existingScene.path == ObsoleteSampleScenePath)
                 continue;
 
             if (includedPaths.Contains(existingScene.path))

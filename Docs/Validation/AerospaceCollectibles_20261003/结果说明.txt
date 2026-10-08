@@ -1,0 +1,20 @@
+2026-10-03 航天搜集与科普验证
+
+Unity 2022.3.62f2c1；隔离副本的保存身份为 AnomalySearch.Automation / AgentRepro_Aerospace_20261003，未使用玩家真实存档。
+最终 delivery-results.xml：23 passed，0 failed，0 skipped。
+包括 7 项航天接入测试，以及原 SceneRaidInventoryTests、MapGraphViewportVisibilityTests 的回归用例。
+assets-validation-final.log：五种物品、五张对应图标、十个 2K/4K 精修 Prefab、20 个模型热点、教学单元、中文字体及音效通过资产检查。
+
+截图均为 Unity 实际 UGUI + 实际 FBX 模型，不是 HTML 或设计稿。
+R01_discovery_transition.png：首拾大图进入动画中的一个时间点。
+R01_assembled.png：隔离背包测试中的喷管展示。
+FormalScene_R01.png：正式场景加载后，从保底资源箱成功转移至背包的界面。
+R03_teaching_element.png：喷注单元放大教学剖面。
+R05_connection_relation.png：载荷分离接口关系示意。
+截图中的收集/解锁状态属于测试存档，不是玩家真实存档。
+
+正式场景 SHA-256 未变化：
+0d636bcc6ac000fecaca64799e2b3558a7a92a5cc5f9ab5a4f5ef9c370530d68
+
+测试验证了保底箱子的 NavMesh 完整路径，没有自动指挥 Agent 走完一整局；不宣称完整对局或多平台压力验证。
+未提交或推送 Git。接入前核心脚本备份在 UserSettings/Backups/AerospaceCollectibles_20261003_Core/。

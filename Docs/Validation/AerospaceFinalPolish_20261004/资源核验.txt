@@ -1,0 +1,19 @@
+AerospaceCollectiblesValidation.AssetsForBatch
+Unity 2022.3.62f2c1，隔离项目 /tmp/astra-collectibles-test.nyXXN9
+执行成功，退出码 0。
+
+AEROSPACE_ASSET_VERIFIED R01 2K triangles=235318 meshes=20 hotspots=4
+AEROSPACE_ASSET_VERIFIED R01 4K triangles=235318 meshes=20 hotspots=4
+AEROSPACE_ASSET_VERIFIED R02 2K triangles=226711 meshes=21 hotspots=4
+AEROSPACE_ASSET_VERIFIED R02 4K triangles=226711 meshes=21 hotspots=4
+AEROSPACE_ASSET_VERIFIED R03 2K triangles=385281 meshes=19 hotspots=4
+AEROSPACE_ASSET_VERIFIED R03 4K triangles=385281 meshes=19 hotspots=4
+AEROSPACE_ASSET_VERIFIED R04 2K triangles=116806 meshes=19 hotspots=4
+AEROSPACE_ASSET_VERIFIED R04 4K triangles=116806 meshes=19 hotspots=4
+AEROSPACE_ASSET_VERIFIED R05 2K triangles=161635 meshes=23 hotspots=4
+AEROSPACE_ASSET_VERIFIED R05 4K triangles=161635 meshes=23 hotspots=4
+AEROSPACE_ASSET_VALIDATION_PASS
+
+上述为原日志核验输出的摘录。完整本地日志：
+/tmp/astra-discovery-polish.nZVaCx/asset-validation.log
+未把 Unity 许可证、机器信息等启动日志复制到项目文档。

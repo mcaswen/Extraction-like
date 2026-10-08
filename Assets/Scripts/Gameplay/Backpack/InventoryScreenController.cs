@@ -84,6 +84,7 @@ public class InventoryScreenController : MonoBehaviour
     private string _activeInventoryAgentId;
     private bool _isInventoryTimePauseApplied;
     private float _timeScaleBeforeInventoryPause = 1f;
+    public float TimeScaleBeforeInventoryPause => _isInventoryTimePauseApplied ? _timeScaleBeforeInventoryPause : Time.timeScale;
     private float _fixedDeltaTimeBeforeInventoryPause = 0.02f;
     private bool _missingBackpackLinkedGridLogged;
     private RectTransform _runRevenueWidgetRoot;
@@ -1081,13 +1082,15 @@ public class InventoryScreenController : MonoBehaviour
             out Vector2Int backpackPosition,
             out bool backpackRotation))
         {
-            InventoryItemFactory.Instance.SpawnItemInGrid(
+            var spawned = InventoryItemFactory.Instance.SpawnItemInGrid(
                 itemData,
                 backpackTarget,
                 backpackPosition.x,
                 backpackPosition.y,
                 amount,
                 backpackRotation);
+            if (spawned == null) return false;
+            ExtractionLike.Aerospace.AerospaceCollectionRuntime.NotifyWorldPickup(itemData);
             return true;
         }
 
@@ -1116,7 +1119,7 @@ public class InventoryScreenController : MonoBehaviour
             out Vector2Int backpackPosition,
             out bool backpackRotation))
         {
-            InventoryItemFactory.Instance.SpawnItemInGrid(
+            var spawned = InventoryItemFactory.Instance.SpawnItemInGrid(
                 worldItem.ItemData,
                 backpackTarget,
                 backpackPosition.x,
@@ -1125,6 +1128,8 @@ public class InventoryScreenController : MonoBehaviour
                 backpackRotation,
                 CloneSaveDataList(worldItem.InternalItems),
                 CloneCellStateList(worldItem.InternalCellStates));
+            if (spawned == null) return false;
+            ExtractionLike.Aerospace.AerospaceCollectionRuntime.NotifyWorldPickup(worldItem.ItemData);
             return true;
         }
 

@@ -60,6 +60,7 @@ namespace Gameplay.Agent.Runtime
 
         private void Update()
         {
+            if (ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput) return;
             if (_nextAgentKey == KeyCode.None || !Input.GetKeyDown(_nextAgentKey))
                 return;
 

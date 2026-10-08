@@ -1,0 +1,2 @@
+# SDF font assets embed atlas textures. Scope LFS to this interface's generated fonts.
+*.asset filter=lfs diff=lfs merge=lfs -text

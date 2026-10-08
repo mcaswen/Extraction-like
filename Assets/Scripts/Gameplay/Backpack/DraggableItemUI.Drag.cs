@@ -393,9 +393,11 @@ public partial class DraggableItemUI
             return false;
         }
 
+        InventoryUIController sourceGrid = CurrentGrid;
         transform.SetParent(targetGrid.ItemContainer, false);
         CurrentGrid = targetGrid;
         PlaceSuccessfully(targetIndex, _currentPreviewIsRotated);
+        ExtractionLike.Aerospace.AerospaceCollectionRuntime.NotifyTransfer(this, sourceGrid, targetGrid);
         return true;
     }
 
@@ -602,10 +604,12 @@ public partial class DraggableItemUI
 
         InventoryItemInfoPanelController.Instance?.Hide();
 
+        InventoryUIController sourceGrid = CurrentGrid;
         CurrentGrid.GetGridController().RemoveItem(this, _originalGridIndex.x, _originalGridIndex.y, _originalIsRotated);
         transform.SetParent(targetGrid.ItemContainer, false);
         CurrentGrid = targetGrid;
         PlaceSuccessfully(position, needsRotation);
+        ExtractionLike.Aerospace.AerospaceCollectionRuntime.NotifyTransfer(this, sourceGrid, targetGrid);
         return true;
     }
 

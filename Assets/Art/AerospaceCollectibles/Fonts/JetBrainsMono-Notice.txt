@@ -1,0 +1,7 @@
+JetBrains Mono Regular, original unmodified font.
+Copyright 2020 The JetBrains Mono Project Authors.
+Source: https://github.com/JetBrains/JetBrainsMono
+Downloaded from: https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/ttf/JetBrainsMono-Regular.ttf
+License: SIL Open Font License 1.1; see JetBrainsMono-OFL.txt in this folder.
+Use: aerospace inspection terminal sample identifiers and view orientation only.
+Chinese interface text remains Noto Sans CJK SC. No global UI font is changed.

@@ -68,6 +68,8 @@ public sealed class ToonSobelOutlineFeature : ScriptableRendererFeature
 
     private bool ShouldRender(CameraData cameraData)
     {
+        if (cameraData.camera != null && cameraData.camera.TryGetComponent<ExtractionLike.Aerospace.AerospaceInspectionCamera>(out _))
+            return false;
         if (!settings.enabled)
         {
             return false;
@@ -138,9 +140,12 @@ public sealed class ToonSobelOutlineFeature : ScriptableRendererFeature
             using (new ProfilingScope(cmd, _profilingSampler))
             {
                 _material.SetColor(SobelOutlineColorId, _settings.outlineColor);
-                _material.SetFloat(SobelIntensityId, _settings.intensity);
+                // Optional scene-local art direction; renderer asset settings remain unchanged.
+                // Disabled/deleted profiles and all other scenes retain the existing outline.
+                var art = ExtractionLike.Environment.AerospaceLightingVegetationProfile.ForCamera(renderingData.cameraData.camera);
+                _material.SetFloat(SobelIntensityId, _settings.intensity * (art == null ? 1f : art.sobelIntensityScale));
                 _material.SetFloat(SobelDepthThresholdId, _settings.depthThreshold);
-                _material.SetFloat(SobelNormalThresholdId, _settings.normalThreshold);
+                _material.SetFloat(SobelNormalThresholdId, art == null ? _settings.normalThreshold : Mathf.Max(_settings.normalThreshold, art.sobelNormalThreshold));
                 _material.SetFloat(SobelDepthWeightId, _settings.depthWeight);
                 _material.SetFloat(SobelNormalWeightId, _settings.normalWeight);
                 _material.SetFloat(SobelThicknessId, _settings.thickness);

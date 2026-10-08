@@ -9,7 +9,7 @@ namespace UI
     {
         public const string SelectedElementsPlayerPrefsKey = "ElementSelectionMenu.SelectedElements";
 
-        [SerializeField] private string gameplaySceneName = "Scene_lyl_test2 1";
+        [SerializeField] private string gameplaySceneName = "Scenezl_Final 1";
         [SerializeField, Min(1)] private int requiredSelectionCount = 2;
         [SerializeField] private Vector2 referenceResolution = new Vector2(1280f, 720f);
         [SerializeField] private RectTransform highlightRoot;

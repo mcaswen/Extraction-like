@@ -46,7 +46,7 @@ public static class MapGraphUguiPrefabFactory
             AssetDatabase.AddObjectToAsset(asset.material,asset);
         }
         string characters=string.Concat(Enumerable.Range(32,95).Select(c=>((char)c).ToString()))+
-            "区域指挥资源敌人撤离收起展开滚轮缩放拖动平移角色玩家自主规划中进入路线行进等待导航处理反击随后恢复已到达中断战死待命选择后点击群下达暂不可用完成前往此处，·";
+            "区域指挥资源敌人撤离收起展开隐藏显示滚轮缩放拖动平移角色玩家自主规划中进入路线行进等待导航处理反击随后恢复已到达中断战死待命选择后点击群下达暂不可用完成前往此处，·";
         var definition=AssetDatabase.LoadAssetAtPath<SO_MapGraphDefinition>(DefinitionPath);
         if(definition!=null)characters+=string.Concat(definition.Zones.Select(x=>x.DisplayName));
         if(!asset.TryAddCharacters(characters,out string missing))throw new InvalidOperationException("地图字体缺少字形："+missing);

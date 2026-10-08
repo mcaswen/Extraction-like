@@ -39,6 +39,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        if (ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput) return;
         ScanForInteractables();
         UpdateFloatingUI();
         HandleInteractionInput();

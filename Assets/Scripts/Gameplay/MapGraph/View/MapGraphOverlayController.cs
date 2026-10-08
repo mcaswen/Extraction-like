@@ -82,7 +82,7 @@ namespace Gameplay.MapGraph.View
                 _edges[edge.EdgeId].Layout(MapPosition(_graph.GetNodePosition(edge.FromNodeId)),MapPosition(_graph.GetNodePosition(edge.ToNodeId)),
                     edge.WidthOverride>0?Mathf.Max(1,edge.WidthOverride*_scale):_theme.EdgeWidth,
                     nodeSize*.5f+edge.FromInset*_scale,nodeSize*.5f+edge.ToInset*_scale);
-            _hint.text=expanded?"M  收起     滚轮缩放 · 拖动平移":"M  展开";
+            _hint.text=expanded?"M 收起 · H 隐藏 · 滚轮缩放 · 拖动平移":"M 展开 · H 隐藏";
             _title.fontSize=expanded?20:14; _hint.fontSize=expanded?12:10; _legend.fontSize=expanded?12:10; _detail.fontSize=expanded?12:10;
             _detail.rectTransform.sizeDelta=new Vector2(viewSize.x-36,20);
         }

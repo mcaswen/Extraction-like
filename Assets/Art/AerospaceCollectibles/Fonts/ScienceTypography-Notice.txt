@@ -1,0 +1,13 @@
+Science interface typography — 2026-10-03
+
+Noto Sans CJK SC Regular (existing) and Medium (added for the science interface):
+https://github.com/notofonts/noto-cjk/tree/main/Sans/OTF/SimplifiedChinese
+Medium download: https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Medium.otf
+License: SIL Open Font License 1.1; see OFL.txt in this folder.
+
+The interface also reuses the project's existing Assets/Font/Text.ttf for short Latin serial labels.
+No global font settings or other game interfaces were changed.
+
+The three private TextMesh Pro SDF font assets are in Assets/Resources/Aerospace/Fonts/.
+Rebuild them with Tools > Aerospace > Rebuild science interface typography.
+This rebuild changes only these font assets and the Aerospace/Presentation asset.

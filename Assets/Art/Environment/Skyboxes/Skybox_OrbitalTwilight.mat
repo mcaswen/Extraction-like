@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Skybox_AerospaceDaylight
+  m_Shader: {fileID: 4800000, guid: 6d8f6ae5b2c94786a17ec0bd4f423901, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 2
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Floats:
+    - _Exposure: 1
+    - _HorizonIntensity: 1.1
+    - _HorizonSharpness: 4.5
+    - _NebulaIntensity: 0.018
+    - _Rotation: 18
+    - _StarDensity: 145
+    - _StarIntensity: 0.28
+    - _StarSize: 0.075
+    - _SunHaloPower: 64
+    - _SunIntensity: 1.25
+    - _SunSize: 0.996
+    m_Colors:
+    - _HorizonColor: {r: 0.28, g: 0.62, b: 0.95, a: 1}
+    - _NadirColor: {r: 0.07, g: 0.18, b: 0.34, a: 1}
+    - _NebulaColor: {r: 0.14, g: 0.23, b: 0.48, a: 1}
+    - _StarColor: {r: 0.72, g: 0.86, b: 1, a: 1}
+    - _SunColor: {r: 1, g: 0.86, b: 0.64, a: 1}
+    - _SunDirection: {r: 0, g: 0.77, b: -0.64, a: 0}
+    - _ZenithColor: {r: 0.055, g: 0.3, b: 0.75, a: 1}
+  m_BuildTextureStacks: []

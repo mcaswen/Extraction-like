@@ -32,6 +32,7 @@ namespace Gameplay.TalentTree.UI
 
         private void Update()
         {
+            if (ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput) return;
             if (_ignoreInputWhileInventoryOpen &&
                 global::InventoryScreenController.Instance != null &&
                 global::InventoryScreenController.Instance.IsInventoryOpen)

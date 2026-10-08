@@ -1,0 +1,52 @@
+航天样本科普界面调整 — 2026-10-03
+
+范围
+只调整科普检视界面及其专用字体、展示相机、私有检视光照。
+未修改正式场景、NavMesh、Agent、搜索保底、拾取、背包、小地图、昼夜系统或原始 FBX/Blender 模型。
+没有提交或推送 Git。
+
+视觉与操作
+1. 石墨灰背景、暖白中文、琥珀橙选中状态；减少重复英文标题和并列大按钮。
+2. 模型占据更大的宽幅展示区域；按各样本外形取景，保留 360 度左键旋转和滚轮缩放。
+3. 使用界面独立的中文常规/中等字重 SDF 字体；编号使用既有等宽字体。没有改其他界面的字体。
+4. 右侧分为“整体介绍 / 工作原理 / 结构细节”。整体介绍默认显示，包含整体作用与所在位置。
+5. 热点编号移至模型两侧，由引线关联真实模型锚点。点击后突出部位，右侧显示对应科普；可返回整体介绍。
+6. 完整、剖面、分解分为一组；表面状态与 2K/4K 贴图选项放入“展示设置”。栅格舵折叠、喷注单元放大及分离连接演示均保留。
+7. 底部五件样本的切换栏突出当前零件。首拾图标过渡、既有音效、持久档案以及搜集线索入口保留。
+8. 资料来源链接现在集中在“资料说明与来源”。教学模型的局限和原始说明保留，不把模型当作制造图纸。
+
+查看方式
+在正式场景运行游戏，拾取航天零件后会自动打开；已解锁的档案可按 J 或双击背包内零件再次查看。
+Esc / 返回按钮关闭检视。若展示设置浮层已打开，第一次 Esc 仅收起设置，再次 Esc 返回游戏/背包。
+
+验证
+Unity 2022.3.62f2c1，隔离项目 /tmp/astra-collectibles-test.nyXXN9。
+保存身份 AnomalySearch.Automation / AgentRepro_Aerospace_20261003；不使用真实玩家存档。
+delivery-results.xml：27 passed，0 failed，0 skipped。
+包括 7 项航天搜集接入测试、4 项新增界面测试，以及原 SceneRaidInventoryTests、MapGraphViewportVisibilityTests 的回归。
+新增检查覆盖：空档案、五件样本的阅读分层与热点、观察模式、4K 切换、表面切换、旋转缩放、关闭后的时间恢复，以及 1366×768 / 1280×1024 / 2560×1080 界面边界。
+私有字体、模型、贴图、图标、教学单元与音效通过 AerospaceCollectiblesValidation.AssetsForBatch。
+截图来自实际 Unity UGUI/TextMesh Pro 和实际 FBX，不是 HTML 或概念图；图中的档案进度属于隔离测试存档。
+这是编辑器回归与实际渲染检查，不代表完整对局压力测试或独立发布包验证。
+正式场景原有的 Missing Script 等警告本轮没有处理；其在本轮之前的验证记录中已经存在。
+
+未改动文件的 SHA-256 核对
+正式场景 Assets/Scenes/Scene_DB/Scenezl_Final 1.unity：
+0d636bcc6ac000fecaca64799e2b3558a7a92a5cc5f9ab5a4f5ef9c370530d68
+AerospaceCollectionRuntime.cs：
+a173bafe6f8efcd17ef6ab6ab71eb7b4750bcedb18740cbfb5747435cd345d1d
+PartsCatalog.json：
+5d5739976ed9519625a2428ec472e89c8f16683dd7856b8fff47eb8c667b853f
+InventoryScreenController.cs：
+93e10be7b7ce42eed3f9401bea380d8524013cd7306cd35bd0481a4a99020917
+ProjectSettings.asset：
+92f38a8fefd0e2138ba4b476ca34d73c511380be341a5b1c7c549216378120d9
+
+维护
+科普界面主逻辑：Assets/Scripts/Gameplay/Aerospace/AerospaceScienceUI.cs
+布局与阅读层：Assets/Scripts/Gameplay/Aerospace/AerospaceScienceUI.Layout.cs
+简短整体介绍：Assets/Scripts/Gameplay/Aerospace/AerospaceScienceCopy.cs
+专用字体资产：Assets/Resources/Aerospace/Fonts/
+字体重建：Tools > Aerospace > Rebuild science interface typography
+新增字体纹理资产使用该字体目录中的局部 Git LFS 规则，不改全项目 .asset 的存储方式。
+修改前的部分关键文件副本保留在 UserSettings/Backups/AerospaceScienceUI_20261003/；不是整个仓库快照，回退须同时处理新加入的 Layout 分部文件。

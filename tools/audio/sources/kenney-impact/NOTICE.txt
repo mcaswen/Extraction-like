@@ -1,0 +1,16 @@
+Source: Kenney, Impact Sounds 1.0
+https://kenney.nl/assets/impact-sounds
+Downloaded 2026-10-04 from the creator's official download link:
+https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip
+
+License: CC0 1.0. The original License.txt is included beside this notice.
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Only two files are used as short physical-texture layers in ASTRA's discovery cue:
+Audio/impactMetal_heavy_000.ogg -> impactMetal_heavy_000.wav
+Audio/impactPlate_medium_000.ogg -> impactPlate_medium_000.wav
+Converted to 44.1 kHz / 16-bit mono WAV using macOS afconvert, with no content edits.
+Sound design (pitch, filtering, envelopes, synthesized tones and stereo space) is
+performed by ../../build_discovery.py. These source files are outside Unity Assets.
+
+The final sound contains no Delta Force / 三角洲行动 audio or extracted game assets.

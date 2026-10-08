@@ -1,0 +1,31 @@
+{
+  "method": "Original synthesized low-mid impact + existing project signature",
+  "before": {
+    "duration_seconds": 1.65,
+    "sample_rate": 44100,
+    "channels": 1,
+    "pcm_peak_dbfs": -2.854,
+    "pcm_rms_dbfs": -19.3,
+    "playback_volume": 0.6,
+    "playback_rms_dbfs": -23.737,
+    "first_300ms_playback_rms_dbfs": -17.666,
+    "low_mid_80_600hz_energy_fraction": 0.2937,
+    "dc_offset": 0.0002703375532267831,
+    "full_scale_samples": 0
+  },
+  "after": {
+    "duration_seconds": 1.65,
+    "sample_rate": 44100,
+    "channels": 1,
+    "pcm_peak_dbfs": -1.111,
+    "pcm_rms_dbfs": -15.551,
+    "playback_volume": 0.85,
+    "playback_rms_dbfs": -16.963,
+    "first_300ms_playback_rms_dbfs": -10.465,
+    "low_mid_80_600hz_energy_fraction": 0.6749,
+    "dc_offset": -1.3698414577320827e-05,
+    "full_scale_samples": 0
+  },
+  "playback_rms_increase_db": 6.774,
+  "comparison_order": "Original (0.6), 0.6 s silence, refined (0.85)"
+}

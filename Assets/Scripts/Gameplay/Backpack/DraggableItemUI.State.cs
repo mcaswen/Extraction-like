@@ -184,6 +184,10 @@ public partial class DraggableItemUI
         {
             TryQuickTransfer(out _);
         }
+        else if (eventData.clickCount == 2)
+        {
+            ExtractionLike.Aerospace.AerospaceCollectionRuntime.OpenOwnedItem(this);
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
