@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace ExtractionLike.Aerospace
 {
-    /// <summary>Static, texture-free graphite surface for the sample viewer only.</summary>
+    /// <summary>Static, texture-free olive studio surface for the sample viewer only.</summary>
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class AerospaceInspectionBackdrop : MaskableGraphic
     {
@@ -16,9 +16,9 @@ namespace ExtractionLike.Aerospace
             for (int x = 0; x <= columns; x++)
             {
                 float u = (float)x / columns, v = (float)y / rows;
-                float glow = Mathf.Exp(-((u - .34f) * (u - .34f) * 17 + (v - .55f) * (v - .55f) * 8));
+                float glow = Mathf.Exp(-((u - .42f) * (u - .42f) * 9 + (v - .55f) * (v - .55f) * 5));
                 float grain = (Mathf.PerlinNoise(x * 5.37f, y * 3.91f) - .5f) * .006f;
-                Color c = Color.Lerp(new Color(.025f, .045f, .068f), new Color(.115f, .190f, .240f), glow);
+                Color c = Color.Lerp(new Color(.105f, .13f, .077f), new Color(.24f, .28f, .175f), glow);
                 c += new Color(grain, grain, grain, 0); c *= color;
                 mesh.AddVert(new Vector3(r.xMin + u * r.width, r.yMin + v * r.height), c, Vector2.zero);
             }

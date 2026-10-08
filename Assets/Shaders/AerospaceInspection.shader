@@ -62,15 +62,15 @@ Shader "Aerospace/Inspection PBR"
                 float ao=lerp(SAMPLE_TEXTURE2D(_AOMap,sampler_AOMap,i.uv).r,packed.r,_UseORM);
                 float3 right=UNITY_MATRIX_I_V._m00_m10_m20,up=UNITY_MATRIX_I_V._m01_m11_m21;
                 float3 key=normalize(v*.55+right*.65+up*.8),fill=normalize(v*.3-right*.85+up*.45),rim=normalize(-v*.5+up*.9);
-                float3 color=lamp(n,v,key,float3(3.8,3.6,3.24),base,metal,rough)+lamp(n,v,fill,float3(1.25,1.7,2.05),base,metal,rough)+lamp(n,v,rim,float3(1.8,2.6,3.0),base,metal,rough);
+                float3 color=lamp(n,v,key,float3(3.8,3.65,3.35),base,metal,rough)+lamp(n,v,fill,float3(1.6,1.72,1.47),base,metal,rough)+lamp(n,v,rim,float3(2.3,2.5,2.08),base,metal,rough);
                 float3 f0=lerp(.04.xxx,base,metal);
                 float3 env=SAMPLE_TEXTURECUBE_LOD(_Studio,sampler_Studio,reflect(-v,n),rough*5).rgb;
                 color+=(base*(1-metal)*.23+env*(f0+(1-f0)*pow(1-saturate(dot(n,v)),5)))*lerp(.4,1,ao);
                 color*=lerp(.75,1,ao)*(1-_ContextDim);
                 float edge=pow(1-saturate(dot(n,v)),3);
-                color+=float3(1.0,.46,.10)*_Highlight*(.16+edge*.9);
+                color+=float3(.85,.88,.36)*_Highlight*(.12+edge*.6);
                 float scanBand=exp(-pow((i.w.y-_ScanHeight)/.017,2))*step(0,_Scan);
-                color+=float3(.25,.85,1.2)*scanBand*(.5+edge);
+                color+=float3(.70,.79,.35)*scanBand*(.4+edge);
                 // Local filmic response: independent of the world's day/night grading and exposure.
                 color=(color*(2.51*color+.03))/(color*(2.43*color+.59)+.14);
                 return half4(saturate(color),1);

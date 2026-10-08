@@ -13,23 +13,27 @@ namespace ExtractionLike.Aerospace
     [DefaultExecutionOrder(50)]
     public sealed partial class AerospaceScienceUI : MonoBehaviour
     {
-        private static readonly Color Ink = new Color(.91f, .95f, .96f), Muted = new Color(.57f, .68f, .73f);
-        private static readonly Color Amber = new Color(1f, .68f, .32f), Teal = new Color(.32f, .83f, .90f);
-        private static readonly Color Rule = new Color(.30f, .48f, .57f, .42f), ButtonFill = new Color(.12f, .19f, .23f, .78f);
+        private static readonly Color Ink = new Color(.88f, .88f, .79f), Muted = new Color(.64f, .67f, .55f);
+        private static readonly Color Amber = new Color(.86f, .88f, .46f), Teal = new Color(.73f, .78f, .48f);
+        private static readonly Color Rule = new Color(.42f, .47f, .32f, .42f), ButtonFill = new Color(.145f, .17f, .11f, .92f);
+        private static readonly Color Paper = new Color(.87f, .855f, .765f), PaperInk = new Color(.15f, .18f, .12f), PaperMuted = new Color(.39f, .42f, .31f);
         private AerospaceCollectionRuntime owner;
         private AerospaceInspectionStage stage;
         private Canvas canvas;
         private Font bodyFont;
         private TMP_FontAsset font, bodyTypeface, monoFont;
         private GameObject modal, controls, settingsOverlay;
-        private RectTransform viewport, detailContent, transitionRect;
+        private RectTransform viewport, detailContent, transitionRect, readingPane;
         private RawImage modelImage;
         private Image transitionImage;
         private CanvasGroup contentGroup;
         private ScrollRect readingScroll;
         private Text hud;
         private TMP_Text progress, heading, english, subtitle, loading, surfaceText, foldText, qualityText, closeLabel, sampleId;
-        private Button foldButton, settingsButton, sourceButton, resetButton;
+        private Button foldButton, settingsButton, sourceButton, resetButton, pinsButton;
+        private TMP_Text watermark, locationTitle, locationBody, locationTag, surfaceState;
+        private AerospaceTerminalGraphic locationGraphic;
+        private bool pinsEnabled = true;
         private readonly List<Button> cards = new List<Button>(), pins = new List<Button>(), anchorButtons = new List<Button>(), modeButtons = new List<Button>(), readingTabs = new List<Button>();
         private readonly List<TMP_Text> cardTitles = new List<TMP_Text>(), cardStates = new List<TMP_Text>(), pinNames = new List<TMP_Text>();
         private readonly List<Image> cardIcons = new List<Image>(), cardRules = new List<Image>(), progressMarks = new List<Image>();
@@ -51,6 +55,7 @@ namespace ExtractionLike.Aerospace
         public int ActiveReadingTab => readingTab;
         public int SelectedHotspot => selectedHotspot;
         public bool IsSettingsOpen => settingsOverlay != null && settingsOverlay.activeSelf;
+        public bool HotspotsVisible => pinsEnabled;
 
         public void Initialize(AerospaceCollectionRuntime runtime)
         {
@@ -82,7 +87,8 @@ namespace ExtractionLike.Aerospace
             if (code != null) BeginLoad(code, discovery);
             else
             {
-                heading.text = "航天样本档案"; english.text = "搜集样本，逐步解读它的结构与原理"; sampleId.text = "— / 05";
+                heading.text = "航天样本\n档案"; english.text = "AEROSPACE\nCOMPONENTS"; sampleId.text = "—";
+                watermark.text = ""; locationTitle.text = "航天系统"; locationBody.text = "推进、返回与载荷连接"; locationTag.text = ""; locationGraphic.locationCode = "R01"; locationGraphic.SetVerticesDirty();
                 loading.text = "尚无归档样本\n搜索并拾取零件后，即可在这里检视";
                 loading.gameObject.SetActive(true); controls.SetActive(false); HidePins(); ShowCollectionClues(); RefreshButtons();
             }
@@ -94,13 +100,15 @@ namespace ExtractionLike.Aerospace
             skipReveal = false;
             current = AerospaceCatalog.Load().Find(code); stage.Unload(); modelImage.texture = null; modelImage.color = new Color(1, 1, 1, 0);
             var copy = AerospaceScienceCopy.For(code);
-            heading.text = current.title; english.text = current.code + "   /   " + copy.system + "   /   回收样本";
-            sampleId.text = code.Substring(1) + " / 05";
+            heading.text = copy.displayTitle; english.text = current.english;
+            sampleId.text = code; watermark.text = code; subtitle.text = copy.system;
+            locationTitle.text = current.locationTitle; locationBody.text = current.locationText; locationTag.text = code + " · " + copy.shortName;
+            locationGraphic.locationCode = code; locationGraphic.SetVerticesDirty(); pinsEnabled = true;
             HidePins(); SetSettings(false); selectedHotspot = -1; hoveredPin = -1;
             controls.SetActive(false); loading.text = "正在载入样本…"; loading.gameObject.SetActive(true);
             readingTab = 0; transitioning = true; RenderReading(); RefreshArchive(); RefreshButtons();
             transitionImage.sprite = Resources.Load<Sprite>("Aerospace/Icons/" + code); transitionImage.color = Color.white;
-            Rect(transitionRect, 420, 68, 760, 760); transitionRect.gameObject.SetActive(discovery);
+            Rect(transitionRect, 610, 40, 820, 820); transitionRect.gameObject.SetActive(discovery);
             skipButton.gameObject.SetActive(discovery && !stage.ReducedMotion);
             contentGroup.interactable = !discovery; StartCoroutine(LoadAndReveal(request, discovery));
         }
@@ -117,8 +125,8 @@ namespace ExtractionLike.Aerospace
                 float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01((elapsed - .2f) / .8f));
                 if (discovery)
                 {
-                    transitionRect.anchoredPosition = Vector2.Lerp(new Vector2(420, -68), new Vector2(270, -145), t);
-                    transitionRect.sizeDelta = Vector2.Lerp(new Vector2(760, 760), new Vector2(580, 580), t);
+                    transitionRect.anchoredPosition = Vector2.Lerp(new Vector2(610, -40), new Vector2(694, -118), t);
+                    transitionRect.sizeDelta = Vector2.Lerp(new Vector2(820, 820), new Vector2(652, 652), t);
                 }
                 if (elapsed > 25 && !finished) { error = "样本载入超时，请关闭后重试。"; break; }
                 yield return null;
@@ -183,11 +191,13 @@ namespace ExtractionLike.Aerospace
             if (motionText != null) motionText.text = "减少动态效果   " + (stage.ReducedMotion ? "开" : "关");
             if (demoButton != null) demoButton.interactable = ready;
             surfaceText.text = stage.Recovered ? "表面状态   回收痕迹" : "表面状态   清理后样件";
+            surfaceState.text = stage.Recovered ? "回收痕迹" : "清理后样件";
             foldButton.gameObject.SetActive(current != null && (current.code == "R04" || current.code == "R03" || current.code == "R05"));
             foldButton.interactable = ready;
             foldText.text = current?.code == "R03" ? (stage.Study ? "返回整体样件" : "放大喷注单元") : current?.code == "R05" ? "演示连接关系" : stage.Folded ? "展开栅格舵" : "折叠栅格舵";
             StyleButton(foldButton, stage.Study || stage.RelationPhase >= 0 || stage.Folded);
             resetButton.interactable = settingsButton.interactable = ready;
+            pinsButton.interactable = ready; StyleButton(pinsButton, pinsEnabled);
             string[] modes = { "assembled", "cutaway", "exploded" };
             for (int i = 0; i < modeButtons.Count; i++)
             {
@@ -213,16 +223,16 @@ namespace ExtractionLike.Aerospace
                 if (!stage.ToggleStudy()) { loading.text = "教学单元资源缺失，请重建资产。"; loading.gameObject.SetActive(true); return; }
                 if (!stage.Study) { ShowDetail(-1); return; }
                 specialTitle = "同轴单元\n两路分别供给";
-                specialBody = "中心管与外围环隙表达两股介质的独立通路。两路分别进入供给区域，在出口附近相邻。\n\n这是放大、剖开的原理示意，不是整件喷注头上某个单元的真实尺寸或工程剖面。阵列内部的完整流路没有复原；颜色也不对应具体推进剂或温度。\n\n旋转样件，观察供给层、隔板、中心管与外围环隙。";
+                specialBody = "中心管与外围环隙形成两股介质的独立通路。两路分别进入供给区域，在出口附近相邻。\n\n供给层将介质分配到喷注单元，隔板分开两路流体。中心管的外壁与周围结构共同形成环形通道。";
             }
             else if (current.code == "R05")
             {
                 stage.CycleRelation();
                 specialTitle = new[] { "01  保持约束", "02  解除约束", "03  上下分开" }[stage.RelationPhase];
                 specialBody = new[] {
-                    "夹紧带与夹块约束上下接口。\n\n再次点击“演示连接关系”，观察下一状态。",
-                    "夹紧区域被移出，以突出约束解除的概念。\n\n这段位移是教学表达，并不是实际装置的动作轨迹。",
-                    "上下接口分开，说明载荷与运载器的相对关系。\n\n这里不模拟真实释放速度、时序或储能过程。再次点击可返回初始状态。" }[stage.RelationPhase];
+                    "夹紧带与夹块将上下接口保持在一起，使载荷与运载器之间能够传递载荷。",
+                    "释放系统解除夹紧约束，上下接口由保持连接转为可以相互分离的状态。",
+                    "上下接口分开，载荷与运载器建立相对运动。弹簧推力元件可在解除约束后帮助推动分离。" }[stage.RelationPhase];
             }
             else return;
             readingTab = 5; RenderReading(); RefreshButtons();
@@ -237,13 +247,13 @@ namespace ExtractionLike.Aerospace
                 bool unlocked = owner.IsUnlocked(parts[i].code), selected = current?.code == parts[i].code;
                 bool collected = owner.HasCollected(parts[i].code); cards[i].interactable = unlocked;
                 cardTitles[i].text = AerospaceScienceCopy.For(parts[i].code).shortName;
-                cardTitles[i].color = selected ? Ink : unlocked ? Muted : new Color(.39f, .44f, .45f);
+                cardTitles[i].color = selected ? PaperInk : unlocked ? Ink : Muted;
                 cardStates[i].text = parts[i].code + "  /  " + (collected ? "本局收集" : unlocked ? "已归档" : "未发现");
-                cardStates[i].color = selected ? Amber : collected ? Teal : Muted;
+                cardStates[i].color = selected ? PaperInk : collected ? Teal : Muted;
                 cardIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .22f);
                 cardRules[i].color = selected ? Amber : Color.clear;
-                cards[i].GetComponent<Image>().color = selected ? new Color(.22f, .23f, .21f, .7f) : Color.clear;
-                progressMarks[i].color = collected ? Teal : new Color(.23f, .28f, .29f);
+                cards[i].GetComponent<Image>().color = selected ? Amber : new Color(.16f, .19f, .12f, unlocked ? .75f : .25f);
+                progressMarks[i].color = collected ? PaperMuted : new Color(.54f, .56f, .44f, .3f);
             }
         }
         public void ShowCollectionClues() { RestoreDemonstrationReading(); readingTab = 4; RenderReading(); RefreshButtons(); }
@@ -272,6 +282,7 @@ namespace ExtractionLike.Aerospace
             foreach (var anchor in anchorButtons) anchor.gameObject.SetActive(false);
             foreach (var line in leaders) line.gameObject.SetActive(false);
         }
+        public void ToggleHotspots() { pinsEnabled = !pinsEnabled; hoveredPin = -1; RefreshButtons(); if (!pinsEnabled) HidePins(); }
 
         private void LateUpdate()
         {
@@ -280,7 +291,7 @@ namespace ExtractionLike.Aerospace
             var silhouette = stage.ProjectedModelBounds();
             for (int i = 0; i < pins.Count; i++)
             {
-                pinVisible[i] = !transitioning && !stage.DemoActive && stage.TryAnchor(i, out _);
+                pinVisible[i] = pinsEnabled && !transitioning && !stage.DemoActive && stage.TryAnchor(i, out _);
                 if (pinVisible[i] && stage.TryAnchor(i, out var point))
                 {
                     anchorPoints[i] = new Vector2(point.x * w, (1 - point.y) * h);
@@ -305,15 +316,15 @@ namespace ExtractionLike.Aerospace
                 if (!pinVisible[i]) continue;
                 Rect(anchorButtons[i].GetComponent<RectTransform>(), anchorPoints[i].x - 12, anchorPoints[i].y - 12, 24, 24);
                 bool active = selectedHotspot == i || hoveredPin == i;
-                float x = pinLeft[i] ? Mathf.Clamp(silhouette.xMin * w - 180, 22, 330) : Mathf.Clamp(silhouette.xMax * w + 16, 578, w - 188);
-                Rect(pins[i].GetComponent<RectTransform>(), x, pinY[i] - 18, 166, 36);
+                float width = active ? 174 : 42;
+                float x = pinLeft[i] ? Mathf.Clamp(silhouette.xMin * w - width - 24, 24, w * .32f) : Mathf.Clamp(silhouette.xMax * w + 24, w * .60f, w - width - 24);
+                Rect(pins[i].GetComponent<RectTransform>(), x, pinY[i] - 21, width, 42);
                 float visibility = active ? 1 : stage.AnchorVisibility(i);
                 pinEmphasis[i] = Mathf.MoveTowards(pinEmphasis[i], active ? 1 : 0, stage.ReducedMotion ? 1 : Time.unscaledDeltaTime / .15f);
-                pins[i].GetComponent<Image>().color = Color.Lerp(new Color(.055f, .105f, .135f, .54f * visibility), new Color(.16f, .20f, .22f, .98f), pinEmphasis[i]);
-                pins[i].GetComponentInChildren<TMP_Text>().color = active ? Amber : new Color(Teal.r, Teal.g, Teal.b, visibility);
-                pinNames[i].gameObject.SetActive(active || visibility > .5f);
-                pinNames[i].color = Color.Lerp(Muted, Ink, pinEmphasis[i]);
-                float endX = pinLeft[i] ? x + 166 : x;
+                pins[i].GetComponent<Image>().color = Color.Lerp(new Color(.22f, .27f, .16f, .74f * visibility), Amber, pinEmphasis[i]);
+                pins[i].GetComponentInChildren<TMP_Text>().color = active ? PaperInk : new Color(Ink.r, Ink.g, Ink.b, Mathf.Max(.45f, visibility));
+                pinNames[i].gameObject.SetActive(active); pinNames[i].color = PaperInk;
+                float endX = pinLeft[i] ? x + width : x;
                 var tint = Color.Lerp(new Color(Teal.r, Teal.g, Teal.b, .34f * visibility), Amber, pinEmphasis[i]);
                 leaders[i].SetPoints(anchorPoints[i], new Vector2(endX, pinY[i]), tint, Mathf.Lerp(.80f, 1, pinEmphasis[i]));
             }

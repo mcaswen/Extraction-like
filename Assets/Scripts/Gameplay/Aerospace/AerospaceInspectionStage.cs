@@ -10,6 +10,7 @@ namespace ExtractionLike.Aerospace
     /// <summary>A render-texture-only display; contains no collision, navigation or gameplay behaviours.</summary>
     public sealed partial class AerospaceInspectionStage : MonoBehaviour
     {
+        public const float ViewWidth = 1152, ViewHeight = 680;
         private static readonly HashSet<string> ReleaseParts = new HashSet<string> { "ClampShoes", "ClampBand", "ReleaseHousing", "ReleaseCover", "Harness", "Identification", "Markings", "ReleaseMarkings", "EquipmentReleaseGuard", "EquipmentReleaseGuardInk", "EquipmentReleaseServices", "EquipmentReleaseServicesInk" };
         private static readonly HashSet<string> UpperParts = new HashSet<string> { "UpperInterface", "UpperHardware", "UpperMarkings", "EquipmentUpperAdapter", "EquipmentUpperInspection", "EquipmentUpperInspectionInk" };
         private sealed class Pose { public Transform t; public Vector3 position, offset; public Quaternion rotation; public bool cut; public Renderer renderer, ghost; public string semantic; public float visibility = 1, highlight; }
@@ -53,9 +54,9 @@ namespace ExtractionLike.Aerospace
             var data = viewCamera.GetUniversalAdditionalCameraData(); data.renderPostProcessing = false;
             data.renderShadows = false; data.volumeLayerMask = 0;
             data.requiresColorOption = CameraOverrideOption.Off; data.requiresDepthOption = CameraOverrideOption.Off;
-            Texture = new RenderTexture(1600, 906, 24, RenderTextureFormat.ARGB32) { name = "Aerospace_Inspection_Wide", antiAliasing = 2 };
+            Texture = new RenderTexture(1600, Mathf.RoundToInt(1600 * ViewHeight / ViewWidth), 24, RenderTextureFormat.ARGB32) { name = "Aerospace_Inspection_Dossier", antiAliasing = 2 };
             Texture.Create(); viewCamera.targetTexture = Texture;
-            viewCamera.aspect = 1024f / 580f;
+            viewCamera.aspect = ViewWidth / ViewHeight;
             properties = new MaterialPropertyBlock();
         }
         public IEnumerator Load(AerospacePart part, string quality, Action<string> done)

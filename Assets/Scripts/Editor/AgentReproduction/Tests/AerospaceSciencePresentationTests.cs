@@ -40,6 +40,55 @@ namespace AgentReproduction.Tests
             yield return null;
         }
         [UnityTest]
+        public IEnumerator DossierHasPaperSidebarFiveTicketsAndHotspotToggle()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            var panel = Named<RectTransform>(ui, "Science_Reading_Panel");
+            var view = Named<RectTransform>(ui, "Model_Viewport");
+            Assert.That(panel.anchoredPosition.x, Is.Zero); Assert.That(panel.rect.width, Is.EqualTo(448));
+            Assert.That(view.anchoredPosition.x, Is.EqualTo(448)); Assert.That(view.rect.width / view.rect.height, Is.EqualTo(ui.Stage.DisplayCamera.aspect).Within(.001f));
+            var paper = panel.GetComponent<Image>().color; Assert.That(paper.r, Is.GreaterThan(.8f)); Assert.That(paper.b, Is.LessThan(paper.r));
+            Assert.That(Named<TMP_Text>(ui, "Specimen_Title").text, Is.EqualTo("再生冷却\n喷管组件"));
+            var rail = Enumerable.Range(1, 5).Select(i => Named<RectTransform>(ui, "Archive_R0" + i)).ToArray();
+            foreach (var item in rail) Assert.That(item.anchoredPosition.y, Is.EqualTo(-12));
+            for (int i = 1; i < rail.Length; i++) Assert.That(rail[i].anchoredPosition.x, Is.GreaterThan(rail[i - 1].anchoredPosition.x + rail[i - 1].rect.width));
+            Assert.That(ui.HotspotsVisible, Is.True); Click(ui, "Toggle_Hotspots"); yield return null;
+            Assert.That(ui.HotspotsVisible, Is.False);
+            Assert.That(ui.GetComponentsInChildren<Button>().Any(b => b.name.StartsWith("Hotspot_")), Is.False);
+            Click(ui, "Reading_Tab_2"); Click(ui, "Detail_Selector_1"); yield return null;
+            Assert.That(ui.SelectedHotspot, Is.EqualTo(1));
+            Click(ui, "Toggle_Hotspots"); yield return null; Assert.That(ui.HotspotsVisible, Is.True);
+            Click(ui, "Archive_R05"); yield return Ready(ui); Assert.That(ui.CurrentCode, Is.EqualTo("R05"));
+            Assert.That(Named<TMP_Text>(ui, "Specimen_Title").text, Is.EqualTo("载荷分离\n机构弧段"));
+            ui.Close(); Assert.That(Time.timeScale, Is.EqualTo(1)); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator FiveDossiersContainScienceWithoutDisclaimersAcrossEveryReadingState()
+        {
+            var ui = Create(true); yield return null;
+            foreach (var part in AerospaceCatalog.Load().models)
+            {
+                ui.Open(part.code, false); yield return Ready(ui); AssertScienceCopy(ui);
+                for (int tab = 0; tab < 3; tab++) { ui.SetReadingTab(tab); yield return null; AssertScienceCopy(ui); }
+                for (int index = 0; index < 4; index++) { ui.ShowDetail(index); yield return null; AssertScienceCopy(ui); }
+                Click(ui, "Science_Sources"); yield return null; AssertScienceCopy(ui);
+                foreach (string mode in new[] { "assembled", "cutaway", "exploded" }) { Click(ui, "Mode_" + mode); yield return null; AssertScienceCopy(ui); }
+                ui.StartDemonstration();
+                for (int step = 0; step < 3; step++) { ui.Stage.SetDemonstrationStep(step); yield return null; AssertScienceCopy(ui); }
+                ui.EndDemonstration();
+                if (part.code == "R03" || part.code == "R04" || part.code == "R05")
+                    for (int state = 0; state < 3; state++) { ui.ModelSpecialAction(); yield return null; AssertScienceCopy(ui); }
+                ui.Close(); yield return null;
+            }
+            ContractCompleted = true;
+        }
+        static void AssertScienceCopy(AerospaceScienceUI ui)
+        {
+            string copy = string.Join("\n", ui.GetComponentsInChildren<TMP_Text>().Select(t => t.text));
+            foreach (string phrase in new[] { "回收不是终点", "非制造", "非实物", "非食物", "教学示意", "不代表", "不模拟", "不是实测", "颜色不", "不对应", "未完整复原", "没有复原", "游戏化", "不是实际", "仅用于观察", "仅供观察", "免责" })
+                Assert.That(copy, Does.Not.Contain(phrase), ui.CurrentCode + " / " + ui.ActiveReadingTab);
+        }
+        [UnityTest]
         public IEnumerator EmptyArchiveRemainsReadableAndCloseRestoresTime()
         {
             var ui = Create(false); yield return null; Time.timeScale = 2;
@@ -64,7 +113,7 @@ namespace AgentReproduction.Tests
                 ui.Open(part.code, false); yield return Ready(ui);
                 Assert.That(ui.ActiveReadingTab, Is.Zero);
                 Assert.That(Named<TMP_Text>(ui, "Overview_Summary").text.Length, Is.LessThan(150));
-                Assert.That(ui.Stage.DisplayCamera.aspect, Is.EqualTo(1024f / 580).Within(.002f));
+                Assert.That(ui.Stage.DisplayCamera.aspect, Is.EqualTo(AerospaceInspectionStage.ViewWidth / AerospaceInspectionStage.ViewHeight).Within(.002f));
                 Assert.That(ui.GetComponentsInChildren<TMP_Text>().Any(t => t.text.Contains("保底投放")), Is.False);
                 Click(ui, "Reading_Tab_1"); Assert.That(ui.ActiveReadingTab, Is.EqualTo(1));
                 Click(ui, "Reading_Tab_2"); Assert.That(ui.ActiveReadingTab, Is.EqualTo(2));

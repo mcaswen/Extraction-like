@@ -24,19 +24,18 @@ namespace ExtractionLike.Aerospace
         private void BuildTerminal(Transform frame)
         {
             var go = new GameObject("Inspection_Datum", typeof(RectTransform), typeof(AerospaceTerminalGraphic));
-            go.transform.SetParent(frame, false); Rect(go.GetComponent<RectTransform>(), 48, 145, 1024, 580);
+            go.transform.SetParent(frame, false); Rect(go.GetComponent<RectTransform>(), 448, 108, AerospaceInspectionStage.ViewWidth, AerospaceInspectionStage.ViewHeight);
             go.transform.SetSiblingIndex(viewport.GetSiblingIndex());
             terminalGraphic = go.GetComponent<AerospaceTerminalGraphic>(); terminalGraphic.raycastTarget = false;
-            legend = Panel(frame, "Analysis_Vector_Legend", Color.clear, 75, 248, 230, 120).gameObject;
-            MonoLabel(legend.transform, "ANALYSIS OVERLAY", 0, 0, 228, 25, 11, Muted);
+            legend = Panel(frame, "Analysis_Vector_Legend", Color.clear, 478, 190, 230, 95).gameObject;
+            Label(legend.transform, "流向与运动", 0, 0, 228, 25, 13, Muted);
             Panel(legend.transform, "Path_A", Teal, 0, 35, 17, 2);
             legendPrimary = Label(legend.transform, "", 27, 22, 203, 32, 15, Teal);
             legendSecondary = Label(legend.transform, "", 27, 59, 203, 32, 15, Amber);
-            Label(legend.transform, "方向示意 · 非实测数据", 0, 96, 230, 25, 12, Muted);
             legend.SetActive(false);
-            terminalState = Label(frame, "样本待载入", 75, 654, 260, 26, 14, Teal);
-            orientation = MonoLabel(frame, "VIEW 000 / FREE", 818, 659, 240, 24, 12, Muted);
-            skipButton = Button(frame, "跳过入场", 905, 605, 150, 38, SkipReveal); skipButton.name = "Skip_Reveal";
+            terminalState = Label(frame, "样本待载入", 478, 757, 530, 26, 14, Muted);
+            orientation = MonoLabel(frame, "VIEW 000 / FREE", 1324, 759, 248, 24, 11, Muted);
+            skipButton = Button(frame, "跳过入场", 1414, 706, 150, 38, SkipReveal); skipButton.name = "Skip_Reveal";
             skipButton.gameObject.AddComponent<CanvasGroup>().ignoreParentGroups = true;
             skipButton.gameObject.SetActive(false);
         }
@@ -84,7 +83,7 @@ namespace ExtractionLike.Aerospace
             }
             stage.Hover(hoveredPin);
             orientation.text = "VIEW " + Mathf.RoundToInt(stage.DisplayYaw).ToString("000") + " / " + (stage.Study ? "SECTION" : stage.Mode == "exploded" ? "EXPLODED" : stage.Mode == "cutaway" ? "CUTAWAY" : "FREE");
-            terminalState.text = transitioning ? "载入真实模型…" : stage.ScanProgress >= 0 ? "样本检视 · 建立结构标记" : stage.DemoActive ? "原理示意 / " + (stage.DemoPlaying ? "播放中" : "已暂停") : current != null && selectedHotspot >= 0 ? "局部检视 / " + ShortHotspot(current.code, selectedHotspot) : stage.Ready ? "交互就绪 / 拖动观察" : "等待回收样本";
+            terminalState.text = transitioning ? "正在载入样本…" : stage.ScanProgress >= 0 ? "结构识别中" : stage.DemoActive ? "原理演示 / " + (stage.DemoPlaying ? "播放中" : "已暂停") : current != null && selectedHotspot >= 0 ? "局部结构 / " + ShortHotspot(current.code, selectedHotspot) : stage.Ready ? (stage.Study ? "同轴喷注单元" : stage.Mode == "exploded" ? "分解观察" : stage.Mode == "cutaway" ? "结构剖面" : "完整结构") : "等待回收样本";
             if (!transitioning && skipButton.gameObject.activeSelf && stage.ScanProgress < 0) skipButton.gameObject.SetActive(false);
             if (readingTab != 6 || !stage.DemoActive || demoStepLabel == null) return;
             if (renderedDemoStep != stage.DemoStep)
@@ -99,12 +98,12 @@ namespace ExtractionLike.Aerospace
         }
         private void RenderDemonstration(ref float y)
         {
-            ReadText("原理演示 / SCHEMATIC", ref y, 13, Teal, 10);
-            demoStepLabel = MonoLabel(detailContent, "01 / 03", 0, y, 383, 34, 23, Teal); y += 38;
-            demoTitle = Label(detailContent, "", 0, y, 383, 42, 27, Ink); demoTitle.font = font; y += 44;
-            demoBody = Label(detailContent, "", 0, y, 383, 110, 20, Ink); y += 116;
+            ReadText("原理演示", ref y, 12, PaperMuted, 10);
+            demoStepLabel = MonoLabel(detailContent, "01 / 03", 0, y, 383, 29, 20, PaperMuted); y += 34;
+            demoTitle = Label(detailContent, "", 0, y, 383, 36, 24, PaperInk); demoTitle.font = font; y += 42;
+            demoBody = Label(detailContent, "", 0, y, 383, 105, 18, PaperInk); y += 115;
             Panel(detailContent, "Demo_Track", Rule, 0, y, 383, 2);
-            demoProgress = Panel(detailContent, "Demo_Progress", Teal, 0, y, 1, 2).GetComponent<Image>(); y += 15;
+            demoProgress = Panel(detailContent, "Demo_Progress", PaperMuted, 0, y, 1, 2).GetComponent<Image>(); y += 15;
             var play = Button(detailContent, "播放演示", 0, y, 181, 38, () => stage.ToggleDemonstration());
             play.name = "Demo_Play_Pause"; demoPlayLabel = play.GetComponentInChildren<TMP_Text>();
             var stop = Button(detailContent, "退出演示", 193, y, 190, 38, EndDemonstration); stop.name = "Demo_Stop"; y += 46;
@@ -116,28 +115,7 @@ namespace ExtractionLike.Aerospace
                 button.GetComponentInChildren<TMP_Text>().fontSize = 14;
             }
             y += 43;
-            ReadText(DemoCaveat(current.code), ref y, 15, Muted, 12);
             renderedDemoStep = -1;
-        }
-        private void AddLocationDiagram(ref float y)
-        {
-            var panel = Panel(detailContent, "Rocket_System_Locator", new Color(.09f, .16f, .21f, .85f), 0, y, 383, 132);
-            Label(panel, "所在系统 / " + current.locationTitle, 14, 10, 358, 24, 15, Ink);
-            var go = new GameObject("Rocket_Location_Diagram", typeof(RectTransform), typeof(AerospaceTerminalGraphic));
-            go.transform.SetParent(panel, false); Rect(go.GetComponent<RectTransform>(), 14, 39, 355, 66);
-            var diagram = go.GetComponent<AerospaceTerminalGraphic>(); diagram.locationCode = current.code; diagram.raycastTarget = false;
-            Label(panel, "功能位置示意 · 非实物比例", 14, 108, 355, 18, 12, Muted); y += 149;
-        }
-        private static string DemoCaveat(string code)
-        {
-            switch (code)
-            {
-                case "R01": return "流动标记说明冷却通道中的路径概念，不是实测流场；颜色不代表温度。";
-                case "R02": return "低速转动仅供观察叶轮；本件不含驱动涡轮，箭头不是计算流场或实际转速。";
-                case "R03": return "两种颜色仅区分两路介质。当前是放大教学单元，不与整体样件保持尺寸比例。";
-                case "R04": return "直线箭头仅表示来流；需要大气参与。折叠与气流分步展示，不模拟气动力或控制系统。";
-                default: return "三步只说明约束关系。位移不是实际释放轨迹，不模拟内部装置、速度或储能。";
-            }
         }
         private static string ShortHotspot(string code, int index)
         {

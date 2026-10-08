@@ -38,6 +38,7 @@ namespace ExtractionLike.Aerospace
             overlayMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
             ghostMaterial = new Material(shader) { name = "Private section silhouettes" };
             ghostMaterial.SetFloat("_EdgeOnly", 1);
+            ghostMaterial.SetColor("_BaseColor", new Color(.71f, .78f, .48f, 1));
             foreach (var p in poses.Where(p => p.cut))
             {
                 var filter = p.renderer.GetComponent<MeshFilter>();
@@ -181,7 +182,7 @@ namespace ExtractionLike.Aerospace
         private void BuildTeachingPaths()
         {
             flow.Clear();
-            Color cyan = new Color(.30f, .88f, .96f), orange = new Color(1, .68f, .32f);
+            Color cyan = new Color(.76f, .88f, .48f), orange = new Color(1, .71f, .38f);
             if (config.code == "R01")
             {
                 for (int lane = 0; lane < 3; lane++)
