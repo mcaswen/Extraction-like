@@ -280,9 +280,16 @@ namespace ExtractionLike.Aerospace
         private void RenderClues(ref float y)
         {
             ReadText("本局搜集线索", ref y, 26, Ink, 21, true);
-            ReadText("搜索资源箱，并将发现的样本放入背包，即可解锁档案。", ref y, 19, Ink, 24);
+            ReadText("首个新箱必出样本，后续沿探索路线间隔出现。重复开箱不推进进度；成功放入背包才解锁档案。", ref y, 19, Ink, 24);
+            ReadText("已探索不同箱子：" + owner.SearchedBoxCount + "   已投放样本：" + owner.PlacedPartCount + "/5", ref y, 16, Teal, 20);
             foreach (var reservation in owner.Reservations)
             {
+                if (!reservation.placed)
+                {
+                    ReadText(reservation.code + "   待发现", ref y, 18, Muted, 7, true);
+                    ReadText("第 " + reservation.searchNumber + " 个新箱保底出现（两名 Agent 共享进度）", ref y, 16, Muted, 20);
+                    continue;
+                }
                 string zone = reservation.cluster != null ? reservation.cluster.name : "资源区";
                 for (var p = reservation.cluster != null ? reservation.cluster.transform : null; p != null; p = p.parent)
                     if (p.name.StartsWith("Zone", StringComparison.Ordinal)) { zone = p.name; break; }

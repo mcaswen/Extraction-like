@@ -7,6 +7,8 @@ using AgentReproduction.Infrastructure;
 using AgentReproduction.World;
 using ExtractionLike.Aerospace;
 using Gameplay.Agent.Runtime;
+using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Input;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -38,6 +40,133 @@ namespace AgentReproduction.Tests
             screen.OpenInventorySession(new InventoryScreenSessionContext { DisplayName = "Aerospace integration search", ExternalColumns = 6, ExternalRows = 2,
                 ExternalItems = codes.Select((code, i) => new ContainerItemSaveData { ItemData = Part(code), Amount = 1, X = i, Y = 0,
                     RuntimeItemId = Guid.NewGuid().ToString("N"), RequiresSearch = true, IsSearched = false, SearchDurationSeconds = .12f }).ToList() });
+        }
+        LootBoxEntity[] PacingBoxes(int count)
+        {
+            var ordinary = World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+            ordinary.ItemID = "pacing-ordinary"; ordinary.Width = ordinary.Height = 1;
+            var boxes = Enumerable.Range(0, count).Select(i =>
+            {
+                var box = World.Root("Pacing box " + i).AddComponent<LootBoxEntity>();
+                box.transform.position = new Vector3(4 + i * 2, 0, 0);
+                box.ContainerColumns = 6; box.ContainerRows = 3; box.UseBoardGameResourceRules = false;
+                box.SaveRuntimeState(new List<ContainerItemSaveData> { new ContainerItemSaveData {
+                    ItemData = ordinary, Amount = 1, X = 2, Y = 1, IsSearched = true, RuntimeItemId = "ordinary-" + i
+                } }, new List<ContainerCellStateSaveData>());
+                return box;
+            }).ToArray();
+            TargetFactory.ResourceBoxes(World, boxes);
+            return boxes;
+        }
+
+        [UnityTest]
+        public IEnumerator SearchMilestonesFitSmallMapsAndKeepTheNormalThreeBoxCadence()
+        {
+            CollectionAssert.AreEqual(new[] { 1, 4, 7, 10, 13 }, AerospaceCollectionRuntime.BuildSearchMilestones(50));
+            CollectionAssert.AreEqual(new[] { 1, 3, 5, 7, 9 }, AerospaceCollectionRuntime.BuildSearchMilestones(9));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, AerospaceCollectionRuntime.BuildSearchMilestones(5));
+            Assert.That(AerospaceCollectionRuntime.BuildSearchMilestones(4), Is.Empty);
+            for (int total = 5; total <= 40; total++)
+            {
+                int[] schedule = AerospaceCollectionRuntime.BuildSearchMilestones(total);
+                Assert.That(schedule.Length, Is.EqualTo(5)); Assert.That(schedule[0], Is.EqualTo(1));
+                Assert.That(schedule.Distinct().Count(), Is.EqualTo(5));
+                Assert.That(schedule.Last(), Is.LessThanOrEqualTo(Math.Min(13, total)));
+                var gaps = schedule.Skip(1).Select((value, i) => value - schedule[i]).ToArray();
+                Assert.That(gaps.Max() - gaps.Min(), Is.LessThanOrEqualTo(1));
+            }
+            yield return null; ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator FirstOpenedBoxIsGuaranteedThenSharedSearchesOneFourSevenTenThirteen()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero); AgentFactory.Create(World, "2", new Vector3(0, 0, 4));
+            var screen = InventoryFactory.Create(World); var boxes = PacingBoxes(16); var runtime = Runtime();
+            yield return null;
+            Assert.That(runtime.TryReserveAll(), Is.True);
+            Assert.That(runtime.PlacedPartCount, Is.Zero, "Preflight must not put every part in nearby boxes.");
+            foreach (var box in boxes) { box.GetSavedItems(); box.CreateInventorySessionContext(); }
+            Assert.That(runtime.SearchedBoxCount, Is.Zero, "Read-only previews cannot consume the first-search guarantee.");
+            // Reverse the authoring order: the first actual search, not the nearest preselected box, wins.
+            boxes = boxes.Reverse().ToArray();
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent(i % 2 == 0 ? "1" : "2"), Is.True);
+                yield return null;
+                screen.OpenLootBox(boxes[i]);
+                bool expected = i <= 12 && i % 3 == 0;
+                var parts = screen.ActiveExternalGrid.ExtractSaveData().Where(v => AerospaceCatalog.CodeFor(v.ItemData) != null).ToArray();
+                Assert.That(parts.Length, Is.EqualTo(expected ? 1 : 0), "New box number " + (i + 1));
+                if (expected)
+                {
+                    Assert.That(AerospaceCatalog.CodeFor(parts[0].ItemData), Is.EqualTo("R0" + (1 + i / 3)));
+                    Assert.That(parts[0].RequiresSearch && !parts[0].IsSearched, Is.True);
+                }
+                Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i + 1));
+                screen.CloseInventory();
+                screen.OpenLootBox(boxes[i]); screen.CloseInventory();
+                Assert.That(runtime.PrepareSearchedBox(boxes[i]), Is.False);
+                Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i + 1), "Reopens and the other Agent must not advance the cadence.");
+                Assert.That(boxes[i].ContainerRows, Is.EqualTo(expected ? 4 : 3));
+                Assert.That(boxes[i].GetSavedItems().Single(v => v.RuntimeItemId.StartsWith("ordinary-", StringComparison.Ordinal)).Amount, Is.EqualTo(1));
+            }
+            Assert.That(runtime.PlacedPartCount, Is.EqualTo(5)); Assert.That(runtime.CollectedCount, Is.Zero);
+            Assert.That(runtime.Reservations.Select(r => r.box).Distinct().Count(), Is.EqualTo(5));
+            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.ArchiveKey, 0), Is.Zero);
+            Assert.That(runtime.GetComponent<AerospaceScienceUI>().IsOpen, Is.False);
+            Assert.That(runtime.GetComponent<AudioSource>().isPlaying, Is.False);
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator RealAgentArrivalPlacesFirstPartBeforeInventoryAndReopenDoesNotAdvance()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero, 8, false, false);
+            var screen = InventoryFactory.Create(World); var boxes = PacingBoxes(13); var runtime = Runtime();
+            yield return null; Assert.That(runtime.TryReserveAll(), Is.True);
+            var cluster = UnityEngine.Object.FindObjectOfType<ResourceClusterAuthoring>();
+            Assert.That(new AgentTargetCommandDispatcher().TrySubmitClusterCommand(cluster, "1", out _), Is.True);
+            yield return WaitFor(() => runtime.SearchedBoxCount == 1);
+            Assert.That(screen.IsInventoryOpen, Is.False);
+            var first = runtime.Reservations[0].box;
+            Assert.That(first, Is.Not.Null); Assert.That(runtime.PlacedPartCount, Is.EqualTo(1));
+            Assert.That(first.GetSavedItems().Count(v => AerospaceCatalog.CodeFor(v.ItemData) == "R01"), Is.EqualTo(1));
+            screen.OpenLootBox(first);
+            Assert.That(Source(screen, "R01"), Is.Not.Null); Assert.That(runtime.SearchedBoxCount, Is.EqualTo(1));
+            Assert.That(Source(screen, "R01").TryQuickTransfer(out var failure), Is.False);
+            Assert.That(failure, Is.EqualTo(InventoryQuickTransferFailure.SearchPending));
+            screen.CloseInventory(); ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator InsufficientReachableBoxesDoNotPartiallyInjectOrConsumeSearches()
+        {
+            TestNavMeshBuilder.Flat(World); AgentFactory.Create(World, "1", Vector3.zero);
+            var boxes = PacingBoxes(5); boxes[4].transform.position = new Vector3(1000, 0, 1000);
+            var runtime = Runtime(); yield return null;
+            Assert.That(runtime.TryReserveAll(), Is.False);
+            Assert.That(runtime.PrepareSearchedBox(boxes[0]), Is.False);
+            Assert.That(runtime.IsReady, Is.False); Assert.That(runtime.SearchedBoxCount, Is.Zero);
+            Assert.That(runtime.Reservations, Is.Empty);
+            Assert.That(boxes.Sum(b => b.GetSavedItems().Count(i => AerospaceCatalog.CodeFor(i.ItemData) != null)), Is.Zero);
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator DestroyedPlacedBoxDoesNotDuplicateItsPartOrRestartTheCadence()
+        {
+            TestNavMeshBuilder.Flat(World); AgentFactory.Create(World, "1", Vector3.zero);
+            var boxes = PacingBoxes(13); var runtime = Runtime(); yield return null;
+            Assert.That(runtime.PrepareSearchedBox(boxes[0]), Is.True);
+            UnityEngine.Object.DestroyImmediate(boxes[0].gameObject);
+            for (int i = 1; i < 4; i++) runtime.PrepareSearchedBox(boxes[i]);
+            Assert.That(runtime.PlacedPartCount, Is.EqualTo(2));
+            Assert.That(boxes[3].GetSavedItems().Count(i => AerospaceCatalog.CodeFor(i.ItemData) == "R02"), Is.EqualTo(1));
+            Assert.That(runtime.Reservations[0].placed, Is.True);
+            ContractCompleted = true;
         }
         [UnityTest]
         public IEnumerator ReservedLootPreservesOrdinaryContentsAndIsIdempotent()
@@ -221,20 +350,42 @@ namespace AgentReproduction.Tests
             var runtime = AerospaceCollectionRuntime.Instance;
             Assert.That(runtime.Reservations.Count, Is.EqualTo(5)); Assert.That(runtime.Reservations.Select(r => r.code).Distinct().Count(), Is.EqualTo(5));
             var agents = AgentRuntimeRegistry.ActiveInstance.RegisteredAgents.ToArray(); Assert.That(agents.Length, Is.EqualTo(2));
-            foreach (var r in runtime.Reservations)
-            {
-                Assert.That(AerospaceCollectionRuntime.TryReach(r.cluster, r.box, agents, out _, out _), Is.True, r.code + " must be reachable using the real Agent NavMesh.");
-                Assert.That(r.box.GetSavedItems().Count(i => AerospaceCatalog.CodeFor(i.ItemData) == r.code), Is.EqualTo(1));
-            }
+            Assert.That(runtime.EligibleBoxCount, Is.GreaterThanOrEqualTo(13));
+            Assert.That(runtime.SearchedBoxCount, Is.Zero);
+            Assert.That(runtime.PlacedPartCount, Is.Zero);
+            var boxes = UnityEngine.Object.FindObjectsOfType<ResourceClusterAuthoring>()
+                .SelectMany(c => c.ResourceMembers.Select(m => new { cluster = c, box = m.EntityObject != null ? m.EntityObject.GetComponent<LootBoxEntity>() : null }))
+                .Where(p => p.box != null && p.box.isActiveAndEnabled && !p.box.IsResourcePointLooted &&
+                    AerospaceCollectionRuntime.TryReach(p.cluster, p.box, agents, out _, out _))
+                .Select(p => p.box).Distinct().Take(13).ToArray();
+            Assert.That(boxes.Length, Is.EqualTo(13));
             var before = NavMesh.CalculateTriangulation();
             var screen = InventoryScreenController.Instance;
-            screen.OpenLootBox(runtime.Reservations.Single(r => r.code == "R01").box);
-            yield return new WaitForSecondsRealtime(2.65f);
-            Assert.That(Source(screen, "R01").TryQuickTransfer(out _), Is.True); yield return null;
-            var ui = runtime.GetComponent<AerospaceScienceUI>(); yield return WaitFor(() => !ui.IsTransitioning);
-            Assert.That(ui.Stage.Ready, Is.True);
-            if (TestRunContext.Load().graphics) yield return CaptureUI(ui, "FormalScene_R01");
-            ui.Close(); screen.CloseInventory();
+            var ui = runtime.GetComponent<AerospaceScienceUI>();
+            Time.timeScale = 0; // Freeze only this validation harness while exercising the real container UI.
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                screen.OpenLootBox(boxes[i]);
+                Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i + 1));
+                Assert.That(runtime.PlacedPartCount, Is.EqualTo(1 + i / 3));
+                if (i % 3 == 0)
+                {
+                    string code = "R0" + (1 + i / 3);
+                    var r = runtime.Reservations.Single(v => v.code == code);
+                    Assert.That(AerospaceCollectionRuntime.TryReach(r.cluster, r.box, agents, out _, out _), Is.True);
+                    yield return WaitFor(() => Source(screen, code).IsSearched, 24);
+                    // Search state completes before the reveal animation releases the item.
+                    yield return new WaitForSecondsRealtime(.5f);
+                    Assert.That(Source(screen, code).TryQuickTransfer(out _), Is.True); yield return null;
+                    yield return WaitFor(() => ui.IsOpen && !ui.IsTransitioning);
+                    Assert.That(ui.CurrentCode, Is.EqualTo(code)); Assert.That(ui.Stage.Ready, Is.True);
+                    if (i == 0 && TestRunContext.Load().graphics) yield return CaptureUI(ui, "FormalScene_R01");
+                    ui.Close();
+                }
+                screen.CloseInventory();
+            }
+            Assert.That(runtime.CollectedCount, Is.EqualTo(5));
+            Assert.That(runtime.Reservations.Select(r => r.box).Distinct().Count(), Is.EqualTo(5));
             var after = NavMesh.CalculateTriangulation(); Assert.That(after.vertices, Is.EqualTo(before.vertices)); Assert.That(after.indices, Is.EqualTo(before.indices));
             Assert.That(Hash(AerospaceCollectionRuntime.FormalScene), Is.EqualTo(originalHash));
             foreach (var nav in UnityEngine.Object.FindObjectsOfType<NavMeshAgent>()) nav.gameObject.SetActive(false);

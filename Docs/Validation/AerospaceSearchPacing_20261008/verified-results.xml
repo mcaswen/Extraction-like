@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="39" result="Passed" total="39" passed="39" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:09:49Z" duration="93.3438328">
+  <test-suite type="TestSuite" id="1967" name="AgentRepro_AerospaceSearchPacing_20261008" fullname="AgentRepro_AerospaceSearchPacing_20261008" runstate="Runnable" testcasecount="791" result="Passed" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:09:49Z" duration="93.343833" total="39" passed="39" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="2927" name="Assembly-CSharp-Editor.dll" fullname="/private/tmp/astra-collectibles-test.nyXXN9/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="791" result="Passed" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:09:49Z" duration="93.329908" total="39" passed="39" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="15515" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="2928" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="791" result="Passed" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:09:49Z" duration="93.329648" total="39" passed="39" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2929" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="791" result="Passed" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:09:49Z" duration="93.325958" total="39" passed="39" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1968" name="AerospaceCollectiblesTests" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:08:56Z" duration="40.150757" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1973" name="DestroyedPlacedBoxDoesNotDuplicateItsPartOrRestartTheCadence" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.DestroyedPlacedBoxDoesNotDuplicateItsPartOrRestartTheCadence" methodname="DestroyedPlacedBoxDoesNotDuplicateItsPartOrRestartTheCadence" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1969581343" result="Passed" start-time="2026-10-08 06:08:16Z" end-time="2026-10-08 06:08:17Z" duration="1.219237" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+Gameplay target cluster [Box resource cluster] is not bound to a TargetZoneAuthoring
+[Aerospace] Prepared five distinct parts for new-box searches 1,4,7,10,13 across 13 reachable boxes; no NavMesh/AI changes.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 1: placed R01 in Pacing box 0; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 4: placed R02 in Pacing box 3; discovery/unlock still requires a successful backpack transfer.
+]]></output>
+            </test-case>
+            <test-case id="1979" name="DiscoveryAudioHasHeadroomMonoCompatibilityAndAnIndependentNonSpatialVoice" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.DiscoveryAudioHasHeadroomMonoCompatibilityAndAnIndependentNonSpatialVoice" methodname="DiscoveryAudioHasHeadroomMonoCompatibilityAndAnIndependentNonSpatialVoice" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1202644841" result="Passed" start-time="2026-10-08 06:08:17Z" end-time="2026-10-08 06:08:18Z" duration="0.558287" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[Aerospace] 1 recovered R01; collection 1/5.
+[Aerospace] 1 recovered R02; collection 2/5.
+]]></output>
+            </test-case>
+            <test-case id="1970" name="FirstOpenedBoxIsGuaranteedThenSharedSearchesOneFourSevenTenThirteen" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.FirstOpenedBoxIsGuaranteedThenSharedSearchesOneFourSevenTenThirteen" methodname="FirstOpenedBoxIsGuaranteedThenSharedSearchesOneFourSevenTenThirteen" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="635072876" result="Passed" start-time="2026-10-08 06:08:18Z" end-time="2026-10-08 06:08:19Z" duration="0.821736" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+Gameplay target cluster [Box resource cluster] is not bound to a TargetZoneAuthoring
+[Aerospace] Prepared five distinct parts for new-box searches 1,4,7,10,13 across 16 reachable boxes; no NavMesh/AI changes.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 1: placed R01 in Pacing box 15; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 4: placed R02 in Pacing box 12; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 7: placed R03 in Pacing box 9; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 10: placed R04 in Pacing box 6; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 13: placed R05 in Pacing box 3; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱 · 航天样件] Saved 2 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="1975" name="FiveRealSearchTransfersOpenCorrectModelsAndPreserveInventoryPause" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.FiveRealSearchTransfersOpenCorrectModelsAndPreserveInventoryPause" methodname="FiveRealSearchTransfersOpenCorrectModelsAndPreserveInventoryPause" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1145508901" result="Passed" start-time="2026-10-08 06:08:19Z" end-time="2026-10-08 06:08:26Z" duration="7.553025" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[Aerospace] 1 recovered R01; collection 1/5.
+[Aerospace] 1 recovered R02; collection 2/5.
+[Aerospace] 1 recovered R03; collection 3/5.
+[Aerospace] 1 recovered R04; collection 4/5.
+[Aerospace] 1 recovered R05; collection 5/5.
+]]></output>
+            </test-case>
+            <test-case id="1981" name="FormalSceneContainsAllFiveReachablePartsWithoutSceneOrNavigationChanges" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.FormalSceneContainsAllFiveReachablePartsWithoutSceneOrNavigationChanges" methodname="FormalSceneContainsAllFiveReachablePartsWithoutSceneOrNavigationChanges" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1473184299" result="Passed" start-time="2026-10-08 06:08:26Z" end-time="2026-10-08 06:08:47Z" duration="20.518319" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[The referenced script (Unknown) on this Behaviour is missing!
+The referenced script (Unknown) on this Behaviour is missing!
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+Animator is not playing an AnimatorController
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [BossSourceCluster]. Regenerated runtime id [EnemySourceCluster_77343bbe3ee94686b8511957e4c37944] for [BossSourceCluster]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_A]. Regenerated runtime id [EnemySourceCluster_6f8575cdb72d4d04b114aadfa16339c5] for [EnemySourceCluster_A]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_B]. Regenerated runtime id [EnemySourceCluster_c1c9986552bc4ccbba78def3f87e4163] for [EnemySourceCluster_B]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_B]. Regenerated runtime id [EnemySourceCluster_9d2b4aef6d62444c8f93a39300d2f9f3] for [EnemySourceCluster_B]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster]. Regenerated runtime id [EnemySourceCluster_36635424a619406d9c79c1c19179ff06] for [EnemySourceCluster]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_A]. Regenerated runtime id [ResourceCluster_6c4ecf5757b647d1b50a8a2c107ed601] for [ResourceCluster_A]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_A]. Regenerated runtime id [ResourceCluster_fd4f9876cdd54148a043f66fa44ec232] for [ResourceCluster_A]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_B]. Regenerated runtime id [EnemySourceCluster_5cee2cd637784504aab106cb2887e4ca] for [EnemySourceCluster_B]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_A]. Regenerated runtime id [ResourceCluster_5a8242ff81994b68930ad67984250199] for [ResourceCluster_A]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_A]. Regenerated runtime id [ResourceCluster_29ea46b53de74a6baf7806512c28ca53] for [ResourceCluster_A]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_B (1)]. Regenerated runtime id [ResourceCluster_4c2c1bd52f0d4e699d0e769b4181d2ba] for [ResourceCluster_B (1)]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster]. Regenerated runtime id [EnemySourceCluster_2ae752a32d2c408e918922623e8e3a55] for [EnemySourceCluster]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_B]. Regenerated runtime id [ResourceCluster_abaa6f308d364497ae7db6568cd8503a] for [ResourceCluster_B]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_B]. Regenerated runtime id [ResourceCluster_34336d08ff364944a0a18ab6677de272] for [ResourceCluster_B]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_B]. Regenerated runtime id [ResourceCluster_db1246b619d24478a8c374b4a5f67c38] for [ResourceCluster_B]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_B]. Regenerated runtime id [EnemySourceCluster_b1c7fbded13c4dc2afdc46ce21322044] for [EnemySourceCluster_B]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_A]. Regenerated runtime id [EnemySourceCluster_3e85dc16573149578c268138577df459] for [EnemySourceCluster_A]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_C]. Regenerated runtime id [ResourceCluster_2c19a39ec41b42aa8df062a295fe898e] for [ResourceCluster_C]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster]. Regenerated runtime id [EnemySourceCluster_be2c81633a1b46e6a2596b2e3c89cc77] for [EnemySourceCluster]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster_A]. Regenerated runtime id [EnemySourceCluster_d78647cda0894d4198804a78efd5b8b9] for [EnemySourceCluster_A]
+Duplicate gameplay target id [ExtractionCluster_39c2d8cee6694b72bcb8e98b74ea4c84] between [ExtractionCluster] and [ExtractionCluster]. Regenerated runtime id [ExtractionCluster_c7fdefaaddd447ccad0e94f6d41d4d76] for [ExtractionCluster]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_B]. Regenerated runtime id [ResourceCluster_160c87adf13440b4a2f3c704d727e58f] for [ResourceCluster_B]
+Duplicate gameplay target id [ResourceCluster_6337291b19c540d899f77b3fd15d3d5b] between [ResourceCluster_B] and [ResourceCluster_A]. Regenerated runtime id [ResourceCluster_c1ca70795bdc42f49fa4d2d6b3f8092f] for [ResourceCluster_A]
+Duplicate gameplay target id [EnemySourceCluster_3faf0caa7e9d48e589988c95afb3bac3] between [EnemySourceCluster_A] and [EnemySourceCluster]. Regenerated runtime id [EnemySourceCluster_683956cf54a84bf7af9d77d214900bab] for [EnemySourceCluster]
+[Pfb_EnemySpawn] Could not sample spawn position on NavMesh. Using raw spawn position.
+[Pfb_EnemySpawn] Could not sample spawn position on NavMesh. Using raw spawn position.
+[Pfb_EnemySpawn] Could not sample spawn position on NavMesh. Using raw spawn position.
+[Pfb_EnemySpawn] Could not sample spawn position on NavMesh. Using raw spawn position.
+[Pfb_EnemySpawn] Could not sample spawn position on NavMesh. Using raw spawn position.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_HunterBoss_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Pfb_Enemy_Common_TidalAberration_00] Enemy model has no skinned mesh or visible bone hierarchy. Using static visual fallback until a rigged/skinned model is assigned.
+[Aerospace] Prepared five distinct parts for new-box searches 1,4,7,10,13 across 32 reachable boxes; no NavMesh/AI changes.
+[普通资源箱] Saved 3 items.
+[Aerospace] Search 1: placed R01 in LootBox; discovery/unlock still requires a successful backpack transfer.
+[Aerospace] 1 recovered R01; collection 1/5.
+[普通资源箱 · 航天样件] Saved 2 items.
+[普通资源箱] Saved 1 items.
+[普通资源箱] Saved 1 items.
+[普通资源箱] Saved 3 items.
+[Aerospace] Search 4: placed R02 in LootBox; discovery/unlock still requires a successful backpack transfer.
+[Aerospace] 1 recovered R02; collection 2/5.
+[普通资源箱 · 航天样件] Saved 2 items.
+[普通资源箱] Saved 2 items.
+[普通资源箱] Saved 2 items.
+[普通资源箱] Saved 3 items.
+[Aerospace] Search 7: placed R03 in LootBox; discovery/unlock still requires a successful backpack transfer.
+[Aerospace] 1 recovered R03; collection 3/5.
+[普通资源箱 · 航天样件] Saved 2 items.
+[普通资源箱] Saved 3 items.
+[普通资源箱] Saved 2 items.
+[普通资源箱] Saved 3 items.
+[Aerospace] Search 10: placed R04 in LootBox; discovery/unlock still requires a successful backpack transfer.
+[Aerospace] 1 recovered R04; collection 4/5.
+[普通资源箱 · 航天样件] Saved 2 items.
+[普通资源箱] Saved 3 items.
+[普通资源箱] Saved 2 items.
+[普通资源箱] Saved 3 items.
+[Aerospace] Search 13: placed R05 in LootBox; discovery/unlock still requires a successful backpack transfer.
+[Aerospace] 1 recovered R05; collection 5/5.
+[普通资源箱 · 航天样件] Saved 2 items.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+TerrainCollider: MeshCollider is not supported on terrain at the moment.
+]]></output>
+            </test-case>
+            <test-case id="1976" name="FullBackpackDoesNotUnlockAndDragCommitUsesTheSameHook" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.FullBackpackDoesNotUnlockAndDragCommitUsesTheSameHook" methodname="FullBackpackDoesNotUnlockAndDragCommitUsesTheSameHook" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1386792253" result="Passed" start-time="2026-10-08 06:08:47Z" end-time="2026-10-08 06:08:48Z" duration="1.305378" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[Aerospace] 1 recovered R02; collection 1/5.
+]]></output>
+            </test-case>
+            <test-case id="1972" name="InsufficientReachableBoxesDoNotPartiallyInjectOrConsumeSearches" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.InsufficientReachableBoxesDoNotPartiallyInjectOrConsumeSearches" methodname="InsufficientReachableBoxesDoNotPartiallyInjectOrConsumeSearches" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1929369088" result="Passed" start-time="2026-10-08 06:08:48Z" end-time="2026-10-08 06:08:49Z" duration="0.568499" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+Gameplay target cluster [Box resource cluster] is not bound to a TargetZoneAuthoring
+]]></output>
+            </test-case>
+            <test-case id="1980" name="InventoryClosingBehindModalRestoresUnderlyingSpeedNotZero" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.InventoryClosingBehindModalRestoresUnderlyingSpeedNotZero" methodname="InventoryClosingBehindModalRestoresUnderlyingSpeedNotZero" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1593908529" result="Passed" start-time="2026-10-08 06:08:49Z" end-time="2026-10-08 06:08:50Z" duration="1.267340" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[Aerospace] 1 recovered R01; collection 1/5.
+]]></output>
+            </test-case>
+            <test-case id="1978" name="QueuedDiscoveriesAndEarlyCloseNeverLeaveTheGamePaused" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.QueuedDiscoveriesAndEarlyCloseNeverLeaveTheGamePaused" methodname="QueuedDiscoveriesAndEarlyCloseNeverLeaveTheGamePaused" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1045389621" result="Passed" start-time="2026-10-08 06:08:50Z" end-time="2026-10-08 06:08:52Z" duration="1.681770" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[Aerospace] 1 recovered R01; collection 1/5.
+[Aerospace] 1 recovered R02; collection 2/5.
+]]></output>
+            </test-case>
+            <test-case id="1971" name="RealAgentArrivalPlacesFirstPartBeforeInventoryAndReopenDoesNotAdvance" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.RealAgentArrivalPlacesFirstPartBeforeInventoryAndReopenDoesNotAdvance" methodname="RealAgentArrivalPlacesFirstPartBeforeInventoryAndReopenDoesNotAdvance" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1663927593" result="Passed" start-time="2026-10-08 06:08:52Z" end-time="2026-10-08 06:08:53Z" duration="1.618260" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+Gameplay target cluster [Box resource cluster] is not bound to a TargetZoneAuthoring
+[Aerospace] Prepared five distinct parts for new-box searches 1,4,7,10,13 across 13 reachable boxes; no NavMesh/AI changes.
+[军用物资箱] Saved 2 items.
+[Aerospace] Search 1: placed R01 in Pacing box 0; discovery/unlock still requires a successful backpack transfer.
+[军用物资箱 · 航天样件] Saved 2 items.
+]]></output>
+            </test-case>
+            <test-case id="1974" name="ReservedLootPreservesOrdinaryContentsAndIsIdempotent" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.ReservedLootPreservesOrdinaryContentsAndIsIdempotent" methodname="ReservedLootPreservesOrdinaryContentsAndIsIdempotent" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="918006928" result="Passed" start-time="2026-10-08 06:08:53Z" end-time="2026-10-08 06:08:54Z" duration="0.523640" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 2 items.
+]]></output>
+            </test-case>
+            <test-case id="1969" name="SearchMilestonesFitSmallMapsAndKeepTheNormalThreeBoxCadence" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.SearchMilestonesFitSmallMapsAndKeepTheNormalThreeBoxCadence" methodname="SearchMilestonesFitSmallMapsAndKeepTheNormalThreeBoxCadence" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="1502251063" result="Passed" start-time="2026-10-08 06:08:54Z" end-time="2026-10-08 06:08:54Z" duration="0.518512" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="1977" name="TwoAgentsKeepSeparateBagsButShareArchiveAndModalRestoresOnDisable" fullname="AgentReproduction.Tests.AerospaceCollectiblesTests.TwoAgentsKeepSeparateBagsButShareArchiveAndModalRestoresOnDisable" methodname="TwoAgentsKeepSeparateBagsButShareArchiveAndModalRestoresOnDisable" classname="AgentReproduction.Tests.AerospaceCollectiblesTests" runstate="Runnable" seed="140588206" result="Passed" start-time="2026-10-08 06:08:54Z" end-time="2026-10-08 06:08:56Z" duration="1.988382" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[Aerospace] 1 recovered R04; collection 1/5.
+[Aerospace] 2 recovered R05; collection 2/5.
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1994" name="AerospaceSciencePresentationTests" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-08 06:08:56Z" end-time="2026-10-08 06:09:38Z" duration="41.714581" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2001" name="DemonstrationRestoresSpecialViewFocusAndResetReallyResetsZoom" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.DemonstrationRestoresSpecialViewFocusAndResetReallyResetsZoom" methodname="DemonstrationRestoresSpecialViewFocusAndResetReallyResetsZoom" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1055985623" result="Passed" start-time="2026-10-08 06:08:56Z" end-time="2026-10-08 06:09:07Z" duration="10.772389" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="2004" name="DiscoveryCanBeSkippedAndRapidReplacementDoesNotLeaveVectorsOrPause" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.DiscoveryCanBeSkippedAndRapidReplacementDoesNotLeaveVectorsOrPause" methodname="DiscoveryCanBeSkippedAndRapidReplacementDoesNotLeaveVectorsOrPause" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="2093828160" result="Passed" start-time="2026-10-08 06:09:07Z" end-time="2026-10-08 06:09:08Z" duration="0.976703" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="1997" name="DisplaySettingsQualityOrbitAndSourcesDoNotLoseTheSample" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.DisplaySettingsQualityOrbitAndSourcesDoNotLoseTheSample" methodname="DisplaySettingsQualityOrbitAndSourcesDoNotLoseTheSample" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="868112851" result="Passed" start-time="2026-10-08 06:09:08Z" end-time="2026-10-08 06:09:10Z" duration="2.488894" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="1995" name="EmptyArchiveRemainsReadableAndCloseRestoresTime" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.EmptyArchiveRemainsReadableAndCloseRestoresTime" methodname="EmptyArchiveRemainsReadableAndCloseRestoresTime" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="114907591" result="Passed" start-time="2026-10-08 06:09:10Z" end-time="2026-10-08 06:09:11Z" duration="0.551335" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="2002" name="EnlargedTeachingUnitClearsOldAssemblyFocusAndRecenters" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.EnlargedTeachingUnitClearsOldAssemblyFocusAndRecenters" methodname="EnlargedTeachingUnitClearsOldAssemblyFocusAndRecenters" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1155828083" result="Passed" start-time="2026-10-08 06:09:11Z" end-time="2026-10-08 06:09:14Z" duration="3.444466" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="1999" name="FivePrincipleDemonstrationsPauseStepExitAndKeepTheirModel" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.FivePrincipleDemonstrationsPauseStepExitAndKeepTheirModel" methodname="FivePrincipleDemonstrationsPauseStepExitAndKeepTheirModel" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1261076019" result="Passed" start-time="2026-10-08 06:09:14Z" end-time="2026-10-08 06:09:31Z" duration="16.366952" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="1996" name="FiveSamplesHaveLayeredReadingAndWorkingHotspots" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.FiveSamplesHaveLayeredReadingAndWorkingHotspots" methodname="FiveSamplesHaveLayeredReadingAndWorkingHotspots" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1214288121" result="Passed" start-time="2026-10-08 06:09:31Z" end-time="2026-10-08 06:09:34Z" duration="2.645723" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="2000" name="FocusGhostSectionAndReducedMotionAreIndependentOfGameplayTime" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.FocusGhostSectionAndReducedMotionAreIndependentOfGameplayTime" methodname="FocusGhostSectionAndReducedMotionAreIndependentOfGameplayTime" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1489354892" result="Passed" start-time="2026-10-08 06:09:34Z" end-time="2026-10-08 06:09:36Z" duration="2.588614" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="2003" name="LeavingDemonstrationForReadingKeepsModelAndLabelSelectionInSync" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.LeavingDemonstrationForReadingKeepsModelAndLabelSelectionInSync" methodname="LeavingDemonstrationForReadingKeepsModelAndLabelSelectionInSync" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1392881189" result="Passed" start-time="2026-10-08 06:09:36Z" end-time="2026-10-08 06:09:37Z" duration="0.943635" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+            <test-case id="1998" name="ReadingAndSampleControlsFitSmallFourByThreeAndUltrawideWindows" fullname="AgentReproduction.Tests.AerospaceSciencePresentationTests.ReadingAndSampleControlsFitSmallFourByThreeAndUltrawideWindows" methodname="ReadingAndSampleControlsFitSmallFourByThreeAndUltrawideWindows" classname="AgentReproduction.Tests.AerospaceSciencePresentationTests" runstate="Runnable" seed="1132330520" result="Passed" start-time="2026-10-08 06:09:37Z" end-time="2026-10-08 06:09:38Z" duration="0.931666" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="2670" name="MapGraphViewportVisibilityTests" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.058386" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2673" name="ExpandedHideAndRestorePreservesZoomPanAndSameViews" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.ExpandedHideAndRestorePreservesZoomPanAndSameViews" methodname="ExpandedHideAndRestorePreservesZoomPanAndSameViews" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="1771132250" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.013540" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2674" name="HiddenMapIgnoresScrollAndDrag" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.HiddenMapIgnoresScrollAndDrag" methodname="HiddenMapIgnoresScrollAndDrag" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="1331875248" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.007052" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2675" name="HiddenMapRejectsGraphicRaycastFiltersAndRestoringAcceptsThem" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.HiddenMapRejectsGraphicRaycastFiltersAndRestoringAcceptsThem" methodname="HiddenMapRejectsGraphicRaycastFiltersAndRestoringAcceptsThem" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="1535408528" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.006829" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2677" name="HiddenStateSurvivesViewportReinitializationAndLayoutChanges" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.HiddenStateSurvivesViewportReinitializationAndLayoutChanges" methodname="HiddenStateSurvivesViewportReinitializationAndLayoutChanges" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="392727356" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.006987" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2672" name="HideAndRestoreCompactKeepsTheControllerRunningAndReleasesPointerInput" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.HideAndRestoreCompactKeepsTheControllerRunningAndReleasesPointerInput" methodname="HideAndRestoreCompactKeepsTheControllerRunningAndReleasesPointerInput" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="2115274703" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.006587" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2671" name="MapStartsVisibleAndCompact" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.MapStartsVisibleAndCompact" methodname="MapStartsVisibleAndCompact" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="870784124" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.006302" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2676" name="MWhileHiddenOpensExpandedAndThenReturnsToCompact" fullname="AgentReproduction.Tests.MapGraphViewportVisibilityTests.MWhileHiddenOpensExpandedAndThenReturnsToCompact" methodname="MWhileHiddenOpensExpandedAndThenReturnsToCompact" classname="AgentReproduction.Tests.MapGraphViewportVisibilityTests" runstate="Runnable" seed="1149713176" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:38Z" duration="0.007096" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="2803" name="SceneRaidInventoryTests" fullname="AgentReproduction.Tests.SceneRaidInventoryTests" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:49Z" duration="11.370906" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2809" name="CapacityChecksEveryCandidateAndRejectsOversizedOrPolicyOnly" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.CapacityChecksEveryCandidateAndRejectsOversizedOrPolicyOnly" methodname="CapacityChecksEveryCandidateAndRejectsOversizedOrPolicyOnly" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="1839188998" result="Passed" start-time="2026-10-08 06:09:38Z" end-time="2026-10-08 06:09:39Z" duration="0.579393" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+]]></output>
+            </test-case>
+            <test-case id="2806" name="DriverServesTwoWaitingAgentsWithoutCrossingInventories" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.DriverServesTwoWaitingAgentsWithoutCrossingInventories" methodname="DriverServesTwoWaitingAgentsWithoutCrossingInventories" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="1148023839" result="Passed" start-time="2026-10-08 06:09:39Z" end-time="2026-10-08 06:09:41Z" duration="2.276983" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 0 items.
+[军用物资箱] Saved 0 items.
+]]></output>
+            </test-case>
+            <test-case id="2810" name="FragmentedBackpackUsesFormalSortingBeforeCapacityFailure" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.FragmentedBackpackUsesFormalSortingBeforeCapacityFailure" methodname="FragmentedBackpackUsesFormalSortingBeforeCapacityFailure" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="135857478" result="Passed" start-time="2026-10-08 06:09:41Z" end-time="2026-10-08 06:09:41Z" duration="0.580768" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+]]></output>
+            </test-case>
+            <test-case id="2811" name="FullAgentChoosesExitWhileOtherAgentKeepsSearching" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.FullAgentChoosesExitWhileOtherAgentKeepsSearching" methodname="FullAgentChoosesExitWhileOtherAgentKeepsSearching" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="210280078" result="Passed" start-time="2026-10-08 06:09:41Z" end-time="2026-10-08 06:09:43Z" duration="1.731552" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+Gameplay target cluster [Test extraction cluster] is not bound to a TargetZoneAuthoring
+Gameplay target cluster [Resource cluster] is not bound to a TargetZoneAuthoring
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2812" name="InvalidatedResourceClosesSessionAndReopeningResumesRealSearch" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.InvalidatedResourceClosesSessionAndReopeningResumesRealSearch" methodname="InvalidatedResourceClosesSessionAndReopeningResumesRealSearch" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="197056755" result="Passed" start-time="2026-10-08 06:09:43Z" end-time="2026-10-08 06:09:46Z" duration="2.870092" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 0 items.
+]]></output>
+            </test-case>
+            <test-case id="2805" name="OversizedItemAndPolicyRejectionPreserveOriginalContainer" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.OversizedItemAndPolicyRejectionPreserveOriginalContainer" methodname="OversizedItemAndPolicyRejectionPreserveOriginalContainer" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="944283921" result="Passed" start-time="2026-10-08 06:09:46Z" end-time="2026-10-08 06:09:47Z" duration="0.575540" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+]]></output>
+            </test-case>
+            <test-case id="2808" name="PartialStackTransferPreservesRemainderAndDetectsCapacity" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.PartialStackTransferPreservesRemainderAndDetectsCapacity" methodname="PartialStackTransferPreservesRemainderAndDetectsCapacity" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="2137298171" result="Passed" start-time="2026-10-08 06:09:47Z" end-time="2026-10-08 06:09:47Z" duration="0.574686" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2804" name="QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData" methodname="QuickTransferWaitsForSearchUsesRotationAndPreservesCloseData" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="1203523489" result="Passed" start-time="2026-10-08 06:09:47Z" end-time="2026-10-08 06:09:49Z" duration="1.282801" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+]]></output>
+            </test-case>
+            <test-case id="2807" name="UnrelatedInventoryCannotCompleteTheWaitingResource" fullname="AgentReproduction.Tests.SceneRaidInventoryTests.UnrelatedInventoryCannotCompleteTheWaitingResource" methodname="UnrelatedInventoryCannotCompleteTheWaitingResource" classname="AgentReproduction.Tests.SceneRaidInventoryTests" runstate="Runnable" seed="2146386447" result="Passed" start-time="2026-10-08 06:09:49Z" end-time="2026-10-08 06:09:49Z" duration="0.896420" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

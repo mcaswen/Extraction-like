@@ -276,6 +276,8 @@ namespace Gameplay.Agent.AI.Actions
             global::LootBoxEntity lootBox,
             bool clearDirectiveOnComplete)
         {
+            // Arrival at a concrete box, not target evaluation, advances the shared aerospace search cadence.
+            ExtractionLike.Aerospace.AerospaceCollectionRuntime.Instance?.PrepareSearchedBox(lootBox);
             lootBox.EnsureLootGeneratedIfNeeded();
             if (lootBox.IsBoardGameResourcePoint)
             {

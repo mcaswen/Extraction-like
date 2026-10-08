@@ -826,6 +826,9 @@ public class InventoryScreenController : MonoBehaviour
             Debug.Log($"[InventoryScreen] OpenLootBox -> {lootBox.name}.", this);
         }
 
+        // Also covers direct interaction. The runtime deduplicates the Agent-arrival path
+        // and repeat opens; inject before snapshotting dimensions/items for the visible grid.
+        ExtractionLike.Aerospace.AerospaceCollectionRuntime.Instance?.PrepareSearchedBox(lootBox);
         InventoryScreenSessionContext sessionContext = lootBox.CreateInventorySessionContext();
         OpenInventorySession(sessionContext);
     }

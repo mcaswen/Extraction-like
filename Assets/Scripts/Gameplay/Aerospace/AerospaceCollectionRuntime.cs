@@ -16,13 +16,21 @@ namespace ExtractionLike.Aerospace
         public const string FormalScene = "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
         public const string ArchiveKey = "ASTRA_ScienceArchive_v1";
         public static AerospaceCollectionRuntime Instance { get; private set; }
-        public sealed class Reservation { public string code; public LootBoxEntity box; public ResourceClusterAuthoring cluster; public Vector3 approach; public string agentId; }
+        public const int PartCount = 5;
+        public const int PreferredSearchStride = 3;
+        public sealed class Reservation { public string code; public int searchNumber; public bool placed; public LootBoxEntity box; public ResourceClusterAuthoring cluster; public Vector3 approach; public string agentId; }
         public readonly List<Reservation> Reservations = new List<Reservation>();
+        private readonly Dictionary<LootBoxEntity, Reservation> eligibleBoxes = new Dictionary<LootBoxEntity, Reservation>();
+        private readonly HashSet<LootBoxEntity> searchedBoxes = new HashSet<LootBoxEntity>();
+        private InventoryItemData[] reservedItems;
         private readonly HashSet<string> collected = new HashSet<string>();
         private readonly Queue<string> pending = new Queue<string>();
         private AerospaceScienceUI ui;
         private AudioSource discovery;
         public int CollectedCount => collected.Count;
+        public int SearchedBoxCount => searchedBoxes.Count;
+        public int EligibleBoxCount => eligibleBoxes.Count;
+        public int PlacedPartCount => Reservations.Count(r => r.placed);
         public bool IsReady { get; private set; }
         [NonSerialized] public bool ReserveOnStart = true;
         public string Status { get; private set; } = "正在核验搜索点…";
@@ -64,9 +72,10 @@ namespace ExtractionLike.Aerospace
                 if (TryReserveAll()) break;
                 yield return new WaitForSecondsRealtime(.5f);
             }
-            if (!IsReady) { Status = "搜索点核验未通过，请查看 Console"; Debug.LogError("[Aerospace] Cannot guarantee five reachable parts: " + Reservations.Count + "/5. No inaccessible or physical props were created."); }
+            if (!IsReady) { Status = "搜索点核验未通过，请查看 Console"; Debug.LogError("[Aerospace] Cannot prepare five parts: fewer than five reachable boxes or missing item assets. No inaccessible or physical props were created."); }
         }
 
+        /// <summary>Reserve a five-part schedule, not loot in the nearest five boxes.</summary>
         public bool TryReserveAll()
         {
             if (IsReady) return true;
@@ -76,42 +85,72 @@ namespace ExtractionLike.Aerospace
             if (agents.Length == 0) return false;
             var clusters = FindObjectsOfType<ResourceClusterAuthoring>().Where(c => c.gameObject.scene == gameObject.scene && c.isActiveAndEnabled)
                 .OrderBy(c => agents.Min(a => (a.CachedTransform.position - c.transform.position).sqrMagnitude)).ThenBy(c => c.name, StringComparer.Ordinal).ToArray();
-            var candidates = new List<Reservation>();
+            var candidates = new Dictionary<LootBoxEntity, Reservation>();
             var usedBoxes = new HashSet<LootBoxEntity>();
-            foreach (var existing in Reservations) usedBoxes.Add(existing.box);
-            // Prefer different resource clusters, then allow more than one member of a reachable cluster.
-            for (int pass = 0; pass < 2 && candidates.Count + Reservations.Count < 5; pass++)
             foreach (var cluster in clusters)
             {
-                if (pass == 0 && Reservations.Any(r => r.cluster == cluster)) continue;
                 foreach (var member in cluster.ResourceMembers)
                 {
                     var box = member?.EntityObject != null ? member.EntityObject.GetComponent<LootBoxEntity>() : null;
-                    if (box == null || !box.isActiveAndEnabled || usedBoxes.Contains(box) || box.IsResourcePointLooted) continue;
+                    if (box == null || box.gameObject.scene != gameObject.scene || !box.isActiveAndEnabled ||
+                        usedBoxes.Contains(box) || box.IsResourcePointLooted || AgentSearchedResourceRegistry.IsSearched(box.gameObject)) continue;
                     if (!TryReach(cluster, box, agents, out var point, out var agentId)) continue;
-                    candidates.Add(new Reservation { box = box, cluster = cluster, approach = point, agentId = agentId });
                     usedBoxes.Add(box);
-                    if (pass == 0 || candidates.Count + Reservations.Count >= 5) break;
+                    candidates.Add(box, new Reservation { box = box, cluster = cluster, approach = point, agentId = agentId });
                 }
-                if (candidates.Count + Reservations.Count >= 5) break;
             }
             // Atomic preflight: don't partially alter boxes if assets/navigation are incomplete.
-            if (candidates.Count + Reservations.Count < 5) return false;
+            if (candidates.Count < PartCount) return false;
             var catalog = AerospaceCatalog.Load();
+            if (catalog == null || catalog.models == null || catalog.models.Length != PartCount) return false;
             var items = catalog.models.Select(p => Resources.Load<InventoryItemData>("Aerospace/Items/" + p.code)).ToArray();
-            if (items.Any(i => i == null)) return false;
-            foreach (var candidate in candidates)
+            if (items.Any(i => i == null) || catalog.models.Select(p => p.code).Distinct().Count() != PartCount) return false;
+            int[] milestones = BuildSearchMilestones(candidates.Count);
+            foreach (var candidate in candidates) eligibleBoxes.Add(candidate.Key, candidate.Value);
+            reservedItems = items;
+            for (int i = 0; i < PartCount; i++)
             {
-                int index = Reservations.Count;
-                if (index >= 5) break;
-                candidate.code = catalog.models[index].code;
-                AddReservedLoot(candidate.box, items[index]);
-                Reservations.Add(candidate);
+                Reservations.Add(new Reservation { code = catalog.models[i].code, searchNumber = milestones[i] });
             }
-            IsReady = Reservations.Count == 5;
-            Status = IsReady ? "五种零件已保底投放 · 沿用原搜索箱" : "正在核验搜索点…";
-            Debug.Log("[Aerospace] Reserved " + Reservations.Count + " distinct parts in reachable existing containers; no NavMesh/AI changes.");
-            return IsReady;
+            IsReady = true;
+            Status = "首搜保底 · 沿实际探索路线分批投放";
+            Debug.Log("[Aerospace] Prepared five distinct parts for new-box searches " + string.Join(",", milestones) +
+                " across " + EligibleBoxCount + " reachable boxes; no NavMesh/AI changes.");
+            return true;
+        }
+
+        public static int[] BuildSearchMilestones(int reachableBoxCount)
+        {
+            if (reachableBoxCount < PartCount) return Array.Empty<int>();
+            int last = Math.Min(reachableBoxCount, 1 + PreferredSearchStride * (PartCount - 1));
+            // A smaller future map still fits all five parts; normal maps use 1,4,7,10,13.
+            return Enumerable.Range(0, PartCount).Select(i => 1 + i * (last - 1) / (PartCount - 1)).ToArray();
+        }
+
+        /// <summary>
+        /// Called only on actual arrival/search or opening a box, never by loot previews,
+        /// AI target scoring, navigation checks or GetSavedItems. Both agents share this ledger.
+        /// </summary>
+        public bool PrepareSearchedBox(LootBoxEntity box)
+        {
+            if (box == null || !box.isActiveAndEnabled || box.gameObject.scene != gameObject.scene ||
+                box.IsResourcePointLooted || AgentSearchedResourceRegistry.IsSearched(box.gameObject)) return false;
+            if (!IsReady && !TryReserveAll()) return false;
+            if (!eligibleBoxes.TryGetValue(box, out var candidate) || !searchedBoxes.Add(box)) return false;
+
+            int index = Reservations.FindIndex(r => !r.placed);
+            if (index < 0 || SearchedBoxCount < Reservations[index].searchNumber) return false;
+
+            var reservation = Reservations[index];
+            AddReservedLoot(box, reservedItems[index]);
+            reservation.placed = true;
+            reservation.box = box;
+            reservation.cluster = candidate.cluster;
+            reservation.approach = candidate.approach;
+            reservation.agentId = candidate.agentId;
+            Debug.Log("[Aerospace] Search " + SearchedBoxCount + ": placed " + reservation.code + " in " + box.name +
+                "; discovery/unlock still requires a successful backpack transfer.");
+            return true;
         }
         public static bool TryReach(ResourceClusterAuthoring cluster, LootBoxEntity box, AgentRuntimeHandle[] agents, out Vector3 point, out string agentId)
         {
