@@ -285,7 +285,7 @@ namespace AgentReproduction.Tests
             Assert.That(Time.timeScale, Is.EqualTo(1)); yield return new WaitForSecondsRealtime(.4f);
             Assert.That(ui.IsOpen, Is.False); Assert.That(ui.Stage.Ready, Is.False);
             var sound = runtime.GetComponent<AudioSource>(); Assert.That(sound.clip, Is.Not.Null);
-            Assert.That(sound.clip.length, Is.EqualTo(1.95f).Within(.002f)); Assert.That(sound.spatialBlend, Is.Zero);
+            Assert.That(sound.clip.length, Is.EqualTo(.84f).Within(.002f)); Assert.That(sound.spatialBlend, Is.Zero);
             ContractCompleted = true;
         }
         [UnityTest]
@@ -302,14 +302,16 @@ namespace AgentReproduction.Tests
             Assert.That(sound.playOnAwake || sound.loop, Is.False);
             Assert.That(sound.clip.frequency, Is.EqualTo(48000));
             Assert.That(sound.clip.channels, Is.EqualTo(2));
-            Assert.That(sound.clip.length, Is.EqualTo(1.95f).Within(.002f));
+            Assert.That(sound.clip.length, Is.EqualTo(.84f).Within(.002f));
             sound.clip.LoadAudioData();
             yield return WaitFor(() => sound.clip.loadState == AudioDataLoadState.Loaded);
             var samples = new float[sound.clip.samples * sound.clip.channels];
             Assert.That(sound.clip.GetData(samples, 0), Is.True);
-            Assert.That(samples.Max(v => Mathf.Abs(v)), Is.InRange(.81f, .85f), "Reserve transient headroom after import.");
+            Assert.That(samples.Max(v => Mathf.Abs(v)), Is.InRange(.64f, .66f), "Use the approved weighted precision-lock master with its original headroom.");
             double stereoEnergy = samples.Average(v => (double)v * v);
-            Assert.That(Math.Sqrt(stereoEnergy), Is.InRange(.10, .15), "Check the redesigned cue, not the rejected bass-heavy mix.");
+            Assert.That(Math.Sqrt(stereoEnergy), Is.InRange(.043, .047), "Check the selected short contact cue, not the rejected musical resonance.");
+            double lateEnergy = samples.Skip(24000).Sum(v => (double)v * v);
+            Assert.That(lateEnergy / (stereoEnergy * samples.Length), Is.LessThan(.002), "The contact must not become a long ringing note.");
             double monoEnergy = 0;
             for (int i = 0; i < samples.Length; i += 2)
             {

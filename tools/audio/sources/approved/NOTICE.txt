@@ -1,0 +1,16 @@
+Approved pickup master: precision_lock_weighted.wav
+User choice: 厚实锁定 · 加重版, audition 03, confirmed 2026-10-08.
+SHA-256: f6d684435787282a18c3dc3cb4bd669026a824bb9592297bba1cec6699ee2ba6
+Format: 0.84 seconds, 48 kHz, 16-bit stereo PCM WAV.
+
+Preserve this file byte-for-byte when publishing Assets/Resources/Aerospace/RareDiscovery.wav.
+Both paths use Git LFS and share the same content-addressed object.
+Do not normalize or re-encode the master while copying it into Unity.
+
+Original sound design combines short edited contacts from Kenney Impact Sounds
+(CC0 1.0) with original broadband noise, filtering, envelopes and mild transient
+rounding. The weighted pass adds short low-mid contact, not a sustained bass note.
+The upstream source files and original license are in ../kenney-impact/.
+Source: https://kenney.nl/assets/impact-sounds
+License: https://creativecommons.org/publicdomain/zero/1.0/
+No Delta Force or other game-extracted audio is used.

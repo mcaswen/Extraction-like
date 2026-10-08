@@ -1,0 +1,39 @@
+厚实锁定 · 加重版 — 选定音效接入验证
+日期：2026-10-08
+基线：dev / d9ce93928e70715363e4ca638c448577fd41d313
+
+本次变更
+- 将第 3 款加重试听原样发布为 Assets/Resources/Aerospace/RareDiscovery.wav。
+- 原试听、受版本控制的母版、Unity 正式资源和测试副本四者 SHA-256 完全相同：
+  f6d684435787282a18c3dc3cb4bd669026a824bb9592297bba1cec6699ee2ba6
+- 音效为 0.84 秒、48 kHz、16-bit 立体声 PCM；没有再次调音、归一化或编码。
+- 原 .meta GUID、资源加载路径、2D 播放、0.85 音量和成功拾取触发逻辑均未修改。
+- 正式场景、导航、搜集节奏及玩法运行时代码未修改。
+- 音效发布工具改为复制已确认母版，避免重新生成被否定的旧音色。
+- AGENTS.md 记录用户要求：后续确认的项目改动经验证后提交、推送并进入 dev。
+
+检查结果
+1. Python 音频测试：7/7 通过。
+   覆盖母版身份、发布字节一致性、重复执行、PCM 格式、峰值余量、首尾静音、
+   短促起音/收尾、单声道兼容及游戏资源与母版一致。
+   4 倍过采样峰值 -3.771 dBFS，无满幅削波样本。
+   数值报告：audio-analysis.json。
+
+2. Unity 2022.3.62f2c1 EditMode 回归：39/39 通过，失败 0，跳过 0。
+   AerospaceCollectiblesTests：13/13。
+   AerospaceSciencePresentationTests：10/10。
+   SceneRaidInventoryTests：9/9。
+   MapGraphViewportVisibilityTests：7/7。
+   时段：2026-10-08 07:32:14Z 至 07:33:49Z，耗时 94.593 秒。
+   原始结果：unity-results.xml。
+   在独立测试副本中运行，避免修改正式项目存档/编辑器状态；测试副本沿用
+   AgentRepro_AerospaceSearchPacing_20261008 产品名称，结果为本次新运行。
+
+3. git diff --check 通过；Git LFS fsck 通过。
+   正式音效和母版由现有 Git LFS 规则覆盖，共用一个内容对象。
+   正式场景 SHA-256 保持：
+   0d636bcc6ac000fecaca64799e2b3558a7a92a5cc5f9ab5a4f5ef9c370530d68
+
+边界
+本次是选定音效接入与相关流程回归，不是完整对局、所有设备或所有资源的无缺陷证明。
+已有场景资源/缺失脚本警告不在本次音效替换范围内。技术检查不替代最终游戏混音听感验收。

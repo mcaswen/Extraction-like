@@ -10,7 +10,9 @@ Only two files are used as short physical-texture layers in ASTRA's discovery cu
 Audio/impactMetal_heavy_000.ogg -> impactMetal_heavy_000.wav
 Audio/impactPlate_medium_000.ogg -> impactPlate_medium_000.wav
 Converted to 44.1 kHz / 16-bit mono WAV using macOS afconvert, with no content edits.
-Sound design (pitch, filtering, envelopes, synthesized tones and stereo space) is
-performed by ../../build_discovery.py. These source files are outside Unity Assets.
+The approved 2026-10-08 master uses filtering, short contact envelopes and original
+broadband transient layers, not sustained musical tones. ../../build_discovery.py
+publishes ../approved/precision_lock_weighted.wav exactly; it does not resynthesize
+the rejected older cue. These source files are outside Unity Assets.
 
 The final sound contains no Delta Force / 三角洲行动 audio or extracted game assets.

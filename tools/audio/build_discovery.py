@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-"""Reproducible ASTRA rare-item cue: CC0 metal texture + original sound design.
+"""Publish the approved 'precision lock, weighted' master without resynthesizing.
 
-Requires numpy only. No input from earlier discovery mixes; rebuilding is idempotent.
-The dry strike stays centred; a restrained stereo tail folds safely to mono.
-This is an original rare-discovery treatment, not a recreation of Delta Force audio.
+The user selected audition 03 on 2026-10-08. Preserve its PCM bytes exactly,
+including quantization, rather than rebuilding the rejected pitched 1.95 s cue.
+The checked-in master and Unity asset share the same Git LFS object.
 """
 
 import argparse
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import wave
 
 import numpy as np
 
 
 RATE = 48000
-DURATION = 1.95
+DURATION = .84
 PLAYBACK = .85
-SOURCE_DIR = Path(__file__).resolve().parent / "sources" / "kenney-impact"
+MASTER = Path(__file__).resolve().parent / "sources" / "approved" / "precision_lock_weighted.wav"
+APPROVED_SHA256 = "f6d684435787282a18c3dc3cb4bd669026a824bb9592297bba1cec6699ee2ba6"
 
 
 def read_pcm(path):
@@ -44,108 +46,30 @@ def write_pcm(path, audio, rate=RATE):
         stream.writeframes(np.rint(audio * 32767).astype("<i2").tobytes())
 
 
-def band(x, low, high):
-    size = 1 << (2 * len(x) - 1).bit_length()
-    f = np.fft.rfftfreq(size, 1 / RATE)
-    window = (1 - 1 / (1 + (f / low) ** 4)) / (1 + (f / high) ** 6)
-    return np.fft.irfft(np.fft.rfft(x, size) * window, size)[:len(x)]
-
-
-def env(t, attack, decay):
-    return -np.expm1(-t / attack) * np.exp(-t / decay)
-
-
-def place(target, audio, at, gain=1):
-    start = round(at * RATE)
-    count = min(len(target) - start, len(audio))
-    if count > 0:
-        target[start:start + count] += audio[:count] * gain
-
-
-def source(name, speed, low, high, decay):
-    audio, rate = read_pcm(SOURCE_DIR / name)
-    mono = audio.mean(axis=1)
-    positions = np.arange(0, len(mono) - 1, rate / RATE * speed)
-    x = np.interp(positions, np.arange(len(mono)), mono)
-    x = band(x, low, high)
-    x /= max(np.max(np.abs(x)), 1e-9)
-    t = np.arange(len(x)) / RATE
-    x *= env(t, .001, decay)
-    x *= np.clip((len(x) / RATE - t) / .025, 0, 1)
-    return x
+def verify_master():
+    data = MASTER.read_bytes()
+    if data.startswith(b"version https://git-lfs.github.com/spec/v1"):
+        raise ValueError("Approved master is an LFS pointer. Run git lfs pull first.")
+    if hashlib.sha256(data).hexdigest() != APPROVED_SHA256:
+        raise ValueError("Approved master does not match the user's selected audition.")
 
 
 def build():
-    n = round(DURATION * RATE)
-    t = np.arange(n) / RATE
-    rng = np.random.default_rng(1042026)
-    dry = np.zeros(n)
-    # Immediate physical contact: a real short metal strike, not a kick drum.
-    place(dry, source("impactMetal_heavy_000.wav", .84, 190, 4300, .085), .012, .32)
-    plate = source("impactPlate_medium_000.wav", .76, 280, 3700, .30)
-    place(dry, plate, .053, .18)
+    verify_master()
+    audio, rate = read_pcm(MASTER)
+    if rate != RATE or audio.shape != (round(DURATION * RATE), 2):
+        raise ValueError("Approved master format changed.")
+    return audio
 
-    # A brief gathering of energy leads to the main reveal at 70 ms.
-    noise = band(rng.normal(size=n), 580, 4600)
-    noise /= np.sqrt(np.mean(noise ** 2))
-    gather = np.clip(t / .070, 0, 1) ** 1.6 * np.exp(-np.maximum(t - .07, 0) / .018)
-    dry += noise * gather * .028
 
-    u = np.maximum(t - .068, 0)
-    active = (t >= .068).astype(float)
-    # Stable low body with audible harmonics. Only a tiny pitch settling;
-    # the previous wide downward bass sweep was too dominant.
-    phase = 2 * np.pi * (110 * u + 11 * .022 * (1 - np.exp(-u / .022)))
-    body = (.135 * np.sin(phase) + .055 * np.sin(2 * phase + .17)
-            + .024 * np.sin(3 * phase + .30)) * env(u, .003, .19) * active
-    dry += np.tanh(body * 1.15) / 1.15
-
-    # One cohesive, harmonically related metal bloom: not a sequence of UI beeps.
-    bloom = np.zeros(n)
-    for f, gain, decay, onset in [
-        (293.665, .042, .31, .068), (440.498, .033, .27, .070),
-        (587.330, .190, .40, .071), (880.995, .155, .43, .078),
-        (1174.660, .080, .39, .085), (1761.990, .033, .25, .094),
-        (2349.320, .010, .16, .102),
-    ]:
-        local = np.maximum(t - onset, 0)
-        fm = .63 * np.exp(-local / .036) * np.sin(2 * np.pi * f * 1.417 * local)
-        fundamental = np.sin(2 * np.pi * f * local + fm)
-        # Very small detune avoids sterile sine-wave tone without an out-of-tune chord.
-        overtone = .12 * np.sin(2 * np.pi * f * 1.0017 * local + .36)
-        bloom += gain * (fundamental + overtone) * env(local, .008, decay) * (t >= onset)
-    dry += bloom
-
-    # Subtle, later upper resonance identifies the reward; no sharp hiss or whistle.
-    reveal = np.zeros(n)
-    for f, gain in [(1174.66, .020), (1761.99, .014), (2349.32, .007)]:
-        u = np.maximum(t - .18, 0)
-        reveal += gain * np.sin(2 * np.pi * f * u) * env(u, .026, .37) * (t >= .18)
-    dry += reveal
-
-    # Dense short early reflections rather than a conspicuous echo. Independent
-    # channels contain only quiet upper-band ambience; the core stays mono safe.
-    send = band(.75 * bloom + .22 * dry, 330, 5300)
-    stereo = np.column_stack((dry, dry))
-    for channel in range(2):
-        wet = np.zeros(n)
-        for delay, gain in [(.031, .16), (.053, .12), (.083, .085), (.127, .060)]:
-            place(wet, send, delay + channel * .003, gain)
-        for delay in np.linspace(.14, .76, 48):
-            jitter = rng.uniform(-.008, .008)
-            gain = .024 * np.exp(-(delay - .14) / .20) * rng.uniform(.6, 1)
-            place(wet, send, delay + jitter, gain)
-        stereo[:, channel] += wet
-        stereo[:, channel] = band(stereo[:, channel], 42, 7600)
-    stereo -= np.mean(stereo, axis=0)
-    stereo *= np.minimum(1, t / .002)[:, None]
-    stereo *= np.minimum(1, (DURATION - t) / .20)[:, None]
-    # Light, linked transient rounding. Leave intersample headroom after normalization.
-    stereo = np.tanh(stereo * 1.25) / 1.25
-    peak = true_peak(stereo)
-    stereo *= 10 ** (-1.6 / 20) / max(peak, 1e-9)
-    stereo[0] = stereo[-1] = 0
-    return stereo
+def publish(output):
+    verify_master()
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.resolve() != MASTER.resolve():
+        shutil.copyfile(MASTER, output)
+    if hashlib.sha256(output.read_bytes()).hexdigest() != APPROVED_SHA256:
+        raise ValueError("Published audio differs from the approved master.")
 
 
 def true_peak(audio):
@@ -182,22 +106,23 @@ def main():
     parser.add_argument("--report", required=True, type=Path)
     parser.add_argument("--preview", type=Path)
     args = parser.parse_args()
-    audio = build()
-    write_pcm(args.output, audio)
+    build()  # Validate the master format as well as its identity before publishing.
+    publish(args.output)
     delivered, rate = read_pcm(args.output)
     stats = measure(delivered, rate)
     # Signal quality, not a claim that these numbers validate artistic taste.
     assert stats["full_scale_samples"] == 0
-    assert -1.65 < stats["true_peak_4x_dbfs"] < -1.5
+    assert -3.85 < stats["true_peak_4x_dbfs"] < -3.65
     assert max(abs(v) for v in stats["dc_per_channel"]) < .001
     assert stats["stereo_correlation"] > .7
     assert stats["mono_fold_rms_change_db"] > -.5
     assert stats["tail_last_200ms_rms_dbfs"] < -42
     assert (delivered[0] == 0).all() and (delivered[-1] == 0).all()
-    report = {"design": "Original ASTRA rare discovery; CC0 foley + synthesized resonant reveal",
+    report = {"design": "厚实锁定 · 加重版 / User-approved audition 03, exact PCM master",
               "source": "https://kenney.nl/assets/impact-sounds", "license": "CC0-1.0",
               "not_a_recreation_of": "Delta Force / 三角洲行动",
-              "audio": stats, "output_sha256": hashlib.sha256(args.output.read_bytes()).hexdigest()}
+              "audio": stats, "approved_sha256": APPROVED_SHA256,
+              "output_sha256": hashlib.sha256(args.output.read_bytes()).hexdigest()}
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
     if args.preview:

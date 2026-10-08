@@ -1,0 +1,32 @@
+{
+  "design": "厚实锁定 · 加重版 / User-approved audition 03, exact PCM master",
+  "source": "https://kenney.nl/assets/impact-sounds",
+  "license": "CC0-1.0",
+  "not_a_recreation_of": "Delta Force / 三角洲行动",
+  "audio": {
+    "duration_seconds": 0.84,
+    "sample_rate": 48000,
+    "channels": 2,
+    "sample_peak_dbfs": -3.777,
+    "true_peak_4x_dbfs": -3.771,
+    "rms_dbfs": -27.032,
+    "playback_volume": 0.85,
+    "playback_rms_dbfs": -28.444,
+    "first_400ms_rms_dbfs": -23.81,
+    "tail_last_200ms_rms_dbfs": -90.939,
+    "dc_per_channel": [
+      5.470003400530134e-06,
+      5.329222906203497e-06
+    ],
+    "stereo_correlation": 0.9969310584203126,
+    "mono_fold_rms_change_db": -0.0070000000000014495,
+    "full_scale_samples": 0,
+    "energy_20_80hz": 0.0002,
+    "energy_80_300hz": 0.0197,
+    "energy_300_600hz": 0.12,
+    "energy_600_2500hz": 0.6908,
+    "energy_2500_8000hz": 0.1679
+  },
+  "approved_sha256": "f6d684435787282a18c3dc3cb4bd669026a824bb9592297bba1cec6699ee2ba6",
+  "output_sha256": "f6d684435787282a18c3dc3cb4bd669026a824bb9592297bba1cec6699ee2ba6"
+}

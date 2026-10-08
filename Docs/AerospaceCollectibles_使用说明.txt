@@ -46,8 +46,8 @@ R05 载荷分离机构弧段
 展示 Prefab：Assets/Resources/Aerospace/Models/
 当前 FBX、2K/4K PBR 贴图与材质：Assets/Art/AerospaceCollectibles/
 科普文字、局部关联及资料来源：Assets/Resources/Aerospace/PartsCatalog.json
-重新设计的发现音效：Assets/Resources/Aerospace/RareDiscovery.wav（1.95 秒 / 48 kHz / 16-bit 立体声 PCM）
-音效生成器与来源：tools/audio/，保留 CC0 素材许可。
+已选定的发现音效：厚实锁定 · 加重版，Assets/Resources/Aerospace/RareDiscovery.wav（0.84 秒 / 48 kHz / 16-bit 立体声 PCM）
+音效发布工具与来源：tools/audio/，保留已确认母版与 CC0 素材许可。发布时原样使用选定试听文件，不重新合成旧版音色。
 运行时代码：Assets/Scripts/Gameplay/Aerospace/
 中文正文字体：Assets/Art/AerospaceCollectibles/Fonts/，含上游许可与说明。
 
@@ -72,8 +72,9 @@ UI 排版：AerospaceScienceUI.cs，与原背包界面分开。
 这些是有边界的验证，不等于“任何情况下绝对没有 Bug”，不覆盖完整对局压力测试或所有显卡、分辨率。
 
 八、素材与协作
-音效由本项目重新混音设计，结合 Kenney Impact Sounds 的两层 CC0 金属素材与原创合成共鸣、短空间尾音；来源与许可在 tools/audio/sources/kenney-impact/。没有复制三角洲行动游戏音频。
+音效由本项目混音设计，结合 Kenney Impact Sounds 的 CC0 物理触点与原创短噪声层，突出清脆起音和短促低中频重量；不再使用固定音高的长共鸣。来源与许可在 tools/audio/sources/kenney-impact/，选定母版在 sources/approved/。没有复制三角洲行动游戏音频。
 正文字体为 Noto Sans CJK SC，来源 https://github.com/notofonts/noto-cjk，随附 SIL OFL 1.1；发布时保留字体许可。
 终端英文与编号使用 JetBrains Mono，来源 https://github.com/JetBrains/JetBrainsMono；许可与版权说明同置于 Fonts 目录。
 科普为虚构游戏教学样件，不对应具体发动机型号、制造尺寸、真实流场或运行参数；每件组件的来源链接保存在 catalog 中。
 新增 FBX、PNG、WAV、OTF 由仓库现有 LFS 规则覆盖。团队拉取时请启用 Git LFS；提交时需一并提交相关资源、全部 .meta、新脚本、物品数据库追加项及最小接入修改。
+用户指定的后续协作规则：已确认的项目改动经验证后需提交、推送并进入原仓库 dev；如果在工作分支开发，交付前应同步合入 dev。先检查远端变化，保留其他成员提交，不使用强制推送。

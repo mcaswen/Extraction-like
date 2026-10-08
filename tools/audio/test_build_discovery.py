@@ -1,6 +1,7 @@
 """Signal-safety tests; artistic acceptance still requires human listening."""
 import tempfile
 import unittest
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -25,10 +26,11 @@ class DiscoveryCueTests(unittest.TestCase):
 
     def test_contact_is_prompt_and_tail_does_not_mask_gameplay(self):
         self.assertGreater(np.max(abs(self.audio[:1920])), .02)
-        onset = np.sqrt(np.mean(self.audio[:19200] ** 2))
+        onset = np.sqrt(np.mean(self.audio[:9600] ** 2))
         tail = np.sqrt(np.mean(self.audio[-9600:] ** 2))
-        self.assertGreater(onset, .15)
+        self.assertAlmostEqual(20 * np.log10(onset), -20.8, places=2)
         self.assertLess(tail, .008)
+        self.assertLess(np.sum(self.audio[12000:] ** 2) / np.sum(self.audio ** 2), .002)
 
     def test_mono_fold_preserves_energy(self):
         stereo = np.mean(self.audio ** 2)
@@ -41,8 +43,21 @@ class DiscoveryCueTests(unittest.TestCase):
             cue.write_pcm(path, self.audio)
             read, rate = cue.read_pcm(path)
             self.assertEqual(rate, 48000)
-            self.assertEqual(read.shape, (93600, 2))
+            self.assertEqual(read.shape, (40320, 2))
             self.assertLess(np.max(abs(read - self.audio)), .00005)
+
+    def test_publisher_preserves_the_selected_file_byte_for_byte(self):
+        with tempfile.TemporaryDirectory(prefix="astra-approved-audio-") as directory:
+            path = Path(directory) / "cue.wav"
+            cue.publish(path)
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), cue.APPROVED_SHA256)
+            cue.publish(path)
+            self.assertEqual(path.read_bytes(), cue.MASTER.read_bytes())
+
+    def test_unity_resource_is_the_approved_master(self):
+        project = Path(__file__).resolve().parents[2]
+        clip = project / "Assets/Resources/Aerospace/RareDiscovery.wav"
+        self.assertEqual(hashlib.sha256(clip.read_bytes()).hexdigest(), cue.APPROVED_SHA256)
 
 
 if __name__ == "__main__":
