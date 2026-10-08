@@ -22,12 +22,23 @@ namespace ExtractionLike.Aerospace
             hudButton.onClick.AddListener(() => Open(null, false)); hudButton.navigation = new Navigation { mode = Navigation.Mode.None };
             var hudLabel = new GameObject("Archive_Entrance_Label", typeof(RectTransform), typeof(Text));
             hudLabel.transform.SetParent(hudPanel, false); hud = hudLabel.GetComponent<Text>(); hud.font = bodyFont;
-            hud.text = "航天档案  0 / 5   [J]"; hud.fontSize = 17; hud.color = new Color(.82f, .91f, .94f); hud.alignment = TextAnchor.MiddleCenter;
+            hud.text = "航天档案  本局 0 / 5   [J]"; hud.fontSize = 17; hud.color = new Color(.82f, .91f, .94f); hud.alignment = TextAnchor.MiddleCenter;
             hud.raycastTarget = false; hud.horizontalOverflow = HorizontalWrapMode.Wrap; hud.verticalOverflow = VerticalWrapMode.Overflow; hud.lineSpacing = 1.22f;
             Rect(hud.rectTransform, 6, 0, 258, 42);
             var hudColors = hudButton.colors; hudColors.highlightedColor = new Color(.52f, .9f, .86f);
             hudColors.pressedColor = new Color(.3f, .68f, .67f); hudColors.disabledColor = new Color(.4f, .43f, .45f); hudButton.colors = hudColors;
             hudPanel.anchorMin = hudPanel.anchorMax = Vector2.zero; hudPanel.anchoredPosition = new Vector2(22, 62);
+
+            var grantPanel = Panel(canvas.transform, "Grant_Five_Ship_Parts", new Color(.075f, .145f, .169f), 22, 0, 320, 42);
+            grantPanel.anchorMin = grantPanel.anchorMax = Vector2.zero;
+            grantPanel.anchoredPosition = new Vector2(22, 114);
+            var grantImage = grantPanel.GetComponent<Image>(); grantImage.raycastTarget = true;
+            var grantButton = grantPanel.gameObject.AddComponent<Button>(); grantButton.targetGraphic = grantImage;
+            grantButton.navigation = new Navigation { mode = Navigation.Mode.None }; grantButton.colors = hudButton.colors;
+            var grantLabel = Instantiate(hud, grantPanel, false); grantLabel.name = "Grant_Parts_Label";
+            grantLabel.text = "领取五个飞船零件"; Rect(grantLabel.rectTransform, 6, 0, 308, 42);
+            var grantAction = grantPanel.gameObject.AddComponent<AerospacePartsGrantButton>();
+            grantAction.Initialize(grantLabel); grantButton.onClick.AddListener(grantAction.GrantParts);
 
             modal = Panel(canvas.transform, "Science_Modal", new Color(.025f, .047f, .073f), 0, 0, 1600, 900).gameObject;
             modal.GetComponent<Image>().raycastTarget = true;

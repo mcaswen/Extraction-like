@@ -25,6 +25,8 @@ namespace ExtractionLike.Aerospace
         private InventoryItemData[] reservedItems;
         private readonly HashSet<string> collected = new HashSet<string>();
         private readonly Queue<string> pending = new Queue<string>();
+        private readonly Dictionary<string, HashSet<string>> grantedParts = new Dictionary<string, HashSet<string>>();
+        private bool grantingParts;
         private AerospaceScienceUI ui;
         private AudioSource discovery;
         public int CollectedCount => collected.Count;
@@ -67,24 +69,42 @@ namespace ExtractionLike.Aerospace
         {
             if (!ReserveOnStart) yield break;
             yield return null;
-            var inventory = InventoryScreenController.Instance;
-            if (inventory != null)
-            {
-                foreach (var part in AerospaceCatalog.Load().models)
-                {
-                    var item = Resources.Load<InventoryItemData>("Aerospace/Items/" + part.code);
-                    if (!inventory.TryPickupItem(item, 1))
-                        Debug.LogWarning("[Aerospace] Could not add starting part " + part.code + " to the backpack.");
-                }
-                // Starting items unlock the archive without queuing five discovery windows.
-                pending.Clear();
-            }
             for (int attempt = 0; attempt < 30 && !IsReady; attempt++)
             {
                 if (TryReserveAll()) break;
                 yield return new WaitForSecondsRealtime(.5f);
             }
             if (!IsReady) { Status = "搜索点核验未通过，请查看 Console"; Debug.LogError("[Aerospace] Cannot prepare five parts: fewer than five reachable boxes or missing item assets. No inaccessible or physical props were created."); }
+        }
+
+        /// <summary>Manual scene-button shortcut; each Agent can receive each part once per run.</summary>
+        public bool TryGrantPartsToCurrentBackpack()
+        {
+            var inventory = InventoryScreenController.Instance;
+            if (inventory == null || inventory.BackpackGrid == null || InventoryItemFactory.Instance == null ||
+                inventory.UsesCustomPlayerInventory || string.IsNullOrEmpty(inventory.ActiveInventoryAgentId) ||
+                RaidLocked || ui.IsOpen || DraggableItemUI.CurrentlyDraggedItem != null) return false;
+            var catalog = AerospaceCatalog.Load();
+            if (catalog?.models == null || catalog.models.Length != PartCount) return false;
+            string agentId = inventory.ActiveInventoryAgentId;
+            if (!grantedParts.TryGetValue(agentId, out var granted))
+                grantedParts.Add(agentId, granted = new HashSet<string>());
+            var owned = new HashSet<string>(inventory.BackpackGrid.ExtractSaveData().Select(i => AerospaceCatalog.CodeFor(i.ItemData)));
+            grantingParts = true;
+            try
+            {
+                foreach (var part in catalog.models)
+                {
+                    if (granted.Contains(part.code)) continue;
+                    var item = Resources.Load<InventoryItemData>("Aerospace/Items/" + part.code);
+                    if (item == null) { Debug.LogError("[Aerospace] Missing part asset: " + part.code); continue; }
+                    if (!owned.Contains(part.code) && !inventory.TryPickupItem(item, 1)) continue;
+                    granted.Add(part.code);
+                    RecordSuccessfulPickup(item, agentId);
+                }
+            }
+            finally { grantingParts = false; }
+            return granted.Count == PartCount;
         }
 
         /// <summary>Reserve a five-part schedule, not loot in the nearest five boxes.</summary>
@@ -209,8 +229,12 @@ namespace ExtractionLike.Aerospace
             PlayerPrefs.SetInt(ArchiveKey, PlayerPrefs.GetInt(ArchiveKey, 0) | Bit(code)); PlayerPrefs.Save();
             // One dedicated voice: rapid successful pickups retrigger instead of stacking
             // several full-level impacts. Never change global or ordinary-loot audio volume.
-            if (discovery.clip != null) discovery.Play();
-            pending.Enqueue(code);
+            // The manual grant unlocks the archive without opening five discovery windows.
+            if (!grantingParts)
+            {
+                if (discovery.clip != null) discovery.Play();
+                pending.Enqueue(code);
+            }
             Debug.Log("[Aerospace] " + agentId + " recovered " + code + "; collection " + collected.Count + "/5.");
         }
         private void Update()
