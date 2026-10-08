@@ -80,7 +80,7 @@ namespace ExtractionLike.Aerospace
         private void BuildDossier(Transform frame)
         {
             readingPane = Panel(frame, "Science_Reading_Panel", Paper, 0, 0, 448, 900);
-            var brand = Label(readingPane, "ASTRA", 32, 21, 153, 48, 38, PaperInk); brand.font = font;
+            var brand = Label(readingPane, "ASTRA", 32, 21, 153, 48, 38, PaperInk); brand.font = font; brand.fontStyle = FontStyles.Bold;
             Label(readingPane, "/", 181, 27, 28, 38, 31, PaperMuted);
             Label(readingPane, "航天样本档案", 211, 32, 211, 29, 18, PaperInk);
             MonoLabel(readingPane, "FIELD ARCHIVE  /  AEROSPACE", 33, 73, 385, 20, 10, PaperMuted);
@@ -90,7 +90,7 @@ namespace ExtractionLike.Aerospace
             Panel(readingPane, "Category_Rule", Rule, 184, 138, 31, 1);
             Label(readingPane, "回收样件", 232, 127, 176, 24, 15, PaperMuted);
             heading = Label(readingPane, "航天样本\n档案", 32, 162, 383, 109, 42, PaperInk); heading.font = font; heading.lineSpacing = -1;
-            heading.name = "Specimen_Title";
+            heading.name = "Specimen_Title"; heading.fontStyle = FontStyles.Bold;
             sampleId = MonoLabel(readingPane, "—", 33, 282, 86, 43, 35, PaperInk);
             Panel(readingPane, "Identity_Divider", Rule, 118, 283, 1, 37);
             english = MonoLabel(readingPane, "AEROSPACE COMPONENTS", 134, 283, 278, 42, 11, PaperMuted); english.characterSpacing = 1;
@@ -177,8 +177,16 @@ namespace ExtractionLike.Aerospace
             Panel(controls.transform, "Tool_Divider", Rule, 419, 8, 1, 28);
             resetButton = Button(controls.transform, "重置视角", 440, 0, 133, 44, () => { stage.ResetView(); ShowDetail(-1); }); resetButton.name = "Reset_View"; AddButtonGlyph(resetButton, "reset");
             pinsButton = Button(controls.transform, "热点", 579, 0, 102, 44, ToggleHotspots); pinsButton.name = "Toggle_Hotspots"; AddButtonGlyph(pinsButton, "eye");
-            demoButton = Button(controls.transform, "原理演示  ›", 735, 0, 171, 44, StartDemonstration); demoButton.name = "Start_Demonstration";
-            settingsButton = Button(controls.transform, "展示设置  ···", 930, 0, 174, 44, () => SetSettings(!IsSettingsOpen)); settingsButton.name = "Display_Settings";
+            demoButton = DemonstrationButton(controls.transform, "原理演示", 866, 0, 182, 44); demoButton.name = "Start_Demonstration";
+            settingsButton = Button(controls.transform, "", 1060, 0, 44, 44, () => SetSettings(!IsSettingsOpen)); settingsButton.name = "Display_Settings";
+            settingsButton.GetComponentInChildren<TMP_Text>().gameObject.SetActive(false);
+            AddGlyph(settingsButton.transform, "gear", 10, 10, 24, Muted);
+            AddButtonEdges(settingsButton, Rule);
+            settingsTooltip = Panel(controls.transform, "Settings_Tooltip", new Color(.12f, .15f, .09f), 984, -42, 120, 32).gameObject;
+            Label(settingsTooltip.transform, "展示设置", 0, 0, 120, 32, 14, Ink, TextAlignmentOptions.Center);
+            settingsTooltip.SetActive(false);
+            settingsButton.gameObject.AddComponent<AerospaceHotspotPointer>().hover = hovering =>
+                settingsTooltip.SetActive(hovering && settingsButton.IsInteractable() && !IsSettingsOpen);
             foldButton = Button(controls.transform, "", 0, 52, 232, 28, ModelSpecialAction); foldButton.name = "Special_Observation";
             foldText = foldButton.GetComponentInChildren<TMP_Text>(); foldText.fontSize = 14;
             Label(controls.transform, "左键拖动旋转   /   滚轮缩放   /   点击编号查看结构", 454, 56, 650, 22, 13, Muted, TextAlignmentOptions.TopRight);
@@ -214,7 +222,7 @@ namespace ExtractionLike.Aerospace
                     Panel(detailContent, "Key_Idea_Accent", PaperMuted, 0, y + 3, 2, 35);
                     var note = Label(detailContent, copy.takeaway, 17, y, 365, 48, 15, PaperMuted);
                     float noteHeight = Mathf.Max(35, note.GetPreferredValues(copy.takeaway, 365, Mathf.Infinity).y + 4); note.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, noteHeight); y += noteHeight + 12;
-                    var explain = Button(detailContent, "观看原理演示   ›", 0, y, ReadingWidth, 37, StartDemonstration); explain.name = "Overview_Demonstration"; y += 49;
+                    var explain = DemonstrationButton(detailContent, "观看原理演示", 0, y, ReadingWidth, 42); explain.name = "Overview_Demonstration"; y += 54;
                 }
                 else if (readingTab == 1)
                 {
@@ -226,7 +234,7 @@ namespace ExtractionLike.Aerospace
                         Label(detailContent, copy.stepTitles[i], 34, y, 347, 27, 18, PaperInk).font = font; y += 35;
                         ReadText(copy.steps[i], ref y, 17, PaperInk, 23);
                     }
-                    var play = Button(detailContent, "播放三维原理演示   ›", 0, y, ReadingWidth, 40, StartDemonstration); play.name = "Principle_Demonstration"; y += 52;
+                    var play = DemonstrationButton(detailContent, "播放三维原理演示", 0, y, ReadingWidth, 42); play.name = "Principle_Demonstration"; y += 54;
                 }
                 else if (readingTab == 2)
                 {
@@ -241,7 +249,7 @@ namespace ExtractionLike.Aerospace
                     {
                         ReadText(current.hotspots[selectedHotspot].title, ref y, 24, PaperInk, 16, true);
                         ReadText(current.hotspots[selectedHotspot].text, ref y, 18, PaperInk, 18, false, "Hotspot_Explanation");
-                        var demo = Button(detailContent, "查看关联原理演示   ›", 0, y, ReadingWidth, 38, StartDemonstration); demo.name = "Hotspot_Demonstration"; y += 50;
+                        var demo = DemonstrationButton(detailContent, "查看关联原理演示", 0, y, ReadingWidth, 42); demo.name = "Hotspot_Demonstration"; y += 54;
                     }
                     else
                     {
@@ -297,7 +305,7 @@ namespace ExtractionLike.Aerospace
         private void ReadText(string text, ref float y, int size, Color color, float after, bool headingStyle = false, string objectName = null)
         {
             var label = Label(detailContent, text, 0, y, ReadingWidth, 100, size, color);
-            if (headingStyle) { label.font = font; label.lineSpacing = 2; }
+            if (headingStyle) { label.font = font; label.fontStyle = FontStyles.Bold; label.lineSpacing = 2; }
             if (objectName != null) label.name = objectName;
             float h = Mathf.Ceil(label.GetPreferredValues(text, ReadingWidth, Mathf.Infinity).y) + 5;
             label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h); y += h + after;
@@ -311,7 +319,8 @@ namespace ExtractionLike.Aerospace
         {
             var go = new GameObject(text.Length > 28 ? text.Substring(0, 28) : string.IsNullOrEmpty(text) ? "Label" : text, typeof(RectTransform), typeof(TextMeshProUGUI)); go.transform.SetParent(parent, false);
             var label = go.GetComponent<TextMeshProUGUI>(); label.font = bodyTypeface; label.text = text; label.fontSize = size; label.color = color; label.alignment = alignment;
-            label.raycastTarget = false; label.enableWordWrapping = true; label.overflowMode = TextOverflowModes.Overflow; label.lineSpacing = 4; label.paragraphSpacing = 8; label.extraPadding = true; label.richText = false;
+            label.raycastTarget = false; label.enableWordWrapping = true; label.enableAutoSizing = false;
+            label.overflowMode = TextOverflowModes.Overflow; label.lineSpacing = 4; label.paragraphSpacing = 8; label.extraPadding = true; label.richText = false;
             Rect(label.rectTransform, x, y, w, h); return label;
         }
         private TMP_Text MonoLabel(Transform parent, string text, float x, float y, float w, float h, int size, Color color)
@@ -327,9 +336,37 @@ namespace ExtractionLike.Aerospace
         }
         private void AddButtonGlyph(Button button, string glyph)
         {
-            var go = new GameObject("Tool_Glyph", typeof(RectTransform), typeof(AerospaceTerminalGraphic)); go.transform.SetParent(button.transform, false); Rect(go.GetComponent<RectTransform>(), 12, 12, 20, 20);
-            var graphic = go.GetComponent<AerospaceTerminalGraphic>(); graphic.glyph = glyph; graphic.color = Muted; graphic.raycastTarget = false;
+            AddGlyph(button.transform, glyph, 12, 12, 20, Muted);
             var label = button.GetComponentInChildren<TMP_Text>(); Rect(label.rectTransform, 39, 0, button.GetComponent<RectTransform>().rect.width - 44, 44); label.fontSize = 15;
+        }
+        private void AddGlyph(Transform parent, string glyph, float x, float y, float size, Color tint)
+        {
+            var go = new GameObject("Tool_Glyph", typeof(RectTransform), typeof(AerospaceTerminalGraphic)); go.transform.SetParent(parent, false);
+            Rect(go.GetComponent<RectTransform>(), x, y, size, size);
+            var graphic = go.GetComponent<AerospaceTerminalGraphic>(); graphic.glyph = glyph; graphic.color = tint; graphic.raycastTarget = false;
+        }
+        private void AddButtonEdges(Button button, Color tint)
+        {
+            var rect = button.GetComponent<RectTransform>().rect;
+            Panel(button.transform, "Button_Top_Edge", tint, 0, 0, rect.width, 1);
+            Panel(button.transform, "Button_Bottom_Edge", tint, 0, rect.height - 1, rect.width, 1);
+            Panel(button.transform, "Button_Left_Edge", tint, 0, 1, 1, rect.height - 2);
+            Panel(button.transform, "Button_Right_Edge", tint, rect.width - 1, 1, 1, rect.height - 2);
+        }
+        private Button DemonstrationButton(Transform parent, string text, float x, float y, float w, float h)
+        {
+            var button = Button(parent, text, x, y, w, h, StartDemonstration);
+            bool paper = OnPaper(parent);
+            button.GetComponent<Image>().color = paper ? new Color(.24f, .29f, .17f) : Amber;
+            Color foreground = paper ? Ink : PaperInk;
+            var label = button.GetComponentInChildren<TMP_Text>(); label.color = foreground; label.font = font;
+            label.fontStyle = FontStyles.Bold; label.fontSize = 16; label.enableWordWrapping = false;
+            Rect(label.rectTransform, 43, 0, w - 55, h);
+            AddGlyph(button.transform, "play", 14, (h - 20) * .5f, 20, foreground);
+            AddButtonEdges(button, paper ? new Color(.37f, .43f, .26f) : new Color(.94f, .96f, .65f));
+            var colors = button.colors; colors.highlightedColor = new Color(1.12f, 1.12f, 1.12f);
+            colors.pressedColor = new Color(.72f, .75f, .61f); colors.fadeDuration = .10f; button.colors = colors;
+            return button;
         }
         private void StyleButton(Button button, bool selected, bool tab = false)
         {

@@ -20,7 +20,7 @@ namespace ExtractionLike.Aerospace
                     system = "推进剂供给", shortName = "涡轮泵转子", question = "推进剂怎样送到\n发动机需要的位置？",
                     displayTitle = "涡轮泵\n转子组件", headline = "把旋转的能量，传给推进剂。", principleTitle = "从入口到叶轮，再到出口。",
                     summary = "泵端的旋转叶轮把能量传给流体，让推进剂继续沿供给链路输送。入口、叶轮和周围壳体共同构成这段路径。",
-                    takeaway = "它推动的是内部流体，不是外界空气。",
+                    takeaway = "旋转叶轮向推进剂传递能量。",
                     stepTitles = new[] { "入口引入", "叶轮传能", "周围集流" },
                     steps = new[] { "推进剂先到达泵入口，经过主叶轮前方的螺旋诱导轮。", "旋转叶片向流体传递能量，轴传递转矩，支撑结构维持旋转部件的位置。", "流体进入叶轮周围的扩压或集流区域，再沿出口进入后续供给链路。" } };
                 case "R03": return new AerospaceScienceCopy {
@@ -34,7 +34,7 @@ namespace ExtractionLike.Aerospace
                     system = "返回控制", shortName = "可折叠栅格舵", question = "火箭返回时，\n格栅怎样参与控制？",
                     displayTitle = "可折叠\n栅格舵组件", headline = "借助气流，调整返回姿态。", principleTitle = "展开舵面，让气流参与控制。",
                     summary = "栅格舵利用大气中的气动力，参与火箭返回阶段的姿态控制。立体格栅、边框和根部连接区共同形成可观察的结构。",
-                    takeaway = "需要大气参与；它不是太空中的方向舵。",
+                    takeaway = "借助大气中的气动力，参与火箭返回控制。",
                     stepTitles = new[] { "展开舵面", "气流与格栅", "连接到箭体" },
                     steps = new[] { "舵面绕根部铰链从收起位置展开，进入工作位置。", "气流穿过立体格栅，与舵面相互作用，产生参与姿态控制的气动力。", "边框经根部机构连接箭体并传递载荷，栅格舵的控制作用需要大气参与。" } };
                 default: return new AerospaceScienceCopy {

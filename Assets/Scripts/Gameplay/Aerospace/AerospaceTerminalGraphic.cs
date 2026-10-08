@@ -76,6 +76,30 @@ namespace ExtractionLike.Aerospace
                 for (int i = 0; i < 32; i++)
                 { float a = i * Mathf.PI / 16, b = (i + 1) * Mathf.PI / 16; L(12 + Mathf.Cos(a) * 11, 12 + Mathf.Sin(a) * 6, 12 + Mathf.Cos(b) * 11, 12 + Mathf.Sin(b) * 6); L(12 + Mathf.Cos(a) * 3, 12 + Mathf.Sin(a) * 3, 12 + Mathf.Cos(b) * 3, 12 + Mathf.Sin(b) * 3); }
             }
+            else if (glyph == "play")
+            {
+                int start = mesh.currentVertCount;
+                foreach (var point in new[] { P(6, 3), P(21, 12), P(6, 21) }) mesh.AddVert(new Vector3(point.x, -point.y, 0), color, Vector2.zero);
+                mesh.AddTriangle(start, start + 1, start + 2);
+            }
+            else if (glyph == "gear")
+            {
+                // Filled vector ring with eight teeth: no font-symbol fallback or bitmap scaling.
+                int start = mesh.currentVertCount;
+                const int segments = 64;
+                for (int i = 0; i < segments; i++)
+                {
+                    float angle = i * Mathf.PI * 2 / segments;
+                    float radius = i % 8 >= 2 && i % 8 <= 5 ? 11 : 8.3f;
+                    foreach (float r in new[] { radius, 3.7f })
+                    {
+                        Vector2 point = P(12 + Mathf.Cos(angle) * r, 12 + Mathf.Sin(angle) * r);
+                        mesh.AddVert(new Vector3(point.x, -point.y, 0), color, Vector2.zero);
+                    }
+                    int a = start + i * 2, b = start + (i + 1) % segments * 2;
+                    mesh.AddTriangle(a, b, a + 1); mesh.AddTriangle(a + 1, b, b + 1);
+                }
+            }
         }
         private void Line(VertexHelper mesh, Vector2 from, Vector2 to, Color tint, float thickness = 1.5f)
         {

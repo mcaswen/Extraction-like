@@ -22,7 +22,7 @@ namespace ExtractionLike.Aerospace
         private Canvas canvas;
         private Font bodyFont;
         private TMP_FontAsset font, bodyTypeface, monoFont;
-        private GameObject modal, controls, settingsOverlay;
+        private GameObject modal, controls, settingsOverlay, settingsTooltip;
         private RectTransform viewport, detailContent, transitionRect, readingPane;
         private RawImage modelImage;
         private Image transitionImage;
@@ -39,6 +39,7 @@ namespace ExtractionLike.Aerospace
         private readonly List<Image> cardIcons = new List<Image>(), cardRules = new List<Image>(), progressMarks = new List<Image>();
         private readonly List<AerospaceHotspotLeader> leaders = new List<AerospaceHotspotLeader>();
         private readonly Vector2[] anchorPoints = new Vector2[4];
+        private readonly Vector3[] viewportCorners = new Vector3[4];
         private readonly float[] pinY = new float[4];
         private readonly bool[] pinVisible = new bool[4], pinLeft = new bool[4];
         private AerospacePart current;
@@ -180,6 +181,7 @@ namespace ExtractionLike.Aerospace
 
         public void SetSettings(bool visible)
         {
+            if (settingsTooltip != null) settingsTooltip.SetActive(false);
             if (settingsOverlay != null) settingsOverlay.SetActive(visible && current != null && stage.Ready && !transitioning);
             if (settingsButton != null) StyleButton(settingsButton, IsSettingsOpen);
         }
@@ -273,6 +275,16 @@ namespace ExtractionLike.Aerospace
             closeLabel.text = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen ? "返回背包   [Esc]" : "返回游戏   [Esc]";
             var frame = contentGroup.transform as RectTransform; var canvasRect = canvas.transform as RectTransform;
             frame.localScale = Vector3.one * Mathf.Min(canvasRect.rect.width / 1600, canvasRect.rect.height / 900);
+            if (stage.Texture != null)
+            {
+                // Text stays on the native-resolution Canvas; only the 3D viewport is supersampled.
+                viewport.GetWorldCorners(viewportCorners);
+                Camera uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+                Vector2 bottomLeft = RectTransformUtility.WorldToScreenPoint(uiCamera, viewportCorners[0]);
+                Vector2 topRight = RectTransformUtility.WorldToScreenPoint(uiCamera, viewportCorners[2]);
+                stage.UpdateDisplayResolution(topRight - bottomLeft);
+                modelImage.texture = stage.Texture;
+            }
             if (AerospaceCollectionRuntime.RaidLocked) Close();
             else if (Input.GetKeyDown(KeyCode.Escape)) { if (IsSettingsOpen) SetSettings(false); else Close(); }
         }

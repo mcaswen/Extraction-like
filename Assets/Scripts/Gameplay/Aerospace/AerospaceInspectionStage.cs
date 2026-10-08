@@ -50,14 +50,38 @@ namespace ExtractionLike.Aerospace
             viewCamera.cullingMask = 1 << 31; viewCamera.clearFlags = CameraClearFlags.SolidColor;
             viewCamera.backgroundColor = Color.clear;
             viewCamera.fieldOfView = 32; viewCamera.nearClipPlane = .01f; viewCamera.farClipPlane = 12;
-            viewCamera.allowHDR = false; viewCamera.allowMSAA = true; viewCamera.depth = -100;
+            viewCamera.allowHDR = false; viewCamera.allowMSAA = true; viewCamera.allowDynamicResolution = false; viewCamera.depth = -100;
             var data = viewCamera.GetUniversalAdditionalCameraData(); data.renderPostProcessing = false;
             data.renderShadows = false; data.volumeLayerMask = 0;
             data.requiresColorOption = CameraOverrideOption.Off; data.requiresDepthOption = CameraOverrideOption.Off;
-            Texture = new RenderTexture(1600, Mathf.RoundToInt(1600 * ViewHeight / ViewWidth), 24, RenderTextureFormat.ARGB32) { name = "Aerospace_Inspection_Dossier", antiAliasing = 2 };
-            Texture.Create(); viewCamera.targetTexture = Texture;
+            UpdateDisplayResolution(new Vector2(ViewWidth, ViewHeight));
             viewCamera.aspect = ViewWidth / ViewHeight;
             properties = new MaterialPropertyBlock();
+        }
+        public static Vector2Int RenderSizeFor(Vector2 displayPixels)
+        {
+            // Integer 144:85 steps preserve the viewport aspect. The cap bounds GPU memory at 4K.
+            int maximum = Mathf.Max(1, Mathf.Min(24, SystemInfo.maxTextureSize / 144));
+            int minimum = Mathf.Min(14, maximum);
+            float width = Mathf.Max(Mathf.Abs(displayPixels.x), Mathf.Abs(displayPixels.y) * ViewWidth / ViewHeight);
+            int steps = Mathf.Clamp(Mathf.CeilToInt(width * 1.25f / 288) * 2, minimum, maximum);
+            return new Vector2Int(steps * 144, steps * 85);
+        }
+        public void UpdateDisplayResolution(Vector2 displayPixels)
+        {
+            if (viewCamera == null) return;
+            Vector2Int size = RenderSizeFor(displayPixels);
+            if (Texture != null && Texture.width == size.x && Texture.height == size.y) return;
+            var replacement = new RenderTexture(size.x, size.y, 24, RenderTextureFormat.ARGB32)
+            {
+                name = "Aerospace_Inspection_Dossier", antiAliasing = 4,
+                filterMode = FilterMode.Bilinear, useDynamicScale = false
+            };
+            if (!replacement.Create()) { Destroy(replacement); return; }
+            var previous = Texture;
+            Texture = replacement; viewCamera.targetTexture = Texture;
+            viewCamera.aspect = ViewWidth / ViewHeight;
+            if (previous != null) { previous.Release(); Destroy(previous); }
         }
         public IEnumerator Load(AerospacePart part, string quality, Action<string> done)
         {

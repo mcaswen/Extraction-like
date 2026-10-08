@@ -560,7 +560,7 @@
         },
         {
           "title": "弯曲叶轮",
-          "text": "流体经过旋转叶片获得能量，再进入周围的扩压或集流区域。泵叶轮不是直接推动外界空气的螺旋桨。",
+          "text": "流体经过旋转叶片获得能量，再进入周围的扩压或集流区域。",
           "view": "cutaway",
           "groups": [
             "Impeller"
@@ -598,7 +598,7 @@
     {
       "code": "R03",
       "title": "燃烧室喷注器组件",
-      "english": "COAXIAL INJECTOR STUDY",
+      "english": "COAXIAL INJECTOR ASSEMBLY",
       "intro": "喷注头将来自供给系统的介质分配到多个喷注单元。同轴单元由中心通道与外围环隙组成，两路介质分别通过各自通道，从相邻出口进入燃烧室。",
       "camera": [
         0.7,

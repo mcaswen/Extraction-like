@@ -85,8 +85,57 @@ namespace AgentReproduction.Tests
         static void AssertScienceCopy(AerospaceScienceUI ui)
         {
             string copy = string.Join("\n", ui.GetComponentsInChildren<TMP_Text>().Select(t => t.text));
-            foreach (string phrase in new[] { "回收不是终点", "非制造", "非实物", "非食物", "教学示意", "不代表", "不模拟", "不是实测", "颜色不", "不对应", "未完整复原", "没有复原", "游戏化", "不是实际", "仅用于观察", "仅供观察", "免责" })
+            foreach (string phrase in new[] { "不是", "并非", "而非", "非制造", "非实物", "非食物", "教学示意", "不代表", "不模拟", "颜色不", "不对应", "未完整复原", "没有复原", "游戏化", "仅用于观察", "仅供观察", "免责" })
                 Assert.That(copy, Does.Not.Contain(phrase), ui.CurrentCode + " / " + ui.ActiveReadingTab);
+        }
+        [UnityTest]
+        public IEnumerator DemonstrationHasAVisibleActionButtonAndSettingsHasOnlyAGear()
+        {
+            var ui = Create(true); yield return null; ui.Open("R04", false); yield return Ready(ui);
+            var demo = Named<Button>(ui, "Start_Demonstration");
+            Assert.That(demo.GetComponent<Image>().color.r, Is.GreaterThan(.8f));
+            Assert.That(demo.GetComponentInChildren<AerospaceTerminalGraphic>().glyph, Is.EqualTo("play"));
+            Assert.That(demo.GetComponentInChildren<TMP_Text>().text, Is.EqualTo("原理演示"));
+            var settings = Named<Button>(ui, "Display_Settings");
+            Assert.That(settings.GetComponent<RectTransform>().rect.size, Is.EqualTo(new Vector2(44, 44)));
+            Assert.That(settings.GetComponentInChildren<AerospaceTerminalGraphic>().glyph, Is.EqualTo("gear"));
+            Assert.That(settings.GetComponentsInChildren<TMP_Text>(), Is.Empty, "The closed settings entrance is an icon, not a text label.");
+            var pointer = settings.GetComponent<AerospaceHotspotPointer>();
+            pointer.OnPointerEnter(new PointerEventData(EventSystem.current)); yield return null;
+            Assert.That(Named<RectTransform>(ui, "Settings_Tooltip").gameObject.activeSelf, Is.True);
+            pointer.OnPointerExit(new PointerEventData(EventSystem.current));
+            Click(ui, "Display_Settings"); Assert.That(ui.IsSettingsOpen, Is.True);
+            Assert.That(ui.GetComponentsInChildren<RectTransform>().Any(t => t.name == "Settings_Tooltip"), Is.False);
+            Assert.That(Named<Button>(ui, "Toggle_Quality").IsInteractable(), Is.True);
+            Assert.That(Named<Button>(ui, "Toggle_Surface").IsInteractable(), Is.True);
+            Assert.That(Named<Button>(ui, "Toggle_Reduced_Motion").IsInteractable(), Is.True);
+            if (TestRunContext.Load().graphics) yield return Capture(ui, "R04_Gear_Settings", 1920, 1080);
+            Click(ui, "Display_Settings_Overlay"); Assert.That(ui.IsSettingsOpen, Is.False);
+            Click(ui, "Start_Demonstration"); yield return null; Assert.That(ui.Stage.DemoActive, Is.True);
+            Click(ui, "Demo_Stop"); Assert.That(ui.Stage.DemoActive, Is.False);
+            ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator NativeSdfTextAndSupersampledModelStaySharpThrough4K()
+        {
+            var ui = Create(true); yield return null; ui.Open("R04", false); yield return Ready(ui);
+            var title = Named<TMP_Text>(ui, "Specimen_Title");
+            Assert.That(title, Is.TypeOf<TextMeshProUGUI>());
+            Assert.That(title.enableAutoSizing, Is.False);
+            Assert.That(title.font.faceInfo.familyName, Is.EqualTo("Noto Sans CJK SC"));
+            Assert.That(title.GetComponentInParent<RawImage>(), Is.Null, "Text must render on the Canvas, not be baked into the model texture.");
+            Assert.That(ui.Stage.Texture.antiAliasing, Is.EqualTo(4));
+            Assert.That(ui.Stage.Texture.useDynamicScale, Is.False);
+            Assert.That(ui.Stage.DisplayCamera.allowDynamicResolution, Is.False);
+            Assert.That(AerospaceInspectionStage.RenderSizeFor(new Vector2(1152, 680)), Is.EqualTo(new Vector2Int(2016, 1190)));
+            Assert.That(AerospaceInspectionStage.RenderSizeFor(new Vector2(2764.8f, 1632)), Is.EqualTo(new Vector2Int(3456, 2040)));
+            if (TestRunContext.Load().graphics)
+            {
+                yield return Capture(ui, "R04_Dossier_1920x1080", 1920, 1080);
+                yield return Capture(ui, "R04_Dossier_3840x2160", 3840, 2160);
+                yield return Capture(ui, "R04_Dossier_Return_To_1600", 1600, 900);
+            }
+            ui.Close(); Assert.That(ui.Stage.Texture, Is.Null); ContractCompleted = true;
         }
         [UnityTest]
         public IEnumerator EmptyArchiveRemainsReadableAndCloseRestoresTime()
@@ -355,6 +404,14 @@ namespace AgentReproduction.Tests
                     Assert.That(screen.x, Is.InRange(-.001f, 1.001f), element);
                     Assert.That(screen.y, Is.InRange(-.001f, 1.001f), element);
                 }
+            }
+            if (ui.Stage.Ready)
+            {
+                var size = AerospaceInspectionStage.RenderSizeFor(new Vector2(AerospaceInspectionStage.ViewWidth, AerospaceInspectionStage.ViewHeight) * Mathf.Min(width / 1600f, height / 900f));
+                Assert.That(ui.Stage.Texture.width, Is.EqualTo(size.x), "Model render width must follow the display resolution.");
+                Assert.That(ui.Stage.Texture.height, Is.EqualTo(size.y));
+                Assert.That(ui.Stage.DisplayCamera.targetTexture, Is.SameAs(ui.Stage.Texture));
+                Assert.That(ui.GetComponentsInChildren<RawImage>().Single(i => i.name == "Model_Viewport").texture, Is.SameAs(ui.Stage.Texture));
             }
             var old = RenderTexture.active; RenderTexture.active = target;
             var pixels = new Texture2D(width, height, TextureFormat.RGB24, false); pixels.ReadPixels(new Rect(0, 0, width, height), 0, 0); pixels.Apply(); RenderTexture.active = old;
