@@ -364,6 +364,10 @@ namespace AgentReproduction.Tests
             var before = NavMesh.CalculateTriangulation();
             var screen = InventoryScreenController.Instance;
             var ui = runtime.GetComponent<AerospaceScienceUI>();
+            var startingParts = screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null).ToArray();
+            CollectionAssert.AreEquivalent(AerospaceCatalog.Load().models.Select(p => p.code), startingParts.Select(i => AerospaceCatalog.CodeFor(i.ItemData)));
+            Assert.That(startingParts.All(i => i.Amount == 1 && i.IsSearched), Is.True);
+            Assert.That(runtime.CollectedCount, Is.EqualTo(5)); Assert.That(ui.IsOpen, Is.False);
             Time.timeScale = 0; // Freeze only this validation harness while exercising the real container UI.
             for (int i = 0; i < boxes.Length; i++)
             {
@@ -379,6 +383,7 @@ namespace AgentReproduction.Tests
                     // Search state completes before the reveal animation releases the item.
                     yield return new WaitForSecondsRealtime(.5f);
                     Assert.That(Source(screen, code).TryQuickTransfer(out _), Is.True); yield return null;
+                    ui.Open(code, false); // Starting parts already unlocked these entries; repeat pickups don't queue discovery.
                     yield return WaitFor(() => ui.IsOpen && !ui.IsTransitioning);
                     Assert.That(ui.CurrentCode, Is.EqualTo(code)); Assert.That(ui.Stage.Ready, Is.True);
                     if (i == 0 && TestRunContext.Load().graphics) yield return CaptureUI(ui, "FormalScene_R01");

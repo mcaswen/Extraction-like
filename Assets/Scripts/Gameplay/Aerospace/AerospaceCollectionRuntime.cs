@@ -67,6 +67,18 @@ namespace ExtractionLike.Aerospace
         {
             if (!ReserveOnStart) yield break;
             yield return null;
+            var inventory = InventoryScreenController.Instance;
+            if (inventory != null)
+            {
+                foreach (var part in AerospaceCatalog.Load().models)
+                {
+                    var item = Resources.Load<InventoryItemData>("Aerospace/Items/" + part.code);
+                    if (!inventory.TryPickupItem(item, 1))
+                        Debug.LogWarning("[Aerospace] Could not add starting part " + part.code + " to the backpack.");
+                }
+                // Starting items unlock the archive without queuing five discovery windows.
+                pending.Clear();
+            }
             for (int attempt = 0; attempt < 30 && !IsReady; attempt++)
             {
                 if (TryReserveAll()) break;
