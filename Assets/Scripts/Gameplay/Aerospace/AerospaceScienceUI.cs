@@ -248,7 +248,7 @@ namespace ExtractionLike.Aerospace
                 bool collected = owner.HasCollected(parts[i].code); cards[i].interactable = unlocked;
                 cardTitles[i].text = AerospaceScienceCopy.For(parts[i].code).shortName;
                 cardTitles[i].color = selected ? PaperInk : unlocked ? Ink : Muted;
-                cardStates[i].text = parts[i].code + "  /  " + (collected ? "本局收集" : unlocked ? "已归档" : "未发现");
+                cardStates[i].text = parts[i].code + " / " + (collected ? "本局收集" : unlocked ? "历史归档" : "未发现");
                 cardStates[i].color = selected ? PaperInk : collected ? Teal : Muted;
                 cardIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .22f);
                 cardRules[i].color = selected ? Amber : Color.clear;
@@ -267,7 +267,7 @@ namespace ExtractionLike.Aerospace
         private void Update()
         {
             if (owner == null) return;
-            hud.text = "航天档案  " + owner.CollectedCount + " / 5   [J]";
+            hud.text = "航天档案  本局 " + owner.CollectedCount + " / 5   [J]";
             if (!IsOpen) return;
             UpdateTerminal();
             closeLabel.text = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen ? "返回背包   [Esc]" : "返回游戏   [Esc]";

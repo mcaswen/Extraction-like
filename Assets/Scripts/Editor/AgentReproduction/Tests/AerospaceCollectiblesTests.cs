@@ -60,6 +60,30 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator GrantButtonStartsEmptyAndOnlyGrantsOnClickWithoutDuplicatesOrDiscoveryWindows()
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = InventoryFactory.Create(World); var runtime = Runtime();
+            yield return null;
+            var grantAction = runtime.GetComponentsInChildren<AerospacePartsGrantButton>(true).Single();
+            var button = grantAction.GetComponent<UnityEngine.UI.Button>();
+            Assert.That(button.gameObject.activeInHierarchy && button.interactable, Is.True);
+            Assert.That(screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null), Is.Empty);
+            Assert.That(runtime.CollectedCount, Is.Zero);
+            Assert.That(AerospaceCatalog.Load().models.All(p => !runtime.IsUnlocked(p.code)), Is.True);
+            button.onClick.Invoke(); yield return null;
+            var parts = screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null).ToArray();
+            CollectionAssert.AreEquivalent(AerospaceCatalog.Load().models.Select(p => p.code), parts.Select(i => AerospaceCatalog.CodeFor(i.ItemData)));
+            Assert.That(parts.All(i => i.Amount == 1 && i.IsSearched), Is.True);
+            Assert.That(runtime.CollectedCount, Is.EqualTo(5));
+            Assert.That(runtime.GetComponent<AerospaceScienceUI>().IsOpen, Is.False);
+            button.onClick.Invoke(); yield return null;
+            Assert.That(screen.BackpackGrid.ExtractSaveData().Count(i => AerospaceCatalog.CodeFor(i.ItemData) != null), Is.EqualTo(5));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
         public IEnumerator SearchMilestonesFitSmallMapsAndKeepTheNormalThreeBoxCadence()
         {
             CollectionAssert.AreEqual(new[] { 1, 4, 7, 10, 13 }, AerospaceCollectionRuntime.BuildSearchMilestones(50));
@@ -364,6 +388,9 @@ namespace AgentReproduction.Tests
             var before = NavMesh.CalculateTriangulation();
             var screen = InventoryScreenController.Instance;
             var ui = runtime.GetComponent<AerospaceScienceUI>();
+            Assert.That(runtime.CollectedCount, Is.Zero);
+            Assert.That(screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null), Is.Empty);
+            Assert.That(runtime.GetComponentsInChildren<AerospacePartsGrantButton>(true).Single().gameObject.activeInHierarchy, Is.True);
             Time.timeScale = 0; // Freeze only this validation harness while exercising the real container UI.
             for (int i = 0; i < boxes.Length; i++)
             {

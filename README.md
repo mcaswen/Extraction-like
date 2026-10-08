@@ -40,7 +40,7 @@
 1. 获取仓库后，确保 Git LFS 资源已下载；已有检出目录可执行 `git lfs pull`。
 2. 在 Unity Hub 中添加工程，使用上述编辑器版本打开，等待资源导入与脚本编译结束。包依赖记录在 [manifest.json](Packages/manifest.json)。
 3. 打开 [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) 后进入 Play Mode，体验菜单到关卡的流程。
-4. 元素选择确认后会进入 [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity)，该场景是当前地图指挥和搜打撤正式入口。
+4. 元素选择确认后会进入 [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity)，该场景是当前地图指挥和搜打撤正式入口；也可直接打开该场景进入 Play Mode。
 5. 构建时以 [EditorBuildSettings.asset](ProjectSettings/EditorBuildSettings.asset) 为准，主菜单目前位于构建列表首位。
 
 Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需要先执行它们。
