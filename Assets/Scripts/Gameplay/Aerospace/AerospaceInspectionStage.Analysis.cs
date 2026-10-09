@@ -25,7 +25,7 @@ namespace ExtractionLike.Aerospace
         public int DemoStep => Mathf.Min(2, (int)(DemoTime / 2.4f));
         public bool DemoEnded => DemoTime >= 7.2f;
         public float ScanProgress => scan;
-        public float DisplayYaw => Mathf.Repeat(yaw, 360);
+        public float DisplayYaw => Mathf.Repeat(shownYaw, 360);
         public int FocusedHotspot => selectedIndex;
         public int TeachingPathCount => flow != null ? flow.PathCount : 0;
 
@@ -50,13 +50,18 @@ namespace ExtractionLike.Aerospace
                 p.ghost.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; p.ghost.receiveShadows = false; p.ghost.enabled = false;
             }
             var vectors = new GameObject("Teaching_Vectors_Only"); vectors.layer = 31; vectors.transform.SetParent(pivot, false);
-            flow = vectors.AddComponent<AerospaceTeachingFlow>(); flow.Initialize(overlayMaterial);
+            flow = vectors.AddComponent<AerospaceTeachingFlow>(); flow.Initialize(overlayMaterial, viewCamera);
         }
 
         public void SetReducedMotion(bool value)
         {
             ReducedMotion = value;
-            if (value) { scan = -1; DemoPlaying = false; }
+            if (value)
+            {
+                scan = -1; DemoPlaying = false;
+                if (resetting) ResetView(true);
+                CancelCameraMotion(); shownZoom = zoom;
+            }
         }
         public void StartScan() { scan = ReducedMotion ? -1 : 0; }
         public void SkipScan() { scan = -1; }
@@ -104,6 +109,7 @@ namespace ExtractionLike.Aerospace
         public void BeginDemonstration()
         {
             if (!Ready || DemoActive) return;
+            CancelCameraMotion();
             demoReturnMode = Mode; demoReturnFold = Folded; demoReturnZoom = zoom; demoReturnFocus = focusPoint;
             demoReturnStudy = Study; demoReturnRelation = RelationPhase; demoReturnSelected = selectedIndex;
             demoReturnFocusSaved = focusSaved; demoReturnBaseZoom = returnZoom; demoReturnUserCamera = userCamera;
@@ -131,9 +137,10 @@ namespace ExtractionLike.Aerospace
         public void StopDemonstration(bool restore = true)
         {
             if (!DemoActive) return;
+            CancelCameraMotion();
             DemoActive = DemoPlaying = false; flow?.Clear();
             LeaveStudy(); RelationPhase = -1;
-            foreach (var p in poses) { p.t.localRotation = p.rotation; p.t.localPosition = p.position; }
+            foreach (var p in poses) { p.moveFrom = p.t.localPosition; p.moveAge = 0; }
             if (restore)
             {
                 ApplyMode(demoReturnMode);
@@ -160,7 +167,8 @@ namespace ExtractionLike.Aerospace
         {
             int index = hoverIndex >= 0 ? hoverIndex : selectedIndex;
             bool selected = index >= 0 && config.hotspots[index].groups.Contains(p.semantic);
-            p.highlight = Mathf.Lerp(p.highlight, selected ? 1 : 0, ReducedMotion ? 1 : 1 - Mathf.Exp(-Time.unscaledDeltaTime * 20));
+            bool interfaceCue = DemoActive && config.code == "R05" && (DemoStep < 2 ? ReleaseParts.Contains(p.semantic) : UpperParts.Contains(p.semantic));
+            p.highlight = Mathf.Lerp(p.highlight, selected ? 1 : interfaceCue ? .65f : 0, ReducedMotion ? 1 : 1 - Mathf.Exp(-Time.unscaledDeltaTime * 20));
             properties.Clear(); properties.SetFloat("_Highlight", p.highlight);
             properties.SetFloat("_ContextDim", index >= 0 && !selected ? .17f : 0);
             properties.SetFloat("_Visibility", p.visibility);
@@ -221,7 +229,7 @@ namespace ExtractionLike.Aerospace
             {
                 // Direction-only guide beside the interface, never drawn as a live release mechanism.
                 foreach (float x in new[] { -.30f, .30f })
-                    flow.Add(new[] { Native(new Vector3(x, -.39f, .065f)), Native(new Vector3(x, -.39f, .22f)) }, cyan, 0, 2);
+                    flow.Add(new[] { Native(new Vector3(x, -.39f, .065f)), Native(new Vector3(x, -.39f, .22f)) }, cyan, 0, 2, true);
             }
         }
         private void ClearAnalysis()
@@ -235,23 +243,44 @@ namespace ExtractionLike.Aerospace
         }
     }
 
-    /// <summary>Low-cost local-space vector trails. No particles, colliders or gameplay lights.</summary>
+    /// <summary>Bounded, deterministic flow tracers. Shared-material lines and a tiny billboard mesh; no world lights or physics.</summary>
     public sealed class AerospaceTeachingFlow : MonoBehaviour
     {
         private sealed class Path
         {
-            public Vector3[] points; public LineRenderer baseLine, trail; public float phase; public int fromStep;
-            public readonly Vector3[] moving = new Vector3[9];
+            public Vector3[] points; public float[] distances; public float length, phase; public int fromStep;
+            public LineRenderer baseLine, arrow; public LineRenderer[] trails; public Color tint;
+            public readonly Vector3[] moving = new Vector3[9], arrowPoints = new Vector3[3];
         }
         private readonly List<Path> paths = new List<Path>();
+        private readonly List<Vector3> vertices = new List<Vector3>(160);
+        private readonly List<Color> colors = new List<Color>(160);
+        private readonly List<int> triangles = new List<int>(500);
         private Material material;
+        private Camera viewCamera;
+        private Mesh particleMesh;
+        private MeshRenderer particleRenderer;
         public int PathCount => paths.Count;
-        public void Initialize(Material value) { material = value; }
+        public int ParticleCount { get; private set; }
+        public void Initialize(Material value, Camera camera)
+        {
+            material = value; viewCamera = camera;
+            var go = new GameObject("Flow_Tracer_Particles", typeof(MeshFilter), typeof(MeshRenderer)); go.layer = 31; go.transform.SetParent(transform, false);
+            particleMesh = new Mesh { name = "Private flow tracer billboards" }; particleMesh.MarkDynamic(); go.GetComponent<MeshFilter>().sharedMesh = particleMesh;
+            particleRenderer = go.GetComponent<MeshRenderer>(); particleRenderer.sharedMaterial = material;
+            particleRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; particleRenderer.receiveShadows = false; particleRenderer.enabled = false;
+        }
         public void Clear()
         {
-            foreach (var p in paths) { p.baseLine.gameObject.SetActive(false); p.trail.gameObject.SetActive(false); Destroy(p.baseLine.gameObject); Destroy(p.trail.gameObject); }
+            foreach (var p in paths)
+            {
+                RemoveLine(p.baseLine); RemoveLine(p.arrow);
+                foreach (var trail in p.trails) RemoveLine(trail);
+            }
             paths.Clear();
+            ParticleCount = 0; if (particleMesh != null) particleMesh.Clear(); if (particleRenderer != null) particleRenderer.enabled = false;
         }
+        private void RemoveLine(LineRenderer line) { line.gameObject.SetActive(false); Destroy(line.gameObject); }
         private LineRenderer Line(string title, Color tint, float width)
         {
             var go = new GameObject(title); go.layer = 31; go.transform.SetParent(transform, false);
@@ -261,30 +290,70 @@ namespace ExtractionLike.Aerospace
             line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; line.receiveShadows = false;
             return line;
         }
-        public void Add(Vector3[] points, Color tint, float phase, int fromStep)
+        public void Add(Vector3[] points, Color tint, float phase, int fromStep, bool directionOnly = false)
         {
-            var dim = tint; dim.a = .40f;
-            var p = new Path { points = points, baseLine = Line("Schematic_Path", dim, .0025f), trail = Line("Flow_Direction", tint, .007f), phase = phase, fromStep = fromStep };
-            p.baseLine.positionCount = points.Length; p.baseLine.SetPositions(points); p.trail.positionCount = 9;
-            p.trail.widthCurve = new AnimationCurve(new Keyframe(0, .12f), new Keyframe(.68f, 1), new Keyframe(.78f, 2.2f), new Keyframe(1, 0));
-            p.trail.widthMultiplier = .007f;
+            var dim = tint; dim.a = directionOnly ? .65f : .15f;
+            var p = new Path { points = points, distances = new float[points.Length], baseLine = Line("Schematic_Path", dim, .0017f),
+                arrow = Line("Flow_Direction_Arrow", new Color(tint.r, tint.g, tint.b, .72f), .0026f), trails = new LineRenderer[directionOnly ? 0 : 2],
+                phase = phase, fromStep = fromStep, tint = tint };
+            for (int i = 1; i < points.Length; i++) p.distances[i] = p.distances[i - 1] + Vector3.Distance(points[i - 1], points[i]);
+            p.length = Mathf.Max(.0001f, p.distances[points.Length - 1]);
+            p.baseLine.positionCount = points.Length; p.baseLine.SetPositions(points); p.arrow.positionCount = 3;
+            for (int i = 0; i < p.trails.Length; i++)
+            {
+                var trail = p.trails[i] = Line("Flow_Direction_" + i, tint, .0036f); trail.positionCount = p.moving.Length;
+                trail.widthCurve = new AnimationCurve(new Keyframe(0, .04f), new Keyframe(.75f, 1), new Keyframe(1, .5f)); trail.widthMultiplier = .0036f;
+                var gradient = new Gradient(); gradient.SetKeys(new[] { new GradientColorKey(tint, 0), new GradientColorKey(tint, 1) },
+                    new[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(.8f, .78f), new GradientAlphaKey(.6f, 1) }); trail.colorGradient = gradient;
+            }
             paths.Add(p);
+        }
+        private static Vector3 Along(Path p, float progress)
+        {
+            float distance = Mathf.Clamp01(progress) * p.length;
+            for (int i = 1; i < p.points.Length; i++)
+                if (distance <= p.distances[i]) return Vector3.Lerp(p.points[i - 1], p.points[i], (distance - p.distances[i - 1]) / Mathf.Max(.00001f, p.distances[i] - p.distances[i - 1]));
+            return p.points[p.points.Length - 1];
         }
         public void Present(bool active, float time, int step)
         {
+            if (paths.Count == 0) return;
+            vertices.Clear(); colors.Clear(); triangles.Clear(); ParticleCount = 0;
+            Vector3 right = transform.InverseTransformDirection(viewCamera.transform.right), up = transform.InverseTransformDirection(viewCamera.transform.up);
             foreach (var p in paths)
             {
                 bool show = active && step >= p.fromStep;
-                p.baseLine.enabled = p.trail.enabled = show; if (!show) continue;
-                float head = Mathf.Repeat(time * .38f + p.phase, 1.25f);
-                for (int i = 0; i < p.moving.Length; i++)
+                p.baseLine.enabled = p.arrow.enabled = show;
+                foreach (var trail in p.trails) trail.enabled = show;
+                if (!show) continue;
+                Vector3 tip = Along(p, 1), tangent = (tip - Along(p, .96f)).normalized;
+                Vector3 side = Vector3.Cross(tangent, transform.InverseTransformDirection(viewCamera.transform.forward)).normalized;
+                p.arrowPoints[0] = tip - tangent * .017f + side * .006f; p.arrowPoints[1] = tip; p.arrowPoints[2] = tip - tangent * .017f - side * .006f;
+                p.arrow.SetPositions(p.arrowPoints);
+                for (int packet = 0; packet < p.trails.Length; packet++)
                 {
-                    float u = Mathf.Clamp01(head - .21f + i * .21f / 8), index = u * (p.points.Length - 1);
-                    int a = Mathf.Min(p.points.Length - 2, Mathf.FloorToInt(index));
-                    p.moving[i] = Vector3.Lerp(p.points[a], p.points[a + 1], index - a);
+                    float head = Mathf.Repeat(time * .34f + p.phase + packet * .64f, 1.28f);
+                    for (int i = 0; i < p.moving.Length; i++) p.moving[i] = Along(p, head - .12f + i * .12f / (p.moving.Length - 1));
+                    p.trails[packet].SetPositions(p.moving);
+                    float opacity = Mathf.Clamp01(head / .06f) * Mathf.Clamp01((1 - head) / .06f);
+                    if (opacity > 0) AddParticle(Along(p, head), right, up, p.tint, opacity);
                 }
-                p.trail.SetPositions(p.moving);
             }
+            particleMesh.Clear(); particleMesh.SetVertices(vertices); particleMesh.SetColors(colors); particleMesh.SetTriangles(triangles, 0);
+            particleRenderer.enabled = active && ParticleCount > 0;
         }
+        private void AddParticle(Vector3 center, Vector3 right, Vector3 up, Color tint, float opacity)
+        {
+            const int segments = 10; int start = vertices.Count;
+            vertices.Add(center); colors.Add(new Color(Mathf.Lerp(tint.r, 1, .5f), Mathf.Lerp(tint.g, 1, .5f), Mathf.Lerp(tint.b, 1, .5f), opacity * .9f));
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * Mathf.PI * 2 / segments;
+                vertices.Add(center + (right * Mathf.Cos(angle) + up * Mathf.Sin(angle)) * .0045f); colors.Add(new Color(tint.r, tint.g, tint.b, 0));
+                if (i > 0) { triangles.Add(start); triangles.Add(start + i); triangles.Add(start + i + 1); }
+            }
+            ParticleCount++;
+        }
+        private void OnDestroy() { if (particleMesh != null) Destroy(particleMesh); }
     }
 }

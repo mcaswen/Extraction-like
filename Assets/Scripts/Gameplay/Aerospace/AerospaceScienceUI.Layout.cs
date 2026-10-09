@@ -62,7 +62,8 @@ namespace ExtractionLike.Aerospace
             viewport = new GameObject("Model_Viewport", typeof(RectTransform), typeof(RawImage), typeof(RectMask2D)).GetComponent<RectTransform>();
             viewport.SetParent(frame, false); Rect(viewport, 448, 108, AerospaceInspectionStage.ViewWidth, AerospaceInspectionStage.ViewHeight);
             modelImage = viewport.GetComponent<RawImage>(); modelImage.color = new Color(1, 1, 1, 0);
-            viewport.gameObject.AddComponent<AerospaceOrbitInput>().stage = stage;
+            var orbit = viewport.gameObject.AddComponent<AerospaceOrbitInput>(); orbit.stage = stage;
+            orbit.canInteract = () => IsOpen && !transitioning && !IsSettingsOpen;
             BuildTerminal(frame);
             Label(frame, "回收样本检视", 477, 120, 240, 24, 13, Muted);
             surfaceState = Label(frame, "清理后样件", 1424, 120, 150, 24, 13, Muted, TextAlignmentOptions.TopRight); surfaceState.name = "Specimen_Surface_State";
@@ -74,6 +75,7 @@ namespace ExtractionLike.Aerospace
             transitionRect = Panel(frame, "Discovery_Hero_Icon", Color.white, 610, 40, 820, 820);
             transitionImage = transitionRect.GetComponent<Image>(); transitionImage.preserveAspect = true; transitionImage.raycastTarget = false;
             transitionRect.gameObject.SetActive(false); skipButton.transform.SetAsLastSibling(); close.transform.SetAsLastSibling();
+            BuildMotionPresentation(frame);
             modal.SetActive(false); RefreshArchive(); RefreshButtons(); HidePins();
         }
 
@@ -175,7 +177,7 @@ namespace ExtractionLike.Aerospace
                 AddButtonGlyph(b, i == 0 ? "cube" : i == 1 ? "cut" : "layers");
             }
             Panel(controls.transform, "Tool_Divider", Rule, 419, 8, 1, 28);
-            resetButton = Button(controls.transform, "重置视角", 440, 0, 133, 44, () => { stage.ResetView(); ShowDetail(-1); }); resetButton.name = "Reset_View"; AddButtonGlyph(resetButton, "reset");
+            resetButton = Button(controls.transform, "重置视角", 440, 0, 133, 44, () => { ShowDetail(-1); stage.ResetView(); }); resetButton.name = "Reset_View"; AddButtonGlyph(resetButton, "reset");
             pinsButton = Button(controls.transform, "热点", 579, 0, 102, 44, ToggleHotspots); pinsButton.name = "Toggle_Hotspots"; AddButtonGlyph(pinsButton, "eye");
             demoButton = DemonstrationButton(controls.transform, "原理演示", 866, 0, 182, 44); demoButton.name = "Start_Demonstration";
             settingsButton = Button(controls.transform, "", 1060, 0, 44, 44, () => SetSettings(!IsSettingsOpen)); settingsButton.name = "Display_Settings";

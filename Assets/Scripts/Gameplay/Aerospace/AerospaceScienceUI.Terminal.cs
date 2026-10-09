@@ -31,7 +31,7 @@ namespace ExtractionLike.Aerospace
             Label(legend.transform, "流向与运动", 0, 0, 228, 25, 13, Muted);
             Panel(legend.transform, "Path_A", Teal, 0, 35, 17, 2);
             legendPrimary = Label(legend.transform, "", 27, 22, 203, 32, 15, Teal);
-            legendSecondary = Label(legend.transform, "", 27, 59, 203, 32, 15, Amber);
+            legendSecondary = Label(legend.transform, "", 27, 59, 203, 32, 15, new Color(1, .71f, .38f));
             legend.SetActive(false);
             terminalState = Label(frame, "样本待载入", 478, 757, 530, 26, 14, Muted);
             orientation = MonoLabel(frame, "VIEW 000 / FREE", 1324, 759, 248, 24, 11, Muted);
@@ -48,7 +48,7 @@ namespace ExtractionLike.Aerospace
         {
             stage.SetReducedMotion(!stage.ReducedMotion);
             PlayerPrefs.SetInt(MotionPreference, stage.ReducedMotion ? 1 : 0); PlayerPrefs.Save();
-            if (stage.ReducedMotion) SkipReveal();
+            if (stage.ReducedMotion) { SkipReveal(); ReleaseSwitchSnapshot(); ClearHotspotConfirmation(); }
             RefreshButtons();
         }
         public void StartDemonstration()

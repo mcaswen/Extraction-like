@@ -13,7 +13,12 @@ namespace ExtractionLike.Aerospace
         public const float ViewWidth = 1152, ViewHeight = 680;
         private static readonly HashSet<string> ReleaseParts = new HashSet<string> { "ClampShoes", "ClampBand", "ReleaseHousing", "ReleaseCover", "Harness", "Identification", "Markings", "ReleaseMarkings", "EquipmentReleaseGuard", "EquipmentReleaseGuardInk", "EquipmentReleaseServices", "EquipmentReleaseServicesInk" };
         private static readonly HashSet<string> UpperParts = new HashSet<string> { "UpperInterface", "UpperHardware", "UpperMarkings", "EquipmentUpperAdapter", "EquipmentUpperInspection", "EquipmentUpperInspectionInk" };
-        private sealed class Pose { public Transform t; public Vector3 position, offset; public Quaternion rotation; public bool cut; public Renderer renderer, ghost; public string semantic; public float visibility = 1, highlight; }
+        private sealed class Pose
+        {
+            public Transform t; public Vector3 position, offset, moveFrom, moveTarget; public Quaternion rotation;
+            public bool cut; public Renderer renderer, ghost; public string semantic;
+            public float visibility = 1, visibleFrom = 1, visibleTarget = 1, visibleAge, highlight, motionOrder, moveDelay, moveAge;
+        }
         private readonly List<Pose> poses = new List<Pose>();
         private readonly List<Transform> anchors = new List<Transform>();
         private Transform pivot, model, foldPivot;
@@ -105,7 +110,11 @@ namespace ExtractionLike.Aerospace
                 var p = Array.Find(part.parts, entry => entry.name == r.name);
                 if (p == null) continue;
                 Vector3 offsetWorld = pivot.TransformVector(AerospaceCatalog.Convert(p.explode) * scale);
-                poses.Add(new Pose { t = r.transform, position = r.transform.localPosition, rotation = r.transform.localRotation, offset = r.transform.parent.InverseTransformVector(offsetWorld),
+                // All pieces sharing an exported assembly offset receive the same timing, including their fasteners.
+                Vector3 exportedOffset = AerospaceCatalog.Convert(p.explode);
+                float order = Mathf.Abs(exportedOffset.z) > .001f ? 0 : Mathf.Abs(exportedOffset.x) > .001f ? .06f : .12f;
+                poses.Add(new Pose { t = r.transform, position = r.transform.localPosition, moveFrom = r.transform.localPosition, moveTarget = r.transform.localPosition,
+                    motionOrder = order, moveAge = 1, rotation = r.transform.localRotation, offset = r.transform.parent.InverseTransformVector(offsetWorld),
                     cut = p.cut, renderer = r, semantic = r.name.Replace(part.code + "_", "").Replace("_low", "") });
             }
             var all = instance.GetComponentsInChildren<Transform>(true);
@@ -119,10 +128,11 @@ namespace ExtractionLike.Aerospace
             foldPivot = Array.Find(all, t => t.name == "R04_FoldPivot");
             if (foldPivot != null) foldRest = foldPivot.localRotation;
             direction = AerospaceCatalog.Convert(part.camera).normalized;
-            Ready = true; PrepareAnalysis(); ResetView(); done(null);
+            Ready = true; PrepareAnalysis(); ResetView(true); done(null);
         }
         public void SetMode(string mode)
         {
+            CancelCameraMotion();
             StopDemonstration(false); ClearFocus(true); selectedIndex = hoverIndex = -1;
             ApplyMode(mode);
         }
@@ -135,24 +145,41 @@ namespace ExtractionLike.Aerospace
         public void Select(int index)
         {
             if (!Ready || index < -1 || index >= config.hotspots.Length) return;
+            CancelCameraMotion();
             StopDemonstration(false); hoverIndex = -1;
             if (index < 0) ClearFocus(true);
             else Focus(index);
             selectedIndex = index; ApplyMode(index >= 0 ? config.hotspots[index].view : "assembled");
         }
-        public void ResetView()
+        public void ResetView(bool immediate = false)
         {
-            // Discard any saved focus before assigning the default zoom. Otherwise
-            // SetMode would silently restore the pre-focus zoom over the reset value.
+            if (!Ready) return;
+            bool animate = !immediate && !ReducedMotion && cameraInitialized;
+            Quaternion fromRotation = pivot.localRotation;
+            float fromPitch = shownPitch, fromYaw = shownYaw;
+            Vector3 fromCamera = viewCamera.transform.localPosition, fromFocus = smoothFocus;
             StopDemonstration(false); ClearFocus(false);
             pitch = yaw = 0; zoom = 1; Folded = false; Recovered = false; binding?.ApplySurface(false);
             SetMode("assembled"); Select(-1);
-            if (pivot != null) pivot.localRotation = Quaternion.identity;
-            // Use the assembled pose even when resetting from a moving exploded view.
-            foreach (var p in poses) { p.t.localPosition = p.position; p.t.localRotation = p.rotation; p.t.gameObject.SetActive(true); p.renderer.enabled = true; p.visibility = 1; }
-            if (foldPivot != null) foldPivot.localRotation = foldRest;
-            focusPoint = smoothFocus = Vector3.zero; cameraInitialized = false;
-            FitView(binding != null ? binding.meshes : null); PoseCamera();
+            pitch = yaw = 0;
+            focusPoint = Vector3.zero;
+            if (!animate)
+            {
+                pivot.localRotation = Quaternion.identity; shownZoom = 1; shownFold = foldFrom = foldTarget = 0; shownPitch = shownYaw = 0;
+                foreach (var p in poses)
+                {
+                    p.t.localPosition = p.moveFrom = p.moveTarget = p.position; p.moveAge = 1;
+                    p.t.localRotation = p.rotation; p.t.gameObject.SetActive(true); p.renderer.enabled = true;
+                    p.visibility = p.visibleFrom = p.visibleTarget = 1;
+                }
+                if (foldPivot != null) foldPivot.localRotation = foldRest;
+                smoothFocus = Vector3.zero; cameraInitialized = false;
+            }
+            if (assembledFitDistance <= 0) { FitView(binding != null ? binding.meshes : null); assembledFitDistance = fitDistance; }
+            else fitDistance = assembledFitDistance;
+            resetting = animate; resetAge = 0; resetPitch = fromPitch; resetYaw = fromYaw; resetCameraPosition = fromCamera; resetCameraFocus = fromFocus;
+            if (animate) pivot.localRotation = fromRotation;
+            else PoseCamera();
         }
         public void ToggleSurface() { Recovered = !Recovered; binding?.ApplySurface(Recovered); }
         public void ToggleFold() { if (foldPivot == null) return; bool next = !Folded; SetMode("assembled"); Folded = next; }
@@ -164,6 +191,7 @@ namespace ExtractionLike.Aerospace
         public bool ToggleStudy()
         {
             if (!Ready || config.code != "R03") return false;
+            CancelCameraMotion();
             ClearFocus(true); selectedIndex = hoverIndex = -1;
             if (Study) { LeaveStudy(); return true; }
             if (studyModel == null)
@@ -181,17 +209,15 @@ namespace ExtractionLike.Aerospace
             }
             Study = true; model.gameObject.SetActive(false); studyModel.gameObject.SetActive(true); pitch = yaw = 0; zoom = 1;
             direction = new Vector3(.32f, .27f, -.7f).normalized;
-            pivot.localRotation = Quaternion.identity; FitView(studyModel.GetComponentsInChildren<Renderer>()); return true;
+            pivot.localRotation = Quaternion.identity; shownPitch = shownYaw = 0; FitView(studyModel.GetComponentsInChildren<Renderer>()); return true;
         }
         private void LeaveStudy()
         {
             bool wasStudy = Study;
             Study = false; if (studyModel != null) studyModel.gameObject.SetActive(false); if (model != null) model.gameObject.SetActive(true);
             if (config != null) direction = AerospaceCatalog.Convert(config.camera).normalized;
-            if (wasStudy) { pitch = yaw = 0; zoom = 1; pivot.localRotation = Quaternion.identity; FitView(binding.meshes); }
+            if (wasStudy) { pitch = yaw = shownPitch = shownYaw = 0; zoom = 1; pivot.localRotation = Quaternion.identity; fitDistance = assembledFitDistance; }
         }
-        public void Orbit(Vector2 delta) { if (!Ready) return; userCamera = true; yaw += delta.x * .32f; pitch -= delta.y * .32f; }
-        public void Zoom(float delta) { if (!Ready) return; userCamera = true; zoom = Mathf.Clamp(zoom - delta * .055f, .64f, 1.85f); }
         public bool TryAnchor(int index, out Vector2 point)
         {
             point = default;
@@ -205,17 +231,10 @@ namespace ExtractionLike.Aerospace
             if (!Ready) return;
             TickAnalysis();
             float t = ReducedMotion ? 1 : 1 - Mathf.Exp(-Time.unscaledDeltaTime * 8);
-            pivot.localRotation = Quaternion.Euler(pitch, yaw, 0);
+            TickViewMotion();
             foreach (var p in poses)
             {
-                p.visibility = Mathf.MoveTowards(p.visibility, Mode == "cutaway" && p.cut ? 0 : 1, ReducedMotion ? 1 : Time.unscaledDeltaTime / .6f);
-                p.renderer.enabled = p.visibility > .001f;
-                Vector3 extra = Vector3.zero;
-                if (RelationPhase >= 1 && ReleaseParts.Contains(p.semantic)) extra += new Vector3(0, 0, -.105f);
-                if (RelationPhase == 2 && UpperParts.Contains(p.semantic)) extra += new Vector3(0, .19f, 0);
-                Vector3 relation = p.t.parent.InverseTransformVector(pivot.TransformVector(extra * modelScale));
-                p.t.localPosition = Vector3.Lerp(p.t.localPosition, p.position + relation + (Mode == "exploded" ? p.offset : Vector3.zero), t);
-                p.t.localRotation = p.rotation;
+                TickMechanicalPose(p);
                 if (DemoActive && config.code == "R02" && (p.semantic == "Impeller" || p.semantic == "Inducer" || p.semantic == "Shaft"))
                 {
                     Vector3 axis = p.t.parent.InverseTransformDirection(pivot.up);
@@ -225,18 +244,23 @@ namespace ExtractionLike.Aerospace
                 }
                 ApplyAnalysisMaterial(p, t);
             }
-            float foldAngle = Folded ? 65 : 0;
-            if (DemoActive && config.code == "R04") foldAngle = DemoStep == 0 ? Mathf.Lerp(65, 0, Mathf.SmoothStep(0, 1, DemoTime / 2)) : 0;
-            if (foldPivot != null) foldPivot.localRotation = Quaternion.Slerp(foldPivot.localRotation, foldRest * Quaternion.AngleAxis(foldAngle, Vector3.right), t);
+            TickFold();
             PoseCamera();
         }
         private void PoseCamera()
         {
             if (viewCamera == null) return;
-            float t = !cameraInitialized || ReducedMotion || userCamera ? 1 : 1 - Mathf.Exp(-Time.unscaledDeltaTime * 9);
+            float t = !cameraInitialized || ReducedMotion || userCamera ? 1 : 1 - Mathf.Exp(-Time.unscaledDeltaTime * 12);
             smoothFocus = Vector3.Lerp(smoothFocus, pivot.localRotation * focusPoint, t);
-            Vector3 desired = smoothFocus + direction * fitDistance * zoom * (Study ? 1 : Mode == "exploded" ? 1.38f : RelationPhase >= 0 ? 1.58f : 1);
+            Vector3 desired = smoothFocus + direction * fitDistance * shownZoom * (Study ? 1 : Mode == "exploded" ? 1.38f : RelationPhase >= 0 ? 1.58f : 1);
             viewCamera.transform.localPosition = Vector3.Lerp(viewCamera.transform.localPosition, desired, t);
+            if (resetting)
+            {
+                float progress = Ease(resetAge / .4f);
+                smoothFocus = Vector3.Lerp(resetCameraFocus, Vector3.zero, progress);
+                viewCamera.transform.localPosition = Vector3.Lerp(resetCameraPosition, direction * fitDistance, progress);
+                if (resetAge >= .4f) { resetting = false; shownZoom = zoom; }
+            }
             viewCamera.transform.LookAt(stage.transform.TransformPoint(smoothFocus)); cameraInitialized = true;
         }
         private void FitView(Renderer[] renderers)
@@ -260,6 +284,7 @@ namespace ExtractionLike.Aerospace
         private void ClearModel()
         {
             ClearAnalysis();
+            ClearViewMotion();
             Ready = false; poses.Clear(); anchors.Clear(); foldPivot = null; binding = null;
             Study = false; RelationPhase = -1;
             if (studyModel != null) { studyModel.gameObject.SetActive(false); Destroy(studyModel.gameObject); studyModel = null; }

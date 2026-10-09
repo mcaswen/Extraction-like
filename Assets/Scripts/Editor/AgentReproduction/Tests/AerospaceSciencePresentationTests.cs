@@ -322,7 +322,7 @@ namespace AgentReproduction.Tests
             ui.Open("R01", false); yield return Ready(ui);
             var defaultCamera = ui.Stage.DisplayCamera.transform.position;
             ui.Stage.Zoom(4); ui.ShowDetail(1); yield return new WaitForSecondsRealtime(.8f);
-            Click(ui, "Reset_View"); yield return null;
+            Click(ui, "Reset_View"); yield return new WaitForSecondsRealtime(.5f);
             Assert.That(Vector3.Distance(defaultCamera, ui.Stage.DisplayCamera.transform.position), Is.LessThan(.01f));
             Assert.That(ui.Stage.FocusedHotspot, Is.EqualTo(-1));
             Assert.That(ui.SelectedHotspot, Is.EqualTo(-1));
@@ -370,6 +370,202 @@ namespace AgentReproduction.Tests
             ui.StartDemonstration(); ui.enabled = false; yield return null;
             Assert.That(Time.timeScale, Is.EqualTo(3)); Assert.That(ui.Stage.Texture, Is.Null);
             Assert.That(UnityEngine.Object.FindObjectsOfType<AerospaceTeachingFlow>(), Is.Empty);
+            ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator OrbitHasBoundedReleaseInertiaAndFocusCancelsIt()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            var input = ui.GetComponentInChildren<AerospaceOrbitInput>();
+            var pointer = new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left, delta = new Vector2(9, 3) };
+            input.OnBeginDrag(pointer);
+            for (int i = 0; i < 4; i++) { input.OnDrag(pointer); yield return null; }
+            input.OnEndDrag(pointer); float released = ui.Stage.DisplayYaw;
+            Assert.That(ui.Stage.IsCoasting, Is.True);
+            yield return new WaitForSecondsRealtime(.28f);
+            float travel = Mathf.DeltaAngle(released, ui.Stage.DisplayYaw);
+            Assert.That(travel, Is.GreaterThan(.05f).And.LessThan(14)); Assert.That(ui.Stage.IsCoasting, Is.False);
+            float resting = ui.Stage.DisplayYaw; yield return new WaitForSecondsRealtime(.18f);
+            Assert.That(ui.Stage.DisplayYaw, Is.EqualTo(resting).Within(.001f));
+            input.OnBeginDrag(pointer); input.OnDrag(pointer); input.OnEndDrag(pointer);
+            ui.ShowDetail(1); Assert.That(ui.Stage.IsCoasting, Is.False);
+            ui.Stage.SetReducedMotion(true); input.OnBeginDrag(pointer); input.OnDrag(pointer); input.OnEndDrag(pointer);
+            Assert.That(ui.Stage.IsCoasting, Is.False); Assert.That(Time.timeScale, Is.Zero);
+            ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator ZoomEasesAndResetIsSmoothInterruptibleAndExact()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            var original = ui.Stage.DisplayCamera.transform.position;
+            ui.Stage.Zoom(4); Assert.That(ui.Stage.DisplayZoom, Is.EqualTo(1)); Assert.That(ui.Stage.TargetZoom, Is.LessThan(1));
+            yield return new WaitForSecondsRealtime(.04f);
+            Assert.That(ui.Stage.DisplayZoom, Is.GreaterThan(ui.Stage.TargetZoom).And.LessThan(1));
+            ui.Stage.Orbit(new Vector2(100, 25)); yield return new WaitForSecondsRealtime(.35f);
+            var rotated = ui.Stage.CurrentModel.transform.parent.localRotation;
+            Click(ui, "Reset_View"); Assert.That(ui.Stage.IsResettingView, Is.True);
+            Assert.That(Quaternion.Angle(rotated, ui.Stage.CurrentModel.transform.parent.localRotation), Is.LessThan(.001f));
+            yield return new WaitForSecondsRealtime(.15f); Assert.That(ui.Stage.IsResettingView, Is.True);
+            Quaternion beforeTakeover = ui.Stage.CurrentModel.transform.parent.localRotation;
+            ui.Stage.BeginOrbitGesture(); ui.Stage.Orbit(Vector2.zero); ui.Stage.EndOrbitGesture(); yield return null;
+            Assert.That(Quaternion.Angle(beforeTakeover, ui.Stage.CurrentModel.transform.parent.localRotation), Is.LessThan(.01f), "Taking over a reset must preserve its visible angle.");
+            Assert.That(ui.Stage.IsResettingView, Is.False);
+            Click(ui, "Reset_View"); yield return new WaitForSecondsRealtime(.5f);
+            Assert.That(ui.Stage.IsResettingView, Is.False); Assert.That(ui.Stage.DisplayZoom, Is.EqualTo(1));
+            Assert.That(Quaternion.Angle(ui.Stage.CurrentModel.transform.parent.localRotation, Quaternion.identity), Is.LessThan(.001f));
+            Assert.That(Vector3.Distance(original, ui.Stage.DisplayCamera.transform.position), Is.LessThan(.005f));
+            ui.Stage.SetReducedMotion(true); ui.Stage.Zoom(2); Assert.That(ui.Stage.DisplayZoom, Is.EqualTo(ui.Stage.TargetZoom));
+            ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator RapidSampleCrossfadesKeepOneSnapshotAndReleaseItOnClose()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            string previousTitle = Named<TMP_Text>(ui, "Specimen_Title").text;
+            ui.Open("R02", false); Assert.That(ui.HasSwitchSnapshot, Is.True);
+            Assert.That(Named<TMP_Text>(ui, "Specimen_Title").text, Is.EqualTo(previousTitle));
+            ui.Open("R03", false); ui.Open("R04", false); ui.Open("R05", false); yield return Ready(ui);
+            Assert.That(ui.CurrentCode, Is.EqualTo("R05")); Assert.That(ui.HasSwitchSnapshot, Is.False);
+            Assert.That(Named<TMP_Text>(ui, "Specimen_Title").text, Is.EqualTo("载荷分离\n机构弧段"));
+            Assert.That(ui.Stage.CurrentModel.GetComponent<AerospaceModelAsset>(), Is.Not.Null);
+            ui.Open("R02", false); Assert.That(ui.HasSwitchSnapshot, Is.True); ui.Close(); yield return null; yield return null;
+            Assert.That(ui.HasSwitchSnapshot, Is.False); Assert.That(Time.timeScale, Is.EqualTo(1));
+            Assert.That(Resources.FindObjectsOfTypeAll<RenderTexture>().Any(t => t.name == "Aerospace_Switch_Snapshot"), Is.False);
+            ui.Open("R03", false); yield return Ready(ui); ui.Stage.SetReducedMotion(true);
+            ui.Open("R04", false); Assert.That(ui.HasSwitchSnapshot, Is.False); yield return Ready(ui);
+            Assert.That(ui.CurrentCode, Is.EqualTo("R04")); ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator HotspotConfirmationIsFiniteAndSuppressedByReducedMotion()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            ui.ShowDetail(1); yield return null;
+            var pulses = ui.GetComponentsInChildren<AerospaceHotspotPulse>(true);
+            Assert.That(pulses.Count(p => p.Progress < 1), Is.EqualTo(1));
+            yield return new WaitForSecondsRealtime(.55f); Assert.That(pulses.All(p => p.Progress == 1), Is.True);
+            ui.ShowDetail(2); ui.Stage.SetReducedMotion(true); yield return null;
+            Assert.That(pulses.All(p => p.Progress == 1), Is.True);
+            ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator MechanicalGroupsMoveTogetherAndRapidReassemblyReturnsExactly()
+        {
+            var ui = Create(true); yield return null; ui.Open("R03", false); yield return Ready(ui);
+            var all = ui.Stage.CurrentModel.GetComponentsInChildren<Transform>(true);
+            var face = all.Single(t => t.name == "R03_Faceplate_low"); var hardware = all.Single(t => t.name == "R03_FaceHardware_low");
+            Vector3 faceRest = face.localPosition, hardwareRest = hardware.localPosition;
+            Click(ui, "Mode_exploded"); Assert.That(face.localPosition, Is.EqualTo(faceRest));
+            yield return new WaitForSecondsRealtime(.28f);
+            Assert.That(Vector3.Distance(faceRest, face.localPosition), Is.GreaterThan(.001f));
+            Assert.That(Vector3.Distance(face.localPosition - faceRest, hardware.localPosition - hardwareRest), Is.LessThan(.00001f));
+            Click(ui, "Mode_assembled"); yield return new WaitForSecondsRealtime(.12f); Click(ui, "Mode_exploded"); yield return null; Click(ui, "Mode_assembled");
+            yield return new WaitForSecondsRealtime(.7f);
+            Assert.That(Vector3.Distance(face.localPosition, faceRest), Is.LessThan(.00001f)); Assert.That(Vector3.Distance(hardware.localPosition, hardwareRest), Is.LessThan(.00001f));
+            ui.Open("R04", false); yield return Ready(ui); ui.ModelSpecialAction();
+            yield return new WaitForSecondsRealtime(.24f); Assert.That(ui.Stage.FoldAngle, Is.GreaterThan(0).And.LessThan(65));
+            ui.ModelSpecialAction(); yield return new WaitForSecondsRealtime(.65f); Assert.That(ui.Stage.FoldAngle, Is.EqualTo(0));
+            ui.Stage.SetReducedMotion(true); ui.ModelSpecialAction(); yield return null; Assert.That(ui.Stage.FoldAngle, Is.EqualTo(65));
+            ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator FlowParticlesAreBoundedPauseWithTheDemonstrationAndLeaveNoResidue()
+        {
+            var ui = Create(true); yield return null;
+            foreach (var part in AerospaceCatalog.Load().models)
+            {
+                ui.Open(part.code, false); yield return Ready(ui); ui.StartDemonstration(); ui.Stage.SetDemonstrationStep(2);
+                yield return new WaitForSecondsRealtime(.7f);
+                var flow = ui.GetComponentInChildren<AerospaceTeachingFlow>();
+                Assert.That(flow.ParticleCount, part.code == "R05" ? Is.EqualTo(0) : Is.InRange(1, 8));
+                var lines = flow.GetComponentsInChildren<LineRenderer>(); Assert.That(lines.Length, Is.LessThanOrEqualTo(16));
+                var positions = lines.Select(l => { var values = new Vector3[l.positionCount]; l.GetPositions(values); return values; }).ToArray();
+                float pausedTime = ui.Stage.DemoTime; yield return new WaitForSecondsRealtime(.18f);
+                Assert.That(ui.Stage.DemoTime, Is.EqualTo(pausedTime));
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    var values = new Vector3[lines[i].positionCount]; lines[i].GetPositions(values);
+                    for (int j = 0; j < values.Length; j++) Assert.That(Vector3.Distance(values[j], positions[i][j]), Is.LessThan(.0002f));
+                }
+                ui.EndDemonstration(); yield return null;
+                Assert.That(flow.ParticleCount, Is.Zero); Assert.That(flow.GetComponentsInChildren<LineRenderer>(), Is.Empty);
+                Assert.That(flow.GetComponentInChildren<MeshRenderer>().enabled, Is.False);
+                ui.Close(); yield return null;
+            }
+            Assert.That(UnityEngine.Object.FindObjectsOfType<AerospaceTeachingFlow>(), Is.Empty); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator SeparationDemonstrationPausesItsMechanicalClock()
+        {
+            var ui = Create(true); yield return null; ui.Open("R05", false); yield return Ready(ui); ui.StartDemonstration();
+            // Seek near the next phase, then pause during its release movement.
+            ui.Stage.SetDemonstrationStep(0); ui.Stage.ToggleDemonstration();
+            double deadline = Time.realtimeSinceStartupAsDouble + 4;
+            while (ui.Stage.DemoTime < 2.55f && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+            ui.Stage.ToggleDemonstration(); yield return null;
+            Assert.That(ui.Stage.DemoPlaying, Is.False);
+            var band = ui.Stage.CurrentModel.GetComponentsInChildren<Transform>().Single(t => t.name == "R05_ClampBand_low");
+            Vector3 paused = band.localPosition; yield return new WaitForSecondsRealtime(.3f);
+            Assert.That(Vector3.Distance(paused, band.localPosition), Is.LessThan(.00001f));
+            ui.Close(); ContractCompleted = true;
+        }
+        [UnityTest]
+        public IEnumerator MotionShowcaseRecordsActualUnityFrames()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            if (!TestRunContext.Load().graphics) { ui.Close(); ContractCompleted = true; yield break; }
+            var canvas = ui.GetComponentInChildren<Canvas>();
+            var transforms = canvas.GetComponentsInChildren<Transform>(true); var layers = transforms.Select(t => t.gameObject.layer).ToArray();
+            var go = new GameObject("Motion evidence camera"); var camera = go.AddComponent<Camera>(); go.AddComponent<AerospaceInspectionCamera>();
+            camera.transform.position = new Vector3(0, -200, 0); camera.cullingMask = 1 << 30; camera.depth = 100;
+            camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(.045f, .055f, .060f); camera.nearClipPlane = .01f; camera.farClipPlane = 5;
+            var data = go.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(); data.renderPostProcessing = false; data.volumeLayerMask = 0;
+            var target = new RenderTexture(1280, 720, 24); target.Create(); camera.targetTexture = target;
+            var pixels = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+            foreach (var t in transforms) t.gameObject.layer = 30;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 1;
+            string folder = Path.Combine(TestRunContext.Load().outputPath, "motion-frames"); Directory.CreateDirectory(folder);
+            var stamps = new System.Collections.Generic.List<string>(); int frame = 0;
+            double began = Time.realtimeSinceStartupAsDouble;
+            IEnumerator Record(float duration, Action<float> action = null)
+            {
+                double start = Time.realtimeSinceStartupAsDouble, last = start;
+                do
+                {
+                    double now = Time.realtimeSinceStartupAsDouble; action?.Invoke((float)(now - last)); last = now;
+                    // Text and transient controls created after a sample switch use the evidence camera's layer too.
+                    foreach (var t in canvas.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 30;
+                    yield return null; yield return null;
+                    var old = RenderTexture.active; RenderTexture.active = target;
+                    pixels.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); pixels.Apply(); RenderTexture.active = old;
+                    string name = "frame-" + frame.ToString("D4") + ".png";
+                    File.WriteAllBytes(Path.Combine(folder, name), pixels.EncodeToPNG());
+                    stamps.Add(name + "\t" + (Time.realtimeSinceStartupAsDouble - began).ToString("F4", System.Globalization.CultureInfo.InvariantCulture)); frame++;
+                    yield return new WaitForSecondsRealtime(.05f);
+                } while (Time.realtimeSinceStartupAsDouble - start < duration);
+            }
+            try
+            {
+                Canvas.ForceUpdateCanvases(); yield return Record(.35f);
+                ui.Stage.BeginOrbitGesture(); yield return Record(.48f, dt => ui.Stage.Orbit(new Vector2(170, 25) * dt)); ui.Stage.EndOrbitGesture(); yield return Record(.3f);
+                ui.Stage.Zoom(3); yield return Record(.45f); Click(ui, "Reset_View"); yield return Record(.55f);
+                ui.ShowDetail(1); yield return Record(.75f); ui.ShowDetail(-1); yield return Record(.5f);
+                Click(ui, "Mode_exploded"); yield return Record(.8f); Click(ui, "Mode_assembled"); yield return Record(.7f);
+                ui.Open("R02", false); yield return Record(.8f); yield return Ready(ui);
+                ui.StartDemonstration(); ui.Stage.SetDemonstrationStep(1); ui.Stage.ToggleDemonstration(); yield return Record(1.6f);
+                ui.Open("R04", false); yield return Record(.8f); yield return Ready(ui);
+                ui.ModelSpecialAction(); yield return Record(.8f); ui.ModelSpecialAction(); yield return Record(.7f);
+                ui.StartDemonstration(); ui.Stage.SetDemonstrationStep(1); ui.Stage.ToggleDemonstration(); yield return Record(1.4f);
+                ui.EndDemonstration(); yield return Record(.7f);
+                Assert.That(frame, Is.GreaterThan(40)); File.WriteAllLines(Path.Combine(folder, "timing.tsv"), stamps);
+            }
+            finally
+            {
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.worldCamera = null;
+                foreach (var t in canvas.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 0;
+                for (int i = 0; i < transforms.Length; i++) if (transforms[i] != null) transforms[i].gameObject.layer = layers[i];
+                camera.targetTexture = null; target.Release(); UnityEngine.Object.DestroyImmediate(target); UnityEngine.Object.DestroyImmediate(pixels); UnityEngine.Object.DestroyImmediate(go);
+                ui.Close();
+            }
             ContractCompleted = true;
         }
         static IEnumerator Capture(AerospaceScienceUI ui, string name, int width, int height)

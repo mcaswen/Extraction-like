@@ -85,6 +85,7 @@ namespace ExtractionLike.Aerospace
             }
             if (code == null) code = current != null && owner.IsUnlocked(current.code) ? current.code : AerospaceCatalog.Load().models.FirstOrDefault(p => owner.IsUnlocked(p.code))?.code;
             RefreshArchive();
+            if (!discovery && code == current?.code && stage.Ready && !transitioning) return;
             if (code != null) BeginLoad(code, discovery);
             else
             {
@@ -99,15 +100,15 @@ namespace ExtractionLike.Aerospace
         {
             StopAllCoroutines(); int request = ++ticket;
             skipReveal = false;
+            CaptureSwitchSnapshot(discovery); ClearHotspotConfirmation();
             current = AerospaceCatalog.Load().Find(code); stage.Unload(); modelImage.texture = null; modelImage.color = new Color(1, 1, 1, 0);
-            var copy = AerospaceScienceCopy.For(code);
-            heading.text = copy.displayTitle; english.text = current.english;
-            sampleId.text = code; watermark.text = code; subtitle.text = copy.system;
-            locationTitle.text = current.locationTitle; locationBody.text = current.locationText; locationTag.text = code + " · " + copy.shortName;
-            locationGraphic.locationCode = code; locationGraphic.SetVerticesDirty(); pinsEnabled = true;
+            if (!HasSwitchSnapshot) ApplyCurrentIdentity();
+            pinsEnabled = true;
             HidePins(); SetSettings(false); selectedHotspot = -1; hoveredPin = -1;
-            controls.SetActive(false); loading.text = "正在载入样本…"; loading.gameObject.SetActive(true);
-            readingTab = 0; transitioning = true; RenderReading(); RefreshArchive(); RefreshButtons();
+            controls.SetActive(false); loading.text = "正在载入样本…"; loading.gameObject.SetActive(!HasSwitchSnapshot);
+            readingTab = 0; transitioning = true; readingReveal.interactable = false;
+            if (!HasSwitchSnapshot) RenderReading();
+            RefreshArchive(); RefreshButtons();
             transitionImage.sprite = Resources.Load<Sprite>("Aerospace/Icons/" + code); transitionImage.color = Color.white;
             Rect(transitionRect, 610, 40, 820, 820); transitionRect.gameObject.SetActive(discovery);
             skipButton.gameObject.SetActive(discovery && !stage.ReducedMotion);
@@ -119,7 +120,7 @@ namespace ExtractionLike.Aerospace
             bool finished = false; string error = null;
             StartCoroutine(stage.Load(current, quality, e => { error = e; finished = true; }));
             float elapsed = 0;
-            while ((!skipReveal && !stage.ReducedMotion && elapsed < (discovery ? .85f : .15f)) || !finished)
+            while ((!skipReveal && !stage.ReducedMotion && elapsed < (discovery ? .85f : .06f)) || !finished)
             {
                 if (request != ticket) yield break;
                 elapsed += Time.unscaledDeltaTime;
@@ -135,16 +136,22 @@ namespace ExtractionLike.Aerospace
             if (request != ticket) yield break;
             if (error == null)
             {
+                ApplyCurrentIdentity(); RenderReading();
                 modelImage.texture = stage.Texture;
-                for (float t = 0; t < 1 && !skipReveal && !stage.ReducedMotion; t += Time.unscaledDeltaTime / .24f)
+                for (float t = 0; t < 1 && !skipReveal && !stage.ReducedMotion; t += Time.unscaledDeltaTime / .28f)
                 {
-                    modelImage.color = new Color(1, 1, 1, t); transitionImage.color = new Color(1, 1, 1, 1 - t); yield return null;
+                    float eased = Mathf.SmoothStep(0, 1, t);
+                    modelImage.color = new Color(1, 1, 1, eased); transitionImage.color = new Color(1, 1, 1, 1 - eased);
+                    if (snapshotImage != null) snapshotImage.color = new Color(1, 1, 1, 1 - eased);
+                    yield return null;
+                    if (request != ticket) yield break;
                 }
                 modelImage.color = Color.white; loading.gameObject.SetActive(false); controls.SetActive(true);
-                stage.Select(-1); readingTab = 0; selectedHotspot = -1; RenderReading();
+                stage.Select(-1); readingTab = 0; selectedHotspot = -1;
                 if (discovery && !skipReveal) stage.StartScan();
             }
-            else { loading.text = error; stage.Unload(); }
+            else { ApplyCurrentIdentity(); RenderReading(); loading.gameObject.SetActive(true); loading.text = error; stage.Unload(); }
+            ReleaseSwitchSnapshot(); readingReveal.interactable = true;
             transitionRect.gameObject.SetActive(false); skipButton.gameObject.SetActive(stage.ScanProgress >= 0); transitioning = false; contentGroup.interactable = true; RefreshButtons();
         }
 
@@ -153,12 +160,13 @@ namespace ExtractionLike.Aerospace
             if (current == null || index < -1 || index >= current.hotspots.Length) return;
             if (transitioning) return;
             selectedHotspot = index; readingTab = index < 0 ? 0 : 2;
+            ClearHotspotConfirmation(); if (index >= 0) pinConfirmationAge[index] = 0;
             stage.Select(index); RenderReading(); RefreshButtons();
         }
 
         public void SetReadingTab(int index)
         {
-            if (current == null || index < 0 || index > 2) return;
+            if (current == null || transitioning || index < 0 || index > 2) return;
             RestoreDemonstrationReading();
             readingTab = index;
             if (index != 2) { selectedHotspot = -1; stage.Select(-1); }
@@ -211,7 +219,7 @@ namespace ExtractionLike.Aerospace
                 readingTabs[i].interactable = current != null && !transitioning;
                 StyleButton(readingTabs[i], readingTab == i, true);
             }
-            sourceButton.interactable = current != null;
+            sourceButton.interactable = current != null && !transitioning;
         }
 
         public void ModelSpecialAction()
@@ -253,13 +261,14 @@ namespace ExtractionLike.Aerospace
                 cardStates[i].text = parts[i].code + " / " + (collected ? "本局收集" : unlocked ? "历史归档" : "未发现");
                 cardStates[i].color = selected ? PaperInk : collected ? Teal : Muted;
                 cardIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .22f);
-                cardRules[i].color = selected ? Amber : Color.clear;
+                cardRules[i].color = Color.clear;
+                if (selected) MoveArchiveCursor(i);
                 cards[i].GetComponent<Image>().color = selected ? Amber : new Color(.16f, .19f, .12f, unlocked ? .75f : .25f);
                 progressMarks[i].color = collected ? PaperMuted : new Color(.54f, .56f, .44f, .3f);
             }
         }
-        public void ShowCollectionClues() { RestoreDemonstrationReading(); readingTab = 4; RenderReading(); RefreshButtons(); }
-        private void ShowSources() { RestoreDemonstrationReading(); readingTab = 3; RenderReading(); RefreshButtons(); }
+        public void ShowCollectionClues() { if (transitioning) return; RestoreDemonstrationReading(); readingTab = 4; RenderReading(); RefreshButtons(); }
+        private void ShowSources() { if (transitioning) return; RestoreDemonstrationReading(); readingTab = 3; RenderReading(); RefreshButtons(); }
         private void OpenSource(int index)
         {
             if (current?.sources == null || index < 0 || index >= current.sources.Length) return;
@@ -271,6 +280,7 @@ namespace ExtractionLike.Aerospace
             if (owner == null) return;
             hud.text = "航天档案  本局 " + owner.CollectedCount + " / 5   [J]";
             if (!IsOpen) return;
+            TickPresentationMotion();
             UpdateTerminal();
             closeLabel.text = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen ? "返回背包   [Esc]" : "返回游戏   [Esc]";
             var frame = contentGroup.transform as RectTransform; var canvasRect = canvas.transform as RectTransform;
@@ -338,7 +348,8 @@ namespace ExtractionLike.Aerospace
                 pinNames[i].gameObject.SetActive(active); pinNames[i].color = PaperInk;
                 float endX = pinLeft[i] ? x + width : x;
                 var tint = Color.Lerp(new Color(Teal.r, Teal.g, Teal.b, .34f * visibility), Amber, pinEmphasis[i]);
-                leaders[i].SetPoints(anchorPoints[i], new Vector2(endX, pinY[i]), tint, Mathf.Lerp(.80f, 1, pinEmphasis[i]));
+                float reveal = selectedHotspot == i && !stage.ReducedMotion ? Mathf.SmoothStep(0, 1, pinConfirmationAge[i] / .22f) : 1;
+                leaders[i].SetPoints(anchorPoints[i], new Vector2(endX, pinY[i]), tint, reveal);
             }
         }
 
@@ -347,6 +358,7 @@ namespace ExtractionLike.Aerospace
             if (!IsOpen) return;
             ++ticket; StopAllCoroutines(); IsOpen = false; transitioning = false; current = null;
             skipReveal = false; selectedHotspot = hoveredPin = -1;
+            ReleaseSwitchSnapshot(); ClearHotspotConfirmation();
             if (modal != null) modal.SetActive(false); if (modelImage != null) modelImage.texture = null;
             stage?.Unload(); AerospaceUiInputGate.Set(false);
             if (pauseOwned)
