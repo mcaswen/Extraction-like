@@ -41,13 +41,13 @@ namespace ExtractionLike.Aerospace
             var grantAction = grantPanel.gameObject.AddComponent<AerospacePartsGrantButton>();
             grantAction.Initialize(grantLabel); grantButton.onClick.AddListener(grantAction.GrantParts);
 
-            modal = Panel(canvas.transform, "Science_Modal", new Color(.12f, .145f, .09f), 0, 0, 1600, 900).gameObject;
+            modal = Panel(canvas.transform, "Science_Modal", new Color(.025f, .047f, .073f), 0, 0, 1600, 900).gameObject;
             modal.GetComponent<Image>().raycastTarget = true;
             var full = modal.GetComponent<RectTransform>(); full.anchorMin = Vector2.zero; full.anchorMax = Vector2.one; full.offsetMin = full.offsetMax = Vector2.zero;
             var frame = Panel(modal.transform, "Responsive_Frame", Color.clear, 0, 0, 1600, 900);
             frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(.5f, .5f); frame.anchoredPosition = Vector2.zero;
             contentGroup = frame.gameObject.AddComponent<CanvasGroup>();
-            var background = new GameObject("Olive_Inspection_Surface", typeof(RectTransform), typeof(AerospaceInspectionBackdrop));
+            var background = new GameObject("Blue_Inspection_Surface", typeof(RectTransform), typeof(AerospaceInspectionBackdrop));
             background.transform.SetParent(frame, false); Rect(background.GetComponent<RectTransform>(), 448, 0, 1152, 900);
             background.GetComponent<AerospaceInspectionBackdrop>().raycastTarget = false;
             watermark = MonoLabel(frame, "", 1086, 286, 490, 320, 252, new Color(.60f, .65f, .43f, .09f)); watermark.name = "Specimen_Watermark";
@@ -131,7 +131,7 @@ namespace ExtractionLike.Aerospace
 
         private void BuildArchiveRail(Transform frame)
         {
-            Panel(frame, "Archive_Header", new Color(.13f, .155f, .10f), 448, 0, 1152, 94);
+            Panel(frame, "Archive_Header", new Color(.025f, .047f, .073f), 448, 0, 1152, 94);
             foreach (var part in AerospaceCatalog.Load().models)
             {
                 string code = part.code; int i = cards.Count;
@@ -168,7 +168,7 @@ namespace ExtractionLike.Aerospace
 
         private void BuildModelControls(Transform frame)
         {
-            Panel(frame, "Toolbar_Background", new Color(.145f, .17f, .105f), 448, 798, 1152, 102); Panel(frame, "Toolbar_Rule", Rule, 448, 798, 1152, 1);
+            Panel(frame, "Toolbar_Background", new Color(.025f, .047f, .073f), 448, 798, 1152, 102); Panel(frame, "Toolbar_Rule", Rule, 448, 798, 1152, 1);
             controls = new GameObject("Model_Controls", typeof(RectTransform)); controls.transform.SetParent(frame, false); Rect(controls.GetComponent<RectTransform>(), 472, 815, 1104, 76);
             string[] titles = { "完整结构", "结构剖面", "分解观察" }, modes = { "assembled", "cutaway", "exploded" };
             for (int i = 0; i < 3; i++)

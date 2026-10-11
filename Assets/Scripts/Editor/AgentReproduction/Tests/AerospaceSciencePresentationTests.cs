@@ -40,6 +40,55 @@ namespace AgentReproduction.Tests
             yield return null;
         }
         [UnityTest]
+        public IEnumerator ClassicBlueBackgroundPreservesDossierLayoutAndInput()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            var backdrop = Named<AerospaceInspectionBackdrop>(ui, "Blue_Inspection_Surface");
+            Assert.That(backdrop.raycastTarget, Is.False, "The background must not consume orbit or hotspot input.");
+            Assert.That(backdrop.rectTransform.anchoredPosition, Is.EqualTo(new Vector2(448, 0)));
+            Assert.That(backdrop.rectTransform.rect.size, Is.EqualTo(new Vector2(1152, 900)));
+            Assert.That(backdrop.transform.GetSiblingIndex(), Is.LessThan(Named<RectTransform>(ui, "Model_Viewport").GetSiblingIndex()));
+            Assert.That(ui.Stage.DisplayCamera.backgroundColor, Is.EqualTo(Color.clear), "Keep the model render transparent over the UI background.");
+
+            // Lock the original pre-dossier blue gradient, without reverting the
+            // current UI geometry, paper sidebar, button palette or interaction.
+            var populate = typeof(AerospaceInspectionBackdrop).GetMethod("OnPopulateMesh",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                null, new[] { typeof(VertexHelper) }, null);
+            using (var mesh = new VertexHelper())
+            {
+                populate.Invoke(backdrop, new object[] { mesh });
+                Assert.That(mesh.currentVertCount, Is.EqualTo(65 * 37));
+                var vertex = new UIVertex();
+                for (int y = 0; y <= 36; y++)
+                for (int x = 0; x <= 64; x++)
+                {
+                    float u = (float)x / 64, v = (float)y / 36;
+                    float glow = Mathf.Exp(-((u - .34f) * (u - .34f) * 17 + (v - .55f) * (v - .55f) * 8));
+                    float grain = (Mathf.PerlinNoise(x * 5.37f, y * 3.91f) - .5f) * .006f;
+                    Color expected = Color.Lerp(new Color(.025f, .045f, .068f), new Color(.115f, .190f, .240f), glow);
+                    expected += new Color(grain, grain, grain, 0);
+                    mesh.PopulateUIVertex(ref vertex, y * 65 + x);
+                    Assert.That(vertex.color, Is.EqualTo((Color32)expected), "Original blue gradient vertex " + x + "," + y);
+                }
+            }
+            foreach (string name in new[] { "Science_Modal", "Archive_Header", "Toolbar_Background" })
+                Assert.That(Named<Image>(ui, name).color, Is.EqualTo(new Color(.025f, .047f, .073f)), name);
+            var paper = Named<RectTransform>(ui, "Science_Reading_Panel");
+            var view = Named<RectTransform>(ui, "Model_Viewport");
+            Assert.That(paper.rect.size, Is.EqualTo(new Vector2(448, 900)));
+            Assert.That(paper.GetComponent<Image>().color, Is.EqualTo(new Color(.87f, .855f, .765f)));
+            Assert.That(view.anchoredPosition, Is.EqualTo(new Vector2(448, -108)));
+            Assert.That(view.rect.size, Is.EqualTo(new Vector2(AerospaceInspectionStage.ViewWidth, AerospaceInspectionStage.ViewHeight)));
+            Assert.That(Named<Button>(ui, "Start_Demonstration").GetComponent<Image>().color, Is.EqualTo(new Color(.86f, .88f, .46f)));
+            if (TestRunContext.Load().graphics) yield return Capture(ui, "R01_Classic_Blue_Background", 1920, 1080);
+            Click(ui, "Reading_Tab_2"); Click(ui, "Detail_Selector_1"); yield return null;
+            Assert.That(ui.SelectedHotspot, Is.EqualTo(1));
+            Click(ui, "Archive_R05"); yield return Ready(ui); Assert.That(ui.CurrentCode, Is.EqualTo("R05"));
+            Click(ui, "Display_Settings"); Assert.That(ui.IsSettingsOpen, Is.True);
+            Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(1)); ContractCompleted = true;
+        }
+        [UnityTest]
         public IEnumerator DossierHasPaperSidebarFiveTicketsAndHotspotToggle()
         {
             var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
