@@ -38,7 +38,7 @@ namespace ExtractionLike.Aerospace
             overlayMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
             ghostMaterial = new Material(shader) { name = "Private section silhouettes" };
             ghostMaterial.SetFloat("_EdgeOnly", 1);
-            ghostMaterial.SetColor("_BaseColor", new Color(.71f, .78f, .48f, 1));
+            ghostMaterial.SetColor("_BaseColor", new Color(.36f, .8f, .9f, 1));
             foreach (var p in poses.Where(p => p.cut))
             {
                 var filter = p.renderer.GetComponent<MeshFilter>();
@@ -190,7 +190,7 @@ namespace ExtractionLike.Aerospace
         private void BuildTeachingPaths()
         {
             flow.Clear();
-            Color cyan = new Color(.76f, .88f, .48f), orange = new Color(1, .71f, .38f);
+            Color cyan = new Color(.30f, .88f, .96f), blue = new Color(.55f, .62f, 1f);
             if (config.code == "R01")
             {
                 for (int lane = 0; lane < 3; lane++)
@@ -212,12 +212,12 @@ namespace ExtractionLike.Aerospace
                     float angle = -Mathf.PI * .5f + (lane - 1) * .42f;
                     flow.Add(new[] { Native(new Vector3(.055f * Mathf.Cos(angle), .055f * Mathf.Sin(angle), .29f)), Native(new Vector3(.055f * Mathf.Cos(angle), .055f * Mathf.Sin(angle), .075f)), Native(new Vector3(.10f * Mathf.Cos(angle), .10f * Mathf.Sin(angle), .04f)), Native(new Vector3(.18f * Mathf.Cos(angle), .18f * Mathf.Sin(angle), .02f)) }, cyan, lane * .2f, 0);
                 }
-                flow.Add(new[] { Native(new Vector3(.15f, .10f, .018f)), Native(new Vector3(.23f, .105f, .018f)), Native(new Vector3(.32f, .105f, .018f)) }, orange, 0, 2);
+                flow.Add(new[] { Native(new Vector3(.15f, .10f, .018f)), Native(new Vector3(.23f, .105f, .018f)), Native(new Vector3(.32f, .105f, .018f)) }, blue, 0, 2);
             }
             else if (config.code == "R03")
             {
                 flow.Add(new[] { StudyNative(new Vector3(-.13f, 0, -.034f)), StudyNative(new Vector3(-.04f, 0, -.034f)), StudyNative(new Vector3(0, 0, -.034f)), StudyNative(new Vector3(0, 0, .235f)) }, cyan, 0, 0);
-                flow.Add(new[] { StudyNative(new Vector3(.13f, 0, .027f)), StudyNative(new Vector3(.037f, 0, .027f)), StudyNative(new Vector3(.026f, -.025f, .07f)), StudyNative(new Vector3(.026f, -.025f, .24f)) }, orange, .35f, 0);
+                flow.Add(new[] { StudyNative(new Vector3(.13f, 0, .027f)), StudyNative(new Vector3(.037f, 0, .027f)), StudyNative(new Vector3(.026f, -.025f, .07f)), StudyNative(new Vector3(.026f, -.025f, .24f)) }, blue, .35f, 0);
             }
             else if (config.code == "R04")
             {

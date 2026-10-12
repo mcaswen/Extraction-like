@@ -31,7 +31,7 @@ namespace ExtractionLike.Aerospace
             Label(legend.transform, "流向与运动", 0, 0, 228, 25, 13, Muted);
             Panel(legend.transform, "Path_A", Teal, 0, 35, 17, 2);
             legendPrimary = Label(legend.transform, "", 27, 22, 203, 32, 15, Teal);
-            legendSecondary = Label(legend.transform, "", 27, 59, 203, 32, 15, new Color(1, .71f, .38f));
+            legendSecondary = Label(legend.transform, "", 27, 59, 203, 32, 15, new Color(.55f, .62f, 1f));
             legend.SetActive(false);
             terminalState = Label(frame, "样本待载入", 478, 757, 530, 26, 14, Muted);
             orientation = MonoLabel(frame, "VIEW 000 / FREE", 1324, 759, 248, 24, 11, Muted);
@@ -103,7 +103,7 @@ namespace ExtractionLike.Aerospace
             demoTitle = Label(detailContent, "", 0, y, 383, 36, 24, PaperInk); demoTitle.font = font; y += 42;
             demoBody = Label(detailContent, "", 0, y, 383, 105, 18, PaperInk); y += 115;
             Panel(detailContent, "Demo_Track", Rule, 0, y, 383, 2);
-            demoProgress = Panel(detailContent, "Demo_Progress", PaperMuted, 0, y, 1, 2).GetComponent<Image>(); y += 15;
+            demoProgress = Panel(detailContent, "Demo_Progress", Teal, 0, y, 1, 2).GetComponent<Image>(); y += 15;
             var play = Button(detailContent, "播放演示", 0, y, 181, 38, () => stage.ToggleDemonstration());
             play.name = "Demo_Play_Pause"; demoPlayLabel = play.GetComponentInChildren<TMP_Text>();
             var stop = Button(detailContent, "退出演示", 193, y, 190, 38, EndDemonstration); stop.name = "Demo_Stop"; y += 46;

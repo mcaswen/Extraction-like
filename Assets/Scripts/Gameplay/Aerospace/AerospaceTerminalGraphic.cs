@@ -8,7 +8,7 @@ namespace ExtractionLike.Aerospace
     public sealed class AerospaceTerminalGraphic : MaskableGraphic
     {
         public string locationCode, glyph;
-        private static readonly Color Accent = new Color(.86f, .88f, .46f, .85f), Faint = new Color(.55f, .61f, .41f, .20f), White = new Color(.70f, .74f, .56f, .60f);
+        private static readonly Color Accent = new Color(.32f, .83f, .90f, .66f), Faint = new Color(.29f, .52f, .61f, .26f), White = new Color(.67f, .78f, .82f, .66f);
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear(); float w = rectTransform.rect.width, h = rectTransform.rect.height;

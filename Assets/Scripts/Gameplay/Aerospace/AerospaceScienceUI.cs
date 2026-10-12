@@ -13,10 +13,14 @@ namespace ExtractionLike.Aerospace
     [DefaultExecutionOrder(50)]
     public sealed partial class AerospaceScienceUI : MonoBehaviour
     {
-        private static readonly Color Ink = new Color(.88f, .88f, .79f), Muted = new Color(.64f, .67f, .55f);
-        private static readonly Color Amber = new Color(.86f, .88f, .46f), Teal = new Color(.73f, .78f, .48f);
-        private static readonly Color Rule = new Color(.42f, .47f, .32f, .42f), ButtonFill = new Color(.145f, .17f, .11f, .92f);
-        private static readonly Color Paper = new Color(.87f, .855f, .765f), PaperInk = new Color(.15f, .18f, .12f), PaperMuted = new Color(.39f, .42f, .31f);
+        // Original blue terminal surfaces (5334f7c), applied to the current dossier layout.
+        // Selection is cyan too: no yellow/orange UI accents, including transient states.
+        private static readonly Color Ink = new Color(.91f, .95f, .96f), Muted = new Color(.57f, .68f, .73f);
+        private static readonly Color Accent = new Color(.48f, .90f, 1f), Teal = new Color(.32f, .83f, .90f);
+        private static readonly Color Rule = new Color(.30f, .48f, .57f, .42f), ButtonFill = new Color(.12f, .19f, .23f, .78f);
+        private static readonly Color SelectedFill = new Color(.075f, .205f, .29f, .97f);
+        // These names identify the retained reading layout, not a separate paper-colour theme.
+        private static readonly Color Paper = new Color(.052f, .087f, .12f, .96f), PaperInk = Ink, PaperMuted = Muted;
         private AerospaceCollectionRuntime owner;
         private AerospaceInspectionStage stage;
         private Canvas canvas;
@@ -257,14 +261,14 @@ namespace ExtractionLike.Aerospace
                 bool unlocked = owner.IsUnlocked(parts[i].code), selected = current?.code == parts[i].code;
                 bool collected = owner.HasCollected(parts[i].code); cards[i].interactable = unlocked;
                 cardTitles[i].text = AerospaceScienceCopy.For(parts[i].code).shortName;
-                cardTitles[i].color = selected ? PaperInk : unlocked ? Ink : Muted;
+                cardTitles[i].color = selected ? Ink : unlocked ? Muted : new Color(.39f, .44f, .45f);
                 cardStates[i].text = parts[i].code + " / " + (collected ? "本局收集" : unlocked ? "历史归档" : "未发现");
-                cardStates[i].color = selected ? PaperInk : collected ? Teal : Muted;
+                cardStates[i].color = selected ? Accent : collected ? Teal : Muted;
                 cardIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .22f);
                 cardRules[i].color = Color.clear;
                 if (selected) MoveArchiveCursor(i);
-                cards[i].GetComponent<Image>().color = selected ? Amber : new Color(.16f, .19f, .12f, unlocked ? .75f : .25f);
-                progressMarks[i].color = collected ? PaperMuted : new Color(.54f, .56f, .44f, .3f);
+                cards[i].GetComponent<Image>().color = selected ? new Color(SelectedFill.r, SelectedFill.g, SelectedFill.b, .9f) : Color.clear;
+                progressMarks[i].color = collected ? Teal : new Color(.23f, .28f, .29f);
             }
         }
         public void ShowCollectionClues() { if (transitioning) return; RestoreDemonstrationReading(); readingTab = 4; RenderReading(); RefreshButtons(); }
@@ -343,11 +347,11 @@ namespace ExtractionLike.Aerospace
                 Rect(pins[i].GetComponent<RectTransform>(), x, pinY[i] - 21, width, 42);
                 float visibility = active ? 1 : stage.AnchorVisibility(i);
                 pinEmphasis[i] = Mathf.MoveTowards(pinEmphasis[i], active ? 1 : 0, stage.ReducedMotion ? 1 : Time.unscaledDeltaTime / .15f);
-                pins[i].GetComponent<Image>().color = Color.Lerp(new Color(.22f, .27f, .16f, .74f * visibility), Amber, pinEmphasis[i]);
-                pins[i].GetComponentInChildren<TMP_Text>().color = active ? PaperInk : new Color(Ink.r, Ink.g, Ink.b, Mathf.Max(.45f, visibility));
-                pinNames[i].gameObject.SetActive(active); pinNames[i].color = PaperInk;
+                pins[i].GetComponent<Image>().color = Color.Lerp(new Color(.055f, .105f, .135f, .54f * visibility), new Color(.06f, .17f, .24f, .98f), pinEmphasis[i]);
+                pins[i].GetComponentInChildren<TMP_Text>().color = active ? Accent : new Color(Teal.r, Teal.g, Teal.b, Mathf.Max(.45f, visibility));
+                pinNames[i].gameObject.SetActive(active); pinNames[i].color = Color.Lerp(Muted, Ink, pinEmphasis[i]);
                 float endX = pinLeft[i] ? x + width : x;
-                var tint = Color.Lerp(new Color(Teal.r, Teal.g, Teal.b, .34f * visibility), Amber, pinEmphasis[i]);
+                var tint = Color.Lerp(new Color(Teal.r, Teal.g, Teal.b, .34f * visibility), Accent, pinEmphasis[i]);
                 float reveal = selectedHotspot == i && !stage.ReducedMotion ? Mathf.SmoothStep(0, 1, pinConfirmationAge[i] / .22f) : 1;
                 leaders[i].SetPoints(anchorPoints[i], new Vector2(endX, pinY[i]), tint, reveal);
             }

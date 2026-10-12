@@ -40,7 +40,7 @@ namespace AgentReproduction.Tests
             yield return null;
         }
         [UnityTest]
-        public IEnumerator ClassicBlueBackgroundPreservesDossierLayoutAndInput()
+        public IEnumerator ClassicBlueThemePreservesDossierLayoutAndInput()
         {
             var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
             var backdrop = Named<AerospaceInspectionBackdrop>(ui, "Blue_Inspection_Surface");
@@ -51,7 +51,7 @@ namespace AgentReproduction.Tests
             Assert.That(ui.Stage.DisplayCamera.backgroundColor, Is.EqualTo(Color.clear), "Keep the model render transparent over the UI background.");
 
             // Lock the original pre-dossier blue gradient, without reverting the
-            // current UI geometry, paper sidebar, button palette or interaction.
+            // current UI geometry or interaction. The complete UI uses that palette too.
             var populate = typeof(AerospaceInspectionBackdrop).GetMethod("OnPopulateMesh",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                 null, new[] { typeof(VertexHelper) }, null);
@@ -74,29 +74,87 @@ namespace AgentReproduction.Tests
             }
             foreach (string name in new[] { "Science_Modal", "Archive_Header", "Toolbar_Background" })
                 Assert.That(Named<Image>(ui, name).color, Is.EqualTo(new Color(.025f, .047f, .073f)), name);
-            var paper = Named<RectTransform>(ui, "Science_Reading_Panel");
+            var sidebar = Named<RectTransform>(ui, "Science_Reading_Panel");
             var view = Named<RectTransform>(ui, "Model_Viewport");
-            Assert.That(paper.rect.size, Is.EqualTo(new Vector2(448, 900)));
-            Assert.That(paper.GetComponent<Image>().color, Is.EqualTo(new Color(.87f, .855f, .765f)));
+            Assert.That(sidebar.rect.size, Is.EqualTo(new Vector2(448, 900)));
+            Assert.That(sidebar.GetComponent<Image>().color, Is.EqualTo(new Color(.052f, .087f, .12f, .96f)));
             Assert.That(view.anchoredPosition, Is.EqualTo(new Vector2(448, -108)));
             Assert.That(view.rect.size, Is.EqualTo(new Vector2(AerospaceInspectionStage.ViewWidth, AerospaceInspectionStage.ViewHeight)));
-            Assert.That(Named<Button>(ui, "Start_Demonstration").GetComponent<Image>().color, Is.EqualTo(new Color(.86f, .88f, .46f)));
-            if (TestRunContext.Load().graphics) yield return Capture(ui, "R01_Classic_Blue_Background", 1920, 1080);
+            Assert.That(Named<Button>(ui, "Start_Demonstration").GetComponent<Image>().color, Is.EqualTo(new Color(.12f, .19f, .23f, .78f)));
+            foreach (string name in new[] { "Reading_Tab_0", "Mode_assembled", "Toggle_Hotspots" })
+            {
+                var selected = Named<Button>(ui, name);
+                Assert.That(selected.GetComponent<Image>().color, Is.EqualTo(new Color(.075f, .205f, .29f, .97f)), name);
+                Assert.That(selected.GetComponentInChildren<TMP_Text>().color, Is.EqualTo(new Color(.48f, .90f, 1f)), name);
+            }
+            AssertClassicBluePalette(ui);
+            if (TestRunContext.Load().graphics) yield return Capture(ui, "R01_Classic_Blue_Theme", 1920, 1080);
             Click(ui, "Reading_Tab_2"); Click(ui, "Detail_Selector_1"); yield return null;
             Assert.That(ui.SelectedHotspot, Is.EqualTo(1));
             Click(ui, "Archive_R05"); yield return Ready(ui); Assert.That(ui.CurrentCode, Is.EqualTo("R05"));
             Click(ui, "Display_Settings"); Assert.That(ui.IsSettingsOpen, Is.True);
+            Assert.That(Named<Image>(ui, "Settings_Panel").color, Is.EqualTo(new Color(.07f, .12f, .17f, .99f)));
+            AssertClassicBluePalette(ui);
             Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(1)); ContractCompleted = true;
         }
+        static void AssertClassicBluePalette(AerospaceScienceUI ui)
+        {
+            Color ink = new Color(.91f, .95f, .96f), accent = new Color(.48f, .90f, 1f);
+            var sidebar = Named<Image>(ui, "Science_Reading_Panel");
+            Assert.That(sidebar.color, Is.EqualTo(new Color(.052f, .087f, .12f, .96f)), "The reading panel must use the original blue too.");
+            Assert.That(Named<TMP_Text>(ui, "Specimen_Title").color, Is.EqualTo(ink));
+            Assert.That(Named<Image>(ui, "Rocket_System_Locator").color, Is.EqualTo(new Color(.09f, .16f, .21f, .85f)));
+            var modal = Named<RectTransform>(ui, "Science_Modal");
+            foreach (var graphic in modal.GetComponentsInChildren<Graphic>())
+            {
+                Color tint = graphic.color;
+                if (tint.a <= .001f) continue;
+                Assert.That(tint.b + .001f, Is.GreaterThanOrEqualTo(Mathf.Max(tint.r, tint.g)),
+                    graphic.name + " must stay cool/neutral, including selection and animated leaders: " + tint);
+                Assert.That(tint, Is.Not.EqualTo(new Color(.88f, .88f, .79f)), "Restore cool-white text: " + graphic.name);
+            }
+            foreach (var button in modal.GetComponentsInChildren<Button>())
+            {
+                var states = button.colors;
+                foreach (Color tint in new[] { states.normalColor, states.highlightedColor, states.pressedColor, states.selectedColor, states.disabledColor })
+                    Assert.That(tint.b + .001f, Is.GreaterThanOrEqualTo(Mathf.Max(tint.r, tint.g)), button.name + " has a warm interaction tint.");
+            }
+            foreach (var graphic in modal.GetComponentsInChildren<AerospaceTerminalGraphic>())
+            {
+                if (!string.IsNullOrEmpty(graphic.glyph)) continue;
+                // The locator/datum bake their colours into vertices, independently of Graphic.color.
+                var populate = typeof(AerospaceTerminalGraphic).GetMethod("OnPopulateMesh",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                    null, new[] { typeof(VertexHelper) }, null);
+                Color32[] palette = { new Color(.32f, .83f, .90f, .66f), new Color(.29f, .52f, .61f, .26f), new Color(.67f, .78f, .82f, .66f) };
+                using (var mesh = new VertexHelper())
+                {
+                    populate.Invoke(graphic, new object[] { mesh });
+                    var vertex = new UIVertex();
+                    for (int i = 0; i < mesh.currentVertCount; i++)
+                    {
+                        mesh.PopulateUIVertex(ref vertex, i);
+                        Assert.That(palette.Contains(vertex.color), Is.True, graphic.name + " vertex " + i);
+                    }
+                }
+            }
+            if (ui.CurrentCode != null)
+            {
+                var card = Named<Button>(ui, "Archive_" + ui.CurrentCode);
+                Assert.That(card.GetComponent<Image>().color, Is.EqualTo(new Color(.075f, .205f, .29f, .9f)), "Selection must use a blue card.");
+                Assert.That(card.GetComponentsInChildren<TMP_Text>().Any(t => t.color == accent), Is.True);
+                Assert.That(card.GetComponentsInChildren<TMP_Text>().Any(t => t.color == ink), Is.True);
+            }
+        }
         [UnityTest]
-        public IEnumerator DossierHasPaperSidebarFiveTicketsAndHotspotToggle()
+        public IEnumerator DossierKeepsSidebarFiveTicketsAndHotspotToggle()
         {
             var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
             var panel = Named<RectTransform>(ui, "Science_Reading_Panel");
             var view = Named<RectTransform>(ui, "Model_Viewport");
             Assert.That(panel.anchoredPosition.x, Is.Zero); Assert.That(panel.rect.width, Is.EqualTo(448));
             Assert.That(view.anchoredPosition.x, Is.EqualTo(448)); Assert.That(view.rect.width / view.rect.height, Is.EqualTo(ui.Stage.DisplayCamera.aspect).Within(.001f));
-            var paper = panel.GetComponent<Image>().color; Assert.That(paper.r, Is.GreaterThan(.8f)); Assert.That(paper.b, Is.LessThan(paper.r));
+            Assert.That(panel.GetComponent<Image>().color, Is.EqualTo(new Color(.052f, .087f, .12f, .96f)));
             Assert.That(Named<TMP_Text>(ui, "Specimen_Title").text, Is.EqualTo("再生冷却\n喷管组件"));
             var rail = Enumerable.Range(1, 5).Select(i => Named<RectTransform>(ui, "Archive_R0" + i)).ToArray();
             foreach (var item in rail) Assert.That(item.anchoredPosition.y, Is.EqualTo(-12));
@@ -133,6 +191,8 @@ namespace AgentReproduction.Tests
         }
         static void AssertScienceCopy(AerospaceScienceUI ui)
         {
+            // Check the full palette after every reading tab, hotspot, source and demonstration state.
+            AssertClassicBluePalette(ui);
             string copy = string.Join("\n", ui.GetComponentsInChildren<TMP_Text>().Select(t => t.text));
             foreach (string phrase in new[] { "不是", "并非", "而非", "非制造", "非实物", "非食物", "教学示意", "不代表", "不模拟", "颜色不", "不对应", "未完整复原", "没有复原", "游戏化", "仅用于观察", "仅供观察", "免责" })
                 Assert.That(copy, Does.Not.Contain(phrase), ui.CurrentCode + " / " + ui.ActiveReadingTab);
@@ -142,7 +202,9 @@ namespace AgentReproduction.Tests
         {
             var ui = Create(true); yield return null; ui.Open("R04", false); yield return Ready(ui);
             var demo = Named<Button>(ui, "Start_Demonstration");
-            Assert.That(demo.GetComponent<Image>().color.r, Is.GreaterThan(.8f));
+            Assert.That(demo.GetComponent<Image>().color, Is.EqualTo(new Color(.12f, .19f, .23f, .78f)));
+            Assert.That(demo.GetComponentInChildren<TMP_Text>().color, Is.EqualTo(new Color(.32f, .83f, .90f)));
+            Assert.That(demo.transform.Find("Button_Top_Edge").GetComponent<Image>().color, Is.EqualTo(new Color(.32f, .83f, .90f, .65f)));
             Assert.That(demo.GetComponentInChildren<AerospaceTerminalGraphic>().glyph, Is.EqualTo("play"));
             Assert.That(demo.GetComponentInChildren<TMP_Text>().text, Is.EqualTo("原理演示"));
             var settings = Named<Button>(ui, "Display_Settings");
@@ -194,6 +256,7 @@ namespace AgentReproduction.Tests
             Assert.That(ui.IsOpen, Is.True); Assert.That(ui.Stage.Ready, Is.False);
             Assert.That(ui.ActiveReadingTab, Is.EqualTo(4)); Assert.That(ui.GetComponentsInChildren<TMP_Text>().Any(t => t.text.Contains("尚无归档样本")), Is.True);
             for (int i = 0; i < 3; i++) Assert.That(Named<Button>(ui, "Reading_Tab_" + i).interactable, Is.False);
+            AssertClassicBluePalette(ui);
             if (TestRunContext.Load().graphics) yield return Capture(ui, "Empty_Archive", 1600, 900);
             Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(2)); Assert.That(ui.Stage.Texture, Is.Null);
             ContractCompleted = true;

@@ -21,7 +21,7 @@ namespace ExtractionLike.Aerospace
             var snapshot = new GameObject("Previous_Sample_Frame", typeof(RectTransform), typeof(RawImage)); snapshot.transform.SetParent(viewport, false);
             Rect(snapshot.GetComponent<RectTransform>(), 0, 0, viewport.rect.width, viewport.rect.height); snapshot.transform.SetAsFirstSibling();
             snapshotImage = snapshot.GetComponent<RawImage>(); snapshotImage.raycastTarget = false; snapshot.SetActive(false);
-            archiveCursor = Panel(frame, "Archive_Selection_Cursor", Amber, 472, 86, 174, 2); archiveCursor.gameObject.SetActive(false);
+            archiveCursor = Panel(frame, "Archive_Selection_Cursor", Accent, 472, 86, 174, 2); archiveCursor.gameObject.SetActive(false);
             foreach (var label in new[] { heading, subtitle, english, sampleId, watermark, locationTitle, locationBody, locationTag })
                 identityGroups.Add(label.gameObject.AddComponent<CanvasGroup>());
             foreach (var pin in pins)
@@ -29,7 +29,7 @@ namespace ExtractionLike.Aerospace
                 var go = new GameObject("Hotspot_Confirmation", typeof(RectTransform), typeof(AerospaceHotspotPulse)); go.transform.SetParent(pin.transform, false);
                 var rect = go.GetComponent<RectTransform>(); rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
                 rect.offsetMin = rect.offsetMax = Vector2.zero;
-                var pulse = go.GetComponent<AerospaceHotspotPulse>(); pulse.raycastTarget = false; pulse.color = Amber; pinPulses.Add(pulse);
+                var pulse = go.GetComponent<AerospaceHotspotPulse>(); pulse.raycastTarget = false; pulse.color = Accent; pinPulses.Add(pulse);
             }
         }
         private void CaptureSwitchSnapshot(bool discovery)

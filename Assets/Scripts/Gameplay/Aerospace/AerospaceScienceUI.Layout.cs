@@ -50,7 +50,7 @@ namespace ExtractionLike.Aerospace
             var background = new GameObject("Blue_Inspection_Surface", typeof(RectTransform), typeof(AerospaceInspectionBackdrop));
             background.transform.SetParent(frame, false); Rect(background.GetComponent<RectTransform>(), 448, 0, 1152, 900);
             background.GetComponent<AerospaceInspectionBackdrop>().raycastTarget = false;
-            watermark = MonoLabel(frame, "", 1086, 286, 490, 320, 252, new Color(.60f, .65f, .43f, .09f)); watermark.name = "Specimen_Watermark";
+            watermark = MonoLabel(frame, "", 1086, 286, 490, 320, 252, new Color(.57f, .68f, .73f, .07f)); watermark.name = "Specimen_Watermark";
             watermark.enableWordWrapping = false;
 
             BuildDossier(frame);
@@ -108,20 +108,20 @@ namespace ExtractionLike.Aerospace
             detailContent.anchorMin = new Vector2(0, 1); detailContent.anchorMax = Vector2.one; detailContent.pivot = new Vector2(.5f, 1);
             detailContent.sizeDelta = new Vector2(0, ReadingHeight); readingReveal = detailContent.gameObject.AddComponent<CanvasGroup>();
             readingScroll.viewport = scroll; readingScroll.content = detailContent; readingScroll.movementType = ScrollRect.MovementType.Clamped;
-            var barRect = Panel(readingPane, "Reading_Scrollbar", new Color(.36f, .40f, .27f, .1f), 426, 408, 3, ReadingHeight);
+            var barRect = Panel(readingPane, "Reading_Scrollbar", new Color(.34f, .39f, .40f, .15f), 426, 408, 3, ReadingHeight);
             var bar = barRect.gameObject.AddComponent<Scrollbar>(); bar.direction = Scrollbar.Direction.BottomToTop;
-            var handle = Panel(barRect, "Handle", new Color(.42f, .47f, .30f, .65f), 0, 0, 3, 80);
+            var handle = Panel(barRect, "Handle", new Color(.59f, .64f, .64f, .55f), 0, 0, 3, 80);
             bar.handleRect = handle; bar.targetGraphic = handle.GetComponent<Image>(); bar.navigation = new Navigation { mode = Navigation.Mode.None };
             readingScroll.verticalScrollbar = bar; readingScroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
 
-            var locator = Panel(frame, "Rocket_System_Locator", new Color(.19f, .225f, .145f), 0, 650, 448, 172);
+            var locator = Panel(frame, "Rocket_System_Locator", new Color(.09f, .16f, .21f, .85f), 0, 650, 448, 172);
             Panel(locator, "Locator_Top_Rule", Rule, 0, 0, 448, 1);
             var diagram = new GameObject("Rocket_Location_Diagram", typeof(RectTransform), typeof(AerospaceTerminalGraphic)); diagram.transform.SetParent(locator, false);
             Rect(diagram.GetComponent<RectTransform>(), 27, 11, 83, 150); locationGraphic = diagram.GetComponent<AerospaceTerminalGraphic>(); locationGraphic.locationCode = "R01"; locationGraphic.raycastTarget = false;
             MonoLabel(locator, "LOCATION / SYSTEM", 130, 18, 290, 17, 10, Muted);
             locationTitle = Label(locator, "航天系统", 130, 47, 289, 32, 21, Ink); locationTitle.font = font;
             locationBody = Label(locator, "", 130, 85, 286, 43, 14, Ink); locationBody.lineSpacing = 2;
-            locationTag = Label(locator, "", 144, 143, 274, 23, 13, Amber); Panel(locator, "Current_Location_Mark", Amber, 131, 150, 5, 5);
+            locationTag = Label(locator, "", 144, 143, 274, 23, 13, Teal); Panel(locator, "Current_Location_Mark", Teal, 131, 150, 5, 5);
             sourceButton = Button(readingPane, "科普资料  ↗", 24, 833, 192, 32, ShowSources); sourceButton.name = "Science_Sources";
             sourceButton.GetComponentInChildren<TMP_Text>().fontSize = 15;
             var clues = Button(readingPane, "搜集线索", 277, 833, 146, 32, ShowCollectionClues); clues.name = "Collection_Clues"; clues.GetComponentInChildren<TMP_Text>().fontSize = 15;
@@ -184,7 +184,7 @@ namespace ExtractionLike.Aerospace
             settingsButton.GetComponentInChildren<TMP_Text>().gameObject.SetActive(false);
             AddGlyph(settingsButton.transform, "gear", 10, 10, 24, Muted);
             AddButtonEdges(settingsButton, Rule);
-            settingsTooltip = Panel(controls.transform, "Settings_Tooltip", new Color(.12f, .15f, .09f), 984, -42, 120, 32).gameObject;
+            settingsTooltip = Panel(controls.transform, "Settings_Tooltip", new Color(.07f, .12f, .17f, .99f), 984, -42, 120, 32).gameObject;
             Label(settingsTooltip.transform, "展示设置", 0, 0, 120, 32, 14, Ink, TextAlignmentOptions.Center);
             settingsTooltip.SetActive(false);
             settingsButton.gameObject.AddComponent<AerospaceHotspotPointer>().hover = hovering =>
@@ -198,9 +198,9 @@ namespace ExtractionLike.Aerospace
         {
             settingsOverlay = Panel(frame, "Display_Settings_Overlay", Color.clear, 0, 0, 1600, 900).gameObject; settingsOverlay.GetComponent<Image>().raycastTarget = true;
             var dismiss = settingsOverlay.AddComponent<Button>(); dismiss.transition = Selectable.Transition.None; dismiss.onClick.AddListener(() => SetSettings(false)); dismiss.navigation = new Navigation { mode = Navigation.Mode.None };
-            var settings = Panel(settingsOverlay.transform, "Settings_Panel", new Color(.16f, .195f, .12f, .99f), 1246, 555, 326, 234);
+            var settings = Panel(settingsOverlay.transform, "Settings_Panel", new Color(.07f, .12f, .17f, .99f), 1246, 555, 326, 234);
             settings.GetComponent<Image>().raycastTarget = true; settings.gameObject.AddComponent<Button>().transition = Selectable.Transition.None;
-            Panel(settings, "Settings_Accent", Amber, 0, 0, 326, 2); Label(settings, "展示设置", 20, 16, 270, 26, 19, Ink).font = font;
+            Panel(settings, "Settings_Accent", Accent, 0, 0, 326, 2); Label(settings, "展示设置", 20, 16, 270, 26, 19, Ink).font = font;
             var surface = Button(settings, "表面状态   清理后样件", 16, 57, 294, 40, () => { stage.ToggleSurface(); RefreshButtons(); }); surface.name = "Toggle_Surface"; surfaceText = surface.GetComponentInChildren<TMP_Text>();
             var q = Button(settings, "贴图清晰度   2K", 16, 108, 294, 40, ToggleQuality); q.name = "Toggle_Quality"; qualityText = q.GetComponentInChildren<TMP_Text>();
             var motion = Button(settings, "减少动态效果   关", 16, 159, 294, 40, ToggleReducedMotion); motion.name = "Toggle_Reduced_Motion"; motionText = motion.GetComponentInChildren<TMP_Text>(); settingsOverlay.SetActive(false);
@@ -327,14 +327,13 @@ namespace ExtractionLike.Aerospace
         }
         private TMP_Text MonoLabel(Transform parent, string text, float x, float y, float w, float h, int size, Color color)
         { var label = Label(parent, text, x, y, w, h, size, color); label.font = monoFont; return label; }
-        private bool OnPaper(Transform target) => readingPane != null && target.IsChildOf(readingPane);
         private Button Button(Transform parent, string text, float x, float y, float w, float h, Action clicked)
         {
-            bool paper = OnPaper(parent); var panel = Panel(parent, "Button_" + text, paper ? new Color(.36f, .40f, .26f, .08f) : ButtonFill, x, y, w, h); panel.GetComponent<Image>().raycastTarget = true;
+            var panel = Panel(parent, "Button_" + text, ButtonFill, x, y, w, h); panel.GetComponent<Image>().raycastTarget = true;
             var button = panel.gameObject.AddComponent<Button>(); button.targetGraphic = panel.GetComponent<Image>(); button.onClick.AddListener(() => clicked());
-            var colors = button.colors; colors.highlightedColor = new Color(1.18f, 1.18f, 1.08f); colors.pressedColor = new Color(.79f, .82f, .70f); colors.selectedColor = Color.white;
-            colors.disabledColor = new Color(.54f, .55f, .45f, .65f); colors.fadeDuration = .12f; button.colors = colors; button.navigation = new Navigation { mode = Navigation.Mode.None };
-            Label(panel, text, 8, 0, w - 16, h, 16, paper ? PaperInk : Ink, TextAlignmentOptions.Center); return button;
+            var colors = button.colors; colors.highlightedColor = new Color(1.14f, 1.20f, 1.26f); colors.pressedColor = new Color(.70f, .83f, .94f); colors.selectedColor = Color.white;
+            colors.disabledColor = new Color(.40f, .48f, .56f, .65f); colors.fadeDuration = .12f; button.colors = colors; button.navigation = new Navigation { mode = Navigation.Mode.None };
+            Label(panel, text, 8, 0, w - 16, h, 16, Ink, TextAlignmentOptions.Center); return button;
         }
         private void AddButtonGlyph(Button button, string glyph)
         {
@@ -358,23 +357,21 @@ namespace ExtractionLike.Aerospace
         private Button DemonstrationButton(Transform parent, string text, float x, float y, float w, float h)
         {
             var button = Button(parent, text, x, y, w, h, StartDemonstration);
-            bool paper = OnPaper(parent);
-            button.GetComponent<Image>().color = paper ? new Color(.24f, .29f, .17f) : Amber;
-            Color foreground = paper ? Ink : PaperInk;
+            button.GetComponent<Image>().color = ButtonFill;
+            Color foreground = Teal;
             var label = button.GetComponentInChildren<TMP_Text>(); label.color = foreground; label.font = font;
             label.fontStyle = FontStyles.Bold; label.fontSize = 16; label.enableWordWrapping = false;
             Rect(label.rectTransform, 43, 0, w - 55, h);
             AddGlyph(button.transform, "play", 14, (h - 20) * .5f, 20, foreground);
-            AddButtonEdges(button, paper ? new Color(.37f, .43f, .26f) : new Color(.94f, .96f, .65f));
+            AddButtonEdges(button, new Color(Teal.r, Teal.g, Teal.b, .65f));
             var colors = button.colors; colors.highlightedColor = new Color(1.12f, 1.12f, 1.12f);
-            colors.pressedColor = new Color(.72f, .75f, .61f); colors.fadeDuration = .10f; button.colors = colors;
+            colors.pressedColor = new Color(.70f, .83f, .94f); colors.fadeDuration = .10f; button.colors = colors;
             return button;
         }
         private void StyleButton(Button button, bool selected, bool tab = false)
         {
-            bool paper = OnPaper(button.transform);
-            button.GetComponent<Image>().color = selected ? Amber : tab ? new Color(.19f, .23f, .15f) : paper ? new Color(.36f, .40f, .26f, .08f) : ButtonFill;
-            Color tint = selected ? PaperInk : tab ? Ink : paper ? PaperInk : Muted;
+            button.GetComponent<Image>().color = selected ? SelectedFill : tab ? new Color(.09f, .14f, .18f, .50f) : ButtonFill;
+            Color tint = selected ? Accent : Muted;
             var label = button.GetComponentInChildren<TMP_Text>(); if (label != null) label.color = tint;
             var glyph = button.GetComponentInChildren<AerospaceTerminalGraphic>(); if (glyph != null) glyph.color = tint;
         }
