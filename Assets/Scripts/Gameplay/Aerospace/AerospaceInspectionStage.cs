@@ -15,7 +15,7 @@ namespace ExtractionLike.Aerospace
         private static readonly HashSet<string> UpperParts = new HashSet<string> { "UpperInterface", "UpperHardware", "UpperMarkings", "EquipmentUpperAdapter", "EquipmentUpperInspection", "EquipmentUpperInspectionInk" };
         private sealed class Pose
         {
-            public Transform t; public Vector3 position, offset, moveFrom, moveTarget; public Quaternion rotation;
+            public Transform t; public Vector3 position, offset, moveFrom, moveTarget, mechanicalPosition; public Quaternion rotation;
             public bool cut; public Renderer renderer, ghost; public string semantic;
             public float visibility = 1, visibleFrom = 1, visibleTarget = 1, visibleAge, highlight, motionOrder, moveDelay, moveAge;
         }
@@ -113,7 +113,7 @@ namespace ExtractionLike.Aerospace
                 // All pieces sharing an exported assembly offset receive the same timing, including their fasteners.
                 Vector3 exportedOffset = AerospaceCatalog.Convert(p.explode);
                 float order = Mathf.Abs(exportedOffset.z) > .001f ? 0 : Mathf.Abs(exportedOffset.x) > .001f ? .06f : .12f;
-                poses.Add(new Pose { t = r.transform, position = r.transform.localPosition, moveFrom = r.transform.localPosition, moveTarget = r.transform.localPosition,
+                poses.Add(new Pose { t = r.transform, position = r.transform.localPosition, moveFrom = r.transform.localPosition, moveTarget = r.transform.localPosition, mechanicalPosition = r.transform.localPosition,
                     motionOrder = order, moveAge = 1, rotation = r.transform.localRotation, offset = r.transform.parent.InverseTransformVector(offsetWorld),
                     cut = p.cut, renderer = r, semantic = r.name.Replace(part.code + "_", "").Replace("_low", "") });
             }
@@ -165,10 +165,11 @@ namespace ExtractionLike.Aerospace
             focusPoint = Vector3.zero;
             if (!animate)
             {
+                rotorAngle = 0;
                 pivot.localRotation = Quaternion.identity; shownZoom = 1; shownFold = foldFrom = foldTarget = 0; shownPitch = shownYaw = 0;
                 foreach (var p in poses)
                 {
-                    p.t.localPosition = p.moveFrom = p.moveTarget = p.position; p.moveAge = 1;
+                    p.t.localPosition = p.moveFrom = p.moveTarget = p.mechanicalPosition = p.position; p.moveAge = 1;
                     p.t.localRotation = p.rotation; p.t.gameObject.SetActive(true); p.renderer.enabled = true;
                     p.visibility = p.visibleFrom = p.visibleTarget = 1;
                 }
@@ -232,15 +233,23 @@ namespace ExtractionLike.Aerospace
             TickAnalysis();
             float t = ReducedMotion ? 1 : 1 - Mathf.Exp(-Time.unscaledDeltaTime * 8);
             TickViewMotion();
+            if (config.code == "R02")
+            {
+                rotorAngle = DemoActive ? DemoTime * 36 : ReducedMotion ? 0 : Mathf.LerpAngle(rotorAngle, 0, 1 - Mathf.Exp(-Time.unscaledDeltaTime * 18));
+                if (!DemoActive && Mathf.Abs(Mathf.DeltaAngle(rotorAngle, 0)) < .01f) rotorAngle = 0;
+            }
             foreach (var p in poses)
             {
                 TickMechanicalPose(p);
-                if (DemoActive && config.code == "R02" && (p.semantic == "Impeller" || p.semantic == "Inducer" || p.semantic == "Shaft"))
+                if (config.code == "R02" && (p.semantic == "Impeller" || p.semantic == "Inducer" || p.semantic == "Shaft"))
                 {
                     Vector3 axis = p.t.parent.InverseTransformDirection(pivot.up);
                     Vector3 origin = p.t.parent.InverseTransformPoint(pivot.TransformPoint(Native(Vector3.zero)));
-                    var rotation = Quaternion.AngleAxis(DemoTime * 36, axis);
-                    p.t.localPosition = origin + rotation * (p.position - origin); p.t.localRotation = rotation * p.rotation;
+                    Quaternion rotation = Quaternion.AngleAxis(rotorAngle, axis);
+                    // Keep the true shaft centre fixed during both spin and return-to-rest.
+                    // Lerp of a translated origin and Slerp of the rotation describe different arcs.
+                    p.t.localPosition = origin + rotation * (p.position - origin) + (p.mechanicalPosition - p.position);
+                    p.t.localRotation = rotation * p.rotation;
                 }
                 ApplyAnalysisMaterial(p, t);
             }

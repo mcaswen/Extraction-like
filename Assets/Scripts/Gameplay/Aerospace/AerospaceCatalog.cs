@@ -27,7 +27,7 @@ namespace ExtractionLike.Aerospace
     [Serializable] public sealed class AerospacePart
     {
         public string code, title, english, intro, locationTitle, locationText;
-        public float[] camera, size;
+        public float[] camera, size, nativeCenter;
         public AerospaceMesh[] parts;
         public AerospaceHotspot[] hotspots;
         public AerospaceSource[] sources;

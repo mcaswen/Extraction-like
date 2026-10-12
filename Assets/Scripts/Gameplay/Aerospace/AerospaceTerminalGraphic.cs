@@ -8,6 +8,13 @@ namespace ExtractionLike.Aerospace
     public sealed class AerospaceTerminalGraphic : MaskableGraphic
     {
         public string locationCode, glyph;
+        private Vector2 datum = new Vector2(576, 610);
+        private float datumRadius = 176, datumYaw;
+        public void SetDatum(Vector2 point, float radius, float yaw)
+        {
+            if ((datum - point).sqrMagnitude < .04f && Mathf.Abs(radius - datumRadius) < .1f && Mathf.Abs(Mathf.DeltaAngle(yaw, datumYaw)) < .2f) return;
+            datum = point; datumRadius = radius; datumYaw = yaw; SetVerticesDirty();
+        }
         private static readonly Color Accent = new Color(.32f, .83f, .90f, .66f), Faint = new Color(.29f, .52f, .61f, .26f), White = new Color(.67f, .78f, .82f, .66f);
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
@@ -15,15 +22,28 @@ namespace ExtractionLike.Aerospace
             if (!string.IsNullOrEmpty(glyph)) { Glyph(mesh, w, h); return; }
             if (!string.IsNullOrEmpty(locationCode)) { Rocket(mesh, w, h); return; }
             // Stationary orientation datum, not an animated decorative radar.
-            float cx = w * .50f, cy = h * .91f;
-            for (int i = 0; i < 72; i++)
+            float cx = datum.x, cy = datum.y;
+            for (int ring = 0; ring < 2; ring++)
+            for (int i = 0; i < 96; i++)
             {
-                float a = i * Mathf.PI * 2 / 72, b = (i + 1) * Mathf.PI * 2 / 72;
-                Line(mesh, new Vector2(cx + Mathf.Cos(a) * 176, cy + Mathf.Sin(a) * 17), new Vector2(cx + Mathf.Cos(b) * 176, cy + Mathf.Sin(b) * 17), Faint);
+                float a = i * Mathf.PI * 2 / 96, b = (i + 1) * Mathf.PI * 2 / 96;
+                float radius = datumRadius + ring * 12, depth = 16 + ring * 5;
+                if (ring == 1 && i % 24 > 15) continue;
+                Line(mesh, new Vector2(cx + Mathf.Cos(a) * radius, cy + Mathf.Sin(a) * depth), new Vector2(cx + Mathf.Cos(b) * radius, cy + Mathf.Sin(b) * depth), ring == 0 ? Faint : Accent, ring == 0 ? .7f : 1.1f);
             }
             for (int i = -6; i <= 6; i++) Line(mesh, new Vector2(cx + i * 24, cy + 25), new Vector2(cx + i * 24, cy + (i % 3 == 0 ? 34 : 29)), Faint);
-            Line(mesh, new Vector2(cx - 196, cy), new Vector2(cx - 183, cy), Faint);
-            Line(mesh, new Vector2(cx + 183, cy), new Vector2(cx + 196, cy), Faint);
+            Line(mesh, new Vector2(cx - datumRadius - 30, cy), new Vector2(cx - datumRadius - 19, cy), Faint);
+            Line(mesh, new Vector2(cx + datumRadius + 19, cy), new Vector2(cx + datumRadius + 30, cy), Faint);
+            float angle = datumYaw * Mathf.Deg2Rad;
+            Vector2 marker = new Vector2(cx + Mathf.Cos(angle) * (datumRadius + 12), cy + Mathf.Sin(angle) * 21);
+            Line(mesh, marker + new Vector2(-3, -2), marker + new Vector2(3, 2), White, 2);
+            // Segmented edge datums frame the inspection aperture without covering the model.
+            foreach (float x in new[] { 15f, w - 15 })
+            for (int i = 0; i < 9; i++)
+            {
+                float y = h * .5f + (i - 4) * 13;
+                Line(mesh, new Vector2(x, y), new Vector2(x + (x < w / 2 ? 1 : -1) * (i % 4 == 0 ? 8 : 3), y), i == 4 ? Accent : Faint, 1);
+            }
             foreach (var origin in new[] { new Vector2(0, 8), new Vector2(w, 8), new Vector2(0, h - 8), new Vector2(w, h - 8) })
             {
                 float sx = origin.x == 0 ? 1 : -1, sy = origin.y < h / 2 ? 1 : -1;

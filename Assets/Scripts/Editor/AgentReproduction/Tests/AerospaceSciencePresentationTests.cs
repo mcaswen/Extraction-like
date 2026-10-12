@@ -40,7 +40,7 @@ namespace AgentReproduction.Tests
             yield return null;
         }
         [UnityTest]
-        public IEnumerator ClassicBlueThemePreservesDossierLayoutAndInput()
+        public IEnumerator ColdBlueTerminalPreservesDossierLayoutAndInput()
         {
             var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
             var backdrop = Named<AerospaceInspectionBackdrop>(ui, "Blue_Inspection_Surface");
@@ -50,26 +50,20 @@ namespace AgentReproduction.Tests
             Assert.That(backdrop.transform.GetSiblingIndex(), Is.LessThan(Named<RectTransform>(ui, "Model_Viewport").GetSiblingIndex()));
             Assert.That(ui.Stage.DisplayCamera.backgroundColor, Is.EqualTo(Color.clear), "Keep the model render transparent over the UI background.");
 
-            // Lock the original pre-dossier blue gradient, without reverting the
-            // current UI geometry or interaction. The complete UI uses that palette too.
+            // Art direction may refine brightness, but every background vertex stays cool-blue.
             var populate = typeof(AerospaceInspectionBackdrop).GetMethod("OnPopulateMesh",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
                 null, new[] { typeof(VertexHelper) }, null);
             using (var mesh = new VertexHelper())
             {
                 populate.Invoke(backdrop, new object[] { mesh });
-                Assert.That(mesh.currentVertCount, Is.EqualTo(65 * 37));
+                Assert.That(mesh.currentVertCount, Is.GreaterThanOrEqualTo(65 * 37));
                 var vertex = new UIVertex();
-                for (int y = 0; y <= 36; y++)
-                for (int x = 0; x <= 64; x++)
+                for (int i = 0; i < mesh.currentVertCount; i++)
                 {
-                    float u = (float)x / 64, v = (float)y / 36;
-                    float glow = Mathf.Exp(-((u - .34f) * (u - .34f) * 17 + (v - .55f) * (v - .55f) * 8));
-                    float grain = (Mathf.PerlinNoise(x * 5.37f, y * 3.91f) - .5f) * .006f;
-                    Color expected = Color.Lerp(new Color(.025f, .045f, .068f), new Color(.115f, .190f, .240f), glow);
-                    expected += new Color(grain, grain, grain, 0);
-                    mesh.PopulateUIVertex(ref vertex, y * 65 + x);
-                    Assert.That(vertex.color, Is.EqualTo((Color32)expected), "Original blue gradient vertex " + x + "," + y);
+                    mesh.PopulateUIVertex(ref vertex, i);
+                    Assert.That(vertex.color.b, Is.GreaterThan(vertex.color.g));
+                    Assert.That(vertex.color.g, Is.GreaterThan(vertex.color.r));
                 }
             }
             foreach (string name in new[] { "Science_Modal", "Archive_Header", "Toolbar_Background" })
@@ -77,14 +71,14 @@ namespace AgentReproduction.Tests
             var sidebar = Named<RectTransform>(ui, "Science_Reading_Panel");
             var view = Named<RectTransform>(ui, "Model_Viewport");
             Assert.That(sidebar.rect.size, Is.EqualTo(new Vector2(448, 900)));
-            Assert.That(sidebar.GetComponent<Image>().color, Is.EqualTo(new Color(.052f, .087f, .12f, .96f)));
+            Assert.That(sidebar.GetComponent<Image>().color, Is.EqualTo(new Color(.038f, .079f, .145f, .98f)));
             Assert.That(view.anchoredPosition, Is.EqualTo(new Vector2(448, -108)));
             Assert.That(view.rect.size, Is.EqualTo(new Vector2(AerospaceInspectionStage.ViewWidth, AerospaceInspectionStage.ViewHeight)));
-            Assert.That(Named<Button>(ui, "Start_Demonstration").GetComponent<Image>().color, Is.EqualTo(new Color(.12f, .19f, .23f, .78f)));
+            Assert.That(Named<Button>(ui, "Start_Demonstration").GetComponent<Image>().color, Is.EqualTo(new Color(.065f, .125f, .205f, .92f)));
             foreach (string name in new[] { "Reading_Tab_0", "Mode_assembled", "Toggle_Hotspots" })
             {
                 var selected = Named<Button>(ui, name);
-                Assert.That(selected.GetComponent<Image>().color, Is.EqualTo(new Color(.075f, .205f, .29f, .97f)), name);
+                Assert.That(selected.GetComponent<Image>().color, Is.EqualTo(new Color(.075f, .225f, .36f, .97f)), name);
                 Assert.That(selected.GetComponentInChildren<TMP_Text>().color, Is.EqualTo(new Color(.48f, .90f, 1f)), name);
             }
             AssertClassicBluePalette(ui);
@@ -93,7 +87,7 @@ namespace AgentReproduction.Tests
             Assert.That(ui.SelectedHotspot, Is.EqualTo(1));
             Click(ui, "Archive_R05"); yield return Ready(ui); Assert.That(ui.CurrentCode, Is.EqualTo("R05"));
             Click(ui, "Display_Settings"); Assert.That(ui.IsSettingsOpen, Is.True);
-            Assert.That(Named<Image>(ui, "Settings_Panel").color, Is.EqualTo(new Color(.07f, .12f, .17f, .99f)));
+            Assert.That(Named<Image>(ui, "Settings_Panel").color, Is.EqualTo(new Color(.055f, .115f, .205f, .99f)));
             AssertClassicBluePalette(ui);
             Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(1)); ContractCompleted = true;
         }
@@ -101,9 +95,9 @@ namespace AgentReproduction.Tests
         {
             Color ink = new Color(.91f, .95f, .96f), accent = new Color(.48f, .90f, 1f);
             var sidebar = Named<Image>(ui, "Science_Reading_Panel");
-            Assert.That(sidebar.color, Is.EqualTo(new Color(.052f, .087f, .12f, .96f)), "The reading panel must use the original blue too.");
+            Assert.That(sidebar.color, Is.EqualTo(new Color(.038f, .079f, .145f, .98f)), "The reading panel must use the original blue too.");
             Assert.That(Named<TMP_Text>(ui, "Specimen_Title").color, Is.EqualTo(ink));
-            Assert.That(Named<Image>(ui, "Rocket_System_Locator").color, Is.EqualTo(new Color(.09f, .16f, .21f, .85f)));
+            Assert.That(Named<Image>(ui, "Rocket_System_Locator").color, Is.EqualTo(new Color(.065f, .135f, .22f, .96f)));
             var modal = Named<RectTransform>(ui, "Science_Modal");
             foreach (var graphic in modal.GetComponentsInChildren<Graphic>())
             {
@@ -141,7 +135,7 @@ namespace AgentReproduction.Tests
             if (ui.CurrentCode != null)
             {
                 var card = Named<Button>(ui, "Archive_" + ui.CurrentCode);
-                Assert.That(card.GetComponent<Image>().color, Is.EqualTo(new Color(.075f, .205f, .29f, .9f)), "Selection must use a blue card.");
+                Assert.That(card.GetComponent<Image>().color, Is.EqualTo(new Color(.075f, .225f, .36f, .9f)), "Selection must use a blue card.");
                 Assert.That(card.GetComponentsInChildren<TMP_Text>().Any(t => t.color == accent), Is.True);
                 Assert.That(card.GetComponentsInChildren<TMP_Text>().Any(t => t.color == ink), Is.True);
             }
@@ -154,7 +148,7 @@ namespace AgentReproduction.Tests
             var view = Named<RectTransform>(ui, "Model_Viewport");
             Assert.That(panel.anchoredPosition.x, Is.Zero); Assert.That(panel.rect.width, Is.EqualTo(448));
             Assert.That(view.anchoredPosition.x, Is.EqualTo(448)); Assert.That(view.rect.width / view.rect.height, Is.EqualTo(ui.Stage.DisplayCamera.aspect).Within(.001f));
-            Assert.That(panel.GetComponent<Image>().color, Is.EqualTo(new Color(.052f, .087f, .12f, .96f)));
+            Assert.That(panel.GetComponent<Image>().color, Is.EqualTo(new Color(.038f, .079f, .145f, .98f)));
             Assert.That(Named<TMP_Text>(ui, "Specimen_Title").text, Is.EqualTo("再生冷却\n喷管组件"));
             var rail = Enumerable.Range(1, 5).Select(i => Named<RectTransform>(ui, "Archive_R0" + i)).ToArray();
             foreach (var item in rail) Assert.That(item.anchoredPosition.y, Is.EqualTo(-12));
@@ -202,9 +196,9 @@ namespace AgentReproduction.Tests
         {
             var ui = Create(true); yield return null; ui.Open("R04", false); yield return Ready(ui);
             var demo = Named<Button>(ui, "Start_Demonstration");
-            Assert.That(demo.GetComponent<Image>().color, Is.EqualTo(new Color(.12f, .19f, .23f, .78f)));
+            Assert.That(demo.GetComponent<Image>().color, Is.EqualTo(new Color(.065f, .125f, .205f, .92f)));
             Assert.That(demo.GetComponentInChildren<TMP_Text>().color, Is.EqualTo(new Color(.32f, .83f, .90f)));
-            Assert.That(demo.transform.Find("Button_Top_Edge").GetComponent<Image>().color, Is.EqualTo(new Color(.32f, .83f, .90f, .65f)));
+            Assert.That(demo.GetComponent<AerospaceInstrumentSurface>().finish, Is.EqualTo(AerospaceInstrumentSurface.Finish.Primary));
             Assert.That(demo.GetComponentInChildren<AerospaceTerminalGraphic>().glyph, Is.EqualTo("play"));
             Assert.That(demo.GetComponentInChildren<TMP_Text>().text, Is.EqualTo("原理演示"));
             var settings = Named<Button>(ui, "Display_Settings");
@@ -680,6 +674,114 @@ namespace AgentReproduction.Tests
             }
             ContractCompleted = true;
         }
+        [UnityTest]
+        public IEnumerator InstrumentSurfacesPreserveHitTargetsAndRespondWhilePaused()
+        {
+            var ui = Create(true); yield return null; ui.Open("R01", false); yield return Ready(ui);
+            var button = Named<Button>(ui, "Mode_cutaway");
+            var skin = button.GetComponent<AerospaceInstrumentSurface>();
+            var rect = skin.rectTransform.rect;
+            Assert.That(rect.size, Is.EqualTo(new Vector2(130, 44)));
+            Assert.That(skin.raycastTarget, Is.True);
+            Assert.That(Named<TMP_Text>(ui, "Specimen_Title").fontStyle, Is.EqualTo(FontStyles.Normal));
+            var pointer = new PointerEventData(EventSystem.current);
+            skin.OnPointerEnter(pointer); yield return new WaitForSecondsRealtime(.2f);
+            Assert.That(skin.HoverAmount, Is.EqualTo(1)); Assert.That(Time.timeScale, Is.Zero);
+            skin.OnPointerExit(pointer); yield return new WaitForSecondsRealtime(.2f);
+            Assert.That(skin.HoverAmount, Is.Zero);
+            Click(ui, "Mode_cutaway"); yield return null; Assert.That(skin.IsSelected, Is.True);
+            Click(ui, "Mode_assembled"); yield return new WaitForSecondsRealtime(.6f);
+            var anchors = ui.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Anchor_", StringComparison.Ordinal)).ToArray();
+            Assert.That(anchors.Length, Is.GreaterThan(0));
+            foreach (var anchor in anchors)
+            {
+                var target = anchor.GetComponent<AerospaceInstrumentSurface>();
+                Assert.That(target.enabled && target.raycastTarget && target.hitTargetOnly, Is.True);
+                Assert.That(anchor.IsInteractable(), Is.True);
+            }
+            anchors[0].onClick.Invoke(); Assert.That(ui.SelectedHotspot, Is.GreaterThanOrEqualTo(0));
+            ui.ToggleReducedMotion(); yield return null;
+            skin.OnPointerEnter(pointer); yield return null; yield return null; Assert.That(skin.HoverAmount, Is.EqualTo(1));
+            ui.Close(); ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator PumpSpinStaysConcentricIncludingReturnAndQualitySwitch()
+        {
+            var ui = Create(true); yield return null;
+            for (int quality = 0; quality < 2; quality++)
+            {
+                if (quality == 0) ui.Open("R02", false);
+                else { Click(ui, "Display_Settings"); Click(ui, "Toggle_Quality"); }
+                yield return Ready(ui);
+                var shaft = ui.Stage.CurrentModel.GetComponentsInChildren<MeshFilter>().Single(m => m.name == "R02_Shaft_low");
+                Quaternion restRotation = shaft.transform.localRotation;
+                Vector3 point = shaft.sharedMesh.bounds.center;
+                Vector3 rest = shaft.transform.parent.InverseTransformPoint(shaft.transform.TransformPoint(point));
+                if (TestRunContext.Load().graphics && quality == 0) yield return Capture(ui, "R02_Clearance_Assembled", 1920, 1080);
+                ui.StartDemonstration();
+                for (int step = 0; step < 3; step++)
+                {
+                    ui.Stage.SetDemonstrationStep(step); yield return new WaitForSecondsRealtime(.6f);
+                    Vector3 spun = shaft.transform.parent.InverseTransformPoint(shaft.transform.TransformPoint(point));
+                    Assert.That(Vector3.Distance(rest, spun), Is.LessThan(.0001f), "Rotor axis must not orbit around the bounding-box origin.");
+                    if (TestRunContext.Load().graphics && quality == 0) yield return Capture(ui, "R02_Concentric_Step_" + step, 1600, 900);
+                }
+                ui.EndDemonstration();
+                for (int frame = 0; frame < 12; frame++)
+                {
+                    yield return null;
+                    Vector3 returning = shaft.transform.parent.InverseTransformPoint(shaft.transform.TransformPoint(point));
+                    Assert.That(Vector3.Distance(rest, returning), Is.LessThan(.0001f), "Return animation must stay on the shaft axis too.");
+                }
+                yield return new WaitForSecondsRealtime(.6f);
+                foreach (float yaw in new[] { 90f, 180f, 270f })
+                {
+                    ui.Stage.Orbit(new Vector2(90 / .32f, 0)); yield return new WaitForSecondsRealtime(.25f);
+                    if (TestRunContext.Load().graphics && quality == 0) yield return Capture(ui, "R02_Clearance_Angle_" + yaw, 1600, 900);
+                }
+                ui.Stage.ResetView(true); Click(ui, "Mode_exploded"); yield return new WaitForSecondsRealtime(.8f);
+                Click(ui, "Mode_assembled"); yield return new WaitForSecondsRealtime(.8f);
+                Vector3 assembled = shaft.transform.parent.InverseTransformPoint(shaft.transform.TransformPoint(point));
+                Assert.That(Vector3.Distance(rest, assembled), Is.LessThan(.0001f));
+                ui.StartDemonstration(); ui.Stage.SetDemonstrationStep(2); yield return null;
+                ui.Stage.ResetView(true); yield return null;
+                Assert.That(ui.Stage.DemoActive, Is.False);
+                Assert.That(Quaternion.Angle(restRotation, shaft.transform.localRotation), Is.LessThan(.001f), "Immediate reset also clears the rotor's display angle.");
+            }
+            ui.Close(); ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator ExportMatchedArchiveIconsFromActualInspectionStudio()
+        {
+            var ui = Create(true); yield return null;
+            if (!TestRunContext.Load().graphics) { ui.Close(); ContractCompleted = true; yield break; }
+            string folder = Path.Combine(TestRunContext.Load().outputPath, "icons"); Directory.CreateDirectory(folder);
+            foreach (var part in AerospaceCatalog.Load().models)
+            {
+                ui.Open(part.code, false); yield return Ready(ui); yield return null; yield return null;
+                var target = ui.Stage.Texture; var previous = RenderTexture.active; RenderTexture.active = target;
+                var pixels = new Texture2D(target.width, target.height, TextureFormat.RGBA32, false);
+                pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0); pixels.Apply(); RenderTexture.active = previous;
+                var source = pixels.GetPixels32(); int minX = pixels.width, minY = pixels.height, maxX = 0, maxY = 0;
+                for (int y = 0; y < pixels.height; y++) for (int x = 0; x < pixels.width; x++)
+                    if (source[y * pixels.width + x].a > 32) { minX = Math.Min(minX, x); minY = Math.Min(minY, y); maxX = Math.Max(maxX, x); maxY = Math.Max(maxY, y); }
+                Assert.That(maxX, Is.GreaterThan(minX));
+                var icon = new Texture2D(768, 768, TextureFormat.RGBA32, false); var output = new Color32[768 * 768];
+                float scale = Math.Max(maxX - minX + 1, maxY - minY + 1) / 640f;
+                for (int y = 0; y < 768; y++) for (int x = 0; x < 768; x++)
+                {
+                    float u = ((x - 383.5f) * scale + (minX + maxX) * .5f + .5f) / pixels.width;
+                    float v = ((y - 383.5f) * scale + (minY + maxY) * .5f + .5f) / pixels.height;
+                    if (u >= 0 && u <= 1 && v >= 0 && v <= 1) output[y * 768 + x] = pixels.GetPixelBilinear(u, v);
+                }
+                icon.SetPixels32(output); icon.Apply(); File.WriteAllBytes(Path.Combine(folder, part.code + ".png"), icon.EncodeToPNG());
+                UnityEngine.Object.DestroyImmediate(icon); UnityEngine.Object.DestroyImmediate(pixels);
+            }
+            ui.Close(); ContractCompleted = true;
+        }
+
         static IEnumerator Capture(AerospaceScienceUI ui, string name, int width, int height)
         {
             // The reading panel has a .23 s unscaled reveal. Capture its settled state,

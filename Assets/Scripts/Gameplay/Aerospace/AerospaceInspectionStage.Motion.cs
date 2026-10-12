@@ -9,7 +9,7 @@ namespace ExtractionLike.Aerospace
         private float lastDragTime, coastRemaining, shownZoom = 1, resetAge, assembledFitDistance;
         private float resetYaw, resetPitch, shownYaw, shownPitch;
         private Vector3 resetCameraPosition, resetCameraFocus;
-        private float shownFold, foldFrom, foldTarget, foldAge;
+        private float shownFold, foldFrom, foldTarget, foldAge, rotorAngle;
         public bool IsCoasting => coastRemaining > 0;
         public bool IsResettingView => resetting;
         public float DisplayZoom => shownZoom;
@@ -92,12 +92,12 @@ namespace ExtractionLike.Aerospace
             Vector3 target = TargetPosition(p);
             if ((p.moveTarget - target).sqrMagnitude > .00000001f)
             {
-                p.moveFrom = p.t.localPosition; p.moveTarget = target; p.moveAge = 0;
+                p.moveFrom = p.mechanicalPosition; p.moveTarget = target; p.moveAge = 0;
                 p.moveDelay = Mode == "exploded" ? p.motionOrder : .12f - p.motionOrder;
             }
             p.moveAge += Time.unscaledDeltaTime;
             // Demonstration geometry follows the same clock as its tracers, so Pause freezes both.
-            p.t.localPosition = ReducedMotion || (DemoActive && config.code == "R05") ? target : Vector3.LerpUnclamped(p.moveFrom, target, Ease((p.moveAge - p.moveDelay) / .46f));
+            p.t.localPosition = p.mechanicalPosition = ReducedMotion || (DemoActive && config.code == "R05") ? target : Vector3.LerpUnclamped(p.moveFrom, target, Ease((p.moveAge - p.moveDelay) / .46f));
             p.t.localRotation = ReducedMotion ? p.rotation : Quaternion.Slerp(p.t.localRotation, p.rotation, 1 - Mathf.Exp(-Time.unscaledDeltaTime * 18));
             float visible = Mode == "cutaway" && p.cut ? 0 : 1;
             if (p.visibleTarget != visible) { p.visibleFrom = p.visibility; p.visibleTarget = visible; p.visibleAge = 0; }
@@ -125,7 +125,7 @@ namespace ExtractionLike.Aerospace
         private void ClearViewMotion()
         {
             CancelCameraMotion(); shownZoom = 1; shownFold = foldFrom = foldTarget = foldAge = 0;
-            shownYaw = shownPitch = 0;
+            shownYaw = shownPitch = rotorAngle = 0;
             assembledFitDistance = 0;
         }
     }

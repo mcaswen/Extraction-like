@@ -50,7 +50,7 @@ namespace ExtractionLike.Aerospace
             var background = new GameObject("Blue_Inspection_Surface", typeof(RectTransform), typeof(AerospaceInspectionBackdrop));
             background.transform.SetParent(frame, false); Rect(background.GetComponent<RectTransform>(), 448, 0, 1152, 900);
             background.GetComponent<AerospaceInspectionBackdrop>().raycastTarget = false;
-            watermark = MonoLabel(frame, "", 1086, 286, 490, 320, 252, new Color(.57f, .68f, .73f, .07f)); watermark.name = "Specimen_Watermark";
+            watermark = MonoLabel(frame, "", 1086, 286, 490, 320, 252, new Color(.40f, .64f, .88f, .025f)); watermark.name = "Specimen_Watermark";
             watermark.enableWordWrapping = false;
 
             BuildDossier(frame);
@@ -81,7 +81,7 @@ namespace ExtractionLike.Aerospace
 
         private void BuildDossier(Transform frame)
         {
-            readingPane = Panel(frame, "Science_Reading_Panel", Paper, 0, 0, 448, 900);
+            readingPane = InstrumentPanel(frame, "Science_Reading_Panel", Paper, 0, 0, 448, 900, AerospaceInstrumentSurface.Finish.Panel);
             var brand = Label(readingPane, "ASTRA", 32, 21, 153, 48, 38, PaperInk); brand.font = font; brand.fontStyle = FontStyles.Bold;
             Label(readingPane, "/", 181, 27, 28, 38, 31, PaperMuted);
             Label(readingPane, "航天样本档案", 211, 32, 211, 29, 18, PaperInk);
@@ -92,7 +92,7 @@ namespace ExtractionLike.Aerospace
             Panel(readingPane, "Category_Rule", Rule, 184, 138, 31, 1);
             Label(readingPane, "回收样件", 232, 127, 176, 24, 15, PaperMuted);
             heading = Label(readingPane, "航天样本\n档案", 32, 162, 383, 109, 42, PaperInk); heading.font = font; heading.lineSpacing = -1;
-            heading.name = "Specimen_Title"; heading.fontStyle = FontStyles.Bold;
+            heading.name = "Specimen_Title"; heading.fontStyle = FontStyles.Normal; heading.characterSpacing = 1.1f;
             sampleId = MonoLabel(readingPane, "—", 33, 282, 86, 43, 35, PaperInk);
             Panel(readingPane, "Identity_Divider", Rule, 118, 283, 1, 37);
             english = MonoLabel(readingPane, "AEROSPACE COMPONENTS", 134, 283, 278, 42, 11, PaperMuted); english.characterSpacing = 1;
@@ -100,6 +100,7 @@ namespace ExtractionLike.Aerospace
             {
                 int index = i; var tab = Button(readingPane, new[] { "整体介绍", "工作原理", "结构细节" }[i], 32 + i * 128, 339, 128, 47, () => SetReadingTab(index));
                 tab.name = "Reading_Tab_" + i; tab.GetComponentInChildren<TMP_Text>().fontSize = 16; readingTabs.Add(tab);
+                tab.GetComponent<AerospaceInstrumentSurface>().finish = AerospaceInstrumentSurface.Finish.Tab;
             }
             var scroll = Panel(readingPane, "Reading_Scroll", Color.clear, 32, 408, 383, ReadingHeight);
             scroll.GetComponent<Image>().raycastTarget = true; readingScroll = scroll.gameObject.AddComponent<ScrollRect>();
@@ -114,7 +115,7 @@ namespace ExtractionLike.Aerospace
             bar.handleRect = handle; bar.targetGraphic = handle.GetComponent<Image>(); bar.navigation = new Navigation { mode = Navigation.Mode.None };
             readingScroll.verticalScrollbar = bar; readingScroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
 
-            var locator = Panel(frame, "Rocket_System_Locator", new Color(.09f, .16f, .21f, .85f), 0, 650, 448, 172);
+            var locator = InstrumentPanel(frame, "Rocket_System_Locator", new Color(.065f, .135f, .22f, .96f), 0, 650, 448, 172, AerospaceInstrumentSurface.Finish.Panel);
             Panel(locator, "Locator_Top_Rule", Rule, 0, 0, 448, 1);
             var diagram = new GameObject("Rocket_Location_Diagram", typeof(RectTransform), typeof(AerospaceTerminalGraphic)); diagram.transform.SetParent(locator, false);
             Rect(diagram.GetComponent<RectTransform>(), 27, 11, 83, 150); locationGraphic = diagram.GetComponent<AerospaceTerminalGraphic>(); locationGraphic.locationCode = "R01"; locationGraphic.raycastTarget = false;
@@ -136,8 +137,9 @@ namespace ExtractionLike.Aerospace
             {
                 string code = part.code; int i = cards.Count;
                 var card = Button(frame, "", 472 + i * 182, 12, 174, 70, () => Open(code, false)); card.name = "Archive_" + code;
+                card.GetComponent<AerospaceInstrumentSurface>().finish = AerospaceInstrumentSurface.Finish.Archive;
                 card.GetComponentInChildren<TMP_Text>().gameObject.SetActive(false);
-                var icon = Panel(card.transform, "Icon", Color.white, 5, 6, 43, 57).GetComponent<Image>();
+                var icon = Panel(card.transform, "Icon", Color.white, 3, 10, 46, 50).GetComponent<Image>();
                 icon.sprite = Resources.Load<Sprite>("Aerospace/Icons/" + code); icon.preserveAspect = true; icon.raycastTarget = false; cardIcons.Add(icon);
                 cardStates.Add(Label(card.transform, "", 52, 10, 120, 22, 11, Muted));
                 cardTitles.Add(Label(card.transform, "", 52, 35, 120, 28, 15, Ink));
@@ -162,6 +164,8 @@ namespace ExtractionLike.Aerospace
                 pin.gameObject.AddComponent<AerospaceHotspotPointer>().hover = value => { if (value) hoveredPin = index; else if (hoveredPin == index) hoveredPin = -1; };
                 pins.Add(pin);
                 var dot = Button(viewport, "", 0, 0, 24, 24, () => ShowDetail(index)); dot.name = "Anchor_" + (i + 1); dot.GetComponent<Image>().color = Color.clear;
+                // Anchor hit targets stay invisible; only the independent leader draws their marker.
+                dot.GetComponent<AerospaceInstrumentSurface>().hitTargetOnly = true;
                 dot.gameObject.AddComponent<AerospaceHotspotPointer>().hover = value => { if (value) hoveredPin = index; else if (hoveredPin == index) hoveredPin = -1; }; anchorButtons.Add(dot);
             }
         }
@@ -183,7 +187,6 @@ namespace ExtractionLike.Aerospace
             settingsButton = Button(controls.transform, "", 1060, 0, 44, 44, () => SetSettings(!IsSettingsOpen)); settingsButton.name = "Display_Settings";
             settingsButton.GetComponentInChildren<TMP_Text>().gameObject.SetActive(false);
             AddGlyph(settingsButton.transform, "gear", 10, 10, 24, Muted);
-            AddButtonEdges(settingsButton, Rule);
             settingsTooltip = Panel(controls.transform, "Settings_Tooltip", new Color(.07f, .12f, .17f, .99f), 984, -42, 120, 32).gameObject;
             Label(settingsTooltip.transform, "展示设置", 0, 0, 120, 32, 14, Ink, TextAlignmentOptions.Center);
             settingsTooltip.SetActive(false);
@@ -198,7 +201,7 @@ namespace ExtractionLike.Aerospace
         {
             settingsOverlay = Panel(frame, "Display_Settings_Overlay", Color.clear, 0, 0, 1600, 900).gameObject; settingsOverlay.GetComponent<Image>().raycastTarget = true;
             var dismiss = settingsOverlay.AddComponent<Button>(); dismiss.transition = Selectable.Transition.None; dismiss.onClick.AddListener(() => SetSettings(false)); dismiss.navigation = new Navigation { mode = Navigation.Mode.None };
-            var settings = Panel(settingsOverlay.transform, "Settings_Panel", new Color(.07f, .12f, .17f, .99f), 1246, 555, 326, 234);
+            var settings = InstrumentPanel(settingsOverlay.transform, "Settings_Panel", new Color(.055f, .115f, .205f, .99f), 1246, 555, 326, 234, AerospaceInstrumentSurface.Finish.Panel);
             settings.GetComponent<Image>().raycastTarget = true; settings.gameObject.AddComponent<Button>().transition = Selectable.Transition.None;
             Panel(settings, "Settings_Accent", Accent, 0, 0, 326, 2); Label(settings, "展示设置", 20, 16, 270, 26, 19, Ink).font = font;
             var surface = Button(settings, "表面状态   清理后样件", 16, 57, 294, 40, () => { stage.ToggleSurface(); RefreshButtons(); }); surface.name = "Toggle_Surface"; surfaceText = surface.GetComponentInChildren<TMP_Text>();
@@ -307,7 +310,7 @@ namespace ExtractionLike.Aerospace
         private void ReadText(string text, ref float y, int size, Color color, float after, bool headingStyle = false, string objectName = null)
         {
             var label = Label(detailContent, text, 0, y, ReadingWidth, 100, size, color);
-            if (headingStyle) { label.font = font; label.fontStyle = FontStyles.Bold; label.lineSpacing = 2; }
+            if (headingStyle) { label.font = font; label.fontStyle = FontStyles.Normal; label.lineSpacing = 2; }
             if (objectName != null) label.name = objectName;
             float h = Mathf.Ceil(label.GetPreferredValues(text, ReadingWidth, Mathf.Infinity).y) + 5;
             label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h); y += h + after;
@@ -316,6 +319,13 @@ namespace ExtractionLike.Aerospace
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image)); go.transform.SetParent(parent, false);
             var img = go.GetComponent<Image>(); img.color = color; img.raycastTarget = false; var r = (RectTransform)go.transform; Rect(r, x, y, w, h); return r;
+        }
+        private RectTransform InstrumentPanel(Transform parent, string name, Color tint, float x, float y, float w, float h, AerospaceInstrumentSurface.Finish finish)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(AerospaceInstrumentSurface)); go.transform.SetParent(parent, false);
+            var surface = go.GetComponent<AerospaceInstrumentSurface>(); surface.color = tint; surface.raycastTarget = false;
+            surface.finish = finish; surface.reduceMotion = () => stage.ReducedMotion;
+            Rect(surface.rectTransform, x, y, w, h); return surface.rectTransform;
         }
         private TMP_Text Label(Transform parent, string text, float x, float y, float w, float h, int size, Color color, TextAlignmentOptions alignment = TextAlignmentOptions.TopLeft)
         {
@@ -329,10 +339,10 @@ namespace ExtractionLike.Aerospace
         { var label = Label(parent, text, x, y, w, h, size, color); label.font = monoFont; return label; }
         private Button Button(Transform parent, string text, float x, float y, float w, float h, Action clicked)
         {
-            var panel = Panel(parent, "Button_" + text, ButtonFill, x, y, w, h); panel.GetComponent<Image>().raycastTarget = true;
+            var panel = InstrumentPanel(parent, "Button_" + text, ButtonFill, x, y, w, h, AerospaceInstrumentSurface.Finish.Control); panel.GetComponent<Image>().raycastTarget = true;
             var button = panel.gameObject.AddComponent<Button>(); button.targetGraphic = panel.GetComponent<Image>(); button.onClick.AddListener(() => clicked());
             var colors = button.colors; colors.highlightedColor = new Color(1.14f, 1.20f, 1.26f); colors.pressedColor = new Color(.70f, .83f, .94f); colors.selectedColor = Color.white;
-            colors.disabledColor = new Color(.40f, .48f, .56f, .65f); colors.fadeDuration = .12f; button.colors = colors; button.navigation = new Navigation { mode = Navigation.Mode.None };
+            colors.disabledColor = new Color(.40f, .48f, .56f, .65f); colors.fadeDuration = .14f; button.colors = colors; button.navigation = new Navigation { mode = Navigation.Mode.None };
             Label(panel, text, 8, 0, w - 16, h, 16, Ink, TextAlignmentOptions.Center); return button;
         }
         private void AddButtonGlyph(Button button, string glyph)
@@ -346,24 +356,16 @@ namespace ExtractionLike.Aerospace
             Rect(go.GetComponent<RectTransform>(), x, y, size, size);
             var graphic = go.GetComponent<AerospaceTerminalGraphic>(); graphic.glyph = glyph; graphic.color = tint; graphic.raycastTarget = false;
         }
-        private void AddButtonEdges(Button button, Color tint)
-        {
-            var rect = button.GetComponent<RectTransform>().rect;
-            Panel(button.transform, "Button_Top_Edge", tint, 0, 0, rect.width, 1);
-            Panel(button.transform, "Button_Bottom_Edge", tint, 0, rect.height - 1, rect.width, 1);
-            Panel(button.transform, "Button_Left_Edge", tint, 0, 1, 1, rect.height - 2);
-            Panel(button.transform, "Button_Right_Edge", tint, rect.width - 1, 1, 1, rect.height - 2);
-        }
         private Button DemonstrationButton(Transform parent, string text, float x, float y, float w, float h)
         {
             var button = Button(parent, text, x, y, w, h, StartDemonstration);
+            button.GetComponent<AerospaceInstrumentSurface>().finish = AerospaceInstrumentSurface.Finish.Primary;
             button.GetComponent<Image>().color = ButtonFill;
             Color foreground = Teal;
             var label = button.GetComponentInChildren<TMP_Text>(); label.color = foreground; label.font = font;
-            label.fontStyle = FontStyles.Bold; label.fontSize = 16; label.enableWordWrapping = false;
+            label.fontStyle = FontStyles.Normal; label.fontSize = 16; label.enableWordWrapping = false;
             Rect(label.rectTransform, 43, 0, w - 55, h);
             AddGlyph(button.transform, "play", 14, (h - 20) * .5f, 20, foreground);
-            AddButtonEdges(button, new Color(Teal.r, Teal.g, Teal.b, .65f));
             var colors = button.colors; colors.highlightedColor = new Color(1.12f, 1.12f, 1.12f);
             colors.pressedColor = new Color(.70f, .83f, .94f); colors.fadeDuration = .10f; button.colors = colors;
             return button;
@@ -371,6 +373,7 @@ namespace ExtractionLike.Aerospace
         private void StyleButton(Button button, bool selected, bool tab = false)
         {
             button.GetComponent<Image>().color = selected ? SelectedFill : tab ? new Color(.09f, .14f, .18f, .50f) : ButtonFill;
+            var surface = button.GetComponent<AerospaceInstrumentSurface>(); if (surface != null) surface.SetSelected(selected);
             Color tint = selected ? Accent : Muted;
             var label = button.GetComponentInChildren<TMP_Text>(); if (label != null) label.color = tint;
             var glyph = button.GetComponentInChildren<AerospaceTerminalGraphic>(); if (glyph != null) glyph.color = tint;

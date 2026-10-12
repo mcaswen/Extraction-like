@@ -15,12 +15,12 @@ namespace ExtractionLike.Aerospace
     {
         // Original blue terminal surfaces (5334f7c), applied to the current dossier layout.
         // Selection is cyan too: no yellow/orange UI accents, including transient states.
-        private static readonly Color Ink = new Color(.91f, .95f, .96f), Muted = new Color(.57f, .68f, .73f);
+        private static readonly Color Ink = new Color(.91f, .95f, .96f), Muted = new Color(.61f, .74f, .84f);
         private static readonly Color Accent = new Color(.48f, .90f, 1f), Teal = new Color(.32f, .83f, .90f);
-        private static readonly Color Rule = new Color(.30f, .48f, .57f, .42f), ButtonFill = new Color(.12f, .19f, .23f, .78f);
-        private static readonly Color SelectedFill = new Color(.075f, .205f, .29f, .97f);
+        private static readonly Color Rule = new Color(.24f, .46f, .66f, .42f), ButtonFill = new Color(.065f, .125f, .205f, .92f);
+        private static readonly Color SelectedFill = new Color(.075f, .225f, .36f, .97f);
         // These names identify the retained reading layout, not a separate paper-colour theme.
-        private static readonly Color Paper = new Color(.052f, .087f, .12f, .96f), PaperInk = Ink, PaperMuted = Muted;
+        private static readonly Color Paper = new Color(.038f, .079f, .145f, .98f), PaperInk = Ink, PaperMuted = Muted;
         private AerospaceCollectionRuntime owner;
         private AerospaceInspectionStage stage;
         private Canvas canvas;
@@ -268,6 +268,7 @@ namespace ExtractionLike.Aerospace
                 cardRules[i].color = Color.clear;
                 if (selected) MoveArchiveCursor(i);
                 cards[i].GetComponent<Image>().color = selected ? new Color(SelectedFill.r, SelectedFill.g, SelectedFill.b, .9f) : Color.clear;
+                cards[i].GetComponent<AerospaceInstrumentSurface>().SetSelected(selected);
                 progressMarks[i].color = collected ? Teal : new Color(.23f, .28f, .29f);
             }
         }
@@ -315,6 +316,8 @@ namespace ExtractionLike.Aerospace
             if (!IsOpen) return;
             float w = viewport.rect.width, h = viewport.rect.height;
             var silhouette = stage.ProjectedModelBounds();
+            if (stage.Ready)
+                terminalGraphic.SetDatum(new Vector2(Mathf.Clamp(silhouette.center.x * w, 290, w - 290), Mathf.Clamp((1 - silhouette.yMin) * h + 18, 470, h - 62)), Mathf.Clamp(silhouette.width * w * .34f, 140, 235), stage.DisplayYaw);
             for (int i = 0; i < pins.Count; i++)
             {
                 pinVisible[i] = pinsEnabled && !transitioning && !stage.DemoActive && stage.TryAnchor(i, out _);

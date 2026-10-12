@@ -34,7 +34,9 @@ public static class AerospaceCollectiblesValidation
                 Debug.Log("AEROSPACE_ASSET_VERIFIED " + p.code + " " + q + " triangles=" + triangles + " meshes=" + asset.meshes.Length + " hotspots=4");
             }
         }
-        var clip = Resources.Load<AudioClip>("Aerospace/RareDiscovery"); Require(clip != null && clip.length > 1, "Missing discovery audio");
+        // Match the approved short weighted-lock cue, also covered by the collection tests.
+        var clip = Resources.Load<AudioClip>("Aerospace/RareDiscovery");
+        Require(clip != null && clip.samples > 0 && Mathf.Abs(clip.length - .84f) < .002f, "Missing or unexpected discovery audio");
         Require(Resources.Load<GameObject>("Aerospace/Models/R03_Study") != null, "Missing injector teaching element");
         Require(Resources.Load<AerospacePresentationAssets>("Aerospace/Presentation").bodyFont != null, "Missing readable Chinese font");
         var presentation = Resources.Load<AerospacePresentationAssets>("Aerospace/Presentation");

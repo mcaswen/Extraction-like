@@ -140,7 +140,7 @@ namespace ExtractionLike.Aerospace
             CancelCameraMotion();
             DemoActive = DemoPlaying = false; flow?.Clear();
             LeaveStudy(); RelationPhase = -1;
-            foreach (var p in poses) { p.moveFrom = p.t.localPosition; p.moveAge = 0; }
+            foreach (var p in poses) { p.moveFrom = p.mechanicalPosition; p.moveAge = 0; }
             if (restore)
             {
                 ApplyMode(demoReturnMode);
@@ -181,7 +181,7 @@ namespace ExtractionLike.Aerospace
                 properties.Clear(); properties.SetFloat("_Opacity", (1 - p.visibility) * .32f); p.ghost.SetPropertyBlock(properties);
             }
         }
-        private Vector3 Native(Vector3 blender) => model.localPosition + new Vector3(blender.x, blender.z, blender.y) * modelScale;
+        private Vector3 Native(Vector3 blender) => model.localPosition + (new Vector3(blender.x, blender.z, blender.y) - AerospaceCatalog.Convert(config.nativeCenter)) * modelScale;
         private Vector3 StudyNative(Vector3 blender)
         {
             // Exported study and assembly share Blender's Z-up coordinate convention.

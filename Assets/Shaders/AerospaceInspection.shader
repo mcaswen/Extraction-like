@@ -61,11 +61,15 @@ Shader "Aerospace/Inspection PBR"
                 float rough=clamp(lerp(1-packed.a,packed.g,_UseORM),.16,.92);rough=lerp(rough,.5,_Graphic);
                 float ao=lerp(SAMPLE_TEXTURE2D(_AOMap,sampler_AOMap,i.uv).r,packed.r,_UseORM);
                 float3 right=UNITY_MATRIX_I_V._m00_m10_m20,up=UNITY_MATRIX_I_V._m01_m11_m21;
-                float3 key=normalize(v*.55+right*.65+up*.8),fill=normalize(v*.3-right*.85+up*.45),rim=normalize(-v*.5+up*.9);
-                float3 color=lamp(n,v,key,float3(3.8,3.6,3.24),base,metal,rough)+lamp(n,v,fill,float3(1.25,1.7,2.05),base,metal,rough)+lamp(n,v,rim,float3(1.8,2.6,3.0),base,metal,rough);
+                float3 key=normalize(v*.70+right*.58+up*.82),fill=normalize(v*.42-right*.85+up*.4),rim=normalize(-v*.45-right*.8+up*.55);
+                // Broad white key plus a cold rim: keep the metal/ceramic colours legible.
+                float3 color=lamp(n,v,key,float3(2.8,2.92,3.12),base,metal,max(rough,.31))
+                    +lamp(n,v,normalize(key+right*.30),float3(.65,.70,.79),base,metal,max(rough,.35))
+                    +lamp(n,v,fill,float3(.75,1.08,1.52),base,metal,max(rough,.30))
+                    +lamp(n,v,rim,float3(.85,1.75,2.65),base,metal,max(rough,.28));
                 float3 f0=lerp(.04.xxx,base,metal);
                 float3 env=SAMPLE_TEXTURECUBE_LOD(_Studio,sampler_Studio,reflect(-v,n),rough*5).rgb;
-                color+=(base*(1-metal)*.23+env*(f0+(1-f0)*pow(1-saturate(dot(n,v)),5)))*lerp(.4,1,ao);
+                color+=(base*(1-metal)*.26+env*(f0+(1-f0)*pow(1-saturate(dot(n,v)),5))*.90)*lerp(.4,1,ao);
                 color*=lerp(.75,1,ao)*(1-_ContextDim);
                 float edge=pow(1-saturate(dot(n,v)),3);
                 color+=float3(.25,.85,1.2)*_Highlight*(.16+edge*.9);
