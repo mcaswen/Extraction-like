@@ -125,7 +125,6 @@ namespace ExtractionLike.Aerospace
             locationTag = Label(locator, "", 144, 143, 274, 23, 13, Teal); Panel(locator, "Current_Location_Mark", Teal, 131, 150, 5, 5);
             sourceButton = Button(readingPane, "科普资料  ↗", 24, 833, 192, 32, ShowSources); sourceButton.name = "Science_Sources";
             sourceButton.GetComponentInChildren<TMP_Text>().fontSize = 15;
-            var clues = Button(readingPane, "搜集线索", 277, 833, 146, 32, ShowCollectionClues); clues.name = "Collection_Clues"; clues.GetComponentInChildren<TMP_Text>().fontSize = 15;
             progress = Label(readingPane, "本局收集   0 / 5", 33, 875, 240, 22, 13, PaperMuted);
             for (int i = 0; i < 5; i++) progressMarks.Add(Panel(readingPane, "Collection_" + i, Rule, 303 + i * 24, 882, 16, 3).GetComponent<Image>());
         }
@@ -214,8 +213,7 @@ namespace ExtractionLike.Aerospace
             readingAge = 0;
             for (int i = detailContent.childCount - 1; i >= 0; i--) { var child = detailContent.GetChild(i).gameObject; child.SetActive(false); Destroy(child); }
             float y = 0;
-            if (readingTab == 4) RenderClues(ref y);
-            else if (current != null)
+            if (current != null)
             {
                 var copy = AerospaceScienceCopy.For(current.code);
                 for (int i = 0; i < pinNames.Count; i++) pinNames[i].text = ShortHotspot(current.code, i);
@@ -283,28 +281,6 @@ namespace ExtractionLike.Aerospace
             }
             detailContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(ReadingHeight, y + 8));
             detailContent.anchoredPosition = Vector2.zero; readingScroll.velocity = Vector2.zero; readingScroll.verticalNormalizedPosition = 1;
-        }
-
-        private void RenderClues(ref float y)
-        {
-            ReadText("本局搜集线索", ref y, 24, PaperInk, 21, true);
-            ReadText("首个新箱必出样本，后续沿探索路线间隔出现。重复开箱不推进进度；成功放入背包才解锁档案。", ref y, 17, PaperInk, 24);
-            ReadText("已探索不同箱子：" + owner.SearchedBoxCount + "   已投放样本：" + owner.PlacedPartCount + "/5", ref y, 15, PaperMuted, 20);
-            foreach (var reservation in owner.Reservations)
-            {
-                if (!reservation.placed)
-                {
-                    ReadText(reservation.code + "   待发现", ref y, 17, PaperInk, 7, true);
-                    ReadText("第 " + reservation.searchNumber + " 个新箱保底出现（两名 Agent 共享进度）", ref y, 15, PaperMuted, 20); continue;
-                }
-                string zone = reservation.cluster != null ? reservation.cluster.name : "资源区";
-                for (var p = reservation.cluster != null ? reservation.cluster.transform : null; p != null; p = p.parent)
-                    if (p.name.StartsWith("Zone", StringComparison.Ordinal)) { zone = p.name; break; }
-                ReadText(reservation.code + (owner.HasCollected(reservation.code) ? "   本局已收集" : "   待收集"), ref y, 17, PaperInk, 7, true);
-                ReadText(zone + " / " + (reservation.box != null ? reservation.box.BoxName : "搜索点不可用"), ref y, 15, PaperMuted, 20);
-            }
-            if (!owner.IsReady) ReadText(owner.Status, ref y, 15, PaperMuted, 18);
-            ReadText("每件占 1 格。满包时请先腾出空间；已解锁的档案可再次查看。", ref y, 15, PaperMuted, 20);
         }
 
         private void ReadText(string text, ref float y, int size, Color color, float after, bool headingStyle = false, string objectName = null)

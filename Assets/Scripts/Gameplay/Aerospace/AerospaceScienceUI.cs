@@ -96,7 +96,8 @@ namespace ExtractionLike.Aerospace
                 heading.text = "航天样本\n档案"; english.text = "AEROSPACE\nCOMPONENTS"; sampleId.text = "—";
                 watermark.text = ""; locationTitle.text = "航天系统"; locationBody.text = "推进、返回与载荷连接"; locationTag.text = ""; locationGraphic.locationCode = "R01"; locationGraphic.SetVerticesDirty();
                 loading.text = "尚无归档样本\n搜索并拾取零件后，即可在这里检视";
-                loading.gameObject.SetActive(true); controls.SetActive(false); HidePins(); ShowCollectionClues(); RefreshButtons();
+                loading.gameObject.SetActive(true); controls.SetActive(false); HidePins();
+                readingTab = 0; RenderReading(); RefreshButtons();
             }
         }
 
@@ -272,7 +273,6 @@ namespace ExtractionLike.Aerospace
                 progressMarks[i].color = collected ? Teal : new Color(.23f, .28f, .29f);
             }
         }
-        public void ShowCollectionClues() { if (transitioning) return; RestoreDemonstrationReading(); readingTab = 4; RenderReading(); RefreshButtons(); }
         private void ShowSources() { if (transitioning) return; RestoreDemonstrationReading(); readingTab = 3; RenderReading(); RefreshButtons(); }
         private void OpenSource(int index)
         {

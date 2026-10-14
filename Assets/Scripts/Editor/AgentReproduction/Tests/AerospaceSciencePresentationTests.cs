@@ -39,6 +39,17 @@ namespace AgentReproduction.Tests
             Assert.That(ui.IsTransitioning, Is.False); Assert.That(ui.Stage.Ready, Is.True);
             yield return null;
         }
+        static void AssertCollectionCluesRemoved(AerospaceScienceUI ui)
+        {
+            Assert.That(ui.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Collection_Clues"), Is.False,
+                "The removed entrance must not remain as an invisible hit target.");
+            Assert.That(typeof(AerospaceScienceUI).GetMethod("ShowCollectionClues"), Is.Null);
+            var labels = ui.GetComponentsInChildren<TMP_Text>(true);
+            foreach (string copy in new[] { "搜集线索", "首个新箱必出样本", "已探索不同箱子", "已投放样本", "个新箱保底出现" })
+                Assert.That(labels.Any(t => t.text.Contains(copy)), Is.False, copy);
+            Assert.That(Named<Button>(ui, "Science_Sources"), Is.Not.Null, "Science references are independent of collection clues.");
+            for (int i = 0; i < 5; i++) Assert.That(Named<Image>(ui, "Collection_" + i), Is.Not.Null);
+        }
         [UnityTest]
         public IEnumerator ColdBlueTerminalPreservesDossierLayoutAndInput()
         {
@@ -248,11 +259,20 @@ namespace AgentReproduction.Tests
             var ui = Create(false); yield return null; Time.timeScale = 2;
             ui.Open(null, false); yield return null;
             Assert.That(ui.IsOpen, Is.True); Assert.That(ui.Stage.Ready, Is.False);
-            Assert.That(ui.ActiveReadingTab, Is.EqualTo(4)); Assert.That(ui.GetComponentsInChildren<TMP_Text>().Any(t => t.text.Contains("尚无归档样本")), Is.True);
+            Assert.That(ui.ActiveReadingTab, Is.Zero); Assert.That(ui.GetComponentsInChildren<TMP_Text>().Any(t => t.text.Contains("尚无归档样本")), Is.True);
+            AssertCollectionCluesRemoved(ui);
+            Assert.That(Named<Button>(ui, "Science_Sources").interactable, Is.False);
             for (int i = 0; i < 3; i++) Assert.That(Named<Button>(ui, "Reading_Tab_" + i).interactable, Is.False);
             AssertClassicBluePalette(ui);
             if (TestRunContext.Load().graphics) yield return Capture(ui, "Empty_Archive", 1600, 900);
             Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(2)); Assert.That(ui.Stage.Texture, Is.Null);
+            // Opening an empty archive must not leave a stale reading state after the first unlock.
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 1 << 1);
+            ui.Open(null, false); yield return Ready(ui);
+            Assert.That(ui.CurrentCode, Is.EqualTo("R02")); Assert.That(ui.ActiveReadingTab, Is.Zero);
+            AssertCollectionCluesRemoved(ui);
+            Assert.That(Named<Button>(ui, "Science_Sources").interactable, Is.True);
+            Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(2));
             ContractCompleted = true;
         }
         [UnityTest]
@@ -267,6 +287,7 @@ namespace AgentReproduction.Tests
             {
                 ui.Open(part.code, false); yield return Ready(ui);
                 Assert.That(ui.ActiveReadingTab, Is.Zero);
+                AssertCollectionCluesRemoved(ui);
                 Assert.That(Named<TMP_Text>(ui, "Overview_Summary").text.Length, Is.LessThan(150));
                 Assert.That(ui.Stage.DisplayCamera.aspect, Is.EqualTo(AerospaceInspectionStage.ViewWidth / AerospaceInspectionStage.ViewHeight).Within(.002f));
                 Assert.That(ui.GetComponentsInChildren<TMP_Text>().Any(t => t.text.Contains("保底投放")), Is.False);
