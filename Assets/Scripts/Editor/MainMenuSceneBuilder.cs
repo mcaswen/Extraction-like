@@ -11,8 +11,8 @@ using UnityEngine.UI;
 public static class MainMenuSceneBuilder
 {
     private const string MenuScenePath = "Assets/Scenes/Scene_MainMenu.unity";
-    private const string NextScenePath = "Assets/Scenes/Scene_PreparationInterface.unity";
-    private const string NextSceneName = "Scene_PreparationInterface";
+    private const string NextScenePath = "Assets/Scenes/Scene_ElementSelectionMenu.unity";
+    private const string NextSceneName = "Scene_ElementSelectionMenu";
     private const string SpriteRoot = "Assets/Art/Sprites/Png_Item_Main menu/";
     private const string BackgroundPath = SpriteRoot + "Png_Item_ Background.PNG";
     private const string GameNamePath = SpriteRoot + "Png_Item_ Game name.PNG";

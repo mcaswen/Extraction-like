@@ -6,7 +6,7 @@ namespace UI
 {
     public sealed class MainMenuController : MonoBehaviour
     {
-        [SerializeField] private string nextSceneName = "Scene_PreparationInterface";
+        [SerializeField] private string nextSceneName = "Scene_ElementSelectionMenu";
         [SerializeField] private Font menuFont;
         [SerializeField] private Text[] menuLabels;
 

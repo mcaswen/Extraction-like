@@ -8,7 +8,7 @@
 
 | 内容 | 当前完成情况 | 实际范围 |
 | --- | --- | --- |
-| 菜单与准备界面 | 已接入主要页面与跳转 | 主菜单、准备界面、元素选择、商店；设置和强化入口仍为占位 |
+| 菜单与准备界面 | 主菜单直接进入元素选择 | 准备界面暂时跳过，保留准备界面和商店；设置和强化入口仍为占位 |
 | 岛屿关卡 | 已有集成场景与区域内容 | 包含资源、敌人来源、Boss、撤离点、建筑遮挡与区域连接；保留多份制作和测试场景 |
 | 多角色行动 | 已接入主场景 | 两个 Agent 独立行动，支持焦点切换、指定目标、镜头与背包跟随焦点 |
 | Agent 自主行为 | 已接入发现、指令生命周期与执行链 | 自主和玩家目标统一生成群路线，反击后恢复有效路线，导航失败有界结束；风险评分模块已实现，基础预制体默认关闭 |
@@ -49,12 +49,12 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 
 | 场景 | 用途与连接情况 |
 | --- | --- |
-| [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) | 当前主入口，开始游戏后进入准备界面 |
-| [Scene_PreparationInterface](Assets/Scenes/Scene_PreparationInterface.unity) | 进入商店或元素选择 |
+| [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) | 当前主入口，开始游戏后直接进入元素选择 |
+| [Scene_PreparationInterface](Assets/Scenes/Scene_PreparationInterface.unity) | 暂时不接入开始游戏流程；保留商店和元素选择入口，供以后恢复 |
 | [Scene_ElementSelectionMenu](Assets/Scenes/Scene_ElementSelectionMenu.unity) | 五种元素中选择两个，随后载入主玩法场景；阵容接线状态见下文 |
 | [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 当前菜单流程使用的地图指挥及搜打撤正式场景，包含 7 个 Zone、28 个静态群、29 条合法直边、两个 Agent、30 个出生配置和两个有效撤离群 |
 | [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity) | 保留的历史 3D Raid 集成场景，不再由正式菜单流程载入 |
-| [ShopCanvasTest](Assets/Scenes/ShopCanvasTest.unity) | 当前准备界面使用的商店场景，包含仓库、交易和返回按钮 |
+| [ShopCanvasTest](Assets/Scenes/ShopCanvasTest.unity) | 保留的商店场景，包含仓库、交易和返回准备界面的按钮 |
 | [StorageCanvasTest](Assets/Scenes/StorageCanvasTest.unity) | 独立仓库验证场景，未列入当前构建列表 |
 | [Scene_StartMenu](Assets/Scenes/Scene_StartMenu.unity)、[Scene_sdw_test2](Assets/Scenes/Scene_sdw_test2.unity) | 保留的另一条启动与集成测试路径 |
 | [Scene_lyl_IslandWhitebox](Assets/Scenes/Scene_lyl_IslandWhitebox.unity)、[RenderTest](Assets/Scenes/RenderTest.unity) | 白盒内容生产与渲染验证入口 |
@@ -117,10 +117,7 @@ Agent 的移动和常规战斗由 AI 驱动。背包与商店内的物品操作�
 
 ```mermaid
 flowchart TD
-    Menu[主菜单] --> Prep[准备界面]
-    Prep --> Select[元素选择]
-    Prep --> Shop[仓库与图腾商店]
-    Shop --> Prep
+    Menu[主菜单] --> Select[元素选择]
     Select --> Raid[进入岛屿关卡]
     Raid --> Act[Agent 自主行动／玩家指定目标]
     Act --> Combat[战斗：伤害、击杀、经验、掉落]
@@ -133,7 +130,7 @@ flowchart TD
     Result -->|当前确认按钮| Raid
 ```
 
-当前已实现“局内携带物品 → 撤离 → 仓库持久化”。仓库配装进入下一局、结算返回准备界面等产品闭环尚未全部接通。
+准备界面暂时跳过，场景及商店入口保留供以后恢复。当前已实现“局内携带物品 → 撤离 → 仓库持久化”。仓库配装进入下一局、结算返回准备界面等产品闭环尚未全部接通。
 
 ### 多 Agent 与目标干预
 
