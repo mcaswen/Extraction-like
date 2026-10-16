@@ -95,8 +95,8 @@ namespace ExtractionLike.Environment
             ApplyPreview(cycle != null ? (Application.isPlaying ? cycle.CurrentPhase : cycle.startPhase) : 0f, 0f);
             if (!Application.isPlaying) return;
             foreach (ParticleSystem system in steamSystems)
-                if (system != null) system.Play(true);
-            if (sparkSystem != null) sparkSystem.Play(true);
+                if (system != null && system.gameObject.activeInHierarchy) system.Play(true);
+            if (sparkSystem != null && sparkSystem.gameObject.activeInHierarchy) sparkSystem.Play(true);
         }
 
         private void LateUpdate()

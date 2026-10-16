@@ -90,9 +90,21 @@ namespace AgentReproduction.Tests
             Assert.That(systems.All(system => !system.collision.enabled && system.main.maxParticles <= 40), Is.True);
             foreach (ParticleSystem system in systems)
             {
-                system.Simulate(2.2f, true, true, true);
-                Assert.That(system.particleCount, Is.GreaterThan(0), system.name + " did not emit during a deterministic preview.");
-                system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                // The upright landing archives these emitters. They must stay silent while hidden,
+                // but remain functional when the previous wreck is restored for comparison.
+                bool wasActive = system.gameObject.activeSelf;
+                if (!wasActive) Assert.That(system.particleCount, Is.Zero);
+                try
+                {
+                    system.gameObject.SetActive(true);
+                    system.Simulate(2.2f, true, true, true);
+                    Assert.That(system.particleCount, Is.GreaterThan(0), system.name + " did not emit during a deterministic preview.");
+                }
+                finally
+                {
+                    system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    system.gameObject.SetActive(wasActive);
+                }
             }
         }
 

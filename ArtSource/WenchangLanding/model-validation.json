@@ -1,0 +1,98 @@
+{
+  "source_sha256": "ee7a98b5609b1d747bdeb42510375d8978d6e00032dbf9f8bbe4618a49e03c61",
+  "intact_master_unchanged": true,
+  "feet_blender": [
+    [
+      3.2880465984344482,
+      3.2880465984344482,
+      0.18000000715255737
+    ],
+    [
+      -3.2880465984344482,
+      3.2880465984344482,
+      0.18000000715255737
+    ],
+    [
+      -3.2880465984344482,
+      -3.2880465984344482,
+      0.18000000715255737
+    ],
+    [
+      3.2880465984344482,
+      -3.2880465984344482,
+      0.18000000715255737
+    ]
+  ],
+  "smoke_anchors_blender": [
+    [
+      1.7,
+      -1.3,
+      6.6
+    ],
+    [
+      -3.18,
+      -0.69,
+      3.0
+    ]
+  ],
+  "lods": [
+    {
+      "level": 0,
+      "triangles": 143431,
+      "renderers": 10
+    },
+    {
+      "level": 1,
+      "triangles": 74624,
+      "renderers": 10
+    },
+    {
+      "level": 2,
+      "triangles": 45956,
+      "renderers": 10
+    }
+  ],
+  "material_settings": {
+    "Hull": {
+      "metallic": 0.08,
+      "roughness": 0.6
+    },
+    "Trim": {
+      "metallic": 0.28,
+      "roughness": 0.52
+    },
+    "Orange": {
+      "metallic": 0.08,
+      "roughness": 0.55
+    },
+    "Steel": {
+      "metallic": 0.72,
+      "roughness": 0.36
+    },
+    "Dark": {
+      "metallic": 0.28,
+      "roughness": 0.61
+    },
+    "WarmMetal": {
+      "metallic": 0.65,
+      "roughness": 0.47
+    },
+    "Ink": {
+      "metallic": 0.02,
+      "roughness": 0.68
+    },
+    "FlagRed": {
+      "metallic": 0.0,
+      "roughness": 0.61
+    },
+    "FlagGold": {
+      "metallic": 0.0,
+      "roughness": 0.55
+    },
+    "Scorch": {
+      "metallic": 0.03,
+      "roughness": 0.88
+    }
+  },
+  "removed_subpixel_objects": 3517
+}
