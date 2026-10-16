@@ -33,16 +33,23 @@ namespace ExtractionLike.Environment
             float daylight = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(-.35f, .35f, Mathf.Cos(phase * Mathf.PI * 2)));
             for (int i = 0; i < inspectionLights.Length; i++)
                 if (inspectionLights[i] != null) inspectionLights[i].intensity = Mathf.Lerp(i == 0 ? 18f : 10f, 0f, daylight);
-            foreach (var system in smoke)
+            for (int i = 0; i < smoke.Length; i++)
             {
+                var system = smoke[i];
                 if (system == null) continue;
                 var main = system.main;
-                Color tint = Color.Lerp(new Color(.53f,.55f,.56f,.48f), new Color(.36f,.37f,.37f,.60f), daylight);
+                Color tint = Color.Lerp(new Color(.53f,.55f,.56f,.46f), new Color(.34f,.35f,.35f,.58f), daylight);
+                if (i > 0) { tint.r += .08f; tint.g += .08f; tint.b += .08f; tint.a *= .66f; }
                 main.startColor = new ParticleSystem.MinMaxGradient(tint, new Color(tint.r+.12f,tint.g+.12f,tint.b+.12f,tint.a*.75f));
             }
             smokeBlock ??= new MaterialPropertyBlock();
-            smokeBlock.SetColor("_BaseColor", Color.Lerp(new Color(.57f,.60f,.61f,.48f), new Color(.26f,.27f,.28f,.62f), daylight));
-            foreach (var wisp in smokeWisps) if (wisp != null) wisp.SetPropertyBlock(smokeBlock);
+            for (int i = 0; i < smokeWisps.Length; i++)
+            {
+                if (smokeWisps[i] == null) continue;
+                Color tint = Color.Lerp(new Color(.57f,.60f,.61f,.44f), new Color(.28f,.29f,.30f,.55f), daylight);
+                if (i > 0) tint.a *= .65f;
+                smokeBlock.SetColor("_BaseColor", tint); smokeWisps[i].SetPropertyBlock(smokeBlock);
+            }
         }
     }
 }

@@ -227,10 +227,12 @@ public static partial class AerospaceSceneLayoutBuilder
         string path = LandingAssets + "/Materials/M_WC01_" + key + ".mat";
         var material = AssetDatabase.LoadAssetAtPath<Material>(path);
         if (material == null) { material = new Material(Shader.Find("Aerospace/Landing Surface")); AssetDatabase.CreateAsset(material, path); }
-        float metallic = key == "Steel" ? .72f : key == "WarmMetal" ? .65f : key == "Trim" || key == "Dark" ? .28f : .08f;
-        float smooth = key == "Steel" ? .64f : key == "WarmMetal" ? .53f : key == "Trim" ? .48f : .40f;
+        float metallic = key == "Steel" ? .80f : key == "WarmMetal" ? .62f : key == "Trim" ? .23f : key == "Dark" ? .20f : key == "Orange" ? .015f : .025f;
+        float smooth = key == "Steel" ? .71f : key == "WarmMetal" ? .51f : key == "Trim" ? .40f : key == "Dark" ? .28f : key == "Orange" ? .26f : .31f;
         if (key == "Ink" || key.StartsWith("Flag")) { metallic = 0; smooth = .32f; }
         material.SetColor("_BaseColor", Color.white); material.SetFloat("_Metallic", metallic); material.SetFloat("_Smoothness", smooth);
+        material.SetColor("_EmissionColor", key == "Orange" ? new Color(1.6f, .36f, .018f, 1) : Color.black);
+        material.SetFloat("_DetailNormalSoftening", key == "Steel" ? .65f : key == "Ink" || key.StartsWith("Flag") ? .90f : .82f);
         EditorUtility.SetDirty(material); return material;
     }
 
@@ -242,7 +244,7 @@ public static partial class AerospaceSceneLayoutBuilder
         material.SetColor("_BaseColor", color); material.SetFloat("_Smoothness", .08f); EditorUtility.SetDirty(material); return material;
     }
 
-    static void StoreLandingMesh(Transform parent, string name, Mesh mesh, Material material)
+    static MeshRenderer StoreLandingMesh(Transform parent, string name, Mesh mesh, Material material)
     {
         string path = LandingAssets + "/Meshes/" + name + ".asset";
         var stored = AssetDatabase.LoadAssetAtPath<Mesh>(path);
@@ -252,6 +254,7 @@ public static partial class AerospaceSceneLayoutBuilder
         var go = new GameObject(name); go.transform.SetParent(parent, false);
         go.AddComponent<MeshFilter>().sharedMesh = mesh; var renderer = go.AddComponent<MeshRenderer>(); renderer.sharedMaterial = material;
         renderer.shadowCastingMode = ShadowCastingMode.Off;
+        return renderer;
     }
 
     static void CreateLandingBerm(Transform parent, Vector3 contact, int index, Material soil)
@@ -325,16 +328,24 @@ public static partial class AerospaceSceneLayoutBuilder
     static ParticleSystem CreateLandingSmoke(Transform parent, Vector3 point, int index)
     {
         var go = new GameObject(index == 0 ? "Grey_Smoke_Damaged_Service_Shield" : "Grey_Smoke_Booster_Cooling_Vent"); go.transform.SetParent(parent, false); go.transform.position = point;
-        var p = go.AddComponent<ParticleSystem>(); p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        var p = go.AddComponent<ParticleSystem>(); ConfigureLandingSmoke(p, index); return p;
+    }
+
+    static void ConfigureLandingSmoke(ParticleSystem p, int index)
+    {
+        p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         var main = p.main; main.loop = true; main.playOnAwake = true; main.duration = 8; main.prewarm = true;
         main.maxParticles = index == 0 ? 28 : 22; main.startLifetime = new ParticleSystem.MinMaxCurve(4.5f, 6.5f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(.30f, .55f); main.startSize = new ParticleSystem.MinMaxCurve(2.2f, 3.6f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(.22f, .40f);
+        main.startSize = index == 0 ? new ParticleSystem.MinMaxCurve(1.8f, 2.8f) : new ParticleSystem.MinMaxCurve(1.2f, 2.0f);
         main.startRotation = new ParticleSystem.MinMaxCurve(0, Mathf.PI * 2); main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.startColor = new Color(.45f, .46f, .47f, .38f);
-        var emission = p.emission; emission.rateOverTime = index == 0 ? 2.4f : 1.6f;
+        var emission = p.emission;
+        var breath = new AnimationCurve(new Keyframe(0,.65f), new Keyframe(.25f,1), new Keyframe(.55f,.50f), new Keyframe(.85f,.80f), new Keyframe(1,.65f));
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(index == 0 ? 2.4f : 1.4f, breath);
         var shape = p.shape; shape.shapeType = ParticleSystemShapeType.Sphere; shape.radius = .22f;
         var velocity = p.velocityOverLifetime; velocity.enabled = true; velocity.space = ParticleSystemSimulationSpace.World;
-        velocity.x = .55f; velocity.y = .65f; velocity.z = -.10f;
+        velocity.x = .55f; velocity.y = index == 0 ? .65f : .52f; velocity.z = -.10f;
         var noise = p.noise; noise.enabled = true; noise.strength = .18f; noise.frequency = .35f; noise.scrollSpeed = .18f;
         var size = p.sizeOverLifetime; size.enabled = true; size.size = new ParticleSystem.MinMaxCurve(1, AnimationCurve.Linear(0, .65f, 1, 1.6f));
         var color = p.colorOverLifetime; color.enabled = true;
@@ -345,7 +356,7 @@ public static partial class AerospaceSceneLayoutBuilder
         var renderer = p.GetComponent<ParticleSystemRenderer>(); renderer.sharedMaterial = LandingTransparentMaterial("M_Landing_Grey_Smoke", Color.white);
         renderer.renderMode = ParticleSystemRenderMode.Billboard; renderer.shadowCastingMode = ShadowCastingMode.Off;
         renderer.receiveShadows = false; renderer.sortMode = ParticleSystemSortMode.Distance;
-        p.useAutoRandomSeed = false; p.randomSeed = (uint)(27101 + index); return p;
+        p.useAutoRandomSeed = false; p.randomSeed = (uint)(27101 + index);
     }
 
     static Renderer CreateLandingSmokeWisp(Transform parent, Vector3 point, int index)
@@ -357,17 +368,17 @@ public static partial class AerospaceSceneLayoutBuilder
         {
             float angle = card * Mathf.PI / 3; Vector3 right = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
             int n = vertices.Count;
-            vertices.Add(-right * 1.15f); vertices.Add(right * 1.15f);
-            vertices.Add(right * 2.10f + new Vector3(5f, 12.6f, -.6f)); vertices.Add(-right * 1.65f + new Vector3(5f, 12.6f, -.6f));
+            vertices.Add(-right * .9f); vertices.Add(right * .9f);
+            vertices.Add(right * 1.8f + new Vector3(4.8f, 9.5f, -.85f)); vertices.Add(-right * 1.5f + new Vector3(4.8f, 9.5f, -.85f));
             uv.AddRange(new[] { Vector2.zero, Vector2.right, Vector2.one, Vector2.up });
             triangles.AddRange(new[] { n, n + 1, n + 2, n, n + 2, n + 3 });
         }
         var mesh = new Mesh(); mesh.SetVertices(vertices); mesh.SetUVs(0, uv); mesh.SetTriangles(triangles, 0); mesh.RecalculateNormals(); mesh.RecalculateBounds();
         string name = "Slow_Grey_Wisp_" + index;
-        StoreLandingMesh(parent, name, mesh, LandingTransparentMaterial("M_Landing_Soft_Wisp", new Color(.4f, .41f, .41f, .42f)));
-        var wisp = parent.Find(name); wisp.position = point - Vector3.up * .6f;
-        if (index == 1) wisp.localScale = new Vector3(-.8f, .8f, .8f);
-        return wisp.GetComponent<Renderer>();
+        var renderer = StoreLandingMesh(parent, name, mesh, LandingTransparentMaterial("M_Landing_Soft_Wisp", new Color(.4f, .41f, .41f, .42f)));
+        var wisp = renderer.transform; wisp.position = point - Vector3.up * .6f;
+        if (index == 1) wisp.localScale = Vector3.one * .72f;
+        return renderer;
     }
 
     static string LandingOriginalSignature(Scene scene, GameObject[] toggleTargets)
@@ -398,6 +409,8 @@ public static partial class AerospaceSceneLayoutBuilder
         Directory.CreateDirectory(LandingPreviewFolder);
         var oldAtmosphere = FindByName(scene, CrashAtmosphereRoot).GetComponent<AerospaceCrashAtmosphere>();
         var night = FindByName(scene, GameViewNightRoot).GetComponent<AerospaceNightGroundLighting>();
+        bool asyncShaders = ShaderUtil.allowAsyncCompilation;
+        ShaderUtil.allowAsyncCompilation = false;
         try
         {
             foreach (float phase in new[] { 0f, .5f })
@@ -409,6 +422,9 @@ public static partial class AerospaceSceneLayoutBuilder
                     Debug.Log("LANDING_SMOKE " + p.name + " count=" + p.particleCount + " anchor=" + p.transform.position + " bounds=" + p.GetComponent<Renderer>().bounds);
                 }
                 string label = phase == 0 ? "day" : "night";
+                // Warm the headless render pipeline and native LOD state on the first draw.
+                // Warm that draw before saving the actual gameplay-camera evidence.
+                if (phase == 0) RenderActualGameView(scene, LandingPreviewFolder + "/gameview-landing-" + label + ".png", new Vector3(290, GroundHeight(290, 17) + 1.5f, 17));
                 RenderActualGameView(scene, LandingPreviewFolder + "/gameview-landing-" + label + ".png", new Vector3(290, GroundHeight(290, 17) + 1.5f, 17));
                 RenderActualGameView(scene, LandingPreviewFolder + "/gameview-approach-" + label + ".png", new Vector3(270, GroundHeight(270, 4) + 1.5f, 4));
                 if (phase == 0) RenderCameraPreview(LandingPreviewFolder + "/landing-closeup.png", new Vector3(323, 28, -31), site.vehicle.position + Vector3.up * 16, 45);
@@ -419,6 +435,7 @@ public static partial class AerospaceSceneLayoutBuilder
             cycle.ApplyPhase(cycle.startPhase, sky); site.ApplyPhase(cycle.startPhase); night.ApplyPhase(cycle.startPhase); oldAtmosphere.ApplyPreview(cycle.startPhase, 0);
             foreach (var p in site.smoke) p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             lighting.Restore(cycle.sunLight); foreach (var fill in fills) fill.Restore(); Object.DestroyImmediate(sky);
+            ShaderUtil.allowAsyncCompilation = asyncShaders;
         }
         Debug.Log("WENCHANG_LANDING_PREVIEWS_COMPLETE " + Path.GetFullPath(LandingPreviewFolder));
         if (Application.isBatchMode) EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);

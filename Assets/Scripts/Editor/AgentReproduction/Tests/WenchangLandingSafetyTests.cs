@@ -149,5 +149,69 @@ namespace AgentReproduction.Tests
             }
             finally { site.ApplyPhase(site.cycle.startPhase); }
         }
+
+        [Test]
+        public void PolishRetainsOriginalPlacementHeightAndAllFootContacts()
+        {
+            Assert.That(Vector3.Distance(site.vehicle.position, new Vector3(290,4.843349f,17)), Is.LessThan(.0001f));
+            Assert.That(Quaternion.Angle(site.vehicle.rotation, Quaternion.Euler(0,200,0)), Is.LessThan(.001f));
+            Assert.That(Vector3.Distance(site.vehicle.localScale, Vector3.one*1.35f), Is.LessThan(.0001f));
+            var expected = new[] { new Vector3(295.68936f,4.897349f,19.652987f), new Vector3(287.34702f,4.897349f,22.68935f),
+                new Vector3(284.31064f,4.897349f,14.347013f), new Vector3(292.65298f,4.897349f,11.310652f) };
+            for (int i=0;i<4;i++) Assert.That(Vector3.Distance(site.groundContactPoints[i],expected[i]),Is.LessThan(.0001f));
+        }
+
+        [Test]
+        public void StatusEmissionIsConfinedToOneSmallOrangeLensInEveryLod()
+        {
+            foreach (var lod in site.vehicleLods.GetLODs())
+            {
+                var orange = lod.renderers.Single(r => r.name.Contains("Orange_Structure"));
+                var colors = orange.GetComponent<MeshFilter>().sharedMesh.colors;
+                int lit = colors.Count(c=>c.a>.1f);
+                Assert.That(lit,Is.GreaterThan(0));
+                Assert.That(lit,Is.LessThan(colors.Length*.04f));
+                Assert.That(orange.sharedMaterial.GetColor("_EmissionColor").r, Is.GreaterThan(0));
+                foreach (var renderer in lod.renderers.Where(r=>r!=orange))
+                    Assert.That(renderer.GetComponent<MeshFilter>().sharedMesh.colors.All(c=>c.a<.01f), Is.True);
+            }
+        }
+
+        [Test]
+        public void MaterialHierarchyAndOutlineSofteningAreVehicleLocal()
+        {
+            var renderers=site.vehicleLods.GetLODs()[0].renderers;
+            var hull=renderers.First(r=>r.name.Contains("Hull_Structure")).sharedMaterial;
+            var steel=renderers.First(r=>r.name.Contains("Steel_Structure")).sharedMaterial;
+            var orange=renderers.First(r=>r.name.Contains("Orange_Structure")).sharedMaterial;
+            Assert.That(steel.GetFloat("_Metallic"), Is.GreaterThan(.7f));
+            Assert.That(hull.GetFloat("_Metallic"), Is.LessThan(.05f));
+            Assert.That(orange.GetFloat("_Smoothness"), Is.LessThan(.35f));
+            foreach(var r in renderers)
+            {
+                Assert.That(r.sharedMaterial.shader.name, Is.EqualTo("Aerospace/Landing Surface"));
+                Assert.That(r.sharedMaterial.GetFloat("_DetailNormalSoftening"), Is.InRange(.6f,.95f));
+                // Inspect the declared URP subshader: headless editors may not yet have
+                // an active render pipeline, so Material.passCount can show a dummy pass.
+                var subshader = ShaderUtil.GetShaderData(r.sharedMaterial.shader).GetSerializedSubshader(0);
+                Assert.That(Enumerable.Range(0,subshader.PassCount).Any(p=>string.Equals(subshader.GetPass(p).Name,"DepthNormals",System.StringComparison.OrdinalIgnoreCase)), Is.True,
+                    "The shader must retain its vehicle-local normal pass.");
+            }
+        }
+
+        [Test]
+        public void BothSmokeOutletsShareWindButHaveDifferentDensity()
+        {
+            for(int i=0;i<site.smoke.Length;i++)
+            {
+                var p=site.smoke[i];
+                Assert.That(p.velocityOverLifetime.x.constant, Is.EqualTo(.55f).Within(.001f));
+                Assert.That(p.velocityOverLifetime.z.constant, Is.EqualTo(-.1f).Within(.001f));
+                Assert.That(p.emission.rateOverTime.mode, Is.EqualTo(ParticleSystemCurveMode.Curve));
+                Assert.That(p.emission.rateOverTime.curveMultiplier, Is.LessThanOrEqualTo(2.4f));
+                Assert.That(site.smokeWisps[i].transform.localScale.x, Is.GreaterThan(0));
+            }
+            Assert.That(site.smoke[0].emission.rateOverTime.curveMultiplier, Is.GreaterThan(site.smoke[1].emission.rateOverTime.curveMultiplier));
+        }
     }
 }

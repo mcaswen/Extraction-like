@@ -1,4 +1,5 @@
 {
+  "revision": "game-camera structural and material polish",
   "source_sha256": "ee7a98b5609b1d747bdeb42510375d8978d6e00032dbf9f8bbe4618a49e03c61",
   "intact_master_unchanged": true,
   "feet_blender": [
@@ -38,44 +39,44 @@
   "lods": [
     {
       "level": 0,
-      "triangles": 143431,
+      "triangles": 143770,
       "renderers": 10
     },
     {
       "level": 1,
-      "triangles": 74624,
+      "triangles": 74774,
       "renderers": 10
     },
     {
       "level": 2,
-      "triangles": 45956,
+      "triangles": 46485,
       "renderers": 10
     }
   ],
   "material_settings": {
     "Hull": {
-      "metallic": 0.08,
-      "roughness": 0.6
+      "metallic": 0.025,
+      "roughness": 0.69
     },
     "Trim": {
-      "metallic": 0.28,
-      "roughness": 0.52
+      "metallic": 0.23,
+      "roughness": 0.6
     },
     "Orange": {
-      "metallic": 0.08,
-      "roughness": 0.55
+      "metallic": 0.015,
+      "roughness": 0.74
     },
     "Steel": {
-      "metallic": 0.72,
-      "roughness": 0.36
+      "metallic": 0.8,
+      "roughness": 0.29
     },
     "Dark": {
-      "metallic": 0.28,
-      "roughness": 0.61
+      "metallic": 0.2,
+      "roughness": 0.72
     },
     "WarmMetal": {
-      "metallic": 0.65,
-      "roughness": 0.47
+      "metallic": 0.62,
+      "roughness": 0.49
     },
     "Ink": {
       "metallic": 0.02,
@@ -94,5 +95,29 @@
       "roughness": 0.88
     }
   },
-  "removed_subpixel_objects": 3517
+  "removed_subpixel_objects": 3517,
+  "polish_features": [
+    "forged landing forks and hydraulic dampers",
+    "same foot contact plane and footprint",
+    "larger layered service fairings",
+    "graphite propulsion petals",
+    "attached folded shield and exposed service bay",
+    "single amber status lens",
+    "localized soot and runoff"
+  ],
+  "emissive_vertices_lod0": 24,
+  "envelope_blender": [
+    [
+      -4.242640972137451,
+      4.242640972137451
+    ],
+    [
+      -4.242640972137451,
+      4.242640972137451
+    ],
+    [
+      0.040000006556510925,
+      25.630002975463867
+    ]
+  ]
 }
