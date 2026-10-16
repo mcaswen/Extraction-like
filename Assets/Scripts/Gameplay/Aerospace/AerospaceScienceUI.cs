@@ -33,9 +33,9 @@ namespace ExtractionLike.Aerospace
         private CanvasGroup contentGroup;
         private ScrollRect readingScroll;
         private Text hud;
-        private TMP_Text progress, heading, english, subtitle, loading, surfaceText, foldText, qualityText, closeLabel, sampleId;
+        private TMP_Text progress, heading, subtitle, loading, surfaceText, foldText, qualityText, closeLabel, sampleId;
         private Button foldButton, settingsButton, sourceButton, resetButton, pinsButton;
-        private TMP_Text watermark, locationTitle, locationBody, locationTag, surfaceState;
+        private TMP_Text locationTitle, locationBody;
         private AerospaceTerminalGraphic locationGraphic;
         private bool pinsEnabled = true;
         private readonly List<Button> cards = new List<Button>(), pins = new List<Button>(), anchorButtons = new List<Button>(), modeButtons = new List<Button>(), readingTabs = new List<Button>();
@@ -93,8 +93,8 @@ namespace ExtractionLike.Aerospace
             if (code != null) BeginLoad(code, discovery);
             else
             {
-                heading.text = "航天样本\n档案"; english.text = "AEROSPACE\nCOMPONENTS"; sampleId.text = "—";
-                watermark.text = ""; locationTitle.text = "航天系统"; locationBody.text = "推进、返回与载荷连接"; locationTag.text = ""; locationGraphic.locationCode = "R01"; locationGraphic.SetVerticesDirty();
+                heading.text = ""; sampleId.text = "—";
+                locationTitle.text = "航天系统"; locationBody.text = "推进、返回与载荷连接"; locationGraphic.locationCode = "R01"; locationGraphic.SetVerticesDirty();
                 loading.text = "尚无归档样本\n搜索并拾取零件后，即可在这里检视";
                 loading.gameObject.SetActive(true); controls.SetActive(false); HidePins();
                 readingTab = 0; RenderReading(); RefreshButtons();
@@ -206,7 +206,6 @@ namespace ExtractionLike.Aerospace
             if (motionText != null) motionText.text = "减少动态效果   " + (stage.ReducedMotion ? "开" : "关");
             if (demoButton != null) demoButton.interactable = ready;
             surfaceText.text = stage.Recovered ? "表面状态   回收痕迹" : "表面状态   清理后样件";
-            surfaceState.text = stage.Recovered ? "回收痕迹" : "清理后样件";
             foldButton.gameObject.SetActive(current != null && (current.code == "R04" || current.code == "R03" || current.code == "R05"));
             foldButton.interactable = ready;
             foldText.text = current?.code == "R03" ? (stage.Study ? "返回整体样件" : "放大喷注单元") : current?.code == "R05" ? "演示连接关系" : stage.Folded ? "展开栅格舵" : "折叠栅格舵";

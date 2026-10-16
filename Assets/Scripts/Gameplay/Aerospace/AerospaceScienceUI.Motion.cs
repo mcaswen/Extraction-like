@@ -22,7 +22,7 @@ namespace ExtractionLike.Aerospace
             Rect(snapshot.GetComponent<RectTransform>(), 0, 0, viewport.rect.width, viewport.rect.height); snapshot.transform.SetAsFirstSibling();
             snapshotImage = snapshot.GetComponent<RawImage>(); snapshotImage.raycastTarget = false; snapshot.SetActive(false);
             archiveCursor = Panel(frame, "Archive_Selection_Cursor", Accent, 472, 86, 174, 2); archiveCursor.gameObject.SetActive(false);
-            foreach (var label in new[] { heading, subtitle, english, sampleId, watermark, locationTitle, locationBody, locationTag })
+            foreach (var label in new[] { heading, subtitle, sampleId, locationTitle, locationBody })
                 identityGroups.Add(label.gameObject.AddComponent<CanvasGroup>());
             foreach (var pin in pins)
             {
@@ -53,9 +53,9 @@ namespace ExtractionLike.Aerospace
         private void ApplyCurrentIdentity()
         {
             var copy = AerospaceScienceCopy.For(current.code);
-            heading.text = copy.displayTitle; english.text = current.english;
-            sampleId.text = current.code; watermark.text = current.code; subtitle.text = copy.system;
-            locationTitle.text = current.locationTitle; locationBody.text = current.locationText; locationTag.text = current.code + " · " + copy.shortName;
+            heading.text = copy.displayTitle;
+            sampleId.text = current.code; subtitle.text = copy.system;
+            locationTitle.text = current.locationTitle; locationBody.text = current.locationText;
             locationGraphic.locationCode = current.code; locationGraphic.SetVerticesDirty();
             identityAge = 0;
         }

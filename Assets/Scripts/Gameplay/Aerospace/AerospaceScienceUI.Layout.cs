@@ -50,8 +50,6 @@ namespace ExtractionLike.Aerospace
             var background = new GameObject("Blue_Inspection_Surface", typeof(RectTransform), typeof(AerospaceInspectionBackdrop));
             background.transform.SetParent(frame, false); Rect(background.GetComponent<RectTransform>(), 448, 0, 1152, 900);
             background.GetComponent<AerospaceInspectionBackdrop>().raycastTarget = false;
-            watermark = MonoLabel(frame, "", 1086, 286, 490, 320, 252, new Color(.40f, .64f, .88f, .025f)); watermark.name = "Specimen_Watermark";
-            watermark.enableWordWrapping = false;
 
             BuildDossier(frame);
             BuildArchiveRail(frame);
@@ -65,8 +63,6 @@ namespace ExtractionLike.Aerospace
             var orbit = viewport.gameObject.AddComponent<AerospaceOrbitInput>(); orbit.stage = stage;
             orbit.canInteract = () => IsOpen && !transitioning && !IsSettingsOpen;
             BuildTerminal(frame);
-            Label(frame, "回收样本检视", 477, 120, 240, 24, 13, Muted);
-            surfaceState = Label(frame, "清理后样件", 1424, 120, 150, 24, 13, Muted, TextAlignmentOptions.TopRight); surfaceState.name = "Specimen_Surface_State";
             loading = Label(viewport, "选择已收集的样本", 214, 262, 724, 110, 24, Ink, TextAlignmentOptions.Center);
             BuildHotspots();
             BuildModelControls(frame);
@@ -82,20 +78,15 @@ namespace ExtractionLike.Aerospace
         private void BuildDossier(Transform frame)
         {
             readingPane = InstrumentPanel(frame, "Science_Reading_Panel", Paper, 0, 0, 448, 900, AerospaceInstrumentSurface.Finish.Panel);
-            var brand = Label(readingPane, "ASTRA", 32, 21, 153, 48, 38, PaperInk); brand.font = font; brand.fontStyle = FontStyles.Bold;
-            Label(readingPane, "/", 181, 27, 28, 38, 31, PaperMuted);
-            Label(readingPane, "航天样本档案", 211, 32, 211, 29, 18, PaperInk);
-            MonoLabel(readingPane, "FIELD ARCHIVE  /  AEROSPACE", 33, 73, 385, 20, 10, PaperMuted);
+            var title = Label(readingPane, "回收样本档案", 32, 30, 383, 56, 34, PaperInk);
+            title.name = "Archive_Title"; title.font = font; title.fontStyle = FontStyles.Normal;
+            title.characterSpacing = 1.2f; title.enableWordWrapping = false;
             Panel(readingPane, "Paper_Header_Rule", Rule, 32, 104, 383, 1);
             Panel(readingPane, "Category_Mark", PaperMuted, 33, 136, 5, 5);
             subtitle = Label(readingPane, "航天系统", 49, 127, 182, 24, 15, PaperMuted);
-            Panel(readingPane, "Category_Rule", Rule, 184, 138, 31, 1);
-            Label(readingPane, "回收样件", 232, 127, 176, 24, 15, PaperMuted);
-            heading = Label(readingPane, "航天样本\n档案", 32, 162, 383, 109, 42, PaperInk); heading.font = font; heading.lineSpacing = -1;
+            heading = Label(readingPane, "", 32, 162, 383, 109, 42, PaperInk); heading.font = font; heading.lineSpacing = -1;
             heading.name = "Specimen_Title"; heading.fontStyle = FontStyles.Normal; heading.characterSpacing = 1.1f;
             sampleId = MonoLabel(readingPane, "—", 33, 282, 86, 43, 35, PaperInk);
-            Panel(readingPane, "Identity_Divider", Rule, 118, 283, 1, 37);
-            english = MonoLabel(readingPane, "AEROSPACE COMPONENTS", 134, 283, 278, 42, 11, PaperMuted); english.characterSpacing = 1;
             for (int i = 0; i < 3; i++)
             {
                 int index = i; var tab = Button(readingPane, new[] { "整体介绍", "工作原理", "结构细节" }[i], 32 + i * 128, 339, 128, 47, () => SetReadingTab(index));
@@ -119,10 +110,8 @@ namespace ExtractionLike.Aerospace
             Panel(locator, "Locator_Top_Rule", Rule, 0, 0, 448, 1);
             var diagram = new GameObject("Rocket_Location_Diagram", typeof(RectTransform), typeof(AerospaceTerminalGraphic)); diagram.transform.SetParent(locator, false);
             Rect(diagram.GetComponent<RectTransform>(), 27, 11, 83, 150); locationGraphic = diagram.GetComponent<AerospaceTerminalGraphic>(); locationGraphic.locationCode = "R01"; locationGraphic.raycastTarget = false;
-            MonoLabel(locator, "LOCATION / SYSTEM", 130, 18, 290, 17, 10, Muted);
             locationTitle = Label(locator, "航天系统", 130, 47, 289, 32, 21, Ink); locationTitle.font = font;
             locationBody = Label(locator, "", 130, 85, 286, 43, 14, Ink); locationBody.lineSpacing = 2;
-            locationTag = Label(locator, "", 144, 143, 274, 23, 13, Teal); Panel(locator, "Current_Location_Mark", Teal, 131, 150, 5, 5);
             sourceButton = Button(readingPane, "科普资料  ↗", 24, 833, 192, 32, ShowSources); sourceButton.name = "Science_Sources";
             sourceButton.GetComponentInChildren<TMP_Text>().fontSize = 15;
             progress = Label(readingPane, "本局收集   0 / 5", 33, 875, 240, 22, 13, PaperMuted);

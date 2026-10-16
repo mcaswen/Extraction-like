@@ -8,7 +8,7 @@ namespace ExtractionLike.Aerospace
     {
         private const string MotionPreference = "AerospaceScience.ReducedMotion.v1";
         private Button demoButton, skipButton;
-        private TMP_Text orientation, terminalState, motionText, demoPlayLabel, demoStepLabel, demoBody, demoTitle;
+        private TMP_Text motionText, demoPlayLabel, demoStepLabel, demoBody, demoTitle;
         private Image demoProgress;
         private CanvasGroup readingReveal;
         private AerospaceTerminalGraphic terminalGraphic;
@@ -33,8 +33,6 @@ namespace ExtractionLike.Aerospace
             legendPrimary = Label(legend.transform, "", 27, 22, 203, 32, 15, Teal);
             legendSecondary = Label(legend.transform, "", 27, 59, 203, 32, 15, new Color(.55f, .62f, 1f));
             legend.SetActive(false);
-            terminalState = Label(frame, "样本待载入", 478, 757, 530, 26, 14, Muted);
-            orientation = MonoLabel(frame, "VIEW 000 / FREE", 1324, 759, 248, 24, 11, Muted);
             skipButton = Button(frame, "跳过入场", 1414, 706, 150, 38, SkipReveal); skipButton.name = "Skip_Reveal";
             skipButton.gameObject.AddComponent<CanvasGroup>().ignoreParentGroups = true;
             skipButton.gameObject.SetActive(false);
@@ -82,8 +80,6 @@ namespace ExtractionLike.Aerospace
                 legendSecondary.text = current.code == "R03" ? "通路 B / 外围环隙" : current.code == "R02" ? "出口方向" : "";
             }
             stage.Hover(hoveredPin);
-            orientation.text = "VIEW " + Mathf.RoundToInt(stage.DisplayYaw).ToString("000") + " / " + (stage.Study ? "SECTION" : stage.Mode == "exploded" ? "EXPLODED" : stage.Mode == "cutaway" ? "CUTAWAY" : "FREE");
-            terminalState.text = transitioning ? "正在载入样本…" : stage.ScanProgress >= 0 ? "结构识别中" : stage.DemoActive ? "原理演示 / " + (stage.DemoPlaying ? "播放中" : "已暂停") : current != null && selectedHotspot >= 0 ? "局部结构 / " + ShortHotspot(current.code, selectedHotspot) : stage.Ready ? (stage.Study ? "同轴喷注单元" : stage.Mode == "exploded" ? "分解观察" : stage.Mode == "cutaway" ? "结构剖面" : "完整结构") : "等待回收样本";
             if (!transitioning && skipButton.gameObject.activeSelf && stage.ScanProgress < 0) skipButton.gameObject.SetActive(false);
             if (readingTab != 6 || !stage.DemoActive || demoStepLabel == null) return;
             if (renderedDemoStep != stage.DemoStep)

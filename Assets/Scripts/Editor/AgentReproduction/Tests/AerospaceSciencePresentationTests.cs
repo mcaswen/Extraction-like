@@ -50,6 +50,31 @@ namespace AgentReproduction.Tests
             Assert.That(Named<Button>(ui, "Science_Sources"), Is.Not.Null, "Science references are independent of collection clues.");
             for (int i = 0; i < 5; i++) Assert.That(Named<Image>(ui, "Collection_" + i), Is.Not.Null);
         }
+        static void AssertCleanArchiveChrome(AerospaceScienceUI ui)
+        {
+            var title = Named<TMP_Text>(ui, "Archive_Title");
+            Assert.That(title.text, Is.EqualTo("回收样本档案"));
+            Assert.That(title.enableWordWrapping, Is.False);
+            Assert.That(title.GetPreferredValues().x, Is.LessThanOrEqualTo(title.rectTransform.rect.width));
+            var pane = Named<RectTransform>(ui, "Science_Reading_Panel");
+            Assert.That(pane.GetComponentsInChildren<TMP_Text>(true).Count(t => t.transform.parent == pane && t.rectTransform.anchoredPosition.y > -104), Is.EqualTo(1),
+                "The heading area contains one title, without a brand, slash or English strapline.");
+            foreach (var text in ui.GetComponentsInChildren<TMP_Text>(true))
+            {
+                Assert.That(text.text.IndexOf("ASTRA", StringComparison.OrdinalIgnoreCase), Is.LessThan(0));
+                Assert.That(text.text, Does.Not.StartWith("VIEW "));
+                foreach (string removed in new[] { "FIELD ARCHIVE", "LOCATION / SYSTEM", "回收样本检视", "回收样件" })
+                    Assert.That(text.text, Does.Not.Contain(removed));
+                foreach (var part in AerospaceCatalog.Load().models)
+                    if (!string.IsNullOrEmpty(part.english))
+                        Assert.That(text.text, Does.Not.Contain(part.english), "Do not repeat the Chinese part title as an English strapline.");
+                // Empty archives hide the model controls; their labels still belong to buttons.
+                if (text.GetComponentInParent<Button>(true) != null) continue;
+                foreach (string redundant in new[] { "完整结构", "结构剖面", "分解观察", "清理后样件", "回收痕迹", "样本待载入", "等待回收样本", "结构识别中" })
+                    Assert.That(text.text, Is.Not.EqualTo(redundant), "Remove duplicate status captions, not the controls themselves.");
+            }
+            Assert.That(ui.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Specimen_Watermark" || t.name == "Specimen_Surface_State" || t.name == "Current_Location_Mark" || t.name == "Identity_Divider"), Is.False);
+        }
         [UnityTest]
         public IEnumerator ColdBlueTerminalPreservesDossierLayoutAndInput()
         {
@@ -198,6 +223,7 @@ namespace AgentReproduction.Tests
         {
             // Check the full palette after every reading tab, hotspot, source and demonstration state.
             AssertClassicBluePalette(ui);
+            AssertCleanArchiveChrome(ui);
             string copy = string.Join("\n", ui.GetComponentsInChildren<TMP_Text>().Select(t => t.text));
             foreach (string phrase in new[] { "不是", "并非", "而非", "非制造", "非实物", "非食物", "教学示意", "不代表", "不模拟", "颜色不", "不对应", "未完整复原", "没有复原", "游戏化", "仅用于观察", "仅供观察", "免责" })
                 Assert.That(copy, Does.Not.Contain(phrase), ui.CurrentCode + " / " + ui.ActiveReadingTab);
@@ -261,6 +287,7 @@ namespace AgentReproduction.Tests
             Assert.That(ui.IsOpen, Is.True); Assert.That(ui.Stage.Ready, Is.False);
             Assert.That(ui.ActiveReadingTab, Is.Zero); Assert.That(ui.GetComponentsInChildren<TMP_Text>().Any(t => t.text.Contains("尚无归档样本")), Is.True);
             AssertCollectionCluesRemoved(ui);
+            AssertCleanArchiveChrome(ui);
             Assert.That(Named<Button>(ui, "Science_Sources").interactable, Is.False);
             for (int i = 0; i < 3; i++) Assert.That(Named<Button>(ui, "Reading_Tab_" + i).interactable, Is.False);
             AssertClassicBluePalette(ui);
@@ -320,8 +347,10 @@ namespace AgentReproduction.Tests
             var ui = Create(true); yield return null; ui.Open("R01", true); yield return Ready(ui);
             Click(ui, "Display_Settings"); Assert.That(ui.IsSettingsOpen, Is.True);
             Click(ui, "Toggle_Surface"); Assert.That(ui.Stage.Recovered, Is.True);
+            AssertCleanArchiveChrome(ui);
             Click(ui, "Toggle_Quality"); Assert.That(ui.IsSettingsOpen, Is.False);
             yield return Ready(ui); Assert.That(ui.CurrentCode, Is.EqualTo("R01"));
+            AssertCleanArchiveChrome(ui);
             Click(ui, "Display_Settings"); Assert.That(Named<Button>(ui, "Toggle_Quality").GetComponentInChildren<TMP_Text>().text, Does.Contain("4K"));
             ui.SetSettings(false);
             var orbit = ui.GetComponentInChildren<AerospaceOrbitInput>();
