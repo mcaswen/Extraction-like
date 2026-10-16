@@ -1,6 +1,17 @@
 {
   "groups": [
     {
+      "name": "ResourceSearchRevisit",
+      "suite": "Regression",
+      "filter": "AgentReproduction.Tests.ResourceSearchRevisitTests",
+      "expected": [
+        "PartialCloseIsSharedAndEitherAgentCanRevisit(False)",
+        "PartialCloseIsSharedAndEitherAgentCanRevisit(True)",
+        "PartialCloseLeavesGroupAndOnlyAnExplicitFinalTargetReopensIt",
+        "ReplanningAndRetaliationPreserveTheCurrentSearchPass"
+      ]
+    },
+    {
       "name": "MapCommandEnemyProcessing",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.MapCommandEnemyProcessingTests",

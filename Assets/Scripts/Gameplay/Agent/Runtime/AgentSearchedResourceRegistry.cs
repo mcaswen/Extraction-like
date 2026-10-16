@@ -9,7 +9,8 @@ namespace Gameplay.Agent.Runtime
     /// </summary>
     public static class AgentSearchedResourceRegistry
     {
-        private static readonly HashSet<int> SearchedResourceInstanceIds = new HashSet<int>();
+        private static readonly Dictionary<int, long> SearchedResourceRevisions = new Dictionary<int, long>();
+        public static long Revision { get; private set; }
 
         /// <summary>
         /// 标记一个资源对象已经被 Agent 搜索过
@@ -20,7 +21,7 @@ namespace Gameplay.Agent.Runtime
             if (resourceObject == null)
                 return;
 
-            SearchedResourceInstanceIds.Add(resourceObject.GetInstanceID());
+            SearchedResourceRevisions[resourceObject.GetInstanceID()] = ++Revision;
         }
 
         /// <summary>
@@ -31,13 +32,19 @@ namespace Gameplay.Agent.Runtime
         public static bool IsSearched(GameObject resourceObject)
         {
             return resourceObject != null &&
-                   SearchedResourceInstanceIds.Contains(resourceObject.GetInstanceID());
+                   SearchedResourceRevisions.ContainsKey(resourceObject.GetInstanceID());
         }
+
+        /// <summary>任何 Agent 在这轮命令发出后处理过箱子，都共享同一个完成事实。</summary>
+        public static bool WasSearchedAfter(GameObject resourceObject, long revision)
+            => resourceObject != null && SearchedResourceRevisions.TryGetValue(resourceObject.GetInstanceID(), out long completed)
+                && completed > revision;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ClearOnSubsystemRegistration()
         {
-            SearchedResourceInstanceIds.Clear();
+            SearchedResourceRevisions.Clear();
+            Revision = 0;
         }
     }
 }

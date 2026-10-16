@@ -276,7 +276,7 @@ namespace AgentReproduction.Tests
             Assert.That(first.DirectiveLifecycle.Active.Value.TargetObject, Is.SameAs(exit.ExtractionMembers[0].EntityObject));
             Assert.That(box.GetSavedItems().Single().Amount, Is.EqualTo(1));
             Assert.That(box.IsResourcePointLooted, Is.False);
-            Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.False);
+            Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.True, "Closing finishes this visit, even when capacity blocked.");
             Assert.That(second.Blackboard.GetValueOrDefault<bool>(AgentBlackboardKeys.InventoryRequiresExtraction), Is.False);
             yield return RuntimeWait.Until(() => second.DirectiveLifecycle.Active?.DirectiveType == AgentDirectiveType.Search, "other agent continues search", 5);
             ContractCompleted = true;

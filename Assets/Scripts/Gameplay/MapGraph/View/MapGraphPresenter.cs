@@ -15,7 +15,7 @@ namespace Gameplay.MapGraph.View
     {
         public sealed class NodeState
         {
-            public bool Available,Completed,Pending;
+            public bool Available,Completed,Pending,HasRemainingLoot;
             public string TargetIdentities=string.Empty;
             internal readonly StringBuilder Identities=new StringBuilder();
         }
@@ -65,8 +65,8 @@ namespace Gameplay.MapGraph.View
                 foreach(var pair in _nodes)
                 {
                     if(_environments.Targets!=null&&_environments.Targets.TryGetFacts(pair.Key,out var facts))
-                    { pair.Value.Available=facts.CanTraverse; pair.Value.Completed=facts.Status==AgentRouteTargetStatus.Completed; }
-                    else { pair.Value.Available=false; pair.Value.Completed=false; }
+                    { pair.Value.Available=facts.CanTraverse; pair.Value.Completed=facts.Status==AgentRouteTargetStatus.Completed; pair.Value.HasRemainingLoot=facts.HasRemainingLoot; }
+                    else { pair.Value.Available=false; pair.Value.Completed=false; pair.Value.HasRemainingLoot=false; }
                 }
             }
             string focused=FocusedId();
@@ -106,7 +106,10 @@ namespace Gameplay.MapGraph.View
                 string zone=_graph.TryGetZone(node.ZoneId,out var area)?area.DisplayName+" · ":string.Empty;
                 string kind=node.NodeKind==MapGraphNodeKind.Resource?"资源群":node.NodeKind==MapGraphNodeKind.Extraction?"撤离点":"敌人群";
                 var facts=_nodes[_hoveredNode];
-                _overlay.SetDetail(zone+kind+(facts.Completed?" · 已完成，前往此处":!facts.Available?" · 暂不可用":" · 点击下达路线")); return;
+                string detail = !facts.Available ? " · 暂不可用" : node.NodeKind == MapGraphNodeKind.Resource && facts.Completed
+                    ? (facts.HasRemainingLoot ? " · 已处理，有剩余战利品" : " · 已取空，前往此处")
+                    : facts.Completed ? " · 已完成，前往此处" : " · 点击下达路线";
+                _overlay.SetDetail(zone+kind+detail); return;
             }
             for(int i=0;i<states.Count;i++)if(states[i].AgentId==focused)
             {
