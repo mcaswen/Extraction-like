@@ -27,9 +27,8 @@ namespace ExtractionLike.Aerospace
         private Font bodyFont;
         private TMP_FontAsset font, bodyTypeface, monoFont;
         private GameObject modal, controls, settingsOverlay, settingsTooltip;
-        private RectTransform viewport, detailContent, transitionRect, readingPane;
+        private RectTransform viewport, detailContent, readingPane;
         private RawImage modelImage;
-        private Image transitionImage;
         private CanvasGroup contentGroup;
         private ScrollRect readingScroll;
         private Text hud;
@@ -73,10 +72,11 @@ namespace ExtractionLike.Aerospace
             stage = gameObject.AddComponent<AerospaceInspectionStage>(); stage.SetReducedMotion(PlayerPrefs.GetInt(MotionPreference, 0) == 1); Build();
         }
 
-        public void Open(string code, bool discovery)
+        public void Open(string code, bool discovery, Rect? pickupOrigin = null)
         {
             if (AerospaceCollectionRuntime.RaidLocked || DraggableItemUI.CurrentlyDraggedItem != null || owner == null) return;
-            if (code != null && !owner.IsUnlocked(code)) return;
+            if (code != null && (!owner.IsUnlocked(code) || AerospaceCatalog.Load().Find(code) == null)) return;
+            bool wasOpen = IsOpen;
             if (!IsOpen)
             {
                 var inventory = InventoryScreenController.Instance;
@@ -90,22 +90,25 @@ namespace ExtractionLike.Aerospace
             if (code == null) code = current != null && owner.IsUnlocked(current.code) ? current.code : AerospaceCatalog.Load().models.FirstOrDefault(p => owner.IsUnlocked(p.code))?.code;
             RefreshArchive();
             if (!discovery && code == current?.code && stage.Ready && !transitioning) return;
-            if (code != null) BeginLoad(code, discovery);
+            if (code != null) BeginLoad(code, discovery, !wasOpen, pickupOrigin);
             else
             {
                 heading.text = ""; sampleId.text = "—";
                 locationTitle.text = "航天系统"; locationBody.text = "推进、返回与载荷连接"; locationGraphic.locationCode = "R01"; locationGraphic.SetVerticesDirty();
                 loading.text = "尚无归档样本\n搜索并拾取零件后，即可在这里检视";
                 loading.gameObject.SetActive(true); controls.SetActive(false); HidePins();
-                readingTab = 0; RenderReading(); RefreshButtons();
+                readingTab = 0; RenderReading(); RefreshButtons(); RestoreEntryPresentation();
             }
         }
 
-        private void BeginLoad(string code, bool discovery)
+        private void BeginLoad(string code, bool discovery, bool opening = false, Rect? pickupOrigin = null)
         {
             StopAllCoroutines(); int request = ++ticket;
             skipReveal = false;
+            bool interruptedDiscovery = discoveryPresentation;
+            if (interruptedDiscovery) { ReleaseSwitchSnapshot(); modelImage.color = Color.clear; }
             CaptureSwitchSnapshot(discovery); ClearHotspotConfirmation();
+            CancelEntryPresentation();
             current = AerospaceCatalog.Load().Find(code); stage.Unload(); modelImage.texture = null; modelImage.color = new Color(1, 1, 1, 0);
             if (!HasSwitchSnapshot) ApplyCurrentIdentity();
             pinsEnabled = true;
@@ -114,10 +117,9 @@ namespace ExtractionLike.Aerospace
             readingTab = 0; transitioning = true; readingReveal.interactable = false;
             if (!HasSwitchSnapshot) RenderReading();
             RefreshArchive(); RefreshButtons();
-            transitionImage.sprite = Resources.Load<Sprite>("Aerospace/Icons/" + code); transitionImage.color = Color.white;
-            Rect(transitionRect, 610, 40, 820, 820); transitionRect.gameObject.SetActive(discovery);
+            PrepareEntryPresentation(discovery, opening || interruptedDiscovery, pickupOrigin);
             skipButton.gameObject.SetActive(discovery && !stage.ReducedMotion);
-            contentGroup.interactable = !discovery; StartCoroutine(LoadAndReveal(request, discovery));
+            contentGroup.interactable = false; StartCoroutine(LoadAndReveal(request, discovery));
         }
 
         private IEnumerator LoadAndReveal(int request, bool discovery)
@@ -125,16 +127,11 @@ namespace ExtractionLike.Aerospace
             bool finished = false; string error = null;
             StartCoroutine(stage.Load(current, quality, e => { error = e; finished = true; }));
             float elapsed = 0;
-            while ((!skipReveal && !stage.ReducedMotion && elapsed < (discovery ? .85f : .06f)) || !finished)
+            while (!finished)
             {
                 if (request != ticket) yield break;
                 elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01((elapsed - .2f) / .8f));
-                if (discovery)
-                {
-                    transitionRect.anchoredPosition = Vector2.Lerp(new Vector2(610, -40), new Vector2(694, -118), t);
-                    transitionRect.sizeDelta = Vector2.Lerp(new Vector2(820, 820), new Vector2(652, 652), t);
-                }
+                ShowEntryLoading(elapsed);
                 if (elapsed > 25 && !finished) { error = "样本载入超时，请关闭后重试。"; break; }
                 yield return null;
             }
@@ -143,21 +140,18 @@ namespace ExtractionLike.Aerospace
             {
                 ApplyCurrentIdentity(); RenderReading();
                 modelImage.texture = stage.Texture;
-                for (float t = 0; t < 1 && !skipReveal && !stage.ReducedMotion; t += Time.unscaledDeltaTime / .28f)
-                {
-                    float eased = Mathf.SmoothStep(0, 1, t);
-                    modelImage.color = new Color(1, 1, 1, eased); transitionImage.color = new Color(1, 1, 1, 1 - eased);
-                    if (snapshotImage != null) snapshotImage.color = new Color(1, 1, 1, 1 - eased);
-                    yield return null;
-                    if (request != ticket) yield break;
-                }
+                loading.gameObject.SetActive(false);
+                // Render the actual selected model before it becomes visible; never substitute a hero bitmap.
+                yield return null;
+                if (request != ticket) yield break;
+                yield return AnimateEntry(request, discovery, elapsed);
+                if (request != ticket) yield break;
                 modelImage.color = Color.white; loading.gameObject.SetActive(false); controls.SetActive(true);
                 stage.Select(-1); readingTab = 0; selectedHotspot = -1;
-                if (discovery && !skipReveal) stage.StartScan();
             }
             else { ApplyCurrentIdentity(); RenderReading(); loading.gameObject.SetActive(true); loading.text = error; stage.Unload(); }
             ReleaseSwitchSnapshot(); readingReveal.interactable = true;
-            transitionRect.gameObject.SetActive(false); skipButton.gameObject.SetActive(stage.ScanProgress >= 0); transitioning = false; contentGroup.interactable = true; RefreshButtons();
+            RestoreEntryPresentation(); skipButton.gameObject.SetActive(false); transitioning = false; contentGroup.interactable = true; RefreshButtons();
         }
 
         public void ShowDetail(int index)
@@ -287,8 +281,7 @@ namespace ExtractionLike.Aerospace
             TickPresentationMotion();
             UpdateTerminal();
             closeLabel.text = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen ? "返回背包   [Esc]" : "返回游戏   [Esc]";
-            var frame = contentGroup.transform as RectTransform; var canvasRect = canvas.transform as RectTransform;
-            frame.localScale = Vector3.one * Mathf.Min(canvasRect.rect.width / 1600, canvasRect.rect.height / 900);
+            FitEntryFrame();
             if (stage.Texture != null)
             {
                 // Text stays on the native-resolution Canvas; only the 3D viewport is supersampled.
@@ -296,7 +289,8 @@ namespace ExtractionLike.Aerospace
                 Camera uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
                 Vector2 bottomLeft = RectTransformUtility.WorldToScreenPoint(uiCamera, viewportCorners[0]);
                 Vector2 topRight = RectTransformUtility.WorldToScreenPoint(uiCamera, viewportCorners[2]);
-                stage.UpdateDisplayResolution(topRight - bottomLeft);
+                // Do not repeatedly reallocate the render target as a small receipt expands.
+                stage.UpdateDisplayResolution((topRight - bottomLeft) / Mathf.Max(.01f, viewport.localScale.x) * (discoveryPresentation ? 1.04f : 1));
                 modelImage.texture = stage.Texture;
             }
             if (AerospaceCollectionRuntime.RaidLocked) Close();
@@ -363,6 +357,7 @@ namespace ExtractionLike.Aerospace
         {
             if (!IsOpen) return;
             ++ticket; StopAllCoroutines(); IsOpen = false; transitioning = false; current = null;
+            CancelEntryPresentation();
             skipReveal = false; selectedHotspot = hoveredPin = -1;
             ReleaseSwitchSnapshot(); ClearHotspotConfirmation();
             if (modal != null) modal.SetActive(false); if (modelImage != null) modelImage.texture = null;
@@ -377,6 +372,6 @@ namespace ExtractionLike.Aerospace
             Resources.UnloadUnusedAssets();
         }
         private void OnDisable() { Close(); }
-        private void OnDestroy() { Close(); }
+        private void OnDestroy() { Close(); DisposeEntryAudio(); }
     }
 }

@@ -76,7 +76,7 @@ namespace ExtractionLike.Aerospace
             if (resetting) resetAge = Mathf.Min(.4f, resetAge + dt);
             shownPitch = resetting ? Mathf.LerpAngle(resetPitch, 0, Ease(resetAge / .4f)) : pitch;
             shownYaw = resetting ? Mathf.LerpAngle(resetYaw, 0, Ease(resetAge / .4f)) : yaw;
-            pivot.localRotation = Quaternion.Euler(shownPitch, shownYaw, 0);
+            pivot.localRotation = Quaternion.Euler(shownPitch, shownYaw + (arrivalActive ? arrivalYaw : 0), 0);
         }
         private Vector3 TargetPosition(Pose p)
         {

@@ -369,6 +369,9 @@ namespace AgentReproduction.Tests
         [UnityTest]
         public IEnumerator FormalSceneContainsAllFiveReachablePartsWithoutSceneOrNavigationChanges()
         {
+            // This exercises first discoveries, independently of archive bits left by another scenario.
+            PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.ArchiveKey);
+            PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             string originalHash = Hash(AerospaceCollectionRuntime.FormalScene);
             var operation = EditorSceneManager.LoadSceneAsyncInPlayMode(AerospaceCollectionRuntime.FormalScene, new LoadSceneParameters(LoadSceneMode.Single));
             while (!operation.isDone) yield return null;

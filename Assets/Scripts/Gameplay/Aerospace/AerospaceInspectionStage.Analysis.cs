@@ -11,6 +11,9 @@ namespace ExtractionLike.Aerospace
         private Vector3 focusPoint, smoothFocus;
         private bool cameraInitialized, userCamera, focusSaved;
         private float returnZoom, scan = -1;
+        private bool arrivalActive;
+        private float arrivalYaw, arrivalHologram, arrivalTop, arrivalBottom, arrivalAge;
+        private Bounds arrivalBounds;
         private Material overlayMaterial, ghostMaterial;
         private AerospaceTeachingFlow flow;
         private string demoReturnMode;
@@ -58,6 +61,7 @@ namespace ExtractionLike.Aerospace
             ReducedMotion = value;
             if (value)
             {
+                EndArrivalPresentation();
                 scan = -1; DemoPlaying = false;
                 if (resetting) ResetView(true);
                 CancelCameraMotion(); shownZoom = zoom;
@@ -65,6 +69,24 @@ namespace ExtractionLike.Aerospace
         }
         public void StartScan() { scan = ReducedMotion ? -1 : 0; }
         public void SkipScan() { scan = -1; }
+        public void SetArrivalPresentation(float turnProgress, float sweepProgress, float hologram, float elapsed = -1)
+        {
+            if (!Ready || ReducedMotion) { EndArrivalPresentation(); return; }
+            if (!arrivalActive)
+            {
+                arrivalBounds = binding.meshes[0].bounds;
+                foreach (var mesh in binding.meshes) arrivalBounds.Encapsulate(mesh.bounds);
+                arrivalTop = arrivalBounds.max.y + .025f; arrivalBottom = arrivalBounds.min.y - .025f;
+            }
+            arrivalActive = true; arrivalYaw = Mathf.Lerp(-24, 0, Mathf.SmoothStep(0, 1, turnProgress));
+            scan = sweepProgress; arrivalHologram = Mathf.Clamp01(hologram);
+            arrivalAge = elapsed < 0 ? .25f + turnProgress*1.25f : elapsed;
+        }
+        public void EndArrivalPresentation()
+        {
+            arrivalActive = false; arrivalYaw = arrivalHologram = arrivalAge = 0; scan = -1;
+            if (arrivalRenderer != null) arrivalRenderer.enabled = false;
+        }
         public void Hover(int index) { hoverIndex = Ready && index >= 0 && index < config.hotspots.Length ? index : -1; }
 
         private void Focus(int index)
@@ -154,7 +176,7 @@ namespace ExtractionLike.Aerospace
         }
         private void TickAnalysis()
         {
-            if (scan >= 0) { scan += Time.unscaledDeltaTime / .85f; if (scan > 1) scan = -1; }
+            if (!arrivalActive && scan >= 0) { scan += Time.unscaledDeltaTime / .85f; if (scan > 1) scan = -1; }
             if (DemoActive && DemoPlaying)
             {
                 DemoTime = Mathf.Min(7.2f, DemoTime + Time.unscaledDeltaTime);
@@ -173,7 +195,10 @@ namespace ExtractionLike.Aerospace
             properties.SetFloat("_ContextDim", index >= 0 && !selected ? .17f : 0);
             properties.SetFloat("_Visibility", p.visibility);
             properties.SetFloat("_Scan", scan);
-            properties.SetFloat("_ScanHeight", stage.transform.position.y + .62f - Mathf.Max(0, scan) * 1.24f);
+            properties.SetFloat("_ScanHeight", arrivalActive ? Mathf.Lerp(arrivalTop, arrivalBottom, Mathf.Max(0, scan)) : stage.transform.position.y + .62f - Mathf.Max(0, scan) * 1.24f);
+            properties.SetFloat("_Acquisition", arrivalHologram);
+            properties.SetVector("_AcquisitionOrigin", stage.transform.position);
+            properties.SetFloat("_AcquisitionAge", arrivalActive ? arrivalAge : 0);
             p.renderer.SetPropertyBlock(properties);
             if (p.ghost != null)
             {
@@ -234,6 +259,8 @@ namespace ExtractionLike.Aerospace
         }
         private void ClearAnalysis()
         {
+            EndArrivalPresentation();
+            ClearArrivalGeometry();
             DemoActive = DemoPlaying = false; DemoTime = 0; scan = -1; selectedIndex = hoverIndex = -1;
             focusPoint = smoothFocus = Vector3.zero; focusSaved = cameraInitialized = userCamera = false;
             if (flow != null) { flow.gameObject.SetActive(false); Destroy(flow.gameObject); flow = null; }

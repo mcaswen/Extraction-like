@@ -40,7 +40,7 @@ namespace ExtractionLike.Aerospace
 
         public void SkipReveal()
         {
-            skipReveal = true; stage.SkipScan(); transitionRect.gameObject.SetActive(false); skipButton.gameObject.SetActive(false);
+            skipReveal = true; stage.SkipScan(); stage.EndArrivalPresentation(); StopEntryAudio(); skipButton.gameObject.SetActive(false);
         }
         public void ToggleReducedMotion()
         {

@@ -68,10 +68,9 @@ namespace ExtractionLike.Aerospace
             BuildModelControls(frame);
             BuildSettings(frame);
 
-            transitionRect = Panel(frame, "Discovery_Hero_Icon", Color.white, 610, 40, 820, 820);
-            transitionImage = transitionRect.GetComponent<Image>(); transitionImage.preserveAspect = true; transitionImage.raycastTarget = false;
-            transitionRect.gameObject.SetActive(false); skipButton.transform.SetAsLastSibling(); close.transform.SetAsLastSibling();
             BuildMotionPresentation(frame);
+            BuildEntryPresentation(frame, close);
+            skipButton.transform.SetAsLastSibling(); close.transform.SetAsLastSibling();
             modal.SetActive(false); RefreshArchive(); RefreshButtons(); HidePins();
         }
 

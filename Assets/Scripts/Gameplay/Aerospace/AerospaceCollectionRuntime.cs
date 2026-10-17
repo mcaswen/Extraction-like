@@ -24,7 +24,8 @@ namespace ExtractionLike.Aerospace
         private readonly HashSet<LootBoxEntity> searchedBoxes = new HashSet<LootBoxEntity>();
         private InventoryItemData[] reservedItems;
         private readonly HashSet<string> collected = new HashSet<string>();
-        private readonly Queue<string> pending = new Queue<string>();
+        private sealed class DiscoveryRequest { public string code; public Rect? origin; }
+        private readonly Queue<DiscoveryRequest> pending = new Queue<DiscoveryRequest>();
         private readonly Dictionary<string, HashSet<string>> grantedParts = new Dictionary<string, HashSet<string>>();
         private bool grantingParts;
         private AerospaceScienceUI ui;
@@ -215,17 +216,34 @@ namespace ExtractionLike.Aerospace
             var screen = InventoryScreenController.Instance;
             if (Instance == null || item == null || screen == null || screen.UsesCustomPlayerInventory || !screen.IsInventoryOpen ||
                 source == null || source != screen.ActiveExternalGrid || destination != screen.BackpackGrid || !item.IsSearched) return;
-            Instance.RecordSuccessfulPickup(item.ItemData, screen.ActiveInventoryAgentId);
+            Instance.RecordSuccessfulPickup(item.ItemData, screen.ActiveInventoryAgentId, NormalizedPickupRect(item.transform as RectTransform));
         }
         public static void NotifyWorldPickup(InventoryItemData item)
         {
             var screen = InventoryScreenController.Instance;
             if (Instance != null && screen != null && !screen.UsesCustomPlayerInventory) Instance.RecordSuccessfulPickup(item, screen.ActiveInventoryAgentId);
         }
-        public void RecordSuccessfulPickup(InventoryItemData item, string agentId)
+        // Normalized screen coordinates survive a resolution change while a discovery is queued.
+        public static Rect? NormalizedPickupRect(RectTransform rect)
+        {
+            if (rect == null || !rect.gameObject.activeInHierarchy || Screen.width <= 0 || Screen.height <= 0) return null;
+            var canvas = rect.GetComponentInParent<Canvas>();
+            Camera camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            var corners = new Vector3[4]; rect.GetWorldCorners(corners);
+            Vector2 min = Vector2.one * float.MaxValue, max = Vector2.one * float.MinValue;
+            foreach (var corner in corners)
+            {
+                Vector2 point = RectTransformUtility.WorldToScreenPoint(camera, corner) / new Vector2(Screen.width, Screen.height);
+                min = Vector2.Min(min, point); max = Vector2.Max(max, point);
+            }
+            if (max.x <= 0 || min.x >= 1 || max.y <= 0 || min.y >= 1 || (max-min).sqrMagnitude < .000001f) return null;
+            return Rect.MinMaxRect(Mathf.Clamp01(min.x), Mathf.Clamp01(min.y), Mathf.Clamp01(max.x), Mathf.Clamp01(max.y));
+        }
+        public void RecordSuccessfulPickup(InventoryItemData item, string agentId, Rect? origin = null)
         {
             string code = AerospaceCatalog.CodeFor(item);
             if (code == null || string.IsNullOrEmpty(agentId) || !collected.Add(code)) return;
+            bool firstArchiveUnlock = !IsUnlocked(code);
             PlayerPrefs.SetInt(ArchiveKey, PlayerPrefs.GetInt(ArchiveKey, 0) | Bit(code)); PlayerPrefs.Save();
             // One dedicated voice: rapid successful pickups retrigger instead of stacking
             // several full-level impacts. Never change global or ordinary-loot audio volume.
@@ -233,14 +251,18 @@ namespace ExtractionLike.Aerospace
             if (!grantingParts)
             {
                 if (discovery.clip != null) discovery.Play();
-                pending.Enqueue(code);
+                // The saved archive, not the round-local collection counter, owns first discovery.
+                if (firstArchiveUnlock) pending.Enqueue(new DiscoveryRequest { code = code, origin = origin });
             }
             Debug.Log("[Aerospace] " + agentId + " recovered " + code + "; collection " + collected.Count + "/5.");
         }
         private void Update()
         {
             if (pending.Count > 0 && !ui.IsOpen && DraggableItemUI.CurrentlyDraggedItem == null && !RaidLocked)
-                ui.Open(pending.Dequeue(), true);
+            {
+                var request = pending.Dequeue();
+                ui.Open(request.code, true, request.origin);
+            }
             if (Input.GetKeyDown(KeyCode.J) && !RaidLocked && DraggableItemUI.CurrentlyDraggedItem == null)
             { if (ui.IsOpen) ui.Close(); else ui.Open(null, false); }
         }

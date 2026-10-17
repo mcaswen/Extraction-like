@@ -27,6 +27,8 @@ namespace ExtractionLike.Aerospace
         private GameObject stage;
         private AerospaceModelAsset binding;
         private AerospacePart config;
+        private GameObject lastPrefab;
+        private string lastPrefabPath;
         private MaterialPropertyBlock properties;
         private int generation;
         private float zoom = 1, fitDistance = 2, pitch, yaw;
@@ -91,11 +93,19 @@ namespace ExtractionLike.Aerospace
         public IEnumerator Load(AerospacePart part, string quality, Action<string> done)
         {
             int ticket = ++generation; ClearModel(); EnsureStage(); viewCamera.enabled = true; config = part;
-            var request = Resources.LoadAsync<GameObject>("Aerospace/Models/" + part.code + "_" + quality);
-            yield return request;
-            if (ticket != generation) yield break;
-            if (request.asset == null) { done("模型资源缺失，可关闭后重试。"); yield break; }
-            var instance = Instantiate((GameObject)request.asset, pivot, false); model = instance.transform;
+            string path = "Aerospace/Models/" + part.code + "_" + quality;
+            GameObject prefab = lastPrefabPath == path ? lastPrefab : null;
+            if (prefab == null)
+            {
+                var request = Resources.LoadAsync<GameObject>(path);
+                yield return request;
+                if (ticket != generation) yield break;
+                prefab = request.asset as GameObject;
+                if (prefab == null) { done("模型资源缺失，可关闭后重试。"); yield break; }
+                // Retain just the last inspected asset for quick reopening, not all five high-resolution models.
+                lastPrefab = prefab; lastPrefabPath = path;
+            }
+            var instance = Instantiate(prefab, pivot, false); model = instance.transform;
             model.localPosition = Vector3.zero; // Keep the FBX root's axis-conversion rotation.
             foreach (var t in instance.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 31;
             binding = instance.GetComponent<AerospaceModelAsset>();
@@ -255,6 +265,7 @@ namespace ExtractionLike.Aerospace
             }
             TickFold();
             PoseCamera();
+            TickArrivalGeometry();
         }
         private void PoseCamera()
         {
@@ -307,6 +318,6 @@ namespace ExtractionLike.Aerospace
             if (Texture != null) { if (viewCamera != null) viewCamera.targetTexture = null; Texture.Release(); Destroy(Texture); Texture = null; }
             if (stage != null) { stage.SetActive(false); Destroy(stage); stage = null; }
         }
-        private void OnDestroy() { Unload(); }
+        private void OnDestroy() { Unload(); lastPrefab = null; lastPrefabPath = null; }
     }
 }
