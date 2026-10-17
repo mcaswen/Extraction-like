@@ -2,6 +2,7 @@ using Gameplay.Agent.Commands;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Config;
+using Gameplay.Targets.Data;
 using UnityEngine;
 
 namespace Gameplay.Agent.Routes
@@ -16,11 +17,12 @@ namespace Gameplay.Agent.Routes
         public Vector3 Anchor { get; }
         public AgentRouteTargetStatus Status { get; }
         public int AliveMembers { get; }
+        public bool HasRemainingLoot { get; }
         public bool CanTraverse => Status != AgentRouteTargetStatus.Missing && Status != AgentRouteTargetStatus.Unavailable &&
             Finite(Anchor.x) && Finite(Anchor.y) && Finite(Anchor.z);
         public AgentRouteTargetFacts(string nodeId, MapGraphNodeKind kind, Vector3 anchor,
-            AgentRouteTargetStatus status, int aliveMembers = 0)
-        { NodeId = nodeId; Kind = kind; Anchor = anchor; Status = status; AliveMembers = aliveMembers; }
+            AgentRouteTargetStatus status, int aliveMembers = 0, bool hasRemainingLoot = false)
+        { NodeId = nodeId; Kind = kind; Anchor = anchor; Status = status; AliveMembers = aliveMembers; HasRemainingLoot = hasRemainingLoot; }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 
@@ -30,8 +32,8 @@ namespace Gameplay.Agent.Routes
         // 配置/锚点/绑定修订；成员死亡不应使整张图的导航版本失效。
         long Revision { get; }
         bool TryResolveNode(AgentTargetRef target, out string nodeId);
-        bool TryGetFacts(string nodeId, out AgentRouteTargetFacts facts);
+        bool TryGetFacts(string nodeId, out AgentRouteTargetFacts facts, ResourceSearchPass search = null);
         bool TryCreateProcessingDirective(string nodeId, AgentId agentId, string commandId, int priority,
-            out AgentDirectiveRequest directive, out AgentDirectiveFailure failure);
+            out AgentDirectiveRequest directive, out AgentDirectiveFailure failure, ResourceSearchPass search = null);
     }
 }

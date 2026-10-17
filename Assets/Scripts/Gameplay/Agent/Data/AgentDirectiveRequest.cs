@@ -1,5 +1,6 @@
 using UnityEngine;
 using Gameplay.Agent.Runtime;
+using Gameplay.Targets.Data;
 
 namespace Gameplay.Agent.Data
 {
@@ -61,6 +62,7 @@ namespace Gameplay.Agent.Data
         public int Priority { get; }
 
         public AgentDirectiveRouteContext RouteContext { get; }
+        public ResourceSearchPass ResourceSearch { get; }
 
         /// <summary>
         /// 创建搜索具体资源对象的指令
@@ -178,7 +180,8 @@ namespace Gameplay.Agent.Data
             AgentId targetAgentId = default(AgentId),
             string commandId = "",
             int priority = 0,
-            AgentDirectiveRouteContext routeContext = default)
+            AgentDirectiveRouteContext routeContext = default,
+            ResourceSearchPass resourceSearch = null)
         {
             TargetAgentId = targetAgentId;
             DirectiveType = directiveType;
@@ -187,6 +190,7 @@ namespace Gameplay.Agent.Data
             CommandId = commandId ?? string.Empty;
             Priority = priority;
             RouteContext = routeContext;
+            ResourceSearch = resourceSearch;
         }
 
         /// <summary>
@@ -210,7 +214,8 @@ namespace Gameplay.Agent.Data
             AgentId targetAgentId = default(AgentId),
             string commandId = "",
             int priority = 0,
-            AgentDirectiveRouteContext routeContext = default)
+            AgentDirectiveRouteContext routeContext = default,
+            ResourceSearchPass resourceSearch = null)
         {
             TargetAgentId = targetAgentId;
             DirectiveType = directiveType;
@@ -224,6 +229,7 @@ namespace Gameplay.Agent.Data
             CommandId = commandId ?? string.Empty;
             Priority = priority;
             RouteContext = routeContext;
+            ResourceSearch = resourceSearch;
         }
 
         /// <summary>
@@ -241,7 +247,7 @@ namespace Gameplay.Agent.Data
                 targetAgentId,
                 CommandId,
                 Priority,
-                RouteContext);
+                RouteContext, ResourceSearch);
         }
 
         /// <summary>
@@ -258,11 +264,14 @@ namespace Gameplay.Agent.Data
                 TargetAgentId,
                 CommandId,
                 Priority,
-                RouteContext);
+                RouteContext, ResourceSearch);
         }
 
         public AgentDirectiveRequest WithRouteContext(AgentDirectiveRouteContext context)
-            => new AgentDirectiveRequest(DirectiveType, TargetRef, PayloadId, TargetAgentId, CommandId, Priority, context);
+            => new AgentDirectiveRequest(DirectiveType, TargetRef, PayloadId, TargetAgentId, CommandId, Priority, context, ResourceSearch);
+
+        public AgentDirectiveRequest WithResourceSearch(ResourceSearchPass search)
+            => new AgentDirectiveRequest(DirectiveType, TargetRef, PayloadId, TargetAgentId, CommandId, Priority, RouteContext, search);
 
         private static AgentTargetRef CreateTargetRefFromLegacyArguments(
             AgentDirectiveType directiveType,

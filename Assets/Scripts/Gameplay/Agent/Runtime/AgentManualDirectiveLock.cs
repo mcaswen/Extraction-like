@@ -106,7 +106,7 @@ namespace Gameplay.Agent.Runtime
                     directiveRequest.TargetId,
                     out GameplayTargetAuthoringBase target))
             {
-                return target.HasBeenCompleted;
+                return IsAuthoringCompleted(target, directiveRequest);
             }
 
             GameObject targetObject = directiveRequest.TargetObject;
@@ -117,13 +117,18 @@ namespace Gameplay.Agent.Runtime
                 return false;
 
             if (TryGetTargetAuthoring(targetObject, out GameplayTargetAuthoringBase authoringTarget))
-                return authoringTarget.HasBeenCompleted;
+                return IsAuthoringCompleted(authoringTarget, directiveRequest);
 
             if (targetObject.TryGetComponent(out global::EnemyHealthController enemy))
                 return !enemy.IsAlive;
 
             return false;
         }
+
+        private static bool IsAuthoringCompleted(GameplayTargetAuthoringBase target, AgentDirectiveRequest request)
+            => target is ResourceClusterAuthoring resources && request.ResourceSearch != null
+                ? !resources.HasPendingResources(request.ResourceSearch)
+                : target.HasBeenCompleted;
 
         private static bool TryGetTargetAuthoring(
             GameObject targetObject,

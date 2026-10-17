@@ -38,6 +38,9 @@ namespace Gameplay.Agent.Commands
             if (obj.TryGetComponent(out global::ExtractionPointController point) && !point.isActiveAndEnabled) return AgentDirectiveFailure.InvalidTarget;
             if (obj.TryGetComponent(out GameplayTargetAuthoringBase authoring) && !authoring.isActiveAndEnabled) return AgentDirectiveFailure.InvalidTarget;
             if (obj.TryGetComponent(out global::EnemyHealthController enemy) && !enemy.IsAlive) return AgentDirectiveFailure.TargetCompleted;
+            if (request.DirectiveType == AgentDirectiveType.Search && request.ResourceSearch != null &&
+                obj.TryGetComponent(out ResourceClusterAuthoring resources))
+                return resources.HasPendingResources(request.ResourceSearch) ? AgentDirectiveFailure.None : AgentDirectiveFailure.TargetCompleted;
             if (obj.TryGetComponent(out GameplayTargetAuthoringBase target) && target.HasBeenCompleted) return AgentDirectiveFailure.TargetCompleted;
             return AgentDirectiveFailure.None;
         }
@@ -53,7 +56,7 @@ namespace Gameplay.Agent.Commands
                 return AgentCombatApproachQuery.TryResolve(agent, enemy, range, new AgentCombatApproachQuery.Buffer(), out position);
             }
             if (obj.TryGetComponent(out ResourceClusterAuthoring resource))
-                return resource.TryGetNearestReachableIncompleteResource(agent.Position, agent.NavMeshAgent, out _, out position);
+                return resource.TryGetNearestReachableIncompleteResource(agent.Position, agent.NavMeshAgent, out _, out position, request.ResourceSearch);
             if (obj.TryGetComponent(out ExtractionClusterAuthoring exit))
             {
                 if (!exit.TryGetNearestExtractionPoint(agent.Position, out global::ExtractionPointController point)) return false;
