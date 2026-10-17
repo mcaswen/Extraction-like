@@ -619,6 +619,14 @@ public class InventoryScreenController : MonoBehaviour
     private void Update()
     {
         BindToFocusedAgentIfNeeded();
+
+        if (IsInventoryOpen && !ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput &&
+            Input.GetKeyDown(KeyCode.Escape))
+        {
+            CloseInventory();
+            return;
+        }
+
         RefreshRunRevenueDisplay();
         RefreshBackpackHeaderDisplay();
 
