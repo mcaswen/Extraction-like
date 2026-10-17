@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyId: ancientstrander
   _displayName: "AncientStrander\u20145"
-  _maxHealth: 300
+  _maxHealth: 210
   _deathLoot:
     _spawnLootContainerOnDeath: 1
     _deathLootContainerPrefab: {fileID: 2244447434356904958, guid: 4971d3cf12ab63c4183454288ef16c4d,
