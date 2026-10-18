@@ -398,6 +398,9 @@ namespace AgentReproduction.Tests
             for (int i = 0; i < boxes.Length; i++)
             {
                 screen.OpenLootBox(boxes[i]);
+                // Dressed formal cases now finish their mechanical opening before starting search.
+                if (screen.IsWaitingForCaseOpening) Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i));
+                yield return WaitFor(() => screen.IsInventoryOpen && screen.ActiveSessionContext?.SourceObject == boxes[i].gameObject, 4);
                 Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i + 1));
                 Assert.That(runtime.PlacedPartCount, Is.EqualTo(1 + i / 3));
                 if (i % 3 == 0)

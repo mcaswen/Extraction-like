@@ -279,6 +279,13 @@ namespace Gameplay.Agent.AI.Actions
             global::LootBoxEntity lootBox,
             bool clearDirectiveOnComplete)
         {
+            // Opening is a bounded, shared gate: two agents cannot replay the same lid/sound.
+            // Do not advance search cadence, publish inventory-ready, or reveal items before it finishes.
+            if (!ExtractionLike.Environment.RecoveryCaseOpeningFeedback.EnsureOpen(lootBox.gameObject))
+            {
+                ReportInteraction(context, lootBox.gameObject, AgentResourceInteractionStage.OpeningContainer);
+                return Running();
+            }
             // Arrival at a concrete box, not target evaluation, advances the shared aerospace search cadence.
             ExtractionLike.Aerospace.AerospaceCollectionRuntime.Instance?.PrepareSearchedBox(lootBox);
             lootBox.EnsureLootGeneratedIfNeeded();
@@ -466,7 +473,8 @@ namespace Gameplay.Agent.AI.Actions
 
         private void ResetWaitState()
         {
-            if (_reportedInteraction?.Stage == AgentResourceInteractionStage.WaitingForInventory)
+            if (_reportedInteraction?.Stage == AgentResourceInteractionStage.WaitingForInventory ||
+                _reportedInteraction?.Stage == AgentResourceInteractionStage.OpeningContainer)
                 EndReportedInteraction(AgentResourceInteractionStage.Left);
             _waitingResourceObject = null;
             _observedInventorySession = null;

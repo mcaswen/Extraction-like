@@ -1,0 +1,49 @@
+回收箱开盖反馈 / 2026-10-18
+
+交互顺序
+玩家下达搜索指令，Agent 走到实际箱子旁后，先播放 1.08 秒的开盖过程，再进入原有搜索等待。
+直接按 F 搜索时，同样等箱盖打开后才显示背包、开始搜索揭示，不增加额外确认点击。
+锁扣释放 0.03-0.17 秒；密封盖轻抬 0.18-0.31 秒；箱盖缓动抬起 0.28-0.94 秒；随后轻微停稳。
+开过的箱子保留开启姿态。本局再次访问不重播；重新加载场景后重置。
+两个 Agent 操作同一箱子，共用一次机械开盖与音效。
+取消搜索不会把箱子判定为已搜刮。取消待打开背包、切换 Agent 或走开，不会延迟弹出旧箱子的背包。
+开盖使用非缩放时间，因此游戏计时暂停不会卡住开盖等待；不改原有搜索读条时长。
+
+资产与场景
+正式场景：Assets/Scenes/Scene_DB/Scenezl_Final 1.unity
+32 个回收箱统一使用 RecoveryCase.prefab。保留原来的 LootBoxEntity、碰撞、资源群绑定和掉落配置。
+箱盖、左右锁扣独立运动；补充密封圈、内舱托盘、运输小罐与内部蓝色指示条。
+原始外观与闭合占地保持匹配，装饰根节点明确排除 NavMesh 构建，且无新增碰撞体或障碍物。
+保留三档几何 LOD：10623 / 5813 / 3759 三角形。每档最多 14 个渲染器，材质共享。
+使用发光材质，不增加实时点光源或遮挡视线的大面积粒子。
+Blender 源文件：SourceArt/AerospaceRouteNetwork/AerospaceRouteEquipment.blend
+可重复生成：tools/art/build_route_art.py；Unity 更新入口：AerospaceSceneLayoutBuilder.BuildRecoveryCaseFeedback。
+
+声音
+Assets/Resources/GameAudio/SFX/recovery_case_open.wav
+1.16 秒，48 kHz，16-bit stereo，峰值 -1.2 dBFS，无削波。
+锁扣瞬态、短泄压、摩擦升盖、机械停稳的非旋律设计；与动作时间点对应。
+声音使用已有 Kenney CC0 金属撞击素材和原创滤波噪声，不提取其他游戏音频。
+源授权：tools/audio/sources/kenney-impact/License.txt；生成脚本：tools/audio/build_recovery_case.py。
+用户已选定的 RareDiscovery.wav 保持逐字节不变。
+
+参考学习（仅节奏与设计原则，不复制资产）
+Apex Legends 物资箱原作者 Paul Tran： https://paultran.artstation.com/projects/Z538LR
+Sea of Thieves 开发团队的重量感、物理拟音思路： https://www.seaofthieves.com/fr/news/fctc-greeds-reach-cutlass
+Kenney CC0 来源： https://kenney.nl/assets/impact-sounds
+
+验证
+Unity 2022.3.62f2c1，在独立工程副本测试，存档使用单独的测试产品名。
+gameplay-results.xml：48/48 通过；含 8 项新增开盖测试、原搜索重访/位移/资源群流程及五种航天零件完整交互。
+scene-safety-results.xml：12/12 通过；32 个替换箱、26 条路线、原交互对象与碰撞、NavMesh 构建源、材质和 LOD。
+两个 Agent，1512 组路径探测，1308 组完整路径，与修改前的几何、路径状态、路径拐点逐项一致。
+未重新烘焙导航网格；原本不完整的路径也未被隐藏或更改。
+日间/夜间游戏镜头和闭合/开盖中/完全开启的画面另行检查。
+
+科普 PDF
+Docs/Science/回收样本档案_五个航天零件图文手册.pdf
+沿用 WPS 导出成品，25 页，69/69 科普文字对应检查通过，28 个目录跳转、7 个来源链接已核验，中文字体已嵌入。
+SHA256: 31c395ad217369515872da27ddf408ee4bd8fd4ec53f1efb758170fd36c6e275
+仅提交最终 PDF，不提交 Word、中间截图或临时排版文件。
+
+一并纳入此前尚未提交的全路线航天装饰、航天回收箱外观、两项 CC0 模型与 Blender 源文件。

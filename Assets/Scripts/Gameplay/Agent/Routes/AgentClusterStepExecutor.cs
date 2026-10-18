@@ -186,7 +186,8 @@ namespace Gameplay.Agent.Routes
             if (value.AgentId != _agent.AgentIdValue || value.CommandId != _commandId || Snapshot.IsTerminal) return;
             if (value.Stage == AgentResourceInteractionStage.CapacityBlocked) _capacity = true;
             else if (value.Stage == AgentResourceInteractionStage.WaitingForInventory) _phase = AgentClusterStepPhase.WaitingForInventory;
-            else if (value.Stage == AgentResourceInteractionStage.Approaching || value.Stage == AgentResourceInteractionStage.Left)
+            else if (value.Stage == AgentResourceInteractionStage.Approaching || value.Stage == AgentResourceInteractionStage.Left ||
+                     value.Stage == AgentResourceInteractionStage.OpeningContainer)
                 _phase = AgentClusterStepPhase.Processing;
         }
         private AgentDirectiveResult ConsumeResult() { var value = _terminalResult.Value; _terminalResult = null; return value; }
