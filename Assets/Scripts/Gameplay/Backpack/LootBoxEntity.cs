@@ -185,9 +185,14 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
             return;
         }
 
+        InventoryScreenController.Instance.OpenLootBox(this);
+    }
+
+    // Called only after the physical opening gate and successful display of this session.
+    internal void NotifySearchSessionOpened()
+    {
         MarkResourceSearchStarted();
         AwardOpenExperienceIfNeeded();
-        InventoryScreenController.Instance.OpenLootBox(this);
     }
 
     /// <summary>

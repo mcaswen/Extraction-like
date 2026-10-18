@@ -71,6 +71,9 @@ public class InventoryScreenController : MonoBehaviour
     public InventoryUIController LootChestGrid;
 
     private InventoryScreenSessionContext _activeSessionContext;
+    private Coroutine _pendingLootOpen;
+    private LootBoxEntity _pendingLootBox;
+    public bool IsWaitingForCaseOpening => _pendingLootBox != null;
     private bool _customPlayerInventoryUiApplied;
     private bool _rigSlotWasActive;
     private bool _backpackSlotWasActive;
@@ -599,6 +602,7 @@ public class InventoryScreenController : MonoBehaviour
 
     private void OnDestroy()
     {
+        CancelPendingLootOpen();
         ReleaseInventoryTimePause();
 
         if (Instance == this)
@@ -616,11 +620,13 @@ public class InventoryScreenController : MonoBehaviour
         BindToFocusedAgentIfNeeded();
     }
 
+    private void OnDisable() => CancelPendingLootOpen();
+
     private void Update()
     {
         BindToFocusedAgentIfNeeded();
 
-        if (IsInventoryOpen && !ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput &&
+        if ((IsInventoryOpen || IsWaitingForCaseOpening) && !ExtractionLike.Aerospace.AerospaceUiInputGate.BlocksGameplayInput &&
             Input.GetKeyDown(KeyCode.Escape))
         {
             CloseInventory();
@@ -834,11 +840,62 @@ public class InventoryScreenController : MonoBehaviour
             Debug.Log($"[InventoryScreen] OpenLootBox -> {lootBox.name}.", this);
         }
 
+        if (_pendingLootBox == lootBox) return;
+        CancelPendingLootOpen();
+        if (Application.isPlaying && !ExtractionLike.Environment.RecoveryCaseOpeningFeedback.EnsureOpen(lootBox.gameObject))
+        {
+            _pendingLootBox = lootBox;
+            _pendingLootOpen = StartCoroutine(OpenLootBoxAfterCaseOpening(lootBox));
+            return;
+        }
+        OpenReadyLootBox(lootBox);
+    }
+
+    private System.Collections.IEnumerator OpenLootBoxAfterCaseOpening(LootBoxEntity box)
+    {
+        string agentId = ActiveInventoryAgentId;
+        var registry = AgentRuntimeRegistry.ActiveInstance;
+        Transform actor = null;
+        if (registry != null && registry.TryGetFocusedHandle(out var handle)) actor = handle.CachedTransform;
+        bool hadActor = actor != null;
+        Vector3 origin = hadActor ? actor.position : Vector3.zero;
+        // Yield at least once so cancellation always has a registered coroutine handle.
+        while (true)
+        {
+            yield return null;
+            bool invalid = box == null || !box.isActiveAndEnabled || IsInventoryOpen ||
+                agentId != ActiveInventoryAgentId ||
+                (RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked);
+            if (hadActor)
+            {
+                invalid |= actor == null || registry == null || !registry.TryGetFocusedHandle(out var current) || !current.IsAlive;
+                if (actor != null) { var delta = actor.position - origin; delta.y = 0; invalid |= delta.sqrMagnitude > .75f * .75f; }
+            }
+            if (invalid)
+            {
+                _pendingLootOpen = null; _pendingLootBox = null;
+                yield break;
+            }
+            if (ExtractionLike.Environment.RecoveryCaseOpeningFeedback.EnsureOpen(box.gameObject)) break;
+        }
+        _pendingLootOpen = null; _pendingLootBox = null;
+        if (!box.IsResourcePointLooted && LootChestGrid != null) OpenReadyLootBox(box);
+    }
+
+    private void CancelPendingLootOpen()
+    {
+        if (_pendingLootOpen != null) StopCoroutine(_pendingLootOpen);
+        _pendingLootOpen = null; _pendingLootBox = null;
+    }
+
+    private void OpenReadyLootBox(LootBoxEntity lootBox)
+    {
         // Also covers direct interaction. The runtime deduplicates the Agent-arrival path
         // and repeat opens; inject before snapshotting dimensions/items for the visible grid.
         ExtractionLike.Aerospace.AerospaceCollectionRuntime.Instance?.PrepareSearchedBox(lootBox);
         InventoryScreenSessionContext sessionContext = lootBox.CreateInventorySessionContext();
         OpenInventorySession(sessionContext);
+        if (IsInventoryOpen && IsSessionContextActive(sessionContext)) lootBox.NotifySearchSessionOpened();
     }
 
     /// <summary>
@@ -859,6 +916,7 @@ public class InventoryScreenController : MonoBehaviour
             return;
         }
 
+        CancelPendingLootOpen();
         bool wasInventoryOpen = IsInventoryOpen;
 
         if (_logInventoryDebug)
@@ -915,6 +973,7 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void OpenInventory()
     {
+        CancelPendingLootOpen();
         if (IsInventoryOpen)
         {
             if (_logInventoryDebug)
@@ -950,6 +1009,7 @@ public class InventoryScreenController : MonoBehaviour
     /// </summary>
     public void CloseInventory()
     {
+        CancelPendingLootOpen();
         if (!IsInventoryOpen)
         {
             if (_logInventoryDebug)
