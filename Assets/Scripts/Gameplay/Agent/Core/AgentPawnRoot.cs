@@ -806,6 +806,9 @@ namespace Gameplay.Agent.Core
             StopNavMeshForExternalMovement();
             // 死亡身体保留，原生导航必须退出避让，否则会永久占用队友的群锚点。
             if (_navMeshAgent != null) _navMeshAgent.enabled = false;
+            // 身体碰撞体同样会挡住队友的视线和射线，锚点上的敌人因此无法清除。
+            foreach (Collider bodyCollider in GetComponentsInChildren<Collider>(true))
+                bodyCollider.enabled = false;
             _routeController?.Terminate(AgentRouteStage.Dead);
             _directiveLifecycle?.Cancel();
             SyncBodyFactsToBlackboard(timeSeconds);

@@ -1028,7 +1028,8 @@
         "KnownAttackerBehindWallIsNotReportedAsVisible",
         "RangeUsesHeightAndTriggersDoNotOcclude",
         "AreaSkillsRespectCastRangeAndDynamicCover",
-        "UnreachableVisibleEnemyDoesNotBlockExecutableCandidate"
+        "UnreachableVisibleEnemyDoesNotBlockExecutableCandidate",
+        "DeadTeammateBodyNoLongerOccludesLineOfSight"
       ]
     },
     {
