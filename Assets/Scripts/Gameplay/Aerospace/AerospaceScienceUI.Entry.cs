@@ -132,20 +132,22 @@ namespace ExtractionLike.Aerospace
         }
         private IEnumerator AnimateEntry(int request, bool discovery, float loadingElapsed)
         {
-            if (skipReveal || stage.ReducedMotion) yield break;
+            if (skipReveal) yield break;
             // Reveal controls with their panel, but keep input locked until docking finishes.
             if (discovery || openingShell) controls.SetActive(true);
-            float duration = discovery ? DiscoveryDuration : ArchiveReopenDuration;
-            float age = discovery ? Mathf.Min(loadingElapsed, .25f) : 0;
-            while (age < duration && !skipReveal && !stage.ReducedMotion)
+            bool fullDiscovery = discovery && !stage.ReducedMotion;
+            float duration = fullDiscovery ? DiscoveryDuration : ArchiveReopenDuration;
+            float age = fullDiscovery ? Mathf.Min(loadingElapsed, .25f) : 0;
+            while (age < duration && !skipReveal)
             {
                 if (request != ticket) yield break;
                 EntryElapsed = age;
-                if (discovery) PresentDiscovery(age);
+                if (fullDiscovery) PresentDiscovery(age);
                 else
                 {
                     float alpha = EntryEase(age / duration);
-                    if (openingShell) SetEntrySurfaces(alpha);
+                    if (openingShell || discovery) SetEntrySurfaces(alpha);
+                    if (discovery) receiptGroup.alpha = 1 - alpha;
                     modelImage.color = new Color(1,1,1,alpha);
                     if (snapshotImage != null) snapshotImage.color = new Color(1,1,1,1-alpha);
                 }

@@ -16,9 +16,10 @@ namespace AgentReproduction.Tests
 {
     public sealed class AerospaceAcquisitionTests : ReproductionTestFixture
     {
-        AerospaceCollectionRuntime Create(int archive = 0)
+        AerospaceCollectionRuntime Create(int archive = 0, int seen = -1)
         {
             PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, archive);
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.DiscoverySeenKey, seen < 0 ? archive : seen);
             PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             var runtime = World.Root("Sample acquisition fixture").AddComponent<AerospaceCollectionRuntime>();
             runtime.ReserveOnStart = false;
@@ -109,6 +110,24 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator ClosingEarlyDoesNotConsumeFirstDiscoveryAndReopeningRetriesIt()
+        {
+            var runtime=Create(31,0);var ui=runtime.GetComponent<AerospaceScienceUI>();yield return null;
+            runtime.RecordSuccessfulPickup(Part("R03"),"1");
+            yield return Until(()=>ui.Stage.Ready&&ui.EntryElapsed>.7f);
+            ui.Close();yield return null;
+            Assert.That(runtime.HasSeenDiscovery("R03"),Is.False);
+            ui.Open("R03",false);
+            Assert.That(ui.IsDiscoveryPresentation,Is.True);
+            yield return Ready(ui);
+            Assert.That(runtime.HasSeenDiscovery("R03"),Is.True);
+            ui.Close();yield return null;
+            runtime.RecordSuccessfulPickup(Part("R03"),"2");yield return null;
+            Assert.That(ui.IsOpen,Is.False);
+            ContractCompleted=true;
+        }
+
+        [UnityTest]
         public IEnumerator HistoricalUnlocksStillCollectButOnlyANewPartAutoOpens()
         {
             var runtime = Create(15); var ui = runtime.GetComponent<AerospaceScienceUI>();
@@ -181,11 +200,13 @@ namespace AgentReproduction.Tests
             ui.Open("R04",true); ui.SkipReveal(); yield return Ready(ui); yield return null;
             Settled(ui); ui.Close();
             ui.Open("R01",true); yield return Until(()=>ui.Stage.Ready && ui.EntryElapsed>.45f);
-            ui.Open("R05",false); ui.Open("R02",false); yield return Ready(ui); yield return null;
+            ui.Open("R05",false); ui.Open("R02",false);
+            Assert.That(ui.CurrentCode, Is.EqualTo("R01"), "A short archive request cannot cancel an active discovery.");
+            yield return Ready(ui); ui.Open("R02",false); yield return Ready(ui); yield return null;
             Assert.That(ui.CurrentCode,Is.EqualTo("R02")); Assert.That(ui.Stage.CurrentModel.name,Does.StartWith("R02"));
             Settled(ui); ui.Close();
             ui.ToggleReducedMotion(); ui.Open("R03",true); yield return Ready(ui); yield return null;
-            Assert.That(ui.EntryElapsed,Is.Zero); Settled(ui); ui.Close(); yield return null; yield return null;
+            Assert.That(ui.EntryElapsed,Is.EqualTo(.25f)); Settled(ui); ui.Close(); yield return null; yield return null;
             Assert.That(AerospaceUiInputGate.BlocksGameplayInput,Is.False); Assert.That(Time.timeScale,Is.EqualTo(3));
             ui.ToggleReducedMotion(); ContractCompleted=true;
         }

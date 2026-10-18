@@ -23,6 +23,7 @@ namespace AgentReproduction.Tests
         AerospaceCollectionRuntime Runtime()
         {
             PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.ArchiveKey); // This fixture asserts the isolated test product first.
+            PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.DiscoverySeenKey);
             var runtime = World.Root("Aerospace integration fixture").AddComponent<AerospaceCollectionRuntime>();
             runtime.ReserveOnStart = false; return runtime;
         }
@@ -60,26 +61,70 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator GrantButtonStartsEmptyAndOnlyGrantsOnClickWithoutDuplicatesOrDiscoveryWindows()
+        public IEnumerator SilentGrantStartsEmptyAndGrantsOnceWithoutHudOrConsumingDiscovery()
         {
             TestNavMeshBuilder.Flat(World);
             AgentFactory.Create(World, "1", Vector3.zero);
             var screen = InventoryFactory.Create(World); var runtime = Runtime();
             yield return null;
-            var grantAction = runtime.GetComponentsInChildren<AerospacePartsGrantButton>(true).Single();
-            var button = grantAction.GetComponent<UnityEngine.UI.Button>();
-            Assert.That(button.gameObject.activeInHierarchy && button.interactable, Is.True);
+            Assert.That(runtime.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Grant_Five_Ship_Parts" || t.name == "Open_Aerospace_Archive"), Is.False);
             Assert.That(screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null), Is.Empty);
             Assert.That(runtime.CollectedCount, Is.Zero);
             Assert.That(AerospaceCatalog.Load().models.All(p => !runtime.IsUnlocked(p.code)), Is.True);
-            button.onClick.Invoke(); yield return null;
+            Assert.That(runtime.TryGrantPartsToCurrentBackpack(), Is.True); yield return null;
             var parts = screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null).ToArray();
             CollectionAssert.AreEquivalent(AerospaceCatalog.Load().models.Select(p => p.code), parts.Select(i => AerospaceCatalog.CodeFor(i.ItemData)));
             Assert.That(parts.All(i => i.Amount == 1 && i.IsSearched), Is.True);
             Assert.That(runtime.CollectedCount, Is.EqualTo(5));
             Assert.That(runtime.GetComponent<AerospaceScienceUI>().IsOpen, Is.False);
-            button.onClick.Invoke(); yield return null;
+            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.DiscoverySeenKey, 0), Is.Zero);
+            Assert.That(runtime.TryGrantPartsToCurrentBackpack(), Is.True); yield return null;
             Assert.That(screen.BackpackGrid.ExtractSaveData().Count(i => AerospaceCatalog.CodeFor(i.ItemData) != null), Is.EqualTo(5));
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator LegacyArchiveAndTrailingDoubleClickCannotBypassRealPickupScan()
+        {
+            TestNavMeshBuilder.Flat(World); AgentFactory.Create(World, "1", Vector3.zero);
+            var screen = InventoryFactory.Create(World); var runtime = Runtime();
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 31);
+            PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
+            var ui = runtime.GetComponent<AerospaceScienceUI>();
+            if (ui.ReducedMotion) ui.ToggleReducedMotion();
+            yield return null;
+            Assert.That(ui.GetComponentsInChildren<UnityEngine.UI.Graphic>(), Is.Empty, "The closed archive must have no HUD, counter, button or hint.");
+            foreach (var code in new[] { "R01", "R02", "R03", "R04", "R05" })
+            {
+                OpenParts(screen, code);
+                yield return WaitFor(() => Source(screen, code).IsSearched);
+                yield return new WaitForSecondsRealtime(.5f);
+                var item = Source(screen, code);
+                Assert.That(item.TryQuickTransfer(out _), Is.True);
+                // Unity can deliver the second click before the collection Update.
+                AerospaceCollectionRuntime.OpenOwnedItem(item);
+                yield return WaitFor(() => ui.IsOpen);
+                Assert.That(ui.CurrentCode, Is.EqualTo(code));
+                Assert.That(ui.IsDiscoveryPresentation, Is.True);
+                Assert.That(runtime.HasSeenDiscovery(code), Is.False);
+                AerospaceCollectionRuntime.OpenOwnedItem(item);
+                Assert.That(ui.IsDiscoveryPresentation, Is.True, "A late click must not cancel the acquisition.");
+                yield return WaitFor(() => ui.Stage.Ready && ui.EntryElapsed >= .7f);
+                Assert.That(ui.Stage.ScanProgress, Is.InRange(0f, 1f));
+                Assert.That(ui.IsTransitioning, Is.True);
+                yield return WaitFor(() => !ui.IsTransitioning);
+                Assert.That(ui.EntryElapsed, Is.EqualTo(AerospaceScienceUI.DiscoveryDuration));
+                Assert.That(runtime.HasSeenDiscovery(code), Is.True);
+                ui.Close(); yield return null; yield return null;
+                Assert.That(ui.IsOpen, Is.False, "The queued and double-click paths must not produce a second dialog.");
+                AerospaceCollectionRuntime.OpenOwnedItem(item);
+                Assert.That(ui.IsDiscoveryPresentation, Is.False);
+                Assert.That(ui.IsTransitioning, Is.True, "Even reopening the same model needs its short fade.");
+                yield return WaitFor(() => !ui.IsTransitioning);
+                Assert.That(ui.EntryElapsed, Is.EqualTo(.25f));
+                ui.Close(); screen.CloseInventory();
+            }
+            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.DiscoverySeenKey), Is.EqualTo(31));
             ContractCompleted = true;
         }
 
@@ -371,6 +416,7 @@ namespace AgentReproduction.Tests
         {
             // This exercises first discoveries, independently of archive bits left by another scenario.
             PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.ArchiveKey);
+            PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.DiscoverySeenKey);
             PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             string originalHash = Hash(AerospaceCollectionRuntime.FormalScene);
             var operation = EditorSceneManager.LoadSceneAsyncInPlayMode(AerospaceCollectionRuntime.FormalScene, new LoadSceneParameters(LoadSceneMode.Single));
@@ -393,7 +439,7 @@ namespace AgentReproduction.Tests
             var ui = runtime.GetComponent<AerospaceScienceUI>();
             Assert.That(runtime.CollectedCount, Is.Zero);
             Assert.That(screen.BackpackGrid.ExtractSaveData().Where(i => AerospaceCatalog.CodeFor(i.ItemData) != null), Is.Empty);
-            Assert.That(runtime.GetComponentsInChildren<AerospacePartsGrantButton>(true).Single().gameObject.activeInHierarchy, Is.True);
+            Assert.That(runtime.GetComponentsInChildren<Transform>(true).Any(t => t.name == "Grant_Five_Ship_Parts" || t.name == "Open_Aerospace_Archive"), Is.False);
             Time.timeScale = 0; // Freeze only this validation harness while exercising the real container UI.
             for (int i = 0; i < boxes.Length; i++)
             {

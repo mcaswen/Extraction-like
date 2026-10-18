@@ -16,30 +16,8 @@ namespace ExtractionLike.Aerospace
             var scaler = go.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1600, 900); scaler.matchWidthOrHeight = .5f;
 
-            // The out-of-modal entrance and all collection behaviour remain unchanged.
-            var hudPanel = Panel(canvas.transform, "Open_Aerospace_Archive", new Color(.075f, .145f, .169f), 22, 838, 270, 42);
-            hudPanel.GetComponent<Image>().raycastTarget = true;
-            var hudButton = hudPanel.gameObject.AddComponent<Button>(); hudButton.targetGraphic = hudPanel.GetComponent<Image>();
-            hudButton.onClick.AddListener(() => Open(null, false)); hudButton.navigation = new Navigation { mode = Navigation.Mode.None };
-            var hudLabel = new GameObject("Archive_Entrance_Label", typeof(RectTransform), typeof(Text)); hudLabel.transform.SetParent(hudPanel, false);
-            hud = hudLabel.GetComponent<Text>(); hud.font = bodyFont; hud.text = "航天档案  本局 0 / 5   [J]"; hud.fontSize = 17;
-            hud.color = new Color(.82f, .91f, .94f); hud.alignment = TextAnchor.MiddleCenter; hud.raycastTarget = false;
-            hud.horizontalOverflow = HorizontalWrapMode.Wrap; hud.verticalOverflow = VerticalWrapMode.Overflow; hud.lineSpacing = 1.22f;
-            Rect(hud.rectTransform, 6, 0, 258, 42);
-            var hudColors = hudButton.colors; hudColors.highlightedColor = new Color(.52f, .9f, .86f); hudColors.pressedColor = new Color(.3f, .68f, .67f);
-            hudColors.disabledColor = new Color(.4f, .43f, .45f); hudButton.colors = hudColors;
-            hudPanel.anchorMin = hudPanel.anchorMax = Vector2.zero; hudPanel.anchoredPosition = new Vector2(22, 62);
-
-            var grantPanel = Panel(canvas.transform, "Grant_Five_Ship_Parts", new Color(.075f, .145f, .169f), 22, 0, 320, 42);
-            grantPanel.anchorMin = grantPanel.anchorMax = Vector2.zero;
-            grantPanel.anchoredPosition = new Vector2(22, 114);
-            var grantImage = grantPanel.GetComponent<Image>(); grantImage.raycastTarget = true;
-            var grantButton = grantPanel.gameObject.AddComponent<Button>(); grantButton.targetGraphic = grantImage;
-            grantButton.navigation = new Navigation { mode = Navigation.Mode.None }; grantButton.colors = hudButton.colors;
-            var grantLabel = Instantiate(hud, grantPanel, false); grantLabel.name = "Grant_Parts_Label";
-            grantLabel.text = "领取五个飞船零件"; Rect(grantLabel.rectTransform, 6, 0, 308, 42);
-            var grantAction = grantPanel.gameObject.AddComponent<AerospacePartsGrantButton>();
-            grantAction.Initialize(grantLabel); grantButton.onClick.AddListener(grantAction.GrantParts);
+            // No persistent archive/count HUD or demonstration button. Keyboard
+            // entry is owned by AerospaceCollectionRuntime; the modal keeps its layout.
 
             modal = Panel(canvas.transform, "Science_Modal", new Color(.025f, .047f, .073f), 0, 0, 1600, 900).gameObject;
             modal.GetComponent<Image>().raycastTarget = true;
@@ -113,8 +91,6 @@ namespace ExtractionLike.Aerospace
             locationBody = Label(locator, "", 130, 85, 286, 43, 14, Ink); locationBody.lineSpacing = 2;
             sourceButton = Button(readingPane, "科普资料  ↗", 24, 833, 192, 32, ShowSources); sourceButton.name = "Science_Sources";
             sourceButton.GetComponentInChildren<TMP_Text>().fontSize = 15;
-            progress = Label(readingPane, "本局收集   0 / 5", 33, 875, 240, 22, 13, PaperMuted);
-            for (int i = 0; i < 5; i++) progressMarks.Add(Panel(readingPane, "Collection_" + i, Rule, 303 + i * 24, 882, 16, 3).GetComponent<Image>());
         }
 
         private void BuildArchiveRail(Transform frame)

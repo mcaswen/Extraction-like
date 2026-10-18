@@ -1,0 +1,213 @@
+{
+  "document": "Docs/Science/回收样本档案_五个航天零件图文手册.md",
+  "markdownSha256": "20bf355094c8010e345b7e9ea37e693201ac959f2a121618026fbd9a15250a88",
+  "sourcePdf": "Docs/Science/回收样本档案_五个航天零件图文手册.pdf",
+  "sourcePdfSha256": "31c395ad217369515872da27ddf408ee4bd8fd4ec53f1efb758170fd36c6e275",
+  "pdfPages": 25,
+  "scienceTextChecks": 69,
+  "scienceTextMatches": 69,
+  "partCount": 5,
+  "hotspotCount": 20,
+  "principleStepCount": 15,
+  "imageCount": 45,
+  "anchorCount": 45,
+  "internalLinkCount": 55,
+  "sourceReferenceCount": 7,
+  "imagesUnchangedFromPdfSource": true,
+  "images": [
+    {
+      "file": "Docs/Science/images/aerospace-parts/overview.jpg",
+      "sha256": "a081341f4a008d5a7b7377a19d840b1e9cf3c8971f334994ae8b5f80e97d914f"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-hotspot-01.jpg",
+      "sha256": "c093eee694fd81b663060402ff18c42306f67ac7108079171c9b2a967c6e21c5"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-hotspot-02.jpg",
+      "sha256": "340e9ca4eb2601cd85a3b8c2c4d109a6101d77f2b04991e53b21dddac3c415da"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-hotspot-03.jpg",
+      "sha256": "70b08ad2ad3891ec013e3e99f7333ce9abebbcb22bf938c3008b777f336ee4ac"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-hotspot-04.jpg",
+      "sha256": "40e6aa72fd6eb97f7bdd126c57397ed39934d4b97eb59723bfe9546342e8a961"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-hotspot-01.jpg",
+      "sha256": "17cca86bdc614a440db9076b1143844c55001d2aa4e466b7d76645c69163f2ce"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-hotspot-02.jpg",
+      "sha256": "2486eeee2b8d207dcfd034cabb668047cc837a5fd0e4bb55143c55f20f33fa2c"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-hotspot-03.jpg",
+      "sha256": "44f8a829e599d05ed2cb30409062b3b2ca43bbf0641a12982f6d02fbebb4cd65"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-hotspot-04.jpg",
+      "sha256": "d96c9b38f2c9242602b9695e32ca60f276a4fe5b051854480923e5c19ecb1096"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-hotspot-01.jpg",
+      "sha256": "b12c5e8eff9e8926fe48286ed4a35a27d6269451c7279f78aa9350af7a04d313"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-hotspot-02.jpg",
+      "sha256": "0a4dcb66a0b08027ec281444ed849eadcb6e646ffb77c34c465e11ef5b32db06"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-hotspot-03.jpg",
+      "sha256": "9dbc2ca3555938d302560fa71d57af42854ccbb09b08301eebe05448bc049ab8"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-hotspot-04.jpg",
+      "sha256": "9fa1cf6548f170e301f129354d1292cc8e226025a45c2c6acbd3f91bda69e69b"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-hotspot-01.jpg",
+      "sha256": "371b8ec776dde415f48c66c605eac7a8985d40d2750fa23e2fa2b9b41adbba59"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-hotspot-02.jpg",
+      "sha256": "3c05115277dfef36b977edfb9f466e06f62489b1dfb5531c86cc34fa62514394"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-hotspot-03.jpg",
+      "sha256": "e92eb6a646f4e999e60aed04796ac2566798953d54ef70d507e50b0e870faad2"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-hotspot-04.jpg",
+      "sha256": "e3597a55a251565d62283daa384dbc9cfa13e21692faea9a98b02b94b9c0f7be"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-hotspot-01.jpg",
+      "sha256": "7212f783f80ec3a8a3d494317ec19cb8152fed80255b122d836bb93f1bbbc3b1"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-hotspot-02.jpg",
+      "sha256": "7cad69ba9e74d9d0e430f337b4c02a6e60c64a6e5e553409e4d02e22d714b019"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-hotspot-03.jpg",
+      "sha256": "b423da269f73d6fff65c1739cea47cdc0711cc90c28536882e71d6fd52c2ea60"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-hotspot-04.jpg",
+      "sha256": "cc38b45e1a99e56c1ba1b5c394d340334fd387d56cec7064d725540bcda3620e"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-overview.jpg",
+      "sha256": "0ec941ce0e1c85e4f099d371ab8ad49cb53d1fe60707c526d6d567d5d7db796e"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-principle-01.jpg",
+      "sha256": "bbd59e65673509e49988724b1c1c59604008984958012b531bc28483c66af7e3"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-principle-02.jpg",
+      "sha256": "5d0fe0823ddaff7bbc7104adf8f38838d4062af929d618e0a47ffe20d92239df"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r01-principle-03.jpg",
+      "sha256": "37fc067b26995ee2a246f10eaffd273a13fa2b6eb7fd928658b5bee2dd4a6120"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-overview.jpg",
+      "sha256": "225574b119d9a2b2713168f4916c61758a99f854081052b529d4e2212b4f4a96"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-principle-01.jpg",
+      "sha256": "377b8cd404f031d8f8292431def6057e77eb3d07119a4fa3b9076cb49df4809b"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-principle-02.jpg",
+      "sha256": "44199f1bad5c88340f1600ea56833c5519bad7b33e016a43eb1b7f4ca1d6e7fa"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r02-principle-03.jpg",
+      "sha256": "71212be194267ee5e84254218d3232ee15b97bbb6c76de4e8718f939dc56f5ff"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-overview.jpg",
+      "sha256": "b940487eb7fc721a0838261bb1fb967d7f57480a5c96669a74da202fe7531ada"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-principle-01.jpg",
+      "sha256": "1c241c753ef443963bb63282b59be4b2b8c9bb255d31975e53a661d75452cd97"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-principle-02.jpg",
+      "sha256": "7a5d310bcf7adb67563c72318e568ba9b4c0f250af8d49129fd1f1cea26f4a4c"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-principle-03.jpg",
+      "sha256": "6f5ee5036c0569b80ffb80625486cb67352ede104dadac302a5db5f7f5e84d59"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r03-study.jpg",
+      "sha256": "7fa095e50d602611a10110387d273fc2848ed9d74eda70a134e0a7d69bc25b5c"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-overview.jpg",
+      "sha256": "77a7c67f1dac848829cdcbeb9f1e66f9842dc71f6e613b39dfe4752efed3a193"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-principle-01.jpg",
+      "sha256": "b7324d9ee3d6345afe10351591f25711735d6dd523a02b9f1a07775382cddd4a"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-principle-02.jpg",
+      "sha256": "a066673cf1292ec13b4824adc6d6c95825d74577f72c00e6d111bb4506f861ba"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r04-principle-03.jpg",
+      "sha256": "54230273fedeb4f942e3f9daffbceeed3d6f3fd22292d0c0a772a8e817f9a581"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-overview.jpg",
+      "sha256": "e6f3f7e7a852e05a583ddf584ced73086baac62f7288d9afa7f8c40dd8b4e89b"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-principle-01.jpg",
+      "sha256": "8b8e6a21ee0227529d87ed9f8bf33e88c9ccb040ef24c5ebba8e2cd517c86301"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-principle-02.jpg",
+      "sha256": "c0adf08f505638155c4c487eb81151688983a67a56ccebd96507b3fbfca5eda2"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-principle-03.jpg",
+      "sha256": "365d80e5388ec4d5d63a7d97575539fe120dea88e36051e43d83e655464b64a1"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-relation-01.jpg",
+      "sha256": "e7a8d339486cffa13a48490db4c4197e76c187adeba92e3242b9f74307bdfbdd"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-relation-02.jpg",
+      "sha256": "bf0f5bdb762b9e0e797a876da9ab77e1f6f52d003b9c665815626ab0c1e7cd3c"
+    },
+    {
+      "file": "Docs/Science/images/aerospace-parts/r05-relation-03.jpg",
+      "sha256": "55fb7fef0f0b03783fce62a3463ebe6d607a0fa6aae03fe9ce7ae8785ae69bf6"
+    }
+  ],
+  "renderValidation": {
+    "renderer": "Marked + Chromium, GitHub-style preview",
+    "desktopViewport": "1200x1000",
+    "mobileViewport": "390x844",
+    "brokenImages": 0,
+    "horizontalOverflow": false,
+    "visualReview": "Cover, clickable contents, structure hotspots and responsive layout reviewed."
+  },
+  "unityValidation": {
+    "gameplayTestsPassed": 60,
+    "sceneSafetyTestsPassed": 17,
+    "filesMatchedToTestedCopy": 46,
+    "sceneUniqueIdentifiers": 5418
+  }
+}

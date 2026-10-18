@@ -18,6 +18,7 @@ namespace AgentReproduction.Tests
         AerospaceScienceUI Create(bool unlocked)
         {
             PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.ArchiveKey);
+            PlayerPrefs.DeleteKey(AerospaceCollectionRuntime.DiscoverySeenKey);
             PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             var runtime = World.Root("Science presentation fixture").AddComponent<AerospaceCollectionRuntime>();
             runtime.ReserveOnStart = false;
@@ -48,7 +49,8 @@ namespace AgentReproduction.Tests
             foreach (string copy in new[] { "搜集线索", "首个新箱必出样本", "已探索不同箱子", "已投放样本", "个新箱保底出现" })
                 Assert.That(labels.Any(t => t.text.Contains(copy)), Is.False, copy);
             Assert.That(Named<Button>(ui, "Science_Sources"), Is.Not.Null, "Science references are independent of collection clues.");
-            for (int i = 0; i < 5; i++) Assert.That(Named<Image>(ui, "Collection_" + i), Is.Not.Null);
+            for (int i = 0; i < 5; i++) Assert.That(ui.GetComponentsInChildren<Transform>(true).Any(t=>t.name=="Collection_"+i), Is.False);
+            Assert.That(labels.Any(t=>t.text.Contains("本局收集   ")), Is.False);
         }
         static void AssertCleanArchiveChrome(AerospaceScienceUI ui)
         {

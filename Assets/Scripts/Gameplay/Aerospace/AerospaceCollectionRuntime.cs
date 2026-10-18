@@ -7,6 +7,9 @@ using Gameplay.Targets.Authoring;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using TMPro;
 
 namespace ExtractionLike.Aerospace
 {
@@ -15,6 +18,10 @@ namespace ExtractionLike.Aerospace
     {
         public const string FormalScene = "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
         public const string ArchiveKey = "ASTRA_ScienceArchive_v1";
+        // Keep the legacy archive key to preserve collected samples. Unlocking an item
+        // (including the old demo button) does not prove its introduction was watched.
+        public const string DiscoverySeenKey = "AerospaceScience.DiscoverySeen.v1";
+        public const KeyCode GrantShortcut = KeyCode.F8;
         public static AerospaceCollectionRuntime Instance { get; private set; }
         public const int PartCount = 5;
         public const int PreferredSearchStride = 3;
@@ -26,6 +33,8 @@ namespace ExtractionLike.Aerospace
         private readonly HashSet<string> collected = new HashSet<string>();
         private sealed class DiscoveryRequest { public string code; public Rect? origin; }
         private readonly Queue<DiscoveryRequest> pending = new Queue<DiscoveryRequest>();
+        private readonly HashSet<string> queuedDiscoveries = new HashSet<string>();
+        private readonly HashSet<string> recoveredNaturally = new HashSet<string>();
         private readonly Dictionary<string, HashSet<string>> grantedParts = new Dictionary<string, HashSet<string>>();
         private bool grantingParts;
         private AerospaceScienceUI ui;
@@ -39,6 +48,14 @@ namespace ExtractionLike.Aerospace
         public string Status { get; private set; } = "正在核验搜索点…";
         public bool HasCollected(string code) => collected.Contains(code);
         public bool IsUnlocked(string code) => (PlayerPrefs.GetInt(ArchiveKey, 0) & Bit(code)) != 0;
+        public bool HasSeenDiscovery(string code) => (PlayerPrefs.GetInt(DiscoverySeenKey, 0) & Bit(code)) != 0;
+        public bool NeedsDiscovery(string code) => code != null && recoveredNaturally.Contains(code) && !HasSeenDiscovery(code);
+        public void CompleteDiscovery(string code)
+        {
+            if (!IsUnlocked(code) || HasSeenDiscovery(code)) return;
+            PlayerPrefs.SetInt(DiscoverySeenKey, PlayerPrefs.GetInt(DiscoverySeenKey, 0) | Bit(code));
+            PlayerPrefs.Save();
+        }
         private static int Bit(string code) => code != null && code.Length == 3 && code[2] >= '1' && code[2] <= '5' ? 1 << (code[2] - '1') : 0;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -78,7 +95,7 @@ namespace ExtractionLike.Aerospace
             if (!IsReady) { Status = "搜索点核验未通过，请查看 Console"; Debug.LogError("[Aerospace] Cannot prepare five parts: fewer than five reachable boxes or missing item assets. No inaccessible or physical props were created."); }
         }
 
-        /// <summary>Manual scene-button shortcut; each Agent can receive each part once per run.</summary>
+        /// <summary>Silent Shift+F8 demonstration shortcut; each Agent can receive each part once per run.</summary>
         public bool TryGrantPartsToCurrentBackpack()
         {
             var inventory = InventoryScreenController.Instance;
@@ -242,17 +259,23 @@ namespace ExtractionLike.Aerospace
         public void RecordSuccessfulPickup(InventoryItemData item, string agentId, Rect? origin = null)
         {
             string code = AerospaceCatalog.CodeFor(item);
-            if (code == null || string.IsNullOrEmpty(agentId) || !collected.Add(code)) return;
-            bool firstArchiveUnlock = !IsUnlocked(code);
-            PlayerPrefs.SetInt(ArchiveKey, PlayerPrefs.GetInt(ArchiveKey, 0) | Bit(code)); PlayerPrefs.Save();
+            if (code == null || string.IsNullOrEmpty(agentId)) return;
+            bool firstThisRound = collected.Add(code);
+            if (!IsUnlocked(code))
+            {
+                PlayerPrefs.SetInt(ArchiveKey, PlayerPrefs.GetInt(ArchiveKey, 0) | Bit(code)); PlayerPrefs.Save();
+            }
             // One dedicated voice: rapid successful pickups retrigger instead of stacking
             // several full-level impacts. Never change global or ordinary-loot audio volume.
             // The manual grant unlocks the archive without opening five discovery windows.
             if (!grantingParts)
             {
-                if (discovery.clip != null) discovery.Play();
-                // The saved archive, not the round-local collection counter, owns first discovery.
-                if (firstArchiveUnlock) pending.Enqueue(new DiscoveryRequest { code = code, origin = origin });
+                recoveredNaturally.Add(code);
+                if (firstThisRound && discovery.clip != null) discovery.Play();
+                // A successful transfer owns discovery; neither legacy archive bits nor
+                // demo grants consume it. Mark it seen only after the presentation succeeds.
+                if (NeedsDiscovery(code) && queuedDiscoveries.Add(code))
+                    pending.Enqueue(new DiscoveryRequest { code = code, origin = origin });
             }
             Debug.Log("[Aerospace] " + agentId + " recovered " + code + "; collection " + collected.Count + "/5.");
         }
@@ -260,11 +283,27 @@ namespace ExtractionLike.Aerospace
         {
             if (pending.Count > 0 && !ui.IsOpen && DraggableItemUI.CurrentlyDraggedItem == null && !RaidLocked)
             {
-                var request = pending.Dequeue();
-                ui.Open(request.code, true, request.origin);
+                // Manual inspection can have completed the same pending discovery.
+                while (pending.Count > 0 && HasSeenDiscovery(pending.Peek().code))
+                    queuedDiscoveries.Remove(pending.Dequeue().code);
+                if (pending.Count > 0)
+                {
+                    var request = pending.Dequeue();
+                    ui.Open(request.code, true, request.origin);
+                    // Keep the deduplication guard until this presentation is acknowledged.
+                    if (ui.IsOpen) return; // Do not consume the triggering frame's archive shortcut again.
+                }
             }
+            if (TypingInInputField()) return;
+            if (Input.GetKeyDown(GrantShortcut) && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+                TryGrantPartsToCurrentBackpack();
             if (Input.GetKeyDown(KeyCode.J) && !RaidLocked && DraggableItemUI.CurrentlyDraggedItem == null)
             { if (ui.IsOpen) ui.Close(); else ui.Open(null, false); }
+        }
+        private static bool TypingInInputField()
+        {
+            var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+            return selected != null && (selected.GetComponentInParent<InputField>() != null || selected.GetComponentInParent<TMP_InputField>() != null);
         }
         public static bool RaidLocked => RaidFlowController.Instance != null && RaidFlowController.Instance.IsInputLocked;
         public static void OpenOwnedItem(DraggableItemUI item)

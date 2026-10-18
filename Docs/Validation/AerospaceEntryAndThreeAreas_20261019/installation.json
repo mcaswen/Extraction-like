@@ -1,0 +1,166 @@
+{
+    "navigationHash": "B0-E2-36-C5-06-F6-B2-02-A8-EB-3E-68-44-DD-AD-1D-77-9C-34-69-75-5E-59-8F-28-1D-DC-58-E3-1E-7B-0D",
+    "gameplayHash": "C9-48-C1-B4-7F-7A-C2-54-67-FE-0F-1C-2F-2A-CE-F7-30-07-0A-6E-3B-53-BB-16-FC-56-49-18-89-9E-E4-D7",
+    "pathProbes": 1512,
+    "completePaths": 1308,
+    "colliders": 297,
+    "agents": 2,
+    "placements": [
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/01_StoneArch_Telemetry/Arch_Tracking_Dish",
+            "position": {
+                "x": 38.0,
+                "y": 0.3214173913002014,
+                "z": -40.0
+            },
+            "size": {
+                "x": 7.857666015625,
+                "y": 7.1058268547058109,
+                "z": 7.842430114746094
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/01_StoneArch_Telemetry/Arch_Solar_Power",
+            "position": {
+                "x": 67.0,
+                "y": 0.1590304970741272,
+                "z": -44.0
+            },
+            "size": {
+                "x": 5.1956024169921879,
+                "y": 5.939094543457031,
+                "z": 4.8601531982421879
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/01_StoneArch_Telemetry/Arch_Engine_Survey",
+            "position": {
+                "x": 2.3044815063476564,
+                "y": 0.04331173002719879,
+                "z": -34.469268798828128
+            },
+            "size": {
+                "x": 6.498386383056641,
+                "y": 4.525811195373535,
+                "z": 6.767341613769531
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/01_StoneArch_Telemetry/Arch_Wireless_Node",
+            "position": {
+                "x": 107.0,
+                "y": 0.04331196844577789,
+                "z": -47.0
+            },
+            "size": {
+                "x": 4.7347869873046879,
+                "y": 5.3723554611206059,
+                "z": 4.2779083251953129
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/02_Rainforest_Capsule_Service/Forest_Return_Capsule",
+            "position": {
+                "x": 52.0,
+                "y": 0.903242826461792,
+                "z": 243.0
+            },
+            "size": {
+                "x": 10.58349609375,
+                "y": 8.427391052246094,
+                "z": 10.8565673828125
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/02_Rainforest_Capsule_Service/Forest_Tracking_Dish",
+            "position": {
+                "x": 4.0,
+                "y": 0.02499990537762642,
+                "z": 180.0
+            },
+            "size": {
+                "x": 9.822075843811036,
+                "y": 8.559999465942383,
+                "z": 9.803009033203125
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/02_Rainforest_Capsule_Service/Forest_Satellite_Sample",
+            "position": {
+                "x": 37.0,
+                "y": 0.02500014379620552,
+                "z": 193.0
+            },
+            "size": {
+                "x": 12.944633483886719,
+                "y": 6.252420425415039,
+                "z": 8.68792724609375
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/02_Rainforest_Capsule_Service/Forest_Engine_Cradle",
+            "position": {
+                "x": 57.0,
+                "y": 1.1171252727508546,
+                "z": 219.0
+            },
+            "size": {
+                "x": 9.011032104492188,
+                "y": 5.856609344482422,
+                "z": 8.873931884765625
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/03_Tower_Orbital_Research/Tower_Satellite_Calibration",
+            "position": {
+                "x": 67.62982940673828,
+                "y": 0.02499990537762642,
+                "z": -105.1116943359375
+            },
+            "size": {
+                "x": 13.483993530273438,
+                "y": 6.51043701171875,
+                "z": 9.049911499023438
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/03_Tower_Orbital_Research/Tower_Return_Capsule",
+            "position": {
+                "x": -50.0,
+                "y": 0.02499990537762642,
+                "z": -112.0
+            },
+            "size": {
+                "x": 9.546356201171875,
+                "y": 7.517940521240234,
+                "z": 9.84149169921875
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/03_Tower_Orbital_Research/Tower_Tracking_Dish",
+            "position": {
+                "x": 51.60981750488281,
+                "y": 0.11745388805866242,
+                "z": -129.96156311035157
+            },
+            "size": {
+                "x": 8.339012145996094,
+                "y": 6.95245361328125,
+                "z": 8.3524169921875
+            }
+        },
+        {
+            "path": "Aerospace_AllRoutes_SetDress/Aerospace_ThreeAreas_Research_Details/03_Tower_Orbital_Research/Tower_Engine_Sample",
+            "position": {
+                "x": 49.0,
+                "y": 1.1450212001800538,
+                "z": -159.0
+            },
+            "size": {
+                "x": 9.627243041992188,
+                "y": 7.7322845458984379,
+                "z": 10.02569580078125
+            }
+        }
+    ]
+}

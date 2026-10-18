@@ -123,6 +123,50 @@ namespace AgentReproduction.Tests
                 {Assert.That(m,Is.Not.Null);Assert.That(ShaderUtil.ShaderHasError(m.shader),Is.False);Assert.That(m.enableInstancing,Is.True);}
             }
         }
+
+        [Test] public void ThreeRequestedAreasHaveSafeResearchAssemblies()
+        {
+            Assert.DoesNotThrow(AerospaceSceneLayoutBuilder.ValidateSceneResearchAccents);
+            var root=All<Transform>().Single(t=>t.name==AerospaceSceneLayoutBuilder.SceneAccentRoot);
+            Assert.That(root.parent,Is.EqualTo(art.transform));
+            Assert.That(root.Cast<Transform>().Sum(t=>t.childCount),Is.EqualTo(12));
+            Assert.That(root.GetComponentsInChildren<Light>(true),Is.Empty);
+            Assert.That(root.GetComponentsInChildren<ParticleSystem>(true),Is.Empty);
+            Assert.That(root.GetComponentsInChildren<LootBoxEntity>(true),Is.Empty,"Research displays are not extra searchable containers.");
+        }
+
+        [Test] public void ResearchDetailsCanBeHiddenWithoutChangingAnyPathOrOriginalGameplay()
+        {
+            var root=All<Transform>().Single(t=>t.name==AerospaceSceneLayoutBuilder.SceneAccentRoot);
+            var nav=AerospaceSceneLayoutBuilder.CaptureInvestigationNavigation(scene);
+            string gameplay=AerospaceSceneLayoutBuilder.RouteGameplaySignature(scene);
+            try
+            {
+                root.gameObject.SetActive(false);
+                Assert.That(AerospaceSceneLayoutBuilder.RouteGameplaySignature(scene),Is.EqualTo(gameplay));
+                Assert.DoesNotThrow(()=>AerospaceSceneLayoutBuilder.AssertInvestigationSnapshotEqual(nav,AerospaceSceneLayoutBuilder.CaptureInvestigationNavigation(scene)));
+                Assert.That(All<Collider>().Length,Is.EqualTo(art.originalColliderCount));
+            }
+            finally{root.gameObject.SetActive(true);}
+        }
+
+        [TestCase("ReturnCapsule")]
+        [TestCase("OrbitalSatellite")]
+        [TestCase("TelemetryDish")]
+        public void NewResearchModelsHaveThreeReducedLodsAndNoCollision(string name)
+        {
+            var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(AerospaceSceneLayoutBuilder.SceneAccentAssets+"/Prefabs/"+name+".prefab");
+            Assert.That(prefab,Is.Not.Null);Assert.That(prefab.GetComponentsInChildren<Collider>(true),Is.Empty);
+            var lods=prefab.GetComponent<LODGroup>().GetLODs();Assert.That(lods.Length,Is.EqualTo(3));int previous=18000;
+            foreach(var lod in lods)
+            {
+                int triangles=lod.renderers.Sum(r=>r.GetComponent<MeshFilter>().sharedMesh.triangles.Length/3);
+                Assert.That(triangles,Is.GreaterThan(1500).And.LessThan(previous));previous=triangles;
+                Assert.That(lod.renderers.Length,Is.InRange(3,7));
+                foreach(var r in lod.renderers)Assert.That(r.sharedMaterials.All(m=>m!=null&&m.shader.name=="Universal Render Pipeline/Lit"&&m.enableInstancing),Is.True);
+            }
+            Assert.That(previous,Is.LessThan(3500));
+        }
         [Test] public void RealContainerSessionsStillResolveTheirSourceAndGrid()
         {
             foreach(var c in art.cases)

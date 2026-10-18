@@ -31,15 +31,14 @@ namespace ExtractionLike.Aerospace
         private RawImage modelImage;
         private CanvasGroup contentGroup;
         private ScrollRect readingScroll;
-        private Text hud;
-        private TMP_Text progress, heading, subtitle, loading, surfaceText, foldText, qualityText, closeLabel, sampleId;
+        private TMP_Text heading, subtitle, loading, surfaceText, foldText, qualityText, closeLabel, sampleId;
         private Button foldButton, settingsButton, sourceButton, resetButton, pinsButton;
         private TMP_Text locationTitle, locationBody;
         private AerospaceTerminalGraphic locationGraphic;
         private bool pinsEnabled = true;
         private readonly List<Button> cards = new List<Button>(), pins = new List<Button>(), anchorButtons = new List<Button>(), modeButtons = new List<Button>(), readingTabs = new List<Button>();
         private readonly List<TMP_Text> cardTitles = new List<TMP_Text>(), cardStates = new List<TMP_Text>(), pinNames = new List<TMP_Text>();
-        private readonly List<Image> cardIcons = new List<Image>(), cardRules = new List<Image>(), progressMarks = new List<Image>();
+        private readonly List<Image> cardIcons = new List<Image>(), cardRules = new List<Image>();
         private readonly List<AerospaceHotspotLeader> leaders = new List<AerospaceHotspotLeader>();
         private readonly Vector2[] anchorPoints = new Vector2[4];
         private readonly Vector3[] viewportCorners = new Vector3[4];
@@ -76,6 +75,11 @@ namespace ExtractionLike.Aerospace
         {
             if (AerospaceCollectionRuntime.RaidLocked || DraggableItemUI.CurrentlyDraggedItem != null || owner == null) return;
             if (code != null && (!owner.IsUnlocked(code) || AerospaceCatalog.Load().Find(code) == null)) return;
+            // A trailing inventory double-click/archive request must not replace a
+            // queued or already-running first acquisition with the short reopen path.
+            if (IsOpen && transitioning && discoveryPresentation) return;
+            if (code == null) code = current != null && owner.IsUnlocked(current.code) ? current.code : AerospaceCatalog.Load().models.FirstOrDefault(p => owner.IsUnlocked(p.code))?.code;
+            discovery |= owner.NeedsDiscovery(code);
             bool wasOpen = IsOpen;
             if (!IsOpen)
             {
@@ -87,9 +91,8 @@ namespace ExtractionLike.Aerospace
                 Cursor.lockState = CursorLockMode.None; Cursor.visible = true; modal.SetActive(true);
                 InventoryItemInfoPanelController.Instance?.Hide(); EventSystem.current?.SetSelectedGameObject(null);
             }
-            if (code == null) code = current != null && owner.IsUnlocked(current.code) ? current.code : AerospaceCatalog.Load().models.FirstOrDefault(p => owner.IsUnlocked(p.code))?.code;
             RefreshArchive();
-            if (!discovery && code == current?.code && stage.Ready && !transitioning) return;
+            if (wasOpen && !discovery && code == current?.code && stage.Ready && !transitioning) return;
             if (code != null) BeginLoad(code, discovery, !wasOpen, pickupOrigin);
             else
             {
@@ -148,6 +151,7 @@ namespace ExtractionLike.Aerospace
                 if (request != ticket) yield break;
                 modelImage.color = Color.white; loading.gameObject.SetActive(false); controls.SetActive(true);
                 stage.Select(-1); readingTab = 0; selectedHotspot = -1;
+                if (discovery) owner.CompleteDiscovery(current.code);
             }
             else { ApplyCurrentIdentity(); RenderReading(); loading.gameObject.SetActive(true); loading.text = error; stage.Unload(); }
             ReleaseSwitchSnapshot(); readingReveal.interactable = true;
@@ -248,7 +252,6 @@ namespace ExtractionLike.Aerospace
 
         private void RefreshArchive()
         {
-            progress.text = "本局收集   " + owner.CollectedCount + " / 5";
             var parts = AerospaceCatalog.Load().models;
             for (int i = 0; i < cards.Count; i++)
             {
@@ -263,7 +266,6 @@ namespace ExtractionLike.Aerospace
                 if (selected) MoveArchiveCursor(i);
                 cards[i].GetComponent<Image>().color = selected ? new Color(SelectedFill.r, SelectedFill.g, SelectedFill.b, .9f) : Color.clear;
                 cards[i].GetComponent<AerospaceInstrumentSurface>().SetSelected(selected);
-                progressMarks[i].color = collected ? Teal : new Color(.23f, .28f, .29f);
             }
         }
         private void ShowSources() { if (transitioning) return; RestoreDemonstrationReading(); readingTab = 3; RenderReading(); RefreshButtons(); }
@@ -276,7 +278,6 @@ namespace ExtractionLike.Aerospace
         private void Update()
         {
             if (owner == null) return;
-            hud.text = "航天档案  本局 " + owner.CollectedCount + " / 5   [J]";
             if (!IsOpen) return;
             TickPresentationMotion();
             UpdateTerminal();
