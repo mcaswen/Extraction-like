@@ -479,6 +479,14 @@ namespace Gameplay.Agent.Core
             return _directiveLifecycle.Submit(request);
         }
         public bool CanSelectAutonomousRouteTarget(AgentTargetRef target) => _routeController == null || _routeController.CanSelectAutonomousTarget(target);
+        /// <summary>安装地图路线时估算到目标的作者图路程；未安装或不可达返回 false。</summary>
+        public bool TryEstimateRoute(AgentTargetRef target, System.Collections.Generic.List<string> nodes, out float length)
+        {
+            length = float.PositiveInfinity;
+            return _routeController != null && _routeController.TryEstimate(target, nodes, out length);
+        }
+        public bool TryCopyRouteNodeEnemies(string nodeId, System.Collections.Generic.List<global::EnemyHealthController> results)
+            => _routeController != null && _routeController.TryCopyAliveEnemies(nodeId, results);
         public AgentRouteResult TrySubmitRoute(AgentRouteRequest request)
         {
             if (_routeController != null) return _routeController.Submit(request);

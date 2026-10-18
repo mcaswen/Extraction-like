@@ -39,6 +39,18 @@ namespace Gameplay.Agent.Decision
         [SerializeField] private float _currentTargetBonus = 12f;
         [SerializeField] private float _lowHealthExtractionBonus = 72f;
 
+        [Header("地图路线")]
+        [Tooltip("安装地图路线时，候选距离按作者图路程计算，途经敌群计入风险")]
+        [SerializeField] private bool _useRouteEstimate = true;
+
+        [Tooltip("撤离候选的路程与风险扣分倍率；1 与其他目标相同")]
+        [SerializeField, Range(0f, 1f)] private float _extractionPenaltyScale = 1f;
+
+        [Header("带出价值")]
+        [Tooltip("携带价值达到该值时，撤离加分达到上限")]
+        [SerializeField] private float _carriedValueTarget = 6000f;
+        [SerializeField] private float _carriedValueExtractionBonus = 0f;
+
         public float RiskScale => Mathf.Max(0f, _riskScale);
         public float DefaultDefense => Mathf.Max(0f, _defaultDefense);
         public float EnemyPathInfluenceRadius => Mathf.Max(0f, _enemyPathInfluenceRadius);
@@ -56,6 +68,10 @@ namespace Gameplay.Agent.Decision
         public float DistancePenaltyWeight => Mathf.Max(0f, _distancePenaltyWeight);
         public float CurrentTargetBonus => _currentTargetBonus;
         public float LowHealthExtractionBonus => Mathf.Max(0f, _lowHealthExtractionBonus);
+        public bool UseRouteEstimate => _useRouteEstimate;
+        public float ExtractionPenaltyScale => Mathf.Clamp01(_extractionPenaltyScale);
+        public float CarriedValueTarget => Mathf.Max(1f, _carriedValueTarget);
+        public float CarriedValueExtractionBonus => Mathf.Max(0f, _carriedValueExtractionBonus);
 
         /// <summary>
         /// 根据敌人最大生命值估算策划公式中的敌人等级 L
@@ -136,6 +152,9 @@ namespace Gameplay.Agent.Decision
             _riskPenaltyWeight = Mathf.Max(0f, _riskPenaltyWeight);
             _distancePenaltyWeight = Mathf.Max(0f, _distancePenaltyWeight);
             _lowHealthExtractionBonus = Mathf.Max(0f, _lowHealthExtractionBonus);
+            _extractionPenaltyScale = Mathf.Clamp01(_extractionPenaltyScale);
+            _carriedValueTarget = Mathf.Max(1f, _carriedValueTarget);
+            _carriedValueExtractionBonus = Mathf.Max(0f, _carriedValueExtractionBonus);
         }
     }
 }

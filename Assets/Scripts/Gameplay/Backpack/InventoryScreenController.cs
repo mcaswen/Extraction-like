@@ -143,6 +143,34 @@ public class InventoryScreenController : MonoBehaviour
         return totalValue;
     }
 
+    /// <summary>
+    /// 只读查询指定角色当前携带的可结算物品数量和价值
+    /// 不结束背包会话、不保存快照，可供 Agent 决策周期性调用
+    /// </summary>
+    public bool TryGetCarriedLootSummary(string agentId, out int lootItemCount, out int totalValue)
+    {
+        lootItemCount = 0;
+        totalValue = 0;
+        string normalizedAgentId = string.IsNullOrWhiteSpace(agentId) ? string.Empty : agentId.Trim();
+        if (string.IsNullOrEmpty(normalizedAgentId))
+        {
+            return false;
+        }
+
+        if (IsLiveInventoryAgent(normalizedAgentId))
+        {
+            return TryGetCurrentInventoryRevenue(out lootItemCount, out totalValue);
+        }
+
+        if (!_inventorySnapshotsByAgentId.TryGetValue(normalizedAgentId, out CharacterInventorySnapshot snapshot))
+        {
+            return false;
+        }
+
+        AccumulateExtractionInventorySummary(snapshot, ref lootItemCount, ref totalValue);
+        return true;
+    }
+
     private bool TryGetCurrentInventoryRevenue(out int lootItemCount, out int totalValue)
     {
         lootItemCount = 0;

@@ -1045,6 +1045,18 @@
       ]
     },
     {
+      "name": "DecisionRoutePacing",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.DecisionRoutePacingTests",
+      "expected": [
+        "RouteEstimateFollowsAuthoredGraphInsteadOfStraightLine",
+        "UnavailableTransitNodeMakesTargetUnreachable",
+        "RouteRiskReplacesStraightLineProximityAndCanRejectResource",
+        "CarriedValueRaisesExtractionAboveNearbyResource",
+        "ExtractionPenaltyScaleLetsLowHealthAgentRetreatToFarExit"
+      ]
+    },
+    {
       "name": "Cooldown",
       "suite": "Core",
       "filter": "AgentReproduction.Tests.CombatCooldownTests",

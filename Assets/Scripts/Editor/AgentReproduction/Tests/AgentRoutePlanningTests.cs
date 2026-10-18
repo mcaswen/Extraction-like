@@ -37,6 +37,7 @@ namespace AgentReproduction.Tests
             public bool TryCreateProcessingDirective(string nodeId, AgentId agentId, string commandId, int priority,
                 out AgentDirectiveRequest directive, out AgentDirectiveFailure failure, Gameplay.Targets.Data.ResourceSearchPass search = null)
             { directive = default; failure = AgentDirectiveFailure.InvalidTarget; return false; }
+            public bool TryCopyAliveEnemies(string nodeId, List<global::EnemyHealthController> results) { results?.Clear(); return false; }
         }
 
         private static AgentNavigationSegmentResult Segment(Vector3 origin, Vector3 destination, float length)

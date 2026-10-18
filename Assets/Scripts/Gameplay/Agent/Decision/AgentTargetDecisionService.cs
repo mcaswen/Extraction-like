@@ -107,6 +107,10 @@ namespace Gameplay.Agent.Decision
             if (candidate.DecisionTargetKind == AgentDecisionTargetKind.ActiveEnemy)
                 risk += CalculateEnemyRisk(context, candidate.RiskEnemy);
 
+            // 路线会处理途经的每个敌群，已有途经风险时不再用直线邻近估算
+            if (candidate.HasRouteEstimate)
+                return risk + candidate.RouteRisk;
+
             IReadOnlyList<global::EnemyHealthController> riskEnemies = context.RiskEnemies;
             if (riskEnemies == null || riskEnemies.Count <= 0)
                 return risk;
@@ -154,8 +158,12 @@ namespace Gameplay.Agent.Decision
         {
             float distance = Mathf.Sqrt(Mathf.Max(0f, candidate.DistanceSqr));
             float score = _config.GetBaseScore(candidate.DecisionTargetKind);
-            score -= risk * _config.RiskPenaltyWeight;
-            score -= distance * _config.DistancePenaltyWeight;
+            // 回程路程和风险迟早要承担，撤离只按比例计入，避免远出口永远输给附近目标
+            float penaltyScale = candidate.DecisionTargetKind == AgentDecisionTargetKind.Extraction
+                ? _config.ExtractionPenaltyScale
+                : 1f;
+            score -= risk * _config.RiskPenaltyWeight * penaltyScale;
+            score -= distance * _config.DistancePenaltyWeight * penaltyScale;
 
             if (candidate.IsCurrentTarget)
                 score += _config.CurrentTargetBonus;
@@ -164,6 +172,13 @@ namespace Gameplay.Agent.Decision
                 context.HealthRatio <= _config.LowHealthExtractionRatio)
             {
                 score += _config.LowHealthExtractionBonus;
+            }
+
+            // 携带越多，损失风险越大，撤离收益随带出价值线性增加
+            if (candidate.DecisionTargetKind == AgentDecisionTargetKind.Extraction)
+            {
+                float carriedRatio = Mathf.Clamp01(context.CarriedValue / _config.CarriedValueTarget);
+                score += carriedRatio * _config.CarriedValueExtractionBonus;
             }
 
             return score;
