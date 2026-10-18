@@ -83,7 +83,9 @@ public sealed class EnemyAnimatorDriver
             return;
         }
 
-        SetSpeed(agent.isStopped ? 0f : agent.velocity.magnitude);
+        // 刷怪点采样失败的敌人不在 NavMesh 上，读取 isStopped 会每帧报错。
+        bool moving = agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped;
+        SetSpeed(moving ? agent.velocity.magnitude : 0f);
     }
 
     public void TriggerAttack()
