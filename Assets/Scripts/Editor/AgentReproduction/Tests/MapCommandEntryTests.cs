@@ -115,6 +115,19 @@ namespace AgentReproduction.Tests
             Assert.That(planning,Is.EqualTo(1)); Assert.That(pawn.RouteSnapshot.Request.RequestId,Is.EqualTo(root));
             Assert.That(pawn.RouteSnapshot.Request.Source,Is.EqualTo(AgentRouteSource.Autonomous)); ContractCompleted=true;
         }
+        [UnityTest] public IEnumerator DiscoveryChoosesExitByAuthoredRouteNotStraightLine()
+        {
+            // 链 n0 起点—n1 出口（直线 18、图上相邻）—n2 绕行—n3 出口（直线 3、图上约 103）。
+            var pawn=Pawn(true,0); var detourAnchor=new Vector3(15,0,40);
+            var start=Cleared(Vector3.left*3); var detour=Cleared(detourAnchor);
+            var adjacent=TargetFactory.Extraction(World,Vector3.right*15); var straight=TargetFactory.Extraction(World,Vector3.left*6);
+            Bind(pawn,new GameplayTargetClusterAuthoringBase[]{start,adjacent,detour,straight},new[]{Vector3.left*3,Vector3.right*15,detourAnchor,Vector3.left*6});
+            Discovery(pawn);
+            yield return RuntimeWait.Until(()=>pawn.RouteSnapshot.HasPendingRequest||pawn.RouteSnapshot.IsActive,"Discovery 撤离根");
+            var request=pawn.RouteSnapshot.HasPendingRequest?pawn.RouteSnapshot.PendingRequest:pawn.RouteSnapshot.Request;
+            Assert.That(request.TargetNodeId,Is.EqualTo("n1"),"直线最近的出口需绕行整条支线，按作者图路程应选相邻出口");
+            ContractCompleted=true;
+        }
         [UnityTest] public IEnumerator PendingPlayerRouteSurvivesDecisionRefreshAndDisable()
         {
             var pawn=Pawn(true,0); var target=TargetFactory.Resources(World,Vector3.right*10);

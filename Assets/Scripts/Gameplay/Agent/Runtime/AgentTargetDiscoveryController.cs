@@ -246,7 +246,7 @@ namespace Gameplay.Agent.Runtime
             _candidateCollector.CollectExtractionTargets(handle.ReadOnly,_clusterBuffer,_worldCandidates);
             if (_worldCandidates.Count > 0)
             {
-                var exit = _worldCandidates[0];
+                var exit = SelectExtraction(handle);
                 if (SubmitRouteIfInstalled(handle, AgentTargetKind.Extraction, exit.Member, exit.Cluster.TargetId)) return;
                 commandReceiver.SubmitDirective(new AgentDirectiveRequest(AgentDirectiveType.Extract,
                     AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction,exit.Member,exit.Cluster.TargetId),
@@ -255,6 +255,23 @@ namespace Gameplay.Agent.Runtime
             }
 
             ClearTargetFacts(commandReceiver);
+        }
+
+        // 地图路线下按作者图路程选出口；直线最近的出口可能要绕行整条支线并清理途经敌群
+        private AgentTargetCandidate SelectExtraction(AgentRuntimeHandle handle)
+        {
+            var best = _worldCandidates[0];
+            float bestLength = float.PositiveInfinity;
+            foreach (var candidate in _worldCandidates)
+            {
+                var target = AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, candidate.Member, candidate.Cluster.TargetId);
+                if (handle.PawnRoot.TryEstimateRoute(target, null, out float length) && length < bestLength)
+                {
+                    bestLength = length;
+                    best = candidate;
+                }
+            }
+            return best;
         }
 
         private static void ApplyEnemyClusterTarget(

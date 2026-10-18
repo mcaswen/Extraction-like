@@ -338,7 +338,8 @@
         "DisconnectedAutonomousTargetIsDeferredUntilTopologyChanges",
         "FailureMemoryUsesWorldChangesAndBoundedCooldownWithoutBlockingManualRequests",
         "UnboundVisibleEnemiesStayInRiskFactsButCannotBecomeRoutes",
-        "CapacityFailureAutomaticallySelectsExitAndLeavesAllBoxRemainders"
+        "CapacityFailureAutomaticallySelectsExitAndLeavesAllBoxRemainders",
+        "DiscoveryChoosesExitByAuthoredRouteNotStraightLine"
       ]
     },
     {
