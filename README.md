@@ -52,7 +52,7 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) | 当前主入口，开始游戏后直接进入元素选择 |
 | [Scene_PreparationInterface](Assets/Scenes/Scene_PreparationInterface.unity) | 暂时不接入开始游戏流程；保留商店和元素选择入口，供以后恢复 |
 | [Scene_ElementSelectionMenu](Assets/Scenes/Scene_ElementSelectionMenu.unity) | 五种元素中选择两个，随后载入主玩法场景；阵容接线状态见下文 |
-| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 当前菜单流程使用的地图指挥及搜打撤正式场景，包含 7 个 Zone、28 个静态群、29 条合法直边、两个 Agent、30 个出生配置和两个有效撤离群 |
+| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 当前菜单流程使用的地图指挥及搜打撤正式场景，包含 7 个 Zone、27 个群节点、26 条合法直边、两个 Agent、28 个出生配置和两个有效撤离群 |
 | [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity) | 保留的历史 3D Raid 集成场景，不再由正式菜单流程载入 |
 | [ShopCanvasTest](Assets/Scenes/ShopCanvasTest.unity) | 保留的商店场景，包含仓库、交易和返回准备界面的按钮 |
 | [StorageCanvasTest](Assets/Scenes/StorageCanvasTest.unity) | 独立仓库验证场景，未列入当前构建列表 |
@@ -100,7 +100,7 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | 鼠标左键点击世界或地图上的群 | 给焦点 Agent 规划到该群的完整路线，依次处理沿途各群 |
 | `Tab` | 切换焦点 Agent；背包打开时不切换 |
 | `F` | 与附近对象交互；无交互目标时打开背包，背包已打开时关闭 |
-| `I` | 开关背包 |
+| `I` | 在 Console 输出背包容量与 Agent 运行状态（调试） |
 | 拖拽物品 | 调整占格位置、转移物品或放入匹配的装备槽 |
 | `Ctrl` + 左键点击物品 | 在可用容器之间快捷转移 |
 | `P` / `Esc` | 打开或关闭天赋面板 / 关闭天赋面板 |
@@ -242,7 +242,7 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 | `Assets/Art` | 83 个 FBX 文件、232 张 PNG／JPG／JPEG 图片、18 个 `.anim`、2 个 Controller、7 个 Override Controller |
 | `Assets/Prefabs` | 128 个预制体，另有 HUD／结算预制体位于 `Resources`；`Resources/HUD` 当前含 3 个预制体，包括指令反馈和地图指挥 |
 | `Assets/SO` | 72 份 `.asset`：52 份物品、7 份敌人、3 份 Agent、3 份 MapGraph（旧图、正式图、主题）、7 份旧 BoardGame 配置 |
-| `Assets/Scenes` | 35 个场景，其中 9 个位于 `Obsolete`；当前构建列表启用 8 个场景 |
+| `Assets/Scenes` | 35 个场景，其中 9 个位于 `Obsolete`；当前构建列表启用 7 个场景 |
 | `Assets/Resources/GameAudio` | 23 个音频文件，包含不同格式版本 |
 | `Assets/Scripts` | 600 个 C# 文件，其中 172 个位于顶层 `Editor`、63 个位于 `Obsolete`；此处为 2026-09-13 盘点 |
 
@@ -305,7 +305,7 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 
 当前已有项目自有 NUnit／UnityTest 构造回归，运行器在隔离副本中自动进入真实 Play Mode、运行导航和物理、保存逐例轨迹及正式 HUD 截图。编码 Agent 负责执行和定位，使用方法见 [自动回归说明](tools/agent-repro/README.md)，实际结果见 [修复验收报告](outputs/implementation_validation_report.md)。这些用例覆盖目标、执行与交战的已确认规则，不等于整个产品体验都已自动验收。
 
-2026-09-11 的 F1–F7 / R1–R5 历史矩阵：**75 例 × 3 轮，225/225 通过**；另有 7 个报告层故障构造通过。顶部指令提示已保存 [成功](outputs/feedback/success.png)及 [失败原因](outputs/feedback/failure.png)的正式 prefab 渲染证据。后续目录扩充到 163 例，按修改范围执行，不能把历史 225/225 当作新增用例或整张场景已通过的证据。
+2026-09-11 的 F1–F7 / R1–R5 历史矩阵：**75 例 × 3 轮，225/225 通过**；另有 7 个报告层故障构造通过。顶部指令提示已保存 [成功](outputs/feedback/success.png)及 [失败原因](outputs/feedback/failure.png)的正式 prefab 渲染证据。当前目录为 94 组 718 例（Core 88 组 688 例），按修改范围执行，不能把历史 225/225 当作新增用例或整张场景已通过的证据。
 
 2026-09-12，`Scenezl_Final 1` 的自主搜打撤有限矩阵已完成：七轮全部通过，5 轮双人撤离，2 轮正常战死结局，均通过程序行为、终态和结算核对。4K / High Fidelity、1×完整回合，Editor 平均 95.23 FPS，Player 平均 236.22 FPS。测试只代操作背包，游戏自主决定目标和撤离。配置、证据、修复和未解决限制见 [场景验收报告](outputs/scenezl_final1_validation_report.md)。
 

@@ -47,7 +47,7 @@
 | SceneStorage | 8 | 正式掉落写盘重载、异常页和特殊格、保存回滚、结算失败终态、平面物品证据 |
 | SceneTerminal | 4 | 先死亡后撤离、先撤离后死亡、双人同帧和顺序撤离的正式终态 |
 
-清单以 [cases.json](cases.json) 为准，共 132 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
+清单以 [cases.json](cases.json) 为准，当前 94 组 718 例；`Risks` 目前没有登记的组，只会运行 Smoke。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
 
 ## 结果与定位
 
