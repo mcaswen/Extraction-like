@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AgentReproduction.Infrastructure;
+using AgentReproduction.World;
 using AgentReproduction.Reporting;
 using AnomalySearch.Editor.MapGraph;
 using Gameplay.MapGraph.Config;
@@ -68,7 +69,7 @@ namespace AgentReproduction.Tests
             CaseArtifactWriter.Trace("fixed-seed", evidence.status + "; states=" + evidence.states + "; ms=" + evidence.milliseconds);
             Assert.That(solver.IsComplete, Is.True, "Bounded seed diagnostic exceeded the wall-clock deadline.");
             Assert.That(solver.SearchStates, Is.LessThanOrEqualTo(settings.MaximumSearchStates));
-            Assert.That(snapshot.Nodes.Count, Is.EqualTo(28)); Assert.That(seeds.Count, Is.LessThanOrEqualTo(snapshot.Nodes.Count - 1));
+            Assert.That(snapshot.Nodes.Count, Is.EqualTo(FormalSceneFacts.MapNodes)); Assert.That(seeds.Count, Is.LessThanOrEqualTo(snapshot.Nodes.Count - 1));
             if (solver.Result != null)
             {
                 Assert.That(MapGraphValidation.Validate(solver.Result).IsValid, Is.True);
@@ -144,7 +145,7 @@ namespace AgentReproduction.Tests
             Assert.That(generator.CoordinateIterations, Is.LessThanOrEqualTo(5 * Math.Max(settings.MaximumLayoutIterations, snapshot.Nodes.Count * 32)));
             Assert.That(layout.Edges.Count, Is.EqualTo(BuildSeed(reference, scan, snapshot.Profiles.Count).Count + generator.AddedConnections));
             Assert.That(scan.TotalQueryCount, Is.EqualTo(queriesBefore));
-            Assert.That(layout.Nodes.Count, Is.EqualTo(28)); Assert.That(layout.Zones.Count, Is.EqualTo(7));
+            Assert.That(layout.Nodes.Count, Is.EqualTo(FormalSceneFacts.MapNodes)); Assert.That(layout.Zones.Count, Is.EqualTo(FormalSceneFacts.Zones));
             Assert.That(MapGraphValidation.Validate(layout, reference).IsValid, Is.True);
             foreach (var profile in snapshot.Profiles)
                 Assert.That(MapGraphNavigationValidation.Validate(layout,

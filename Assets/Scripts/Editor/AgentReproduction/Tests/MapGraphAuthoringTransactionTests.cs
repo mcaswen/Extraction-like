@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using AgentReproduction.Infrastructure;
+using AgentReproduction.World;
 using AgentReproduction.Reporting;
 using AnomalySearch.Editor.MapGraph;
 using Gameplay.MapGraph.Binding;
@@ -60,7 +61,7 @@ namespace AgentReproduction.Tests
             string layout = JsonUtility.ToJson(new LayoutEvidence { nodes = _document.Layout.Nodes.ToArray(), zones = _document.Layout.Zones.ToArray(), edges = _document.Layout.Edges.ToArray() });
             Assert.That(MapGraphAuthoringTransaction.TrySave(_document, _scene, TestAsset, out var binding, out var failure), Is.True, failure);
             Assert.That(binding.IsValid, Is.True, string.Join("\n", binding.ValidationErrors));
-            Assert.That(binding.TargetBindings.Count, Is.EqualTo(28)); Assert.That(binding.ZoneBindings.Count, Is.EqualTo(7));
+            Assert.That(binding.TargetBindings.Count, Is.EqualTo(FormalSceneFacts.MapNodes)); Assert.That(binding.ZoneBindings.Count, Is.EqualTo(FormalSceneFacts.Zones));
             Assert.That(_document.IsDirty || _document.HasSourceConflict, Is.False);
             string guid = AssetDatabase.AssetPathToGUID(TestAsset); long revision = binding.MapDefinition.Revision;
             _document.SetDisplayName("保存后的地图名称");
@@ -84,7 +85,7 @@ namespace AgentReproduction.Tests
             Assert.That(validate.SearchStates, Is.Zero); Assert.That(validate.CoordinateIterations, Is.Zero);
             Assert.That(_document.TryApplyGeneration(validate, out failure), Is.True, failure);
             Assert.That(JsonUtility.ToJson(new LayoutEvidence { nodes = _document.Layout.Nodes.ToArray(), zones = _document.Layout.Zones.ToArray(), edges = _document.Layout.Edges.ToArray() }), Is.EqualTo(layout));
-            CaseArtifactWriter.Trace("saved-map", "28 targets, 7 zones, stable GUID, unchanged geometry, all baked edges reused.");
+            CaseArtifactWriter.Trace("saved-map", FormalSceneFacts.MapNodes + " targets, " + FormalSceneFacts.Zones + " zones, stable GUID, unchanged geometry, all baked edges reused.");
         }
 
         [UnityTest] public IEnumerator ConflictsAndInvalidPathsCannotMutateSavedInputs()
