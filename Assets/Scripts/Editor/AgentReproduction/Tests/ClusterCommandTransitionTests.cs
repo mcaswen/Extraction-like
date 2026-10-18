@@ -217,7 +217,8 @@ namespace AgentReproduction.Tests
             Time.timeScale = speed;
             var requests = new List<AgentDirectiveRequest>();
             for (int i = 0; i < 8; i++) requests.Add(Submit(i % 2 == 0 ? a : b, "1"));
-            var pending = RuntimeFixtureAccess.Read<Queue<AgentDirectiveResult>>(presenter, "_pending");
+            // 只核对排队数量和退订；队列元素是展示层私有类型。
+            var pending = RuntimeFixtureAccess.Read<System.Collections.ICollection>(presenter, "_pending");
             Assert.That(pending.Count, Is.LessThanOrEqualTo(4));
             foreach (var request in requests.Take(7)) Assert.That(agent.FinishDirective(request.CommandId), Is.False);
             yield return RuntimeWait.Until(() => agent.Position.x < -3, "burst latest command progresses", 5);
