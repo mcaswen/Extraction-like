@@ -66,4 +66,4 @@
 
 **搜索树结果**（`b0ed4e7`，p5-b）：R5 2/2（精确断言交互事件序列）、ResourceSearchRevisit 4/4、ResourceCommandCompletion 6/6、SceneInventory 9/9、SceneResourceNavigation 26/26、SceneResourceApproach 8/8、ClusterCommandInventory 11/11、AgentClusterStep 9/9、DecisionRoutePacing 5/5 全部通过。对拍首轮新旧一致但 5 个场景覆盖检查失败：地面物品的交互入口在背包有空间时直接拾取、不开会话；空箱在到达前就被资源群判为完成（场景删除）；第一个成员不可达时在"前往资源"阶段就以目标无效结束。改用正式背包会话、把走不到的成员排在可达成员之后，p5-c（`11d6485`）31/31 通过。
 
-（删除 InteractLoot 之后的结果运行后补充。）
+**删除 InteractLoot 之后**（`fc74a46`，p5-d）：BrainTreeEquivalence 31/31、Lifecycle 6/6、ManualDirectiveResume 16/16、SceneRetaliation 6/6、ClusterCommandTransition 31/31、ResourceCommandCompletion 6/6、Decision 6/6、MapCommandEntry 12/12、DebugReadOnly 2/2、BehaviorTreeLibrary 7/7，共 123/123 通过。
