@@ -143,6 +143,8 @@ namespace AgentReproduction.Tests
         [UnityTest]
         public IEnumerator PanelOverFinalSceneShowsMapNamesAndRetaliation()
         {
+            // 与交互会话一致：开局前就挂上遥测，才能拿到选路线时的那轮评分
+            AgentBrainTelemetryHub.Ensure();
             var load = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity", new LoadSceneParameters(LoadSceneMode.Single));
             while (!load.isDone) yield return null;
             for (int i = 0; i < 3; i++) yield return null;

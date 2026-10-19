@@ -12,7 +12,9 @@ namespace Gameplay.Agent.Telemetry.UI
 {
     /// <summary>
     /// B 键大脑面板（录制布局）：左栏状态机和行为树，右栏指令槽、目标评分和时间线。
-    /// 只读遥测，非模态，不碰输入闸门；科普档案打开时隐藏、按键失效。第一次打开时才创建遥测入口。
+    /// 只读遥测，非模态，不碰输入闸门；科普档案打开时隐藏、按键失效。
+    /// 交互会话一启动就创建遥测入口：自主评分只在路线开始时发生，开局就挂上才能在打开面板时看到这条路线是怎么选出来的。
+    /// 批处理（自动化测试、时长批跑）不自动挂，保持被测对象不变，需要时由测试自己创建。
     /// 默认跟随焦点智能体；点击切换按钮看另一台，焦点变化后重新跟随。只在编辑器和开发构建中存在。
     /// </summary>
     [DefaultExecutionOrder(10010)]
@@ -56,7 +58,11 @@ namespace Gameplay.Agent.Telemetry.UI
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Install() => Ensure();
+        private static void Install()
+        {
+            Ensure();
+            if (!Application.isBatchMode) AgentBrainTelemetryHub.Ensure();
+        }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => _instance = null;
