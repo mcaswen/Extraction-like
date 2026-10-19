@@ -24,6 +24,9 @@ namespace AgentReproduction.Tests
         public IEnumerator CarriedLootSummaryReadsLiveGridsWithoutSyncingRuntimeState()
         {
             var screen = InventoryFactory.Create(World);
+            var bag = World.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+            bag.Type = ItemType.Bag; bag.ContainerColumns = 5; bag.ContainerRows = 6; bag.ItemID = "SummaryFixtureBackpack";
+            screen.DefaultBackpackItem = bag;
             yield return null;
             screen.GetCurrentBackpackOccupiedCells();
             var slot = screen.BackpackSlot;

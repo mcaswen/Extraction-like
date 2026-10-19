@@ -1398,6 +1398,16 @@
         "CarriedLootSummaryReadsLiveGridsWithoutSyncingRuntimeState",
         "PeriodicDebugViewAvoidsStateChangingQueries"
       ]
+    },
+    {
+      "name": "BrainTickBenchmark",
+      "suite": "Regression",
+      "filter": "AgentReproduction.Tests.BrainTickBenchmarkTests",
+      "expected": [
+        "BrainTickCostIsRecorded(\"ExploreIdle\")",
+        "BrainTickCostIsRecorded(\"SearchApproach\")",
+        "BrainTickCostIsRecorded(\"CombatCooldown\")"
+      ]
     }
   ]
 }
