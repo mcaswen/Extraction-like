@@ -34,6 +34,22 @@ namespace AgentReproduction.Tests
         }
         static IEnumerator Open(RecoveryCaseOpeningFeedback feedback) => RuntimeWait.Until(() => feedback.IsOpen, "case opening completion", 4);
 
+        [UnityTest] public IEnumerator CompactVisualStillOpensBeforeSearchAndPreservesLoot()
+        {
+            var box=Case(out var feedback);var inventory=InventoryFactory.Create(World);
+            feedback.transform.localScale=Vector3.one*AerospaceSceneLayoutBuilder.CompactRecoveryCaseScale;
+            yield return null;box.Interact();
+            Assert.That(inventory.IsWaitingForCaseOpening,Is.True);
+            Assert.That(inventory.IsInventoryOpen,Is.False);
+            Assert.That(box.GetSavedItems().Single().SearchProgressSeconds,Is.Zero);
+            yield return RuntimeWait.Until(()=>inventory.IsInventoryOpen,"compact case ready after lid opening",4);
+            Assert.That(feedback.IsOpen,Is.True);Assert.That(feedback.OpeningCount,Is.EqualTo(1));
+            Assert.That(feedback.transform.localScale,Is.EqualTo(Vector3.one*.75f));
+            Assert.That(inventory.ActiveSessionContext.SourceObject,Is.SameAs(box.gameObject));
+            Assert.That(box.GetSavedItems().Single().Amount,Is.EqualTo(1));
+            inventory.CloseInventory();ContractCompleted=true;
+        }
+
         [UnityTest] public IEnumerator OneShotOpeningFinishesWithPausedGameAndPreservesItems()
         {
             var box = Case(out var feedback);

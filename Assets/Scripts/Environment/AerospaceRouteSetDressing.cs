@@ -20,6 +20,7 @@ namespace ExtractionLike.Environment
             public OriginalRendererState[] originalStates;
             public GameObject replacement;
             public Bounds originalLocalBounds;
+            [Range(.35f, 1f)] public float visualScale = 1f;
         }
         [Serializable] public sealed class RoutePlacement
         {

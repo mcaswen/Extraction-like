@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="55" result="Passed" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-19 12:11:24Z" end-time="2026-10-19 12:12:08Z" duration="44.4753204">
+  <test-suite type="TestSuite" id="2064" name="AgentRepro_EntryDressing_20261019" fullname="AgentRepro_EntryDressing_20261019" runstate="Runnable" testcasecount="878" result="Passed" start-time="2026-10-19 12:11:24Z" end-time="2026-10-19 12:12:08Z" duration="44.475320" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3121" name="Assembly-CSharp-Editor.dll" fullname="/private/tmp/recovery-case-size.D7fLVe/project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="878" result="Passed" start-time="2026-10-19 12:11:24Z" end-time="2026-10-19 12:12:08Z" duration="44.465217" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="30391" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="3122" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="878" result="Passed" start-time="2026-10-19 12:11:24Z" end-time="2026-10-19 12:12:08Z" duration="44.464561" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="3123" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="878" result="Passed" start-time="2026-10-19 12:11:24Z" end-time="2026-10-19 12:12:08Z" duration="44.460917" total="55" passed="55" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2106" name="AerospaceRouteArtTests" fullname="AgentReproduction.Tests.AerospaceRouteArtTests" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-19 12:11:24Z" end-time="2026-10-19 12:11:28Z" duration="4.454124" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_大树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Pfb_中树 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree Fbx_小树苗 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_cd16ba17ff80_919132149155446097 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Prop_Sword_Stone_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree SM_Env_Rock_Round_01 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_68093e9a802b_5250963593699531414 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+The tree PFB_Foliage_9bf79249d641_6235204559153568308 must use the Nature/Soft Occlusion shader. Otherwise billboarding/lighting will not work correctly.
+Animator is not playing an AnimatorController
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+]]></output>
+            <test-case id="2112" name="AddedArtHasNoPhysicsTargetsOrGameplayBehaviour" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.AddedArtHasNoPhysicsTargetsOrGameplayBehaviour" methodname="AddedArtHasNoPhysicsTargetsOrGameplayBehaviour" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1072938220" result="Passed" start-time="2026-10-19 12:11:25Z" end-time="2026-10-19 12:11:25Z" duration="0.016713" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2109" name="AllCasesAre75PercentWithTheirOriginalBottomAndHorizontalCentre" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.AllCasesAre75PercentWithTheirOriginalBottomAndHorizontalCentre" methodname="AllCasesAre75PercentWithTheirOriginalBottomAndHorizontalCentre" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="730521611" result="Passed" start-time="2026-10-19 12:11:25Z" end-time="2026-10-19 12:11:25Z" duration="0.007562" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2111" name="AllPublishedEdgesAreCoveredWithoutReplacingTheirBindings" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.AllPublishedEdgesAreCoveredWithoutReplacingTheirBindings" methodname="AllPublishedEdgesAreCoveredWithoutReplacingTheirBindings" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1097605602" result="Passed" start-time="2026-10-19 12:11:25Z" end-time="2026-10-19 12:11:25Z" duration="0.005637" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2107" name="AllSavedContainersHaveExactlyOneReplacementAndOriginalEntity" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.AllSavedContainersHaveExactlyOneReplacementAndOriginalEntity" methodname="AllSavedContainersHaveExactlyOneReplacementAndOriginalEntity" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="226091189" result="Passed" start-time="2026-10-19 12:11:25Z" end-time="2026-10-19 12:11:25Z" duration="0.005565" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2114" name="AppearanceTogglePreservesLootPhysicsAndAll1512PathProbes" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.AppearanceTogglePreservesLootPhysicsAndAll1512PathProbes" methodname="AppearanceTogglePreservesLootPhysicsAndAll1512PathProbes" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1745289620" result="Passed" start-time="2026-10-19 12:11:25Z" end-time="2026-10-19 12:11:26Z" duration="0.754120" asserts="0">
+              <properties />
+              <output><![CDATA[[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+]]></output>
+            </test-case>
+            <test-case id="2115" name="CollisionBasedNavigationBuildSourcesAreIdenticalWithBothAppearances" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.CollisionBasedNavigationBuildSourcesAreIdenticalWithBothAppearances" methodname="CollisionBasedNavigationBuildSourcesAreIdenticalWithBothAppearances" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="2032743575" result="Passed" start-time="2026-10-19 12:11:26Z" end-time="2026-10-19 12:11:26Z" duration="0.037510" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2113" name="DecorativeMeshesDoNotEnterActualNavigationBuildSources" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.DecorativeMeshesDoNotEnterActualNavigationBuildSources" methodname="DecorativeMeshesDoNotEnterActualNavigationBuildSources" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="160906408" result="Passed" start-time="2026-10-19 12:11:26Z" end-time="2026-10-19 12:11:26Z" duration="0.284594" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2108" name="InstallationFootprintsAndNavigationHashAreStillValid" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.InstallationFootprintsAndNavigationHashAreStillValid" methodname="InstallationFootprintsAndNavigationHashAreStillValid" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1421443741" result="Passed" start-time="2026-10-19 12:11:26Z" end-time="2026-10-19 12:11:27Z" duration="0.381261" asserts="0">
+              <properties />
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="2120" name="ModelsHaveThreeValidGeometricLodsAndSharedMaterials" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ModelsHaveThreeValidGeometricLodsAndSharedMaterials" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.455779" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2116" name="ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;RecoveryCase&quot;,12000)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;RecoveryCase&quot;,12000)" methodname="ModelsHaveThreeValidGeometricLodsAndSharedMaterials" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="123090617" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.002463" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2117" name="ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;SolarRelay&quot;,8500)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;SolarRelay&quot;,8500)" methodname="ModelsHaveThreeValidGeometricLodsAndSharedMaterials" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1206928290" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.000407" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2118" name="ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;EngineCradle&quot;,23000)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;EngineCradle&quot;,23000)" methodname="ModelsHaveThreeValidGeometricLodsAndSharedMaterials" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="2094584677" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.000519" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2119" name="ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;SurveyBeacon&quot;,2500)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ModelsHaveThreeValidGeometricLodsAndSharedMaterials(&quot;SurveyBeacon&quot;,2500)" methodname="ModelsHaveThreeValidGeometricLodsAndSharedMaterials" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="424225450" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.000333" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="2126" name="NewResearchModelsHaveThreeReducedLodsAndNoCollision" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.NewResearchModelsHaveThreeReducedLodsAndNoCollision" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.002652" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2123" name="NewResearchModelsHaveThreeReducedLodsAndNoCollision(&quot;ReturnCapsule&quot;)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.NewResearchModelsHaveThreeReducedLodsAndNoCollision(&quot;ReturnCapsule&quot;)" methodname="NewResearchModelsHaveThreeReducedLodsAndNoCollision" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1229041515" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.001221" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2124" name="NewResearchModelsHaveThreeReducedLodsAndNoCollision(&quot;OrbitalSatellite&quot;)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.NewResearchModelsHaveThreeReducedLodsAndNoCollision(&quot;OrbitalSatellite&quot;)" methodname="NewResearchModelsHaveThreeReducedLodsAndNoCollision" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1162874070" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.000186" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2125" name="NewResearchModelsHaveThreeReducedLodsAndNoCollision(&quot;TelemetryDish&quot;)" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.NewResearchModelsHaveThreeReducedLodsAndNoCollision(&quot;TelemetryDish&quot;)" methodname="NewResearchModelsHaveThreeReducedLodsAndNoCollision" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="436211827" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.000143" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-case id="2127" name="RealContainerSessionsStillResolveTheirSourceAndGrid" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.RealContainerSessionsStillResolveTheirSourceAndGrid" methodname="RealContainerSessionsStillResolveTheirSourceAndGrid" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1993502486" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.002442" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2110" name="RepeatedCaseRefitDoesNotCompoundScaleOrChangeOpeningRig" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.RepeatedCaseRefitDoesNotCompoundScaleOrChangeOpeningRig" methodname="RepeatedCaseRefitDoesNotCompoundScaleOrChangeOpeningRig" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="188250694" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:27Z" duration="0.014514" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2122" name="ResearchDetailsCanBeHiddenWithoutChangingAnyPathOrOriginalGameplay" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ResearchDetailsCanBeHiddenWithoutChangingAnyPathOrOriginalGameplay" methodname="ResearchDetailsCanBeHiddenWithoutChangingAnyPathOrOriginalGameplay" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="1343619912" result="Passed" start-time="2026-10-19 12:11:27Z" end-time="2026-10-19 12:11:28Z" duration="0.727706" asserts="0">
+              <properties />
+              <output><![CDATA[[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+]]></output>
+            </test-case>
+            <test-case id="2121" name="ThreeRequestedAreasHaveSafeResearchAssemblies" fullname="AgentReproduction.Tests.AerospaceRouteArtTests.ThreeRequestedAreasHaveSafeResearchAssemblies" methodname="ThreeRequestedAreasHaveSafeResearchAssemblies" classname="AgentReproduction.Tests.AerospaceRouteArtTests" runstate="Runnable" seed="328344113" result="Passed" start-time="2026-10-19 12:11:28Z" end-time="2026-10-19 12:11:28Z" duration="0.403635" asserts="0">
+              <properties />
+              <output><![CDATA[[Rocket Investigation] Protected formal edge corridors=26
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="2454" name="ForestRecoveryStationTests" fullname="AgentReproduction.Tests.ForestRecoveryStationTests" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" testcasecount="14" result="Passed" start-time="2026-10-19 12:11:28Z" end-time="2026-10-19 12:11:39Z" duration="11.007959" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+]]></output>
+            <test-suite type="ParameterizedMethod" id="2469" name="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.013546" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2465" name="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;EngineInspectionRig&quot;,60000)" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;EngineInspectionRig&quot;,60000)" methodname="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="714291091" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.005549" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2466" name="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;FieldPowerModule&quot;,12000)" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;FieldPowerModule&quot;,12000)" methodname="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="1486664830" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.000726" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2467" name="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;RecoveryMarker&quot;,6000)" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;RecoveryMarker&quot;,6000)" methodname="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="260767310" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.000756" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="2468" name="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;TrackingTerminal&quot;,18000)" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets(&quot;TrackingTerminal&quot;,18000)" methodname="ArtHasReducedLodsSharedValidMaterialsAndNoMissingAssets" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="308635460" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.001362" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-case id="2455" name="DecorativeRootHasNoPhysicsGameplayOrNavigationSources" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.DecorativeRootHasNoPhysicsGameplayOrNavigationSources" methodname="DecorativeRootHasNoPhysicsGameplayOrNavigationSources" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="1303539398" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.009417" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2458" name="EquipmentDoesNotSitOnWalkableGroundEvenWithoutColliders" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.EquipmentDoesNotSitOnWalkableGroundEvenWithoutColliders" methodname="EquipmentDoesNotSitOnWalkableGroundEvenWithoutColliders" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="96800172" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.007122" asserts="0">
+              <properties />
+              <output><![CDATA[FOREST_WALKABLE_FOOTPRINT_PROBES=730 overlaps=0
+]]></output>
+            </test-case>
+            <test-case id="2461" name="ExistingPaletteAndNewSceneryToggleIndependently" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.ExistingPaletteAndNewSceneryToggleIndependently" methodname="ExistingPaletteAndNewSceneryToggleIndependently" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="1503066341" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.022654" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2459" name="FreshLocalNavigationBakeIsGeometricallyIdenticalWithAndWithoutStation" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.FreshLocalNavigationBakeIsGeometricallyIdenticalWithAndWithoutStation" methodname="FreshLocalNavigationBakeIsGeometricallyIdenticalWithAndWithoutStation" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="934942739" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.179188" asserts="0">
+              <properties />
+              <output><![CDATA[FOREST_FRESH_LOCAL_BAKE decorated=True triangles=189
+FOREST_FRESH_LOCAL_BAKE decorated=False triangles=189
+]]></output>
+            </test-case>
+            <test-case id="2457" name="GroundCoverOnlyRemovesExplicitLocalNonCollidingGrass" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.GroundCoverOnlyRemovesExplicitLocalNonCollidingGrass" methodname="GroundCoverOnlyRemovesExplicitLocalNonCollidingGrass" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="436779904" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:29Z" duration="0.039617" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2460" name="GroundHeightHolesPaintingDetailsAndCollisionRemainOriginal" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.GroundHeightHolesPaintingDetailsAndCollisionRemainOriginal" methodname="GroundHeightHolesPaintingDetailsAndCollisionRemainOriginal" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="707439763" result="Passed" start-time="2026-10-19 12:11:29Z" end-time="2026-10-19 12:11:36Z" duration="7.236187" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2464" name="LightingIsLocalShadowlessAndUsesExisting160SecondCycle" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.LightingIsLocalShadowlessAndUsesExisting160SecondCycle" methodname="LightingIsLocalShadowlessAndUsesExisting160SecondCycle" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="537867669" result="Passed" start-time="2026-10-19 12:11:36Z" end-time="2026-10-19 12:11:36Z" duration="0.001778" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2463" name="MotionIsBoundedAndDisablingRestoresExactTransform" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.MotionIsBoundedAndDisablingRestoresExactTransform" methodname="MotionIsBoundedAndDisablingRestoresExactTransform" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="1380606704" result="Passed" start-time="2026-10-19 12:11:36Z" end-time="2026-10-19 12:11:36Z" duration="0.003341" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2462" name="OriginalFoliageAndReplacedEquipmentCanBeRestored" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.OriginalFoliageAndReplacedEquipmentCanBeRestored" methodname="OriginalFoliageAndReplacedEquipmentCanBeRestored" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="679838697" result="Passed" start-time="2026-10-19 12:11:36Z" end-time="2026-10-19 12:11:36Z" duration="0.004301" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2456" name="TogglePreservesEveryOriginalNavigationProbeAndBuildSource" fullname="AgentReproduction.Tests.ForestRecoveryStationTests.TogglePreservesEveryOriginalNavigationProbeAndBuildSource" methodname="TogglePreservesEveryOriginalNavigationProbeAndBuildSource" classname="AgentReproduction.Tests.ForestRecoveryStationTests" runstate="Runnable" seed="1219941320" result="Passed" start-time="2026-10-19 12:11:36Z" end-time="2026-10-19 12:11:39Z" duration="2.633104" asserts="0">
+              <properties />
+              <output><![CDATA[[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="2482" name="LightingVegetationSafetyTests" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-19 12:11:39Z" end-time="2026-10-19 12:11:53Z" duration="13.434160" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+]]></output>
+            <test-case id="2484" name="AllNineTerrainCopiesKeepExactHeightHolesPaintingTreesAndDetailPlacement" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.AllNineTerrainCopiesKeepExactHeightHolesPaintingTreesAndDetailPlacement" methodname="AllNineTerrainCopiesKeepExactHeightHolesPaintingTreesAndDetailPlacement" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="1182767557" result="Passed" start-time="2026-10-19 12:11:40Z" end-time="2026-10-19 12:11:44Z" duration="3.953587" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2488" name="BothComparisonStatesKeepAllOriginalTransformsTargetsAndGameplayConfiguration" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.BothComparisonStatesKeepAllOriginalTransformsTargetsAndGameplayConfiguration" methodname="BothComparisonStatesKeepAllOriginalTransformsTargetsAndGameplayConfiguration" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="1988761241" result="Passed" start-time="2026-10-19 12:11:44Z" end-time="2026-10-19 12:11:45Z" duration="1.399948" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2489" name="DayAndNightAndBothComparisonStatesKeepBothAgentsExactNavmeshAndPaths" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.DayAndNightAndBothComparisonStatesKeepBothAgentsExactNavmeshAndPaths" methodname="DayAndNightAndBothComparisonStatesKeepBothAgentsExactNavmeshAndPaths" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="423698974" result="Passed" start-time="2026-10-19 12:11:45Z" end-time="2026-10-19 12:11:48Z" duration="2.464686" asserts="0">
+              <properties />
+              <output><![CDATA[[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+[Rocket Investigation Navigation] PASS: agents=2, pathProbes=1512, complete=1308, vertices=33909, identical geometry and path corners.
+]]></output>
+            </test-case>
+            <test-case id="2492" name="ExistingSkyboxesAnd160SecondTimingRemainAvailable" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.ExistingSkyboxesAnd160SecondTimingRemainAvailable" methodname="ExistingSkyboxesAnd160SecondTimingRemainAvailable" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="574915461" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.000402" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2486" name="FoliageCopiesOnlyUseValidShadersAndPreserveAlphaAndTextureReferences" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.FoliageCopiesOnlyUseValidShadersAndPreserveAlphaAndTextureReferences" methodname="FoliageCopiesOnlyUseValidShadersAndPreserveAlphaAndTextureReferences" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="553952931" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.010332" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2491" name="GradingAvoidsVignetteDepthOfFieldAndSharedProfileMutationAcrossPhases" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.GradingAvoidsVignetteDepthOfFieldAndSharedProfileMutationAcrossPhases" methodname="GradingAvoidsVignetteDepthOfFieldAndSharedProfileMutationAcrossPhases" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="497599762" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.001179" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2495" name="HiddenPreviewCameraNeedsExplicitAssociationAndCannotLeakSceneTuning" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.HiddenPreviewCameraNeedsExplicitAssociationAndCannotLeakSceneTuning" methodname="HiddenPreviewCameraNeedsExplicitAssociationAndCannotLeakSceneTuning" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="423932265" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.009015" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2490" name="NightHasReadableMoonFillAndOnlySubtleDistanceHaze" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.NightHasReadableMoonFillAndOnlySubtleDistanceHaze" methodname="NightHasReadableMoonFillAndOnlySubtleDistanceHaze" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="704720473" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.000688" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2493" name="OptionalOutlineTuningIsCameraSceneLocalAndDisappearsWhenHidden" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.OptionalOutlineTuningIsCameraSceneLocalAndDisappearsWhenHidden" methodname="OptionalOutlineTuningIsCameraSceneLocalAndDisappearsWhenHidden" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="399113326" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.008735" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2494" name="RevertingDoesNotOverwriteArtistsLaterMaterialReplacement" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.RevertingDoesNotOverwriteArtistsLaterMaterialReplacement" methodname="RevertingDoesNotOverwriteArtistsLaterMaterialReplacement" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="1315821267" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.007071" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2487" name="RootToggleRestoresOriginalMaterialsTerrainCameraAndFog" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.RootToggleRestoresOriginalMaterialsTerrainCameraAndFog" methodname="RootToggleRestoresOriginalMaterialsTerrainCameraAndFog" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="235237308" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:48Z" duration="0.026842" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2483" name="SavedProfileIsConfiguredAndAddsNoGeometryPhysicsOrNavigation" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.SavedProfileIsConfiguredAndAddsNoGeometryPhysicsOrNavigation" methodname="SavedProfileIsConfiguredAndAddsNoGeometryPhysicsOrNavigation" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="1219320772" result="Passed" start-time="2026-10-19 12:11:48Z" end-time="2026-10-19 12:11:51Z" duration="3.685306" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="2485" name="SourceResourcesRemainByteForByteUnmodified" fullname="AgentReproduction.Tests.LightingVegetationSafetyTests.SourceResourcesRemainByteForByteUnmodified" methodname="SourceResourcesRemainByteForByteUnmodified" classname="AgentReproduction.Tests.LightingVegetationSafetyTests" runstate="Runnable" seed="622574457" result="Passed" start-time="2026-10-19 12:11:51Z" end-time="2026-10-19 12:11:52Z" duration="0.800284" asserts="0">
+              <properties />
+              <output><![CDATA[The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [Dragonbone_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+The character used for Underline is not available in font asset [BaseRoute_Chinese_SDF].
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="2910" name="RecoveryCaseOpeningTests" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-19 12:11:53Z" end-time="2026-10-19 12:12:08Z" duration="15.529330" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2914" name="CancelPendingInteractionDoesNotPopInventoryLater" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.CancelPendingInteractionDoesNotPopInventoryLater" methodname="CancelPendingInteractionDoesNotPopInventoryLater" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="2141242767" result="Passed" start-time="2026-10-19 12:11:53Z" end-time="2026-10-19 12:11:55Z" duration="1.922478" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2915" name="ChangingFocusDuringOpeningCannotOpenForAnotherAgent" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.ChangingFocusDuringOpeningCannotOpenForAnotherAgent" methodname="ChangingFocusDuringOpeningCannotOpenForAnotherAgent" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="1242255544" result="Passed" start-time="2026-10-19 12:11:55Z" end-time="2026-10-19 12:11:56Z" duration="1.801299" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2911" name="CompactVisualStillOpensBeforeSearchAndPreservesLoot" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.CompactVisualStillOpensBeforeSearchAndPreservesLoot" methodname="CompactVisualStillOpensBeforeSearchAndPreservesLoot" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="2072939950" result="Passed" start-time="2026-10-19 12:11:56Z" end-time="2026-10-19 12:11:58Z" duration="1.779200" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2913" name="DirectInteractionOpensLidBeforeInventoryAndSearchProgress" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.DirectInteractionOpensLidBeforeInventoryAndSearchProgress" methodname="DirectInteractionOpensLidBeforeInventoryAndSearchProgress" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="1453127832" result="Passed" start-time="2026-10-19 12:11:58Z" end-time="2026-10-19 12:12:00Z" duration="1.769651" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2917" name="DisablingVisualMidOpeningCannotDeadlockInteraction" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.DisablingVisualMidOpeningCannotDeadlockInteraction" methodname="DisablingVisualMidOpeningCannotDeadlockInteraction" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="138564294" result="Passed" start-time="2026-10-19 12:12:00Z" end-time="2026-10-19 12:12:01Z" duration="0.636704" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2912" name="OneShotOpeningFinishesWithPausedGameAndPreservesItems" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.OneShotOpeningFinishesWithPausedGameAndPreservesItems" methodname="OneShotOpeningFinishesWithPausedGameAndPreservesItems" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="705337684" result="Passed" start-time="2026-10-19 12:12:01Z" end-time="2026-10-19 12:12:02Z" duration="1.716047" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2919" name="SupersedingAgentSearchDoesNotPublishReadyAfterTheLidFinishes" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.SupersedingAgentSearchDoesNotPublishReadyAfterTheLidFinishes" methodname="SupersedingAgentSearchDoesNotPublishReadyAfterTheLidFinishes" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="713181827" result="Passed" start-time="2026-10-19 12:12:02Z" end-time="2026-10-19 12:12:04Z" duration="1.755316" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2916" name="TwoAgentsShareOneOpeningAndReceiveReadyOnlyAfterOpen" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.TwoAgentsShareOneOpeningAndReceiveReadyOnlyAfterOpen" methodname="TwoAgentsShareOneOpeningAndReceiveReadyOnlyAfterOpen" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="1926641585" result="Passed" start-time="2026-10-19 12:12:04Z" end-time="2026-10-19 12:12:07Z" duration="2.365964" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+            <test-case id="2918" name="WalkingAwayCancelsPendingDirectInteraction" fullname="AgentReproduction.Tests.RecoveryCaseOpeningTests.WalkingAwayCancelsPendingDirectInteraction" methodname="WalkingAwayCancelsPendingDirectInteraction" classname="AgentReproduction.Tests.RecoveryCaseOpeningTests" runstate="Runnable" seed="461818497" result="Passed" start-time="2026-10-19 12:12:07Z" end-time="2026-10-19 12:12:08Z" duration="1.765477" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[Animator is not playing an AnimatorController
+[军用物资箱] Saved 1 items.
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

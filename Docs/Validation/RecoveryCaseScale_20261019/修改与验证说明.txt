@@ -1,0 +1,37 @@
+航天回收箱尺寸调整 — 2026-10-19
+
+修改范围
+正式场景：Assets/Scenes/Scene_DB/Scenezl_Final 1.unity
+现有 32 个回收箱的显示模型，长宽高分别缩小到原来的 75%。
+以原箱底为基准，保持水平方向的中心和朝向，避免缩放后悬空。
+箱盖、锁扣、指示灯随模型一起等比缩小。
+
+保留不变
+原 LootBoxEntity、碰撞体、交互范围、物品配置、导航网格和 Agent。
+保持先开箱、再进入搜索的流程。未修改声音、科普界面或其他布景。
+同步期间编辑器另有一次保存；最终版本以该次保存为基准，保留了其中的烟雾和灯光序列化数据，只合并本次箱子缩放。
+没有修改 FBX 和通用预制体源文件；正式场景通过显示模型的 Transform 覆盖保存尺寸。
+新增独立 visualScale 字段，后续模型重新适配时不会恢复成大箱子或反复叠加缩小。
+
+验证结果
+在独立项目副本使用 Unity 2022.3.62f2c1 / Metal 验证，55 项测试全部通过。
+覆盖场景中的 32 个模型尺寸与底部位置、重复适配、开盖后才可搜索、战利品保留、既有布景和光照安全检查。
+297 个碰撞体、2 个 Agent 不变，原玩法签名和导航几何签名一致。
+1512 组导航探测的路径状态和拐点与修改前完全一致；其中原本完整可达的路径为 1308 组。
+原导航烘焙输入保持不变。新增缩放不修改碰撞或障碍区域。
+全部箱底高度最大浮点误差小于 0.00001 个 Unity 单位。
+相对最新保存场景，仅 32 个显示模型 Transform 和 1 个尺寸记录组件发生变化；5966 个场景对象标识均唯一。
+
+附件
+game-before.png：修改前，员工食堂游戏镜头。
+game-after.png：同镜头下缩小后的箱子。
+game-open-after.png：缩小后开盖姿态。
+verification.json：32 个箱子的调整前后尺寸与底部高度。
+size-tests.xml：55 项测试原始报告。
+
+恢复与维护
+本地场景备份：UserSettings/SceneBackups/Before_RecoveryCaseScale_20261019.unity
+合并前最新保存备份：UserSettings/SceneBackups/Before_RecoveryCaseScale_LatestSave_20261019.unity
+编辑器工具：Tools > Extraction-like > Aerospace > All Routes > Resize Cases to 75 Percent。
+工具重复执行不会进一步缩小。运行前请保存场景并退出 Play 模式。
+交付目标：按用户确认，将本次场景缩放、编辑器维护工具、测试和验证资料提交到原仓库 dev 分支。

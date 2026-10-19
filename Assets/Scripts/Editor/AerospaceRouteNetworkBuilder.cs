@@ -23,6 +23,7 @@ public static partial class AerospaceSceneLayoutBuilder
     public const string RouteNetworkRoot = "Aerospace_AllRoutes_SetDress";
     public const string RouteArtAssets = "Assets/Art/Environment/AerospaceRouteNetwork";
     public const string RouteArtReports = "UserSettings/ScenePreviews/AerospaceAllRoutes";
+    public const float CompactRecoveryCaseScale = .75f;
     static readonly string[] RouteArtModels = { "RecoveryCase", "SolarRelay", "EngineCradle", "SurveyBeacon" };
     sealed class ArtEdge { public string id, zone; public Vector3[] corners; public float length; }
 
@@ -291,7 +292,7 @@ public static partial class AerospaceSceneLayoutBuilder
         Bounds target=RouteLocalBounds(container.transform,old);
         var visual=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(RouteArtAssets+"/Prefabs/RecoveryCase.prefab"),container.transform);
         visual.name="Aerospace_RecoveryCase_Visual";
-        var record=new AerospaceRouteSetDressing.CaseAppearance {container=container,originalRenderers=old,originalEnabled=old.Select(r=>r.enabled).ToArray(),replacement=visual,originalLocalBounds=target,
+        var record=new AerospaceRouteSetDressing.CaseAppearance {container=container,originalRenderers=old,originalEnabled=old.Select(r=>r.enabled).ToArray(),replacement=visual,originalLocalBounds=target,visualScale=CompactRecoveryCaseScale,
             originalStates=old.Select(r=>new AerospaceRouteSetDressing.OriginalRendererState{materials=r.sharedMaterials,shadowCasting=r.shadowCastingMode}).ToArray()};
         FitRecoveryCase(record);ApplyCaseArt(record,true);
         return record;
@@ -300,10 +301,20 @@ public static partial class AerospaceSceneLayoutBuilder
     static void FitRecoveryCase(AerospaceRouteSetDressing.CaseAppearance c)
     {
         var t=c.replacement.transform;t.localPosition=Vector3.zero;t.localRotation=Quaternion.identity;t.localScale=Vector3.one;
-        var source=RouteLocalBounds(t,c.replacement.GetComponentsInChildren<Renderer>(true));var target=c.originalLocalBounds;
+        var source=RouteLocalBounds(t,c.replacement.GetComponentsInChildren<Renderer>(true));var target=RecoveryCaseDisplayBounds(c);
         Vector3 scale=new Vector3(target.size.x/source.size.x,target.size.y/source.size.y,target.size.z/source.size.z);
         t.localScale=scale;t.localPosition=target.center-Vector3.Scale(source.center,scale);
         PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+    }
+
+    public static Bounds RecoveryCaseDisplayBounds(AerospaceRouteSetDressing.CaseAppearance c)
+    {
+        // Legacy records remain full-sized until explicitly resized. Anchor the bottom,
+        // not the centre, so changing only the art never lifts it off its existing base.
+        float factor=c.visualScale>0 ? Mathf.Clamp(c.visualScale,.35f,1f) : 1f;
+        Vector3 size=c.originalLocalBounds.size*factor,center=c.originalLocalBounds.center;
+        center.y=c.originalLocalBounds.min.y+size.y*.5f;
+        return new Bounds(center,size);
     }
 
     static Material RouteNavigationOnlyMaterial()
@@ -497,7 +508,8 @@ public static partial class AerospaceSceneLayoutBuilder
             if(c.container==null||c.replacement==null||!c.replacement.activeSelf||c.originalRenderers.Any(r=>r==null||r.sharedMaterials.Any(m=>m==null||m.shader.name!="Aerospace/Navigation Source Only")))throw new InvalidOperationException("Incomplete replacement.");
             if(c.replacement.transform.parent!=c.container.transform)throw new InvalidOperationException("Case binding changed.");
             var b=RouteLocalBounds(c.container.transform,c.replacement.GetComponentsInChildren<Renderer>(true));
-            if(Vector3.Distance(b.center,c.originalLocalBounds.center)>.015f||Vector3.Distance(b.size,c.originalLocalBounds.size)>.02f)throw new InvalidOperationException("Replacement exceeds original footprint: "+GetPath(c.container.transform)+" new="+b+" original="+c.originalLocalBounds);
+            var expected=RecoveryCaseDisplayBounds(c);
+            if(Vector3.Distance(b.center,expected.center)>.015f||Vector3.Distance(b.size,expected.size)>.02f)throw new InvalidOperationException("Replacement does not match its ground-anchored display scale: "+GetPath(c.container.transform)+" new="+b+" expected="+expected);
             ValidateInvestigationVisualRoot(c.replacement);
         }
         ValidateInvestigationVisualRoot(m.gameObject);

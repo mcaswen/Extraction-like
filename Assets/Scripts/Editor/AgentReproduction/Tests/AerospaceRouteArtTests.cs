@@ -49,6 +49,35 @@ namespace AgentReproduction.Tests
         }
         [Test] public void InstallationFootprintsAndNavigationHashAreStillValid()
             =>Assert.DoesNotThrow(AerospaceSceneLayoutBuilder.ValidateAerospaceRouteNetwork);
+
+        [Test] public void AllCasesAre75PercentWithTheirOriginalBottomAndHorizontalCentre()
+        {
+            var boundsMethod=typeof(AerospaceSceneLayoutBuilder).GetMethod("RouteLocalBounds",BindingFlags.NonPublic|BindingFlags.Static);
+            foreach(var c in art.cases)
+            {
+                Assert.That(c.visualScale,Is.EqualTo(.75f));
+                var b=(Bounds)boundsMethod.Invoke(null,new object[]{c.container.transform,c.replacement.GetComponentsInChildren<Renderer>(true)});
+                Assert.That(Vector3.Distance(b.size,c.originalLocalBounds.size*.75f),Is.LessThan(.02f));
+                Assert.That(b.min.y,Is.EqualTo(c.originalLocalBounds.min.y).Within(.015f));
+                Assert.That(b.center.x,Is.EqualTo(c.originalLocalBounds.center.x).Within(.015f));
+                Assert.That(b.center.z,Is.EqualTo(c.originalLocalBounds.center.z).Within(.015f));
+            }
+        }
+
+        [Test] public void RepeatedCaseRefitDoesNotCompoundScaleOrChangeOpeningRig()
+        {
+            var fit=typeof(AerospaceSceneLayoutBuilder).GetMethod("FitRecoveryCase",BindingFlags.NonPublic|BindingFlags.Static);
+            foreach(var c in art.cases)
+            {
+                var t=c.replacement.transform;var scale=t.localScale;var position=t.localPosition;
+                var feedback=c.replacement.GetComponent<RecoveryCaseOpeningFeedback>();
+                var rig=EditorJsonUtility.ToJson(feedback);
+                for(int i=0;i<3;i++)fit.Invoke(null,new object[]{c});
+                Assert.That(Vector3.Distance(t.localScale,scale),Is.LessThan(.0001f));
+                Assert.That(Vector3.Distance(t.localPosition,position),Is.LessThan(.0001f));
+                Assert.That(EditorJsonUtility.ToJson(feedback),Is.EqualTo(rig));
+            }
+        }
         [Test] public void AllPublishedEdgesAreCoveredWithoutReplacingTheirBindings()
         {
             var binding=All<MapGraphBindingAuthoring>().Single();
