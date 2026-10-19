@@ -13,6 +13,9 @@ namespace Gameplay.MapGraph.View
     {
         [SerializeField] private RectTransform _content;
         [SerializeField] private Image _backgroundImage;
+        [SerializeField] private RectTransform _illustratedMap;
+        [SerializeField] private SO_MapGraphDefinition _illustratedMapDefinition;
+        [SerializeField] private Rect _illustratedMapBounds;
         [SerializeField] private RectTransform _zonesRoot,_edgesRoot,_nodesRoot,_agentsRoot;
         [SerializeField] private MapGraphZoneView _zoneViewPrefab;
         [SerializeField] private MapGraphNodeView _nodeViewPrefab;
@@ -35,6 +38,7 @@ namespace Gameplay.MapGraph.View
         private Vector2 _viewSize,_pan;
         private float _scale,_zoom=1;
         private bool _expanded;
+        private bool _useIllustratedMap;
         public IReadOnlyDictionary<string,MapGraphNodeView> NodeViews=>_nodes;
         public IReadOnlyDictionary<string,MapGraphEdgeView> EdgeViews=>_edges;
         public IReadOnlyDictionary<string,MapGraphZoneView> ZoneViews=>_zones;
@@ -44,9 +48,12 @@ namespace Gameplay.MapGraph.View
         public int BuildCount { get; private set; }
         public RectTransform Content=>_content;
         public bool IsExpanded=>_expanded;
+        public float ArtworkAspectRatio=>_useIllustratedMap?_illustratedMapBounds.width/_illustratedMapBounds.height:0;
         public void Initialize(SO_MapGraphDefinition definition,SO_MapGraphTheme theme,Action<string> click,Action<string,bool> hover)
         {
             _definition=definition; _theme=theme; _graph=new MapGraphService(definition);
+            _useIllustratedMap=_illustratedMap!=null&&definition==_illustratedMapDefinition&&_illustratedMapBounds.width>0&&_illustratedMapBounds.height>0;
+            if(_illustratedMap!=null) _illustratedMap.gameObject.SetActive(_useIllustratedMap);
             _backgroundImage.color=theme.Background;
             foreach(var label in new[]{_title,_hint,_legend,_detail}) { label.font=theme.Font; label.raycastTarget=false; label.color=theme.MutedText; }
             _title.text="区域指挥"; _title.color=theme.Text;
@@ -69,7 +76,17 @@ namespace Gameplay.MapGraph.View
         {
             _viewSize=viewSize; _expanded=expanded; _zoom=zoom; _pan=pan;
             if(_definition==null) return;
-            _scale=Mathf.Min(Mathf.Max(1,viewSize.x-40)/Mathf.Max(1,_bounds.width),Mathf.Max(1,viewSize.y-40)/Mathf.Max(1,_bounds.height))*zoom;
+            Rect viewBounds=_useIllustratedMap?_illustratedMapBounds:_bounds;
+            _scale=(_useIllustratedMap
+                ? Mathf.Max(viewSize.x/viewBounds.width,viewSize.y/viewBounds.height)
+                : Mathf.Min(Mathf.Max(1,viewSize.x-40)/Mathf.Max(1,_bounds.width),Mathf.Max(1,viewSize.y-40)/Mathf.Max(1,_bounds.height)))*zoom;
+            // Artwork includes sea margins beyond the graph; preserve its authored registration.
+            if(_illustratedMap!=null)
+            {
+                _illustratedMap.anchorMin=_illustratedMap.anchorMax=_illustratedMap.pivot=Vector2.one*.5f;
+                _illustratedMap.anchoredPosition=_pan;
+                _illustratedMap.sizeDelta=viewBounds.size*_scale;
+            }
             _nameBounds.Clear(); float nodeSize=expanded?_theme.ExpandedNodeSize:_theme.CompactNodeSize;
             foreach(var zone in _definition.Zones)
             {
@@ -86,7 +103,7 @@ namespace Gameplay.MapGraph.View
             _title.fontSize=expanded?20:14; _hint.fontSize=expanded?12:10; _legend.fontSize=expanded?12:10; _detail.fontSize=expanded?12:10;
             _detail.rectTransform.sizeDelta=new Vector2(viewSize.x-36,20);
         }
-        public Vector2 MapPosition(Vector2 point)=>(point-_bounds.center)*_scale+_pan;
+        public Vector2 MapPosition(Vector2 point)=>(point-(_useIllustratedMap?_illustratedMapBounds:_bounds).center)*_scale+_pan;
         public void Refresh(IReadOnlyList<MapGraphAgentRuntimeState> states,IReadOnlyDictionary<string,MapGraphPresenter.NodeState> nodes,
             ISet<string> routeEdges,ISet<string> focusedEdges,string focusedId)
         {

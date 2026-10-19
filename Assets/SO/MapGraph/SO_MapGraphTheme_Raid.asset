@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: SO_MapGraphTheme_Raid
   m_EditorClassIdentifier: 
   Font: {fileID: 11400000, guid: 014e4891e61c5594f81a133a4c5865ba, type: 2}
-  Background: {r: 0.045, g: 0.061, b: 0.071, a: 0.96}
-  ZoneFill: {r: 0.071, g: 0.091, b: 0.101, a: 0.94}
-  Border: {r: 0.22, g: 0.29, b: 0.31, a: 0.65}
-  MutedText: {r: 0.57, g: 0.65, b: 0.66, a: 1}
+  Background: {r: 0.02, g: 0.075, b: 0.12, a: 0.98}
+  ZoneFill: {r: 0.02, g: 0.07, b: 0.11, a: 0.24}
+  Border: {r: 0.68, g: 0.83, b: 0.91, a: 0.25}
+  MutedText: {r: 0.88, g: 0.92, b: 0.91, a: 1}
   Text: {r: 0.88, g: 0.93, b: 0.91, a: 1}
-  Edge: {r: 0.3, g: 0.38, b: 0.39, a: 0.75}
+  Edge: {r: 0.65, g: 0.84, b: 0.96, a: 0.85}
   Route: {r: 0.43, g: 0.77, b: 0.73, a: 0.85}
   FocusedRoute: {r: 0.8, g: 0.91, b: 0.84, a: 0.95}
   Resource: {r: 0.81, g: 0.69, b: 0.43, a: 1}

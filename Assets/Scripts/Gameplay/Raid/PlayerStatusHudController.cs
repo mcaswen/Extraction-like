@@ -147,7 +147,8 @@ public sealed class PlayerStatusHudController : MonoBehaviour
             out AgentRuntimeHandle focusedHandle);
         if (_root != null)
         {
-            _root.gameObject.SetActive(hasFocusedAgent);
+            bool inventoryOpen = InventoryScreenController.Instance != null && InventoryScreenController.Instance.IsInventoryOpen;
+            _root.gameObject.SetActive(hasFocusedAgent && !inventoryOpen);
         }
 
         if (!hasFocusedAgent)

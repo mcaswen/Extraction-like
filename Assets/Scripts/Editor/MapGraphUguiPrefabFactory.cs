@@ -27,6 +27,7 @@ public static class MapGraphUguiPrefabFactory
         theme.Font=EnsureFont(); EditorUtility.SetDirty(theme);
         var zone=Zone(theme); var edge=Edge(); var node=Node(theme); var agent=Agent(theme);
         var overlay=Overlay(theme,zone,edge,node,agent); Hud(theme,overlay);
+        AstronUiAssetBuilder.ApplyMapArtwork();
         AssetDatabase.SaveAssets();
     }
     public static void EnsureCurrentAssets()
