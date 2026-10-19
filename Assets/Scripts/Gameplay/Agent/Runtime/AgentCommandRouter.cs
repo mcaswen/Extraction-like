@@ -199,33 +199,6 @@ namespace Gameplay.Agent.Runtime
         }
 
         /// <summary>
-        /// 设置指定 Agent 是否存在可交互目标
-        /// </summary>
-        /// <param name="targetAgentId"></param>
-        /// <param name="hasInteractableTarget"></param>
-        /// <returns></returns>
-        public bool TrySetHasInteractableTarget(AgentId targetAgentId, bool hasInteractableTarget)
-        {
-            AgentRuntimeHandle handle;
-            if (!TryResolveTarget(targetAgentId, out handle))
-                return false;
-
-            handle.CommandReceiver.SetHasInteractableTarget(hasInteractableTarget);
-            return true;
-        }
-
-        /// <summary>
-        /// 设置指定字符串 AgentId 是否存在可交互目标
-        /// </summary>
-        /// <param name="targetAgentId"></param>
-        /// <param name="hasInteractableTarget"></param>
-        /// <returns></returns>
-        public bool TrySetHasInteractableTarget(string targetAgentId, bool hasInteractableTarget)
-        {
-            return TrySetHasInteractableTarget(AgentId.FromString(targetAgentId), hasInteractableTarget);
-        }
-
-        /// <summary>
         /// 设置指定 Agent 是否应该撤离
         /// </summary>
         /// <param name="targetAgentId"></param>

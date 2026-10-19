@@ -324,7 +324,6 @@ namespace Gameplay.Agent.Runtime
             commandReceiver.SetVisibleEnemy(false);
             commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
-            commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
             commandReceiver.ClearDirective();
         }

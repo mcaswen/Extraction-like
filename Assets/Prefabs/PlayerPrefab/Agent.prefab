@@ -333,7 +333,6 @@ MonoBehaviour:
   _hasVisibleEnemy: 0
   _hasEnemySourceTarget: 0
   _hasResourceTarget: 0
-  _hasInteractableTarget: 0
   _shouldExtract: 0
   _hasPendingDirective: 0
   _decisionModuleEnabled: 0

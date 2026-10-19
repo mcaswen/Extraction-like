@@ -34,7 +34,6 @@ flowchart LR
         Combat["Combat"]
         EnemySource["InvestigateEnemySource"]
         Search["SearchResource"]
-        Loot["InteractLoot"]
         Extract["Extraction"]
     end
 
@@ -43,7 +42,6 @@ flowchart LR
         CombatBT["CombatTree<br/>Sequence:<br/>MoveToTargetActionNode<br/>EngageEnemyActionNode"]
         SourceBT["InvestigateEnemySourceTree<br/>MoveToTargetActionNode"]
         SearchBT["SearchResourceTree<br/>Sequence:<br/>MoveToTargetActionNode<br/>SearchResourceActionNode"]
-        LootBT["InteractLootTree<br/>reuse SearchResourceTree"]
         ExtractBT["ExtractionTree<br/>Sequence:<br/>MoveToTargetActionNode<br/>ExtractActionNode"]
     end
 
@@ -75,14 +73,12 @@ flowchart LR
     HSM --> Combat
     HSM --> EnemySource
     HSM --> Search
-    HSM --> Loot
     HSM --> Extract
 
     Explore --> ExploreBT
     Combat --> CombatBT
     EnemySource --> SourceBT
     Search --> SearchBT
-    Loot --> LootBT
     Extract --> ExtractBT
 
     CombatBT --> NavMesh
@@ -196,7 +192,6 @@ flowchart TB
     Raid --> Combat["Combat<br/>处理敌人目标"]
     Raid --> Source["InvestigateEnemySource<br/>侦查敌人来源点"]
     Raid --> Search["SearchResource<br/>搜索资源点"]
-    Raid --> Loot["InteractLoot<br/>战利品交互"]
     Raid --> Extract["Extraction<br/>撤离"]
 
     Combat --> CombatSeq["Sequence"]
@@ -213,6 +208,5 @@ flowchart TB
 
     Source --> SourceMove["MoveToTargetActionNode<br/>靠近敌人来源点"]
     Explore --> Maintain["MaintainMacroStateActionNode"]
-    Loot --> SearchSeq
 ```
 

@@ -133,10 +133,6 @@
   <text x="925" y="566" class="box-text">Sequence</text>
   <text x="925" y="586" class="small">MoveToTarget -> SearchResource</text>
 
-  <rect x="905" y="640" width="245" height="75" class="bt"/>
-  <text x="925" y="668" class="box-title">InteractLootTree</text>
-  <text x="925" y="692" class="box-text">复用 SearchResourceTree</text>
-
   <rect x="905" y="745" width="245" height="96" class="bt"/>
   <text x="925" y="773" class="box-title">ExtractionTree</text>
   <text x="925" y="799" class="box-text">Sequence</text>

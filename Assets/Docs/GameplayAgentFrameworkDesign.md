@@ -497,8 +497,11 @@ AgentMacroStateId 表示 Agent 当前处于哪个宏观决策阶段。
 2. Explore
 3. Combat
 4. SearchResource
-5. InteractLoot
-6. Extraction
+5. Extraction
+6. InvestigateEnemySource
+7. Navigate
+
+原 `InteractLoot`（值 4）进入条件从未成立，已于 2026-10-19 删除，其余枚举值保持不变。
 
 来源：
 
@@ -508,7 +511,7 @@ AgentMacroStateId 表示 Agent 当前处于哪个宏观决策阶段。
 
 AgentBrainStateMachineFactory 负责：
 
-1. 创建 Root / Raid / Explore / Combat / SearchResource / InteractLoot / Extraction
+1. 创建 Root / Raid / Explore / Combat / InvestigateEnemySource / SearchResource / Extraction / Navigate
 2. 建立层级关系
 3. 给状态添加转移规则
 4. 返回 HierarchicalStateMachine
@@ -530,9 +533,9 @@ AgentBrainTransitionRules 从 Blackboard 读取事实：
 
 1. HasVisibleEnemy
 2. HasResourceTarget
-3. HasInteractableTarget
-4. ShouldExtract
-5. AgentIsDead
+3. ShouldExtract
+4. AgentIsDead
+5. PendingDirectiveRequest（当前活动指令的镜像）
 
 注意点：
 
@@ -926,9 +929,9 @@ if (registry.Query.TryGetPrimaryAgent(out AgentRuntimeHandle handle))
 
 1. 宏状态树已接通
 2. 状态转移规则已存在
-3. Combat / SearchResource / InteractLoot / Extraction 已绑定最小执行节点
-4. SearchResourceActionNode 当前会在发现资源后等待玩家打开并关闭背包
-5. ExtractActionNode 通过 RaidFlowController.SetAgentInsideExtractionPoint 桥接具体 Agent 的撤离状态，退出/中断时清理旧 presence
+3. 各宏状态绑定细粒度行为树（`AgentBrainTrees`，2026-10-19 起），结构见 `.planning/2026-10-19-agent-brain-telemetry/` 的 P2–P5 记录；重构前的单节点版本只在编辑器中编译，作为等价对拍的对照
+4. 搜索树在发现资源后等待玩家打开并关闭背包（"等待背包"子树）
+5. 撤离树的"登记在撤离点内"通过 RaidFlowController.SetAgentInsideExtractionPoint 桥接具体 Agent 的撤离状态，退出/中断时清理旧 presence
 
 风险：
 

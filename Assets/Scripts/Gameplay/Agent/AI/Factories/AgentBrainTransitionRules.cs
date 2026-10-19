@@ -92,9 +92,7 @@ namespace Gameplay.Agent.AI.Factories
             }
 
             bool hasResourceTarget = GetBool(context, AgentBlackboardKeys.HasResourceTarget);
-            bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
             return !hasResourceTarget &&
-                   !hasInteractableTarget &&
                    HasPendingEnemyEngageDirective(context);
         }
 
@@ -115,20 +113,6 @@ namespace Gameplay.Agent.AI.Factories
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && hasEnemySourceTarget && !hasVisibleEnemy && !shouldExtract;
-        }
-
-        /// <summary>
-        /// 判断是否可以进入交互/拾取状态
-        /// 条件：有可交互目标 + 未死亡
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public bool CanEnterInteractLoot(StateMachineContext context)
-        {
-            bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
-            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-
-            return !isDead && hasInteractableTarget;
         }
 
         /// <summary>
@@ -192,22 +176,6 @@ namespace Gameplay.Agent.AI.Factories
             bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
 
             return !isDead && !hasResourceTarget && !hasVisibleEnemy && !shouldExtract;
-        }
-
-        /// <summary>
-        /// 判断是否可以从交互/拾取状态离开进入探索状态
-        /// 条件：没有可交互目标 + 没有可见敌人 + 不应该撤离 + 未死亡
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public bool CanLeaveInteractLootToExplore(StateMachineContext context)
-        {
-            bool hasInteractableTarget = GetBool(context, AgentBlackboardKeys.HasInteractableTarget);
-            bool hasVisibleEnemy = GetBool(context, AgentBlackboardKeys.HasVisibleEnemy);
-            bool shouldExtract = GetBool(context, AgentBlackboardKeys.ShouldExtract);
-            bool isDead = GetBool(context, AgentBlackboardKeys.AgentIsDead);
-
-            return !isDead && !hasInteractableTarget && !hasVisibleEnemy && !shouldExtract;
         }
 
         /// <summary>

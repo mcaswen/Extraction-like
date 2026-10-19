@@ -1,3 +1,5 @@
+// 重构前的行为树节点，只作为编辑器里等价对拍的对照，不进入构建
+#if UNITY_EDITOR
 using Core.BehaviorTree.Nodes.Composites;
 using Gameplay.Agent.AI.Actions;
 using Gameplay.Agent.Data;
@@ -6,7 +8,7 @@ using BehaviorTreeType = global::Core.BehaviorTree.Runtime.BehaviorTree;
 namespace Gameplay.Agent.AI.Trees
 {
     /// <summary>
-    /// 重构前的行为树（每个状态一两个大动作节点）。迁移期间作为等价对拍的对照，逐棵替换完后移出运行时代码。
+    /// 重构前的行为树（每个状态一两个大动作节点）。只在编辑器中编译，作为等价对拍的对照；运行时一律使用 AgentBrainTrees。
     /// </summary>
     public static class AgentLegacyBrainTrees
     {
@@ -77,3 +79,4 @@ namespace Gameplay.Agent.AI.Trees
         }
     }
 }
+#endif

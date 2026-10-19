@@ -140,7 +140,6 @@ namespace Gameplay.Agent.AI.Memory
         {
             PlaySearchCompleteSfx(context);
             context.Blackboard.SetValue(AgentBlackboardKeys.HasResourceTarget, false, context.TimeSeconds);
-            context.Blackboard.SetValue(AgentBlackboardKeys.HasInteractableTarget, false, context.TimeSeconds);
             ClearPendingDirective(context);
         }
 

@@ -37,7 +37,6 @@ namespace Gameplay.Agent.Runtime
         [SerializeField] private bool _hasVisibleEnemy;
         [SerializeField] private bool _hasEnemySourceTarget;
         [SerializeField] private bool _hasResourceTarget;
-        [SerializeField] private bool _hasInteractableTarget;
         [SerializeField] private bool _shouldExtract;
         [SerializeField] private bool _hasPendingDirective;
 
@@ -204,7 +203,6 @@ namespace Gameplay.Agent.Runtime
             _hasVisibleEnemy = GetBlackboardValue(AgentBlackboardKeys.HasVisibleEnemy, false);
             _hasEnemySourceTarget = GetBlackboardValue(AgentBlackboardKeys.HasEnemySourceTarget, false);
             _hasResourceTarget = GetBlackboardValue(AgentBlackboardKeys.HasResourceTarget, false);
-            _hasInteractableTarget = GetBlackboardValue(AgentBlackboardKeys.HasInteractableTarget, false);
             _shouldExtract = GetBlackboardValue(AgentBlackboardKeys.ShouldExtract, false);
             _hasPendingDirective = GetBlackboardValue(AgentBlackboardKeys.HasPendingDirective, false);
             _decisionModuleEnabled = GetBlackboardValue(AgentBlackboardKeys.DecisionModuleEnabled, false);
@@ -541,7 +539,6 @@ namespace Gameplay.Agent.Runtime
             _hasVisibleEnemy = false;
             _hasEnemySourceTarget = false;
             _hasResourceTarget = false;
-            _hasInteractableTarget = false;
             _shouldExtract = false;
             _hasPendingDirective = false;
             _decisionModuleEnabled = false;

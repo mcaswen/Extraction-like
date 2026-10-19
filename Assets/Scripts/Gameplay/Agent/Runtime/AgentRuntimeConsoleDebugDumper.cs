@@ -147,7 +147,6 @@ namespace Gameplay.Agent.Runtime
                 $"visibleEnemy={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasVisibleEnemy, false)} " +
                 $"enemySource={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasEnemySourceTarget, false)} " +
                 $"resource={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasResourceTarget, false)} " +
-                $"interactable={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasInteractableTarget, false)} " +
                 $"extract={GetBlackboardValue(blackboard, AgentBlackboardKeys.ShouldExtract, false)} " +
                 $"pendingDirective={GetBlackboardValue(blackboard, AgentBlackboardKeys.HasPendingDirective, false)} " +
                 $"needRecovery={GetBlackboardValue(blackboard, AgentBlackboardKeys.NeedRecovery, false)}");

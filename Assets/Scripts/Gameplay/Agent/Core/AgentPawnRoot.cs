@@ -439,18 +439,6 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 设置Agent当前是否有可交互目标
-        /// </summary>
-        /// <param name="hasInteractableTarget"></param>
-        public void SetHasInteractableTarget(bool hasInteractableTarget)
-        {
-            _brainController.SetFact(
-                AgentBlackboardKeys.HasInteractableTarget,
-                hasInteractableTarget,
-                Time.timeAsDouble);
-        }
-
-        /// <summary>
         /// 设置Agent当前是否应该撤离
         /// </summary>
         /// <param name="shouldExtract"></param>
@@ -644,7 +632,6 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, double.NegativeInfinity, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasResourceTarget, false, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);

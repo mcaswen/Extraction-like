@@ -41,7 +41,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.Explore,
                 "Explore",
-                AgentLegacyBrainTrees.Explore());
+                AgentBrainTrees.Explore());
         }
 
         public AgentBrainState CreateNavigateState()
@@ -69,14 +69,6 @@ namespace Gameplay.Agent.AI.Factories
                 AgentMacroStateId.SearchResource,
                 "SearchResource",
                 AgentBrainTrees.SearchResource());
-        }
-
-        public AgentBrainState CreateInteractLootState()
-        {
-            return new AgentBrainState(
-                AgentMacroStateId.InteractLoot,
-                "InteractLoot",
-                AgentLegacyBrainTrees.SearchResource(AgentMacroStateId.InteractLoot));
         }
 
         public AgentBrainState CreateExtractionState()

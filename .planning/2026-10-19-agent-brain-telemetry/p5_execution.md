@@ -50,8 +50,20 @@
 
 **"成员完成后"返回运行中**：与旧节点一样不退出子树，下一帧从头找下一个成员。若改成先成功退出再进入，搜索记忆会被作用域重置，完成音效的去重标记随之清零，行为会变。
 
-## 3. 验证
+## 3. 删除 InteractLoot 与旧节点去留
 
-`BrainTreeEquivalence` 组新增搜索 8 个场景：两件地面物品的资源群（逐件开关背包）、空箱、有物品的箱子、等待中离开再返回、抽象资源点、直接指向地面物品、成员走不到、等待中被中断。探针逐帧读取交互事件、各成员的已搜登记和背包会话。脚本通过物品自身的交互入口打开真实背包会话。
+- 删除 `AgentMacroStateId.InteractLoot`（值 4），其余枚举值保持显式数值不变；删除其状态、搜索资源指向它的转移、它的四条出边、两条进入/离开规则和状态工厂方法。
+- 删除黑板键 `HasInteractableTarget`，以及它的全部写入点（生命周期、智能体初始化、决策、发现、搜索收尾）和没有调用方的设置接口（智能体、指令接收器接口、命令路由的两个重载）、调试视图字段和 I 键打印中的字段、Agent 预制体里残留的序列化值。
+- 转移规则"资源工作可被战斗打断"里的 `!hasInteractableTarget` 恒为真，化简为 `!hasResourceTarget && 持有交战指令`。这条规则由 Lifecycle、ManualDirectiveResume、SceneRetaliation、ClusterCommandTransition 等组覆盖，不单独写真值表测试。
+- 删除的转移条件都是只读黑板的纯函数，状态机少求值它们不改变行为。
+- **旧节点去留**：四个旧动作节点和 `AgentLegacyBrainTrees` 改为只在编辑器中编译（`#if UNITY_EDITOR`），正式构建里不再存在；编辑器里继续作为 `BrainTreeEquivalence` 的对照，对拍因此能长期保留，不需要另存录制文件。旧搜索节点同样去掉了对已删除黑板键的写入，与新树保持一致。探索树的占位节点 `MaintainMacroStateActionNode` 本身就是正式探索树，保留在运行时代码中，构建方法移入 `AgentBrainTrees.Explore`。
+- `ResourceCommandCompletionTests` 原来直接构造旧移动节点，改为执行正式搜索树的"前往资源"分支。
+- 文档：框架设计文档的宏状态、装配、转移规则、执行节点四处更新；`outputs/agent_ai_framework_diagram.md/.svg` 去掉 InteractLoot（两份框架图仍画的是重构前的树结构，P11 统一重画）。
 
-（结果运行后补充。）
+## 4. 验证
+
+`BrainTreeEquivalence` 组新增搜索 7 个场景：两件地面物品的资源群（逐件开关背包）、有物品的箱子、等待中离开再返回、抽象资源点、直接指向地面物品、可达成员之后的成员走不到、等待中被中断。探针逐帧读取交互事件、各成员的已搜登记和背包会话。脚本以资源为来源为焦点智能体打开正式背包会话。
+
+**搜索树结果**（`b0ed4e7`，p5-b）：R5 2/2（精确断言交互事件序列）、ResourceSearchRevisit 4/4、ResourceCommandCompletion 6/6、SceneInventory 9/9、SceneResourceNavigation 26/26、SceneResourceApproach 8/8、ClusterCommandInventory 11/11、AgentClusterStep 9/9、DecisionRoutePacing 5/5 全部通过。对拍首轮新旧一致但 5 个场景覆盖检查失败：地面物品的交互入口在背包有空间时直接拾取、不开会话；空箱在到达前就被资源群判为完成（场景删除）；第一个成员不可达时在"前往资源"阶段就以目标无效结束。改用正式背包会话、把走不到的成员排在可达成员之后，p5-c（`11d6485`）31/31 通过。
+
+（删除 InteractLoot 之后的结果运行后补充。）

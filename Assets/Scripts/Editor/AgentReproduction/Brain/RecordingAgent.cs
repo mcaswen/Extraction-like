@@ -59,7 +59,6 @@ namespace AgentReproduction.Brain
         public void SetHasEnemySourceTarget(bool value) => _log.Add("call SetHasEnemySourceTarget " + value);
         public void SetHasResourceTarget(bool value) => _log.Add("call SetHasResourceTarget " + value);
         public void SetShouldExtract(bool value) => _log.Add("call SetShouldExtract " + value);
-        public void SetHasInteractableTarget(bool value) => _log.Add("call SetHasInteractableTarget " + value);
         public void SubmitDirective(AgentDirectiveRequest request) => _log.Add("call SubmitDirective " + request.CommandId);
         public AgentDirectiveResult TrySubmitDirective(AgentDirectiveRequest request) { _log.Add("call TrySubmitDirective " + request.CommandId); return default; }
         public void ClearDirective() => _log.Add("call ClearDirective");

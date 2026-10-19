@@ -1,5 +1,6 @@
 using Core.BehaviorTree.Nodes.Composites;
 using Core.BehaviorTree.Nodes.Decorators;
+using Gameplay.Agent.AI.Actions;
 using Gameplay.Agent.AI.Memory;
 using Gameplay.Agent.AI.Nodes;
 using Gameplay.Agent.AI.Nodes.Combat;
@@ -17,6 +18,10 @@ namespace Gameplay.Agent.AI.Trees
     /// </summary>
     public static class AgentBrainTrees
     {
+        // 探索：没有指令时的占位，持续维持宏状态并同步到黑板
+        public static BehaviorTreeType Explore()
+            => new BehaviorTreeType("ExploreTree", new MaintainMacroStateActionNode("Explore_MaintainMacroState", AgentMacroStateId.Explore));
+
         public static BehaviorTreeType Navigate()
             => MoveTree("NavigateTree", "Navigate", "沿路线移动", AgentDirectiveType.MoveTo, AgentTargetKind.Location, true);
 
