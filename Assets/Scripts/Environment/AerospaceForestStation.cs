@@ -39,6 +39,7 @@ namespace ExtractionLike.Environment
         public Motion[] motions = Array.Empty<Motion>();
         public Indicator[] indicators = Array.Empty<Indicator>();
         public Light[] workLights = Array.Empty<Light>();
+        public AudioSource machineryAmbience;
         public AerospaceDayNightCycle cycle;
         [Range(0, 4)] public float nightLightIntensity = 1.65f;
         MaterialPropertyBlock block;
@@ -118,6 +119,22 @@ namespace ExtractionLike.Environment
             // Scenery pauses with gameplay and therefore does not run behind a paused inspection screen.
             clock += Time.deltaTime;
             ApplyVisuals(clock, cycle != null ? cycle.CurrentPhase : 0);
+            UpdateAmbience();
+        }
+        void UpdateAmbience()
+        {
+            if (machineryAmbience == null || machineryAmbience.clip == null) return;
+            float target = 0;
+            var registry = Gameplay.Agent.Runtime.AgentRuntimeRegistry.ActiveInstance;
+            if (Time.timeScale > 0 && registry != null && registry.TryGetFocusedHandle(out var agent) && agent.IsAlive && agent.CachedTransform != null)
+            {
+                var delta = agent.CachedTransform.position - machineryAmbience.transform.position;
+                delta.y = 0;
+                target = .10f * (1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(9, 38, delta.magnitude)));
+            }
+            machineryAmbience.volume = Mathf.MoveTowards(machineryAmbience.volume, target, Time.unscaledDeltaTime * .25f);
+            if (target > 0 && !machineryAmbience.isPlaying) machineryAmbience.Play();
+            if (machineryAmbience.volume <= .0001f && machineryAmbience.isPlaying) machineryAmbience.Stop();
         }
         public void ApplyVisuals(float seconds, float phase)
         {
@@ -144,6 +161,7 @@ namespace ExtractionLike.Environment
         }
         private void OnDisable()
         {
+            if (machineryAmbience != null) { machineryAmbience.Stop(); machineryAmbience.volume = 0; }
             ReleaseTerrainDisplay();
             ReleaseFoliageDisplay();
             foreach (var m in motions) if (m != null && m.target != null) m.target.SetLocalPositionAndRotation(m.originPosition,m.originRotation);

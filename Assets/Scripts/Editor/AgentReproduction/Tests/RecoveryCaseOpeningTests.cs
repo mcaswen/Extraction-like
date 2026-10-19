@@ -34,6 +34,21 @@ namespace AgentReproduction.Tests
         }
         static IEnumerator Open(RecoveryCaseOpeningFeedback feedback) => RuntimeWait.Until(() => feedback.IsOpen, "case opening completion", 4);
 
+        [UnityTest] public IEnumerator StateLampDimsOnlyAfterLootingWithoutClosingOrReopening()
+        {
+            var box=Case(out var feedback);yield return null;
+            float closed=feedback.SignalEmission.maxColorComponent;
+            feedback.BeginOpening();yield return Open(feedback);
+            float opened=feedback.SignalEmission.maxColorComponent;
+            Assert.That(opened,Is.GreaterThan(closed));
+            Assert.That(box.GetSavedItems().Single().Amount,Is.EqualTo(1));
+            box.SaveRuntimeState(new List<ContainerItemSaveData>(),new List<ContainerCellStateSaveData>());
+            yield return new WaitForSecondsRealtime(.3f);
+            Assert.That(feedback.SignalEmission.maxColorComponent,Is.LessThan(closed*.1f));
+            Assert.That(feedback.IsOpen,Is.True);Assert.That(feedback.OpeningCount,Is.EqualTo(1));
+            Assert.That(box.ResourceState,Is.EqualTo(SceneResourceStateType.Looted));ContractCompleted=true;
+        }
+
         [UnityTest] public IEnumerator CompactVisualStillOpensBeforeSearchAndPreservesLoot()
         {
             var box=Case(out var feedback);var inventory=InventoryFactory.Create(World);

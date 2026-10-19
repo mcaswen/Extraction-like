@@ -33,6 +33,28 @@ namespace AgentReproduction.Tests
         [OneTimeTearDown] public void Restore()
         {if(setup!=null&&setup.Length>0)EditorSceneManager.RestoreSceneManagerSetup(setup);}
 
+        [Test] public void FieldApronShaderCompilesAndUsesFeatherableUvCoordinates()
+        {
+            var material=AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Environment/ForestRecoveryStation/Materials/M_Forest_Ground.mat");
+            Assert.That(material.shader.name,Is.EqualTo("Aerospace/Field Apron"));
+            Assert.That(ShaderUtil.ShaderHasError(material.shader),Is.False);
+            foreach(string name in new[]{"Engine_Work_Apron","Telemetry_Work_Apron"})
+            {
+                var mesh=AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Art/Environment/ForestRecoveryStation/Meshes/"+name+".asset");
+                Assert.That(mesh.uv.Length,Is.EqualTo(mesh.vertexCount));
+                Assert.That(mesh.uv.All(uv=>uv.x>=0&&uv.x<=1&&uv.y>=0&&uv.y<=1),Is.True);
+            }
+        }
+        [Test] public void MachineryAmbienceStartsSilentAndStopsWhenStationIsDisabled()
+        {
+            var audio=station.machineryAmbience;
+            Assert.That(audio,Is.Not.Null);Assert.That(audio.clip,Is.Not.Null);
+            Assert.That(audio.playOnAwake,Is.False);Assert.That(audio.loop,Is.True);
+            Assert.That(audio.volume,Is.Zero);Assert.That(audio.clip.length,Is.EqualTo(4).Within(.01f));
+            audio.volume=.1f;station.gameObject.SetActive(false);
+            Assert.That(audio.volume,Is.Zero);Assert.That(audio.isPlaying,Is.False);
+        }
+
         [Test] public void DecorativeRootHasNoPhysicsGameplayOrNavigationSources()
         {
             Assert.DoesNotThrow(()=>AerospaceSceneLayoutBuilder.ValidateInvestigationVisualRoot(station.gameObject));

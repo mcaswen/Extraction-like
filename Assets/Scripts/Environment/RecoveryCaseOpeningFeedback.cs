@@ -17,6 +17,9 @@ namespace ExtractionLike.Environment
         MaterialPropertyBlock signalBlock;
         bool initialized, opening, open;
         float age;
+        LootBoxEntity owner;
+        float nextSignalCheck;
+        public Color SignalEmission { get; private set; }
 
         public bool IsOpen => open;
         public bool IsOpening => opening;
@@ -59,6 +62,26 @@ namespace ExtractionLike.Environment
             lidRotations = new Quaternion[lids.Length];
             for (int i = 0; i < lids.Length; i++) lidRotations[i] = lids[i] != null ? lids[i].localRotation : Quaternion.identity;
             signalBlock = new MaterialPropertyBlock();
+            owner = GetComponentInParent<LootBoxEntity>();
+        }
+        void Start() { Initialize(); RefreshRestingSignal(); }
+        void RefreshRestingSignal()
+        {
+            // Read only the public state. Never enumerate/generate loot to decorate a box.
+            bool empty = owner != null && owner.IsResourcePointLooted;
+            Color color = empty ? new Color(.09f,.13f,.15f) : new Color(.10f,.73f,.94f);
+            ApplySignal(color, empty ? .08f : open ? 1.15f : .48f);
+        }
+        void ApplySignal(Color color, float intensity)
+        {
+            SignalEmission = color * intensity;
+            foreach (var renderer in signals) if (renderer != null)
+            {
+                renderer.GetPropertyBlock(signalBlock);
+                signalBlock.SetColor("_BaseColor", color);
+                signalBlock.SetColor("_EmissionColor", SignalEmission);
+                renderer.SetPropertyBlock(signalBlock);
+            }
         }
         static Vector3[] Positions(Transform[] values)
         {
@@ -68,11 +91,16 @@ namespace ExtractionLike.Environment
         }
         void Update()
         {
-            if (!opening) return;
+            if (!opening)
+            {
+                if (Time.unscaledTime >= nextSignalCheck)
+                { Initialize(); RefreshRestingSignal(); nextSignalCheck = Time.unscaledTime + .2f; }
+                return;
+            }
             // Inventory may pause game time; the mechanical action must never strand the search gate.
             age = Mathf.Min(OpeningDuration, age + Time.unscaledDeltaTime);
             ApplyPose(age);
-            if (age >= OpeningDuration) { opening = false; open = true; }
+            if (age >= OpeningDuration) { opening = false; open = true; RefreshRestingSignal(); }
         }
         void OnDisable()
         {
@@ -97,12 +125,7 @@ namespace ExtractionLike.Environment
             // Restrained internal illumination; no realtime point lights or shared-material mutation.
             float illumination = .65f + Smooth(.25f, .65f, seconds) * 1.05f;
             illumination += Mathf.Sin(Mathf.Clamp01(seconds / OpeningDuration) * Mathf.PI) * .75f;
-            foreach (var renderer in signals) if (renderer != null)
-            {
-                renderer.GetPropertyBlock(signalBlock);
-                signalBlock.SetColor("_EmissionColor", new Color(.10f, .73f, .94f) * illumination);
-                renderer.SetPropertyBlock(signalBlock);
-            }
+            ApplySignal(new Color(.10f, .73f, .94f), illumination);
         }
         static void MoveLocks(Transform[] locks, Vector3[] bases, float side, float release)
         {
