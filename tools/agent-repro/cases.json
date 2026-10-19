@@ -1442,6 +1442,15 @@
         "ExtractionTreeMatchesLegacy(\"NoPointAtTarget\")",
         "ExtractionTreeMatchesLegacy(\"WrongKind\")",
         "ExtractionTreeMatchesLegacy(\"AbortWhileInside\")",
+        "CombatTreeMatchesLegacy(\"FireAndKill\")",
+        "CombatTreeMatchesLegacy(\"SkillThenShoot\")",
+        "CombatTreeMatchesLegacy(\"LostSightTimeout\")",
+        "CombatTreeMatchesLegacy(\"ManualApproachBudget\")",
+        "CombatTreeMatchesLegacy(\"Unreachable\")",
+        "CombatTreeMatchesLegacy(\"ShooterMissing\")",
+        "CombatTreeMatchesLegacy(\"NavigationNotReady\")",
+        "CombatTreeMatchesLegacy(\"TargetMissing\")",
+        "CombatTreeMatchesLegacy(\"CommandSwitch\")",
         "FactoryUsesRefactoredTrees"
       ]
     }

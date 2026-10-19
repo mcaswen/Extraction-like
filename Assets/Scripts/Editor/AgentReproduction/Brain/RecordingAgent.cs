@@ -86,11 +86,13 @@ namespace AgentReproduction.Brain
             return new AgentNavigationResult(status, destination);
         }
 
+        // 与导航查询的到达判定一致：容差取到达容差和停止距离中的较大者
         private AgentNavigationStatus DefaultNavigation(Vector3 destination, float stoppingDistance)
         {
             Vector3 position = _pawn.Position;
             float dx = position.x - destination.x, dz = position.z - destination.z;
-            return dx * dx + dz * dz <= (stoppingDistance + 0.01f) * (stoppingDistance + 0.01f)
+            float tolerance = Mathf.Max(AgentNavigationQuery.ArrivalTolerance, stoppingDistance) + 0.02f;
+            return dx * dx + dz * dz <= tolerance * tolerance
                 ? AgentNavigationStatus.Arrived
                 : AgentNavigationStatus.Moving;
         }

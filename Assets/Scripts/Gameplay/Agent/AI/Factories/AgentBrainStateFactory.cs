@@ -52,7 +52,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.Combat,
                 "Combat",
-                AgentLegacyBrainTrees.Combat());
+                AgentBrainTrees.Combat());
         }
 
         public AgentBrainState CreateInvestigateEnemySourceState()
