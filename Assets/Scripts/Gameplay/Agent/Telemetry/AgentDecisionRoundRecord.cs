@@ -1,4 +1,5 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+using Core.StateMachine.Runtime;
 using Gameplay.Agent.Decision;
 using UnityEngine;
 
@@ -93,13 +94,13 @@ namespace Gameplay.Agent.Telemetry
     /// <summary>一次叶子状态切换</summary>
     public readonly struct AgentStateTransitionRecord
     {
-        public readonly Core.StateMachine.Runtime.StateMachineState From;
-        public readonly Core.StateMachine.Runtime.StateMachineState To;
-        public readonly Core.StateMachine.Runtime.StateTransition Transition;
+        public readonly StateMachineState From;
+        public readonly StateMachineState To;
+        public readonly StateTransition Transition;
         public readonly double TimeSeconds;
 
-        public AgentStateTransitionRecord(Core.StateMachine.Runtime.StateMachineState from, Core.StateMachine.Runtime.StateMachineState to,
-            Core.StateMachine.Runtime.StateTransition transition, double timeSeconds)
+        public AgentStateTransitionRecord(StateMachineState from, StateMachineState to,
+            StateTransition transition, double timeSeconds)
         {
             From = from;
             To = to;
