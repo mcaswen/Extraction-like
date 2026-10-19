@@ -27,6 +27,7 @@ namespace Gameplay.Agent.AI.Memory
         public Vector3 ApproachScale;
         public int ApproachAreaMask;
         public int ApproachAgentType;
+        private Transform _componentBody;
 
         // 帧内
         public bool IsManualDirective;
@@ -44,6 +45,18 @@ namespace Gameplay.Agent.AI.Memory
         public bool ApproachUnreachable;
         public bool BudgetPathFailed;
         public bool BudgetExpired;
+
+        // 射手和战斗控制器是智能体根上的必需组件：同一身体上两者都还在时沿用上次结果，与每帧重新查组件得到的对象相同；
+        // 任一缺失或已销毁时重新查，结果与直接查组件一致
+        public void ResolveComponents(Transform body)
+        {
+            if (ReferenceEquals(_componentBody, body) && Shooter != null && Combat != null)
+                return;
+
+            _componentBody = body;
+            Shooter = body.GetComponent<AgentCombatShooter>();
+            Combat = body.GetComponent<AgentCombatController>();
+        }
 
         public void ResetTimers()
         {

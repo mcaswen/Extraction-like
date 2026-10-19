@@ -25,7 +25,7 @@ namespace Gameplay.Agent.AI.Nodes.Combat
             // 攻击参数从黑板读取，便于按 Agent 类型替换配置
             float attackDamage = GetFloat(context, AgentBlackboardKeys.AttackDamage, 25f);
             float attackInterval = GetFloat(context, AgentBlackboardKeys.AttackInterval, 0.65f);
-            AgentCombatShooter shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
+            AgentCombatShooter shooter = Memory.Shooter;
             if (shooter == null || !shooter.TryShootAt(Memory.Enemy, attackDamage))
             {
                 if (Memory.Shooter.LastShotFailure == AgentShotFailure.ProjectileUnavailable)

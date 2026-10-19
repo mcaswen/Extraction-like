@@ -22,7 +22,7 @@ namespace Gameplay.Agent.AI.Nodes.Combat
             if (!TryGetAgent(context, out IAgentReadOnly agent))
                 return Fail(BehaviorFailureCode.ConditionFailed, InvalidAgent);
 
-            AgentCombatController combatController = agent.CachedTransform.GetComponent<AgentCombatController>();
+            AgentCombatController combatController = Memory.Combat;
             if (combatController == null ||
                 !combatController.TryCastReadySkill(Memory.Enemy, context.TimeSeconds, out float actionLockSeconds))
             {

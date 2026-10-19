@@ -65,7 +65,7 @@ namespace Core.BehaviorTree.Nodes
             if (_hasEntered) return;
 
             _hasEntered = true;
-            context.RecordNodeEvent(this, BehaviorNodeEventKind.Enter, LastStatus, BehaviorFailureCode.None);
+            if (context.NodeEventSink != null) context.RecordNodeEvent(this, BehaviorNodeEventKind.Enter, LastStatus, BehaviorFailureCode.None);
             OnEnter(context);
         }
 
@@ -82,7 +82,7 @@ namespace Core.BehaviorTree.Nodes
             LastStatus = result.Status;
             LastFailureCode = result.FailureReason.Code;
             LastTickVersion = context.TickVersion;
-            context.RecordNodeEvent(this, BehaviorNodeEventKind.Tick, result.Status, result.FailureReason.Code);
+            if (context.NodeEventSink != null) context.RecordNodeEvent(this, BehaviorNodeEventKind.Tick, result.Status, result.FailureReason.Code);
             return result;
         }
 
@@ -96,7 +96,7 @@ namespace Core.BehaviorTree.Nodes
             if (!_hasEntered) return;
 
             OnExit(context, result);
-            context.RecordNodeEvent(this, BehaviorNodeEventKind.Exit, result.Status, result.FailureReason.Code);
+            if (context.NodeEventSink != null) context.RecordNodeEvent(this, BehaviorNodeEventKind.Exit, result.Status, result.FailureReason.Code);
             _hasEntered = false;
         }
 
@@ -109,7 +109,7 @@ namespace Core.BehaviorTree.Nodes
             if (!_hasEntered) return;
 
             OnAbort(context);
-            context.RecordNodeEvent(this, BehaviorNodeEventKind.Abort, LastStatus, BehaviorFailureCode.ExternalAbort);
+            if (context.NodeEventSink != null) context.RecordNodeEvent(this, BehaviorNodeEventKind.Abort, LastStatus, BehaviorFailureCode.ExternalAbort);
             _hasEntered = false;
         }
 

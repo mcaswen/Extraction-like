@@ -27,8 +27,7 @@ namespace Gameplay.Agent.AI.Nodes.Combat
             Memory.MoveSpeed = GetFloat(context, AgentBlackboardKeys.MoveSpeed, 4f);
             bool visible = TargetVisibilityQuery.Check(agent.CachedTransform, CombatAimPointResolver.Resolve(agent.CachedTransform),
                 Memory.Enemy.transform, Memory.AttackRange) == TargetVisibilityResult.Visible;
-            Memory.Shooter = agent.CachedTransform.GetComponent<AgentCombatShooter>();
-            Memory.Combat = agent.CachedTransform.GetComponent<AgentCombatController>();
+            Memory.ResolveComponents(agent.CachedTransform);
             Memory.ShooterUnavailable = Memory.Shooter == null || !Memory.Shooter.IsConfigured;
             if (Memory.ShooterUnavailable)
             {
