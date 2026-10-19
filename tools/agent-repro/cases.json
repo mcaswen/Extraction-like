@@ -1408,7 +1408,8 @@
         "BrainTickCostIsRecorded(\"SearchApproach\")",
         "BrainTickCostIsRecorded(\"CombatCooldown\")",
         "RefactoredTreeCostComparedWithLegacy(\"SearchApproach\")",
-        "RefactoredTreeCostComparedWithLegacy(\"CombatCooldown\")"
+        "RefactoredTreeCostComparedWithLegacy(\"CombatCooldown\")",
+        "CombatUnitCostsAreRecorded"
       ]
     },
     {

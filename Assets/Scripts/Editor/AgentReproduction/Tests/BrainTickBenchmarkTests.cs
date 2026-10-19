@@ -5,6 +5,7 @@ using System.Reflection;
 using AgentReproduction.Infrastructure;
 using AgentReproduction.Reporting;
 using AgentReproduction.World;
+using Core.BehaviorTree.Nodes.Composites;
 using Core.BehaviorTree.Runtime;
 using Core.StateMachine.Runtime;
 using Gameplay.Agent.AI.Trees;
@@ -118,6 +119,59 @@ namespace AgentReproduction.Tests
             CaseArtifactWriter.Trace("brain-benchmark-ab", line);
             UnityEngine.Debug.Log("[BrainBenchmarkAB] " + line);
             ContractCompleted = true;
+        }
+
+        // 战斗冷却场景下常用操作的单次开销，用来解释新旧树耗时差；只记录数值
+        [UnityTest]
+        public IEnumerator CombatUnitCostsAreRecorded()
+        {
+            TestNavMeshBuilder.Flat(World, 160);
+            var agent = AgentFactory.Create(World, "Bench", Vector3.zero, 0, false, false);
+            Submit(TargetFactory.Enemies(World, EnemyFactory.Passive(World, new Vector3(0, 0, 5))), agent);
+            yield return null;
+            Physics.SyncTransforms();
+
+            const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+            var brain = (AgentBrainController)typeof(AgentPawnRoot).GetField("_brainController", Private).GetValue(agent);
+            double time = Time.timeAsDouble;
+            for (int i = 0; i < Warmup; i++) brain.Tick(0.016f, time);
+            var machine = (HierarchicalStateMachine)typeof(AgentBrainController).GetField("_stateMachine", Private).GetValue(brain);
+            var runner = (BehaviorTreeRunner)typeof(StateMachineState).GetField("_behaviorTreeRunner", Private).GetValue(machine.CurrentLeafState);
+            var context = (BehaviorTreeContext)typeof(BehaviorTreeRunner).GetField("_context", Private).GetValue(runner);
+            var condition = new Gameplay.Agent.AI.Nodes.AgentPredicateCondition("Bench", "Bench", _ => true);
+            var sequence = new ReactiveSequenceNode("BenchSequence", new Gameplay.Agent.AI.Nodes.AgentPredicateCondition("A", "A", _ => true),
+                new Gameplay.Agent.AI.Nodes.AgentPredicateCondition("B", "B", _ => true));
+            var lines = new List<string>
+            {
+                Cost("brainTick", () => brain.Tick(0.016f, time)),
+                Cost("combatTreeTick", () => runner.Tick(0.016f, time)),
+                Cost("tryGetAgent", () => Gameplay.Agent.AI.Nodes.AgentTreeQueries.TryGetAgent(context, out _)),
+                Cost("tryGetDirective", () => Gameplay.Agent.AI.Nodes.AgentTreeQueries.TryGetDirective(context, AgentDirectiveType.Engage, out _)),
+                Cost("blackboardFloat", () => context.Blackboard.TryGetValue(AgentBlackboardKeys.AttackRange, out float _)),
+                Cost("getComponent", () => agent.transform.GetComponent<Gameplay.Agent.Combat.AgentCombatShooter>()),
+                Cost("conditionExecuteExit", () => { var r = condition.Execute(context); condition.Exit(context, r); }),
+                Cost("sequenceOfTwo", () => { var r = sequence.Execute(context); sequence.Exit(context, r); })
+            };
+            string line = string.Join("; ", lines);
+            CaseArtifactWriter.Trace("brain-unit-costs", line);
+            UnityEngine.Debug.Log("[BrainUnitCosts] " + line);
+            ContractCompleted = true;
+        }
+
+        private static string Cost(string name, System.Action action)
+        {
+            for (int i = 0; i < 200; i++) action();
+            var rounds = new List<double>();
+            var watch = new Stopwatch();
+            for (int round = 0; round < 9; round++)
+            {
+                watch.Restart();
+                for (int i = 0; i < 2000; i++) action();
+                watch.Stop();
+                rounds.Add(watch.Elapsed.TotalMilliseconds * 1000d / 2000);
+            }
+
+            return name + "=" + Median(rounds).ToString("0.###");
         }
 
         private static double Median(List<double> values)
