@@ -18,6 +18,10 @@ namespace Gameplay.Agent.Telemetry.UI
     {
         private readonly Dictionary<GameplayTargetClusterAuthoringBase, string> _byCluster = new Dictionary<GameplayTargetClusterAuthoringBase, string>();
         private readonly Dictionary<string, string> _byNode = new Dictionary<string, string>(StringComparer.Ordinal);
+        // 运行时生成的敌人群不在地图上，按它的敌人来源命名："区域 敌人群 字母"
+        private readonly Dictionary<string, string> _enemiesBySourceId = new Dictionary<string, string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> _enemiesBySourceName = new Dictionary<string, string>(StringComparer.Ordinal);
+        private const string ActiveClusterSuffix = "_ActiveEnemyCluster";
         private MapGraphBindingAuthoring _binding;
         private float _nextSearchTime;
 
@@ -35,16 +39,26 @@ namespace Gameplay.Agent.Telemetry.UI
             if (target == null) return "—";
             EnsureBinding();
             var cluster = target.GetComponentInParent<GameplayTargetClusterAuthoringBase>();
+            var enemy = cluster == null ? target.GetComponentInParent<global::EnemyHealthController>() : null;
             if (cluster == null)
             {
-                var enemy = target.GetComponentInParent<global::EnemyHealthController>();
                 if (enemy == null) return target.name;
                 GameplayTargetRegistry registry = GameplayTargetRegistry.ActiveInstance;
                 if (registry == null || !registry.TryFindEnemyClusterByEnemy(enemy, out ActiveEnemyClusterAuthoring enemies)) return "敌人";
                 cluster = enemies;
             }
 
-            return _byCluster.TryGetValue(cluster, out string label) ? label : cluster.DisplayName;
+            if (_byCluster.TryGetValue(cluster, out string label)) return label;
+            if (cluster is ActiveEnemyClusterAuthoring active)
+            {
+                if (enemy != null && active.TryGetSourceTargetIdForEnemy(enemy, out string sourceId) && _enemiesBySourceId.TryGetValue(sourceId, out label)) return label;
+                string name = cluster.gameObject.name;
+                if (name.EndsWith(ActiveClusterSuffix, StringComparison.Ordinal) &&
+                    _enemiesBySourceName.TryGetValue(name.Substring(0, name.Length - ActiveClusterSuffix.Length), out label)) return label;
+                return "敌人群";
+            }
+
+            return cluster.DisplayName;
         }
 
         public static string Label(MapGraphNodeDefinition node, string zoneName)
@@ -83,14 +97,20 @@ namespace Gameplay.Agent.Telemetry.UI
             _binding = Object.FindObjectOfType<MapGraphBindingAuthoring>();
             _byCluster.Clear();
             _byNode.Clear();
+            _enemiesBySourceId.Clear();
+            _enemiesBySourceName.Clear();
             SO_MapGraphDefinition definition = _binding != null ? _binding.MapDefinition : null;
             if (definition == null) return;
 
+            var enemyLabels = new Dictionary<string, string>(StringComparer.Ordinal);
             for (int index = 0; index < definition.Nodes.Count; index++)
             {
                 MapGraphNodeDefinition node = definition.Nodes[index];
                 if (node == null) continue;
-                _byNode[node.NodeId] = Label(node, ZoneName(definition, node.ZoneId));
+                string zone = ZoneName(definition, node.ZoneId);
+                _byNode[node.NodeId] = Label(node, zone);
+                if (node.NodeKind == MapGraphNodeKind.EnemySource)
+                    enemyLabels[node.NodeId] = (string.IsNullOrEmpty(zone) ? string.Empty : zone + " ") + "敌人群" + Suffix(node.DisplayName);
             }
 
             IReadOnlyList<MapGraphTargetBinding> bindings = _binding.TargetBindings;
@@ -99,6 +119,9 @@ namespace Gameplay.Agent.Telemetry.UI
                 MapGraphTargetBinding binding = bindings[index];
                 if (binding == null || !(binding.DirectTarget is GameplayTargetClusterAuthoringBase cluster)) continue;
                 if (_byNode.TryGetValue(binding.NodeId, out string label)) _byCluster[cluster] = label;
+                if (!enemyLabels.TryGetValue(binding.NodeId, out string enemies)) continue;
+                _enemiesBySourceId[cluster.TargetId] = enemies;
+                _enemiesBySourceName[cluster.gameObject.name] = enemies;
             }
         }
 
