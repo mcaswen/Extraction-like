@@ -103,11 +103,16 @@ namespace Gameplay.Agent.Telemetry.UI
 
             AgentDirectiveRequest value = request.Value;
             SetText(_slotWhat[slot], AgentBrainText.DirectiveKind(value.DirectiveType));
-            SetText(_slotTarget[slot], AgentBrainText.DirectiveSource(value) + " · " + DirectiveTarget(value));
+            string target = DirectiveTarget(value);
+            SetText(_slotTarget[slot], AgentBrainText.DirectiveSource(value) + (target.Length > 0 ? " · " + target : string.Empty));
         }
 
+        // 目标已经销毁（例如敌人被击败）时返回空，不显示占位符
         private string DirectiveTarget(in AgentDirectiveRequest request)
-            => request.RouteContext.IsValid ? _names.Node(request.RouteContext.NodeId) : _names.Of(request.TargetObject);
+        {
+            string target = request.RouteContext.IsValid ? _names.Node(request.RouteContext.NodeId) : _names.Of(request.TargetObject);
+            return target == "—" ? string.Empty : target;
+        }
 
         /// <returns>评分区（含图例）的底边</returns>
         private float RefreshScores()

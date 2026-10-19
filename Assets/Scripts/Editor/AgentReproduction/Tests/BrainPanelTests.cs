@@ -291,46 +291,104 @@ namespace AgentReproduction.Tests
 
         private static TMP_Text Text(AgentBrainPanel panel, string name) => Named(panel, name).GetComponent<TMP_Text>();
 
-        // 截图：相机渲染到 1920×1080，面板临时改为相机空间叠在上面。给了场景相机就复制它的机位和设置，否则俯视智能体
+        // 截图：场景和面板分两次渲染再合成。面板在游戏里是叠加层，画在全部相机效果之后；
+        // 若直接让面板走场景相机，后处理和描边效果会压到面板上，看起来比实际透明。
+        // 给了场景相机就复制它的机位和设置，否则俯视智能体。
         private static IEnumerator Capture(AgentBrainPanel panel, AgentPawnRoot agent, string name, Camera source = null)
         {
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) yield break;
-            var cameraObject = new GameObject("Panel evidence camera");
-            var camera = cameraObject.AddComponent<Camera>();
-            var data = cameraObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-            // 面板在游戏里是叠加层，不经过后处理；截图时面板改走相机，所以关掉后处理，否则颜色和透明度都会被改
-            data.renderPostProcessing = false;
-            if (source != null) camera.CopyFrom(source);
+            const int UiLayer = 30, Width = 1920, Height = 1080;
+            var worldObject = new GameObject("Panel evidence world camera");
+            var world = worldObject.AddComponent<Camera>();
+            var worldData = worldObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+            if (source != null)
+            {
+                world.CopyFrom(source);
+                var sourceData = source.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                worldData.renderPostProcessing = sourceData != null && sourceData.renderPostProcessing;
+            }
             else
             {
-                camera.transform.position = agent.Position + new Vector3(0, 24, -14);
-                camera.transform.LookAt(agent.Position);
-                camera.clearFlags = CameraClearFlags.SolidColor;
-                camera.backgroundColor = new Color(.16f, .2f, .14f);
+                world.transform.position = agent.Position + new Vector3(0, 24, -14);
+                world.transform.LookAt(agent.Position);
+                world.clearFlags = CameraClearFlags.SolidColor;
+                world.backgroundColor = new Color(.16f, .2f, .14f);
+                worldData.renderPostProcessing = false;
             }
-            var target = new RenderTexture(1920, 1080, 24);
-            target.Create();
-            camera.targetTexture = target;
+            world.cullingMask &= ~(1 << UiLayer);
+
+            var uiObject = new GameObject("Panel evidence UI camera");
+            uiObject.transform.position = new Vector3(0, -500, 0);
+            var ui = uiObject.AddComponent<Camera>();
+            uiObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>().renderPostProcessing = false;
+            ui.clearFlags = CameraClearFlags.SolidColor;
+            ui.backgroundColor = new Color(0, 0, 0, 0);
+            ui.cullingMask = 1 << UiLayer;
+            ui.nearClipPlane = .01f;
+            ui.farClipPlane = 5f;
+
+            var worldTarget = new RenderTexture(Width, Height, 24, RenderTextureFormat.ARGB32);
+            var uiTarget = new RenderTexture(Width, Height, 24, RenderTextureFormat.ARGB32);
+            worldTarget.Create();
+            uiTarget.Create();
+            world.targetTexture = worldTarget;
+            ui.targetTexture = uiTarget;
             Canvas canvas = panel.Canvas;
+            var transforms = canvas.GetComponentsInChildren<Transform>(true);
+            var layers = transforms.Select(t => t.gameObject.layer).ToArray();
+            foreach (var t in transforms) t.gameObject.layer = UiLayer;
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.worldCamera = camera;
+            canvas.worldCamera = ui;
             canvas.planeDistance = 1;
+            var worldPixels = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
+            var uiPixels = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
+            var previous = RenderTexture.active;
             try
             {
                 yield return null;
                 yield return null;
                 panel.RefreshNow();
                 Canvas.ForceUpdateCanvases();
-                CaseArtifactWriter.Capture(camera, name);
+                world.Render();
+                ui.Render();
+                RenderTexture.active = worldTarget;
+                worldPixels.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
+                RenderTexture.active = uiTarget;
+                uiPixels.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
+                RenderTexture.active = previous;
+
+                // 面板以 SrcAlpha/OneMinusSrcAlpha 画在透明黑底上：颜色已乘过不透明度，透明通道是不透明度的平方
+                Color32[] scene = worldPixels.GetPixels32(), overlay = uiPixels.GetPixels32();
+                for (int i = 0; i < scene.Length; i++)
+                {
+                    float coverage = Mathf.Sqrt(overlay[i].a / 255f);
+                    scene[i] = new Color32(
+                        (byte)Mathf.Min(255, overlay[i].r + scene[i].r * (1 - coverage)),
+                        (byte)Mathf.Min(255, overlay[i].g + scene[i].g * (1 - coverage)),
+                        (byte)Mathf.Min(255, overlay[i].b + scene[i].b * (1 - coverage)), 255);
+                }
+                worldPixels.SetPixels32(scene);
+                string folder = Path.Combine(TestRunContext.Load().outputPath, "screenshots");
+                Directory.CreateDirectory(folder);
+                File.WriteAllBytes(Path.Combine(folder, name + ".png"), worldPixels.EncodeToPNG());
+                CaseArtifactWriter.Trace("screenshot", name + ".png");
             }
             finally
             {
+                RenderTexture.active = previous;
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 canvas.worldCamera = null;
-                camera.targetTexture = null;
-                target.Release();
-                Object.DestroyImmediate(target);
-                Object.DestroyImmediate(cameraObject);
+                for (int i = 0; i < transforms.Length; i++) if (transforms[i] != null) transforms[i].gameObject.layer = layers[i];
+                world.targetTexture = null;
+                ui.targetTexture = null;
+                worldTarget.Release();
+                uiTarget.Release();
+                Object.DestroyImmediate(worldTarget);
+                Object.DestroyImmediate(uiTarget);
+                Object.DestroyImmediate(worldPixels);
+                Object.DestroyImmediate(uiPixels);
+                Object.DestroyImmediate(worldObject);
+                Object.DestroyImmediate(uiObject);
             }
         }
     }
