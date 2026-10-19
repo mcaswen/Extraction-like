@@ -212,7 +212,7 @@ namespace Gameplay.Agent.Telemetry.UI
             var button = go.GetComponent<Button>();
             button.targetGraphic = image;
             button.transition = Selectable.Transition.None;
-            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            button.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
             int chip = index;
             button.onClick.AddListener(() => PinChip(chip));
             _chipButtons[index] = button;
