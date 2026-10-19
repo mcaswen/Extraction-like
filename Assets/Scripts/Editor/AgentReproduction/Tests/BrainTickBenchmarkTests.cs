@@ -41,11 +41,12 @@ namespace AgentReproduction.Tests
             var watch = Stopwatch.StartNew();
             for (int i = 0; i < Samples; i++) brain.Tick(0.016f, time);
             watch.Stop();
-            // 分配单独测一小段，尽量避开回收；回收打断时重测
-            long allocated = ManagedAllocation.Measure(() => { for (int i = 0; i < AllocationSamples; i++) brain.Tick(0.016f, time); });
+            // 一帧内额外推进固定次数，与空闲帧的 GC 分配计数相减
+            long allocated = ManagedAllocation.Unavailable;
+            yield return ManagedAllocation.MeasureFrame(() => { for (int i = 0; i < AllocationSamples; i++) brain.Tick(0.016f, time); }, value => allocated = value);
 
             double microseconds = watch.Elapsed.TotalMilliseconds * 1000d / Samples;
-            string bytes = allocated == ManagedAllocation.Inconclusive ? "inconclusive" : ((double)allocated / AllocationSamples).ToString("0.#");
+            string bytes = allocated == ManagedAllocation.Unavailable ? "unavailable" : ((double)allocated / AllocationSamples).ToString("0.#");
             string line = $"scenario={scenario}; state={state}; samples={Samples}; usPerTick={microseconds:0.###}; bytesPerTick={bytes}";
             CaseArtifactWriter.Trace("brain-benchmark", line);
             UnityEngine.Debug.Log("[BrainBenchmark] " + line);
