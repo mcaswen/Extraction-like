@@ -30,4 +30,18 @@
 - **禁用调用清单**：扫描遥测目录源码，禁止调用会刷新群状态、推进修订号、写黑板、改指令、动导航、同步物理、改焦点或造成伤害的方法。P8–P10 把面板、叠加层目录加入扫描范围；导演目录另设白名单。
 - **构建门控**（`TelemetryBuildGating`，Regression 套件）：只编译玩家脚本，在正式构建和开发构建的 `Assembly-CSharp.dll` 元数据里查类型名：正式构建没有遥测入口、记录器、拆项方法、探测记录、旧行为树和旧交战节点；开发构建有遥测；两者都有新行为树和执行记忆。
 
-（结果运行后补充。）
+## 4. 结果
+
+**编译。** P7 第一次推到验证克隆时整个运行时程序集编译失败：转移记录里写的 `Core.StateMachine.Runtime.StateMachineState` 在 `Gameplay.Agent.Telemetry` 命名空间里会先解析成 `Gameplay.Agent.Core`。改成文件顶部 `using` 引入（`d16213e`）。之后先跑小组确认编译，再跑全量。
+
+**定向组**（`d16213e`，p7-a）全部通过：
+- BrainTelemetry 7/7：评分 A/B（满血、低血）挂与不挂接收器选择结果、分数、风险、理由完全一致，被接受候选的拆项总分与实际得分逐位相等；接近点 A/B（开阔、隔墙、悬空）结果和导航查询次数一致，记录里的选中点就是实际选点；入口挂接后看到进入搜索资源的转移、节点事件和本帧已求值出边，销毁后状态机观察者为空；禁用调用扫描没有命中。
+- BrainTreeEquivalence 39/39：含两条挂与不挂节点事件接收器的对拍（战斗、搜索），以及 P6 新增的 6 个场景。
+- TelemetryBuildGating 1/1：正式构建的程序集里没有遥测入口、记录器、拆项方法、探测记录、旧行为树和旧交战节点；开发构建有遥测，且同样没有旧行为树；两者都有新行为树和执行记忆。
+- BehaviorTreeLibrary 7/7、DebugReadOnly 2/2、BrainTickBenchmark 5/5。
+
+**性能修正后**（`1d51739`，p7-d）BrainTreeEquivalence 39/39、BrainTickBenchmark 6/6、BehaviorTreeLibrary 7/7、BrainTelemetry 7/7、Cooldown 8/8、SceneCombat 6/6 通过；性能数字见 [P6 记录](p6_execution.md) 第 4 节。
+
+**全量回归**（`1d51739`，p7-all2）：96 组 773 例，772 例通过。唯一失败仍是 session 0 跑不了的真实窗口用例 `MapGraphEditorCanvas.GridCanvasShiftPreviewAndPublishRoundTripRenderRealWindow`（与 P6 相同）。P7 新增的 BrainTelemetry 7/7、TelemetryBuildGating 1/1 在全量中同样通过。
+
+**验收对照。** 2.6 节第 4 条（遥测只读：构造对拍一致、禁用调用扫描通过）达标。第 6 条中"正式构建里找不到遥测类型"达标；面板、叠加层、导演尚未实现，B、U 键在 P8、P9 加入时再由同一测试覆盖。
