@@ -13,6 +13,7 @@ using Gameplay.Agent.AI.Trees;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Telemetry;
 using Gameplay.Agent.Telemetry.UI;
+using Gameplay.MapGraph.Binding;
 using Gameplay.MapGraph.Config;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Input;
@@ -175,16 +176,22 @@ namespace AgentReproduction.Tests
                 AgentPawnRoot agent = recorder.Pawn;
                 yield return Capture(panel, agent, "scene-autonomous", Camera.main);
 
-                // 指挥员派一个较远的资源群，走起来之后让最近的敌人打它一下，复现"遇袭挂起与反击"；只截图不判定，真实场景里反击能否接上取决于敌人位置
-                var dispatcher = new AgentTargetCommandDispatcher();
-                string commandId = null;
-                foreach (var cluster in Object.FindObjectsOfType<ResourceClusterAuthoring>().OrderByDescending(c => Vector3.Distance(c.CenterPosition, agent.Position)))
+                // 指挥员经地图给它下达一条去较远资源群的路线，走起来之后让最近的敌人打它一下，复现"遇袭挂起与反击"；
+                // 只截图不判定，真实场景里反击能否接上取决于敌人位置
+                var binding = Object.FindObjectOfType<MapGraphBindingAuthoring>();
+                Assert.That(binding, Is.Not.Null);
+                bool routed = false;
+                foreach (var node in binding.TargetBindings.Where(b => b != null && b.DirectTarget is ResourceClusterAuthoring)
+                             .OrderByDescending(b => Vector3.Distance(b.DirectTarget.CenterPosition, agent.Position)))
                 {
-                    if (!dispatcher.TrySubmitClusterCommand(cluster, agent.AgentIdValue, out var order)) continue;
-                    commandId = order.CommandId;
+                    var result = Gameplay.Agent.Runtime.AgentCommandRouter.GetOrCreate().TrySubmitRoute(
+                        new Gameplay.Agent.Routes.AgentRouteRequest(node.NodeId, Gameplay.Agent.Routes.AgentRouteSource.Player, agent.AgentId));
+                    CaseArtifactWriter.Trace("brain-panel-scene-route", node.NodeId + " " + result.Stage + " " + result.Reason);
+                    if (!result.Accepted) continue;
+                    routed = true;
                     break;
                 }
-                Assert.That(commandId, Is.Not.Null, "应能给焦点智能体下达一个资源群命令");
+                Assert.That(routed, Is.True, "应能经地图给焦点智能体下达一条路线");
                 yield return Frames(2f);
                 var enemy = Object.FindObjectsOfType<EnemyHealthController>().Where(e => e.GetCurrentHealthRatio() > 0f)
                     .OrderBy(e => Vector3.Distance(e.transform.position, agent.Position)).FirstOrDefault();
@@ -291,19 +298,15 @@ namespace AgentReproduction.Tests
             var cameraObject = new GameObject("Panel evidence camera");
             var camera = cameraObject.AddComponent<Camera>();
             var data = cameraObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-            if (source != null)
-            {
-                camera.CopyFrom(source);
-                var sourceData = source.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-                data.renderPostProcessing = sourceData != null && sourceData.renderPostProcessing;
-            }
+            // 面板在游戏里是叠加层，不经过后处理；截图时面板改走相机，所以关掉后处理，否则颜色和透明度都会被改
+            data.renderPostProcessing = false;
+            if (source != null) camera.CopyFrom(source);
             else
             {
                 camera.transform.position = agent.Position + new Vector3(0, 24, -14);
                 camera.transform.LookAt(agent.Position);
                 camera.clearFlags = CameraClearFlags.SolidColor;
                 camera.backgroundColor = new Color(.16f, .2f, .14f);
-                data.renderPostProcessing = false;
             }
             var target = new RenderTexture(1920, 1080, 24);
             target.Create();

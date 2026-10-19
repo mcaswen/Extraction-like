@@ -246,7 +246,9 @@ namespace Gameplay.Agent.Telemetry.UI
                 _chipButtons[index].gameObject.SetActive(visible);
                 if (!visible) continue;
                 bool selected = _recorder != null && _chipPawns[index] == _recorder.Pawn;
-                SetText(_chipLabels[index], "智能体 " + (handleIndex + 1));
+                // 正式场景的智能体编号就是 1、2；其他编号按注册顺序编
+                string id = _chipPawns[index].AgentIdValue;
+                SetText(_chipLabels[index], "智能体 " + (id.Length > 0 && id.Length <= 2 && char.IsDigit(id[0]) ? id : (handleIndex + 1).ToString()));
                 _chipLabels[index].color = selected ? Style.Ink : Style.Muted;
                 float x = ChipX(index);
                 _leftVectors.Fill(x, ChipTop, ChipWidth, ChipHeight, selected ? Style.SelectedFill : Style.ButtonFill);

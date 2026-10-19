@@ -23,6 +23,7 @@ namespace Gameplay.Agent.Telemetry.UI
                 _timelineTimes[row] = Label(_right, string.Empty, 16, 0, 60, TimelineRowHeight, Style.TinySize, Style.Muted, Style.MonoFont);
                 _timelineTexts[row] = Label(_right, string.Empty, 98, 0, 262, TimelineRowHeight, 13, Style.Ink);
                 _timelineTexts[row].richText = true;
+                _timelineTexts[row].overflowMode = TextOverflowModes.Ellipsis;
                 _timelineTimes[row].name = "Timeline_Row_" + row + "_Time";
                 _timelineTexts[row].name = "Timeline_Row_" + row + "_Text";
             }

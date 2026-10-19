@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Gameplay.MapGraph.Binding;
 using Gameplay.MapGraph.Config;
 using Gameplay.Targets.Authoring;
+using Gameplay.Targets.Runtime;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -28,15 +29,22 @@ namespace Gameplay.Agent.Telemetry.UI
             return _byNode.TryGetValue(nodeId, out string label) ? label : nodeId;
         }
 
-        /// <summary>目标对象的显示名：所在的群有地图节点时用节点名，否则用群的名字；敌人个体统称"敌人"</summary>
+        /// <summary>目标对象的显示名：所在的群有地图节点时用节点名，否则用群的名字；敌人个体用它所属的敌人群，找不到时统称"敌人"</summary>
         public string Of(GameObject target)
         {
             if (target == null) return "—";
             EnsureBinding();
             var cluster = target.GetComponentInParent<GameplayTargetClusterAuthoringBase>();
-            if (cluster != null) return _byCluster.TryGetValue(cluster, out string label) ? label : cluster.DisplayName;
-            if (target.GetComponentInParent<global::EnemyHealthController>() != null) return "敌人";
-            return target.name;
+            if (cluster == null)
+            {
+                var enemy = target.GetComponentInParent<global::EnemyHealthController>();
+                if (enemy == null) return target.name;
+                GameplayTargetRegistry registry = GameplayTargetRegistry.ActiveInstance;
+                if (registry == null || !registry.TryFindEnemyClusterByEnemy(enemy, out ActiveEnemyClusterAuthoring enemies)) return "敌人";
+                cluster = enemies;
+            }
+
+            return _byCluster.TryGetValue(cluster, out string label) ? label : cluster.DisplayName;
         }
 
         public static string Label(MapGraphNodeDefinition node, string zoneName)

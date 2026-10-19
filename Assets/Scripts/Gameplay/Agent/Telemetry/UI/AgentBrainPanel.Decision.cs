@@ -26,6 +26,7 @@ namespace Gameplay.Agent.Telemetry.UI
         private readonly TMP_Text[] _scoreNames = new TMP_Text[MaxScoreRows], _scoreValues = new TMP_Text[MaxScoreRows], _scoreReasons = new TMP_Text[MaxScoreRows];
         private readonly TMP_Text[] _legendLabels = new TMP_Text[5];
         private readonly int[] _scoreOrder = new int[AgentDecisionRoundRecord.CandidateCapacity];
+        private readonly string[] _scoreLabels = new string[MaxScoreRows];
         private TMP_Text _formula, _scoreEmpty;
 
         private void BuildSlots()
@@ -36,7 +37,8 @@ namespace Gameplay.Agent.Telemetry.UI
                 string side = slot == 0 ? "Active" : "Held";
                 _slotTags[slot] = Label(_right, slot == 0 ? "活动" : "挂起", x + 10, SlotY + 7, SlotW - 20, 14, Style.TinySize, slot == 0 ? Style.Teal : Style.Amber);
                 _slotWhat[slot] = Label(_right, "—", x + 10, SlotY + 22, SlotW - 20, 20, Style.SectionTitleSize, Style.Ink, Style.HeadingFont);
-                _slotTarget[slot] = Label(_right, string.Empty, x + 10, SlotY + 43, SlotW - 20, 14, Style.SmallSize, Style.Muted);
+                _slotTarget[slot] = Label(_right, string.Empty, x + 10, SlotY + 41, SlotW - 20, 18, Style.SmallSize, Style.Muted);
+                _slotTarget[slot].overflowMode = TextOverflowModes.Ellipsis;
                 _slotTags[slot].name = "Slot_" + side + "_Tag";
                 _slotWhat[slot].name = "Slot_" + side + "_What";
                 _slotTarget[slot].name = "Slot_" + side + "_Target";
@@ -54,6 +56,7 @@ namespace Gameplay.Agent.Telemetry.UI
             {
                 float y = ScoreRowsY + row * ScoreRowHeight;
                 _scoreNames[row] = Label(_right, string.Empty, ScoreNameX, y, ScoreBarX - ScoreNameX - 8, ScoreRowHeight, Style.BodySize, Style.Muted);
+                _scoreNames[row].overflowMode = TextOverflowModes.Ellipsis;
                 _scoreValues[row] = Label(_right, string.Empty, ScoreValueX, y, 40, ScoreRowHeight, 15, Style.Ink, Style.MonoFont, TextAlignmentOptions.MidlineRight);
                 _scoreReasons[row] = Label(_right, string.Empty, ScoreBarX, y, ScoreValueX - ScoreBarX - 6, ScoreRowHeight, 13, Style.Dim);
                 _scoreNames[row].name = "Score_Row_" + row + "_Name";
@@ -136,7 +139,7 @@ namespace Gameplay.Agent.Telemetry.UI
                 AgentDecisionCandidateRow candidate = round.GetRow(_scoreOrder[row]);
                 float y = ScoreRowsY + row * ScoreRowHeight;
                 bool chosen = candidate.Verdict == AgentCandidateVerdict.Chosen;
-                SetText(_scoreNames[row], CandidateName(candidate));
+                SetText(_scoreNames[row], _scoreLabels[row]);
                 if (!Accepted(candidate.Verdict))
                 {
                     _scoreNames[row].color = Style.Dim;
@@ -163,7 +166,7 @@ namespace Gameplay.Agent.Telemetry.UI
 
         private static float Top(in AgentScoreBreakdown b) => b.BaseScore + b.CurrentTargetBonus + b.LowHealthBonus + b.CarriedValueBonus;
 
-        // 参与比较的按总分从高到低，排除的跟在后面；最多 MaxScoreRows 行
+        // 参与比较的按总分从高到低，排除的跟在后面；同名的（同一敌人群里的几个敌人）只留排在前面的一个；最多 MaxScoreRows 行
         private int SortCandidates(AgentDecisionRoundRecord round)
         {
             int count = 0;
@@ -181,7 +184,18 @@ namespace Gameplay.Agent.Telemetry.UI
                     }
                 _scoreOrder[position] = index;
             }
-            return Mathf.Min(count, MaxScoreRows);
+
+            int kept = 0;
+            for (int index = 0; index < count && kept < MaxScoreRows; index++)
+            {
+                string name = CandidateName(round.GetRow(_scoreOrder[index]));
+                bool duplicate = false;
+                for (int previous = 0; previous < kept && !duplicate; previous++) duplicate = _scoreLabels[previous] == name;
+                if (duplicate) continue;
+                _scoreLabels[kept] = name;
+                _scoreOrder[kept++] = _scoreOrder[index];
+            }
+            return kept;
         }
 
         private string CandidateName(in AgentDecisionCandidateRow candidate)
