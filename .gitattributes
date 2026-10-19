@@ -87,3 +87,6 @@
 *.dylib        filter=lfs diff=lfs merge=lfs -text
 *.bundle       filter=lfs diff=lfs merge=lfs -text
 *.assetbundle  filter=lfs diff=lfs merge=lfs -text
+
+# Binary TerrainData display copies; keep Unity YAML assets outside this folder as text.
+Assets/Art/Environment/ForestRecoveryStation/TerrainDisplay/*.asset filter=lfs diff=lfs merge=lfs -text

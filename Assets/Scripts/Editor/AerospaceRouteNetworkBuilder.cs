@@ -142,6 +142,7 @@ public static partial class AerospaceSceneLayoutBuilder
         // Serialize only original gameplay/physics, not the new passive art manifest or transforms.
         var data = AllInScene<Component>(scene).Where(c=>c!=null && (c is MonoBehaviour || c is Collider || c is Rigidbody || c is NavMeshAgent || c is NavMeshObstacle))
             .Where(c=>!(c is AerospaceRouteSetDressing) &&
+                !(c is AerospaceForestStation || (c is NavMeshModifier && c.GetComponentInParent<AerospaceForestStation>(true) != null)) &&
                 !((c is NavMeshModifier || c is RecoveryCaseOpeningFeedback) && IsRouteArt(c.transform)))
             .Select(c=>GlobalObjectId.GetGlobalObjectIdSlow(c)+"|"+EditorJsonUtility.ToJson(c)).OrderBy(s=>s,StringComparer.Ordinal);
         using(var hash=SHA256.Create()) return BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(string.Join("\n",data))));

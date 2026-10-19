@@ -345,7 +345,7 @@ public static partial class AerospaceSceneLayoutBuilder
         var entries = new List<string>();
         foreach (GameObject root in scene.GetRootGameObjects())
         {
-            if (root.name == LightingPaletteRoot) continue;
+            if (root.name == LightingPaletteRoot || root.GetComponent<AerospaceForestStation>() != null) continue;
             foreach (Transform transform in root.GetComponentsInChildren<Transform>(true))
             {
                 entries.Add(HierarchyPath(transform) + "|" + transform.localPosition.ToString("F7") + "|" + transform.localRotation.ToString("F7") + "|" + transform.localScale.ToString("F7") + "|" + transform.gameObject.activeSelf + "|" + transform.gameObject.layer);
@@ -378,7 +378,7 @@ public static partial class AerospaceSceneLayoutBuilder
         foreach (var binding in profile.Terrains)
         {
             AssertPaletteTerrainCopy(binding.original, binding.styled);
-            if (binding.terrain.terrainData != (root.gameObject.activeInHierarchy ? binding.styled : binding.original)) throw new InvalidOperationException("Unexpected terrain comparison binding.");
+            if (binding.terrain.terrainData != AerospaceForestStation.ResolveDisplay(binding.terrain, root.gameObject.activeInHierarchy ? binding.styled : binding.original)) throw new InvalidOperationException("Unexpected terrain comparison binding.");
         }
         foreach (var binding in profile.Renderers)
             foreach (Material material in binding.styled)

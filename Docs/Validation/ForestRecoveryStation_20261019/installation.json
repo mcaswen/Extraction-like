@@ -1,0 +1,79 @@
+{
+    "navigationHash": "B0-E2-36-C5-06-F6-B2-02-A8-EB-3E-68-44-DD-AD-1D-77-9C-34-69-75-5E-59-8F-28-1D-DC-58-E3-1E-7B-0D",
+    "gameplayHash": "C9-48-C1-B4-7F-7A-C2-54-67-FE-0F-1C-2F-2A-CE-F7-30-07-0A-6E-3B-53-BB-16-FC-56-49-18-89-9E-E4-D7",
+    "originalBuildSources": "BA-75-29-06-A1-CE-E5-5E-83-DC-2B-73-15-D8-43-FF-A6-C8-82-87-17-28-F2-01-1F-29-9D-83-2E-CB-9F-B4",
+    "finalBuildSources": "BA-75-29-06-A1-CE-E5-5E-83-DC-2B-73-15-D8-43-FF-A6-C8-82-87-17-28-F2-01-1F-29-9D-83-2E-CB-9F-B4",
+    "agents": 2,
+    "colliders": 297,
+    "pathProbes": 1512,
+    "completePaths": 1308,
+    "removedGrassInstances": 58,
+    "hiddenRenderers": 81,
+    "placements": [
+        {
+            "path": "Aerospace_Forest_Recovery_Station/01_回收发动机检测工位/Recovered_Engine_Inspection",
+            "position": {
+                "x": 29.0,
+                "y": 2.6900110244750978,
+                "z": -22.0
+            },
+            "size": {
+                "x": 23.785629272460939,
+                "y": 12.10687255859375,
+                "z": 24.17041015625
+            }
+        },
+        {
+            "path": "Aerospace_Forest_Recovery_Station/02_遥测供电工位/Tracking_Antenna",
+            "position": {
+                "x": 41.0,
+                "y": 0.7095301151275635,
+                "z": -40.0
+            },
+            "size": {
+                "x": 6.481231689453125,
+                "y": 8.402241706848145,
+                "z": 8.0
+            }
+        },
+        {
+            "path": "Aerospace_Forest_Recovery_Station/02_遥测供电工位/Solar_Power_And_Battery",
+            "position": {
+                "x": 51.0,
+                "y": 0.8374636173248291,
+                "z": -40.0
+            },
+            "size": {
+                "x": 8.5,
+                "y": 3.737793445587158,
+                "z": 6.717254638671875
+            }
+        },
+        {
+            "path": "Aerospace_Forest_Recovery_Station/03_路肩回收区标识/North_Recovery_Marker",
+            "position": {
+                "x": 12.0,
+                "y": 5.8955535888671879,
+                "z": 52.0
+            },
+            "size": {
+                "x": 4.400001525878906,
+                "y": 4.2975616455078129,
+                "z": 2.864654541015625
+            }
+        },
+        {
+            "path": "Aerospace_Forest_Recovery_Station/03_路肩回收区标识/South_Recovery_Marker",
+            "position": {
+                "x": 9.0,
+                "y": 0.2149355709552765,
+                "z": -27.0
+            },
+            "size": {
+                "x": 4.981807708740234,
+                "y": 4.297562122344971,
+                "z": 3.882904052734375
+            }
+        }
+    ]
+}

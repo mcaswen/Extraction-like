@@ -1,0 +1,58 @@
+林间回收检测站 · 场景精修
+日期：2026-10-19
+
+一、打开位置
+正式场景：Assets/Scenes/Scene_DB/Scenezl_Final 1.unity
+Hierarchy 搜索：Aerospace_Forest_Recovery_Station
+选中根节点并按 F 可定位；取消根节点勾选可对比改造前，再勾选恢复。
+该开关同时恢复被遮蔽的旧设备、植被显示和原地表显示，不改变导航。
+备份：UserSettings/SceneBackups/Before_ForestRecovery_20261019.unity
+
+二、完成内容
+1. 大石旁新增回收发动机检测工位：开口喷管、冷却肋、支撑托架、检测头、控制台、样本托盘及工作照明。
+2. 遥测天线与太阳能蓄电模块组成连续工位，替换本区域原来的三组小型设备显示。
+3. 增加两处低位回收标识、三处检修盖板及路外线缆桥架；不新增连续蓝色路面线。
+4. 仅在设备局部清理视线：显示副本去掉 58 个无碰撞草丛实例，81 个渲染器使用可恢复的显示覆盖。
+   81 是渲染器数，包含旧设备、植被及一块相交背景丘块，并非 81 棵树。
+5. 检测头缓慢移动，天线小角度往返，指示灯轻微呼吸；夜间 3 盏无阴影局部工作灯。
+6. 保持现有 160 秒昼夜周期、天空盒、科普界面、背包、箱子搜索、Agent 逻辑和原火箭不变。
+
+三、资源位置与维护
+Unity 资源：Assets/Art/Environment/ForestRecoveryStation/
+可编辑 Blender 源文件：SourceArt/ForestRecoveryStation/ForestRecoveryStation.blend
+建模脚本：tools/art/build_forest_recovery.py
+运行控制：Assets/Scripts/Environment/AerospaceForestStation.cs
+安装工具：Assets/Scripts/Editor/AerospaceForestRecoveryBuilder.cs
+模型为本次原创 Blender 网格；Unity 材质单独适配现有游戏镜头与描边效果。
+四类模型都有三档 LOD，三角面数：
+  发动机工位：57419 / 25018 / 10501
+  供电模块：10996 / 6744 / 5002
+  回收标识：5219 / 2315 / 1239
+  遥测终端：15748 / 6858 / 3178
+不要对已安装的场景再次运行 Install Station；工具会拒绝，以保护人工调整。
+
+四、安全与测试
+两名 Agent、297 个碰撞体、32 个搜索箱数量不变。
+新增对象无碰撞体、刚体、NavMeshObstacle、可交互目标或 UI；排除在导航烘焙之外。
+1512 个路径探针的状态、转角和原导航网格一致，其中 1308 条原本完整，204 条原本不完整；本次没有改变这些既有结果。
+730 个设备占地采样点，与现有可行走网格重叠为 0。
+实际临时局部重新烘焙：开启和关闭新景观均为 189 个三角形，排序后的三角形几何与区域哈希一致。
+TerrainCollider 仍使用原资源；显示副本的高度、洞、地表涂层、细节层及所有有碰撞树实例与源数据保持一致。
+导航源对比将唯一新增的地形显示副本映射回原地形身份；不是声称所有资产引用都未变。实际重烘焙测试另外验证几何一致性。
+delivery-graphics-tests.xml：105 项通过、0 失败，覆盖场景、植被、导航、拾取、首次扫描、未获得锁定、重开过渡及开箱顺序。
+最终细化贴地工作铺面后，正式目录再次运行 formal-scene-tests.xml：44 项通过、0 失败，复验最终资产、导航与显示恢复。这 44 项与上面的场景用例重叠，不应相加称为 149 项不同测试。
+运行环境：Unity 2022.3.62f2c1，独立副本，隔离测试产品名，Metal 图形模式；未使用正式玩家存档。
+最初无图形模式在离屏绘制时发生原生退出，该次没有完成，不计为通过；随后 Metal 完整回归通过。
+已有 Nature/Soft Occlusion 树木警告不是本次新增内容，本次没有修改全项目树木着色器。
+自动测试不替代目标电脑的最终比赛性能测试；本次提供 LOD、共享材质与有限局部灯光控制开销。
+
+五、预览与版本
+station-day.png / station-night.png：同一实际游戏相机配置的昼夜对比。
+comparison-before.png：关闭本次景观后的同角度画面。
+engine-detail.png：模型近景，仅用于检查细节，不代表正常游戏镜头大小。
+installation.json：摆放坐标与导航基线。
+首次验收时仅保存在本地；后续按用户确认，将本次场景、资源、Blender 源文件和验证记录纳入 dev 提交。实际发布状态以 Git 远程记录为准。
+正式场景 SHA-256：03cc9b2425ca3d452aeee5498b9bbb825c7ac210b7c3592817a7030417ccffbc
+修改前备份 SHA-256：876d4aed3614a9fd3a06f21ffd8f7b390cd1d0d52fe952e5fab01b7b6ea69d93
+本次新增资源的 .meta 齐全，未发现新增 GUID 冲突或场景 fileID 重复。
+新增二进制地形显示资源已配置 Git LFS；FBX、Blender 与 PNG 沿用项目已有 LFS 规则。

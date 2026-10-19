@@ -186,6 +186,7 @@ namespace ExtractionLike.Environment
         public void ApplyBindings()
         {
             if (!configured) return;
+            AerospaceForestStation.ReleaseDisplays(gameObject.scene);
             activeProfiles[gameObject.scene.handle] = this;
             if (gradingVolume != null) gradingVolume.enabled = true;
             foreach (RendererBinding binding in rendererBindings)
@@ -201,6 +202,7 @@ namespace ExtractionLike.Environment
             foreach (CameraBinding binding in cameraBindings)
                 if (binding.camera != null) { binding.camera.renderPostProcessing = true; RecordEditorOverride(binding.camera); }
             ApplyPhase(cycle != null && cycle.isActiveAndEnabled ? cycle.CurrentPhase : staticPreviewPhase);
+            AerospaceForestStation.RefreshDisplays(gameObject.scene);
         }
 
         public void ApplyPhase(float phase)
@@ -248,6 +250,7 @@ namespace ExtractionLike.Environment
         public void RestoreBindings()
         {
             if (!configured) return;
+            AerospaceForestStation.ReleaseDisplays(gameObject.scene);
             if (activeProfiles.TryGetValue(gameObject.scene.handle, out var registered) && registered == this)
                 activeProfiles.Remove(gameObject.scene.handle);
             restoring = true;
@@ -277,7 +280,7 @@ namespace ExtractionLike.Environment
                 if (cycle != null && cycle.isActiveAndEnabled && cycle.gameObject.scene.isLoaded)
                     cycle.ApplyPhase(cycle.CurrentPhase);
             }
-            finally { restoring = false; }
+            finally { restoring = false; AerospaceForestStation.RefreshDisplays(gameObject.scene); }
         }
 
         public static bool MaterialsEqual(Material[] a, Material[] b)

@@ -71,7 +71,7 @@ namespace AgentReproduction.Tests
             {
                 Assert.That(binding.styled, Is.Not.SameAs(binding.original));
                 Assert.DoesNotThrow(() => AerospaceSceneLayoutBuilder.AssertPaletteTerrainCopy(binding.original, binding.styled));
-                Assert.That(binding.collider.terrainData, Is.SameAs(binding.terrain.terrainData));
+                Assert.That(AerospaceForestStation.ResolveDisplay(binding.terrain, binding.collider.terrainData), Is.SameAs(binding.terrain.terrainData));
                 Assert.That(AssetDatabase.GetAssetPath(binding.styled), Does.StartWith(AerospaceSceneLayoutBuilder.LightingPaletteAssets + "/Terrain/"));
             }
         }
@@ -112,10 +112,10 @@ namespace AgentReproduction.Tests
         {
             profile.gameObject.SetActive(false);
             foreach (var binding in profile.Renderers)
-                Assert.That(AerospaceLightingVegetationProfile.MaterialsEqual(binding.renderer.sharedMaterials, binding.original), Is.True);
+                Assert.That(AerospaceLightingVegetationProfile.MaterialsEqual(binding.renderer.sharedMaterials, AerospaceForestStation.ResolveMaterials(binding.renderer, binding.original)), Is.True);
             foreach (var binding in profile.Terrains)
             {
-                Assert.That(binding.terrain.terrainData, Is.SameAs(binding.original));
+                Assert.That(binding.terrain.terrainData, Is.SameAs(AerospaceForestStation.ResolveDisplay(binding.terrain, binding.original)));
                 Assert.That(binding.collider.terrainData, Is.SameAs(binding.original));
             }
             foreach (var binding in profile.Cameras) Assert.That(binding.camera.renderPostProcessing, Is.EqualTo(binding.originalPostProcessing));
@@ -124,8 +124,8 @@ namespace AgentReproduction.Tests
             Assert.That(profile.cycle.sunLight.shadows, Is.EqualTo(LightShadows.None));
             profile.gameObject.SetActive(true);
             foreach (var binding in profile.Renderers)
-                Assert.That(AerospaceLightingVegetationProfile.MaterialsEqual(binding.renderer.sharedMaterials, binding.styled), Is.True);
-            foreach (var binding in profile.Terrains) Assert.That(binding.terrain.terrainData, Is.SameAs(binding.styled));
+                Assert.That(AerospaceLightingVegetationProfile.MaterialsEqual(binding.renderer.sharedMaterials, AerospaceForestStation.ResolveMaterials(binding.renderer, binding.styled)), Is.True);
+            foreach (var binding in profile.Terrains) Assert.That(binding.terrain.terrainData, Is.SameAs(AerospaceForestStation.ResolveDisplay(binding.terrain, binding.styled)));
             Assert.That(profile.Cameras.Single().camera.renderPostProcessing, Is.True);
             Assert.That(profile.gradingVolume.enabled, Is.True);
         }
