@@ -22,13 +22,11 @@ namespace Gameplay.Agent.AI.Nodes.Combat
         {
             if (!TryGetAgent(context, out IAgentReadOnly agent))
                 return Fail(BehaviorFailureCode.ConditionFailed, InvalidAgent);
-            if (!TryGetDirective(context, AgentDirectiveType.Engage, out AgentDirectiveRequest directiveRequest))
-                return FailMissingDirective(AgentDirectiveType.Engage);
 
             Memory.Observed = context.Blackboard.TryGetValue(AgentBlackboardKeys.HasVisibleEnemy, out bool visible) && visible;
             Memory.Obstructed = Memory.Shooter != null && Memory.Shooter.LastShotResult == TargetVisibilityResult.Occluded;
             Memory.HasObservedTarget |= Memory.Observed;
-            Memory.InitialManualApproach = AgentManualDirectiveLock.IsManualDirective(directiveRequest) && !Memory.HasObservedTarget;
+            Memory.InitialManualApproach = Memory.IsManualDirective && !Memory.HasObservedTarget;
             if (Memory.Observed && !Memory.Obstructed) Memory.LostSightSince = -1d;
             else if (!Memory.InitialManualApproach && Memory.LostSightSince < 0d) Memory.LostSightSince = context.TimeSeconds;
             Memory.LostSightTimeout = agent is Gameplay.Agent.Core.AgentPawnRoot pawn ? pawn.CombatLostSightTimeout : 2f;

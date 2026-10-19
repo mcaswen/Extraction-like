@@ -1,6 +1,7 @@
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.AI.Memory;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Runtime;
 
 namespace Gameplay.Agent.AI.Nodes.Combat
 {
@@ -25,6 +26,8 @@ namespace Gameplay.Agent.AI.Nodes.Combat
                 Memory.ResetTimers();
             }
 
+            // 帧首读到的指令决定本帧是否按玩家手动交战处理，后面的节点不再重读
+            Memory.IsManualDirective = AgentManualDirectiveLock.IsManualDirective(directiveRequest);
             return Succeed();
         }
     }

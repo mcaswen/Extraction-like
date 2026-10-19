@@ -29,6 +29,7 @@ namespace Gameplay.Agent.AI.Memory
         public int ApproachAgentType;
 
         // 帧内
+        public bool IsManualDirective;
         public global::EnemyHealthController Enemy;
         public AgentCombatShooter Shooter;
         public AgentCombatController Combat;
