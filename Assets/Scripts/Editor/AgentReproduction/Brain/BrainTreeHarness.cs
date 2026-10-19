@@ -58,6 +58,7 @@ namespace AgentReproduction.Brain
     {
         public AgentPawnRoot Pawn;
         public readonly List<Func<string>> Probes = new List<Func<string>>();
+        public readonly List<Action> Cleanups = new List<Action>();
     }
 
     /// <summary>

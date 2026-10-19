@@ -3,6 +3,7 @@ using Core.BehaviorTree.Nodes.Decorators;
 using Gameplay.Agent.AI.Memory;
 using Gameplay.Agent.AI.Nodes;
 using Gameplay.Agent.AI.Nodes.Combat;
+using Gameplay.Agent.AI.Nodes.Search;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Navigation;
@@ -130,6 +131,116 @@ namespace Gameplay.Agent.AI.Trees
                             new ConcludeCombatAction("Combat_Conclude", m)) { DisplayName = "目标已结束" },
                         engage) { DisplayName = "处置" }) { DisplayName = "交战" }) { DisplayName = "交战记忆" };
             return new BehaviorTreeType("CombatTree", root);
+        }
+
+        // 搜索资源：先到达最近的未处理成员（记忆式：到达后不再重复这一段），再在搜索作用域里处理资源。
+        // 搜索记忆在作用域进入时重置，退出时按结果上报完成或离开，中断时上报离开。
+        public static BehaviorTreeType SearchResource()
+        {
+            var approachMemory = new AgentMoveMemory();
+            var s = new AgentSearchMemory();
+            var cluster = new ReactiveSequenceNode(
+                "Search_Cluster",
+                new AgentPredicateCondition("Search_IsCluster", "目标是资源群", _ => s.Form == AgentSearchTargetForm.Cluster),
+                new ResolveNextMemberAction("Search_ResolveNextMember", s),
+                new ReactiveSelectorNode(
+                    "Search_MemberOutcome",
+                    new ReactiveSequenceNode(
+                        "Search_ClusterDone",
+                        new AgentPredicateCondition("Search_NoPendingMember", "群已处理完", _ => s.Resolution == AgentSearchMemberResolution.ClusterDone),
+                        new CompleteSearchAction("Search_CompleteCluster", s)) { DisplayName = "群已处理完" },
+                    new ReactiveSequenceNode(
+                        "Search_MemberUnreachable",
+                        new AgentPredicateCondition("Search_PendingButUnreachable", "成员走不到", _ => s.Resolution == AgentSearchMemberResolution.Unreachable),
+                        new FailDirectiveAction("Search_FailUnreachable", "判定不可达", AgentDirectiveFailure.Unreachable, keepRunning: true)) { DisplayName = "成员不可达" },
+                    new ReactiveSequenceNode(
+                        "Search_CurrentMember",
+                        new SwitchClusterMemberAction("Search_SwitchMember", s),
+                        ProcessMember("Search_ClusterMember", s),
+                        new AfterClusterMemberAction("Search_AfterMember", s)) { DisplayName = "处理当前成员" }) { DisplayName = "成员处理结果" }) { DisplayName = "资源群" };
+
+            var abstractPoint = new ReactiveSequenceNode(
+                "Search_AbstractPoint",
+                new AgentPredicateCondition("Search_IsAbstractPoint", "目标是抽象资源点", _ => s.Form == AgentSearchTargetForm.AbstractPoint),
+                new ResolveAbstractPointAction("Search_ResolveAbstractPoint", s),
+                new MoveToAbstractPointAction("Search_MoveToAbstractPoint", s),
+                new CompleteSearchAction("Search_CompleteAbstractPoint", s)) { DisplayName = "抽象资源点" };
+
+            // 三个形态分支都带守卫：前一个分支失败时不能落到后面的分支（旧节点在这里直接失败）
+            var concrete = new ReactiveSequenceNode(
+                "Search_Concrete",
+                new AgentPredicateCondition("Search_IsConcrete", "目标是具体资源", _ => s.Form == AgentSearchTargetForm.ConcreteObject),
+                new SelectConcreteResourceAction("Search_SelectConcrete", s),
+                ProcessMember("Search_ConcreteMember", s)) { DisplayName = "具体资源" };
+
+            var process = new ScopeDecorator(
+                "Search_Scope",
+                s,
+                new ReactiveSequenceNode(
+                    "Search_Process",
+                    new AgentCanActCondition("Search_CanAct"),
+                    new HoldsDirectiveCondition("Search_HoldsDirective", AgentDirectiveType.Search, AgentTargetKind.None),
+                    new SyncSearchTargetAction("Search_SyncTarget", s),
+                    new ReactiveSelectorNode("Search_ByForm", cluster, abstractPoint, concrete) { DisplayName = "按目标形态" }) { DisplayName = "处理资源" }) { DisplayName = "搜索记忆" };
+
+            var root = new SequenceNode(
+                "Search_Sequence",
+                new ReactiveSequenceNode(
+                    "Search_Approach",
+                    new AgentCanActCondition("Search_Approach_CanAct"),
+                    new HoldsDirectiveCondition("Search_Approach_HoldsDirective", AgentDirectiveType.Search, AgentTargetKind.Resource),
+                    new ResolveDirectiveTargetAction("Search_Approach_ResolveTarget", AgentDirectiveType.Search, AgentTargetKind.Resource, approachMemory),
+                    new MoveToResolvedTargetAction("Search_Approach_Move", AgentBlackboardKeys.InteractionDistance, 1.5f, false, approachMemory))
+                    { DisplayName = "前往资源" },
+                process) { DisplayName = "搜索资源" };
+            return new BehaviorTreeType("SearchResourceTree", root);
+        }
+
+        // 处理一个箱子或地面物品：对象不存在就结束；否则定位、靠近，再按类型检查或等待玩家开关背包
+        private static ReactiveSelectorNode ProcessMember(string prefix, AgentSearchMemory s)
+        {
+            return new ReactiveSelectorNode(
+                prefix,
+                new ReactiveSequenceNode(
+                    prefix + "_Gone",
+                    new AgentPredicateCondition(prefix + "_IsGone", "成员已不存在", _ => s.Member == null),
+                    new EndMemberAction(prefix + "_EndGone", "结束本成员", s)) { DisplayName = "成员已不存在" },
+                new ReactiveSequenceNode(
+                    prefix + "_OnSite",
+                    new LocateMemberAction(prefix + "_Locate", s),
+                    new ApproachMemberAction(prefix + "_Approach", s),
+                    new ReactiveSelectorNode(
+                        prefix + "_ByType",
+                        new ReactiveSequenceNode(
+                            prefix + "_LootBox",
+                            new AgentPredicateCondition(prefix + "_IsLootBox", "是箱子", _ => s.LootBox != null),
+                            new ReactiveSelectorNode(
+                                prefix + "_LootBoxOutcome",
+                                new InspectLootBoxAction(prefix + "_InspectLootBox", s),
+                                WaitForInventory(prefix + "_LootBoxWait", s, true)) { DisplayName = "处理箱子" }) { DisplayName = "箱子" },
+                        new ReactiveSequenceNode(
+                            prefix + "_WorldItem",
+                            new AgentPredicateCondition(prefix + "_IsWorldItem", "是地面物品", _ => s.WorldItem != null),
+                            new ReactiveSelectorNode(
+                                prefix + "_WorldItemOutcome",
+                                new InspectWorldItemAction(prefix + "_InspectWorldItem", s),
+                                WaitForInventory(prefix + "_WorldItemWait", s, false)) { DisplayName = "处理地面物品" }) { DisplayName = "地面物品" },
+                        new EndMemberAction(prefix + "_EndOther", "其他对象直接结束", s)) { DisplayName = "按成员类型" }) { DisplayName = "到场处理" }) { DisplayName = "处理单个成员" };
+        }
+
+        private static ReactiveSequenceNode WaitForInventory(string prefix, AgentSearchMemory s, bool lootBox)
+        {
+            return new ReactiveSequenceNode(
+                prefix,
+                new ReportWaitingForInventoryAction(prefix + "_Report", s, lootBox),
+                new ObserveInventorySessionAction(prefix + "_Observe", s, lootBox),
+                new ReactiveSelectorNode(
+                    prefix + "_Outcome",
+                    new ReactiveSequenceNode(
+                        prefix + "_CapacityBlocked",
+                        new AgentPredicateCondition(prefix + "_IsCapacityBlocked", "背包容量不足", _ => s.SessionCapacityBlocked),
+                        new FinishInventorySessionAction(prefix + "_FinishBlocked", s, lootBox, true)) { DisplayName = "容量不足" },
+                    new FinishInventorySessionAction(prefix + "_FinishClosed", s, lootBox, false)) { DisplayName = "会话结果" }) { DisplayName = "等待背包" };
         }
 
         private static BehaviorTreeType MoveTree(

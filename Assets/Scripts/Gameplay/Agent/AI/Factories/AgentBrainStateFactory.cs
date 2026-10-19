@@ -68,7 +68,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.SearchResource,
                 "SearchResource",
-                AgentLegacyBrainTrees.SearchResource(AgentMacroStateId.SearchResource));
+                AgentBrainTrees.SearchResource());
         }
 
         public AgentBrainState CreateInteractLootState()

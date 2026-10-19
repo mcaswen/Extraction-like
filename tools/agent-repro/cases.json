@@ -1451,6 +1451,14 @@
         "CombatTreeMatchesLegacy(\"NavigationNotReady\")",
         "CombatTreeMatchesLegacy(\"TargetMissing\")",
         "CombatTreeMatchesLegacy(\"CommandSwitch\")",
+        "SearchTreeMatchesLegacy(\"ClusterWorldItems\")",
+        "SearchTreeMatchesLegacy(\"EmptyLootBox\")",
+        "SearchTreeMatchesLegacy(\"LootBoxWithItems\")",
+        "SearchTreeMatchesLegacy(\"LeaveWhileWaiting\")",
+        "SearchTreeMatchesLegacy(\"AbstractPoint\")",
+        "SearchTreeMatchesLegacy(\"DirectWorldItem\")",
+        "SearchTreeMatchesLegacy(\"UnreachableMember\")",
+        "SearchTreeMatchesLegacy(\"AbortWhileWaiting\")",
         "FactoryUsesRefactoredTrees"
       ]
     }

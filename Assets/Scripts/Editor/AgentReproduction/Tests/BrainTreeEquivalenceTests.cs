@@ -11,6 +11,7 @@ using Gameplay.Agent.Combat;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Data;
+using Gameplay.Agent.Navigation;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -24,6 +25,7 @@ namespace AgentReproduction.Tests
         public static string[] NavigateScenarios = { "ArriveAndFinish", "RetargetMidway", "InvalidTarget", "WrongKind", "WrongType", "NoDirective" };
         public static string[] InvestigateScenarios = { "ArriveAndHold", "WrongKind", "InvalidTarget" };
         public static string[] ExtractionScenarios = { "ArriveLeaveReturn", "DirectPoint", "NoPointAtTarget", "WrongKind", "AbortWhileInside" };
+        public static string[] SearchScenarios = { "ClusterWorldItems", "EmptyLootBox", "LootBoxWithItems", "LeaveWhileWaiting", "AbstractPoint", "DirectWorldItem", "UnreachableMember", "AbortWhileWaiting" };
         public static string[] CombatScenarios = { "FireAndKill", "SkillThenShoot", "LostSightTimeout", "ManualApproachBudget", "Unreachable", "ShooterMissing", "NavigationNotReady", "TargetMissing", "CommandSwitch" };
 
         private static AgentDirectiveRequest Move(string id, AgentTargetKind kind, Vector3 position, bool hasPosition = true)
@@ -115,6 +117,156 @@ namespace AgentReproduction.Tests
                 default:
                     steps.Add(new BrainStep("issue", 1, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit")))));
                     steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(ExitPosition + new Vector3(-0.05f, 0, 0))));
+                    break;
+            }
+
+            return steps;
+        }
+
+        private static readonly Vector3 LootA = new Vector3(10, 0, 0);
+        private static readonly Vector3 LootB = new Vector3(10, 0, 3);
+
+        // 搜索：智能体 + 正式背包 + 按场景构建的资源；探针读取交互事件、已搜登记和背包会话
+        private static BrainScenario SearchWorld(TestWorldBuilder world, string scenario)
+        {
+            var scenarioWorld = AgentOnly(world);
+            var pawn = scenarioWorld.Pawn;
+            var screen = InventoryFactory.Create(world);
+            // 背包会话属于焦点智能体，物品交互才会为它打开会话
+            AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent(pawn.AgentIdValue);
+            var members = new List<GameObject>();
+            switch (scenario)
+            {
+                case "EmptyLootBox":
+                case "LootBoxWithItems":
+                    var box = world.Root("Loot box A").AddComponent<LootBoxEntity>();
+                    box.transform.position = LootA;
+                    box.ContainerRows = 3; box.ContainerColumns = 6;
+                    var items = new List<ContainerItemSaveData>();
+                    if (scenario == "LootBoxWithItems")
+                    {
+                        var data = world.Own(ScriptableObject.CreateInstance<InventoryItemData>());
+                        data.ItemID = "equivalence-loot"; data.Width = data.Height = 1;
+                        items.Add(new ContainerItemSaveData { ItemData = data, Amount = 1, X = 0, Y = 0, RuntimeItemId = "equivalence-loot-1" });
+                    }
+                    box.SaveRuntimeState(items, new List<ContainerCellStateSaveData>());
+                    TargetFactory.ResourceBoxes(world, box).gameObject.name = "Equivalence resources";
+                    members.Add(box.gameObject);
+                    break;
+                case "UnreachableMember":
+                    var far = TargetFactory.Resources(world, new Vector3(500, 0, 0));
+                    far.gameObject.name = "Equivalence resources";
+                    far.ResourceMembers[0].EntityObject.name = "Loot A";
+                    members.Add(far.ResourceMembers[0].EntityObject);
+                    break;
+                case "AbstractPoint":
+                    break;
+                default:
+                    var cluster = scenario == "ClusterWorldItems" ? TargetFactory.Resources(world, LootA, LootB) : TargetFactory.Resources(world, LootA);
+                    cluster.gameObject.name = "Equivalence resources";
+                    for (int i = 0; i < cluster.ResourceMembers.Count; i++)
+                    {
+                        cluster.ResourceMembers[i].EntityObject.name = i == 0 ? "Loot A" : "Loot B";
+                        members.Add(cluster.ResourceMembers[i].EntityObject);
+                    }
+                    break;
+            }
+
+            var events = new List<string>();
+            System.Action<AgentResourceInteractionEvent> observe = value =>
+                events.Add(value.Stage + ":" + BrainTrace.Format(value.Resource) + ":" + value.CommandId);
+            AgentResourceInteractionChannel.Published += observe;
+            scenarioWorld.Cleanups.Add(() => AgentResourceInteractionChannel.Published -= observe);
+            scenarioWorld.Cleanups.Add(() => { if (screen.IsInventoryOpen) screen.CloseInventory(); Time.timeScale = 1f; });
+            scenarioWorld.Probes.Add(() =>
+            {
+                string text = "events [" + string.Join(",", events) + "]";
+                events.Clear();
+                return text;
+            });
+            scenarioWorld.Probes.Add(() =>
+            {
+                var searched = new List<string>();
+                foreach (GameObject member in members) searched.Add(member.name + "=" + AgentSearchedResourceRegistry.IsSearched(member));
+                return "searched [" + string.Join(",", searched) + "] inventory open=" + screen.IsInventoryOpen +
+                    " source=" + BrainTrace.Format(screen.ActiveSessionContext?.SourceObject);
+            });
+            return scenarioWorld;
+        }
+
+        private static AgentDirectiveRequest SearchCluster(string id)
+            => new AgentDirectiveRequest(AgentDirectiveType.Search,
+                AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, GameObject.Find("Equivalence resources"), "resources"),
+                commandId: id, resourceSearch: new Gameplay.Targets.Data.ResourceSearchPass());
+
+        private static void Open(string name)
+        {
+            var target = GameObject.Find(name);
+            if (target.TryGetComponent(out LootBoxEntity box)) box.Interact();
+            else target.GetComponent<WorldLootItem>().Interact();
+        }
+
+        private static void Close() => InventoryScreenController.Instance.CloseInventory();
+
+        // 资源停靠点由导航求出，不一定正好是物品位置；搜索脚本把 1 米内都视为到达
+        private static AgentNavigationStatus NearArrival(BrainStepContext s, Vector3 destination)
+        {
+            Vector3 position = s.Pawn.Position;
+            float dx = position.x - destination.x, dz = position.z - destination.z;
+            return dx * dx + dz * dz <= 1f ? AgentNavigationStatus.Arrived : AgentNavigationStatus.Moving;
+        }
+
+        private static List<BrainStep> SearchScript(string scenario)
+        {
+            var steps = new List<BrainStep> { new BrainStep("place", 0, s => { s.PlaceAgent(Vector3.zero); s.Agent.Navigation = (destination, stop) => NearArrival(s, destination); }) };
+            switch (scenario)
+            {
+                case "ClusterWorldItems":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("arrive A", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open A", 1, s => Open("Loot A")));
+                    steps.Add(new BrainStep("close A", 2, s => Close()));
+                    steps.Add(new BrainStep("arrive B", 2, s => s.PlaceAgent(LootB + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open B", 1, s => Open("Loot B")));
+                    steps.Add(new BrainStep("close B", 3, s => Close()));
+                    break;
+                case "EmptyLootBox":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    break;
+                case "LootBoxWithItems":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open", 1, s => Open("Loot box A")));
+                    steps.Add(new BrainStep("close", 3, s => Close()));
+                    break;
+                case "LeaveWhileWaiting":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open", 1, s => Open("Loot A")));
+                    steps.Add(new BrainStep("leave", 2, s => s.PlaceAgent(new Vector3(3, 0, 0))));
+                    steps.Add(new BrainStep("return", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open again", 1, s => Open("Loot A")));
+                    steps.Add(new BrainStep("close", 3, s => Close()));
+                    break;
+                case "AbstractPoint":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(new AgentDirectiveRequest(AgentDirectiveType.Search,
+                        AgentTargetRef.FromAbstractPoint(AgentTargetKind.Resource, "point", LootA), commandId: "Search-1"))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    break;
+                case "DirectWorldItem":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(new AgentDirectiveRequest(AgentDirectiveType.Search,
+                        AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, GameObject.Find("Loot A"), "loot"), commandId: "Search-1"))));
+                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open", 1, s => Open("Loot A")));
+                    steps.Add(new BrainStep("close", 3, s => Close()));
+                    break;
+                case "UnreachableMember":
+                    steps.Add(new BrainStep("issue", 4, s => s.SetDirective(SearchCluster("Search-1"))));
+                    break;
+                default:
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
                     break;
             }
 
@@ -224,7 +376,8 @@ namespace AgentReproduction.Tests
                     BrainScenario scenario = setup(runWorld);
                     yield return null;
                     Physics.SyncTransforms();
-                    traces[variant] = BrainTreeHarness.Run(scenario.Pawn, variant == 0 ? legacy : refactored, script(), scenario.Probes);
+                    try { traces[variant] = BrainTreeHarness.Run(scenario.Pawn, variant == 0 ? legacy : refactored, script(), scenario.Probes); }
+                    finally { foreach (System.Action cleanup in scenario.Cleanups) cleanup(); }
                 }
 
                 // 子弹、技能特效等运行中生成的对象不归场景构建方所有，也要清掉，不能飞进下一个变体
@@ -271,6 +424,26 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator SearchTreeMatchesLegacy([ValueSource(nameof(SearchScenarios))] string scenario)
+        {
+            string[] required;
+            switch (scenario)
+            {
+                case "ClusterWorldItems": required = new[] { "WaitingForInventory:Loot A", "WaitingForInventory:Loot B", "Completed:Loot B", "finish Search-1 None matched=True" }; break;
+                case "EmptyLootBox": required = new[] { "searched [Loot box A=True]", "finish Search-1 None matched=True" }; break;
+                case "LootBoxWithItems": required = new[] { "WaitingForInventory:Loot box A", "finish Search-1 None matched=True" }; break;
+                case "LeaveWhileWaiting": required = new[] { "Left:Loot A", "finish Search-1 None matched=True" }; break;
+                case "AbstractPoint": required = new[] { "finish Search-1 None matched=True" }; break;
+                case "DirectWorldItem": required = new[] { "Completed:Loot A", "finish Search-1 None matched=True" }; break;
+                case "UnreachableMember": required = new[] { "finish Search-1 Unreachable matched=True" }; break;
+                default: required = new[] { "WaitingForInventory:Loot A", "Left:Loot A" }; break;
+            }
+
+            yield return Compare("Search/" + scenario, () => AgentLegacyBrainTrees.SearchResource(AgentMacroStateId.SearchResource), AgentBrainTrees.SearchResource,
+                () => SearchScript(scenario), world => SearchWorld(world, scenario), required);
+        }
+
+        [UnityTest]
         public IEnumerator CombatTreeMatchesLegacy([ValueSource(nameof(CombatScenarios))] string scenario)
         {
             string[] required;
@@ -299,6 +472,7 @@ namespace AgentReproduction.Tests
             Assert.That(factory.CreateInvestigateEnemySourceState().BoundBehaviorTree.RootNode, Is.TypeOf<ReactiveSequenceNode>());
             Assert.That(factory.CreateExtractionState().BoundBehaviorTree.RootNode.GetChild(1), Is.TypeOf<ReactiveSequenceNode>());
             Assert.That(factory.CreateCombatState().BoundBehaviorTree.RootNode, Is.TypeOf<Core.BehaviorTree.Nodes.Decorators.ScopeDecorator>());
+            Assert.That(factory.CreateSearchResourceState().BoundBehaviorTree.RootNode.GetChild(1), Is.TypeOf<Core.BehaviorTree.Nodes.Decorators.ScopeDecorator>());
             ContractCompleted = true;
             yield return null;
         }
