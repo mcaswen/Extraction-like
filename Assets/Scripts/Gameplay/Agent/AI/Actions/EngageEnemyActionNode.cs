@@ -1,3 +1,5 @@
+// 重构前的行为树节点，只作为编辑器里等价对拍的对照，不进入构建
+#if UNITY_EDITOR
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.Animation;
 using Gameplay.Agent.Combat;
@@ -270,3 +272,4 @@ namespace Gameplay.Agent.AI.Actions
         }
     }
 }
+#endif

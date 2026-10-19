@@ -1,5 +1,7 @@
 # Anomaly Search
 
+> **策划案：[《浮槎计划：磐与汐》](策划案.md)**。世界观、玩法、包装方向、宣传方向、核心创新和视频脚本都在这份文档里。
+
 **Anomaly Search** 是 Shine Muscat 团队在 CUC211-AU Interaction Design 中制作的 Unity 游戏项目，工程名为 `Extraction-like`。作品围绕多角色自主行动与搜刮撤离展开：Agent 在岛屿场景中寻找资源、遭遇敌人并执行战斗，玩家通过切换关注角色、指定目标、处理背包和选择成长方向影响局势，最终尝试将战利品带出局。
 
 当前工程已包含双 Agent 主玩法场景、冰／土战斗流派、多种敌人与 Boss、搜刮背包、装备与天赋、撤离结算，以及独立的仓库和图腾商店。场景、美术、音效与制作工具已有较大规模的集成；元素选择到出战阵容、局外配装到再次出战等环节仍需补齐。
@@ -11,7 +13,7 @@
 | 菜单与准备界面 | 主菜单直接进入元素选择 | 准备界面暂时跳过，保留准备界面和商店；设置和强化入口仍为占位 |
 | 岛屿关卡 | 已有集成场景与区域内容 | 包含资源、敌人来源、Boss、撤离点、建筑遮挡与区域连接；保留多份制作和测试场景 |
 | 多角色行动 | 已接入主场景 | 两个 Agent 独立行动，支持焦点切换、指定目标、镜头与背包跟随焦点 |
-| Agent 自主行为 | 已接入发现、指令生命周期与执行链 | 自主和玩家目标统一生成群路线，反击后恢复有效路线，导航失败有界结束；风险评分模块已实现，基础预制体默认关闭 |
+| Agent 自主行为 | 已接入发现、指令生命周期与执行链 | 自主和玩家目标统一生成群路线，反击后恢复有效路线，导航失败有界结束；基础 Agent 预制体默认启用风险评分决策，按地图路程、途经敌群风险和带出价值选择目标与撤离时机 |
 | 地图指挥 | 已接入 Scenezl_Final 1 正式 HUD | 全图可见，矩形 Zone、横竖直边、小地图和 M 图共用状态，自动生成、编辑、逐群执行 |
 | 战斗与敌人 | 已有配置、预制体和运行时行为 | 冰／土两套 Agent 流派、四类特色普通敌人、Hunter Boss，以及基础近战／远程敌人 |
 | 搜刮与背包 | 已接入局内交互 | 固定背包、物品搜索、拖拽、堆叠、快捷转移、整理、装备槽和角色库存切换 |
@@ -52,7 +54,7 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | [Scene_MainMenu](Assets/Scenes/Scene_MainMenu.unity) | 当前主入口，开始游戏后直接进入元素选择 |
 | [Scene_PreparationInterface](Assets/Scenes/Scene_PreparationInterface.unity) | 暂时不接入开始游戏流程；保留商店和元素选择入口，供以后恢复 |
 | [Scene_ElementSelectionMenu](Assets/Scenes/Scene_ElementSelectionMenu.unity) | 五种元素中选择两个，随后载入主玩法场景；阵容接线状态见下文 |
-| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 当前菜单流程使用的地图指挥及搜打撤正式场景，包含 7 个 Zone、28 个静态群、29 条合法直边、两个 Agent、30 个出生配置和两个有效撤离群 |
+| [Scenezl_Final 1](Assets/Scenes/Scene_DB/Scenezl_Final%201.unity) | 当前菜单流程使用的地图指挥及搜打撤正式场景，包含 7 个 Zone、27 个群节点、26 条合法直边、两个 Agent、28 个出生配置和两个有效撤离群 |
 | [Scene_lyl_test2 1](Assets/Scenes/Scene_lyl_test2%201.unity) | 保留的历史 3D Raid 集成场景，不再由正式菜单流程载入 |
 | [ShopCanvasTest](Assets/Scenes/ShopCanvasTest.unity) | 保留的商店场景，包含仓库、交易和返回准备界面的按钮 |
 | [StorageCanvasTest](Assets/Scenes/StorageCanvasTest.unity) | 独立仓库验证场景，未列入当前构建列表 |
@@ -100,7 +102,7 @@ Node 脚本属于可选的内容制作工具，运行现有 Unity 场景不需�
 | 鼠标左键点击世界或地图上的群 | 给焦点 Agent 规划到该群的完整路线，依次处理沿途各群 |
 | `Tab` | 切换焦点 Agent；背包打开时不切换 |
 | `F` | 与附近对象交互；无交互目标时打开背包，背包已打开时关闭 |
-| `I` | 开关背包 |
+| `I` | 在 Console 输出背包容量与 Agent 运行状态（调试） |
 | 拖拽物品 | 调整占格位置、转移物品或放入匹配的装备槽 |
 | `Ctrl` + 左键点击物品 | 在可用容器之间快捷转移 |
 | `P` / `Esc` | 打开或关闭天赋面板 / 关闭天赋面板 |
@@ -141,7 +143,7 @@ flowchart TD
 - 手动资源任务不会被单纯发现敌人覆盖，但有效敌人伤害可中断并反击；零伤害或完全被护盾吸收不打断。
 - 玩家搜索、交战等手动任务以及撤离受有效伤害后挂起，反击期间保持当前有效敌人，结束后继续仍然有效的原目标和原指令。连续受击只保留一份恢复记录，新手动命令、取消或死亡清理旧记录；反击期间已完成的原任务正常结束。
 - 指令接受前检查目标有效性和执行条件；导航丢失、动态断路或持续无进展会终止任务并释放锁。画面顶部显示“指令下达成功”或“指令下达失败：具体原因”，暂停时仍会淡入淡出。
-- 风险评分模块读取实际防御、所有唯一可见风险敌人和具体成员位置，支持当前目标奖励与低血量撤离倾向；基础 Agent 预制体默认未启用该模块。
+- 风险评分决策为基础 Agent 预制体默认启用的自主选择：安装地图路线时，候选距离取作者图路程，风险累计路线途经节点上的存活敌人；撤离按比例计入回程路程与风险，并随携带价值加分。参数集中在 `SO_Agent_DecisionConfig`；关闭该模块时回到保底发现规则。
 
 ### 地图指挥与逐群路线
 
@@ -242,7 +244,7 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 | `Assets/Art` | 83 个 FBX 文件、232 张 PNG／JPG／JPEG 图片、18 个 `.anim`、2 个 Controller、7 个 Override Controller |
 | `Assets/Prefabs` | 128 个预制体，另有 HUD／结算预制体位于 `Resources`；`Resources/HUD` 当前含 3 个预制体，包括指令反馈和地图指挥 |
 | `Assets/SO` | 72 份 `.asset`：52 份物品、7 份敌人、3 份 Agent、3 份 MapGraph（旧图、正式图、主题）、7 份旧 BoardGame 配置 |
-| `Assets/Scenes` | 35 个场景，其中 9 个位于 `Obsolete`；当前构建列表启用 8 个场景 |
+| `Assets/Scenes` | 35 个场景，其中 9 个位于 `Obsolete`；当前构建列表启用 7 个场景 |
 | `Assets/Resources/GameAudio` | 23 个音频文件，包含不同格式版本 |
 | `Assets/Scripts` | 600 个 C# 文件，其中 172 个位于顶层 `Editor`、63 个位于 `Obsolete`；此处为 2026-09-13 盘点 |
 
@@ -305,7 +307,7 @@ Agent 在合法射程和视线内优先尝试就绪技能，再执行普通攻�
 
 当前已有项目自有 NUnit／UnityTest 构造回归，运行器在隔离副本中自动进入真实 Play Mode、运行导航和物理、保存逐例轨迹及正式 HUD 截图。编码 Agent 负责执行和定位，使用方法见 [自动回归说明](tools/agent-repro/README.md)，实际结果见 [修复验收报告](outputs/implementation_validation_report.md)。这些用例覆盖目标、执行与交战的已确认规则，不等于整个产品体验都已自动验收。
 
-2026-09-11 的 F1–F7 / R1–R5 历史矩阵：**75 例 × 3 轮，225/225 通过**；另有 7 个报告层故障构造通过。顶部指令提示已保存 [成功](outputs/feedback/success.png)及 [失败原因](outputs/feedback/failure.png)的正式 prefab 渲染证据。后续目录扩充到 163 例，按修改范围执行，不能把历史 225/225 当作新增用例或整张场景已通过的证据。
+2026-09-11 的 F1–F7 / R1–R5 历史矩阵：**75 例 × 3 轮，225/225 通过**；另有 7 个报告层故障构造通过。顶部指令提示已保存 [成功](outputs/feedback/success.png)及 [失败原因](outputs/feedback/failure.png)的正式 prefab 渲染证据。当前目录为 94 组 718 例（Core 88 组 688 例），按修改范围执行，不能把历史 225/225 当作新增用例或整张场景已通过的证据。
 
 2026-09-12，`Scenezl_Final 1` 的自主搜打撤有限矩阵已完成：七轮全部通过，5 轮双人撤离，2 轮正常战死结局，均通过程序行为、终态和结算核对。4K / High Fidelity、1×完整回合，Editor 平均 95.23 FPS，Player 平均 236.22 FPS。测试只代操作背包，游戏自主决定目标和撤离。配置、证据、修复和未解决限制见 [场景验收报告](outputs/scenezl_final1_validation_report.md)。
 
@@ -361,6 +363,7 @@ ProjectSettings/    Unity 工程与构建设置
 Packages/           包依赖
 ```
 
+- [策划案：《浮槎计划：磐与汐》](策划案.md)：世界观、玩法、包装与宣传方向、核心创新、视频脚本。
 - [Gameplay Agent 框架设计](Assets/Docs/GameplayAgentFrameworkDesign.md)：身份、指令、行为树与跨系统交互。
 - [敌人系统概览](Assets/Docs/EnemySystemOverview.md)：生成、目标群、巡逻、感知和敌人配置。
 - [修复验收报告](outputs/implementation_validation_report.md)：F1–F7 / R1–R5 实现、构造证据、重复结果和覆盖边界。

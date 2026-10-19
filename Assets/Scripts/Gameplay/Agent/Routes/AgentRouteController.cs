@@ -36,6 +36,7 @@ namespace Gameplay.Agent.Routes
         private long _version;
         private bool _disposed;
         private readonly AgentRouteFailureMemory _failures = new AgentRouteFailureMemory();
+        private readonly AgentRouteCostEstimator _estimator = new AgentRouteCostEstimator();
         private double _nextExecutionTick;
         public event Action<AgentRouteResult> ResultPublished;
         public AgentRouteSnapshot Snapshot => new AgentRouteSnapshot(_state, _step?.Snapshot ?? default, _pending?.Request);
@@ -51,6 +52,19 @@ namespace Gameplay.Agent.Routes
                 _environment.Targets.TryGetFacts(node, out var facts) && facts.CanTraverse &&
                 _failures.CanSelect(node, _environment, _agent.Position, Time.realtimeSinceStartupAsDouble);
         }
+
+        /// <summary>自主决策用的只读估算：到目标的作者图路程和途经节点，不改变当前或待规划路线。</summary>
+        public bool TryEstimate(AgentTargetRef target, List<string> nodes, out float length)
+        {
+            length = float.PositiveInfinity;
+            if (_disposed || _agent.IsDead) return false;
+            string lastNode = _state?.Plan != null && _state.Cursor >= 0 && _state.Cursor < _state.Plan.NodeIds.Count
+                ? _state.Plan.NodeIds[_state.Cursor] : null;
+            return _estimator.TryEstimate(_environment, _agent.Position, lastNode, target, nodes, out length);
+        }
+
+        public bool TryCopyAliveEnemies(string nodeId, List<global::EnemyHealthController> results)
+            => !_disposed && _environment?.Targets != null && _environment.Targets.TryCopyAliveEnemies(nodeId, results);
 
         public AgentRouteResult Submit(AgentRouteRequest request)
         {

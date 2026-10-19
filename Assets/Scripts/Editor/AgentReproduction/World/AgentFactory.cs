@@ -36,6 +36,10 @@ namespace AgentReproduction.World
             staging.SetActive(true);
             Assert.That(pawn.Blackboard,Is.Not.Null);
             Assert.That(pawn.NavMeshAgent.isOnNavMesh,Is.True);
+            // 身体要到原生导航首次更新才抬到地面 + baseOffset；同帧受击或下令时瞄准点仍在地面以下，射线会被地板挡住。
+            Assert.That(pawn.NavMeshAgent.Warp(pawn.NavMeshAgent.nextPosition),Is.True);
+            // 项目关闭 autoSyncTransforms：构造后立即同步，同帧的感知、接近和射线查询不读旧碰撞位置。
+            Physics.SyncTransforms();
             return pawn;
         }
     }

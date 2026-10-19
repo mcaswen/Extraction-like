@@ -30,6 +30,9 @@ namespace Core.StateMachine.Runtime
         }
 
         public string StateName { get; }
+
+        /// <summary>状态绑定的行为树；容器状态为空</summary>
+        public BehaviorTreeType BoundBehaviorTree => _boundBehaviorTree;
         public StateMachineState ParentState { get; private set; }
         public StateMachineState InitialChildState => _initialChildState;
 

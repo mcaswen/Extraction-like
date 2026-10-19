@@ -32,6 +32,12 @@ namespace Core.StateMachine.Runtime
 
         public StateMachineState CurrentLeafState { get; private set; }
 
+        /// <summary>根状态，供可视化遍历状态结构</summary>
+        public StateMachineState RootState => _rootState;
+
+        /// <summary>可选观察者；为空时不产生任何通知</summary>
+        public IStateMachineObserver Observer { get; set; }
+
         /// <summary>
         /// 启动状态机，从根状态开始进入默认路径上的状态，直到最底层的一个状态作为当前叶子状态
         /// </summary>
@@ -72,7 +78,7 @@ namespace Core.StateMachine.Runtime
                 PerformTransition(
                     transition.TargetState.ResolveDefaultLeaf(),
                     StateChangeReason.Transition,
-                    transition.Name);
+                    transition);
             }
 
             UpdateActiveStatePath();
@@ -98,7 +104,7 @@ namespace Core.StateMachine.Runtime
             PerformTransition(
                 targetState.ResolveDefaultLeaf(),
                 StateChangeReason.ForceTransition,
-                "ForceTransition");
+                null);
         }
 
         // 设置状态机上下文的时间信息
@@ -120,6 +126,8 @@ namespace Core.StateMachine.Runtime
         private bool TryGetTriggeredTransition(out StateTransition triggeredTransition)
         {
             StateMachineState currentState = CurrentLeafState;
+            IStateMachineObserver observer = Observer;
+            observer?.OnTransitionEvaluationStarted(currentState, _context.TimeSeconds);
 
             while (currentState != null)
             {
@@ -130,7 +138,9 @@ namespace Core.StateMachine.Runtime
                 for (int index = 0; index < currentState.Transitions.Count; index++)
                 {
                     StateTransition transition = currentState.Transitions[index];
-                    if (!transition.CanTransition(_context))
+                    bool satisfied = transition.CanTransition(_context);
+                    observer?.OnTransitionEvaluated(currentState, transition, satisfied);
+                    if (!satisfied)
                     {
                         continue;
                     }
@@ -170,12 +180,14 @@ namespace Core.StateMachine.Runtime
         private void PerformTransition(
             StateMachineState targetLeafState,
             StateChangeReason reason,
-            string transitionName)
+            StateTransition transition)
         {
             if (CurrentLeafState == targetLeafState)
             {
                 return;
             }
+
+            StateMachineState fromLeafState = CurrentLeafState;
 
             _currentPathBuffer.Clear();
             _targetPathBuffer.Clear();
@@ -203,7 +215,8 @@ namespace Core.StateMachine.Runtime
             CurrentLeafState = targetLeafState;
             _context.LogStateEvent(
                 CurrentLeafState.StateName,
-                $"Transitioned via [{transitionName}]");
+                $"Transitioned via [{(transition != null ? transition.Name : "ForceTransition")}]");
+            Observer?.OnTransitionPerformed(fromLeafState, targetLeafState, transition, reason, _context.TimeSeconds);
         }
 
         /// <summary>

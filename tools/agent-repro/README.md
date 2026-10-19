@@ -47,7 +47,7 @@
 | SceneStorage | 8 | 正式掉落写盘重载、异常页和特殊格、保存回滚、结算失败终态、平面物品证据 |
 | SceneTerminal | 4 | 先死亡后撤离、先撤离后死亡、双人同帧和顺序撤离的正式终态 |
 
-清单以 [cases.json](cases.json) 为准，共 132 例。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
+清单以 [cases.json](cases.json) 为准，当前 94 组 718 例；`Risks` 目前没有登记的组，只会运行 Smoke。`-Suite Core`、`Risks` 自动包含 Smoke；`All` 包含全部。图形组根据清单自动启用图形设备，其他组默认 `-nographics`；`-IncludeGraphics` 强制所有选中组保留图形设备。图形测试从真实 Camera/Canvas 导出 PNG，由 Agent 读取检查。
 
 ## 结果与定位
 
@@ -202,3 +202,13 @@ MR03 对应回归组 `MapCommandEditedRoute`，真实资产编辑/保存/卸载�
 G5 隐藏连接修复：Canvas 当前 9 项，增加正式龙骨礁端点的旧方向复现、警示线段/命中一致性、留白/透明/对角/重叠和方向修正 Undo/作者数据保持。真实窗口额外产出 `10-existing-hidden-connection.png`、`11-repaired-existing-connection.png`。本次选择 Canvas（9）、ConnectionSelection（4）、EditOperations（7）、LayoutValidation（21），共 41 项通过，原严格发布几何不放宽；复现前后证据见 [隐藏连接验收](../../outputs/map-grid-authoring/hidden-connections/validation_report.md)。
 
 G4 包含四类几何冲突、中文名称和定位、失败候选诊断上下文，以及 Undo 草稿/工作图隔离。真实窗口在三个入口拒绝同一错误草稿，然后完成合法编辑和发布闭环；证据见 [冲突诊断验收](../../outputs/map-grid-authoring/diagnostics/validation_report.md)。
+
+## 自主对局时长批跑（2026-10-19）
+
+`duration/` 下的脚本在隔离副本里按种子依次运行正式场景的 SceneRaid Autonomous，用来比较决策参数或结构改动对整局节奏的影响。源仓库只读；session 0 只能用 batchmode，脚本在隔离副本内打三处补丁（允许 batchmode、跳过 Game View 配置和渲染帧检查），`-EditsPath` 的实验改动也只写入隔离副本。
+
+- `Invoke-RaidDuration.ps1 -Label <名字> -WorkspaceRoot <隔离根> [-Seeds 5731,...] [-Speed 4] [-ObserveSeconds 480] [-EditsPath edits.json] [-UpmCacheRoot D:\AppCaches\Unity\cache]`：默认种子是 2026-10-18 调参基线的 16 个种子；证据写入 `Logs/RaidDuration/<批次>/run-N/`，`study.json` 记录源提交、种子和实验改动。
+- `Start-RaidDurationDetached.ps1`：参数相同，用 WMI 新建独立进程启动，远程会话断开不影响批跑；进度写入 `Logs/RaidDuration/_launch/<批次>.log`。
+- `Get-RaidDurationSummary.ps1 -Batches <批次1>,<批次2>`：逐局输出状态、有效时长、开箱数、双人结局和带出价值，并给出合并统计。
+
+有效时长 = 游戏秒数 + 7 秒 × 打开背包次数（背包打开时游戏暂停，7 秒补偿玩家处理背包的时间）。session 0 下 batchmode Editor 会卡在退出，脚本在证据写完后结束保留的空闲 Editor。

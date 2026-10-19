@@ -18,7 +18,9 @@ namespace Gameplay.Agent.Decision
             Vector3 targetPosition,
             float distanceSqr,
             global::EnemyHealthController riskEnemy,
-            bool isCurrentTarget)
+            bool isCurrentTarget,
+            bool hasRouteEstimate = false,
+            float routeRisk = 0f)
         {
             DecisionTargetKind = decisionTargetKind;
             DirectiveType = directiveType;
@@ -29,6 +31,8 @@ namespace Gameplay.Agent.Decision
             DistanceSqr = Mathf.Max(0f, distanceSqr);
             RiskEnemy = riskEnemy;
             IsCurrentTarget = isCurrentTarget;
+            HasRouteEstimate = hasRouteEstimate;
+            RouteRisk = Mathf.Max(0f, routeRisk);
         }
 
         public AgentDecisionTargetKind DecisionTargetKind { get; }
@@ -40,6 +44,16 @@ namespace Gameplay.Agent.Decision
         public float DistanceSqr { get; }
         public global::EnemyHealthController RiskEnemy { get; }
         public bool IsCurrentTarget { get; }
+
+        /// <summary>
+        /// 距离来自作者图路程估算，风险已包含途经敌群
+        /// </summary>
+        public bool HasRouteEstimate { get; }
+
+        /// <summary>
+        /// 路线途经节点上存活敌人的风险合计，不含目标敌人本身
+        /// </summary>
+        public float RouteRisk { get; }
         public bool IsValid => DecisionTargetKind != AgentDecisionTargetKind.None && TargetObject != null;
     }
 }

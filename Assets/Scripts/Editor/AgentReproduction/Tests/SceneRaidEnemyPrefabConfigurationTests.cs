@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AgentReproduction.Infrastructure;
+using AgentReproduction.World;
 using AgentReproduction.Reporting;
 using AnomalySearch.Automation.SceneRaid;
 using Gameplay.Targets.Authoring;
@@ -17,6 +18,7 @@ namespace AgentReproduction.Tests
 {
     public sealed class SceneRaidEnemyPrefabConfigurationTests : ReproductionTestFixture
     {
+        private const int AuthoredEnemyCount = FormalSceneFacts.EnemySpawns;
         private const string ScenePath = "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
 
         [TearDown]
@@ -59,7 +61,7 @@ namespace AgentReproduction.Tests
                         invalid.Add(SceneRaidIdentityMap.HierarchyPath(point) + " => " + AssetDatabase.GetAssetPath(prefab));
                 }
             CaseArtifactWriter.Trace("enemy-prefab-slots", "slots=" + slots + "; invalid=" + invalid.Count + "\n" + string.Join("\n", invalid));
-            Assert.That(slots, Is.EqualTo(30), "The original scene's authored enemy count must stay intact.");
+            Assert.That(slots, Is.EqualTo(AuthoredEnemyCount), "The original scene's authored enemy count must stay intact.");
             Assert.That(invalid, Is.Empty, "Enemy slots must reference actual pawns, not another spawner.");
             ContractCompleted = true;
         }
@@ -78,8 +80,8 @@ namespace AgentReproduction.Tests
             int spawnPoints = Object.FindObjectsOfType<EnemySpawnPoint>().Length;
             CaseArtifactWriter.Trace("enemy-registration", "spawnPoints=" + spawnPoints + "; enemies=" + enemies.Length +
                 "; unregistered=" + unregistered.Count + "\n" + string.Join("\n", unregistered));
-            Assert.That(enemies.Length, Is.EqualTo(30));
-            Assert.That(spawnPoints, Is.EqualTo(30), "No extra detached spawners may be created by the authored scene.");
+            Assert.That(enemies.Length, Is.EqualTo(AuthoredEnemyCount));
+            Assert.That(spawnPoints, Is.EqualTo(AuthoredEnemyCount), "No extra detached spawners may be created by the authored scene.");
             Assert.That(unregistered, Is.Empty);
             ContractCompleted = true;
         }

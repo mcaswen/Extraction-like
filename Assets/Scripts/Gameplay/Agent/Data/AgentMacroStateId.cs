@@ -10,7 +10,6 @@ namespace Gameplay.Agent.Data
         Explore = 1,
         Combat = 2,
         SearchResource = 3,
-        InteractLoot = 4,
         Extraction = 5,
         InvestigateEnemySource = 6,
         Navigate = 7

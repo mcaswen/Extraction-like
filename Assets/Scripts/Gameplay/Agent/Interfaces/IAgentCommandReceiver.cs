@@ -46,12 +46,6 @@ namespace Gameplay.Agent.Interfaces
         void SetShouldExtract(bool shouldExtract);
 
         /// <summary>
-        /// 设置Agent是否有可交互的目标
-        /// </summary>
-        /// <param name="hasInteractableTarget"></param>
-        void SetHasInteractableTarget(bool hasInteractableTarget);
-
-        /// <summary>
         /// 提交一个Agent干预请求
         /// 当前阶段只留接口，不在此处固化具体业务逻辑
         /// </summary>

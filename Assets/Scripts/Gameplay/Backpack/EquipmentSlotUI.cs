@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 装备槽控制器
@@ -264,6 +265,19 @@ public class EquipmentSlotUI : MonoBehaviour
         _runtimeState.SyncInternalContainerState(
             LinkedGrid.ExtractSaveData(),
             LinkedGrid.ExtractCellStateData());
+    }
+
+    /// <summary>
+    /// 只读：返回同步后会写入的内部物品，不回写运行时状态
+    /// </summary>
+    public List<ContainerItemSaveData> PeekInternalItems()
+    {
+        if (!HasEquippedItem || EquippedItemState == null)
+            return null;
+
+        return !IsEquipmentKindSlot && LinkedGrid != null
+            ? LinkedGrid.ExtractSaveData()
+            : EquippedItemState.InternalItems;
     }
 
     /// <summary>

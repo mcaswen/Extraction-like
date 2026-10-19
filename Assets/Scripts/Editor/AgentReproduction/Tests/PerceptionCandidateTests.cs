@@ -111,5 +111,22 @@ namespace AgentReproduction.Tests
             yield return null;
             ContractCompleted=true;
         }
+        [UnityTest]
+        public IEnumerator DeadTeammateBodyNoLongerOccludesLineOfSight()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var shooter=AgentFactory.Create(World,"Shooter",Vector3.zero,0,false,false);
+            var fallen=AgentFactory.Create(World,"Fallen",new Vector3(0,0,3),0,false,false);
+            var enemy=EnemyFactory.Passive(World,new Vector3(0,0,6));
+            yield return null;
+            Vector3 origin=CombatAimPointResolver.Resolve(shooter.transform);
+            Assert.That(TargetVisibilityQuery.Check(shooter.transform,origin,enemy.transform,20),Is.EqualTo(TargetVisibilityResult.Occluded),"活着的队友挡在中间");
+            fallen.TakeCombatDamage(999999,fallen.Position,Vector3.zero,null);
+            Assert.That(fallen.IsDead,Is.True);
+            yield return null;
+            // 场景曾因尸体碰撞体挡住锚点上的哨兵，存活角色永远无法清群离开。
+            Assert.That(TargetVisibilityQuery.Check(shooter.transform,origin,enemy.transform,20),Is.EqualTo(TargetVisibilityResult.Visible),"死亡身体不再遮挡");
+            ContractCompleted=true;
+        }
     }
 }

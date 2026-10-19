@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
@@ -35,5 +36,7 @@ namespace Gameplay.Agent.Routes
         bool TryGetFacts(string nodeId, out AgentRouteTargetFacts facts, ResourceSearchPass search = null);
         bool TryCreateProcessingDirective(string nodeId, AgentId agentId, string commandId, int priority,
             out AgentDirectiveRequest directive, out AgentDirectiveFailure failure, ResourceSearchPass search = null);
+        // 只读复制节点上仍存活的敌人，供决策估算路线风险；非敌人节点返回 false。
+        bool TryCopyAliveEnemies(string nodeId, List<global::EnemyHealthController> results);
     }
 }

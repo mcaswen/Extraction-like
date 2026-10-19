@@ -16,7 +16,8 @@ namespace Gameplay.Agent.Decision
             float maxHealth,
             float defense,
             string currentTargetId,
-            IReadOnlyList<global::EnemyHealthController> riskEnemies)
+            IReadOnlyList<global::EnemyHealthController> riskEnemies,
+            int carriedValue = 0)
         {
             AgentPosition = agentPosition;
             Attack = Mathf.Max(1f, attack);
@@ -25,6 +26,7 @@ namespace Gameplay.Agent.Decision
             Defense = Mathf.Max(0f, defense);
             CurrentTargetId = currentTargetId ?? string.Empty;
             RiskEnemies = riskEnemies;
+            CarriedValue = Mathf.Max(0, carriedValue);
         }
 
         public Vector3 AgentPosition { get; }
@@ -34,6 +36,11 @@ namespace Gameplay.Agent.Decision
         public float Defense { get; }
         public string CurrentTargetId { get; }
         public IReadOnlyList<global::EnemyHealthController> RiskEnemies { get; }
+
+        /// <summary>
+        /// 当前携带的可结算物品价值
+        /// </summary>
+        public int CarriedValue { get; }
         public float HealthRatio => MaxHealth <= 0f ? 0f : CurrentHealth / MaxHealth;
     }
 }

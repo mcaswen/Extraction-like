@@ -101,22 +101,29 @@ namespace Gameplay.Agent.Decision
             IAgentReadOnly agent = _pawnRoot;
             IAgentCommandReceiver commandReceiver = _pawnRoot;
 
-            if (AgentManualDirectiveLock.ShouldHoldRoute(agent)) return;
+            if (AgentManualDirectiveLock.ShouldHoldRoute(agent))
+            {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.RouteHeld);
+                return;
+            }
 
             if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent))
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.ManualDirectiveLock);
                 WriteDecisionDisabled(agent, "手动目标指令锁定中");
                 return;
             }
 
             if (AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent))
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.RetaliationLock);
                 WriteDecisionDisabled(agent, "受击反击指令锁定中");
                 return;
             }
 
             if (!_enableDecisionModule || _decisionConfig == null)
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.ModuleDisabled);
                 WriteDecisionDisabled(agent, "决策组件未启用或缺少 AgentDecisionConfig");
                 return;
             }
@@ -127,6 +134,7 @@ namespace Gameplay.Agent.Decision
 
             if (range <= 0f)
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.NoDiscoveryRange);
                 WriteDecisionFailure(agent, decisionContext, 0, 0, "发现范围为 0，清空目标");
                 ClearTargetFacts(commandReceiver);
                 return;
@@ -139,11 +147,16 @@ namespace Gameplay.Agent.Decision
             AgentTargetDecisionService decisionService = GetDecisionService();
             int candidateCount = _decisionCandidateBuffer.Count + _farExitCandidates.Count;
             int riskEnemyCount = _riskEnemyBuffer.Count;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            decisionService.Telemetry = TelemetrySink;
+            TelemetrySink?.BeginRound(Time.timeAsDouble, decisionContext);
+            TelemetrySink?.BeginList(false);
+#endif
             if (!decisionService.TryChooseTarget(
                     decisionContext,
                     _decisionCandidateBuffer,
                     out AgentDecisionResult result) &&
-                !decisionService.TryChooseTarget(decisionContext,_farExitCandidates,out result))
+                !TryChooseFallbackExit(decisionService, decisionContext, out result))
             {
                 WriteDecisionFailure(agent, decisionContext, candidateCount, riskEnemyCount, result.Reason);
                 ClearTargetFacts(commandReceiver);
@@ -152,6 +165,41 @@ namespace Gameplay.Agent.Decision
 
             ApplyDecisionTarget(commandReceiver, result);
             WriteDecisionResult(agent, decisionContext, candidateCount, riskEnemyCount, result);
+        }
+
+        // 主列表没有可选目标时，再在范围外的撤离点里选一次
+        private bool TryChooseFallbackExit(AgentTargetDecisionService decisionService, AgentDecisionContext decisionContext, out AgentDecisionResult result)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            TelemetrySink?.BeginList(true);
+#endif
+            return decisionService.TryChooseTarget(decisionContext, _farExitCandidates, out result);
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>遥测接收器；为空时决策不做任何额外工作</summary>
+        internal IAgentDecisionRoundSink TelemetrySink { get; set; }
+
+        /// <summary>遥测只读访问：评分公式的权重和风险上限</summary>
+        internal AgentDecisionConfig TelemetryConfig => _decisionConfig;
+#endif
+
+        private enum AgentDecisionSkipReasonCode { RouteHeld, ManualDirectiveLock, RetaliationLock, ModuleDisabled, NoDiscoveryRange }
+
+        // 正式构建里是空方法，调用点不需要条件编译
+        [System.Diagnostics.Conditional("UNITY_EDITOR"), System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        private void RecordTelemetrySkip(AgentDecisionSkipReasonCode reason)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            TelemetrySink?.RecordSkip(Time.timeAsDouble, reason switch
+            {
+                AgentDecisionSkipReasonCode.RouteHeld => AgentDecisionSkipReason.RouteHeld,
+                AgentDecisionSkipReasonCode.ManualDirectiveLock => AgentDecisionSkipReason.ManualDirectiveLock,
+                AgentDecisionSkipReasonCode.RetaliationLock => AgentDecisionSkipReason.RetaliationLock,
+                AgentDecisionSkipReasonCode.ModuleDisabled => AgentDecisionSkipReason.ModuleDisabled,
+                _ => AgentDecisionSkipReason.NoDiscoveryRange
+            });
+#endif
         }
 
         private void CacheComponents()
@@ -171,6 +219,8 @@ namespace Gameplay.Agent.Decision
         private readonly List<AgentTargetCandidate> _enemyCandidates=new List<AgentTargetCandidate>();
         private readonly List<AgentTargetCandidate> _worldCandidates=new List<AgentTargetCandidate>();
         private readonly List<AgentDecisionCandidate> _farExitCandidates=new List<AgentDecisionCandidate>();
+        private readonly List<string> _routeNodeBuffer=new List<string>();
+        private readonly List<global::EnemyHealthController> _routeEnemyBuffer=new List<global::EnemyHealthController>();
 
         private void BuildDecisionCandidates(GameplayTargetRegistry targetRegistry, IAgentReadOnly agent, float rangeSqr)
         {
@@ -187,24 +237,49 @@ namespace Gameplay.Agent.Decision
                 _collector.CollectWorldTargets(agent,_clusterBuffer,Mathf.Sqrt(rangeSqr),_worldCandidates);
             }
             string currentTargetId=ResolveCurrentTargetId(agent);
+            AgentDecisionContext riskContext=BuildDecisionContext(agent);
             foreach (var candidate in _enemyCandidates)
             {
                 _riskEnemyBuffer.Add(candidate.Enemy);
                 if (!candidate.CanExecute) continue;
                 string id=ResolveActiveEnemyDecisionTargetId(targetRegistry,(ActiveEnemyClusterAuthoring)candidate.Cluster,candidate.Enemy);
+                float distanceSqr=candidate.DistanceSqr;
+                if (!TryApplyRouteEstimate(riskContext,AgentTargetKind.Enemy,candidate.Member,id,candidate.Enemy,ref distanceSqr,out bool routed,out float routeRisk)) continue;
                 _decisionCandidateBuffer.Add(new AgentDecisionCandidate(AgentDecisionTargetKind.ActiveEnemy,AgentDirectiveType.Engage,
-                    AgentTargetKind.Enemy,id,candidate.Member,candidate.Position,candidate.DistanceSqr,candidate.Enemy,IsCurrentTarget(id,currentTargetId)));
+                    AgentTargetKind.Enemy,id,candidate.Member,candidate.Position,distanceSqr,candidate.Enemy,IsCurrentTarget(id,currentTargetId),routed,routeRisk));
             }
             foreach (var candidate in _worldCandidates)
             {
                 string id=candidate.Cluster.TargetId;
                 bool resource=candidate.Kind==AgentTargetKind.Resource, exit=candidate.Kind==AgentTargetKind.Extraction;
+                GameObject target=resource?candidate.Cluster.gameObject:candidate.Member;
+                float distanceSqr=candidate.DistanceSqr;
+                if (!TryApplyRouteEstimate(riskContext,candidate.Kind,target,id,null,ref distanceSqr,out bool routed,out float routeRisk)) continue;
                 var snapshot=new AgentDecisionCandidate(resource?AgentDecisionTargetKind.Resource:exit?AgentDecisionTargetKind.Extraction:AgentDecisionTargetKind.EnemySource,
                     resource?AgentDirectiveType.Search:exit?AgentDirectiveType.Extract:AgentDirectiveType.MoveTo,candidate.Kind,id,
-                    resource?candidate.Cluster.gameObject:candidate.Member,candidate.Position,candidate.DistanceSqr,null,IsCurrentTarget(id,currentTargetId));
-                if (exit && candidate.DistanceSqr>rangeSqr) _farExitCandidates.Add(snapshot);
+                    target,candidate.Position,distanceSqr,null,IsCurrentTarget(id,currentTargetId),routed,routeRisk);
+                // 有路线估算时出口始终参与评分，由路程惩罚区分远近；否则范围外出口只作后备
+                if (exit && !routed && candidate.DistanceSqr>rangeSqr) _farExitCandidates.Add(snapshot);
                 else _decisionCandidateBuffer.Add(snapshot);
             }
+        }
+
+        // 安装地图路线时，用作者图路程替换直线距离并累计途经敌群风险；图上不可达的候选直接跳过
+        private bool TryApplyRouteEstimate(AgentDecisionContext riskContext, AgentTargetKind kind, GameObject target, string targetId,
+            global::EnemyHealthController ownEnemy, ref float distanceSqr, out bool routed, out float routeRisk)
+        {
+            routed=false; routeRisk=0f;
+            if (!_decisionConfig.UseRouteEstimate || !_pawnRoot.RouteSnapshot.IsInstalled) return true;
+            if (!_pawnRoot.TryEstimateRoute(AgentTargetRef.FromConcreteObject(kind,target,targetId),_routeNodeBuffer,out float length)) return false;
+            routed=true; distanceSqr=length*length;
+            AgentTargetDecisionService decisionService=GetDecisionService();
+            for (int index=0; index<_routeNodeBuffer.Count; index++)
+            {
+                if (!_pawnRoot.TryCopyRouteNodeEnemies(_routeNodeBuffer[index],_routeEnemyBuffer)) continue;
+                foreach (var enemy in _routeEnemyBuffer)
+                    if (enemy!=ownEnemy) routeRisk+=decisionService.CalculateEnemyRisk(riskContext,enemy);
+            }
+            return true;
         }
 
         private AgentDecisionContext BuildDecisionContext(IAgentReadOnly agent)
@@ -213,6 +288,11 @@ namespace Gameplay.Agent.Decision
             if (agent.Blackboard != null)
                 agent.Blackboard.TryGetValue(AgentBlackboardKeys.AttackDamage, out attack);
 
+            int carriedValue = 0;
+            InventoryScreenController inventory = InventoryScreenController.Instance;
+            if (inventory != null)
+                inventory.TryGetCarriedLootSummary(_pawnRoot.AgentId.Value, out _, out carriedValue);
+
             return new AgentDecisionContext(
                 agent.Position,
                 attack,
@@ -220,7 +300,8 @@ namespace Gameplay.Agent.Decision
                 agent.MaxHealth,
                 _pawnRoot.Defense,
                 ResolveCurrentTargetId(agent),
-                _riskEnemyBuffer);
+                _riskEnemyBuffer,
+                carriedValue);
         }
 
         private void ApplyDecisionTarget(
@@ -297,7 +378,6 @@ namespace Gameplay.Agent.Decision
             commandReceiver.SetVisibleEnemy(false);
             commandReceiver.SetHasEnemySourceTarget(false);
             commandReceiver.SetHasResourceTarget(false);
-            commandReceiver.SetHasInteractableTarget(false);
             commandReceiver.SetShouldExtract(false);
             commandReceiver.ClearDirective();
         }

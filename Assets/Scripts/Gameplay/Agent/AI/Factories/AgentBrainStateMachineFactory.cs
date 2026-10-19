@@ -27,7 +27,7 @@ namespace Gameplay.Agent.AI.Factories
 
         /// <summary>
         /// 构建Agent Brain 的 MVP 宏状态机
-        /// 当前版本处理 Explore / Combat / InvestigateEnemySource / SearchResource / InteractLoot / Extraction 六个宏状态
+        /// 当前版本处理 Explore / Combat / InvestigateEnemySource / SearchResource / Extraction / Navigate 六个宏状态
         /// </summary>
         /// <param name="stateMachineContext"></param>
         /// <returns></returns>
@@ -40,7 +40,6 @@ namespace Gameplay.Agent.AI.Factories
             AgentBrainState combatState = _stateFactory.CreateCombatState();
             AgentBrainState investigateEnemySourceState = _stateFactory.CreateInvestigateEnemySourceState();
             AgentBrainState searchResourceState = _stateFactory.CreateSearchResourceState();
-            AgentBrainState interactLootState = _stateFactory.CreateInteractLootState();
             AgentBrainState extractionState = _stateFactory.CreateExtractionState();
             AgentBrainState navigateState = _stateFactory.CreateNavigateState();
 
@@ -52,13 +51,12 @@ namespace Gameplay.Agent.AI.Factories
             raidState.AddChild(combatState);
             raidState.AddChild(investigateEnemySourceState);
             raidState.AddChild(searchResourceState);
-            raidState.AddChild(interactLootState);
             raidState.AddChild(extractionState);
             raidState.AddChild(navigateState);
 
             // 路线锚点移动仍由同一 Brain 执行；命令已切换后可以离开任何旧动作状态。
             foreach (var state in new[] { exploreState, combatState, investigateEnemySourceState,
-                searchResourceState, interactLootState, extractionState })
+                searchResourceState, extractionState })
                 state.AddTransition(new StateTransition("ToNavigate", navigateState, _transitionRules.CanEnterNavigate, 120));
             navigateState.AddTransition(new StateTransition("NavigateToCombat", combatState, _transitionRules.CanEnterCombat, 100));
             navigateState.AddTransition(new StateTransition("NavigateToSource", investigateEnemySourceState, _transitionRules.CanEnterInvestigateEnemySource, 95));
@@ -149,12 +147,6 @@ namespace Gameplay.Agent.AI.Factories
                 100));
 
             searchResourceState.AddTransition(new StateTransition(
-                "SearchResourceToInteractLoot",
-                interactLootState,
-                _transitionRules.CanEnterInteractLoot,
-                90));
-
-            searchResourceState.AddTransition(new StateTransition(
                 "SearchResourceToExtraction",
                 extractionState,
                 _transitionRules.CanEnterExtraction,
@@ -165,31 +157,6 @@ namespace Gameplay.Agent.AI.Factories
                 exploreState,
                 _transitionRules.CanLeaveSearchResourceToExplore,
                 70));
-
-            // InteractLoot 转移
-            interactLootState.AddTransition(new StateTransition(
-                "InteractLootToManualSearchResource",
-                searchResourceState,
-                _transitionRules.CanManualResourceOverrideCurrentState,
-                110));
-
-            interactLootState.AddTransition(new StateTransition(
-                "InteractLootToCombat",
-                combatState,
-                _transitionRules.CanResourceWorkBeInterruptedByCombatDamage,
-                100));
-
-            interactLootState.AddTransition(new StateTransition(
-                "InteractLootToExtraction",
-                extractionState,
-                _transitionRules.CanEnterExtraction,
-                90));
-
-            interactLootState.AddTransition(new StateTransition(
-                "InteractLootToExplore",
-                exploreState,
-                _transitionRules.CanLeaveInteractLootToExplore,
-                80));
 
             // Extraction 转移
             extractionState.AddTransition(new StateTransition(

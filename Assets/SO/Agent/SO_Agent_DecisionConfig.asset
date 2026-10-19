@@ -32,3 +32,7 @@ MonoBehaviour:
   _distancePenaltyWeight: 0.08
   _currentTargetBonus: 12
   _lowHealthExtractionBonus: 72
+  _useRouteEstimate: 1
+  _extractionPenaltyScale: 0.5
+  _carriedValueTarget: 6000
+  _carriedValueExtractionBonus: 80

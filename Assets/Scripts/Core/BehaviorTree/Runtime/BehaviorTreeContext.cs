@@ -18,6 +18,9 @@ namespace Core.BehaviorTree.Runtime
         public float DeltaTime { get; internal set; }
         public double TimeSeconds { get; internal set; }
 
+        /// <summary>结构化节点事件接收器；默认为空，不记录也不分配</summary>
+        public IBehaviorNodeEventSink NodeEventSink { get; set; }
+
         public BehaviorTreeContext(
             BehaviorBlackboard blackboard,
             BehaviorTreeDebugTrace debugTrace = default,
@@ -30,7 +33,16 @@ namespace Core.BehaviorTree.Runtime
 
         public void LogNodeEvent(string nodeName, string message)
         {
-            DebugTrace.AddRecord(TimeSeconds, nodeName, message);
+            DebugTrace?.AddRecord(TimeSeconds, nodeName, message);
+        }
+
+        internal void RecordNodeEvent(
+            Nodes.BehaviorNode node,
+            BehaviorNodeEventKind kind,
+            BehaviorNodeStatus status,
+            BehaviorFailureCode failureCode)
+        {
+            NodeEventSink?.Record(new BehaviorNodeEvent(node, kind, status, failureCode, TickVersion, TimeSeconds));
         }
     }
 }

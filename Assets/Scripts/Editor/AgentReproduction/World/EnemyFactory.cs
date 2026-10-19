@@ -23,6 +23,8 @@ namespace AgentReproduction.World
             if (stationary && instance.TryGetComponent(out UnityEngine.AI.NavMeshAgent navigation))
             { navigation.updatePosition=false; navigation.updateRotation=false; }
             staging.SetActive(true);
+            // 项目关闭 autoSyncTransforms：构造后立即同步，同帧的感知、接近和射线查询不读旧碰撞位置。
+            Physics.SyncTransforms();
             return component;
         }
         public static EnemyHealthController Passive(TestWorldBuilder world, Vector3 position, float maxHealth = 10000)
@@ -34,6 +36,8 @@ namespace AgentReproduction.World
             EnemyHealthController health=root.AddComponent<EnemyHealthController>();
             health.MaxHealth=maxHealth;
             root.SetActive(true);
+            // 项目关闭 autoSyncTransforms：构造后立即同步，同帧的感知、接近和射线查询不读旧碰撞位置。
+            Physics.SyncTransforms();
             return health;
         }
     }

@@ -25,6 +25,11 @@ namespace Gameplay.Agent.Navigation
         private Vector3 _progressTarget;
         private int _areaMask;
         public long PathCalculationCount => _queryBuffer.CalculationCount;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>复制最近一次下发给导航代理的路径拐点，不分配内存；返回拐点数</summary>
+        internal int CopyPathCorners(Vector3[] destination)
+            => _hasQuery && _queryBuffer.Path != null ? _queryBuffer.Path.GetCornersNonAlloc(destination) : 0;
+#endif
         public AgentNavigationMotor(NavMeshAgent agent, float readyTimeout, float progressTimeout)
         {
             _agent = agent; _readyTimeout = readyTimeout; _progressTimeout = progressTimeout;

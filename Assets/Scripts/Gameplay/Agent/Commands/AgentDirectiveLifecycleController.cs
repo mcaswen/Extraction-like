@@ -149,7 +149,6 @@ namespace Gameplay.Agent.Commands
             double now = Time.timeAsDouble;
             board.SetValue(AgentBlackboardKeys.ShouldExtract, request.DirectiveType == AgentDirectiveType.Extract, now);
             board.SetValue(AgentBlackboardKeys.HasResourceTarget, request.DirectiveType == AgentDirectiveType.Search, now);
-            board.SetValue(AgentBlackboardKeys.HasInteractableTarget, false, now);
             board.SetValue(AgentBlackboardKeys.HasEnemySourceTarget, request.TargetRef.Kind == AgentTargetKind.EnemySource, now);
             board.SetValue(AgentBlackboardKeys.HasVisibleEnemy, IsVisible(request), now);
         }

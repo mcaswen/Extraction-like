@@ -305,7 +305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c1b7f2a5d4e4b0e9c2f8147a6d3c521, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enableDecisionModule: 0
+  _enableDecisionModule: 1
   _decisionConfig: {fileID: 11400000, guid: e28f3c6aa7344eec91db7a68148c3fd2, type: 2}
   _pawnRoot: {fileID: 2898261118407030116}
 --- !u!114 &7110605897752205501
@@ -333,7 +333,6 @@ MonoBehaviour:
   _hasVisibleEnemy: 0
   _hasEnemySourceTarget: 0
   _hasResourceTarget: 0
-  _hasInteractableTarget: 0
   _shouldExtract: 0
   _hasPendingDirective: 0
   _decisionModuleEnabled: 0

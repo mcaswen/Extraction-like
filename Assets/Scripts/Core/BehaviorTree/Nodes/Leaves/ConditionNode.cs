@@ -12,6 +12,8 @@ namespace Core.BehaviorTree.Nodes.Leaves
         {
         }
 
+        public override BehaviorNodeKind Kind => BehaviorNodeKind.Condition;
+
         protected sealed override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
             return Evaluate(context)

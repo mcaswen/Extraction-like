@@ -8,9 +8,11 @@ using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Routes;
 using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Binding;
+using Gameplay.MapGraph.Config;
 using Gameplay.Raid;
 using Gameplay.Targets.Authoring;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -131,7 +133,11 @@ namespace AgentReproduction.Tests
             var installers=Object.FindObjectsOfType<RaidMapCommandInstaller>(); Assert.That(installers.Length,Is.EqualTo(1));
             var installer=installers[0];
             yield return RuntimeWait.Until(()=>installer.InstalledAgentCount==2 && installer.Environments.PendingEdgeCount==0,"两名角色的正式成本完成",30);
-            Assert.That(installer.Binding.MapDefinition.Nodes.Count,Is.EqualTo(28));
+            // 与工程中已发布的正式图比对，重新发布地图后不需要同步修改常数。
+            var published=AssetDatabase.LoadAssetAtPath<SO_MapGraphDefinition>("Assets/SO/MapGraph/SO_MapGraphDefinition_Scenezl_Final1.asset");
+            Assert.That(published,Is.Not.Null); Assert.That(published.Nodes.Count,Is.GreaterThan(0));
+            Assert.That(installer.Binding.MapDefinition,Is.SameAs(published));
+            Assert.That(installer.Binding.MapDefinition.Nodes.Count,Is.EqualTo(published.Nodes.Count));
             foreach(var handle in AgentRuntimeRegistry.ActiveInstance.RegisteredAgents)
                 Assert.That(handle.ReadOnly.RouteSnapshot.IsInstalled,Is.True);
             Assert.That(RaidMapCommandInstaller.InstallForScene(installer.gameObject.scene),Is.SameAs(installer));

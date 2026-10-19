@@ -29,6 +29,10 @@ namespace Gameplay.Agent.Combat
         private double _nextAttackTime;
         public bool IsAttackReady(double timeSeconds) => timeSeconds >= _nextAttackTime;
         public void LockAttack(double timeSeconds, float duration) => _nextAttackTime = System.Math.Max(_nextAttackTime, timeSeconds + Mathf.Max(0.05f, duration));
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>遥测只读访问：下次可以攻击的时间</summary>
+        internal double TelemetryNextAttackTime => _nextAttackTime;
+#endif
 
         /// <summary>
         /// 当前使用的战斗风格配置

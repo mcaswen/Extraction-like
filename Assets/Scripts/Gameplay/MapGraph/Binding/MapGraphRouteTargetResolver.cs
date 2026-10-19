@@ -116,6 +116,17 @@ namespace Gameplay.MapGraph.Binding
             return failure == AgentDirectiveFailure.None;
         }
 
+        public bool TryCopyAliveEnemies(string nodeId, List<global::EnemyHealthController> results)
+        {
+            EnsureContext(); results?.Clear();
+            if (results == null || !_nodes.TryGetValue(nodeId ?? string.Empty, out var record)) return false;
+            var target = record.Binding.DirectTarget;
+            var active = target is EnemySourceClusterAuthoring source ? source.ConfiguredActiveEnemyCluster : target as ActiveEnemyClusterAuthoring;
+            if (active == null) return false;
+            active.CopyAliveEnemiesTo(results);
+            return true;
+        }
+
         private bool TryResolveCluster(GameplayTargetClusterAuthoringBase cluster, out string nodeId)
         {
             nodeId = string.Empty;

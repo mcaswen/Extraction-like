@@ -37,7 +37,6 @@ namespace Gameplay.Agent.Runtime
         [SerializeField] private bool _hasVisibleEnemy;
         [SerializeField] private bool _hasEnemySourceTarget;
         [SerializeField] private bool _hasResourceTarget;
-        [SerializeField] private bool _hasInteractableTarget;
         [SerializeField] private bool _shouldExtract;
         [SerializeField] private bool _hasPendingDirective;
 
@@ -114,8 +113,13 @@ namespace Gameplay.Agent.Runtime
 
         private void Awake()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             CacheAgent();
             RefreshDebugView();
+#else
+            // 调试镜像只在编辑器和开发构建中运行，正式构建不读取任何运行时状态
+            enabled = false;
+#endif
         }
 
         private void OnValidate()
@@ -125,13 +129,16 @@ namespace Gameplay.Agent.Runtime
 
         private void OnEnable()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             CacheAgent();
             _refreshTimer = 0f;
             RefreshDebugView();
+#endif
         }
 
         private void Update()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             _refreshTimer += Time.unscaledDeltaTime;
             if (_refreshTimer < _refreshIntervalSeconds)
             {
@@ -140,6 +147,7 @@ namespace Gameplay.Agent.Runtime
 
             _refreshTimer = 0f;
             RefreshDebugView();
+#endif
         }
 
         /// <summary>
@@ -195,7 +203,6 @@ namespace Gameplay.Agent.Runtime
             _hasVisibleEnemy = GetBlackboardValue(AgentBlackboardKeys.HasVisibleEnemy, false);
             _hasEnemySourceTarget = GetBlackboardValue(AgentBlackboardKeys.HasEnemySourceTarget, false);
             _hasResourceTarget = GetBlackboardValue(AgentBlackboardKeys.HasResourceTarget, false);
-            _hasInteractableTarget = GetBlackboardValue(AgentBlackboardKeys.HasInteractableTarget, false);
             _shouldExtract = GetBlackboardValue(AgentBlackboardKeys.ShouldExtract, false);
             _hasPendingDirective = GetBlackboardValue(AgentBlackboardKeys.HasPendingDirective, false);
             _decisionModuleEnabled = GetBlackboardValue(AgentBlackboardKeys.DecisionModuleEnabled, false);
@@ -343,20 +350,11 @@ namespace Gameplay.Agent.Runtime
             if (directiveRequest.DirectiveType == AgentDirectiveType.Search &&
                 targetRef.Kind == AgentTargetKind.Resource)
             {
-                // 搜索资源群时展示当前可达的具体箱子/掉落物，以及实际 NavMesh 停靠点
+                // 搜索资源群时按直线距离展示最近的未处理成员；可达性查询会刷新群状态，调试视图不调用
                 if (TryGetTargetComponent(targetRef, out ResourceClusterAuthoring resourceCluster))
                 {
-                    if (!resourceCluster.TryGetNearestReachableIncompleteResource(
-                            _agent.Position,
-                            _agent.NavMeshAgent,
-                            out concreteTargetObject,
-                            out navigationPosition))
-                    {
-                        return false;
-                    }
-
+                    concreteTargetObject = FindNearestUnprocessedMember(resourceCluster, directiveRequest.ResourceSearch);
                     concreteTargetKind = AgentTargetKind.Resource;
-                    hasNavigationPosition = true;
                     return concreteTargetObject != null;
                 }
 
@@ -370,6 +368,34 @@ namespace Gameplay.Agent.Runtime
             }
 
             return false;
+        }
+
+        private GameObject FindNearestUnprocessedMember(
+            ResourceClusterAuthoring resourceCluster,
+            Gameplay.Targets.Data.ResourceSearchPass search)
+        {
+            GameObject nearest = null;
+            float nearestDistanceSqr = float.MaxValue;
+            var members = resourceCluster.ResourceMembers;
+            for (int index = 0; index < members.Count; index++)
+            {
+                GameObject member = members[index]?.EntityObject;
+                if (member == null || !member.activeInHierarchy)
+                    continue;
+
+                bool processed = search != null ? search.HasProcessed(member) : AgentSearchedResourceRegistry.IsSearched(member);
+                if (processed)
+                    continue;
+
+                float distanceSqr = (member.transform.position - _agent.Position).sqrMagnitude;
+                if (distanceSqr >= nearestDistanceSqr)
+                    continue;
+
+                nearest = member;
+                nearestDistanceSqr = distanceSqr;
+            }
+
+            return nearest;
         }
 
         private string BuildConcreteTargetSummary()
@@ -513,7 +539,6 @@ namespace Gameplay.Agent.Runtime
             _hasVisibleEnemy = false;
             _hasEnemySourceTarget = false;
             _hasResourceTarget = false;
-            _hasInteractableTarget = false;
             _shouldExtract = false;
             _hasPendingDirective = false;
             _decisionModuleEnabled = false;

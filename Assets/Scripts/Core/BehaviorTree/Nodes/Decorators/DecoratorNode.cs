@@ -16,6 +16,13 @@ namespace Core.BehaviorTree.Nodes
             ChildNode = childNode ?? throw new ArgumentNullException(nameof(childNode));
         }
 
+        public override BehaviorNodeKind Kind => BehaviorNodeKind.Decorator;
+
+        public override int ChildCount => 1;
+
+        public override BehaviorNode GetChild(int index)
+            => index == 0 ? ChildNode : throw new ArgumentOutOfRangeException(nameof(index));
+
         protected override void OnAbort(BehaviorTreeContext context)
         {
             ChildNode.Abort(context);

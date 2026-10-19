@@ -164,7 +164,10 @@ namespace AgentReproduction.Tests
             try
             {
                 agent.TakeCombatDamage(10, agent.Position, Vector3.back, attacker.gameObject);
-                if (kind == "Search") target.MarkCompleted();
+                // 玩家指定的搜索带本轮记录：完成以本轮处理为准（关闭背包时登记），仅改群标记不结束有剩余物品的重访。
+                if (kind == "Search")
+                    foreach (var member in ((ResourceClusterAuthoring)target).ResourceMembers)
+                        AgentSearchedResourceRegistry.MarkSearched(member.EntityObject);
                 if (kind == "Extract") original.TargetObject.SetActive(false);
                 attacker.TakeDamage(100000);
                 agent.DirectiveLifecycle.Tick();

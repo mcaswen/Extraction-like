@@ -66,12 +66,6 @@ namespace Gameplay.Agent.Data
             new BlackboardKey("Agent_HasResourceTarget");
 
         /// <summary>
-        /// 当前 Agent 是否有可交互目标
-        /// </summary>
-        public static readonly BlackboardKey HasInteractableTarget =
-            new BlackboardKey("Agent_HasInteractableTarget");
-
-        /// <summary>
         /// 当前 Agent 是否应该进入撤离流程
         /// </summary>
         public static readonly BlackboardKey ShouldExtract =

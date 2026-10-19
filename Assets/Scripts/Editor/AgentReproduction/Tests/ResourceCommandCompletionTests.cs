@@ -7,7 +7,7 @@ using AgentReproduction.Reporting;
 using AgentReproduction.World;
 using Core.BehaviorTree.Debugging;
 using Core.BehaviorTree.Runtime;
-using Gameplay.Agent.AI.Actions;
+using Gameplay.Agent.AI.Trees;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Data;
 using Gameplay.Targets.Input;
@@ -47,8 +47,8 @@ namespace AgentReproduction.Tests
             AgentDirectiveFeedbackChannel.Published += observe;
             try
             {
-                var node = new MoveToTargetActionNode("Resource completion boundary", AgentDirectiveType.Search,
-                    AgentTargetKind.Resource, AgentBlackboardKeys.InteractionDistance, 0);
+                // 正式搜索树的"前往资源"分支：可行动 → 持有搜索指令 → 解析目标点 → 移向目标点
+                var node = AgentBrainTrees.SearchResource().RootNode.GetChild(0);
                 var context = new BehaviorTreeContext(agent.Blackboard, new BehaviorTreeDebugTrace(), agent);
                 node.Execute(context);
                 CaseArtifactWriter.Trace("resource-completion-boundary", change + "; speed=" + speed +

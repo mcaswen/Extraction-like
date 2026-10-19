@@ -30,6 +30,11 @@ namespace Gameplay.Agent.Core
         /// Agent Brain 的共享黑板
         /// </summary>
         public BehaviorBlackboard Blackboard => _blackboard;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>遥测只读访问：状态机和行为树上下文</summary>
+        internal HierarchicalStateMachine StateMachine => _stateMachine;
+        internal BehaviorTreeContext TreeContext => _behaviorTreeContext;
+#endif
 
         /// <summary>
         /// 当前 Brain 宏状态 ID

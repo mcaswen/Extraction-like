@@ -64,6 +64,11 @@ namespace Gameplay.Agent.Core
         private AgentNavigationMotor _navigationMotor;
         public AgentDirectiveLifecycleController DirectiveLifecycle => _directiveLifecycle;
         private AgentRouteController _routeController;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>遥测只读访问：大脑和导航电机</summary>
+        internal AgentBrainController BrainController => _brainController;
+        internal AgentNavigationMotor NavigationMotor => _navigationMotor;
+#endif
         private AgentRouteEnvironment _routeEnvironment;
         public AgentRouteSnapshot RouteSnapshot => _routeController?.Snapshot ?? default;
         public event System.Action<AgentRouteResult> RouteResultPublished;
@@ -439,18 +444,6 @@ namespace Gameplay.Agent.Core
         }
 
         /// <summary>
-        /// 设置Agent当前是否有可交互目标
-        /// </summary>
-        /// <param name="hasInteractableTarget"></param>
-        public void SetHasInteractableTarget(bool hasInteractableTarget)
-        {
-            _brainController.SetFact(
-                AgentBlackboardKeys.HasInteractableTarget,
-                hasInteractableTarget,
-                Time.timeAsDouble);
-        }
-
-        /// <summary>
         /// 设置Agent当前是否应该撤离
         /// </summary>
         /// <param name="shouldExtract"></param>
@@ -479,6 +472,14 @@ namespace Gameplay.Agent.Core
             return _directiveLifecycle.Submit(request);
         }
         public bool CanSelectAutonomousRouteTarget(AgentTargetRef target) => _routeController == null || _routeController.CanSelectAutonomousTarget(target);
+        /// <summary>安装地图路线时估算到目标的作者图路程；未安装或不可达返回 false。</summary>
+        public bool TryEstimateRoute(AgentTargetRef target, System.Collections.Generic.List<string> nodes, out float length)
+        {
+            length = float.PositiveInfinity;
+            return _routeController != null && _routeController.TryEstimate(target, nodes, out length);
+        }
+        public bool TryCopyRouteNodeEnemies(string nodeId, System.Collections.Generic.List<global::EnemyHealthController> results)
+            => _routeController != null && _routeController.TryCopyAliveEnemies(nodeId, results);
         public AgentRouteResult TrySubmitRoute(AgentRouteRequest request)
         {
             if (_routeController != null) return _routeController.Submit(request);
@@ -636,7 +637,6 @@ namespace Gameplay.Agent.Core
             _brainController.SetFact(AgentBlackboardKeys.LastCombatDamageTime, double.NegativeInfinity, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasEnemySourceTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.HasResourceTarget, false, timeSeconds);
-            _brainController.SetFact(AgentBlackboardKeys.HasInteractableTarget, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.ShouldExtract, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.NeedRecovery, false, timeSeconds);
             _brainController.SetFact(AgentBlackboardKeys.MoveSpeed, GetEffectiveMoveSpeed(), timeSeconds);
@@ -798,6 +798,9 @@ namespace Gameplay.Agent.Core
             StopNavMeshForExternalMovement();
             // 死亡身体保留，原生导航必须退出避让，否则会永久占用队友的群锚点。
             if (_navMeshAgent != null) _navMeshAgent.enabled = false;
+            // 身体碰撞体同样会挡住队友的视线和射线，锚点上的敌人因此无法清除。
+            foreach (Collider bodyCollider in GetComponentsInChildren<Collider>(true))
+                bodyCollider.enabled = false;
             _routeController?.Terminate(AgentRouteStage.Dead);
             _directiveLifecycle?.Cancel();
             SyncBodyFactsToBlackboard(timeSeconds);

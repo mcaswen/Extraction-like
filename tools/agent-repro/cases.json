@@ -338,7 +338,8 @@
         "DisconnectedAutonomousTargetIsDeferredUntilTopologyChanges",
         "FailureMemoryUsesWorldChangesAndBoundedCooldownWithoutBlockingManualRequests",
         "UnboundVisibleEnemiesStayInRiskFactsButCannotBecomeRoutes",
-        "CapacityFailureAutomaticallySelectsExitAndLeavesAllBoxRemainders"
+        "CapacityFailureAutomaticallySelectsExitAndLeavesAllBoxRemainders",
+        "DiscoveryChoosesExitByAuthoredRouteNotStraightLine"
       ]
     },
     {
@@ -1028,7 +1029,8 @@
         "KnownAttackerBehindWallIsNotReportedAsVisible",
         "RangeUsesHeightAndTriggersDoNotOcclude",
         "AreaSkillsRespectCastRangeAndDynamicCover",
-        "UnreachableVisibleEnemyDoesNotBlockExecutableCandidate"
+        "UnreachableVisibleEnemyDoesNotBlockExecutableCandidate",
+        "DeadTeammateBodyNoLongerOccludesLineOfSight"
       ]
     },
     {
@@ -1042,6 +1044,18 @@
         "DecisionFindsFarReachableExitWhenNearExitIsDisconnected",
         "FailedAutomaticTargetIsDeferredPerAgentAndMovementAllowsRetry",
         "CapacityDecisionSelectsExitInsteadOfNearbyResource"
+      ]
+    },
+    {
+      "name": "DecisionRoutePacing",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.DecisionRoutePacingTests",
+      "expected": [
+        "RouteEstimateFollowsAuthoredGraphInsteadOfStraightLine",
+        "UnavailableTransitNodeMakesTargetUnreachable",
+        "RouteRiskReplacesStraightLineProximityAndCanRejectResource",
+        "CarriedValueRaisesExtractionAboveNearbyResource",
+        "ExtractionPenaltyScaleLetsLowHealthAgentRetreatToFarExit"
       ]
     },
     {
@@ -1374,6 +1388,123 @@
         "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",False,8)",
         "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",True,1)",
         "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",True,8)"
+      ]
+    },
+    {
+      "name": "DebugReadOnly",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.DebugReadOnlyTests",
+      "expected": [
+        "CarriedLootSummaryReadsLiveGridsWithoutSyncingRuntimeState",
+        "PeriodicDebugViewAvoidsStateChangingQueries"
+      ]
+    },
+    {
+      "name": "BrainTickBenchmark",
+      "suite": "Regression",
+      "filter": "AgentReproduction.Tests.BrainTickBenchmarkTests",
+      "expected": [
+        "BrainTickCostIsRecorded(\"ExploreIdle\")",
+        "BrainTickCostIsRecorded(\"SearchApproach\")",
+        "BrainTickCostIsRecorded(\"CombatCooldown\")",
+        "RefactoredTreeCostComparedWithLegacy(\"SearchApproach\")",
+        "RefactoredTreeCostComparedWithLegacy(\"CombatCooldown\")",
+        "CombatUnitCostsAreRecorded"
+      ]
+    },
+    {
+      "name": "BehaviorTreeLibrary",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.BehaviorTreeLibraryTests",
+      "expected": [
+        "ReactiveSequenceRechecksEarlierChildrenAndAbortsTheRunningLaterChild",
+        "ReactiveSelectorPreemptsTheRunningLowerPriorityChild",
+        "MemoryCompositesKeepTheirOriginalResumeSemantics",
+        "ScopeDecoratorWrapsTheSubtreeLifecycle",
+        "TreeIndexesNodesDepthFirstAndRejectsSharedInstances",
+        "NodeStatusAndEventsAreRecordedWithoutStringTraces",
+        "StateMachineObserverSeesOnlyTheEvaluationsTheMachineMakes"
+      ]
+    },
+    {
+      "name": "BrainTreeEquivalence",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.BrainTreeEquivalenceTests",
+      "expected": [
+        "NavigateTreeMatchesLegacy(\"ArriveAndFinish\")",
+        "NavigateTreeMatchesLegacy(\"RetargetMidway\")",
+        "NavigateTreeMatchesLegacy(\"InvalidTarget\")",
+        "NavigateTreeMatchesLegacy(\"WrongKind\")",
+        "NavigateTreeMatchesLegacy(\"WrongType\")",
+        "NavigateTreeMatchesLegacy(\"NoDirective\")",
+        "InvestigateEnemySourceTreeMatchesLegacy(\"ArriveAndHold\")",
+        "InvestigateEnemySourceTreeMatchesLegacy(\"WrongKind\")",
+        "InvestigateEnemySourceTreeMatchesLegacy(\"InvalidTarget\")",
+        "ExtractionTreeMatchesLegacy(\"ArriveLeaveReturn\")",
+        "ExtractionTreeMatchesLegacy(\"DirectPoint\")",
+        "ExtractionTreeMatchesLegacy(\"NoPointAtTarget\")",
+        "ExtractionTreeMatchesLegacy(\"WrongKind\")",
+        "ExtractionTreeMatchesLegacy(\"AbortWhileInside\")",
+        "ExtractionTreeMatchesLegacy(\"NearestPointSwitch\")",
+        "CombatTreeMatchesLegacy(\"FireAndKill\")",
+        "CombatTreeMatchesLegacy(\"SkillThenShoot\")",
+        "CombatTreeMatchesLegacy(\"LostSightTimeout\")",
+        "CombatTreeMatchesLegacy(\"ManualApproachBudget\")",
+        "CombatTreeMatchesLegacy(\"Unreachable\")",
+        "CombatTreeMatchesLegacy(\"ShooterMissing\")",
+        "CombatTreeMatchesLegacy(\"NavigationNotReady\")",
+        "CombatTreeMatchesLegacy(\"TargetMissing\")",
+        "CombatTreeMatchesLegacy(\"CommandSwitch\")",
+        "SearchTreeMatchesLegacy(\"ClusterWorldItems\")",
+        "SearchTreeMatchesLegacy(\"LootBoxWithItems\")",
+        "SearchTreeMatchesLegacy(\"LeaveWhileWaiting\")",
+        "SearchTreeMatchesLegacy(\"AbstractPoint\")",
+        "SearchTreeMatchesLegacy(\"DirectWorldItem\")",
+        "SearchTreeMatchesLegacy(\"UnreachableMember\")",
+        "SearchTreeMatchesLegacy(\"AbortWhileWaiting\")",
+        "SearchTreeMatchesLegacy(\"TeammateSearchedAhead\")",
+        "SearchTreeMatchesLegacy(\"ArriveAtSearched\")",
+        "SearchTreeMatchesLegacy(\"AllSearchedMidway\")",
+        "SearchTreeMatchesLegacy(\"InvalidWorldItem\")",
+        "SearchTreeMatchesLegacy(\"MemberPickedUp\")",
+        "NodeEventSinkLeavesBehaviorUnchanged(\"Combat\")",
+        "NodeEventSinkLeavesBehaviorUnchanged(\"Search\")",
+        "FactoryUsesRefactoredTrees"
+      ]
+    },
+    {
+      "name": "BrainTelemetry",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.BrainTelemetryTests",
+      "expected": [
+        "DecisionTelemetryMatchesScoringAndLeavesChoiceUnchanged(1.0f)",
+        "DecisionTelemetryMatchesScoringAndLeavesChoiceUnchanged(0.100000001f)",
+        "ApproachProbesDoNotChangeTheChosenPoint(\"Open\")",
+        "ApproachProbesDoNotChangeTheChosenPoint(\"Walled\")",
+        "ApproachProbesDoNotChangeTheChosenPoint(\"Floating\")",
+        "HubRecordsTheLiveBrainAndDetachesCleanly",
+        "TelemetryCodeAvoidsStateChangingCalls"
+      ]
+    },
+    {
+      "name": "BrainPanel",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.BrainPanelTests",
+      "expected": [
+        "PanelStyleMatchesScienceTerminal",
+        "PanelShowsRetaliationOverSuspendedCommand",
+        "PanelOverFinalSceneShowsMapNamesAndRetaliation",
+        "EveryTreeNodeHasAChineseName",
+        "PanelCharactersArePrebakedInScienceFonts"
+      ]
+    },
+    {
+      "name": "TelemetryBuildGating",
+      "suite": "Regression",
+      "filter": "AgentReproduction.Tests.TelemetryBuildGatingTests",
+      "expected": [
+        "ReleaseBuildExcludesTelemetryAndLegacyTrees"
       ]
     }
   ]

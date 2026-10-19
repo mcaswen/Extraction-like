@@ -11,6 +11,7 @@ namespace Gameplay.Agent.AI.Actions
     public sealed class MaintainMacroStateActionNode : ActionNode
     {
         private readonly AgentMacroStateId _macroStateId;
+        private readonly string _macroStateName;
 
         /// <summary>
         /// 创建维持宏状态的行为节点
@@ -21,6 +22,8 @@ namespace Gameplay.Agent.AI.Actions
             : base(nodeName)
         {
             _macroStateId = macroStateId;
+            _macroStateName = macroStateId.ToString();
+            DisplayName = "维持探索状态";
         }
 
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
@@ -34,7 +37,7 @@ namespace Gameplay.Agent.AI.Actions
 
             context.Blackboard.SetValue(
                 AgentBlackboardKeys.CurrentMacroStateName,
-                _macroStateId.ToString(),
+                _macroStateName,
                 context.TimeSeconds);
 
             return Running();

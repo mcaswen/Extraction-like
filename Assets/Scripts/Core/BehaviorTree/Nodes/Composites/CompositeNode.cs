@@ -23,6 +23,12 @@ namespace Core.BehaviorTree.Nodes
             Children.AddRange(children);
         }
 
+        public override BehaviorNodeKind Kind => BehaviorNodeKind.Composite;
+
+        public override int ChildCount => Children.Count;
+
+        public override BehaviorNode GetChild(int index) => Children[index];
+
         /// <summary>
         /// 中断该节点的执行，强制退出当前节点并中断所有子节点
         /// </summary>
