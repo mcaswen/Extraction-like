@@ -44,11 +44,11 @@ namespace AgentReproduction.Brain
             Blackboard.RemoveValue(AgentBlackboardKeys.PendingDirectiveRequest, TimeSeconds);
         }
 
-        /// <summary>把真实智能体瞬移到指定位置并同步物理</summary>
-        public void PlaceAgent(Vector3 position)
+        /// <summary>把真实智能体瞬移到指定地面点并同步物理；Warp 直接写入身体位置，需要自己加上导航基准偏移</summary>
+        public void PlaceAgent(Vector3 groundPosition)
         {
             var nav = Pawn.NavMeshAgent;
-            nav.Warp(position);
+            nav.Warp(groundPosition + Vector3.up * nav.baseOffset * Pawn.transform.lossyScale.y);
             Physics.SyncTransforms();
         }
     }
