@@ -1,7 +1,7 @@
 ﻿# 汇总一个或多个时长批次：逐局输出状态、有效时长、开箱数、双人结局和带出价值，并给出合并统计。
 param([Parameter(Mandatory = $true)][string[]]$Batches)
 $ErrorActionPreference = 'Stop'
-$source = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$source = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $root = Join-Path $source 'Logs\RaidDuration'
 $prices = $null
 $all = @()

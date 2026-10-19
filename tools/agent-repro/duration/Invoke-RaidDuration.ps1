@@ -15,7 +15,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 # SSH 会话位于 Windows session 0，无法穿过用户 %LOCALAPPDATA%\Unity\cache 的 junction，需要直接指定其目标目录。
 if ($UpmCacheRoot) { $env:UPM_CACHE_ROOT = $UpmCacheRoot }
-$source = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$source = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $seedList = @($Seeds.Split(',') | Where-Object { $_.Trim() } | ForEach-Object { [int]$_.Trim() })
 if (!$seedList.Count) { throw 'No seeds.' }
 if (!$Batch) { $Batch = 'dur-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + $Label }

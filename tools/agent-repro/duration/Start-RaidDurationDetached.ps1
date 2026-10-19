@@ -10,7 +10,7 @@ param(
     [string]$UpmCacheRoot = ''
 )
 $ErrorActionPreference = 'Stop'
-$source = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$source = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $batch = 'dur-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + $Label
 $stage = Join-Path $source 'Logs\RaidDuration\_launch'
 New-Item -ItemType Directory -Path $stage -Force | Out-Null
