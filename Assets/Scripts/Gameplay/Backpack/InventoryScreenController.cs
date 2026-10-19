@@ -159,7 +159,7 @@ public class InventoryScreenController : MonoBehaviour
 
         if (IsLiveInventoryAgent(normalizedAgentId))
         {
-            return TryGetCurrentInventoryRevenue(out lootItemCount, out totalValue);
+            return TryAccumulateLiveCarriedLoot(ref lootItemCount, ref totalValue);
         }
 
         if (!_inventorySnapshotsByAgentId.TryGetValue(normalizedAgentId, out CharacterInventorySnapshot snapshot))
@@ -169,6 +169,53 @@ public class InventoryScreenController : MonoBehaviour
 
         AccumulateExtractionInventorySummary(snapshot, ref lootItemCount, ref totalValue);
         return true;
+    }
+
+    // 与 CreateCharacterInventorySnapshot + AccumulateExtractionInventorySummary 计数一致，但直接读网格，不同步运行时状态
+    private bool TryAccumulateLiveCarriedLoot(ref int lootItemCount, ref int totalValue)
+    {
+        if (BackpackSlot == null &&
+            BackpackGrid == null &&
+            RigSlot == null &&
+            TacticalRigGrid == null &&
+            HeadSlot == null &&
+            BodySlot == null &&
+            FaceSlot == null &&
+            HeadphoneSlot == null &&
+            TotemSlotA == null &&
+            TotemSlotB == null)
+        {
+            return false;
+        }
+
+        if (BackpackSlot != null && BackpackSlot.HasEquippedItem && BackpackSlot.EquippedItemState != null)
+            AccumulateExtractionItems(BackpackSlot.PeekInternalItems(), ref lootItemCount, ref totalValue);
+        else if (BackpackGrid != null)
+            AccumulateExtractionItems(BackpackGrid.ExtractSaveData(), ref lootItemCount, ref totalValue);
+
+        AccumulateLiveSlotLoot(HeadSlot, ref lootItemCount, ref totalValue);
+        AccumulateLiveSlotLoot(BodySlot, ref lootItemCount, ref totalValue);
+        AccumulateLiveSlotLoot(FaceSlot, ref lootItemCount, ref totalValue);
+        AccumulateLiveSlotLoot(HeadphoneSlot, ref lootItemCount, ref totalValue);
+        AccumulateLiveSlotLoot(TotemSlotA, ref lootItemCount, ref totalValue);
+        AccumulateLiveSlotLoot(TotemSlotB, ref lootItemCount, ref totalValue);
+        return true;
+    }
+
+    private static void AccumulateLiveSlotLoot(EquipmentSlotUI slot, ref int lootItemCount, ref int totalValue)
+    {
+        if (slot == null || !slot.HasEquippedItem || slot.EquippedItemState == null)
+            return;
+
+        InventoryItemData itemData = slot.EquippedItemState.ItemData;
+        if (itemData != null && !IsContainerItem(itemData.Type))
+        {
+            int amount = Mathf.Max(1, slot.EquippedItemState.Amount);
+            lootItemCount += amount;
+            totalValue += Mathf.Max(0, itemData.SellPrice) * amount;
+        }
+
+        AccumulateExtractionItems(slot.PeekInternalItems(), ref lootItemCount, ref totalValue);
     }
 
     private bool TryGetCurrentInventoryRevenue(out int lootItemCount, out int totalValue)

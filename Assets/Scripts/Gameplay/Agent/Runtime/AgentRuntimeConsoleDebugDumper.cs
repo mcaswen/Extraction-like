@@ -35,6 +35,8 @@ namespace Gameplay.Agent.Runtime
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsureRuntimeDumper()
         {
+            // 调试输出只在编辑器和开发构建中提供
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (_activeInstance != null)
                 return;
 
@@ -44,6 +46,7 @@ namespace Gameplay.Agent.Runtime
 
             GameObject dumperObject = new GameObject("[AgentRuntimeConsoleDebugDumper]");
             _activeInstance = dumperObject.AddComponent<AgentRuntimeConsoleDebugDumper>();
+#endif
         }
 
         private void Awake()
@@ -77,7 +80,13 @@ namespace Gameplay.Agent.Runtime
         [ContextMenu("Dump All Agents")]
         public void DumpAllAgents()
         {
-            AgentRuntimeRegistry registry = AgentRuntimeRegistry.GetOrCreate();
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+            if (registry == null)
+            {
+                Debug.Log("[AgentDebugDump] no agent registry");
+                return;
+            }
+
             registry.CopyHandlesTo(_agentBuffer);
 
             _builder.Clear();

@@ -1389,6 +1389,15 @@
         "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",True,1)",
         "FirstRepeatedAndBurstCommandsHaveMeasuredCost(\"Extraction\",True,8)"
       ]
+    },
+    {
+      "name": "DebugReadOnly",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.DebugReadOnlyTests",
+      "expected": [
+        "CarriedLootSummaryReadsLiveGridsWithoutSyncingRuntimeState",
+        "PeriodicDebugViewAvoidsStateChangingQueries"
+      ]
     }
   ]
 }
