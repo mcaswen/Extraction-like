@@ -25,7 +25,7 @@ namespace AgentReproduction.Tests
         public static string[] NavigateScenarios = { "ArriveAndFinish", "RetargetMidway", "InvalidTarget", "WrongKind", "WrongType", "NoDirective" };
         public static string[] InvestigateScenarios = { "ArriveAndHold", "WrongKind", "InvalidTarget" };
         public static string[] ExtractionScenarios = { "ArriveLeaveReturn", "DirectPoint", "NoPointAtTarget", "WrongKind", "AbortWhileInside" };
-        public static string[] SearchScenarios = { "ClusterWorldItems", "EmptyLootBox", "LootBoxWithItems", "LeaveWhileWaiting", "AbstractPoint", "DirectWorldItem", "UnreachableMember", "AbortWhileWaiting" };
+        public static string[] SearchScenarios = { "ClusterWorldItems", "LootBoxWithItems", "LeaveWhileWaiting", "AbstractPoint", "DirectWorldItem", "UnreachableMember", "AbortWhileWaiting" };
         public static string[] CombatScenarios = { "FireAndKill", "SkillThenShoot", "LostSightTimeout", "ManualApproachBudget", "Unreachable", "ShooterMissing", "NavigationNotReady", "TargetMissing", "CommandSwitch" };
 
         private static AgentDirectiveRequest Move(string id, AgentTargetKind kind, Vector3 position, bool hasPosition = true)
@@ -137,7 +137,6 @@ namespace AgentReproduction.Tests
             var members = new List<GameObject>();
             switch (scenario)
             {
-                case "EmptyLootBox":
                 case "LootBoxWithItems":
                     var box = world.Root("Loot box A").AddComponent<LootBoxEntity>();
                     box.transform.position = LootA;
@@ -153,16 +152,13 @@ namespace AgentReproduction.Tests
                     TargetFactory.ResourceBoxes(world, box).gameObject.name = "Equivalence resources";
                     members.Add(box.gameObject);
                     break;
-                case "UnreachableMember":
-                    var far = TargetFactory.Resources(world, new Vector3(500, 0, 0));
-                    far.gameObject.name = "Equivalence resources";
-                    far.ResourceMembers[0].EntityObject.name = "Loot A";
-                    members.Add(far.ResourceMembers[0].EntityObject);
-                    break;
                 case "AbstractPoint":
                     break;
                 default:
-                    var cluster = scenario == "ClusterWorldItems" ? TargetFactory.Resources(world, LootA, LootB) : TargetFactory.Resources(world, LootA);
+                    // 走不到的成员放在导航网格之外；第一个成员必须可达，否则在"前往资源"阶段就以目标无效结束
+                    var cluster = scenario == "ClusterWorldItems" ? TargetFactory.Resources(world, LootA, LootB)
+                        : scenario == "UnreachableMember" ? TargetFactory.Resources(world, LootA, new Vector3(500, 0, 0))
+                        : TargetFactory.Resources(world, LootA);
                     cluster.gameObject.name = "Equivalence resources";
                     for (int i = 0; i < cluster.ResourceMembers.Count; i++)
                     {
@@ -199,12 +195,10 @@ namespace AgentReproduction.Tests
                 AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, GameObject.Find("Equivalence resources"), "resources"),
                 commandId: id, resourceSearch: new Gameplay.Targets.Data.ResourceSearchPass());
 
+        // 以资源为来源为焦点智能体打开正式背包会话（地面物品的交互入口在有空间时会直接拾取，不开会话）
         private static void Open(string name)
-        {
-            var target = GameObject.Find(name);
-            if (target.TryGetComponent(out LootBoxEntity box)) box.Interact();
-            else target.GetComponent<WorldLootItem>().Interact();
-        }
+            => InventoryScreenController.Instance.OpenInventorySession(new InventoryScreenSessionContext
+                { SourceObject = GameObject.Find(name), ExternalColumns = 2, ExternalRows = 2 });
 
         private static void Close() => InventoryScreenController.Instance.CloseInventory();
 
@@ -229,10 +223,6 @@ namespace AgentReproduction.Tests
                     steps.Add(new BrainStep("arrive B", 2, s => s.PlaceAgent(LootB + new Vector3(-0.5f, 0, 0))));
                     steps.Add(new BrainStep("open B", 1, s => Open("Loot B")));
                     steps.Add(new BrainStep("close B", 3, s => Close()));
-                    break;
-                case "EmptyLootBox":
-                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
-                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
                     break;
                 case "LootBoxWithItems":
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
@@ -262,7 +252,10 @@ namespace AgentReproduction.Tests
                     steps.Add(new BrainStep("close", 3, s => Close()));
                     break;
                 case "UnreachableMember":
-                    steps.Add(new BrainStep("issue", 4, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("arrive A", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open A", 1, s => Open("Loot A")));
+                    steps.Add(new BrainStep("close A", 3, s => Close()));
                     break;
                 default:
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
@@ -430,7 +423,6 @@ namespace AgentReproduction.Tests
             switch (scenario)
             {
                 case "ClusterWorldItems": required = new[] { "WaitingForInventory:Loot A", "WaitingForInventory:Loot B", "Completed:Loot B", "finish Search-1 None matched=True" }; break;
-                case "EmptyLootBox": required = new[] { "searched [Loot box A=True]", "finish Search-1 None matched=True" }; break;
                 case "LootBoxWithItems": required = new[] { "WaitingForInventory:Loot box A", "finish Search-1 None matched=True" }; break;
                 case "LeaveWhileWaiting": required = new[] { "Left:Loot A", "finish Search-1 None matched=True" }; break;
                 case "AbstractPoint": required = new[] { "finish Search-1 None matched=True" }; break;

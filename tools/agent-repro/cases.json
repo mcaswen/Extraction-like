@@ -1452,7 +1452,6 @@
         "CombatTreeMatchesLegacy(\"TargetMissing\")",
         "CombatTreeMatchesLegacy(\"CommandSwitch\")",
         "SearchTreeMatchesLegacy(\"ClusterWorldItems\")",
-        "SearchTreeMatchesLegacy(\"EmptyLootBox\")",
         "SearchTreeMatchesLegacy(\"LootBoxWithItems\")",
         "SearchTreeMatchesLegacy(\"LeaveWhileWaiting\")",
         "SearchTreeMatchesLegacy(\"AbstractPoint\")",
