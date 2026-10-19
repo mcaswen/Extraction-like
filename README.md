@@ -1,5 +1,7 @@
 # Anomaly Search
 
+> **策划案：[《浮槎计划：磐与汐》](策划案.md)**。世界观、玩法、包装方向、宣传方向、核心创新和视频脚本都在这份文档里。
+
 **Anomaly Search** 是 Shine Muscat 团队在 CUC211-AU Interaction Design 中制作的 Unity 游戏项目，工程名为 `Extraction-like`。作品围绕多角色自主行动与搜刮撤离展开：Agent 在岛屿场景中寻找资源、遭遇敌人并执行战斗，玩家通过切换关注角色、指定目标、处理背包和选择成长方向影响局势，最终尝试将战利品带出局。
 
 当前工程已包含双 Agent 主玩法场景、冰／土战斗流派、多种敌人与 Boss、搜刮背包、装备与天赋、撤离结算，以及独立的仓库和图腾商店。场景、美术、音效与制作工具已有较大规模的集成；元素选择到出战阵容、局外配装到再次出战等环节仍需补齐。
@@ -361,6 +363,7 @@ ProjectSettings/    Unity 工程与构建设置
 Packages/           包依赖
 ```
 
+- [策划案：《浮槎计划：磐与汐》](策划案.md)：世界观、玩法、包装与宣传方向、核心创新、视频脚本。
 - [Gameplay Agent 框架设计](Assets/Docs/GameplayAgentFrameworkDesign.md)：身份、指令、行为树与跨系统交互。
 - [敌人系统概览](Assets/Docs/EnemySystemOverview.md)：生成、目标群、巡逻、感知和敌人配置。
 - [修复验收报告](outputs/implementation_validation_report.md)：F1–F7 / R1–R5 实现、构造证据、重复结果和覆盖边界。
