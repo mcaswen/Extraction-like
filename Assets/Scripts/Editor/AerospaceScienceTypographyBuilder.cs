@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using ExtractionLike.Aerospace;
+using Gameplay.MapGraph.Config;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -17,7 +19,8 @@ public static class AerospaceScienceTypographyBuilder
         var presentation = AssetDatabase.LoadAssetAtPath<AerospacePresentationAssets>("Assets/Resources/Aerospace/Presentation.asset");
         if (presentation == null || presentation.bodyFont == null || presentation.headingFont == null) throw new InvalidOperationException("Missing science UI source fonts.");
         string characters = File.ReadAllText("Assets/Resources/Aerospace/PartsCatalog.json")
-            + string.Join("", Directory.GetFiles("Assets/Scripts/Gameplay/Aerospace", "*.cs").Select(File.ReadAllText));
+            + string.Join("", Directory.GetFiles("Assets/Scripts/Gameplay/Aerospace", "*.cs").Select(File.ReadAllText))
+            + BrainPanelCharacters();
         characters = new string(characters.Where(c => c >= 32).Distinct().ToArray());
         presentation.inspectionBody = FontAsset(presentation.bodyFont, folder + "/ScienceBody.asset", characters, 2048);
         presentation.inspectionHeading = FontAsset(presentation.headingFont, folder + "/ScienceHeading.asset", characters, 2048);
@@ -28,6 +31,29 @@ public static class AerospaceScienceTypographyBuilder
         EditorUtility.SetDirty(presentation); AssetDatabase.SaveAssets();
         Debug.Log("SCIENCE_TYPOGRAPHY_PASS: three private SDF font assets; no global TMP settings or scene changes.");
     }
+    /// <summary>
+    /// 大脑面板和现场导演会显示的字符：遥测目录（含面板）、行为树目录（节点中文名写在树构建代码里）、导演目录，以及地图定义里的区域名
+    /// </summary>
+    public static string BrainPanelCharacters()
+    {
+        var text = new StringBuilder();
+        foreach (string folder in new[] { "Assets/Scripts/Gameplay/Agent/Telemetry", "Assets/Scripts/Gameplay/Agent/AI", "Assets/Scripts/Gameplay/Demo" })
+        {
+            if (!Directory.Exists(folder)) continue;
+            foreach (string file in Directory.GetFiles(folder, "*.cs", SearchOption.AllDirectories)) text.Append(File.ReadAllText(file));
+        }
+
+        foreach (string guid in AssetDatabase.FindAssets("t:" + nameof(SO_MapGraphDefinition)))
+        {
+            var map = AssetDatabase.LoadAssetAtPath<SO_MapGraphDefinition>(AssetDatabase.GUIDToAssetPath(guid));
+            if (map == null) continue;
+            foreach (var zone in map.Zones)
+                if (zone != null) text.Append(zone.DisplayName);
+        }
+
+        return text.ToString();
+    }
+
     private static TMP_FontAsset FontAsset(Font source, string path, string characters, int size)
     {
         var asset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);

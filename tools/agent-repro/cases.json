@@ -1487,6 +1487,18 @@
       ]
     },
     {
+      "name": "BrainPanel",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.BrainPanelTests",
+      "expected": [
+        "PanelStyleMatchesScienceTerminal",
+        "PanelShowsRetaliationOverSuspendedCommand",
+        "EveryTreeNodeHasAChineseName",
+        "PanelCharactersArePrebakedInScienceFonts"
+      ]
+    },
+    {
       "name": "TelemetryBuildGating",
       "suite": "Regression",
       "filter": "AgentReproduction.Tests.TelemetryBuildGatingTests",

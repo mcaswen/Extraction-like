@@ -4,6 +4,7 @@ using Core.BehaviorTree.Nodes.Decorators;
 using Core.StateMachine.Runtime;
 using Gameplay.Agent.AI.Memory;
 using Gameplay.Agent.Combat;
+using Gameplay.Agent.Commands;
 using Gameplay.Agent.Core;
 using Gameplay.Agent.Decision;
 using Gameplay.Agent.Navigation;
@@ -21,6 +22,7 @@ namespace Gameplay.Agent.Telemetry
         public const int TransitionCapacity = 64;
         public const int RoundCapacity = 8;
         public const int PathCornerCapacity = 64;
+        public const int TimelineCapacity = 64;
 
         private readonly StateMachineState[] _evaluatedOwners = new StateMachineState[EvaluationCapacity];
         private readonly StateTransition[] _evaluatedTransitions = new StateTransition[EvaluationCapacity];
@@ -28,6 +30,11 @@ namespace Gameplay.Agent.Telemetry
         private readonly AgentStateTransitionRecord[] _transitions = new AgentStateTransitionRecord[TransitionCapacity];
         private readonly AgentDecisionRoundRecord[] _rounds = new AgentDecisionRoundRecord[RoundCapacity];
         private readonly Vector3[] _pathCorners = new Vector3[PathCornerCapacity];
+        private readonly AgentBrainTimelineEntry[] _timeline = new AgentBrainTimelineEntry[TimelineCapacity];
+        private readonly System.Action<AgentDirectiveResult> _directiveHandler;
+        private int _timelineNext;
+        private AgentDirectiveLifecycleController _lifecycle;
+        private GameObject _lastChosenTarget;
         private int _transitionNext;
         private int _roundNext;
         private bool _fallbackList;
@@ -38,6 +45,7 @@ namespace Gameplay.Agent.Telemetry
         {
             Pawn = pawn;
             for (int index = 0; index < RoundCapacity; index++) _rounds[index] = new AgentDecisionRoundRecord();
+            _directiveHandler = OnDirectiveResult;
         }
 
         public AgentPawnRoot Pawn { get; }
@@ -59,6 +67,15 @@ namespace Gameplay.Agent.Telemetry
         public AgentDecisionSkipReason LastSkip { get; private set; }
         public double LastSkipTime { get; private set; } = double.NegativeInfinity;
         public int PathCornerCount { get; private set; }
+        public int TimelineCount { get; private set; }
+        public long TimelineTotal { get; private set; }
+
+        /// <summary>本帧行为树上下文的推进序号；节点的 LastTickVersion 等于它时表示本帧运行过</summary>
+        public int TreeTickVersion { get; private set; }
+        public double TreeTimeSeconds { get; private set; }
+
+        /// <summary>评分配置；智能体没有决策模块时为空</summary>
+        public AgentDecisionConfig DecisionConfig => _decisionController != null ? _decisionController.TelemetryConfig : null;
 
         public StateMachineState GetEvaluatedOwner(int index) => _evaluatedOwners[index];
         public StateTransition GetEvaluatedTransition(int index) => _evaluatedTransitions[index];
@@ -71,6 +88,10 @@ namespace Gameplay.Agent.Telemetry
             int start = (_transitionNext - TransitionCount + TransitionCapacity) % TransitionCapacity;
             return _transitions[(start + index) % TransitionCapacity];
         }
+
+        /// <summary>时间线上的一条，back = 0 为最新</summary>
+        public AgentBrainTimelineEntry GetTimeline(int back)
+            => _timeline[((_timelineNext - 1 - back) % TimelineCapacity + TimelineCapacity) % TimelineCapacity];
 
         /// <summary>最近一轮完成的评分；还没有时为空。back = 0 为最新，1 为上一轮</summary>
         public AgentDecisionRoundRecord GetRound(int back)
@@ -93,6 +114,8 @@ namespace Gameplay.Agent.Telemetry
             Shooter = Pawn.GetComponent<AgentCombatShooter>();
             FindTreeMemories(RootState);
             if (EngageMemory != null) EngageMemory.ApproachBuffer.Probes = ApproachProbes;
+            _lifecycle = Pawn.DirectiveLifecycle;
+            if (_lifecycle != null) _lifecycle.ResultPublished += _directiveHandler;
             IsAttached = true;
         }
 
@@ -100,6 +123,8 @@ namespace Gameplay.Agent.Telemetry
         {
             if (!IsAttached) return;
             IsAttached = false;
+            if (_lifecycle != null) _lifecycle.ResultPublished -= _directiveHandler;
+            _lifecycle = null;
             if (Pawn == null) return;
             AgentBrainController brain = Pawn.BrainController;
             if (brain != null)
@@ -117,6 +142,11 @@ namespace Gameplay.Agent.Telemetry
             if (!IsAttached || Pawn == null) return;
             AgentBrainController brain = Pawn.BrainController;
             CurrentLeaf = brain?.StateMachine.CurrentLeafState;
+            if (brain != null)
+            {
+                TreeTickVersion = brain.TreeContext.TickVersion;
+                TreeTimeSeconds = brain.TreeContext.TimeSeconds;
+            }
             AgentNavigationMotor motor = Pawn.NavigationMotor;
             PathCornerCount = motor != null ? Mathf.Min(motor.CopyPathCorners(_pathCorners), PathCornerCapacity) : 0;
         }
@@ -162,6 +192,10 @@ namespace Gameplay.Agent.Telemetry
             if (TransitionCount < TransitionCapacity) TransitionCount++;
             TransitionTotal++;
             CurrentLeaf = toLeaf;
+            AddTimeline(new AgentBrainTimelineEntry
+            {
+                Kind = AgentBrainTimelineKind.Transition, TimeSeconds = timeSeconds, From = fromLeaf, To = toLeaf, Transition = transition
+            });
         }
 
         void IAgentDecisionRoundSink.BeginRound(double timeSeconds, in AgentDecisionContext context)
@@ -183,7 +217,36 @@ namespace Gameplay.Agent.Telemetry
 
         void IAgentDecisionRoundSink.EndList(int bestIndex)
         {
-            if (bestIndex >= 0) _openRound?.MarkChosen(bestIndex);
+            if (bestIndex < 0 || _openRound == null) return;
+            _openRound.MarkChosen(bestIndex);
+            if (_openRound.ChosenRow < 0) return;
+            AgentDecisionCandidateRow chosen = _openRound.GetRow(_openRound.ChosenRow);
+            if (chosen.TargetObject == _lastChosenTarget) return;
+            _lastChosenTarget = chosen.TargetObject;
+            AddTimeline(new AgentBrainTimelineEntry
+            {
+                Kind = AgentBrainTimelineKind.Selection, TimeSeconds = _openRound.TimeSeconds, Target = chosen.TargetObject,
+                TargetKind = chosen.Kind, Score = chosen.Breakdown.Total
+            });
+        }
+
+        // 只记录生命周期本来就会发布的结果；被拒绝和规划中的请求没有改变指令槽，不上时间线
+        private void OnDirectiveResult(AgentDirectiveResult result)
+        {
+            if (result.Stage == AgentDirectiveStage.Rejected || result.Stage == AgentDirectiveStage.Planning) return;
+            AddTimeline(new AgentBrainTimelineEntry
+            {
+                Kind = AgentBrainTimelineKind.Directive, TimeSeconds = Time.timeAsDouble, Directive = result.Request,
+                Stage = result.Stage, Failure = result.Reason
+            });
+        }
+
+        private void AddTimeline(in AgentBrainTimelineEntry entry)
+        {
+            _timeline[_timelineNext] = entry;
+            _timelineNext = (_timelineNext + 1) % TimelineCapacity;
+            if (TimelineCount < TimelineCapacity) TimelineCount++;
+            TimelineTotal++;
         }
 
         void IAgentDecisionRoundSink.RecordSkip(double timeSeconds, AgentDecisionSkipReason reason)

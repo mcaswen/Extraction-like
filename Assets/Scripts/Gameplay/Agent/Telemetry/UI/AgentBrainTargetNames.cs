@@ -1,0 +1,105 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System;
+using System.Collections.Generic;
+using Gameplay.MapGraph.Binding;
+using Gameplay.MapGraph.Config;
+using Gameplay.Targets.Authoring;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+namespace Gameplay.Agent.Telemetry.UI
+{
+    /// <summary>
+    /// 群的显示名：场景里的地图绑定把群对象对应到地图节点，取"区域名 + 群类别 + 节点名尾部的字母"，例如"雨林 资源群 B"。
+    /// 只读取绑定列表和地图定义，不调用会重建索引的查询。
+    /// </summary>
+    public sealed class AgentBrainTargetNames
+    {
+        private readonly Dictionary<GameplayTargetClusterAuthoringBase, string> _byCluster = new Dictionary<GameplayTargetClusterAuthoringBase, string>();
+        private readonly Dictionary<string, string> _byNode = new Dictionary<string, string>(StringComparer.Ordinal);
+        private MapGraphBindingAuthoring _binding;
+        private float _nextSearchTime;
+
+        /// <summary>地图节点的显示名；不认识时返回节点 ID</summary>
+        public string Node(string nodeId)
+        {
+            if (string.IsNullOrEmpty(nodeId)) return "—";
+            EnsureBinding();
+            return _byNode.TryGetValue(nodeId, out string label) ? label : nodeId;
+        }
+
+        /// <summary>目标对象的显示名：所在的群有地图节点时用节点名，否则用群的名字；敌人个体统称"敌人"</summary>
+        public string Of(GameObject target)
+        {
+            if (target == null) return "—";
+            EnsureBinding();
+            var cluster = target.GetComponentInParent<GameplayTargetClusterAuthoringBase>();
+            if (cluster != null) return _byCluster.TryGetValue(cluster, out string label) ? label : cluster.DisplayName;
+            if (target.GetComponentInParent<global::EnemyHealthController>() != null) return "敌人";
+            return target.name;
+        }
+
+        public static string Label(MapGraphNodeDefinition node, string zoneName)
+        {
+            string kind = Kind(node.NodeKind);
+            string suffix = Suffix(node.DisplayName);
+            if (string.IsNullOrEmpty(kind)) return string.IsNullOrEmpty(zoneName) ? node.DisplayName : zoneName;
+            return string.IsNullOrEmpty(zoneName) ? kind + suffix : zoneName + " " + kind + suffix;
+        }
+
+        private static string Kind(MapGraphNodeKind kind)
+        {
+            switch (kind)
+            {
+                case MapGraphNodeKind.Resource: return "资源群";
+                case MapGraphNodeKind.EnemySource: return "敌人来源";
+                case MapGraphNodeKind.ActiveEnemy: return "敌人群";
+                case MapGraphNodeKind.Extraction: return "撤离点";
+                case MapGraphNodeKind.Start: return "起点";
+                default: return string.Empty;
+            }
+        }
+
+        // 节点名形如 ResourceCluster_B 时取尾部的 B 区分同区域的同类群
+        private static string Suffix(string displayName)
+        {
+            if (string.IsNullOrEmpty(displayName) || displayName.Length < 3) return string.Empty;
+            char last = displayName[displayName.Length - 1];
+            return displayName[displayName.Length - 2] == '_' && char.IsLetterOrDigit(last) ? " " + last : string.Empty;
+        }
+
+        private void EnsureBinding()
+        {
+            if (_binding != null || Time.unscaledTime < _nextSearchTime) return;
+            _nextSearchTime = Time.unscaledTime + 1f;
+            _binding = Object.FindObjectOfType<MapGraphBindingAuthoring>();
+            _byCluster.Clear();
+            _byNode.Clear();
+            SO_MapGraphDefinition definition = _binding != null ? _binding.MapDefinition : null;
+            if (definition == null) return;
+
+            for (int index = 0; index < definition.Nodes.Count; index++)
+            {
+                MapGraphNodeDefinition node = definition.Nodes[index];
+                if (node == null) continue;
+                _byNode[node.NodeId] = Label(node, ZoneName(definition, node.ZoneId));
+            }
+
+            IReadOnlyList<MapGraphTargetBinding> bindings = _binding.TargetBindings;
+            for (int index = 0; index < bindings.Count; index++)
+            {
+                MapGraphTargetBinding binding = bindings[index];
+                if (binding == null || !(binding.DirectTarget is GameplayTargetClusterAuthoringBase cluster)) continue;
+                if (_byNode.TryGetValue(binding.NodeId, out string label)) _byCluster[cluster] = label;
+            }
+        }
+
+        private static string ZoneName(SO_MapGraphDefinition definition, string zoneId)
+        {
+            for (int index = 0; index < definition.Zones.Count; index++)
+                if (definition.Zones[index] != null && definition.Zones[index].ZoneId == zoneId) return definition.Zones[index].DisplayName;
+            return string.Empty;
+        }
+    }
+}
+#endif

@@ -15,9 +15,12 @@ namespace AgentReproduction.Tests
     public sealed class TelemetryBuildGatingTests
     {
         private static readonly string[] ReleaseMustNotContain =
-            { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentApproachProbeLog", "AgentLegacyBrainTrees", "EngageEnemyActionNode" };
+        {
+            "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentApproachProbeLog", "AgentLegacyBrainTrees", "EngageEnemyActionNode",
+            "AgentBrainPanel", "AgentBrainVectorGraphic", "TelemetryConfig", "TelemetryNextAttackTime"
+        };
 
-        private static readonly string[] DevelopmentMustContain = { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore" };
+        private static readonly string[] DevelopmentMustContain = { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentBrainPanel" };
 
         private static readonly string[] BothMustContain = { "AgentBrainTrees", "AgentEngageMemory", "AgentSearchMemory" };
 

@@ -179,6 +179,9 @@ namespace Gameplay.Agent.Decision
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         /// <summary>遥测接收器；为空时决策不做任何额外工作</summary>
         internal IAgentDecisionRoundSink TelemetrySink { get; set; }
+
+        /// <summary>遥测只读访问：评分公式的权重和风险上限</summary>
+        internal AgentDecisionConfig TelemetryConfig => _decisionConfig;
 #endif
 
         private enum AgentDecisionSkipReasonCode { RouteHeld, ManualDirectiveLock, RetaliationLock, ModuleDisabled, NoDiscoveryRange }
