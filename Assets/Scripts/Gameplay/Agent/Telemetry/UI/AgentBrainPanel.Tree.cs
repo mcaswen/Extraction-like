@@ -11,12 +11,14 @@ namespace Gameplay.Agent.Telemetry.UI
 {
     /// <summary>
     /// 当前状态的行为树：按缩进逐行显示，本帧运行过的节点按结果点亮（运行中、成功、失败），
-    /// 本帧没运行到的分支折叠成一行。行数超出时先折叠已结束的分支，仍超出就让正在运行的最深节点保持可见。
+    /// 本帧没运行到的分支折叠成一行。行数超出时先折叠已结束的分支，再把行距从 25 压到 18；仍放不下就让正在运行的最深节点保持可见。
     /// </summary>
     public sealed partial class AgentBrainPanel
     {
-        private const float TreeX = 20, TreeY = 310, TreeW = 500, TreeRowHeight = 25, TreeIndent = 16;
-        public const int MaxTreeRows = 20;
+        private const float TreeX = 20, TreeY = 310, TreeW = 500, TreeAreaHeight = 504, TreeRowHeight = 25, TreeMinRowHeight = 18, TreeIndent = 16;
+
+        /// <summary>行标签的数量：按最小行距能放下的行数</summary>
+        public const int MaxTreeRows = 28;
 
         private enum RowState : byte { Idle, Running, Success, Failure }
 
@@ -65,22 +67,26 @@ namespace Gameplay.Agent.Telemetry.UI
             }
 
             _treeEmpty.gameObject.SetActive(_treeRowCount == 0);
+            float rowHeight = Mathf.Clamp(TreeAreaHeight / Mathf.Max(1, _treeRowCount), TreeMinRowHeight, TreeRowHeight);
+            int visibleRows = Mathf.Min(MaxTreeRows, Mathf.FloorToInt(TreeAreaHeight / rowHeight));
             int focus = FocusRow();
-            int first = focus >= MaxTreeRows ? focus - MaxTreeRows + 2 : 0;
+            int first = focus >= visibleRows ? focus - visibleRows + 2 : 0;
             _treeSide.gameObject.SetActive(false);
             for (int row = 0; row < MaxTreeRows; row++)
             {
                 TMP_Text label = _treeLabels[row];
                 int index = first + row;
-                bool truncated = row == MaxTreeRows - 1 && index < _treeRowCount - 1;
-                if (index >= _treeRowCount)
+                bool truncated = row == visibleRows - 1 && index < _treeRowCount - 1;
+                if (row >= visibleRows || index >= _treeRowCount)
                 {
                     label.gameObject.SetActive(false);
                     continue;
                 }
 
                 label.gameObject.SetActive(true);
-                float y = TreeY + row * TreeRowHeight;
+                float y = TreeY + row * rowHeight;
+                label.rectTransform.sizeDelta = new Vector2(TreeW - 90, rowHeight);
+                label.fontSize = rowHeight < 22 ? 13 : Style.BodySize;
                 if (truncated)
                 {
                     SetText(label, "…");
@@ -93,17 +99,18 @@ namespace Gameplay.Agent.Telemetry.UI
                 float x = TreeX + entry.Depth * TreeIndent;
                 if (index == focus)
                 {
-                    _leftVectors.Fill(TreeX, y, TreeW, TreeRowHeight, Style.FocusRow);
+                    _leftVectors.Fill(TreeX, y, TreeW, rowHeight, Style.FocusRow);
                     string detail = FocusDetail(entry.Node);
                     if (!string.IsNullOrEmpty(detail))
                     {
                         _treeSide.gameObject.SetActive(true);
                         SetText(_treeSide, detail);
                         _treeSide.rectTransform.anchoredPosition = new Vector2(TreeX + TreeW - 120, -y);
+                        _treeSide.rectTransform.sizeDelta = new Vector2(114, rowHeight);
                     }
                 }
 
-                DrawMark(entry, new Vector2(x + 7, y + TreeRowHeight * .5f));
+                DrawMark(entry, new Vector2(x + 7, y + rowHeight * .5f));
                 label.rectTransform.anchoredPosition = new Vector2(x + 22, -y);
                 label.color = entry.State == RowState.Running ? Style.Ink : entry.State == RowState.Idle ? Style.Dim : Style.Muted;
                 SetText(label, entry.State == RowState.Idle && entry.Node.ChildCount > 0
