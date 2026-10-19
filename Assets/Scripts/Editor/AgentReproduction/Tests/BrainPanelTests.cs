@@ -152,8 +152,19 @@ namespace AgentReproduction.Tests
                 panel.SetOpen(true);
                 yield return null;
                 AgentBrainRecorder recorder = null;
-                yield return RuntimeWait.Until(() => (recorder = panel.DisplayedRecorder) != null && recorder.RoundTotal > 0 && recorder.GetRound(0).Count >= 3,
-                    "focused agent scores real candidates", 60);
+                float deadline = Time.realtimeSinceStartup + 60f;
+                while (Time.realtimeSinceStartup < deadline &&
+                       !((recorder = panel.DisplayedRecorder) != null && recorder.RoundTotal > 0 && recorder.GetRound(0).Count >= 3))
+                    yield return null;
+                if (recorder == null || recorder.RoundTotal == 0 || recorder.GetRound(0).Count < 3)
+                {
+                    var hub = AgentBrainTelemetryHub.Instance;
+                    string diagnosis = "gameTime=" + Time.time + "; focus=" + Gameplay.Agent.Runtime.AgentRuntimeRegistry.ActiveInstance?.FocusedAgentId.Value +
+                        "; recorders=" + (hub == null ? "none" : string.Join(" | ", hub.Recorders.Select(r => r.Pawn.AgentIdValue + " leaf=" + r.CurrentLeaf?.StateName +
+                        " rounds=" + r.RoundTotal + " lastCount=" + (r.GetRound(0)?.Count ?? -1) + " skip=" + r.LastSkip + " transitions=" + r.TransitionTotal)));
+                    CaseArtifactWriter.Trace("brain-panel-scene-wait", diagnosis);
+                    Assert.Fail("焦点智能体 60 秒内没有完成至少 3 个候选的评分：" + diagnosis);
+                }
                 panel.RefreshNow();
                 var names = Enumerable.Range(0, AgentBrainPanel.MaxScoreRows).Select(i => Text(panel, "Score_Row_" + i + "_Name"))
                     .Where(label => label.gameObject.activeSelf).Select(label => label.text).ToList();
