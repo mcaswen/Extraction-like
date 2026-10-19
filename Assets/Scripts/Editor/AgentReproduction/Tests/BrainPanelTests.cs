@@ -71,12 +71,12 @@ namespace AgentReproduction.Tests
                 yield return RuntimeWait.Until(() => agent.DirectiveLifecycle.Active?.CommandId == order.CommandId &&
                                                      recorder.CurrentLeaf != null && recorder.CurrentLeaf.StateName == "SearchResource",
                     "commander search runs", 5);
-                yield return new WaitForSeconds(.3f);
+                yield return Frames(.3f);
 
                 var attacker = EnemyFactory.Passive(World, agent.Position + new Vector3(0, 0, 10));
                 agent.TakeCombatDamage(10, agent.Position, Vector3.back, attacker.gameObject);
                 yield return RuntimeWait.Until(() => recorder.CurrentLeaf != null && recorder.CurrentLeaf.StateName == "Combat", "retaliation enters combat", 5);
-                yield return new WaitForSeconds(.2f);
+                yield return Frames(.2f);
                 panel.RefreshNow();
 
                 Assert.That(panel.IsShown, Is.True);
@@ -186,6 +186,13 @@ namespace AgentReproduction.Tests
             => typeof(AgentBrainTrees).GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(method => method.ReturnType == typeof(BehaviorTreeType) && method.GetParameters().Length == 0)
                 .Select(method => (BehaviorTreeType)method.Invoke(null, null));
+
+        // 编辑模式测试只能 yield null：按游戏时间等若干帧
+        private static IEnumerator Frames(float seconds)
+        {
+            float end = Time.time + seconds;
+            while (Time.time < end) yield return null;
+        }
 
         private static bool IsHan(char c) => c >= 0x4E00 && c <= 0x9FFF;
 
