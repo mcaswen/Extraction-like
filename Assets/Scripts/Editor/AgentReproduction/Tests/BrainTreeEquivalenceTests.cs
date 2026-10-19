@@ -136,9 +136,12 @@ namespace AgentReproduction.Tests
             TargetFactory.Enemies(world, enemy).gameObject.name = "Equivalence enemies";
             if (scenario == "LostSightTimeout" || scenario == "ManualApproachBudget" || scenario == "NavigationNotReady" || scenario == "CommandSwitch")
                 world.Cube("Equivalence wall", new Vector3(0, 2, 2.5f), new Vector3(6, 5, 0.2f));
-            if (scenario == "ShooterMissing") Object.DestroyImmediate(pawn.GetComponent<AgentCombatShooter>());
+            // 射手是智能体根的必需组件，不能移除；禁用后即"未配置"
+            if (scenario == "ShooterMissing") pawn.GetComponent<AgentCombatShooter>().enabled = false;
             var shooter = pawn.GetComponent<AgentCombatShooter>();
             var combat = pawn.GetComponent<AgentCombatController>();
+            scenarioWorld.Probes.Add(() => "agent " + BrainTrace.Format(pawn.Position) + " onNav=" + pawn.NavMeshAgent.isOnNavMesh + " sight=" +
+                Gameplay.Perception.TargetVisibilityQuery.Check(pawn.transform, Gameplay.Perception.CombatAimPointResolver.Resolve(pawn.transform), enemy.transform, 100f));
             scenarioWorld.Probes.Add(() => "enemy hp=" + enemy.GetCurrentHealthRatio().ToString("0.####") + " alive=" + (enemy.GetCurrentHealthRatio() > 0f));
             scenarioWorld.Probes.Add(() => shooter == null ? "shooter none" : "shooter " + shooter.LastShotResult + "/" + shooter.LastShotFailure);
             scenarioWorld.Probes.Add(() => combat == null ? "combat none" : "combat next=" + RuntimeFixtureAccess.Read<double>(combat, "_nextAttackTime").ToString("0.###"));
