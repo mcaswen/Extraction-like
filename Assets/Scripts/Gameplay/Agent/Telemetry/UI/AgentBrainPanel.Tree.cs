@@ -10,8 +10,9 @@ using BehaviorTreeType = global::Core.BehaviorTree.Runtime.BehaviorTree;
 namespace Gameplay.Agent.Telemetry.UI
 {
     /// <summary>
-    /// 当前状态的行为树：按缩进逐行显示，本帧运行过的节点按结果点亮（运行中、成功、失败），
-    /// 本帧没运行到的分支折叠成一行。行数超出时先折叠已结束的分支，再把行距从 25 压到 18；仍放不下就让正在运行的最深节点保持可见。
+    /// 当前状态的行为树：按缩进逐行显示，本帧运行过的节点按结果点亮（运行中、成功、失败）。
+    /// 只展开正在运行的组合节点；已结束和本帧没运行到的组合节点折叠成一行，本帧没运行到的叶子不显示。
+    /// 行数多时把行距从 25 压到 18；仍放不下就让正在运行的最深节点保持可见。
     /// </summary>
     public sealed partial class AgentBrainPanel
     {
@@ -56,15 +57,7 @@ namespace Gameplay.Agent.Telemetry.UI
             BehaviorTreeType tree = leaf != null ? leaf.BoundBehaviorTree : null;
             _treeRowCount = 0;
             _tickVersion = _recorder != null ? _recorder.TreeTickVersion : 0;
-            if (tree != null && tree.RootNode != null)
-            {
-                Flatten(tree.RootNode, 0, false);
-                if (_treeRowCount > MaxTreeRows)
-                {
-                    _treeRowCount = 0;
-                    Flatten(tree.RootNode, 0, true);
-                }
-            }
+            if (tree != null && tree.RootNode != null) Flatten(tree.RootNode, 0);
 
             _treeEmpty.gameObject.SetActive(_treeRowCount == 0);
             float rowHeight = Mathf.Clamp(TreeAreaHeight / Mathf.Max(1, _treeRowCount), TreeMinRowHeight, TreeRowHeight);
@@ -119,19 +112,19 @@ namespace Gameplay.Agent.Telemetry.UI
             }
         }
 
-        // 本帧运行过的节点才展开子节点；collapseFinished 时已结束的组合节点也折叠
-        private void Flatten(BehaviorNode node, int depth, bool collapseFinished)
+        private void Flatten(BehaviorNode node, int depth)
         {
             if (node == null || _treeRowCount >= _treeRows.Length) return;
             bool ticked = _tickVersion > 0 && node.LastTickVersion == _tickVersion;
+            if (!ticked && node.ChildCount == 0 && depth > 0) return;
             RowState state = !ticked ? RowState.Idle
                 : node.LastStatus == BehaviorNodeStatus.Running ? RowState.Running
                 : node.LastStatus == BehaviorNodeStatus.Success ? RowState.Success
                 : RowState.Failure;
-            bool expand = ticked && node.ChildCount > 0 && !(collapseFinished && state != RowState.Running);
+            bool expand = state == RowState.Running && node.ChildCount > 0;
             _treeRows[_treeRowCount++] = new TreeRow { Node = node, Depth = depth, State = state, Collapsed = node.ChildCount > 0 && !expand };
             if (!expand) return;
-            for (int index = 0; index < node.ChildCount; index++) Flatten(node.GetChild(index), depth + 1, collapseFinished);
+            for (int index = 0; index < node.ChildCount; index++) Flatten(node.GetChild(index), depth + 1);
         }
 
         // 正在运行的最深节点

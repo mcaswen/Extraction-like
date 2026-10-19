@@ -146,10 +146,10 @@ namespace Gameplay.Agent.Telemetry.UI
         private void Refresh()
         {
             RefreshCount++;
-            RefreshChips();
             _leftVectors.Clear();
             _rightVectors.Clear();
             DrawFrames();
+            RefreshChips();
             RefreshGraph();
             RefreshTree();
             RefreshSlots();
