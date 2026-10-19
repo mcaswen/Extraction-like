@@ -69,4 +69,4 @@
 
 对拍工装扩展：每个变体结束后销毁运行中新生成的场景根对象（子弹、技能特效等），避免飞进下一个变体。
 
-（结果运行后补充。）
+**结果**：战斗相关定向组（`9b33e6e`，p4-a）Perception 6/6、ReachableCombatApproach 4/4、ElevatedCombatApproach 14/14、SceneCombat 6/6、SceneApproach 7/7、SceneRetaliation 6/6、ManualDirectiveResume 16/16、Cooldown 8/8、CombatAimPoint 4/4、ClusterCommandReachability 10/10 全部通过。对拍首轮新旧一致，但覆盖检查失败：瞬移没有加导航基准偏移，身体在地面以下，视线被地面挡住，所有场景都走成"不可达"；另外射手是智能体根的必需组件，不能移除，改为禁用。修正后 p4-d（`fe261b5`）9 个战斗场景全部通过，开火、技能、失视、手动接近预算、不可达、攻击不可用、导航未就绪、目标已死、切换命令都被覆盖。

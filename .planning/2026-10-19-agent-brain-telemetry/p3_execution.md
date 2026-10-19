@@ -38,4 +38,4 @@
 
 `BrainTreeEquivalence` 组新增撤离 5 个场景：到达—离开—返回—指令清除、直接指向撤离点、目标处没有撤离点、目标类型不符、点内被中断。状态工厂检查改名为 `FactoryUsesRefactoredTrees`，包含撤离树。
 
-（结果运行后补充。）
+**结果**：撤离相关定向组（`1f583a6`，p3-a）ExtractionPresence 14/14、Lifecycle 6/6、F1 2/2、Combined 10/10、AgentRouteLifecycle 5/5、SceneInventory 9/9、SceneTerminal 4/4 全部通过。对拍首轮新旧一致但覆盖检查失败（交互距离为 0，替身的到达判定没有到达容差），修正替身后 p4-d（`fe261b5`）5 个撤离场景全部通过，登记、撤销、中断撤销和目标无效都被覆盖。

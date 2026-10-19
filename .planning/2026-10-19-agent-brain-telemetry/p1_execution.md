@@ -32,4 +32,4 @@
 - `BehaviorTreeLibrary` 组（7 例，纯 NUnit，不进 Play Mode）：响应式序列的重查与中断时机、响应式选择器的抢占、记忆式组合保持原语义、作用域回调顺序、深度优先序号与共享实例拒绝、带接收器推进零分配、状态机观察者只看到真实求值。
 - 大脑相关定向组和 `BrainTickBenchmark` 对比 P0 基准。
 
-（结果运行后补充。）
+**结果**（验证克隆 `65fc320`，p2-b）：BehaviorTreeLibrary 7/7；BrainTickBenchmark 3/3 正常输出；大脑相关定向组 Navigation 17/17、AgentRouteMovement 4/4、AgentRouteExecution 18/18、MapCommandEntry 12/12、DebugReadOnly 2/2 全部通过。
