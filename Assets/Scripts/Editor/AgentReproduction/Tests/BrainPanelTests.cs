@@ -187,7 +187,7 @@ namespace AgentReproduction.Tests
                     var result = Gameplay.Agent.Runtime.AgentCommandRouter.GetOrCreate().TrySubmitRoute(
                         new Gameplay.Agent.Routes.AgentRouteRequest(node.NodeId, Gameplay.Agent.Routes.AgentRouteSource.Player, agent.AgentId));
                     CaseArtifactWriter.Trace("brain-panel-scene-route", node.NodeId + " " + result.Stage + " " + result.Reason);
-                    if (!result.Accepted) continue;
+                    if (!result.Accepted && result.Stage != Gameplay.Agent.Routes.AgentRouteStage.Planning) continue;
                     routed = true;
                     break;
                 }

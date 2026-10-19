@@ -18,7 +18,8 @@ namespace Gameplay.Agent.Telemetry.UI
         public static readonly Color SelectedFill = new Color(.075f, .225f, .36f, .97f);
 
         // 面板专用：用户确认的录制布局稿里的颜色
-        public static readonly Color PanelFill = new Color(.035f, .063f, .09f, .94f);
+        // 稿子里是 0.94 的不透明度，但项目在线性空间混合，暗底压在亮场景上会透出很多；取 0.985 才和稿子观感一致
+        public static readonly Color PanelFill = new Color(.035f, .063f, .09f, .985f);
         public static readonly Color Dim = new Color(.50f, .59f, .66f);
         public static readonly Color Amber = new Color(1f, .68f, .32f);
         public static readonly Color Success = new Color(.43f, .77f, .61f);
