@@ -140,8 +140,16 @@ namespace AgentReproduction.Tests
             if (scenario == "ShooterMissing") pawn.GetComponent<AgentCombatShooter>().enabled = false;
             var shooter = pawn.GetComponent<AgentCombatShooter>();
             var combat = pawn.GetComponent<AgentCombatController>();
-            scenarioWorld.Probes.Add(() => "agent " + BrainTrace.Format(pawn.Position) + " onNav=" + pawn.NavMeshAgent.isOnNavMesh + " sight=" +
-                Gameplay.Perception.TargetVisibilityQuery.Check(pawn.transform, Gameplay.Perception.CombatAimPointResolver.Resolve(pawn.transform), enemy.transform, 100f));
+            scenarioWorld.Probes.Add(() =>
+            {
+                Vector3 from = Gameplay.Perception.CombatAimPointResolver.Resolve(pawn.transform), to = Gameplay.Perception.CombatAimPointResolver.Resolve(enemy.transform);
+                var hits = Physics.RaycastAll(from, (to - from).normalized, Vector3.Distance(from, to), ~0, QueryTriggerInteraction.Ignore);
+                var names = new List<string>();
+                foreach (var hit in hits) names.Add(hit.collider.name);
+                names.Sort(System.StringComparer.Ordinal);
+                return "agent " + BrainTrace.Format(pawn.Position) + " aim " + BrainTrace.Format(from) + " enemyAim " + BrainTrace.Format(to) + " onNav=" + pawn.NavMeshAgent.isOnNavMesh +
+                    " sight=" + Gameplay.Perception.TargetVisibilityQuery.Check(pawn.transform, from, enemy.transform, 100f) + " hits=[" + string.Join(",", names) + "]";
+            });
             scenarioWorld.Probes.Add(() => "enemy hp=" + enemy.GetCurrentHealthRatio().ToString("0.####") + " alive=" + (enemy.GetCurrentHealthRatio() > 0f));
             scenarioWorld.Probes.Add(() => shooter == null ? "shooter none" : "shooter " + shooter.LastShotResult + "/" + shooter.LastShotFailure);
             scenarioWorld.Probes.Add(() => combat == null ? "combat none" : "combat next=" + RuntimeFixtureAccess.Read<double>(combat, "_nextAttackTime").ToString("0.###"));
