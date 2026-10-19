@@ -1437,7 +1437,12 @@
         "InvestigateEnemySourceTreeMatchesLegacy(\"ArriveAndHold\")",
         "InvestigateEnemySourceTreeMatchesLegacy(\"WrongKind\")",
         "InvestigateEnemySourceTreeMatchesLegacy(\"InvalidTarget\")",
-        "FactoryUsesRefactoredMoveTrees"
+        "ExtractionTreeMatchesLegacy(\"ArriveLeaveReturn\")",
+        "ExtractionTreeMatchesLegacy(\"DirectPoint\")",
+        "ExtractionTreeMatchesLegacy(\"NoPointAtTarget\")",
+        "ExtractionTreeMatchesLegacy(\"WrongKind\")",
+        "ExtractionTreeMatchesLegacy(\"AbortWhileInside\")",
+        "FactoryUsesRefactoredTrees"
       ]
     }
   ]

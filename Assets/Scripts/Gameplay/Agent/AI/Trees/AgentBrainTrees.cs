@@ -19,6 +19,31 @@ namespace Gameplay.Agent.AI.Trees
         public static BehaviorTreeType InvestigateEnemySource()
             => MoveTree("InvestigateEnemySourceTree", "InvestigateEnemySource", "侦查敌人来源", AgentDirectiveType.MoveTo, AgentTargetKind.EnemySource, false);
 
+        // 先到达撤离点范围（记忆式：到达后不再重复这一段），再持续驻留并向 RaidFlowController 续写在点内
+        public static BehaviorTreeType Extraction()
+        {
+            var approachMemory = new AgentMoveMemory();
+            var presenceMemory = new AgentExtractionMemory();
+            var root = new SequenceNode(
+                "Extraction_Sequence",
+                new ReactiveSequenceNode(
+                    "Extraction_Approach",
+                    new AgentCanActCondition("Extraction_Approach_CanAct"),
+                    new HoldsDirectiveCondition("Extraction_Approach_HoldsDirective", AgentDirectiveType.Extract, AgentTargetKind.Extraction),
+                    new ResolveDirectiveTargetAction("Extraction_Approach_ResolveTarget", AgentDirectiveType.Extract, AgentTargetKind.Extraction, approachMemory),
+                    new MoveToResolvedTargetAction("Extraction_Approach_Move", AgentBlackboardKeys.InteractionDistance, 1.5f, false, approachMemory))
+                    { DisplayName = "前往撤离点" },
+                new ReactiveSequenceNode(
+                    "Extraction_Hold",
+                    new AgentCanActCondition("Extraction_Hold_CanAct"),
+                    new HoldsDirectiveCondition("Extraction_Hold_HoldsDirective", AgentDirectiveType.Extract, AgentTargetKind.None),
+                    new ResolveExtractionPointAction("Extraction_Hold_ResolvePoint", presenceMemory),
+                    new MoveToResolvedTargetAction("Extraction_Hold_Move", AgentBlackboardKeys.InteractionDistance, 1.5f, false, presenceMemory),
+                    new HoldExtractionPresenceAction("Extraction_Hold_Presence", presenceMemory))
+                    { DisplayName = "驻留撤离点" }) { DisplayName = "撤离" };
+            return new BehaviorTreeType("ExtractionTree", root);
+        }
+
         private static BehaviorTreeType MoveTree(
             string treeName,
             string prefix,

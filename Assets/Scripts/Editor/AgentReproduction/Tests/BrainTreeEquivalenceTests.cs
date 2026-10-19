@@ -21,6 +21,7 @@ namespace AgentReproduction.Tests
     {
         public static string[] NavigateScenarios = { "ArriveAndFinish", "RetargetMidway", "InvalidTarget", "WrongKind", "WrongType", "NoDirective" };
         public static string[] InvestigateScenarios = { "ArriveAndHold", "WrongKind", "InvalidTarget" };
+        public static string[] ExtractionScenarios = { "ArriveLeaveReturn", "DirectPoint", "NoPointAtTarget", "WrongKind", "AbortWhileInside" };
 
         private static AgentDirectiveRequest Move(string id, AgentTargetKind kind, Vector3 position, bool hasPosition = true)
             => new AgentDirectiveRequest(AgentDirectiveType.MoveTo, AgentTargetRef.FromAbstractPoint(kind, id + "-target", position, hasPosition), commandId: id);
@@ -54,6 +55,62 @@ namespace AgentReproduction.Tests
                     break;
                 default:
                     steps.Add(new BrainStep("idle", 3));
+                    break;
+            }
+
+            return steps;
+        }
+
+        private static readonly Vector3 ExitPosition = new Vector3(10, 0, 0);
+
+        // 撤离：智能体 + 一个撤离群（单个撤离点）+ RaidFlowController；探针读取撤离计时登记
+        private static BrainScenario ExtractionWorld(TestWorldBuilder world)
+        {
+            var scenario = AgentOnly(world);
+            TargetFactory.Extraction(world, ExitPosition);
+            var raid = world.Root("Equivalence raid").AddComponent<RaidFlowController>();
+            scenario.Probes.Add(() =>
+            {
+                var presence = RuntimeFixtureAccess.Read<IDictionary>(raid, "_activeExtractionProgressByAgentId");
+                var entries = new List<string>();
+                foreach (DictionaryEntry entry in presence)
+                    entries.Add(entry.Key + "@" + BrainTrace.Format(RuntimeFixtureAccess.Read<ExtractionPointController>(entry.Value, "ExtractionPoint")));
+                return "presence [" + string.Join(",", entries) + "]";
+            });
+            return scenario;
+        }
+
+        private static AgentDirectiveRequest Extract(string id, AgentTargetRef target)
+            => new AgentDirectiveRequest(AgentDirectiveType.Extract, target, commandId: id);
+
+        private static List<BrainStep> ExtractionScript(string scenario)
+        {
+            var steps = new List<BrainStep> { new BrainStep("place", 0, s => s.PlaceAgent(Vector3.zero)) };
+            GameObject Cluster() => GameObject.Find("Test extraction cluster");
+            GameObject Point() => GameObject.Find("Test extraction");
+            switch (scenario)
+            {
+                case "ArriveLeaveReturn":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit")))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(ExitPosition + new Vector3(-1, 0, 0))));
+                    steps.Add(new BrainStep("leave", 2, s => s.PlaceAgent(new Vector3(5, 0, 0))));
+                    steps.Add(new BrainStep("return", 2, s => s.PlaceAgent(ExitPosition + new Vector3(0, 0, 1))));
+                    steps.Add(new BrainStep("cleared", 2, s => s.ClearDirective()));
+                    break;
+                case "DirectPoint":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Point(), "point")))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(ExitPosition + new Vector3(-1, 0, 0))));
+                    break;
+                case "NoPointAtTarget":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromAbstractPoint(AgentTargetKind.Extraction, "nowhere", new Vector3(-10, 0, 0))))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(-9, 0, 0))));
+                    break;
+                case "WrongKind":
+                    steps.Add(new BrainStep("issue", 3, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Location, Cluster(), "exit")))));
+                    break;
+                default:
+                    steps.Add(new BrainStep("issue", 1, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit")))));
+                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(ExitPosition + new Vector3(-1, 0, 0))));
                     break;
             }
 
@@ -113,11 +170,23 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator FactoryUsesRefactoredMoveTrees()
+        public IEnumerator ExtractionTreeMatchesLegacy([ValueSource(nameof(ExtractionScenarios))] string scenario)
+        {
+            string[] required = scenario == "ArriveLeaveReturn" ? new[] { "presence [Equivalence@Test extraction]", "presence []" }
+                : scenario == "DirectPoint" ? new[] { "presence [Equivalence@Test extraction]" }
+                : scenario == "NoPointAtTarget" ? new[] { "finish Exit-1 InvalidTarget matched=True" }
+                : scenario == "AbortWhileInside" ? new[] { "presence [Equivalence@Test extraction]" } : new string[0];
+            yield return Compare("Extraction/" + scenario, AgentLegacyBrainTrees.Extraction, AgentBrainTrees.Extraction,
+                () => ExtractionScript(scenario), ExtractionWorld, required);
+        }
+
+        [UnityTest]
+        public IEnumerator FactoryUsesRefactoredTrees()
         {
             var factory = new AgentBrainStateFactory();
             Assert.That(factory.CreateNavigateState().BoundBehaviorTree.RootNode, Is.TypeOf<ReactiveSequenceNode>());
             Assert.That(factory.CreateInvestigateEnemySourceState().BoundBehaviorTree.RootNode, Is.TypeOf<ReactiveSequenceNode>());
+            Assert.That(factory.CreateExtractionState().BoundBehaviorTree.RootNode.GetChild(1), Is.TypeOf<ReactiveSequenceNode>());
             ContractCompleted = true;
             yield return null;
         }

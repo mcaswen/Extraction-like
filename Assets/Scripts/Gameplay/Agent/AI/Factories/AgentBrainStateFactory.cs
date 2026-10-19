@@ -84,7 +84,7 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.Extraction,
                 "Extraction",
-                AgentLegacyBrainTrees.Extraction());
+                AgentBrainTrees.Extraction());
         }
     }
 }
