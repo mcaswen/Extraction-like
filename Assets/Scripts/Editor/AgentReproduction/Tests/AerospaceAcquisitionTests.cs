@@ -16,13 +16,20 @@ namespace AgentReproduction.Tests
 {
     public sealed class AerospaceAcquisitionTests : ReproductionTestFixture
     {
-        AerospaceCollectionRuntime Create(int archive = 0, int seen = -1)
+        AerospaceCollectionRuntime Create(int acquired = 0)
         {
-            PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, archive);
-            PlayerPrefs.SetInt(AerospaceCollectionRuntime.DiscoverySeenKey, seen < 0 ? archive : seen);
             PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             var runtime = World.Root("Sample acquisition fixture").AddComponent<AerospaceCollectionRuntime>();
             runtime.ReserveOnStart = false;
+            // Presentation fixtures model acquisitions already completed THIS run.
+            // Persisted archive bits must never be used as an unlock shortcut.
+            for (int i = 0; i < 5; i++) if ((acquired & (1 << i)) != 0)
+            {
+                string code = "R0" + (i + 1);
+                runtime.RecordSuccessfulPickup(Part(code), "1");
+                runtime.CompleteDiscovery(code);
+            }
+            runtime.GetComponent<AudioSource>().Stop();
             return runtime;
         }
         static T Named<T>(AerospaceScienceUI ui, string name) where T : Component =>
@@ -105,14 +112,14 @@ namespace AgentReproduction.Tests
                 Assert.That(Time.timeScale, Is.EqualTo(1));
             }
             Assert.That(runtime.CollectedCount, Is.EqualTo(5));
-            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.ArchiveKey), Is.EqualTo(31));
+            Assert.That(AerospaceCatalog.Load().models.All(p => runtime.IsUnlocked(p.code) && runtime.HasSeenDiscovery(p.code)), Is.True);
             ContractCompleted = true;
         }
 
         [UnityTest]
         public IEnumerator ClosingEarlyDoesNotConsumeFirstDiscoveryAndReopeningRetriesIt()
         {
-            var runtime=Create(31,0);var ui=runtime.GetComponent<AerospaceScienceUI>();yield return null;
+            var runtime=Create();var ui=runtime.GetComponent<AerospaceScienceUI>();yield return null;
             runtime.RecordSuccessfulPickup(Part("R03"),"1");
             yield return Until(()=>ui.Stage.Ready&&ui.EntryElapsed>.7f);
             ui.Close();yield return null;
@@ -128,26 +135,87 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator HistoricalUnlocksStillCollectButOnlyANewPartAutoOpens()
+        public IEnumerator OldSavedArchiveNeverUnlocksANewRunAndEveryPartScansAgainAfterRestart()
         {
-            var runtime = Create(15); var ui = runtime.GetComponent<AerospaceScienceUI>();
-            yield return null;
-            foreach (var code in new[] { "R01","R02","R03","R04" })
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 31);
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.DiscoverySeenKey, 31);
+            PlayerPrefs.Save();
+            for (int run = 0; run < 2; run++)
             {
-                runtime.RecordSuccessfulPickup(Part(code),"1"); yield return null;
-                Assert.That(ui.IsOpen, Is.False, code + " is already in the persistent archive.");
+                var runtime = Create(); var ui = runtime.GetComponent<AerospaceScienceUI>();
+                yield return null;
+                Assert.That(runtime.CollectedCount, Is.Zero);
+                // This is the same entry used by J. Repeated empty-archive visits
+                // must not unlock, load, or mark any unowned sample as seen.
+                for (int visit = 0; visit < 2; visit++)
+                {
+                    ui.Open(null, false); yield return null;
+                    Assert.That(ui.CurrentCode, Is.Null); Assert.That(ui.Stage.Ready, Is.False);
+                    foreach (var part in AerospaceCatalog.Load().models)
+                    {
+                        Assert.That(runtime.IsUnlocked(part.code) || runtime.HasSeenDiscovery(part.code), Is.False);
+                        var card = Named<Button>(ui, "Archive_" + part.code);
+                        Assert.That(card.IsInteractable(), Is.False);
+                        card.onClick.Invoke(); ui.Open(part.code, true); runtime.CompleteDiscovery(part.code);
+                        Assert.That(ui.CurrentCode, Is.Null, "Even direct callbacks cannot load an unacquired part.");
+                        Assert.That(runtime.HasSeenDiscovery(part.code), Is.False);
+                    }
+                    ui.Close(); yield return null;
+                }
+                foreach (var part in AerospaceCatalog.Load().models)
+                {
+                    runtime.RecordSuccessfulPickup(Part(part.code), "1");
+                    yield return Until(() => ui.IsOpen);
+                    Assert.That(ui.IsDiscoveryPresentation, Is.True, "Run " + run + ": " + part.code);
+                    Assert.That(ui.CurrentCode, Is.EqualTo(part.code));
+                    foreach (var other in AerospaceCatalog.Load().models)
+                        Assert.That(Named<Button>(ui, "Archive_" + other.code).interactable, Is.EqualTo(runtime.HasCollected(other.code)));
+                    yield return Until(() => ui.Stage.Ready && ui.EntryElapsed >= .7f);
+                    Assert.That(ui.IsTransitioning, Is.True); Assert.That(ui.Stage.ScanProgress, Is.InRange(0f, 1f));
+                    yield return Ready(ui);
+                    Assert.That(ui.EntryElapsed, Is.EqualTo(AerospaceScienceUI.DiscoveryDuration));
+                    Assert.That(runtime.HasSeenDiscovery(part.code), Is.True);
+                    ui.Close(); yield return null;
+                    runtime.RecordSuccessfulPickup(Part(part.code), "2"); yield return null;
+                    Assert.That(ui.IsOpen, Is.False, "Only repeated pickups in the same run suppress the intro.");
+                    ui.Open(part.code, false); yield return Ready(ui);
+                    Assert.That(ui.IsDiscoveryPresentation, Is.False); Assert.That(ui.EntryElapsed, Is.EqualTo(.25f));
+                    ui.Close(); yield return null;
+                }
+                Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.ArchiveKey), Is.EqualTo(31));
+                Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.DiscoverySeenKey), Is.EqualTo(31));
+                UnityEngine.Object.DestroyImmediate(runtime.gameObject); yield return null;
             }
-            Assert.That(runtime.CollectedCount, Is.EqualTo(4));
-            runtime.RecordSuccessfulPickup(Part("R05"),"1"); yield return Until(() => ui.IsOpen);
-            Assert.That(ui.IsDiscoveryPresentation, Is.True); Assert.That(ui.CurrentCode, Is.EqualTo("R05"));
-            ui.SkipReveal(); yield return Ready(ui); ui.Close(); yield return null;
-            runtime.RecordSuccessfulPickup(Part("R05"),"1"); yield return null;
-            Assert.That(ui.IsOpen, Is.False); Assert.That(runtime.CollectedCount, Is.EqualTo(5));
-            UnityEngine.Object.DestroyImmediate(runtime.gameObject);
-            var next = World.Root("Next round").AddComponent<AerospaceCollectionRuntime>(); next.ReserveOnStart = false;
-            next.RecordSuccessfulPickup(Part("R05"),"2"); yield return null;
-            Assert.That(next.GetComponent<AerospaceScienceUI>().IsOpen, Is.False);
-            Assert.That(next.CollectedCount, Is.EqualTo(1)); ContractCompleted = true;
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator ExitingAndReenteringPlayWithoutDomainReloadRelocksTheArchive()
+        {
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 31);
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.DiscoverySeenKey, 31);
+            PlayerPrefs.Save();
+            var runtime = Create(); var ui = runtime.GetComponent<AerospaceScienceUI>();
+            yield return null;
+            runtime.RecordSuccessfulPickup(Part("R02"), "1");
+            yield return Ready(ui);
+            Assert.That(runtime.HasSeenDiscovery("R02"), Is.True);
+            ui.Close();
+            yield return new ExitPlayMode();
+            yield return new EnterPlayMode(false);
+            Assert.That(AerospaceCollectionRuntime.Instance, Is.Null, "The previous runtime must not survive Play restart.");
+            runtime = Create(); ui = runtime.GetComponent<AerospaceScienceUI>(); yield return null;
+            foreach (var part in AerospaceCatalog.Load().models)
+                Assert.That(runtime.IsUnlocked(part.code) || runtime.HasSeenDiscovery(part.code), Is.False, part.code);
+            ui.Open(null, false); yield return null;
+            Assert.That(ui.CurrentCode, Is.Null); Assert.That(ui.Stage.Ready, Is.False);
+            ui.Close();
+            runtime.RecordSuccessfulPickup(Part("R02"), "1");
+            yield return Until(() => ui.IsOpen);
+            Assert.That(ui.CurrentCode, Is.EqualTo("R02")); Assert.That(ui.IsDiscoveryPresentation, Is.True);
+            yield return Ready(ui);
+            Assert.That(ui.EntryElapsed, Is.EqualTo(AerospaceScienceUI.DiscoveryDuration));
+            ui.Close(); ContractCompleted = true;
         }
 
         [UnityTest]

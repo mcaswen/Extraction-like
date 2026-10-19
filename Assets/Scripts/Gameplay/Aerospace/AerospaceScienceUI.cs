@@ -256,11 +256,11 @@ namespace ExtractionLike.Aerospace
             for (int i = 0; i < cards.Count; i++)
             {
                 bool unlocked = owner.IsUnlocked(parts[i].code), selected = current?.code == parts[i].code;
-                bool collected = owner.HasCollected(parts[i].code); cards[i].interactable = unlocked;
+                cards[i].interactable = unlocked;
                 cardTitles[i].text = AerospaceScienceCopy.For(parts[i].code).shortName;
                 cardTitles[i].color = selected ? Ink : unlocked ? Muted : new Color(.39f, .44f, .45f);
-                cardStates[i].text = parts[i].code + " / " + (collected ? "本局收集" : unlocked ? "历史归档" : "未发现");
-                cardStates[i].color = selected ? Accent : collected ? Teal : Muted;
+                cardStates[i].text = parts[i].code + " / " + (unlocked ? "本局收集" : "未发现");
+                cardStates[i].color = selected ? Accent : unlocked ? Teal : Muted;
                 cardIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .22f);
                 cardRules[i].color = Color.clear;
                 if (selected) MoveArchiveCursor(i);

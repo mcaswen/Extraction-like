@@ -22,7 +22,15 @@ namespace AgentReproduction.Tests
             PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             var runtime = World.Root("Science presentation fixture").AddComponent<AerospaceCollectionRuntime>();
             runtime.ReserveOnStart = false;
-            if (unlocked) PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 31);
+            if (unlocked)
+            {
+                foreach (var part in AerospaceCatalog.Load().models)
+                {
+                    runtime.RecordSuccessfulPickup(Resources.Load<InventoryItemData>("Aerospace/Items/" + part.code), "1");
+                    runtime.CompleteDiscovery(part.code);
+                }
+                runtime.GetComponent<AudioSource>().Stop();
+            }
             return runtime.GetComponent<AerospaceScienceUI>();
         }
         static T Named<T>(AerospaceScienceUI ui, string name) where T : Component =>
@@ -296,7 +304,7 @@ namespace AgentReproduction.Tests
             if (TestRunContext.Load().graphics) yield return Capture(ui, "Empty_Archive", 1600, 900);
             Click(ui, "Close_Inspection"); Assert.That(Time.timeScale, Is.EqualTo(2)); Assert.That(ui.Stage.Texture, Is.Null);
             // Opening an empty archive must not leave a stale reading state after the first unlock.
-            PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 1 << 1);
+            ui.GetComponent<AerospaceCollectionRuntime>().RecordSuccessfulPickup(Resources.Load<InventoryItemData>("Aerospace/Items/R02"), "1");
             ui.Open(null, false); yield return Ready(ui);
             Assert.That(ui.CurrentCode, Is.EqualTo("R02")); Assert.That(ui.ActiveReadingTab, Is.Zero);
             AssertCollectionCluesRemoved(ui);

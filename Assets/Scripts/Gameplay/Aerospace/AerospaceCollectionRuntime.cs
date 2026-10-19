@@ -17,9 +17,9 @@ namespace ExtractionLike.Aerospace
     public sealed class AerospaceCollectionRuntime : MonoBehaviour
     {
         public const string FormalScene = "Assets/Scenes/Scene_DB/Scenezl_Final 1.unity";
+        // Deprecated preference identifiers, retained only for compatibility regression
+        // checks. Collection/entry state is scene-local; never read or write these keys.
         public const string ArchiveKey = "ASTRA_ScienceArchive_v1";
-        // Keep the legacy archive key to preserve collected samples. Unlocking an item
-        // (including the old demo button) does not prove its introduction was watched.
         public const string DiscoverySeenKey = "AerospaceScience.DiscoverySeen.v1";
         public const KeyCode GrantShortcut = KeyCode.F8;
         public static AerospaceCollectionRuntime Instance { get; private set; }
@@ -31,6 +31,7 @@ namespace ExtractionLike.Aerospace
         private readonly HashSet<LootBoxEntity> searchedBoxes = new HashSet<LootBoxEntity>();
         private InventoryItemData[] reservedItems;
         private readonly HashSet<string> collected = new HashSet<string>();
+        private readonly HashSet<string> discoveriesSeen = new HashSet<string>();
         private sealed class DiscoveryRequest { public string code; public Rect? origin; }
         private readonly Queue<DiscoveryRequest> pending = new Queue<DiscoveryRequest>();
         private readonly HashSet<string> queuedDiscoveries = new HashSet<string>();
@@ -47,16 +48,15 @@ namespace ExtractionLike.Aerospace
         [NonSerialized] public bool ReserveOnStart = true;
         public string Status { get; private set; } = "正在核验搜索点…";
         public bool HasCollected(string code) => collected.Contains(code);
-        public bool IsUnlocked(string code) => (PlayerPrefs.GetInt(ArchiveKey, 0) & Bit(code)) != 0;
-        public bool HasSeenDiscovery(string code) => (PlayerPrefs.GetInt(DiscoverySeenKey, 0) & Bit(code)) != 0;
+        // A new runtime (new game/scene or entering Play again) always starts locked.
+        // Only successful backpack acquisition records collection, never opening J.
+        public bool IsUnlocked(string code) => collected.Contains(code);
+        public bool HasSeenDiscovery(string code) => discoveriesSeen.Contains(code);
         public bool NeedsDiscovery(string code) => code != null && recoveredNaturally.Contains(code) && !HasSeenDiscovery(code);
         public void CompleteDiscovery(string code)
         {
-            if (!IsUnlocked(code) || HasSeenDiscovery(code)) return;
-            PlayerPrefs.SetInt(DiscoverySeenKey, PlayerPrefs.GetInt(DiscoverySeenKey, 0) | Bit(code));
-            PlayerPrefs.Save();
+            if (IsUnlocked(code)) discoveriesSeen.Add(code);
         }
-        private static int Bit(string code) => code != null && code.Length == 3 && code[2] >= '1' && code[2] <= '5' ? 1 << (code[2] - '1') : 0;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Install()
@@ -261,10 +261,6 @@ namespace ExtractionLike.Aerospace
             string code = AerospaceCatalog.CodeFor(item);
             if (code == null || string.IsNullOrEmpty(agentId)) return;
             bool firstThisRound = collected.Add(code);
-            if (!IsUnlocked(code))
-            {
-                PlayerPrefs.SetInt(ArchiveKey, PlayerPrefs.GetInt(ArchiveKey, 0) | Bit(code)); PlayerPrefs.Save();
-            }
             // One dedicated voice: rapid successful pickups retrigger instead of stacking
             // several full-level impacts. Never change global or ordinary-loot audio volume.
             // The manual grant unlocks the archive without opening five discovery windows.
@@ -272,8 +268,8 @@ namespace ExtractionLike.Aerospace
             {
                 recoveredNaturally.Add(code);
                 if (firstThisRound && discovery.clip != null) discovery.Play();
-                // A successful transfer owns discovery; neither legacy archive bits nor
-                // demo grants consume it. Mark it seen only after the presentation succeeds.
+                // A successful transfer owns discovery in this run. Old saved progress
+                // and opening the archive cannot consume it in a later run.
                 if (NeedsDiscovery(code) && queuedDiscoveries.Add(code))
                     pending.Enqueue(new DiscoveryRequest { code = code, origin = origin });
             }

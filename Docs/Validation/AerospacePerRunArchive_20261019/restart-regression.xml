@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:46Z" duration="28.1941663">
+  <test-suite type="TestSuite" id="2045" name="AgentRepro_EntryDressing_20261019" fullname="AgentRepro_EntryDressing_20261019" runstate="Runnable" testcasecount="861" result="Passed" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:46Z" duration="28.194166" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="3083" name="Assembly-CSharp-Editor.dll" fullname="/private/tmp/aerospace-entry-dressing.Vae1WF/project/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="861" result="Passed" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:46Z" duration="28.185496" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="52023" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="3084" name="AgentReproduction" fullname="AgentReproduction" runstate="Runnable" testcasecount="861" result="Passed" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:46Z" duration="28.185191" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="3085" name="Tests" fullname="AgentReproduction.Tests" runstate="Runnable" testcasecount="861" result="Passed" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:46Z" duration="28.181162" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="2046" name="AerospaceAcquisitionTests" fullname="AgentReproduction.Tests.AerospaceAcquisitionTests" classname="AgentReproduction.Tests.AerospaceAcquisitionTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:46Z" duration="28.158579" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2050" name="ExitingAndReenteringPlayWithoutDomainReloadRelocksTheArchive" fullname="AgentReproduction.Tests.AerospaceAcquisitionTests.ExitingAndReenteringPlayWithoutDomainReloadRelocksTheArchive" methodname="ExitingAndReenteringPlayWithoutDomainReloadRelocksTheArchive" classname="AgentReproduction.Tests.AerospaceAcquisitionTests" runstate="Runnable" seed="1655182535" result="Passed" start-time="2026-10-18 17:57:18Z" end-time="2026-10-18 17:57:23Z" duration="5.502467" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[Aerospace] 1 recovered R02; collection 1/5.
+[Aerospace] 1 recovered R02; collection 1/5.
+]]></output>
+            </test-case>
+            <test-case id="2049" name="OldSavedArchiveNeverUnlocksANewRunAndEveryPartScansAgainAfterRestart" fullname="AgentReproduction.Tests.AerospaceAcquisitionTests.OldSavedArchiveNeverUnlocksANewRunAndEveryPartScansAgainAfterRestart" methodname="OldSavedArchiveNeverUnlocksANewRunAndEveryPartScansAgainAfterRestart" classname="AgentReproduction.Tests.AerospaceAcquisitionTests" runstate="Runnable" seed="1146323176" result="Passed" start-time="2026-10-18 17:57:23Z" end-time="2026-10-18 17:57:46Z" duration="22.648836" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+              </properties>
+              <output><![CDATA[[Aerospace] 1 recovered R01; collection 1/5.
+[Aerospace] 2 recovered R01; collection 1/5.
+[Aerospace] 1 recovered R02; collection 2/5.
+[Aerospace] 2 recovered R02; collection 2/5.
+[Aerospace] 1 recovered R03; collection 3/5.
+[Aerospace] 2 recovered R03; collection 3/5.
+[Aerospace] 1 recovered R04; collection 4/5.
+[Aerospace] 2 recovered R04; collection 4/5.
+[Aerospace] 1 recovered R05; collection 5/5.
+[Aerospace] 2 recovered R05; collection 5/5.
+[Aerospace] 1 recovered R01; collection 1/5.
+[Aerospace] 2 recovered R01; collection 1/5.
+[Aerospace] 1 recovered R02; collection 2/5.
+[Aerospace] 2 recovered R02; collection 2/5.
+[Aerospace] 1 recovered R03; collection 3/5.
+[Aerospace] 2 recovered R03; collection 3/5.
+[Aerospace] 1 recovered R04; collection 4/5.
+[Aerospace] 2 recovered R04; collection 4/5.
+[Aerospace] 1 recovered R05; collection 5/5.
+[Aerospace] 2 recovered R05; collection 5/5.
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

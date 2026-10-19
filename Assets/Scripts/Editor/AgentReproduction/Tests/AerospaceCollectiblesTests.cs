@@ -89,11 +89,14 @@ namespace AgentReproduction.Tests
             TestNavMeshBuilder.Flat(World); AgentFactory.Create(World, "1", Vector3.zero);
             var screen = InventoryFactory.Create(World); var runtime = Runtime();
             PlayerPrefs.SetInt(AerospaceCollectionRuntime.ArchiveKey, 31);
+            PlayerPrefs.SetInt(AerospaceCollectionRuntime.DiscoverySeenKey, 31);
             PlayerPrefs.DeleteKey("AerospaceScience.ReducedMotion.v1");
             var ui = runtime.GetComponent<AerospaceScienceUI>();
             if (ui.ReducedMotion) ui.ToggleReducedMotion();
             yield return null;
             Assert.That(ui.GetComponentsInChildren<UnityEngine.UI.Graphic>(), Is.Empty, "The closed archive must have no HUD, counter, button or hint.");
+            Assert.That(AerospaceCatalog.Load().models.All(p => !runtime.IsUnlocked(p.code) && !runtime.HasSeenDiscovery(p.code)), Is.True,
+                "Saved unlock and seen flags are irrelevant to the new run.");
             foreach (var code in new[] { "R01", "R02", "R03", "R04", "R05" })
             {
                 OpenParts(screen, code);
@@ -125,6 +128,7 @@ namespace AgentReproduction.Tests
                 ui.Close(); screen.CloseInventory();
             }
             Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.DiscoverySeenKey), Is.EqualTo(31));
+            Assert.That(AerospaceCatalog.Load().models.All(p => runtime.HasSeenDiscovery(p.code)), Is.True);
             ContractCompleted = true;
         }
 
@@ -295,11 +299,16 @@ namespace AgentReproduction.Tests
             yield return null; Assert.That(ui.IsOpen, Is.False); Assert.That(runtime.CollectedCount, Is.EqualTo(5));
             screen.CloseInventory(); Assert.That(Time.timeScale, Is.EqualTo(4));
             ui.Open("R03", false); yield return WaitFor(() => !ui.IsTransitioning); ui.Close(); Assert.That(Time.timeScale, Is.EqualTo(4));
-            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.ArchiveKey), Is.EqualTo(31));
+            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.ArchiveKey, 0), Is.Zero, "Acquiring samples must not write a permanent unlock.");
+            Assert.That(PlayerPrefs.GetInt(AerospaceCollectionRuntime.DiscoverySeenKey, 0), Is.Zero, "Entry playback is recorded only in this run.");
             UnityEngine.Object.DestroyImmediate(runtime.gameObject);
             var nextRun = World.Root("Next round archive fixture").AddComponent<AerospaceCollectionRuntime>(); nextRun.ReserveOnStart = false;
             Assert.That(nextRun.CollectedCount, Is.Zero);
-            foreach (string code in codes) Assert.That(nextRun.IsUnlocked(code), Is.True, "Archive survives runtime replacement, unlike round progress.");
+            foreach (string code in codes)
+            {
+                Assert.That(nextRun.IsUnlocked(code), Is.False, "New runs must relock every sample.");
+                Assert.That(nextRun.HasSeenDiscovery(code), Is.False, "Every new run gets its own first-pickup presentation.");
+            }
             ContractCompleted = true;
         }
         [UnityTest]
