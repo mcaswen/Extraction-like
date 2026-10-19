@@ -1422,6 +1422,23 @@
         "NodeStatusAndEventsAreRecordedWithoutStringTraces",
         "StateMachineObserverSeesOnlyTheEvaluationsTheMachineMakes"
       ]
+    },
+    {
+      "name": "BrainTreeEquivalence",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.BrainTreeEquivalenceTests",
+      "expected": [
+        "NavigateTreeMatchesLegacy(\"ArriveAndFinish\")",
+        "NavigateTreeMatchesLegacy(\"RetargetMidway\")",
+        "NavigateTreeMatchesLegacy(\"InvalidTarget\")",
+        "NavigateTreeMatchesLegacy(\"WrongKind\")",
+        "NavigateTreeMatchesLegacy(\"WrongType\")",
+        "NavigateTreeMatchesLegacy(\"NoDirective\")",
+        "InvestigateEnemySourceTreeMatchesLegacy(\"ArriveAndHold\")",
+        "InvestigateEnemySourceTreeMatchesLegacy(\"WrongKind\")",
+        "InvestigateEnemySourceTreeMatchesLegacy(\"InvalidTarget\")",
+        "FactoryUsesRefactoredMoveTrees"
+      ]
     }
   ]
 }

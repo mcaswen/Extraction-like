@@ -1,6 +1,7 @@
 using Core.BehaviorTree.Blackboard;
 using Core.BehaviorTree.Nodes.Leaves;
 using Core.BehaviorTree.Runtime;
+using Gameplay.Agent.AI.Nodes;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Navigation;
@@ -36,11 +37,7 @@ namespace Gameplay.Agent.AI.Actions
         /// <param name="agent"></param>
         /// <returns></returns>
         protected bool TryGetAgent(BehaviorTreeContext context, out IAgentReadOnly agent)
-        {
-            // UserContext 由 AgentBrainController 注入，节点不反查场景对象
-            agent = context.UserContext as IAgentReadOnly;
-            return agent != null && agent.CachedTransform != null && !agent.IsDead;
-        }
+            => AgentTreeQueries.TryGetAgent(context, out agent);
 
         /// <summary>
         /// 从黑板中读取指定类型的待处理指令
@@ -54,17 +51,7 @@ namespace Gameplay.Agent.AI.Actions
             BehaviorTreeContext context,
             AgentDirectiveType directiveType,
             out AgentDirectiveRequest directiveRequest)
-        {
-            if (!context.Blackboard.TryGetValue(
-                    AgentBlackboardKeys.PendingDirectiveRequest,
-                    out directiveRequest))
-            {
-                return false;
-            }
-
-            // 不消费类型不匹配的指令，避免节点误处理其他目标
-            return directiveRequest.DirectiveType == directiveType;
-        }
+            => AgentTreeQueries.TryGetDirective(context, directiveType, out directiveRequest);
 
         /// <summary>
         /// 将 AgentTargetRef 解析为可移动的世界坐标

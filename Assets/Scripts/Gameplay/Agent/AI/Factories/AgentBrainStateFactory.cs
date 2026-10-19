@@ -1,7 +1,5 @@
-using BehaviorTreeType = global::Core.BehaviorTree.Runtime.BehaviorTree;
-using Core.BehaviorTree.Nodes.Composites;
-using Gameplay.Agent.AI.Actions;
 using Gameplay.Agent.AI.States;
+using Gameplay.Agent.AI.Trees;
 using Gameplay.Agent.Data;
 
 namespace Gameplay.Agent.AI.Factories
@@ -43,138 +41,50 @@ namespace Gameplay.Agent.AI.Factories
             return new AgentBrainState(
                 AgentMacroStateId.Explore,
                 "Explore",
-                BuildMaintainStateTree(AgentMacroStateId.Explore));
+                AgentLegacyBrainTrees.Explore());
         }
 
         public AgentBrainState CreateNavigateState()
-            => new AgentBrainState(AgentMacroStateId.Navigate, "Navigate",
-                new BehaviorTreeType("NavigateTree", new MoveToTargetActionNode("Navigate_MoveToLocation",
-                    AgentDirectiveType.MoveTo, AgentTargetKind.Location, AgentBlackboardKeys.MoveStoppingDistance,
-                    2f, finishDirectiveOnArrival: true)));
+            => new AgentBrainState(AgentMacroStateId.Navigate, "Navigate", AgentBrainTrees.Navigate());
 
-        /// <summary>
-        /// 创建战斗状态
-        /// </summary>
-        /// <returns></returns>
         public AgentBrainState CreateCombatState()
         {
             return new AgentBrainState(
                 AgentMacroStateId.Combat,
                 "Combat",
-                BuildCombatTree());
+                AgentLegacyBrainTrees.Combat());
         }
 
-        /// <summary>
-        /// 创建敌人来源侦查状态
-        /// </summary>
-        /// <returns></returns>
         public AgentBrainState CreateInvestigateEnemySourceState()
         {
             return new AgentBrainState(
                 AgentMacroStateId.InvestigateEnemySource,
                 "InvestigateEnemySource",
-                BuildInvestigateEnemySourceTree());
+                AgentBrainTrees.InvestigateEnemySource());
         }
 
-        /// <summary>
-        /// 创建资源搜索状态
-        /// </summary>
-        /// <returns></returns>
         public AgentBrainState CreateSearchResourceState()
         {
             return new AgentBrainState(
                 AgentMacroStateId.SearchResource,
                 "SearchResource",
-                BuildSearchResourceTree(AgentMacroStateId.SearchResource));
+                AgentLegacyBrainTrees.SearchResource(AgentMacroStateId.SearchResource));
         }
 
-        /// <summary>
-        /// 创建战利品交互状态
-        /// 当前复用资源搜索行为树
-        /// </summary>
-        /// <returns></returns>
         public AgentBrainState CreateInteractLootState()
         {
             return new AgentBrainState(
                 AgentMacroStateId.InteractLoot,
                 "InteractLoot",
-                BuildSearchResourceTree(AgentMacroStateId.InteractLoot));
+                AgentLegacyBrainTrees.SearchResource(AgentMacroStateId.InteractLoot));
         }
 
-        /// <summary>
-        /// 创建撤离状态
-        /// </summary>
-        /// <returns></returns>
         public AgentBrainState CreateExtractionState()
         {
             return new AgentBrainState(
                 AgentMacroStateId.Extraction,
                 "Extraction",
-                BuildExtractionTree());
-        }
-
-        /// <summary>
-        /// 构建只维持宏状态标记的保底行为树
-        /// </summary>
-        /// <param name="macroStateId"></param>
-        /// <returns></returns>
-        private static BehaviorTreeType BuildMaintainStateTree(AgentMacroStateId macroStateId)
-        {
-            return new BehaviorTreeType(
-                $"{macroStateId}Tree",
-                new MaintainMacroStateActionNode(
-                    $"{macroStateId}_MaintainMacroState",
-                    macroStateId));
-        }
-
-        private static BehaviorTreeType BuildCombatTree()
-        {
-            return new BehaviorTreeType("CombatTree", new EngageEnemyActionNode("Combat_EngageEnemy"));
-        }
-
-        private static BehaviorTreeType BuildInvestigateEnemySourceTree()
-        {
-            // 敌人来源点只负责靠近侦查，真正接战必须等活跃敌人群出现
-            return new BehaviorTreeType(
-                "InvestigateEnemySourceTree",
-                new MoveToTargetActionNode(
-                    "InvestigateEnemySource_MoveToSource",
-                    AgentDirectiveType.MoveTo,
-                    AgentTargetKind.EnemySource,
-                    AgentBlackboardKeys.MoveStoppingDistance,
-                    2f));
-        }
-
-        private static BehaviorTreeType BuildSearchResourceTree(AgentMacroStateId macroStateId)
-        {
-            // 搜索和开箱共用同一条执行链，宏状态差异只保留在状态名上
-            return new BehaviorTreeType(
-                $"{macroStateId}Tree",
-                new SequenceNode(
-                    $"{macroStateId}_SearchSequence",
-                    new MoveToTargetActionNode(
-                        $"{macroStateId}_MoveToResource",
-                        AgentDirectiveType.Search,
-                        AgentTargetKind.Resource,
-                        AgentBlackboardKeys.InteractionDistance,
-                        1.5f),
-                    new SearchResourceActionNode($"{macroStateId}_SearchResource")));
-        }
-
-        private static BehaviorTreeType BuildExtractionTree()
-        {
-            // 撤离树先到达范围，再让撤离节点持续桥接 RaidFlowController 的计时状态
-            return new BehaviorTreeType(
-                "ExtractionTree",
-                new SequenceNode(
-                    "Extraction_Sequence",
-                    new MoveToTargetActionNode(
-                        "Extraction_MoveToPoint",
-                        AgentDirectiveType.Extract,
-                        AgentTargetKind.Extraction,
-                        AgentBlackboardKeys.InteractionDistance,
-                        1.5f),
-                    new ExtractActionNode("Extraction_Extract")));
+                AgentLegacyBrainTrees.Extraction());
         }
     }
 }
