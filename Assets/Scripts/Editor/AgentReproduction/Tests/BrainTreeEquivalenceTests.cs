@@ -35,13 +35,13 @@ namespace AgentReproduction.Tests
                 case "ArriveAndHold":
                     steps.Add(new BrainStep("issue", 3, s => s.SetDirective(Move("Nav-1", kind, new Vector3(10, 0, 0)))));
                     steps.Add(new BrainStep("halfway", 2, s => s.PlaceAgent(new Vector3(5, 0, 0))));
-                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(9, 0, 0))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(9.9f, 0, 0))));
                     steps.Add(new BrainStep("cleared", 2, s => s.ClearDirective()));
                     break;
                 case "RetargetMidway":
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Move("Nav-1", kind, new Vector3(10, 0, 0)))));
                     steps.Add(new BrainStep("retarget", 2, s => s.SetDirective(Move("Nav-2", kind, new Vector3(-10, 0, 0)))));
-                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(-9, 0, 0))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(-9.9f, 0, 0))));
                     break;
                 case "InvalidTarget":
                     steps.Add(new BrainStep("issue", 3, s => s.SetDirective(Move("Nav-1", kind, Vector3.zero, false))));
@@ -61,6 +61,7 @@ namespace AgentReproduction.Tests
             return steps;
         }
 
+        // 智能体的移动停止距离 0.25、交互距离来自真实配置；到达类步骤把智能体放在目标 0.2 米以内
         private static readonly Vector3 ExitPosition = new Vector3(10, 0, 0);
 
         // 撤离：智能体 + 一个撤离群（单个撤离点）+ RaidFlowController；探针读取撤离计时登记
@@ -92,25 +93,25 @@ namespace AgentReproduction.Tests
             {
                 case "ArriveLeaveReturn":
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit")))));
-                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(ExitPosition + new Vector3(-1, 0, 0))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(ExitPosition + new Vector3(-0.15f, 0, 0))));
                     steps.Add(new BrainStep("leave", 2, s => s.PlaceAgent(new Vector3(5, 0, 0))));
-                    steps.Add(new BrainStep("return", 2, s => s.PlaceAgent(ExitPosition + new Vector3(0, 0, 1))));
+                    steps.Add(new BrainStep("return", 2, s => s.PlaceAgent(ExitPosition + new Vector3(0, 0, 0.15f))));
                     steps.Add(new BrainStep("cleared", 2, s => s.ClearDirective()));
                     break;
                 case "DirectPoint":
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Point(), "point")))));
-                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(ExitPosition + new Vector3(-1, 0, 0))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(ExitPosition + new Vector3(-0.15f, 0, 0))));
                     break;
                 case "NoPointAtTarget":
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromAbstractPoint(AgentTargetKind.Extraction, "nowhere", new Vector3(-10, 0, 0))))));
-                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(-9, 0, 0))));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(new Vector3(-9.9f, 0, 0))));
                     break;
                 case "WrongKind":
                     steps.Add(new BrainStep("issue", 3, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Location, Cluster(), "exit")))));
                     break;
                 default:
                     steps.Add(new BrainStep("issue", 1, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit")))));
-                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(ExitPosition + new Vector3(-1, 0, 0))));
+                    steps.Add(new BrainStep("arrive", 2, s => s.PlaceAgent(ExitPosition + new Vector3(-0.15f, 0, 0))));
                     break;
             }
 
