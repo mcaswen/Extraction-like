@@ -153,8 +153,7 @@ namespace Gameplay.Agent.Telemetry.UI
             RefreshGraph();
             RefreshTree();
             RefreshSlots();
-            RefreshScores();
-            RefreshTimeline();
+            RefreshTimeline(RefreshScores());
             _leftVectors.Commit();
             _rightVectors.Commit();
         }

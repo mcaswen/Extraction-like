@@ -11,11 +11,12 @@ namespace Gameplay.Agent.Telemetry.UI
     /// <summary>
     /// 右栏上半：活动槽和挂起槽（命令种类、来源和目标），以及最近一轮目标评分。
     /// 每个候选一行，堆叠条按公式拆项：基础分、当前目标加成、撤离加成，再从顶端扣掉风险和路程，竖线是总分；被排除的候选写原因。
+    /// 图例紧跟在最后一行之后，候选少时空出的高度留给下面的时间线。
     /// </summary>
     public sealed partial class AgentBrainPanel
     {
         private const float SlotY = 56, SlotW = 168, SlotH = 62;
-        private const float ScoreTitleY = 136, FormulaY = 158, ScoreRowsY = 184, ScoreRowHeight = 44, LegendY = 456;
+        private const float ScoreTitleY = 136, FormulaY = 158, ScoreRowsY = 184, ScoreRowHeight = 44;
         private const float ScoreNameX = 16, ScoreBarX = 154, ScoreBarW = 156, ScoreValueX = 320, ScoreBarH = 14;
         public const int MaxScoreRows = 6;
 
@@ -105,7 +106,8 @@ namespace Gameplay.Agent.Telemetry.UI
         private string DirectiveTarget(in AgentDirectiveRequest request)
             => request.RouteContext.IsValid ? _names.Node(request.RouteContext.NodeId) : _names.Of(request.TargetObject);
 
-        private void RefreshScores()
+        /// <returns>评分区（含图例）的底边</returns>
+        private float RefreshScores()
         {
             AgentDecisionConfig config = _recorder != null ? _recorder.DecisionConfig : null;
             SetText(_formula, config == null ? string.Empty
@@ -154,7 +156,7 @@ namespace Gameplay.Agent.Telemetry.UI
                 DrawBar(candidate.Breakdown, y + (ScoreRowHeight - ScoreBarH) * .5f, scale);
             }
 
-            DrawLegend(config);
+            return DrawLegend(config, ScoreRowsY + Mathf.Max(1, count) * ScoreRowHeight + 10);
         }
 
         private static bool Accepted(AgentCandidateVerdict verdict) => verdict == AgentCandidateVerdict.Chosen || verdict == AgentCandidateVerdict.NotBest;
@@ -225,11 +227,11 @@ namespace Gameplay.Agent.Telemetry.UI
             _rightVectors.Hatch(ScoreBarX + x0, y, x1 - x0, ScoreBarH, tint);
         }
 
-        // 图例按文字实际宽度排成两行
-        private void DrawLegend(AgentDecisionConfig config)
+        // 图例按文字实际宽度换行，返回底边
+        private float DrawLegend(AgentDecisionConfig config, float top)
         {
             SetText(_legendLabels[1], config != null ? "当前目标 +" + config.CurrentTargetBonus.ToString("0.#") : LegendNames[1]);
-            float x = ScoreNameX, y = LegendY;
+            float x = ScoreNameX, y = top;
             for (int item = 0; item < LegendNames.Length; item++)
             {
                 float width = 16 + _legendLabels[item].preferredWidth;
@@ -252,6 +254,7 @@ namespace Gameplay.Agent.Telemetry.UI
                 _legendLabels[item].rectTransform.anchoredPosition = new Vector2(x + 16, -y);
                 x += width + 14;
             }
+            return y + 18;
         }
     }
 }

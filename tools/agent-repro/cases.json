@@ -1494,6 +1494,7 @@
       "expected": [
         "PanelStyleMatchesScienceTerminal",
         "PanelShowsRetaliationOverSuspendedCommand",
+        "PanelOverFinalSceneShowsMapNamesAndRetaliation",
         "EveryTreeNodeHasAChineseName",
         "PanelCharactersArePrebakedInScienceFonts"
       ]

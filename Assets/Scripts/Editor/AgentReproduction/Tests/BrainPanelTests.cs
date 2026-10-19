@@ -14,11 +14,14 @@ using Gameplay.Agent.Core;
 using Gameplay.Agent.Telemetry;
 using Gameplay.Agent.Telemetry.UI;
 using Gameplay.MapGraph.Config;
+using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Input;
 using NUnit.Framework;
 using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using BehaviorTreeType = global::Core.BehaviorTree.Runtime.BehaviorTree;
 
@@ -26,7 +29,7 @@ namespace AgentReproduction.Tests
 {
     /// <summary>
     /// B 面板：配色与科普界面一致；真实大脑"指挥员搜索 → 受击反击"时各区内容正确，并渲染一张 1920×1080 截图供目视；
-    /// 科普档案打开时隐藏；逐帧工作不分配内存；面板会显示的中文全部预烘焙进字体；行为树节点都有中文名。
+    /// 正式场景里候选显示地图上的中文名，并截图；科普档案打开时隐藏；逐帧工作不分配内存；面板会显示的中文全部预烘焙进字体；行为树节点都有中文名。
     /// </summary>
     public sealed class BrainPanelTests : ReproductionTestFixture
     {
@@ -138,6 +141,64 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
+        public IEnumerator PanelOverFinalSceneShowsMapNamesAndRetaliation()
+        {
+            var load = EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Scene_DB/Scenezl_Final 1.unity", new LoadSceneParameters(LoadSceneMode.Single));
+            while (!load.isDone) yield return null;
+            for (int i = 0; i < 3; i++) yield return null;
+            var panel = AgentBrainPanel.Ensure();
+            try
+            {
+                panel.SetOpen(true);
+                yield return null;
+                AgentBrainRecorder recorder = null;
+                yield return RuntimeWait.Until(() => (recorder = panel.DisplayedRecorder) != null && recorder.RoundTotal > 0 && recorder.GetRound(0).Count >= 3,
+                    "focused agent scores real candidates", 60);
+                panel.RefreshNow();
+                var names = Enumerable.Range(0, AgentBrainPanel.MaxScoreRows).Select(i => Text(panel, "Score_Row_" + i + "_Name"))
+                    .Where(label => label.gameObject.activeSelf).Select(label => label.text).ToList();
+                CaseArtifactWriter.Trace("brain-panel-scene-scores", string.Join(" / ", names));
+                Assert.That(names.Count(name => name.Any(IsHan)), Is.GreaterThanOrEqualTo(names.Count - 1), "正式场景的候选应显示地图上的中文名：" + string.Join(" / ", names));
+                AgentPawnRoot agent = recorder.Pawn;
+                yield return Capture(panel, agent, "scene-autonomous", Camera.main);
+
+                // 指挥员派一个较远的资源群，走起来之后让最近的敌人打它一下，复现"遇袭挂起与反击"；只截图不判定，真实场景里反击能否接上取决于敌人位置
+                var dispatcher = new AgentTargetCommandDispatcher();
+                string commandId = null;
+                foreach (var cluster in Object.FindObjectsOfType<ResourceClusterAuthoring>().OrderByDescending(c => Vector3.Distance(c.CenterPosition, agent.Position)))
+                {
+                    if (!dispatcher.TrySubmitClusterCommand(cluster, agent.AgentIdValue, out var order)) continue;
+                    commandId = order.CommandId;
+                    break;
+                }
+                Assert.That(commandId, Is.Not.Null, "应能给焦点智能体下达一个资源群命令");
+                yield return Frames(2f);
+                var enemy = Object.FindObjectsOfType<EnemyHealthController>().Where(e => e.GetCurrentHealthRatio() > 0f)
+                    .OrderBy(e => Vector3.Distance(e.transform.position, agent.Position)).FirstOrDefault();
+                if (enemy != null)
+                {
+                    agent.TakeCombatDamage(10, agent.Position, (agent.Position - enemy.transform.position).normalized, enemy.gameObject);
+                    float giveUp = Time.time + 5f;
+                    while (Time.time < giveUp && recorder.CurrentLeaf?.StateName != "Combat") yield return null;
+                    yield return Frames(.3f);
+                    yield return Capture(panel, agent, "scene-retaliation", Camera.main);
+                    giveUp = Time.time + 8f;
+                    while (Time.time < giveUp && !Named(panel, "Tree_Focus_Detail").activeSelf && recorder.CurrentLeaf?.StateName == "Combat") yield return null;
+                    yield return Capture(panel, agent, "scene-cooldown", Camera.main);
+                }
+
+                CaseArtifactWriter.Trace("brain-panel-scene", "leaf=" + recorder.CurrentLeaf?.StateName + "; held=" + Text(panel, "Slot_Held_What").text +
+                    "; active=" + Text(panel, "Slot_Active_What").text + " " + Text(panel, "Slot_Active_Target").text + "; enemy=" + (enemy != null ? enemy.name : "none"));
+                ContractCompleted = true;
+            }
+            finally
+            {
+                if (panel != null) Object.DestroyImmediate(panel.gameObject);
+                if (AgentBrainTelemetryHub.Instance != null) Object.DestroyImmediate(AgentBrainTelemetryHub.Instance.gameObject);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator EveryTreeNodeHasAChineseName()
         {
             var english = new List<string>();
@@ -210,18 +271,27 @@ namespace AgentReproduction.Tests
 
         private static TMP_Text Text(AgentBrainPanel panel, string name) => Named(panel, name).GetComponent<TMP_Text>();
 
-        // 截图：俯视智能体的相机渲染到 1920×1080，面板临时改为相机空间叠在上面
-        private static IEnumerator Capture(AgentBrainPanel panel, AgentPawnRoot agent, string name)
+        // 截图：相机渲染到 1920×1080，面板临时改为相机空间叠在上面。给了场景相机就复制它的机位和设置，否则俯视智能体
+        private static IEnumerator Capture(AgentBrainPanel panel, AgentPawnRoot agent, string name, Camera source = null)
         {
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) yield break;
             var cameraObject = new GameObject("Panel evidence camera");
             var camera = cameraObject.AddComponent<Camera>();
-            camera.transform.position = agent.Position + new Vector3(0, 24, -14);
-            camera.transform.LookAt(agent.Position);
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(.16f, .2f, .14f);
             var data = cameraObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-            data.renderPostProcessing = false;
+            if (source != null)
+            {
+                camera.CopyFrom(source);
+                var sourceData = source.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                data.renderPostProcessing = sourceData != null && sourceData.renderPostProcessing;
+            }
+            else
+            {
+                camera.transform.position = agent.Position + new Vector3(0, 24, -14);
+                camera.transform.LookAt(agent.Position);
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = new Color(.16f, .2f, .14f);
+                data.renderPostProcessing = false;
+            }
             var target = new RenderTexture(1920, 1080, 24);
             target.Create();
             camera.targetTexture = target;

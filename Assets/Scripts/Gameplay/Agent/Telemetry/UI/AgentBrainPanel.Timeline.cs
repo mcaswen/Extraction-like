@@ -6,11 +6,11 @@ using Style = Gameplay.Agent.Telemetry.UI.AgentBrainTerminalStyle;
 
 namespace Gameplay.Agent.Telemetry.UI
 {
-    /// <summary>右栏底部的时间线：最新的在上，状态转移、指令事件和自主选中目标各用一种颜色</summary>
+    /// <summary>右栏底部的时间线：从评分区下方排到面板底部，能放几条放几条；最新的在上，状态转移、指令事件和自主选中目标各用一种颜色</summary>
     public sealed partial class AgentBrainPanel
     {
-        private const float TimelineRuleY = 510, TimelineY = 520, TimelineRowHeight = 26;
-        public const int TimelineRows = 5;
+        private const float TimelineRowHeight = 26, TimelineBottom = 656;
+        public const int TimelineRows = 12;
 
         private static readonly string MutedHex = "#" + ColorUtility.ToHtmlStringRGB(Style.Muted);
 
@@ -20,19 +20,20 @@ namespace Gameplay.Agent.Telemetry.UI
         {
             for (int row = 0; row < TimelineRows; row++)
             {
-                float y = TimelineY + row * TimelineRowHeight;
-                _timelineTimes[row] = Label(_right, string.Empty, 16, y, 60, TimelineRowHeight, Style.TinySize, Style.Muted, Style.MonoFont);
-                _timelineTexts[row] = Label(_right, string.Empty, 98, y, 262, TimelineRowHeight, 13, Style.Ink);
+                _timelineTimes[row] = Label(_right, string.Empty, 16, 0, 60, TimelineRowHeight, Style.TinySize, Style.Muted, Style.MonoFont);
+                _timelineTexts[row] = Label(_right, string.Empty, 98, 0, 262, TimelineRowHeight, 13, Style.Ink);
                 _timelineTexts[row].richText = true;
                 _timelineTimes[row].name = "Timeline_Row_" + row + "_Time";
                 _timelineTexts[row].name = "Timeline_Row_" + row + "_Text";
             }
         }
 
-        private void RefreshTimeline()
+        private void RefreshTimeline(float scoresBottom)
         {
-            _rightVectors.Fill(16, TimelineRuleY, 344, 1, Style.Rule);
-            int count = _recorder != null ? Mathf.Min(_recorder.TimelineCount, TimelineRows) : 0;
+            float rule = scoresBottom + 14, top = rule + 10;
+            _rightVectors.Fill(16, rule, 344, 1, Style.Rule);
+            int fit = Mathf.Clamp(Mathf.FloorToInt((TimelineBottom - top) / TimelineRowHeight), 0, TimelineRows);
+            int count = _recorder != null ? Mathf.Min(_recorder.TimelineCount, fit) : 0;
             // 显示自本场景载入起的时间
             double origin = Time.timeAsDouble - Time.timeSinceLevelLoadAsDouble;
             for (int row = 0; row < TimelineRows; row++)
@@ -42,10 +43,13 @@ namespace Gameplay.Agent.Telemetry.UI
                 _timelineTexts[row].gameObject.SetActive(visible);
                 if (!visible) continue;
 
+                float y = top + row * TimelineRowHeight;
+                _timelineTimes[row].rectTransform.anchoredPosition = new Vector2(16, -y);
+                _timelineTexts[row].rectTransform.anchoredPosition = new Vector2(98, -y);
                 AgentBrainTimelineEntry entry = _recorder.GetTimeline(row);
                 SetText(_timelineTimes[row], Clock(entry.TimeSeconds - origin));
                 SetText(_timelineTexts[row], Describe(entry, out Color dot));
-                _rightVectors.Fill(82, TimelineY + row * TimelineRowHeight + 9, 8, 8, dot);
+                _rightVectors.Fill(82, y + 9, 8, 8, dot);
             }
         }
 
