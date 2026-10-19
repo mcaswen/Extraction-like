@@ -55,6 +55,7 @@ namespace AgentReproduction.Tests
         {
             TestNavMeshBuilder.Flat(World, 160);
             var agent = AgentFactory.Create(World, "Panel", Vector3.zero, 8, true, false);
+            AgentFactory.Create(World, "Panel2", new Vector3(-6, 0, -6), 0, false, false);
             TargetFactory.Resources(World, new Vector3(-18, 0, 14));
             var commanded = TargetFactory.Resources(World, new Vector3(45, 0, 0));
             TargetFactory.Extraction(World, new Vector3(0, 0, -70));
@@ -102,6 +103,10 @@ namespace AgentReproduction.Tests
                 CaseArtifactWriter.Trace("brain-panel", "tree=" + string.Join(" / ", rows) + "; timeline=" + string.Join(" / ", timeline));
 
                 yield return Capture(panel, agent, "brain-panel-retaliation");
+                // 再等到开火间隙（等待冷却在运行）拍一张，与布局稿的时刻一致；等不到也照拍
+                float giveUp = Time.time + 6f;
+                while (Time.time < giveUp && !Named(panel, "Tree_Focus_Detail").activeSelf && recorder.CurrentLeaf?.StateName == "Combat") yield return null;
+                yield return Capture(panel, agent, "brain-panel-cooldown");
 
                 // 科普档案打开时隐藏，关上后恢复（闸门在释放后多拦一帧）
                 AerospaceUiInputGate.Set(true);

@@ -288,7 +288,8 @@ namespace Gameplay.Agent.Telemetry.UI
             label.raycastTarget = false;
             label.enableWordWrapping = false;
             label.enableAutoSizing = false;
-            label.overflowMode = TextOverflowModes.Ellipsis;
+            // 不截断：中文字体的行高约 1.45 倍字号，截断模式会把比框高的整行丢掉
+            label.overflowMode = TextOverflowModes.Overflow;
             label.richText = false;
             label.extraPadding = true;
             Rect(label.rectTransform, x, y, w, h);
