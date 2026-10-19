@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Core.BehaviorTree.Runtime;
 using Gameplay.Agent.AI.Memory;
+using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
 
 namespace Gameplay.Agent.AI.Nodes.Search
@@ -21,6 +22,13 @@ namespace Gameplay.Agent.AI.Nodes.Search
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
             global::LootBoxEntity lootBox = Memory.LootBox;
+            // Preserve the shared opening gate when using the granular search tree.
+            // Loot cadence and inventory-ready must wait for the same lid animation as the legacy tree.
+            if (!ExtractionLike.Environment.RecoveryCaseOpeningFeedback.EnsureOpen(lootBox.gameObject))
+            {
+                Memory.ReportInteraction(context, lootBox.gameObject, AgentResourceInteractionStage.OpeningContainer);
+                return Running();
+            }
             ExtractionLike.Aerospace.AerospaceCollectionRuntime.Instance?.PrepareSearchedBox(lootBox);
             lootBox.EnsureLootGeneratedIfNeeded();
             if (lootBox.IsBoardGameResourcePoint)

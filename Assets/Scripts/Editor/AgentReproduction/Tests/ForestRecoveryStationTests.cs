@@ -95,7 +95,12 @@ namespace AgentReproduction.Tests
                     Assert.That(p.x,Is.InRange(3,64));Assert.That(p.z,Is.InRange(-51,57));
                 }
                 var indices=b.removedInstanceIndices.ToHashSet();
-                CollectionAssert.AreEqual(source.Where((t,i)=>!indices.Contains(i)).ToArray(),kept);
+                var expected=source.Where((t,i)=>!indices.Contains(i)).ToArray();
+                // Compare every authored field exactly, excluding Unity's internal temporaryDistance
+                // cache, which changes when the terrain is rendered from a different camera.
+                CollectionAssert.AreEqual(
+                    expected.Select(t=>(t.position,t.widthScale,t.heightScale,t.rotation,t.color,t.lightmapColor,t.prototypeIndex)).ToArray(),
+                    kept.Select(t=>(t.position,t.widthScale,t.heightScale,t.rotation,t.color,t.lightmapColor,t.prototypeIndex)).ToArray());
             }
         }
         [Test] public void EquipmentDoesNotSitOnWalkableGroundEvenWithoutColliders()
