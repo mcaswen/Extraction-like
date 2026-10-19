@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
@@ -20,6 +19,7 @@ namespace AgentReproduction.Tests
     {
         private const int Warmup = 200;
         private const int Samples = 5000;
+        private const int AllocationSamples = 500;
 
         public static string[] Scenarios = { "ExploreIdle", "SearchApproach", "CombatCooldown" };
 
@@ -38,15 +38,15 @@ namespace AgentReproduction.Tests
             for (int i = 0; i < Warmup; i++) brain.Tick(0.016f, time);
             string state = agent.CurrentMacroStateName;
 
-            long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
             var watch = Stopwatch.StartNew();
             for (int i = 0; i < Samples; i++) brain.Tick(0.016f, time);
             watch.Stop();
-            long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
+            // 分配单独测一小段，尽量避开回收；回收打断时重测
+            long allocated = ManagedAllocation.Measure(() => { for (int i = 0; i < AllocationSamples; i++) brain.Tick(0.016f, time); });
 
             double microseconds = watch.Elapsed.TotalMilliseconds * 1000d / Samples;
-            double bytes = (double)allocated / Samples;
-            string line = $"scenario={scenario}; state={state}; samples={Samples}; usPerTick={microseconds:0.###}; bytesPerTick={bytes:0.#}";
+            string bytes = allocated == ManagedAllocation.Inconclusive ? "inconclusive" : ((double)allocated / AllocationSamples).ToString("0.#");
+            string line = $"scenario={scenario}; state={state}; samples={Samples}; usPerTick={microseconds:0.###}; bytesPerTick={bytes}";
             CaseArtifactWriter.Trace("brain-benchmark", line);
             UnityEngine.Debug.Log("[BrainBenchmark] " + line);
             ContractCompleted = true;
