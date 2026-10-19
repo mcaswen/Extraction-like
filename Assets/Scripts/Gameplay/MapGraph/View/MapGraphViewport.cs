@@ -67,9 +67,16 @@ namespace Gameplay.MapGraph.View
             _backdrop.SetActive(IsVisible&&IsExpanded);
             _canvas.sortingOrder=IsExpanded?300:200;
             _panel.anchorMin=_panel.anchorMax=_panel.pivot=IsExpanded?Vector2.one*.5f:Vector2.one;
-            _panel.sizeDelta=IsExpanded?new Vector2(Mathf.Min(1100,available.x-100),Mathf.Min(860,available.y-100)):new Vector2(380,350);
-            _panel.anchoredPosition=IsExpanded?Vector2.zero:new Vector2(-20,-20);
-            _overlay.SetViewport(new Vector2(_panel.sizeDelta.x,_panel.sizeDelta.y-94),IsExpanded,_zoom,_pan); Revision++;
+            Vector2 panelSize=IsExpanded?new Vector2(Mathf.Min(1100,available.x-100),Mathf.Min(860,available.y-100)):new Vector2(380,290);
+            float aspect=_overlay.ArtworkAspectRatio;
+            if(aspect>0)
+            {
+                if(panelSize.x/panelSize.y>aspect)panelSize.x=panelSize.y*aspect;
+                else panelSize.y=panelSize.x/aspect;
+            }
+            _panel.sizeDelta=panelSize;
+            _panel.anchoredPosition=IsExpanded?Vector2.zero:new Vector2(-40,-40);
+            _overlay.SetViewport(_content.rect.size,IsExpanded,_zoom,_pan); Revision++;
         }
         public void OnScroll(PointerEventData data)
         { if(!IsVisible||!IsExpanded)return;_zoom=Mathf.Clamp(_zoom*Mathf.Pow(1.15f,data.scrollDelta.y),1,4);ClampPan();Apply(); }

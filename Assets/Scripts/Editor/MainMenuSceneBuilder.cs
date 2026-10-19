@@ -33,6 +33,7 @@ public static class MainMenuSceneBuilder
     [MenuItem("Tools/UI/Rebuild Main Menu Scene")]
     public static void RebuildMainMenuScene()
     {
+        AstronUiAssetBuilder.ImportArtwork();
         Sprite backgroundSprite = ImportSprite(BackgroundPath);
         Sprite gameNameSprite = ImportSprite(GameNamePath);
         Sprite buttonSprite = ImportSprite(ButtonPath);
@@ -50,6 +51,7 @@ public static class MainMenuSceneBuilder
 
         Text[] labels = CreateMenuButtons(canvas.transform, buttonSprite, titleFont, controller);
         AssignControllerReferences(controller, titleFont, labels);
+        AstronUiAssetBuilder.ApplyMainMenu(canvas);
 
         CreateEventSystem();
 
