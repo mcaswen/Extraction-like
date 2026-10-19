@@ -24,8 +24,9 @@ namespace AgentReproduction.Tests
     {
         public static string[] NavigateScenarios = { "ArriveAndFinish", "RetargetMidway", "InvalidTarget", "WrongKind", "WrongType", "NoDirective" };
         public static string[] InvestigateScenarios = { "ArriveAndHold", "WrongKind", "InvalidTarget" };
-        public static string[] ExtractionScenarios = { "ArriveLeaveReturn", "DirectPoint", "NoPointAtTarget", "WrongKind", "AbortWhileInside" };
-        public static string[] SearchScenarios = { "ClusterWorldItems", "LootBoxWithItems", "LeaveWhileWaiting", "AbstractPoint", "DirectWorldItem", "UnreachableMember", "AbortWhileWaiting" };
+        public static string[] ExtractionScenarios = { "ArriveLeaveReturn", "DirectPoint", "NoPointAtTarget", "WrongKind", "AbortWhileInside", "NearestPointSwitch" };
+        public static string[] SearchScenarios = { "ClusterWorldItems", "LootBoxWithItems", "LeaveWhileWaiting", "AbstractPoint", "DirectWorldItem", "UnreachableMember", "AbortWhileWaiting",
+            "TeammateSearchedAhead", "ArriveAtSearched", "AllSearchedMidway", "InvalidWorldItem", "MemberPickedUp" };
         public static string[] CombatScenarios = { "FireAndKill", "SkillThenShoot", "LostSightTimeout", "ManualApproachBudget", "Unreachable", "ShooterMissing", "NavigationNotReady", "TargetMissing", "CommandSwitch" };
 
         private static AgentDirectiveRequest Move(string id, AgentTargetKind kind, Vector3 position, bool hasPosition = true)
@@ -68,12 +69,14 @@ namespace AgentReproduction.Tests
 
         // 停止距离（移动 0.25）和交互距离（0）来自真实配置，到达容差至少 0.1；撤离到达步骤放在 0.05 米以内
         private static readonly Vector3 ExitPosition = new Vector3(10, 0, 0);
+        private static readonly Vector3 SecondExitPosition = new Vector3(-10, 0, 0);
 
-        // 撤离：智能体 + 一个撤离群（单个撤离点）+ RaidFlowController；探针读取撤离计时登记
-        private static BrainScenario ExtractionWorld(TestWorldBuilder world)
+        // 撤离：智能体 + 一个撤离群（单个撤离点，切换场景两个点）+ RaidFlowController；探针读取撤离计时登记
+        private static BrainScenario ExtractionWorld(TestWorldBuilder world, string scenarioName)
         {
             var scenario = AgentOnly(world);
-            TargetFactory.Extraction(world, ExitPosition);
+            if (scenarioName == "NearestPointSwitch") TargetFactory.ExtractionPoints(world, ExitPosition, SecondExitPosition);
+            else TargetFactory.Extraction(world, ExitPosition);
             var raid = world.Root("Equivalence raid").AddComponent<RaidFlowController>();
             scenario.Probes.Add(() =>
             {
@@ -113,6 +116,13 @@ namespace AgentReproduction.Tests
                     break;
                 case "WrongKind":
                     steps.Add(new BrainStep("issue", 3, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Location, Cluster(), "exit")))));
+                    break;
+                case "NearestPointSwitch":
+                    // 群内最近点随位置变化：先靠近第一个点，再折返到第二个点并到达
+                    steps.Add(new BrainStep("issue", 2, s => { s.PlaceAgent(new Vector3(3, 0, 0)); s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit"))); }));
+                    steps.Add(new BrainStep("turn back", 2, s => s.PlaceAgent(new Vector3(-3, 0, 0))));
+                    steps.Add(new BrainStep("arrive second", 3, s => s.PlaceAgent(SecondExitPosition + new Vector3(0.05f, 0, 0))));
+                    steps.Add(new BrainStep("cleared", 2, s => s.ClearDirective()));
                     break;
                 default:
                     steps.Add(new BrainStep("issue", 1, s => s.SetDirective(Extract("Exit-1", AgentTargetRef.FromConcreteObject(AgentTargetKind.Extraction, Cluster(), "exit")))));
@@ -156,7 +166,8 @@ namespace AgentReproduction.Tests
                     break;
                 default:
                     // 走不到的成员放在导航网格之外；第一个成员必须可达，否则在"前往资源"阶段就以目标无效结束
-                    var cluster = scenario == "ClusterWorldItems" ? TargetFactory.Resources(world, LootA, LootB)
+                    var cluster = scenario == "ClusterWorldItems" || scenario == "TeammateSearchedAhead" || scenario == "ArriveAtSearched"
+                        || scenario == "AllSearchedMidway" || scenario == "MemberPickedUp" ? TargetFactory.Resources(world, LootA, LootB)
                         : scenario == "UnreachableMember" ? TargetFactory.Resources(world, LootA, new Vector3(500, 0, 0))
                         : TargetFactory.Resources(world, LootA);
                     cluster.gameObject.name = "Equivalence resources";
@@ -183,7 +194,7 @@ namespace AgentReproduction.Tests
             scenarioWorld.Probes.Add(() =>
             {
                 var searched = new List<string>();
-                foreach (GameObject member in members) searched.Add(member.name + "=" + AgentSearchedResourceRegistry.IsSearched(member));
+                foreach (GameObject member in members) searched.Add(member == null ? "destroyed" : member.name + "=" + AgentSearchedResourceRegistry.IsSearched(member));
                 return "searched [" + string.Join(",", searched) + "] inventory open=" + screen.IsInventoryOpen +
                     " source=" + BrainTrace.Format(screen.ActiveSessionContext?.SourceObject);
             });
@@ -201,6 +212,9 @@ namespace AgentReproduction.Tests
                 { SourceObject = GameObject.Find(name), ExternalColumns = 2, ExternalRows = 2 });
 
         private static void Close() => InventoryScreenController.Instance.CloseInventory();
+
+        // 队友或其他来源在本轮搜索开始后处理了这个成员
+        private static void MarkSearched(string name) => AgentSearchedResourceRegistry.MarkSearched(GameObject.Find(name));
 
         // 资源停靠点由导航求出，不一定正好是物品位置；搜索脚本把 1 米内都视为到达
         private static AgentNavigationStatus NearArrival(BrainStepContext s, Vector3 destination)
@@ -256,6 +270,32 @@ namespace AgentReproduction.Tests
                     steps.Add(new BrainStep("arrive A", 2, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
                     steps.Add(new BrainStep("open A", 1, s => Open("Loot A")));
                     steps.Add(new BrainStep("close A", 3, s => Close()));
+                    break;
+                case "TeammateSearchedAhead":
+                case "ArriveAtSearched":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    if (scenario == "TeammateSearchedAhead")
+                        steps.Add(new BrainStep("A searched by teammate", 2, s => { MarkSearched("Loot A"); s.PlaceAgent(new Vector3(5, 0, 0)); }));
+                    else
+                        steps.Add(new BrainStep("arrive A searched", 2, s => { s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0)); MarkSearched("Loot A"); }));
+                    steps.Add(new BrainStep("arrive B", 2, s => s.PlaceAgent(LootB + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open B", 1, s => Open("Loot B")));
+                    steps.Add(new BrainStep("close B", 3, s => Close()));
+                    break;
+                case "AllSearchedMidway":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("all searched", 3, s => { MarkSearched("Loot A"); MarkSearched("Loot B"); s.PlaceAgent(new Vector3(5, 0, 0)); }));
+                    break;
+                case "InvalidWorldItem":
+                    steps.Add(new BrainStep("issue", 2, s => { GameObject.Find("Loot A").GetComponent<WorldLootItem>().CurrentAmount = 0; s.SetDirective(SearchCluster("Search-1")); }));
+                    steps.Add(new BrainStep("arrive", 3, s => s.PlaceAgent(LootA + new Vector3(-0.5f, 0, 0))));
+                    break;
+                case "MemberPickedUp":
+                    steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
+                    steps.Add(new BrainStep("A picked up", 2, s => { Object.DestroyImmediate(GameObject.Find("Loot A")); s.PlaceAgent(new Vector3(5, 0, 0)); }));
+                    steps.Add(new BrainStep("arrive B", 2, s => s.PlaceAgent(LootB + new Vector3(-0.5f, 0, 0))));
+                    steps.Add(new BrainStep("open B", 1, s => Open("Loot B")));
+                    steps.Add(new BrainStep("close B", 3, s => Close()));
                     break;
                 default:
                     steps.Add(new BrainStep("issue", 2, s => s.SetDirective(SearchCluster("Search-1"))));
@@ -411,9 +451,10 @@ namespace AgentReproduction.Tests
             string[] required = scenario == "ArriveLeaveReturn" ? new[] { "presence [Equivalence@Test extraction]", "presence []" }
                 : scenario == "DirectPoint" ? new[] { "presence [Equivalence@Test extraction]" }
                 : scenario == "NoPointAtTarget" ? new[] { "finish Exit-1 InvalidTarget matched=True" }
-                : scenario == "AbortWhileInside" ? new[] { "presence [Equivalence@Test extraction]" } : new string[0];
+                : scenario == "AbortWhileInside" ? new[] { "presence [Equivalence@Test extraction]" }
+                : scenario == "NearestPointSwitch" ? new[] { "presence [Equivalence@Test extraction 2]" } : new string[0];
             yield return Compare("Extraction/" + scenario, AgentLegacyBrainTrees.Extraction, AgentBrainTrees.Extraction,
-                () => ExtractionScript(scenario), ExtractionWorld, required);
+                () => ExtractionScript(scenario), world => ExtractionWorld(world, scenario), required);
         }
 
         [UnityTest]
@@ -428,6 +469,11 @@ namespace AgentReproduction.Tests
                 case "AbstractPoint": required = new[] { "finish Search-1 None matched=True" }; break;
                 case "DirectWorldItem": required = new[] { "Completed:Loot A", "finish Search-1 None matched=True" }; break;
                 case "UnreachableMember": required = new[] { "finish Search-1 Unreachable matched=True" }; break;
+                case "TeammateSearchedAhead":
+                case "ArriveAtSearched":
+                case "MemberPickedUp": required = new[] { "WaitingForInventory:Loot B", "finish Search-1 None matched=True" }; break;
+                case "AllSearchedMidway":
+                case "InvalidWorldItem": required = new[] { "finish Search-1 " }; break;
                 default: required = new[] { "WaitingForInventory:Loot A", "Left:Loot A" }; break;
             }
 

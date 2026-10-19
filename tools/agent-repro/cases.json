@@ -1406,7 +1406,9 @@
       "expected": [
         "BrainTickCostIsRecorded(\"ExploreIdle\")",
         "BrainTickCostIsRecorded(\"SearchApproach\")",
-        "BrainTickCostIsRecorded(\"CombatCooldown\")"
+        "BrainTickCostIsRecorded(\"CombatCooldown\")",
+        "RefactoredTreeCostComparedWithLegacy(\"SearchApproach\")",
+        "RefactoredTreeCostComparedWithLegacy(\"CombatCooldown\")"
       ]
     },
     {
@@ -1442,6 +1444,7 @@
         "ExtractionTreeMatchesLegacy(\"NoPointAtTarget\")",
         "ExtractionTreeMatchesLegacy(\"WrongKind\")",
         "ExtractionTreeMatchesLegacy(\"AbortWhileInside\")",
+        "ExtractionTreeMatchesLegacy(\"NearestPointSwitch\")",
         "CombatTreeMatchesLegacy(\"FireAndKill\")",
         "CombatTreeMatchesLegacy(\"SkillThenShoot\")",
         "CombatTreeMatchesLegacy(\"LostSightTimeout\")",
@@ -1458,6 +1461,11 @@
         "SearchTreeMatchesLegacy(\"DirectWorldItem\")",
         "SearchTreeMatchesLegacy(\"UnreachableMember\")",
         "SearchTreeMatchesLegacy(\"AbortWhileWaiting\")",
+        "SearchTreeMatchesLegacy(\"TeammateSearchedAhead\")",
+        "SearchTreeMatchesLegacy(\"ArriveAtSearched\")",
+        "SearchTreeMatchesLegacy(\"AllSearchedMidway\")",
+        "SearchTreeMatchesLegacy(\"InvalidWorldItem\")",
+        "SearchTreeMatchesLegacy(\"MemberPickedUp\")",
         "NodeEventSinkLeavesBehaviorUnchanged(\"Combat\")",
         "NodeEventSinkLeavesBehaviorUnchanged(\"Search\")",
         "FactoryUsesRefactoredTrees"

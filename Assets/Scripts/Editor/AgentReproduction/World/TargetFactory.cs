@@ -46,17 +46,28 @@ namespace AgentReproduction.World
             root.SetActive(true);
             return cluster;
         }
-        public static ExtractionClusterAuthoring Extraction(TestWorldBuilder world, Vector3 position)
+        public static ExtractionClusterAuthoring Extraction(TestWorldBuilder world, Vector3 position) => ExtractionPoints(world, position);
+        // 第一个点叫 "Test extraction"，之后依次 "Test extraction 2"、"Test extraction 3"
+        public static ExtractionClusterAuthoring ExtractionPoints(TestWorldBuilder world, params Vector3[] positions)
         {
-            GameObject point=world.Root("Test extraction",false);
-            point.transform.position=position;
-            BoxCollider collider=point.AddComponent<BoxCollider>();
-            collider.isTrigger=true; collider.size=new Vector3(2,3,2);
-            point.AddComponent<ExtractionPointController>();
+            var points=new List<GameObject>();
+            var members=new List<GameplayTargetEntityMember>();
+            for(int i=0;i<positions.Length;i++)
+            {
+                string suffix=i==0?"":" "+(i+1);
+                GameObject point=world.Root("Test extraction"+suffix,false);
+                point.transform.position=positions[i];
+                BoxCollider collider=point.AddComponent<BoxCollider>();
+                collider.isTrigger=true; collider.size=new Vector3(2,3,2);
+                point.AddComponent<ExtractionPointController>();
+                points.Add(point);
+                members.Add(new GameplayTargetEntityMember("ExitMember"+suffix.Trim(),point));
+            }
             GameObject clusterRoot=world.Root("Test extraction cluster",false);
             ExtractionClusterAuthoring cluster=clusterRoot.AddComponent<ExtractionClusterAuthoring>();
-            RuntimeFixtureAccess.Configure(cluster,"_extractionMembers",new List<GameplayTargetEntityMember> {new GameplayTargetEntityMember("ExitMember",point)});
-            point.SetActive(true); clusterRoot.SetActive(true);
+            RuntimeFixtureAccess.Configure(cluster,"_extractionMembers",members);
+            foreach(GameObject point in points) point.SetActive(true);
+            clusterRoot.SetActive(true);
             return cluster;
         }
     }
