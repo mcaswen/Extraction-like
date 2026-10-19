@@ -17,6 +17,45 @@ namespace Core.BehaviorTree.Nodes
 
         public string NodeName { get; }
 
+        /// <summary>面向展示的名称；未设置时与 NodeName 相同</summary>
+        public string DisplayName
+        {
+            get => string.IsNullOrEmpty(_displayName) ? NodeName : _displayName;
+            set => _displayName = value;
+        }
+
+        private string _displayName;
+
+        /// <summary>节点类别，供可视化和遥测区分组合、装饰、条件和动作</summary>
+        public virtual BehaviorNodeKind Kind => BehaviorNodeKind.Action;
+
+        /// <summary>直接子节点数量；叶子节点为 0</summary>
+        public virtual int ChildCount => 0;
+
+        /// <summary>按序号取直接子节点</summary>
+        public virtual BehaviorNode GetChild(int index)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+
+        /// <summary>所属行为树；构建 BehaviorTree 时写入，一个节点实例只能属于一棵树</summary>
+        public global::Core.BehaviorTree.Runtime.BehaviorTree Tree { get; internal set; }
+
+        /// <summary>在所属树内的深度优先序号；未加入树时为 -1</summary>
+        public int Index { get; internal set; } = -1;
+
+        /// <summary>当前是否已进入且尚未退出或中断</summary>
+        public bool IsEntered => _hasEntered;
+
+        /// <summary>最近一次 Tick 的结果状态</summary>
+        public BehaviorNodeStatus LastStatus { get; private set; } = BehaviorNodeStatus.Failure;
+
+        /// <summary>最近一次 Tick 失败时的失败码</summary>
+        public BehaviorFailureCode LastFailureCode { get; private set; }
+
+        /// <summary>最近一次 Tick 所在的运行器推进序号；从未执行时为 0</summary>
+        public int LastTickVersion { get; private set; }
+
         /// <summary>
         /// 进入该节点
         /// </summary>
@@ -26,7 +65,7 @@ namespace Core.BehaviorTree.Nodes
             if (_hasEntered) return;
 
             _hasEntered = true;
-            context.LogNodeEvent(NodeName, "Enter");
+            context.RecordNodeEvent(this, BehaviorNodeEventKind.Enter, LastStatus, BehaviorFailureCode.None);
             OnEnter(context);
         }
 
@@ -40,7 +79,10 @@ namespace Core.BehaviorTree.Nodes
             if (!_hasEntered) Enter(context);
 
             BehaviorNodeResult result = Tick(context);
-            context.LogNodeEvent(NodeName, $"Tick => {result}");
+            LastStatus = result.Status;
+            LastFailureCode = result.FailureReason.Code;
+            LastTickVersion = context.TickVersion;
+            context.RecordNodeEvent(this, BehaviorNodeEventKind.Tick, result.Status, result.FailureReason.Code);
             return result;
         }
 
@@ -54,7 +96,7 @@ namespace Core.BehaviorTree.Nodes
             if (!_hasEntered) return;
 
             OnExit(context, result);
-            context.LogNodeEvent(NodeName, $"Exit => {result}");
+            context.RecordNodeEvent(this, BehaviorNodeEventKind.Exit, result.Status, result.FailureReason.Code);
             _hasEntered = false;
         }
 
@@ -67,7 +109,7 @@ namespace Core.BehaviorTree.Nodes
             if (!_hasEntered) return;
 
             OnAbort(context);
-            context.LogNodeEvent(NodeName, "Abort");
+            context.RecordNodeEvent(this, BehaviorNodeEventKind.Abort, LastStatus, BehaviorFailureCode.ExternalAbort);
             _hasEntered = false;
         }
 

@@ -1408,6 +1408,20 @@
         "BrainTickCostIsRecorded(\"SearchApproach\")",
         "BrainTickCostIsRecorded(\"CombatCooldown\")"
       ]
+    },
+    {
+      "name": "BehaviorTreeLibrary",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.BehaviorTreeLibraryTests",
+      "expected": [
+        "ReactiveSequenceRechecksEarlierChildrenAndAbortsTheRunningLaterChild",
+        "ReactiveSelectorPreemptsTheRunningLowerPriorityChild",
+        "MemoryCompositesKeepTheirOriginalResumeSemantics",
+        "ScopeDecoratorWrapsTheSubtreeLifecycle",
+        "TreeIndexesNodesDepthFirstAndRejectsSharedInstances",
+        "NodeStatusAndEventsAreRecordedWithoutStringTraces",
+        "StateMachineObserverSeesOnlyTheEvaluationsTheMachineMakes"
+      ]
     }
   ]
 }
