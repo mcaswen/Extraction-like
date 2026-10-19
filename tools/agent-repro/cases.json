@@ -1458,7 +1458,31 @@
         "SearchTreeMatchesLegacy(\"DirectWorldItem\")",
         "SearchTreeMatchesLegacy(\"UnreachableMember\")",
         "SearchTreeMatchesLegacy(\"AbortWhileWaiting\")",
+        "NodeEventSinkLeavesBehaviorUnchanged(\"Combat\")",
+        "NodeEventSinkLeavesBehaviorUnchanged(\"Search\")",
         "FactoryUsesRefactoredTrees"
+      ]
+    },
+    {
+      "name": "BrainTelemetry",
+      "suite": "Core",
+      "filter": "AgentReproduction.Tests.BrainTelemetryTests",
+      "expected": [
+        "DecisionTelemetryMatchesScoringAndLeavesChoiceUnchanged(1.0f)",
+        "DecisionTelemetryMatchesScoringAndLeavesChoiceUnchanged(0.100000001f)",
+        "ApproachProbesDoNotChangeTheChosenPoint(\"Open\")",
+        "ApproachProbesDoNotChangeTheChosenPoint(\"Walled\")",
+        "ApproachProbesDoNotChangeTheChosenPoint(\"Floating\")",
+        "HubRecordsTheLiveBrainAndDetachesCleanly",
+        "TelemetryCodeAvoidsStateChangingCalls"
+      ]
+    },
+    {
+      "name": "TelemetryBuildGating",
+      "suite": "Regression",
+      "filter": "AgentReproduction.Tests.TelemetryBuildGatingTests",
+      "expected": [
+        "ReleaseBuildExcludesTelemetryAndLegacyTrees"
       ]
     }
   ]

@@ -13,6 +13,12 @@ namespace Gameplay.Agent.Combat
     {
         public TargetVisibilityResult LastShotResult { get; private set; }
         public AgentShotFailure LastShotFailure { get; private set; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>最近一次真实射击判定的枪口位置和目标，供三维叠加层画视线；只在判定处写入</summary>
+        public Vector3 LastShotOrigin { get; private set; }
+        public global::EnemyHealthController LastShotTarget { get; private set; }
+        public long LastShotVersion { get; private set; }
+#endif
         public bool IsConfigured => isActiveAndEnabled && (_bulletPrefab != null || _createFallbackBulletIfPrefabMissing);
         /// <summary>给定姿态的只读枪口预测，不旋转角色，也不覆盖真实射击诊断。</summary>
         public bool CanShootFrom(global::EnemyHealthController targetEnemy, float range, Vector3 position, Quaternion rotation)
@@ -34,6 +40,11 @@ namespace Gameplay.Agent.Combat
             }
             if (targetEnemy == null || !targetEnemy.IsAlive)
             { LastShotResult = TargetVisibilityResult.Invalid; LastShotFailure = AgentShotFailure.InvalidTarget; return false; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            LastShotOrigin = ResolveFirePosition();
+            LastShotTarget = targetEnemy;
+            LastShotVersion++;
+#endif
             LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range);
             if (LastShotResult == TargetVisibilityResult.Visible && !HasProjectileClearance(ResolveFirePosition(), targetEnemy.transform))
                 LastShotResult = TargetVisibilityResult.Occluded;

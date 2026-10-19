@@ -456,6 +456,39 @@ namespace AgentReproduction.Tests
                 () => CombatScript(scenario), world => CombatWorld(world, scenario), required);
         }
 
+        // 遥测挂上节点事件接收器后，同一脚本的逐帧副作用记录必须与不挂时完全一致
+        [UnityTest]
+        public IEnumerator NodeEventSinkLeavesBehaviorUnchanged([Values("Combat", "Search")] string tree)
+        {
+            TestNavMeshBuilder.Flat(World, 160);
+            var traces = new List<string>[2];
+            var ring = new Core.BehaviorTree.Debugging.BehaviorNodeEventRing(256);
+            for (int variant = 0; variant < 2; variant++)
+            {
+                var rootsBefore = new HashSet<GameObject>(UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects());
+                using (var runWorld = new TestWorldBuilder())
+                {
+                    BrainScenario scenario = tree == "Combat" ? CombatWorld(runWorld, "FireAndKill") : SearchWorld(runWorld, "ClusterWorldItems");
+                    yield return null;
+                    Physics.SyncTransforms();
+                    try
+                    {
+                        traces[variant] = BrainTreeHarness.Run(scenario.Pawn, tree == "Combat" ? (System.Func<BehaviorTreeType>)AgentBrainTrees.Combat : AgentBrainTrees.SearchResource,
+                            tree == "Combat" ? CombatScript("FireAndKill") : SearchScript("ClusterWorldItems"), scenario.Probes, variant == 1 ? ring : null);
+                    }
+                    finally { foreach (System.Action cleanup in scenario.Cleanups) cleanup(); }
+                }
+
+                foreach (GameObject root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+                    if (!rootsBefore.Contains(root)) Object.DestroyImmediate(root);
+            }
+
+            string difference = BrainTreeHarness.FirstDifference(traces[0], traces[1]);
+            Assert.That(difference, Is.Null, tree + " 挂上事件接收器后行为改变：" + difference);
+            Assert.That(ring.TotalRecorded, Is.GreaterThan(0), "接收器应收到节点事件");
+            ContractCompleted = true;
+        }
+
         [UnityTest]
         public IEnumerator FactoryUsesRefactoredTrees()
         {

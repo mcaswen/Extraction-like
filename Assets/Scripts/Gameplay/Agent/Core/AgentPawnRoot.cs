@@ -64,6 +64,11 @@ namespace Gameplay.Agent.Core
         private AgentNavigationMotor _navigationMotor;
         public AgentDirectiveLifecycleController DirectiveLifecycle => _directiveLifecycle;
         private AgentRouteController _routeController;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>遥测只读访问：大脑和导航电机</summary>
+        internal AgentBrainController BrainController => _brainController;
+        internal AgentNavigationMotor NavigationMotor => _navigationMotor;
+#endif
         private AgentRouteEnvironment _routeEnvironment;
         public AgentRouteSnapshot RouteSnapshot => _routeController?.Snapshot ?? default;
         public event System.Action<AgentRouteResult> RouteResultPublished;

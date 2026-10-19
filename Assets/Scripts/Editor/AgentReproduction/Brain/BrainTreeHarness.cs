@@ -79,7 +79,8 @@ namespace AgentReproduction.Brain
             AgentPawnRoot pawn,
             Func<BehaviorTreeType> buildTree,
             IEnumerable<BrainStep> steps,
-            IReadOnlyList<Func<string>> probes = null)
+            IReadOnlyList<Func<string>> probes = null,
+            Core.BehaviorTree.Debugging.IBehaviorNodeEventSink eventSink = null)
         {
             var log = new List<string>();
             var blackboard = new BehaviorBlackboard();
@@ -90,7 +91,7 @@ namespace AgentReproduction.Brain
 
             var agent = new RecordingAgent(pawn, blackboard, log) { TimeSeconds = time };
             blackboard.ValueChanged += (_, change) => log.Add("bb " + change.Key + "=" + BrainTrace.Format(change.NewValue));
-            var context = new BehaviorTreeContext(blackboard, null, agent);
+            var context = new BehaviorTreeContext(blackboard, null, agent) { NodeEventSink = eventSink };
             var runner = new BehaviorTreeRunner(buildTree(), context);
             var step = new BrainStepContext { Blackboard = blackboard, Agent = agent, Pawn = pawn, Log = log };
 

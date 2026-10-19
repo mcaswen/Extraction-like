@@ -101,22 +101,29 @@ namespace Gameplay.Agent.Decision
             IAgentReadOnly agent = _pawnRoot;
             IAgentCommandReceiver commandReceiver = _pawnRoot;
 
-            if (AgentManualDirectiveLock.ShouldHoldRoute(agent)) return;
+            if (AgentManualDirectiveLock.ShouldHoldRoute(agent))
+            {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.RouteHeld);
+                return;
+            }
 
             if (AgentManualDirectiveLock.ShouldHoldManualDirective(agent))
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.ManualDirectiveLock);
                 WriteDecisionDisabled(agent, "手动目标指令锁定中");
                 return;
             }
 
             if (AgentManualDirectiveLock.ShouldHoldCombatDamageDirective(agent))
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.RetaliationLock);
                 WriteDecisionDisabled(agent, "受击反击指令锁定中");
                 return;
             }
 
             if (!_enableDecisionModule || _decisionConfig == null)
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.ModuleDisabled);
                 WriteDecisionDisabled(agent, "决策组件未启用或缺少 AgentDecisionConfig");
                 return;
             }
@@ -127,6 +134,7 @@ namespace Gameplay.Agent.Decision
 
             if (range <= 0f)
             {
+                RecordTelemetrySkip(AgentDecisionSkipReasonCode.NoDiscoveryRange);
                 WriteDecisionFailure(agent, decisionContext, 0, 0, "发现范围为 0，清空目标");
                 ClearTargetFacts(commandReceiver);
                 return;
@@ -139,11 +147,16 @@ namespace Gameplay.Agent.Decision
             AgentTargetDecisionService decisionService = GetDecisionService();
             int candidateCount = _decisionCandidateBuffer.Count + _farExitCandidates.Count;
             int riskEnemyCount = _riskEnemyBuffer.Count;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            decisionService.Telemetry = TelemetrySink;
+            TelemetrySink?.BeginRound(Time.timeAsDouble, decisionContext);
+            TelemetrySink?.BeginList(false);
+#endif
             if (!decisionService.TryChooseTarget(
                     decisionContext,
                     _decisionCandidateBuffer,
                     out AgentDecisionResult result) &&
-                !decisionService.TryChooseTarget(decisionContext,_farExitCandidates,out result))
+                !TryChooseFallbackExit(decisionService, decisionContext, out result))
             {
                 WriteDecisionFailure(agent, decisionContext, candidateCount, riskEnemyCount, result.Reason);
                 ClearTargetFacts(commandReceiver);
@@ -152,6 +165,38 @@ namespace Gameplay.Agent.Decision
 
             ApplyDecisionTarget(commandReceiver, result);
             WriteDecisionResult(agent, decisionContext, candidateCount, riskEnemyCount, result);
+        }
+
+        // 主列表没有可选目标时，再在范围外的撤离点里选一次
+        private bool TryChooseFallbackExit(AgentTargetDecisionService decisionService, AgentDecisionContext decisionContext, out AgentDecisionResult result)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            TelemetrySink?.BeginList(true);
+#endif
+            return decisionService.TryChooseTarget(decisionContext, _farExitCandidates, out result);
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>遥测接收器；为空时决策不做任何额外工作</summary>
+        internal IAgentDecisionRoundSink TelemetrySink { get; set; }
+#endif
+
+        private enum AgentDecisionSkipReasonCode { RouteHeld, ManualDirectiveLock, RetaliationLock, ModuleDisabled, NoDiscoveryRange }
+
+        // 正式构建里是空方法，调用点不需要条件编译
+        [System.Diagnostics.Conditional("UNITY_EDITOR"), System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        private void RecordTelemetrySkip(AgentDecisionSkipReasonCode reason)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            TelemetrySink?.RecordSkip(Time.timeAsDouble, reason switch
+            {
+                AgentDecisionSkipReasonCode.RouteHeld => AgentDecisionSkipReason.RouteHeld,
+                AgentDecisionSkipReasonCode.ManualDirectiveLock => AgentDecisionSkipReason.ManualDirectiveLock,
+                AgentDecisionSkipReasonCode.RetaliationLock => AgentDecisionSkipReason.RetaliationLock,
+                AgentDecisionSkipReasonCode.ModuleDisabled => AgentDecisionSkipReason.ModuleDisabled,
+                _ => AgentDecisionSkipReason.NoDiscoveryRange
+            });
+#endif
         }
 
         private void CacheComponents()
