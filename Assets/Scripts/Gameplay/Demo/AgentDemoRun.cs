@@ -141,26 +141,34 @@ namespace Gameplay.Demo
             foreach (MapGraphNodeDefinition node in Binding.MapDefinition.Nodes)
                 if (node != null) kinds[node.NodeId] = node.NodeKind;
 
-            string best = string.Empty, fallback = string.Empty;
-            float bestLength = float.PositiveInfinity, fallbackLength = 0f;
+            // 依次比较：是否途经敌人群（需要避开时）、是否短于 25 米、图上路程
+            string best = string.Empty;
+            float bestRank = float.PositiveInfinity, bestLength = 0f;
+            bool bestPassesEnemies = false;
+            int estimated = 0;
             foreach (MapGraphTargetBinding binding in Binding.TargetBindings)
             {
                 if (binding == null || !(binding.DirectTarget is ResourceClusterAuthoring cluster) || !cluster.isActiveAndEnabled || cluster.HasBeenCompleted) continue;
                 if (excludeCurrentTarget && (binding.NodeId == _rememberedTarget)) continue;
                 if (!Pawn.TryEstimateRoute(AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, cluster.gameObject, cluster.TargetId), _routeNodes, out float length)) continue;
-                if (avoidEnemyNodes && PassesEnemies(kinds)) continue;
-                if (length >= MinimumRouteMeters && length < bestLength) { best = binding.NodeId; bestLength = length; }
-                if (length > fallbackLength) { fallback = binding.NodeId; fallbackLength = length; }
+                estimated++;
+                bool passesEnemies = PassesEnemies(kinds);
+                float rank = (avoidEnemyNodes && passesEnemies ? 2000000f : 0f) + (length < MinimumRouteMeters ? 1000000f : 0f) + length;
+                if (rank >= bestRank) continue;
+                best = binding.NodeId;
+                bestRank = rank;
+                bestLength = length;
+                bestPassesEnemies = passesEnemies;
             }
 
-            _submittedNode = best.Length > 0 ? best : fallback;
+            _submittedNode = best;
             if (_submittedNode.Length == 0) { Fail("找不到合适的资源群"); return; }
             MapGraphPresenter presenter = Object.FindObjectOfType<MapGraphPresenter>();
             bool viaMap = presenter != null && presenter.isActiveAndEnabled;
             if (viaMap) presenter.SubmitNode(_submittedNode);
             else AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(_submittedNode, AgentRouteSource.Player, Pawn.AgentId));
-            Log.Begin("commander-route").Field("node", _submittedNode).Field("length", best.Length > 0 ? bestLength : fallbackLength)
-                .Field("viaMap", viaMap).End();
+            Log.Begin("commander-route").Field("node", _submittedNode).Field("length", bestLength).Field("passesEnemies", bestPassesEnemies)
+                .Field("candidates", estimated).Field("viaMap", viaMap).End();
         }
 
         /// <summary>让离智能体最近、还没被叫过的存活敌人察觉智能体（敌人走自己的追击和开火）；之后由 Tick 视情况换下一个</summary>
