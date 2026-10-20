@@ -17,10 +17,11 @@ namespace AgentReproduction.Tests
         private static readonly string[] ReleaseMustNotContain =
         {
             "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentApproachProbeLog", "AgentLegacyBrainTrees", "EngageEnemyActionNode",
-            "AgentBrainPanel", "AgentBrainVectorGraphic", "TelemetryConfig", "TelemetryNextAttackTime"
+            "AgentBrainPanel", "AgentBrainVectorGraphic", "TelemetryConfig", "TelemetryNextAttackTime",
+            "AgentBrainOverlay", "AgentBrainOverlayDrawer", "LastShotBlocker"
         };
 
-        private static readonly string[] DevelopmentMustContain = { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentBrainPanel" };
+        private static readonly string[] DevelopmentMustContain = { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentBrainPanel", "AgentBrainOverlay" };
 
         private static readonly string[] BothMustContain = { "AgentBrainTrees", "AgentEngageMemory", "AgentSearchMemory" };
 

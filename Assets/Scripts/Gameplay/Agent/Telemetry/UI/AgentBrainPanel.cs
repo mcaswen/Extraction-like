@@ -256,7 +256,7 @@ namespace Gameplay.Agent.Telemetry.UI
             }
         }
 
-        private static RectTransform Panel(Transform parent, string name, Vector2 anchor, Vector2 position, Vector2 size)
+        internal static RectTransform Panel(Transform parent, string name, Vector2 anchor, Vector2 position, Vector2 size)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
@@ -271,7 +271,7 @@ namespace Gameplay.Agent.Telemetry.UI
             return rect;
         }
 
-        private static AgentBrainVectorGraphic Vectors(Transform parent, string name, float w, float h)
+        internal static AgentBrainVectorGraphic Vectors(Transform parent, string name, float w, float h)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(AgentBrainVectorGraphic));
             go.transform.SetParent(parent, false);
@@ -281,7 +281,7 @@ namespace Gameplay.Agent.Telemetry.UI
             return graphic;
         }
 
-        private static TMP_Text Label(Transform parent, string text, float x, float y, float w, float h, int size, Color color,
+        internal static TMP_Text Label(Transform parent, string text, float x, float y, float w, float h, int size, Color color,
             TMP_FontAsset font = null, TextAlignmentOptions alignment = TextAlignmentOptions.MidlineLeft)
         {
             var go = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -303,7 +303,7 @@ namespace Gameplay.Agent.Telemetry.UI
             return label;
         }
 
-        private static void SetText(TMP_Text label, string text)
+        internal static void SetText(TMP_Text label, string text)
         {
             if (label.text != text) label.text = text;
         }

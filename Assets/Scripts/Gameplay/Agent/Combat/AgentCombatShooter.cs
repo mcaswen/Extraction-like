@@ -18,6 +18,9 @@ namespace Gameplay.Agent.Combat
         public Vector3 LastShotOrigin { get; private set; }
         public global::EnemyHealthController LastShotTarget { get; private set; }
         public long LastShotVersion { get; private set; }
+        /// <summary>最近一次判定受阻时挡住视线或弹道的碰撞体和挡点；通畅时碰撞体为空</summary>
+        public Collider LastShotBlocker { get; private set; }
+        public Vector3 LastShotBlockPoint { get; private set; }
 #endif
         public bool IsConfigured => isActiveAndEnabled && (_bulletPrefab != null || _createFallbackBulletIfPrefabMissing);
         /// <summary>给定姿态的只读枪口预测，不旋转角色，也不覆盖真实射击诊断。</summary>
@@ -27,7 +30,7 @@ namespace Gameplay.Agent.Combat
             Vector3 offset = Quaternion.Inverse(transform.rotation) * (ResolveFirePosition() - transform.position);
             Vector3 muzzle = position + rotation * offset;
             return TargetVisibilityQuery.Check(transform, muzzle, targetEnemy.transform, range) == TargetVisibilityResult.Visible &&
-                HasProjectileClearance(muzzle, targetEnemy.transform);
+                HasProjectileClearance(muzzle, targetEnemy.transform, out _, out _);
         }
         public bool CanShootAt(global::EnemyHealthController targetEnemy, float range)
         {
@@ -40,14 +43,18 @@ namespace Gameplay.Agent.Combat
             }
             if (targetEnemy == null || !targetEnemy.IsAlive)
             { LastShotResult = TargetVisibilityResult.Invalid; LastShotFailure = AgentShotFailure.InvalidTarget; return false; }
+            LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range,
+                360f, Physics.DefaultRaycastLayers, out Collider blocker, out Vector3 blockPoint);
+            if (LastShotResult == TargetVisibilityResult.Visible &&
+                !HasProjectileClearance(ResolveFirePosition(), targetEnemy.transform, out blocker, out blockPoint))
+                LastShotResult = TargetVisibilityResult.Occluded;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             LastShotOrigin = ResolveFirePosition();
             LastShotTarget = targetEnemy;
+            LastShotBlocker = blocker;
+            LastShotBlockPoint = blockPoint;
             LastShotVersion++;
 #endif
-            LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range);
-            if (LastShotResult == TargetVisibilityResult.Visible && !HasProjectileClearance(ResolveFirePosition(), targetEnemy.transform))
-                LastShotResult = TargetVisibilityResult.Occluded;
             if (LastShotResult != TargetVisibilityResult.Visible)
                 LastShotFailure = LastShotResult == TargetVisibilityResult.OutOfRange ? AgentShotFailure.OutOfRange : AgentShotFailure.Occluded;
             return LastShotResult == TargetVisibilityResult.Visible;
@@ -172,10 +179,15 @@ namespace Gameplay.Agent.Combat
             return radius;
         }
 
-        private bool HasProjectileClearance(Vector3 muzzle, Transform target)
+        // 被挡时给出最先碰到的碰撞体和它的最近点，供开发构建画视线
+        private bool HasProjectileClearance(Vector3 muzzle, Transform target, out Collider blocker, out Vector3 blockPoint)
         {
-            return !ProjectileSweepQuery.TryFirstHit(null, transform, muzzle, CombatAimPointResolver.Resolve(target),
-                ResolveProjectileRadius(), out Collider first) || TargetVisibilityQuery.BelongsTo(first.transform, target);
+            blocker = null; blockPoint = muzzle;
+            if (!ProjectileSweepQuery.TryFirstHit(null, transform, muzzle, CombatAimPointResolver.Resolve(target),
+                    ResolveProjectileRadius(), out Collider first) || TargetVisibilityQuery.BelongsTo(first.transform, target))
+                return true;
+            blocker = first; blockPoint = first.ClosestPointOnBounds(muzzle);
+            return false;
         }
 
         private void FaceTarget(Vector3 aimPosition)

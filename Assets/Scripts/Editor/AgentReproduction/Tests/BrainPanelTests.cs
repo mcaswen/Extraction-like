@@ -150,9 +150,12 @@ namespace AgentReproduction.Tests
             while (!load.isDone) yield return null;
             for (int i = 0; i < 3; i++) yield return null;
             var panel = AgentBrainPanel.Ensure();
+            // 演示时面板和叠加层一起开，截图也一起拍
+            var overlay = Gameplay.Agent.Telemetry.Overlay.AgentBrainOverlay.Ensure();
             try
             {
                 panel.SetOpen(true);
+                overlay.SetMode(Gameplay.Agent.Telemetry.Overlay.AgentBrainOverlay.Mode.Focused);
                 yield return null;
                 AgentBrainRecorder recorder = null;
                 float deadline = Time.realtimeSinceStartup + 60f;
@@ -174,7 +177,7 @@ namespace AgentReproduction.Tests
                 CaseArtifactWriter.Trace("brain-panel-scene-scores", string.Join(" / ", names));
                 Assert.That(names.Count(name => name.Any(IsHan)), Is.GreaterThanOrEqualTo(names.Count - 1), "正式场景的候选应显示地图上的中文名：" + string.Join(" / ", names));
                 AgentPawnRoot agent = recorder.Pawn;
-                yield return Capture(panel, agent, "scene-autonomous", Camera.main);
+                yield return Capture(panel, agent, "scene-autonomous", Camera.main, overlay.Legend);
 
                 // 指挥员经地图给它下达一条去较远资源群的路线，走起来之后让最近的敌人打它一下，复现"遇袭挂起与反击"；
                 // 只截图不判定，真实场景里反击能否接上取决于敌人位置
@@ -201,10 +204,10 @@ namespace AgentReproduction.Tests
                     float giveUp = Time.time + 5f;
                     while (Time.time < giveUp && recorder.CurrentLeaf?.StateName != "Combat") yield return null;
                     yield return Frames(.3f);
-                    yield return Capture(panel, agent, "scene-retaliation", Camera.main);
+                    yield return Capture(panel, agent, "scene-retaliation", Camera.main, overlay.Legend);
                     giveUp = Time.time + 8f;
                     while (Time.time < giveUp && !Named(panel, "Tree_Focus_Detail").activeSelf && recorder.CurrentLeaf?.StateName == "Combat") yield return null;
-                    yield return Capture(panel, agent, "scene-cooldown", Camera.main);
+                    yield return Capture(panel, agent, "scene-cooldown", Camera.main, overlay.Legend);
                 }
 
                 CaseArtifactWriter.Trace("brain-panel-scene", "leaf=" + recorder.CurrentLeaf?.StateName + "; held=" + Text(panel, "Slot_Held_What").text +
@@ -213,6 +216,7 @@ namespace AgentReproduction.Tests
             }
             finally
             {
+                if (overlay != null) Object.DestroyImmediate(overlay.gameObject);
                 if (panel != null) Object.DestroyImmediate(panel.gameObject);
                 if (AgentBrainTelemetryHub.Instance != null) Object.DestroyImmediate(AgentBrainTelemetryHub.Instance.gameObject);
             }
@@ -249,13 +253,14 @@ namespace AgentReproduction.Tests
             yield return null;
         }
 
-        // 面板代码里的字符串、各棵树的节点名、地图定义里的区域名
+        // 面板和叠加层代码里的字符串、各棵树的节点名、地图定义里的区域名
         private static string RequiredCharacters()
         {
             var text = new StringBuilder();
-            foreach (string file in Directory.GetFiles("Assets/Scripts/Gameplay/Agent/Telemetry/UI", "*.cs"))
-                foreach (Match literal in Regex.Matches(File.ReadAllText(file), "\"((?:[^\"\\\\]|\\\\.)*)\""))
-                    text.Append(literal.Groups[1].Value);
+            foreach (string folder in new[] { "Assets/Scripts/Gameplay/Agent/Telemetry/UI", "Assets/Scripts/Gameplay/Agent/Telemetry/Overlay" })
+                foreach (string file in Directory.GetFiles(folder, "*.cs"))
+                    foreach (Match literal in Regex.Matches(File.ReadAllText(file), "\"((?:[^\"\\\\]|\\\\.)*)\""))
+                        text.Append(literal.Groups[1].Value);
             foreach (BehaviorTreeType tree in Trees())
                 foreach (var node in tree.Nodes)
                     text.Append(node.DisplayName);
@@ -293,8 +298,8 @@ namespace AgentReproduction.Tests
 
         // 截图：场景和面板分两次渲染再合成。面板在游戏里是叠加层，画在全部相机效果之后；
         // 若直接让面板走场景相机，后处理和描边效果会压到面板上，看起来比实际透明。
-        // 给了场景相机就复制它的机位和设置，否则俯视智能体。
-        private static IEnumerator Capture(AgentBrainPanel panel, AgentPawnRoot agent, string name, Camera source = null)
+        // 给了场景相机就复制它的机位和设置，否则俯视智能体。叠加层的线画在场景里，图例画布随面板一起走界面相机。
+        internal static IEnumerator Capture(AgentBrainPanel panel, AgentPawnRoot agent, string name, Camera source = null, Canvas extra = null)
         {
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) yield break;
             const int UiLayer = 30, Width = 1920, Height = 1080;
@@ -333,13 +338,16 @@ namespace AgentReproduction.Tests
             uiTarget.Create();
             world.targetTexture = worldTarget;
             ui.targetTexture = uiTarget;
-            Canvas canvas = panel.Canvas;
-            var transforms = canvas.GetComponentsInChildren<Transform>(true);
+            var canvases = new[] { panel.Canvas, extra }.Where(c => c != null).ToArray();
+            var transforms = canvases.SelectMany(c => c.GetComponentsInChildren<Transform>(true)).ToArray();
             var layers = transforms.Select(t => t.gameObject.layer).ToArray();
             foreach (var t in transforms) t.gameObject.layer = UiLayer;
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.worldCamera = ui;
-            canvas.planeDistance = 1;
+            foreach (var canvas in canvases)
+            {
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                canvas.worldCamera = ui;
+                canvas.planeDistance = 1;
+            }
             var worldPixels = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
             var uiPixels = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
             var previous = RenderTexture.active;
@@ -376,8 +384,11 @@ namespace AgentReproduction.Tests
             finally
             {
                 RenderTexture.active = previous;
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                canvas.worldCamera = null;
+                foreach (var canvas in canvases)
+                {
+                    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                    canvas.worldCamera = null;
+                }
                 for (int i = 0; i < transforms.Length; i++) if (transforms[i] != null) transforms[i].gameObject.layer = layers[i];
                 world.targetTexture = null;
                 ui.targetTexture = null;

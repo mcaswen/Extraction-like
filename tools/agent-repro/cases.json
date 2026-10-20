@@ -1501,6 +1501,18 @@
       ]
     },
     {
+      "name": "BrainOverlay",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.BrainOverlayTests",
+      "expected": [
+        "OverlayCyclesThreeModesAndHidesUnderScienceDossier",
+        "OverlayShowsBlockedSightProbesPathAndAttackRange",
+        "OverlayDrawsRouteThroughAnchorsAndMarksRiskEnemies",
+        "VisibilityWithBlockerMatchesPlainCheck"
+      ]
+    },
+    {
       "name": "TelemetryBuildGating",
       "suite": "Regression",
       "filter": "AgentReproduction.Tests.TelemetryBuildGatingTests",
