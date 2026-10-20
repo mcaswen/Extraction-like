@@ -102,6 +102,15 @@ namespace Gameplay.Demo
             return route.IsActive && route.Request.Source == source;
         }
 
+        /// <summary>这条路线已接受，并且它的某一步命令正占着活动槽（移动、交战或搜索都算在执行）</summary>
+        public bool RouteCommandActive(AgentRouteSource source)
+        {
+            AgentRouteSnapshot route = Pawn.RouteSnapshot;
+            AgentDirectiveLifecycleController lifecycle = Pawn.DirectiveLifecycle;
+            return route.IsActive && route.Request.Source == source && lifecycle.Active.HasValue &&
+                   lifecycle.Active.Value.RouteContext.RootRequestId == route.Request.RequestId;
+        }
+
         public bool MovedSinceStart(float meters) => Planar(Pawn.Position - _startPosition) >= meters;
 
         public bool MovedSinceStep(float meters) => Planar(Pawn.Position - _stepPosition) >= meters;

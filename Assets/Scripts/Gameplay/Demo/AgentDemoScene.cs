@@ -74,7 +74,7 @@ namespace Gameplay.Demo
             new AgentDemoStep("指挥员命令执行",
                 "指挥员经地图给智能体下达一条路线，指令槽里是指挥员命令，状态机进入导航。",
                 // 布景：把智能体移到一个附近有敌人的资源群前方，再下达去这个群的路线
-                30f, run => run.RouteActive(AgentRouteSource.Player) && run.MovedSinceStep(MoveMeters) && run.RememberCommand(),
+                30f, run => run.RouteCommandActive(AgentRouteSource.Player) && run.RememberCommand(),
                 run => run.SubmitAmbushRoute()),
             new AgentDemoStep("遇袭挂起与反击",
                 "智能体正在执行指挥员下达的命令。受到攻击时，这条命令被移进挂起槽，反击命令接管行为树。",
@@ -94,7 +94,7 @@ namespace Gameplay.Demo
                 run => run.SubmitReassignRoute()),
             new AgentDemoStep("新路线执行",
                 "原来的自主路线被替换，智能体转向指挥员指定的群。",
-                30f, run => run.RouteActive(AgentRouteSource.Player) && run.MovedSinceStep(MoveMeters)));
+                30f, run => run.RouteCommandActive(AgentRouteSource.Player)));
 
         public static readonly AgentDemoScene[] All = { AutonomousSelection, AmbushResume, CommanderReassign };
     }
