@@ -82,6 +82,7 @@ namespace AgentReproduction.Tests
             wall.size = new Vector3(5, 3, .4f);
             var overlay = AgentBrainOverlay.Ensure();
             var panel = AgentBrainPanel.Ensure();
+            Camera overview = Overview(agent.Position, enemy.transform.position);
             try
             {
                 overlay.SetMode(AgentBrainOverlay.Mode.Focused);
@@ -100,7 +101,7 @@ namespace AgentReproduction.Tests
                                            (l.GetPosition(0) - origin).sqrMagnitude < 1e-4f), Is.True, "枪口到挡点画成被挡的颜色");
                 Assert.That(lines.Any(l => l.positionCount == 16 && Enumerable.Range(0, 16).All(i => OnBoundsCorner(l.GetPosition(i), wall.bounds))),
                     Is.True, "框出挡住视线的墙");
-                yield return BrainPanelTests.Capture(panel, agent, "overlay-blocked-sight", null, overlay.Legend);
+                yield return BrainPanelTests.Capture(panel, agent, "overlay-blocked-sight", overview, overlay.Legend);
 
                 yield return RuntimeWait.Until(() => recorder.ApproachProbes.ChosenIndex >= 0, "approach point chosen around the wall", 5);
                 overlay.TickFrame();
@@ -123,7 +124,7 @@ namespace AgentReproduction.Tests
                 var ring = lines.Single(l => Same(l.startColor, AgentBrainOverlayDrawer.RangeColor));
                 Vector3 center = agent.Position + Vector3.up * AgentBrainOverlayDrawer.MarkLift;
                 Assert.That(Vector3.Distance(ring.GetPosition(0), center), Is.EqualTo(range).Within(.01f), "攻击距离圈半径与黑板一致");
-                yield return BrainPanelTests.Capture(panel, agent, "overlay-approach", null, overlay.Legend);
+                yield return BrainPanelTests.Capture(panel, agent, "overlay-approach", overview, overlay.Legend);
 
                 long allocated = 0;
                 yield return ManagedAllocation.MeasureFrame(() =>
@@ -217,6 +218,21 @@ namespace AgentReproduction.Tests
                     Is.EqualTo(TargetVisibilityQuery.ClearSegment(viewer, target, origin, target.position)));
             }
             ContractCompleted = true;
+        }
+
+        // 斜上方俯视智能体和敌人之间，作为主相机：叠加层按它换算线宽，截图也从它拍
+        private Camera Overview(Vector3 a, Vector3 b)
+        {
+            GameObject go = World.Root("Overlay overview camera");
+            go.tag = "MainCamera";
+            var camera = go.AddComponent<Camera>();
+            camera.fieldOfView = 50;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(.16f, .2f, .14f);
+            Vector3 middle = (a + b) * .5f;
+            go.transform.position = middle + new Vector3(0, 14, -8);
+            go.transform.LookAt(middle);
+            return camera;
         }
 
         private static List<LineRenderer> Lines(AgentBrainOverlay overlay)

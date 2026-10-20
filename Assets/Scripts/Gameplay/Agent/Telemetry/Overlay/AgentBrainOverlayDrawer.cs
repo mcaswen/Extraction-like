@@ -25,7 +25,8 @@ namespace Gameplay.Agent.Telemetry.Overlay
         /// <summary>接近点求解后保持显示的时长</summary>
         public const float ProbeHoldSeconds = 3f;
 
-        public const float PathWidth = .06f, RouteWidth = .08f, SightWidth = .05f, MarkWidth = .045f;
+        // 线宽按屏幕像素给出，每帧按智能体处的像素尺寸换算成米，镜头拉远拉近时粗细不变
+        public const float PathWidth = 4f, RouteWidth = 5f, SightWidth = 4f, MarkWidth = 3f, GuideWidth = 2f;
         public const float PathLift = .1f, RouteLift = .3f, MarkLift = .05f;
 
         public static readonly Color SightClear = Style.Success;
@@ -46,6 +47,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
         private AgentBrainRecorder _recorder;
         private long _shotVersion = -1, _probeVersion = -1;
         private float _shotTime = float.NegativeInfinity, _probeTime = float.NegativeInfinity;
+        private float _pixel;
 
         public AgentBrainOverlayDrawer(AgentBrainOverlayLines lines)
         {
@@ -77,6 +79,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
             AgentPawnRoot pawn = recorder != null ? recorder.Pawn : null;
             if (pawn != null && recorder.IsAttached && !pawn.IsDead)
             {
+                _pixel = PixelSize(pawn.Position);
                 DrawRange(pawn);
                 DrawPath(recorder);
                 DrawRoute(pawn, binding);
@@ -84,6 +87,17 @@ namespace Gameplay.Agent.Telemetry.Overlay
                 DrawSight(recorder.Shooter, now);
             }
             _lines.End();
+        }
+
+        /// <summary>主相机在该点处一个屏幕像素对应的米数；没有主相机时按 2 厘米</summary>
+        public static float PixelSize(Vector3 at)
+        {
+            Camera camera = Camera.main;
+            int height = Screen.height > 0 ? Screen.height : 1080;
+            if (camera == null) return .02f;
+            if (camera.orthographic) return 2f * camera.orthographicSize / height;
+            float depth = Mathf.Max(.1f, Vector3.Dot(at - camera.transform.position, camera.transform.forward));
+            return 2f * depth * Mathf.Tan(camera.fieldOfView * .5f * Mathf.Deg2Rad) / height;
         }
 
         public void Hide()
@@ -96,14 +110,14 @@ namespace Gameplay.Agent.Telemetry.Overlay
         private void DrawRange(AgentPawnRoot pawn)
         {
             float range = pawn.Blackboard != null ? pawn.Blackboard.GetValueOrDefault<float>(AgentBlackboardKeys.AttackRange) : 0f;
-            if (range > 0f) _lines.Circle(pawn.Position + Vector3.up * MarkLift, range, RangeColor, .03f);
+            if (range > 0f) _lines.Circle(pawn.Position + Vector3.up * MarkLift, range, RangeColor, GuideWidth * _pixel);
         }
 
         private void DrawPath(AgentBrainRecorder recorder)
         {
             int count = Mathf.Min(recorder.PathCornerCount, _points.Length);
             for (int index = 0; index < count; index++) _points[index] = recorder.GetPathCorner(index) + Vector3.up * PathLift;
-            _lines.Polyline(_points, count, PathColor, PathWidth);
+            _lines.Polyline(_points, count, PathColor, PathWidth * _pixel);
         }
 
         // 从智能体出发，经当前群和之后的各群；途经敌人群里存活的敌人就是路线风险计入的敌人
@@ -121,10 +135,10 @@ namespace Gameplay.Agent.Telemetry.Overlay
                 _points[count++] = lifted;
                 RouteAnchorCount++;
                 bool current = index == route.StepIndex;
-                _lines.Circle(lifted, current ? 1f : .7f, RouteColor, current ? .1f : .06f);
+                _lines.Circle(lifted, current ? 1f : .7f, RouteColor, (current ? RouteWidth : MarkWidth) * _pixel);
                 DrawRiskEnemies(binding, nodeId);
             }
-            _lines.Polyline(_points, count, RouteColor, RouteWidth);
+            _lines.Polyline(_points, count, RouteColor, RouteWidth * _pixel);
         }
 
         private void DrawRiskEnemies(MapGraphBindingAuthoring binding, string nodeId)
@@ -136,7 +150,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
             active.CopyAliveEnemiesTo(_enemies);
             for (int index = 0; index < _enemies.Count; index++)
             {
-                _lines.Circle(_enemies[index].transform.position + Vector3.up * MarkLift, .8f, RiskColor, .07f);
+                _lines.Circle(_enemies[index].transform.position + Vector3.up * MarkLift, .8f, RiskColor, PathWidth * _pixel);
                 RiskEnemyCount++;
             }
         }
@@ -159,10 +173,10 @@ namespace Gameplay.Agent.Telemetry.Overlay
                 byte outcome = log.GetOutcome(index);
                 if (outcome == 0)
                 {
-                    _lines.Circle(point, .22f, ProbeChosen, .06f);
-                    _lines.Circle(point, .45f, ProbeChosen, .04f);
+                    _lines.Circle(point, 7f * _pixel, ProbeChosen, PathWidth * _pixel);
+                    _lines.Circle(point, 14f * _pixel, ProbeChosen, GuideWidth * _pixel);
                 }
-                else _lines.Circle(point, .18f, ProbeColor(outcome), MarkWidth);
+                else _lines.Circle(point, 6f * _pixel, ProbeColor(outcome), MarkWidth * _pixel);
             }
         }
 
@@ -171,7 +185,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
             int count = 0;
             for (int index = 0; index < log.Count; index++)
                 if (log.GetStage(index) == stage) _points[count++] = log.GetPoint(index) + Vector3.up * MarkLift;
-            _lines.Polyline(_points, count, RingGuide, .02f, count == 8);
+            _lines.Polyline(_points, count, RingGuide, GuideWidth * _pixel, count == 8);
         }
 
         // 1 采样不到、2 不可达、3 落点偏离、4 没有拐点：走不到；5 看不见、6 打不到：无法开火
@@ -193,16 +207,16 @@ namespace Gameplay.Agent.Telemetry.Overlay
             switch (shooter.LastShotResult)
             {
                 case TargetVisibilityResult.Visible:
-                    _lines.Segment(origin, aim, SightClear, SightWidth);
+                    _lines.Segment(origin, aim, SightClear, SightWidth * _pixel);
                     break;
                 case TargetVisibilityResult.Occluded:
                     Vector3 block = shooter.LastShotBlockPoint;
-                    _lines.Segment(origin, block, SightBlocked, SightWidth);
-                    _lines.Segment(block, aim, SightBeyondBlock, SightWidth);
-                    if (shooter.LastShotBlocker != null) _lines.Box(shooter.LastShotBlocker.bounds, SightBlocked, .04f);
+                    _lines.Segment(origin, block, SightBlocked, SightWidth * _pixel);
+                    _lines.Segment(block, aim, SightBeyondBlock, SightWidth * _pixel);
+                    if (shooter.LastShotBlocker != null) _lines.Box(shooter.LastShotBlocker.bounds, SightBlocked, MarkWidth * _pixel);
                     break;
                 default:
-                    _lines.Segment(origin, aim, Style.Dim, SightWidth);
+                    _lines.Segment(origin, aim, Style.Dim, SightWidth * _pixel);
                     break;
             }
         }
