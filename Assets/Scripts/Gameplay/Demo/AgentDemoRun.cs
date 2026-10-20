@@ -20,7 +20,7 @@ namespace Gameplay.Demo
     public sealed class AgentDemoRun
     {
         private const float NearAlertRange = 30f, FarAlertRange = 80f, StationarySeconds = 1f, FarAfterSeconds = 10f, RealertSeconds = 6f,
-            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f, FallbackHitSeconds = 6f, FallbackDamage = 10f;
+            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f, FallbackHitSeconds = 10f, FallbackDamage = 10f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private Vector3 _startPosition, _stepPosition;
@@ -83,7 +83,7 @@ namespace Gameplay.Demo
                 return;
             }
             if (Time.unscaledTime < _nextAlertTime) return;
-            // 被叫来的敌人走到附近却迟迟打不到（被地形挡住或停在活动范围边上）时，经正式伤害接口代它打一下，留下记录
+            // 被叫来的敌人 10 秒内打不到智能体（被箱子等挡住或停在活动范围边上）时，经正式伤害接口代它打一下，留下记录
             if (_alerter != null && _alerter.IsAlive && Time.unscaledTime - _firstAlertTime >= FallbackHitSeconds)
             {
                 Vector3 direction = Pawn.Position - _alerter.transform.position;
