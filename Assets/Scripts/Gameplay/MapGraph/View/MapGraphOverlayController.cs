@@ -108,7 +108,7 @@ namespace Gameplay.MapGraph.View
             ISet<string> routeEdges,ISet<string> focusedEdges,string focusedId)
         {
             foreach(var pair in _nodes)
-                if(nodes.TryGetValue(pair.Key,out var state)) pair.Value.Refresh(state.Available,state.Completed,state.TargetIdentities,state.Pending,state.HasRemainingLoot);
+                if(nodes.TryGetValue(pair.Key,out var state)) pair.Value.Refresh(state.Available,state.Completed,state.TargetIdentities,state.Pending);
             foreach(var pair in _edges) pair.Value.Refresh(routeEdges.Contains(pair.Key),focusedEdges.Contains(pair.Key));
             float size=_expanded?_theme.ExpandedAgentSize:_theme.CompactAgentSize;
             _markerLayout.Build(states,_nodes,_edges,_nameBounds,size,focusedId); _visible.Clear();

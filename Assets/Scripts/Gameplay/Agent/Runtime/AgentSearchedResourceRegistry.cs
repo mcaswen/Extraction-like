@@ -4,13 +4,12 @@ using UnityEngine;
 namespace Gameplay.Agent.Runtime
 {
     /// <summary>
-    /// Agent 已处理资源运行时记录
-    /// 用于避免资源行为树反复选择同一个已经确认过的箱子或掉落物
+    /// 已处理资源运行时记录，所有 Agent 共享
+    /// 玩家打开过的箱子关闭后即登记，不管剩没剩东西，行为树都不会再选它
     /// </summary>
     public static class AgentSearchedResourceRegistry
     {
-        private static readonly Dictionary<int, long> SearchedResourceRevisions = new Dictionary<int, long>();
-        public static long Revision { get; private set; }
+        private static readonly HashSet<int> SearchedResourceInstanceIds = new HashSet<int>();
 
         /// <summary>
         /// 标记一个资源对象已经被 Agent 搜索过
@@ -21,7 +20,7 @@ namespace Gameplay.Agent.Runtime
             if (resourceObject == null)
                 return;
 
-            SearchedResourceRevisions[resourceObject.GetInstanceID()] = ++Revision;
+            SearchedResourceInstanceIds.Add(resourceObject.GetInstanceID());
         }
 
         /// <summary>
@@ -32,19 +31,13 @@ namespace Gameplay.Agent.Runtime
         public static bool IsSearched(GameObject resourceObject)
         {
             return resourceObject != null &&
-                   SearchedResourceRevisions.ContainsKey(resourceObject.GetInstanceID());
+                   SearchedResourceInstanceIds.Contains(resourceObject.GetInstanceID());
         }
-
-        /// <summary>任何 Agent 在这轮命令发出后处理过箱子，都共享同一个完成事实。</summary>
-        public static bool WasSearchedAfter(GameObject resourceObject, long revision)
-            => resourceObject != null && SearchedResourceRevisions.TryGetValue(resourceObject.GetInstanceID(), out long completed)
-                && completed > revision;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ClearOnSubsystemRegistration()
         {
-            SearchedResourceRevisions.Clear();
-            Revision = 0;
+            SearchedResourceInstanceIds.Clear();
         }
     }
 }

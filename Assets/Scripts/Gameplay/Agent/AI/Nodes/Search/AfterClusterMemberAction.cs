@@ -15,7 +15,7 @@ namespace Gameplay.Agent.AI.Nodes.Search
 
         protected override BehaviorNodeResult Tick(BehaviorTreeContext context)
         {
-            if (!Memory.Cluster.HasPendingResources(Memory.ResourceSearch))
+            if (!Memory.Cluster.HasPendingResources())
             {
                 Memory.CompleteResourceSearch(context);
                 return Succeed();

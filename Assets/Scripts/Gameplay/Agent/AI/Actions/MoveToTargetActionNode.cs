@@ -69,7 +69,7 @@ namespace Gameplay.Agent.AI.Actions
                         targetRef,
                         agent.Position,
                         agent.NavMeshAgent,
-                        out targetPosition, directiveRequest.ResourceSearch);
+                        out targetPosition);
                     break;
                 case AgentTargetKind.Extraction:
                     resolvedTargetPosition = TryResolveExtractionNavigationTargetPosition(

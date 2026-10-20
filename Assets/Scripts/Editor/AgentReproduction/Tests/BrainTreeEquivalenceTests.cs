@@ -204,7 +204,7 @@ namespace AgentReproduction.Tests
         private static AgentDirectiveRequest SearchCluster(string id)
             => new AgentDirectiveRequest(AgentDirectiveType.Search,
                 AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, GameObject.Find("Equivalence resources"), "resources"),
-                commandId: id, resourceSearch: new Gameplay.Targets.Data.ResourceSearchPass());
+                commandId: id);
 
         // 以资源为来源为焦点智能体打开正式背包会话（地面物品的交互入口在有空间时会直接拾取，不开会话）
         private static void Open(string name)
@@ -213,7 +213,7 @@ namespace AgentReproduction.Tests
 
         private static void Close() => InventoryScreenController.Instance.CloseInventory();
 
-        // 队友或其他来源在本轮搜索开始后处理了这个成员
+        // 队友或其他来源处理了这个成员
         private static void MarkSearched(string name) => AgentSearchedResourceRegistry.MarkSearched(GameObject.Find(name));
 
         // 资源停靠点由导航求出，不一定正好是物品位置；搜索脚本把 1 米内都视为到达

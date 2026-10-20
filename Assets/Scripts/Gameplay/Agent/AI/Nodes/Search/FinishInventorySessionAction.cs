@@ -9,7 +9,7 @@ namespace Gameplay.Agent.AI.Nodes.Search
 {
     /// <summary>
     /// 动作：背包会话关闭后收尾。容量不足：登记已处理、通报完成、标记需要撤离、上报容量不足并完成整条搜索；
-    /// 正常关闭：登记已处理并完成本成员（箱内余物和揭示进度保持原样，供玩家重访）
+    /// 正常关闭：登记已处理并完成本成员（箱内余物和揭示进度保持原样，不再回来处理）
     /// </summary>
     public sealed class FinishInventorySessionAction : AgentSearchActionBase
     {

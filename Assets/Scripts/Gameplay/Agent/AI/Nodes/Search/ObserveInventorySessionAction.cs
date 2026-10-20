@@ -44,6 +44,8 @@ namespace Gameplay.Agent.AI.Nodes.Search
                 activeSession.AgentId == agent.AgentIdValue && !activeSession.UseCustomPlayerInventory)
             {
                 Memory.ObservedInventorySession = activeSession;
+                // 关闭结果由本智能体收尾（容量不足要从这里读），箱子关闭时不再自行登记
+                activeSession.AwaitedByAgent = true;
             }
 
             if (Memory.ObservedInventorySession == null || !Memory.ObservedInventorySession.IsClosed)

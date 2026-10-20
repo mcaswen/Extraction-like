@@ -169,6 +169,7 @@ namespace AgentReproduction.Tests
             screen.CloseInventory();
             yield return null;
             Assert.That(AgentSearchedResourceRegistry.IsSearched(box.gameObject), Is.False, "Another box cannot complete this search.");
+            Assert.That(AgentSearchedResourceRegistry.IsSearched(other.gameObject), Is.True, "A box the player opened counts as searched even when no agent waits there.");
             box.Interact();
             yield return null;
             screen.CloseInventory();

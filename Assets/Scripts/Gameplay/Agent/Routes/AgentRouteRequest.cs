@@ -1,7 +1,6 @@
 using System;
 using Gameplay.Agent.Data;
 using Gameplay.Agent.Runtime;
-using Gameplay.Targets.Data;
 
 namespace Gameplay.Agent.Routes
 {
@@ -15,21 +14,18 @@ namespace Gameplay.Agent.Routes
         public string TargetNodeId { get; }
         public AgentTargetRef TargetRef { get; }
         public AgentRouteSource Source { get; }
-        public ResourceSearchPass ResourceSearch { get; }
 
         public AgentRouteRequest(string targetNodeId, AgentRouteSource source,
-            AgentId targetAgentId = default, string requestId = "", AgentTargetRef targetRef = default,
-            ResourceSearchPass resourceSearch = null)
+            AgentId targetAgentId = default, string requestId = "", AgentTargetRef targetRef = default)
         {
             TargetNodeId = targetNodeId?.Trim() ?? string.Empty;
             Source = source; TargetAgentId = targetAgentId; TargetRef = targetRef;
             RequestId = string.IsNullOrWhiteSpace(requestId) ? "Route_" + Guid.NewGuid().ToString("N") : requestId;
-            ResourceSearch = source == AgentRouteSource.Player ? resourceSearch ?? new ResourceSearchPass() : null;
         }
 
         public AgentRouteRequest WithTargetAgentId(AgentId id)
-            => new AgentRouteRequest(TargetNodeId, Source, id, RequestId, TargetRef, ResourceSearch);
+            => new AgentRouteRequest(TargetNodeId, Source, id, RequestId, TargetRef);
         public AgentRouteRequest WithTargetNodeId(string nodeId)
-            => new AgentRouteRequest(nodeId, Source, TargetAgentId, RequestId, TargetRef, ResourceSearch);
+            => new AgentRouteRequest(nodeId, Source, TargetAgentId, RequestId, TargetRef);
     }
 }

@@ -12,7 +12,7 @@ namespace Gameplay.Agent.Routes
             request=request.WithTargetAgentId(agentId);
             var result=controller.Submit(new AgentRouteRequest(string.Empty,
                 AgentManualDirectiveLock.IsManualDirective(request)?AgentRouteSource.Player:AgentRouteSource.Autonomous,
-                agentId, request.CommandId, request.TargetRef, request.ResourceSearch));
+                agentId, request.CommandId, request.TargetRef));
             if(result.Stage==AgentRouteStage.Planning) return new AgentDirectiveResult(request,AgentDirectiveStage.Planning);
             if(result.Accepted) return new AgentDirectiveResult(request,AgentDirectiveStage.Accepted);
             var reason=result.Reason switch {

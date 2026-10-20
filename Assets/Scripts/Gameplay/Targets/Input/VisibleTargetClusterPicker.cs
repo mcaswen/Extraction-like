@@ -69,8 +69,7 @@ namespace Gameplay.Targets.Input
             if (cluster.TargetKind == GameplayTargetKind.EnemySource)
                 return false;
 
-            if (options.IgnoreCompletedClusters && cluster.HasBeenCompleted &&
-                !(cluster is ResourceClusterAuthoring resources && resources.HasRemainingLoot))
+            if (options.IgnoreCompletedClusters && cluster.HasBeenCompleted)
                 return false;
 
             if (!options.UseClusterLayerMask)

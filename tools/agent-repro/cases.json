@@ -5,10 +5,11 @@
       "suite": "Regression",
       "filter": "AgentReproduction.Tests.ResourceSearchRevisitTests",
       "expected": [
-        "PartialCloseIsSharedAndEitherAgentCanRevisit(False)",
-        "PartialCloseIsSharedAndEitherAgentCanRevisit(True)",
-        "PartialCloseLeavesGroupAndOnlyAnExplicitFinalTargetReopensIt",
-        "ReplanningAndRetaliationPreserveTheCurrentSearchPass"
+        "PartialCloseIsSharedAndNoOrderReopensIt(False)",
+        "PartialCloseIsSharedAndNoOrderReopensIt(True)",
+        "PartialCloseLeavesGroupAndExplicitOrdersDoNotReopenIt",
+        "ReplanningAndRetaliationSkipProcessedBoxes",
+        "BoxesOpenedWithoutTheWaitingAgentAreNotRevisited"
       ]
     },
     {
@@ -966,7 +967,7 @@
       "graphics": true,
       "filter": "AgentReproduction.Tests.ResourceDisplacementTests",
       "expected": [
-        "DisplacementInvalidatesInventoryCloseUntilAgentReturns",
+        "DisplacementInvalidatesArrivalButOpenedBoxStaysSearched",
         "WaitingProbeUsesActualResourceWithoutInventoryAndDeduplicates"
       ]
     },

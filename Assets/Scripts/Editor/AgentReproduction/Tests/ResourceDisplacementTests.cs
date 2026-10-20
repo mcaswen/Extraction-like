@@ -58,7 +58,7 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator DisplacementInvalidatesInventoryCloseUntilAgentReturns()
+        public IEnumerator DisplacementInvalidatesArrivalButOpenedBoxStaysSearched()
         {
             TestNavMeshBuilder.Flat(World);
             var agent=AgentFactory.Create(World,"R5",Vector3.zero);
@@ -86,19 +86,15 @@ namespace AgentReproduction.Tests
                 for(int i=0;i<3;i++) yield return null;
                 agent.NavMeshAgent.Warp(new Vector3(8,0,0));
                 yield return RuntimeWait.Until(() => facts.Last().Stage==AgentResourceInteractionStage.Approaching,"displacement invalidates arrival",3);
-                inventory.CloseInventory();
+                Assert.That(inventory.IsInventoryOpen,Is.False,"Leaving the box closes the inventory opened for it.");
                 for(int i=0;i<3;i++) yield return null;
-                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.False,"Closing after displacement must not complete loot.");
-                Assert.That(agent.DirectiveLifecycle.Active.HasValue,Is.True);
+                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.True,"The player opened this box, so it counts as searched.");
+                int afterClose=facts.Count;
                 agent.NavMeshAgent.Warp(Vector3.zero);
-                yield return RuntimeWait.Until(() => facts.Last().Stage==AgentResourceInteractionStage.WaitingForInventory,"return to resource",3);
-                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.False,"Returning alone must not consume stale open observation.");
-                item.Interact();
-                Assert.That(inventory.ActiveSessionContext.SourceObject,Is.SameAs(item.gameObject));
-                for(int i=0;i<3;i++) yield return null;
-                inventory.CloseInventory();
-                yield return RuntimeWait.Until(() => AgentSearchedResourceRegistry.IsSearched(item.gameObject),"fresh matching resource session completes",3);
-                Assert.That(AgentSearchedResourceRegistry.IsSearched(item.gameObject),Is.True);
+                yield return RuntimeWait.Until(() => !agent.DirectiveLifecycle.Active.HasValue,"returning finds the box already searched",3);
+                Assert.That(facts.Skip(afterClose).Any(f => f.Stage==AgentResourceInteractionStage.WaitingForInventory),Is.False,
+                    "The agent must not wait for this box again.");
+                Assert.That(item.GetSavedItems().Count,Is.EqualTo(1),"Leaving keeps the loot in the box.");
                 ContractCompleted=true;
             }
             finally { AgentResourceInteractionChannel.Published-=observe; }

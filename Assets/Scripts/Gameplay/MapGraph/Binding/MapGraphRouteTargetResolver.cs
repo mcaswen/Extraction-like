@@ -7,7 +7,6 @@ using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Config;
 using Gameplay.MapGraph.Runtime;
 using Gameplay.Targets.Authoring;
-using Gameplay.Targets.Data;
 using Gameplay.Targets.Input;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
@@ -72,7 +71,7 @@ namespace Gameplay.MapGraph.Binding
             return registry.TryFindResourceClusterByEntity(resource, out var resources) && TryResolveCluster(resources, out nodeId);
         }
 
-        public bool TryGetFacts(string nodeId, out AgentRouteTargetFacts facts, ResourceSearchPass search = null)
+        public bool TryGetFacts(string nodeId, out AgentRouteTargetFacts facts)
         {
             EnsureContext(); facts = default;
             if (!_nodes.TryGetValue(nodeId ?? string.Empty, out var record)) return false;
@@ -85,20 +84,17 @@ namespace Gameplay.MapGraph.Binding
                 if (!_available || !record.Available) status = AgentRouteTargetStatus.Unavailable;
                 else if (target is EnemySourceClusterAuthoring source) status = SourceStatus(source, out alive);
                 else if (target is ActiveEnemyClusterAuthoring active) status = ActiveStatus(active, out alive);
-                else if (target is ResourceClusterAuthoring resources && search != null)
-                    status = resources.HasPendingResources(search) ? AgentRouteTargetStatus.Ready : AgentRouteTargetStatus.Completed;
                 else if (target.HasBeenCompleted) status = AgentRouteTargetStatus.Completed;
             }
-            facts = new AgentRouteTargetFacts(nodeId, record.Kind, record.Anchor, status, alive,
-                target is ResourceClusterAuthoring resource && resource.HasRemainingLoot);
+            facts = new AgentRouteTargetFacts(nodeId, record.Kind, record.Anchor, status, alive);
             return true;
         }
 
         public bool TryCreateProcessingDirective(string nodeId, AgentId agentId, string commandId, int priority,
-            out AgentDirectiveRequest directive, out AgentDirectiveFailure failure, ResourceSearchPass search = null)
+            out AgentDirectiveRequest directive, out AgentDirectiveFailure failure)
         {
             directive = default; failure = AgentDirectiveFailure.InvalidTarget;
-            if (!TryGetFacts(nodeId, out var facts, search) || !facts.CanTraverse) return false;
+            if (!TryGetFacts(nodeId, out var facts) || !facts.CanTraverse) return false;
             if (facts.Status == AgentRouteTargetStatus.Completed)
             { failure = AgentDirectiveFailure.TargetCompleted; return false; }
             if (facts.Status != AgentRouteTargetStatus.Ready) return false;
@@ -108,7 +104,6 @@ namespace Gameplay.MapGraph.Binding
             var target = _nodes[nodeId].Binding.DirectTarget as GameplayTargetClusterAuthoringBase;
             if (target is EnemySourceClusterAuthoring source) target = source.ConfiguredActiveEnemyCluster;
             if (!TargetClusterDirectiveFactory.TryCreateDirective(target, agent, commandId, priority, out directive)) return false;
-            if (directive.DirectiveType == AgentDirectiveType.Search) directive = directive.WithResourceSearch(search);
             // 旧 Factory 的空候选兼容结果是群对象，不能把它当一个真实敌人执行。
             if (directive.DirectiveType == AgentDirectiveType.Engage &&
                 (directive.TargetObject == null || directive.TargetObject.GetComponentInParent<global::EnemyHealthController>() == null)) return false;

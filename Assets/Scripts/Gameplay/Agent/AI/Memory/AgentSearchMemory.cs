@@ -4,7 +4,6 @@ using Gameplay.Agent.Data;
 using Gameplay.Agent.Interfaces;
 using Gameplay.Agent.Runtime;
 using Gameplay.Targets.Authoring;
-using Gameplay.Targets.Data;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
 
@@ -29,7 +28,6 @@ namespace Gameplay.Agent.AI.Memory
         public bool HasPlayedSearchCompleteSfx;
         public AgentResourceInteractionEvent? ReportedInteraction;
         public Vector3 ObservedNavigationPosition;
-        public ResourceSearchPass ResourceSearch;
 
         // 帧内
         public AgentSearchTargetForm Form;
@@ -77,6 +75,9 @@ namespace Gameplay.Agent.AI.Memory
         {
             if (ReportedInteraction?.Stage == AgentResourceInteractionStage.WaitingForInventory)
                 EndReportedInteraction(AgentResourceInteractionStage.Left);
+            // 不再等这个会话（离开、换目标、被打断）：它关闭时由箱子自己登记为已搜刮
+            if (ObservedInventorySession != null)
+                ObservedInventorySession.AwaitedByAgent = false;
             WaitingResourceObject = null;
             ObservedInventorySession = null;
         }
@@ -84,7 +85,6 @@ namespace Gameplay.Agent.AI.Memory
         public void ResetSearchState()
         {
             EndReportedInteraction(AgentResourceInteractionStage.Left);
-            ResourceSearch = null;
             ActiveResourceTargetId = string.Empty;
             ActiveConcreteResourceObject = null;
             HasReachedInteractionRange = false;
@@ -150,8 +150,7 @@ namespace Gameplay.Agent.AI.Memory
                 receiver.FinishDirective(request.CommandId);
         }
 
-        public bool HasProcessed(GameObject resource)
-            => ResourceSearch != null ? ResourceSearch.HasProcessed(resource) : AgentSearchedResourceRegistry.IsSearched(resource);
+        public bool HasProcessed(GameObject resource) => AgentSearchedResourceRegistry.IsSearched(resource);
 
         private void PlaySearchCompleteSfx(BehaviorTreeContext context)
         {

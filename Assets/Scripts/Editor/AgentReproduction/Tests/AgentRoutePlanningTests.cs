@@ -32,10 +32,10 @@ namespace AgentReproduction.Tests
             public Resolver() { Set("a", 1); Set("b", 2); Set("c", 3); }
             public void Set(string id, float x, AgentRouteTargetStatus status = AgentRouteTargetStatus.Ready)
                 => Facts[id] = new AgentRouteTargetFacts(id, MapGraphNodeKind.Resource, new Vector3(x, 0, 0), status);
-            public bool TryGetFacts(string id, out AgentRouteTargetFacts facts, Gameplay.Targets.Data.ResourceSearchPass search = null) => Facts.TryGetValue(id, out facts);
+            public bool TryGetFacts(string id, out AgentRouteTargetFacts facts) => Facts.TryGetValue(id, out facts);
             public bool TryResolveNode(AgentTargetRef target, out string id) { id = target.TargetId; return Facts.ContainsKey(id); }
             public bool TryCreateProcessingDirective(string nodeId, AgentId agentId, string commandId, int priority,
-                out AgentDirectiveRequest directive, out AgentDirectiveFailure failure, Gameplay.Targets.Data.ResourceSearchPass search = null)
+                out AgentDirectiveRequest directive, out AgentDirectiveFailure failure)
             { directive = default; failure = AgentDirectiveFailure.InvalidTarget; return false; }
             public bool TryCopyAliveEnemies(string nodeId, List<global::EnemyHealthController> results) { results?.Clear(); return false; }
         }

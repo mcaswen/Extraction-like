@@ -24,9 +24,9 @@ namespace Gameplay.Agent.AI.Nodes.Search
                     agent.Position,
                     agent.NavMeshAgent,
                     out GameObject resourceObject,
-                    out Vector3 resourceNavigationPosition, Memory.ResourceSearch))
+                    out Vector3 resourceNavigationPosition))
             {
-                Memory.Resolution = Memory.Cluster.HasPendingResources(Memory.ResourceSearch)
+                Memory.Resolution = Memory.Cluster.HasPendingResources()
                     ? AgentSearchMemberResolution.Unreachable
                     : AgentSearchMemberResolution.ClusterDone;
                 return Succeed();

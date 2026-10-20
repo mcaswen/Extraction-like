@@ -3,7 +3,6 @@ using Gameplay.Agent.Commands;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.Routes;
 using Gameplay.Targets.Authoring;
-using Gameplay.Targets.Data;
 
 namespace Gameplay.Targets.Input
 {
@@ -35,8 +34,7 @@ namespace Gameplay.Targets.Input
                 // 旧 out Directive 不能伪造根已接受。正式调用方使用上面的根结果接口。
                 return TrySubmitClusterRoute(cluster, targetAgentId).Accepted;
             }
-            bool canRevisit = cluster is ResourceClusterAuthoring resources && resources.HasRemainingLoot;
-            if (cluster != null && (!cluster.isActiveAndEnabled || cluster.HasBeenCompleted && !canRevisit))
+            if (cluster != null && (!cluster.isActiveAndEnabled || cluster.HasBeenCompleted))
             {
                 AgentDirectiveFeedbackChannel.Publish(new AgentDirectiveResult(default, AgentDirectiveStage.Rejected,
                     cluster.HasBeenCompleted ? AgentDirectiveFailure.TargetCompleted : AgentDirectiveFailure.InvalidTarget));
@@ -60,8 +58,6 @@ namespace Gameplay.Targets.Input
                 return false;
             }
 
-            if (cluster is ResourceClusterAuthoring)
-                directiveRequest = directiveRequest.WithResourceSearch(new ResourceSearchPass());
             return agentHandle.CommandReceiver.TrySubmitDirective(directiveRequest).Accepted;
         }
 

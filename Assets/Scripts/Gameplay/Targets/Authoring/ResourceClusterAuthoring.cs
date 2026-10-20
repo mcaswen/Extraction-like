@@ -54,28 +54,17 @@ namespace Gameplay.Targets.Authoring
         /// </summary>
         public IReadOnlyList<GameplayTargetEntityMember> ResourceMembers => _resourceMembers;
 
-        /// <summary>物理库存事实，与已处理/已揭示状态独立；已处理的群仍可留有战利品。</summary>
-        public bool HasRemainingLoot
-        {
-            get
-            {
-                foreach (var member in _resourceMembers)
-                    if (HasMemberLoot(member)) return true;
-                return false;
-            }
-        }
-
-        /// <summary>默认搜索跳过共享已处理成员；玩家重访只跳过本轮已处理成员和空箱。</summary>
-        public bool HasPendingResources(ResourceSearchPass search = null)
+        /// <summary>群里还有待搜索的成员：有战利品，且没被任何 Agent 或玩家搜刮过。</summary>
+        public bool HasPendingResources()
         {
             RefreshRuntimeState();
             foreach (var member in _resourceMembers)
-                if (IsMemberAvailableForSearch(member, search)) return true;
+                if (IsMemberAvailableForSearch(member)) return true;
             return false;
         }
 
-        public bool CanSearchResource(GameObject resource, ResourceSearchPass search = null)
-            => IsMemberAvailableForSearch(FindMember(resource), search);
+        public bool CanSearchResource(GameObject resource)
+            => IsMemberAvailableForSearch(FindMember(resource));
 
         /// <summary>复制真实成员的几何接近候选，供离线导航锚点采样；不创建调试物体或改变资源状态。</summary>
         public bool TryCopyNavigationApproachCandidates(GameObject resourceObject, Vector3 referencePosition, List<Vector3> results)
@@ -206,8 +195,7 @@ namespace Gameplay.Targets.Authoring
         /// <returns></returns>
         public bool TryGetNearestIncompleteResource(
             Vector3 agentPosition,
-            out GameObject resourceObject,
-            ResourceSearchPass search = null)
+            out GameObject resourceObject)
         {
             RefreshRuntimeState();
             resourceObject = null;
@@ -216,7 +204,7 @@ namespace Gameplay.Targets.Authoring
             for (int i = 0; i < _resourceMembers.Count; i++)
             {
                 GameplayTargetEntityMember member = _resourceMembers[i];
-                if (!IsMemberAvailableForSearch(member, search))
+                if (!IsMemberAvailableForSearch(member))
                     continue;
 
                 float distanceSqr = GetPlanarDistanceSqr(agentPosition, member.Position);
@@ -263,11 +251,10 @@ namespace Gameplay.Targets.Authoring
             Vector3 agentPosition,
             NavMeshAgent navMeshAgent,
             out GameObject resourceObject,
-            out Vector3 navigationPosition,
-            ResourceSearchPass search = null)
+            out Vector3 navigationPosition)
         {
             return TryGetNearestReachableIncompleteResource(agentPosition, navMeshAgent, float.PositiveInfinity,
-                out resourceObject, out navigationPosition, search);
+                out resourceObject, out navigationPosition);
         }
 
         /// <summary>发现阶段先按具体成员范围预筛；执行阶段仍可调用无范围重载。</summary>
@@ -276,8 +263,7 @@ namespace Gameplay.Targets.Authoring
             NavMeshAgent navMeshAgent,
             float maximumMemberDistance,
             out GameObject resourceObject,
-            out Vector3 navigationPosition,
-            ResourceSearchPass search = null)
+            out Vector3 navigationPosition)
         {
             RefreshRuntimeState();
             resourceObject = null;
@@ -286,7 +272,7 @@ namespace Gameplay.Targets.Authoring
             if (!TryResolveNavMeshStartPosition(agentPosition, navMeshAgent, out Vector3 startPosition, out int areaMask))
             {
                 if (!float.IsPositiveInfinity(maximumMemberDistance)) return false;
-                if (!TryGetNearestIncompleteResource(agentPosition, out resourceObject, search))
+                if (!TryGetNearestIncompleteResource(agentPosition, out resourceObject))
                     return false;
 
                 navigationPosition = resourceObject != null ? resourceObject.transform.position : default;
@@ -302,7 +288,7 @@ namespace Gameplay.Targets.Authoring
             {
                 GameplayTargetEntityMember member = _resourceMembers[i];
                 if (member == null || (member.Position - agentPosition).sqrMagnitude > maximumDistanceSqr ||
-                    !IsMemberAvailableForSearch(member, search))
+                    !IsMemberAvailableForSearch(member))
                     continue;
 
                 if (!TryFindReachableResourceNavigationPosition(
@@ -443,14 +429,9 @@ namespace Gameplay.Targets.Authoring
             return null;
         }
 
-        private static bool IsMemberAvailableForSearch(GameplayTargetEntityMember member, ResourceSearchPass search = null)
-        {
-            if (!HasMemberLoot(member)) return false;
-            if (search == null) return !member.HasBeenCompleted;
-            GameObject resource = member.TryGetComponent(out global::LootBoxEntity box) ? box.gameObject :
-                member.TryGetComponent(out global::WorldLootItem item) ? item.gameObject : member.EntityObject;
-            return !search.HasProcessed(resource);
-        }
+        // 已完成或已失效资源不再作为 Agent 搜索候选；玩家搜刮过的箱子不管剩没剩东西都算完成
+        private static bool IsMemberAvailableForSearch(GameplayTargetEntityMember member)
+            => HasMemberLoot(member) && !member.HasBeenCompleted;
 
         private static bool HasMemberLoot(GameplayTargetEntityMember member)
         {

@@ -6,7 +6,7 @@ using Gameplay.Targets.Authoring;
 namespace Gameplay.Agent.AI.Nodes.Search
 {
     /// <summary>
-    /// 动作：同步当前搜索目标（目标切换时清掉旧的到达和等待状态），读取本轮搜索记录，并判定目标形态：资源群、抽象点或具体对象
+    /// 动作：同步当前搜索目标（目标切换时清掉旧的到达和等待状态），并判定目标形态：资源群、抽象点或具体对象
     /// </summary>
     public sealed class SyncSearchTargetAction : AgentSearchActionBase
     {
@@ -21,7 +21,6 @@ namespace Gameplay.Agent.AI.Nodes.Search
                 return FailMissingDirective(AgentDirectiveType.Search);
 
             Memory.SyncActiveResourceTarget(directiveRequest);
-            Memory.ResourceSearch = directiveRequest.ResourceSearch;
             if (TryGetTargetComponent(directiveRequest.TargetRef, out ResourceClusterAuthoring resourceCluster))
             {
                 Memory.Form = AgentSearchTargetForm.Cluster;

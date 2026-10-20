@@ -161,8 +161,7 @@ namespace Gameplay.Agent.AI.Actions
             AgentTargetRef targetRef,
             Vector3 agentPosition,
             NavMeshAgent navMeshAgent,
-            out Vector3 targetPosition,
-            Gameplay.Targets.Data.ResourceSearchPass search = null)
+            out Vector3 targetPosition)
         {
             GameObject targetObject = targetRef.TargetObject;
             if (targetObject != null &&
@@ -172,7 +171,7 @@ namespace Gameplay.Agent.AI.Actions
                         agentPosition,
                         navMeshAgent,
                         out GameObject resourceObject,
-                        out Vector3 resourceNavigationPosition, search) &&
+                        out Vector3 resourceNavigationPosition) &&
                     resourceObject != null)
                 {
                     targetPosition = resourceNavigationPosition;

@@ -353,7 +353,7 @@ namespace Gameplay.Agent.Runtime
                 // 搜索资源群时按直线距离展示最近的未处理成员；可达性查询会刷新群状态，调试视图不调用
                 if (TryGetTargetComponent(targetRef, out ResourceClusterAuthoring resourceCluster))
                 {
-                    concreteTargetObject = FindNearestUnprocessedMember(resourceCluster, directiveRequest.ResourceSearch);
+                    concreteTargetObject = FindNearestUnprocessedMember(resourceCluster);
                     concreteTargetKind = AgentTargetKind.Resource;
                     return concreteTargetObject != null;
                 }
@@ -370,9 +370,7 @@ namespace Gameplay.Agent.Runtime
             return false;
         }
 
-        private GameObject FindNearestUnprocessedMember(
-            ResourceClusterAuthoring resourceCluster,
-            Gameplay.Targets.Data.ResourceSearchPass search)
+        private GameObject FindNearestUnprocessedMember(ResourceClusterAuthoring resourceCluster)
         {
             GameObject nearest = null;
             float nearestDistanceSqr = float.MaxValue;
@@ -383,8 +381,7 @@ namespace Gameplay.Agent.Runtime
                 if (member == null || !member.activeInHierarchy)
                     continue;
 
-                bool processed = search != null ? search.HasProcessed(member) : AgentSearchedResourceRegistry.IsSearched(member);
-                if (processed)
+                if (AgentSearchedResourceRegistry.IsSearched(member))
                     continue;
 
                 float distanceSqr = (member.transform.position - _agent.Position).sqrMagnitude;

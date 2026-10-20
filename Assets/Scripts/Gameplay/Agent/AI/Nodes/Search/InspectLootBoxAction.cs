@@ -7,7 +7,7 @@ using Gameplay.Agent.Runtime;
 namespace Gameplay.Agent.AI.Nodes.Search
 {
     /// <summary>
-    /// 动作：到达箱子后检查是否已经处理完（桌游资源点已搜空、本轮已处理、空箱），是则登记并完成本成员，返回成功；
+    /// 动作：到达箱子后检查是否已经处理完（桌游资源点已搜空、已处理、空箱），是则登记并完成本成员，返回成功；
     /// 箱里还有东西时返回失败，交给"等待背包"。到达具体箱子的这一刻推进航天零件的搜索节奏。
     /// </summary>
     public sealed class InspectLootBoxAction : AgentSearchActionBase

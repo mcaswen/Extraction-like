@@ -164,7 +164,7 @@ namespace Gameplay.Agent.Routes
                 work.Environment.Graph.TryGetNode(plan.TargetNodeId, out var target) && target.NodeKind == Gameplay.MapGraph.Config.MapGraphNodeKind.Extraction;
             var next = new AgentClusterStepExecutor(_agent, _lifecycle, work.Environment.Targets);
             if (!next.TryBegin(new AgentDirectiveRouteContext(work.Request.RequestId, work.Version, plan.EntryNodeId, 0,
-                work.Request.Source == AgentRouteSource.Player), plan.NodeIds.Count == 1, skipResources, work.Request.ResourceSearch))
+                work.Request.Source == AgentRouteSource.Player), plan.NodeIds.Count == 1, skipResources))
             { var failure = next.Snapshot.Failure; next.Dispose(); PlanningFailed(failure); return; }
             var previous = _state; _step?.Dispose(); _step = next;
             _state = new AgentRouteState { Request = work.Request, Version = work.Version, Plan = plan, Environment = work.Environment,
@@ -185,7 +185,7 @@ namespace Gameplay.Agent.Routes
             { BeginReplan(AgentRouteFailure.Disconnected); return true; }
             var next = new AgentClusterStepExecutor(_agent, _lifecycle, _environment.Targets);
             bool accepted = next.TryBegin(new AgentDirectiveRouteContext(_state.Request.RequestId, _state.Version, to, index,
-                _state.Request.Source == AgentRouteSource.Player), index == _state.Plan.NodeIds.Count - 1, _state.SkipResources, _state.Request.ResourceSearch);
+                _state.Request.Source == AgentRouteSource.Player), index == _state.Plan.NodeIds.Count - 1, _state.SkipResources);
             _step.Dispose(); _step = next;
             if (accepted) _state.Cursor = index;
             return accepted;

@@ -17,6 +17,7 @@ using UnityEngine.TestTools;
 
 namespace AgentReproduction.Tests
 {
+    /// <summary>玩家打开过的箱子不管剩没剩东西都算搜刮过：自主搜索、指挥员再次下令、重规划和反击恢复都不再回来</summary>
     public sealed class ResourceSearchRevisitTests : ReproductionTestFixture
     {
         public static bool[] RouteModes = { false, true };
@@ -55,8 +56,10 @@ namespace AgentReproduction.Tests
             else Assert.That(dispatcher.TrySubmitClusterCommand(cluster, agent.AgentIdValue, out _), Is.True);
         }
 
+        private static void Focus(string agentId) => Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent(agentId), Is.True);
+
         [UnityTest]
-        public IEnumerator PartialCloseIsSharedAndEitherAgentCanRevisit([ValueSource(nameof(RouteModes))] bool routes)
+        public IEnumerator PartialCloseIsSharedAndNoOrderReopensIt([ValueSource(nameof(RouteModes))] bool routes)
         {
             TestNavMeshBuilder.Flat(World);
             var first = AgentFactory.Create(World, "1", new Vector3(-4, 0, -3), 8, false, false);
@@ -74,12 +77,20 @@ namespace AgentReproduction.Tests
                 installer.Configure(binding);
             }
             var waiting = new Dictionary<string, GameObject>();
+            var waits = new List<string>();
             void Observe(AgentResourceInteractionEvent value)
             {
-                if (value.Stage == AgentResourceInteractionStage.WaitingForInventory) waiting[value.AgentId] = value.Resource;
+                if (value.Stage == AgentResourceInteractionStage.WaitingForInventory)
+                {
+                    if (!waiting.TryGetValue(value.AgentId, out var old) || old != value.Resource) waits.Add(value.AgentId);
+                    waiting[value.AgentId] = value.Resource;
+                }
                 else waiting.Remove(value.AgentId);
             }
+            var rejected = new List<AgentDirectiveFailure>();
+            void Feedback(AgentDirectiveResult result) { if (result.Stage == AgentDirectiveStage.Rejected) rejected.Add(result.Reason); }
             AgentResourceInteractionChannel.Published += Observe;
+            AgentDirectiveFeedbackChannel.Published += Feedback;
             try
             {
                 yield return null;
@@ -87,7 +98,7 @@ namespace AgentReproduction.Tests
                 Order(cluster, first, routes); Order(cluster, second, routes);
                 yield return RuntimeWait.Until(() => waiting.Count == 2, "both agents waiting at shared box");
                 Assert.That(waiting.Values.All(x => x == box.gameObject), Is.True, "Empty members must be skipped.");
-                Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent("1"), Is.True);
+                Focus("1");
                 yield return null;
                 box.Interact();
                 Assert.That(screen.IsInventoryOpen, Is.True);
@@ -96,8 +107,7 @@ namespace AgentReproduction.Tests
                 screen.CloseInventory();
                 yield return RuntimeWait.Until(() => Finished(first, routes) && Finished(second, routes), "shared completion releases both agents");
                 Assert.That(cluster.HasBeenCompleted, Is.True);
-                Assert.That(cluster.HasRemainingLoot, Is.True);
-                Assert.That(cluster.HasPendingResources(), Is.False, "Autonomous search shares the completed state.");
+                Assert.That(cluster.HasPendingResources(), Is.False, "A looted box counts as searched even with loot left.");
                 Assert.That(box.ResourceState, Is.EqualTo(SceneResourceStateType.PartiallySearched));
                 var saved = box.GetSavedItems().Single();
                 Assert.That(saved.IsSearched, Is.False);
@@ -105,21 +115,22 @@ namespace AgentReproduction.Tests
                 var resolver = new MapGraphRouteTargetResolver(binding);
                 Assert.That(resolver.TryGetFacts("n0", out var facts), Is.True);
                 Assert.That(facts.Status, Is.EqualTo(AgentRouteTargetStatus.Completed));
-                Assert.That(facts.HasRemainingLoot, Is.True);
 
-                Order(cluster, second, routes);
-                yield return RuntimeWait.Until(() => waiting.TryGetValue("2", out var resource) && resource == box.gameObject,
-                    "second agent explicitly revisits the remaining box");
-                Assert.That(AgentManualDirectiveLock.ShouldHoldManualResourceDirective(second.DirectiveLifecycle.Active.Value), Is.True);
-                Assert.That(AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent("2"), Is.True);
-                yield return null;
-                box.Interact();
-                yield return null;
-                Assert.That(Contents(screen).Single().SearchProgressSeconds, Is.GreaterThanOrEqualTo(saved.SearchProgressSeconds),
-                    "Revisit shares the first agent's reveal progress.");
-                Assert.That(screen.ActiveSessionContext.AgentId, Is.EqualTo("2"));
-                screen.CloseInventory();
-                yield return RuntimeWait.Until(() => Finished(second, routes), "closing again finishes only this new visit");
+                waits.Clear();
+                var dispatcher = new AgentTargetCommandDispatcher();
+                if (routes)
+                {
+                    Assert.That(dispatcher.TrySubmitClusterRoute(cluster, second.AgentIdValue).Stage, Is.EqualTo(AgentRouteStage.Planning));
+                    yield return RuntimeWait.Until(() => Finished(second, true), "explicit order only travels to the looted group");
+                    Assert.That(second.RouteSnapshot.Stage, Is.EqualTo(AgentRouteStage.Completed));
+                }
+                else
+                {
+                    Assert.That(dispatcher.TrySubmitClusterCommand(cluster, second.AgentIdValue, out _), Is.False);
+                    Assert.That(rejected.Last(), Is.EqualTo(AgentDirectiveFailure.TargetCompleted));
+                    yield return null;
+                }
+                Assert.That(waits, Is.Empty, "No agent waits at the looted box again.");
                 Assert.That(box.GetSavedItems().Count, Is.EqualTo(1));
                 Assert.That(Finished(first, routes), Is.True);
                 ContractCompleted = true;
@@ -130,11 +141,12 @@ namespace AgentReproduction.Tests
                     "first=" + JsonUtility.ToJson(AnomalySearch.Automation.SceneRaid.Commands.SceneRaidRouteEvidence.Capture(first)) +
                     "; second=" + JsonUtility.ToJson(AnomalySearch.Automation.SceneRaid.Commands.SceneRaidRouteEvidence.Capture(second)));
                 AgentResourceInteractionChannel.Published -= Observe;
+                AgentDirectiveFeedbackChannel.Published -= Feedback;
             }
         }
 
         [UnityTest]
-        public IEnumerator PartialCloseLeavesGroupAndOnlyAnExplicitFinalTargetReopensIt()
+        public IEnumerator PartialCloseLeavesGroupAndExplicitOrdersDoNotReopenIt()
         {
             TestNavMeshBuilder.Flat(World);
             var agent = AgentFactory.Create(World, "1", Vector3.left * 3, 8, false, false);
@@ -149,8 +161,12 @@ namespace AgentReproduction.Tests
                 new[] { Vector3.right * 3, Vector3.right * 25 }, MapRouteFactory.Chain(2));
             agent.ConfigureRoutes(MapRouteFactory.Environment(binding, agent));
             GameObject waiting = null;
+            int waits = 0;
             void Observe(AgentResourceInteractionEvent value)
-                => waiting = value.Stage == AgentResourceInteractionStage.WaitingForInventory ? value.Resource : null;
+            {
+                if (value.Stage == AgentResourceInteractionStage.WaitingForInventory && waiting != value.Resource) waits++;
+                waiting = value.Stage == AgentResourceInteractionStage.WaitingForInventory ? value.Resource : null;
+            }
             AgentResourceInteractionChannel.Published += Observe;
             try
             {
@@ -170,21 +186,18 @@ namespace AgentReproduction.Tests
                 Assert.That(agent.Position.x, Is.GreaterThan(23));
                 Assert.That(first.GetSavedItems().Count, Is.EqualTo(1));
                 Assert.That(second.IsResourcePointLooted, Is.True);
+                Assert.That(waits, Is.EqualTo(2));
 
                 Order(cluster, agent, true);
-                yield return RuntimeWait.Until(() => waiting == first.gameObject, "explicit final target revisits remaining loot");
-                first.Interact(); yield return null;
-                screen.CloseInventory();
-                yield return RuntimeWait.Until(() => Finished(agent, true), "leave again without taking last item");
-                Assert.That(second.GetSavedItems(), Is.Empty);
+                yield return RuntimeWait.Until(() => Finished(agent, true), "explicit final target does not reopen remaining loot");
+                Assert.That(agent.RouteSnapshot.Stage, Is.EqualTo(AgentRouteStage.Completed));
+                Assert.That(agent.Position.x, Is.LessThan(10), "The agent still travels to the group it was sent to.");
 
-                // 当前锚点是已处理资源群，新路线的中间节点不能因有余物而再次等待背包。
-                waiting = null;
                 agent.TrySubmitRoute(new AgentRouteRequest("n1", AgentRouteSource.Player, agent.AgentId, "pass-again"));
                 yield return RuntimeWait.Until(() => Finished(agent, true), "cross processed resource without reopening");
                 Assert.That(agent.RouteSnapshot.Stage, Is.EqualTo(AgentRouteStage.Completed));
                 Assert.That(agent.Position.x, Is.GreaterThan(23));
-                Assert.That(waiting, Is.Null);
+                Assert.That(waits, Is.EqualTo(2), "Neither the final order nor the pass-through waits at a looted box.");
                 Assert.That(first.GetSavedItems().Count, Is.EqualTo(1));
                 ContractCompleted = true;
             }
@@ -192,7 +205,7 @@ namespace AgentReproduction.Tests
         }
 
         [UnityTest]
-        public IEnumerator ReplanningAndRetaliationPreserveTheCurrentSearchPass()
+        public IEnumerator ReplanningAndRetaliationSkipProcessedBoxes()
         {
             TestNavMeshBuilder.Flat(World);
             var agent = AgentFactory.Create(World, "1", Vector3.zero, 8, false, false);
@@ -214,26 +227,84 @@ namespace AgentReproduction.Tests
                 first.Interact(); yield return null;
                 screen.CloseInventory();
                 yield return RuntimeWait.Until(() => AgentSearchedResourceRegistry.IsSearched(first.gameObject), "shared first completion");
-                var pass = agent.RouteSnapshot.Request.ResourceSearch;
                 long version = agent.RouteSnapshot.RouteVersion;
                 agent.ConfigureRoutes(MapRouteFactory.Environment(binding, agent, 2));
                 yield return RuntimeWait.Until(() => agent.RouteSnapshot.RouteVersion > version && waiting == second.gameObject,
                     "replan skips processed first box");
-                Assert.That(agent.RouteSnapshot.Request.ResourceSearch, Is.SameAs(pass));
                 var attacker = EnemyFactory.Passive(World, agent.Position + Vector3.forward * 5);
                 agent.TakeCombatDamage(10, agent.Position, Vector3.back, attacker.gameObject);
                 Assert.That(agent.DirectiveLifecycle.SuspendedDirective.HasValue, Is.True);
-                Assert.That(agent.DirectiveLifecycle.SuspendedDirective.Value.ResourceSearch, Is.SameAs(pass));
                 Object.DestroyImmediate(attacker.gameObject);
                 yield return RuntimeWait.Until(() => agent.DirectiveLifecycle.Active?.DirectiveType == AgentDirectiveType.Search &&
                     waiting == second.gameObject, "retaliation resumes second box");
-                Assert.That(agent.DirectiveLifecycle.Active.Value.ResourceSearch, Is.SameAs(pass));
                 second.Interact(); yield return null;
                 screen.CloseInventory();
                 yield return RuntimeWait.Until(() => Finished(agent, true), "both closed boxes finish root despite leftovers");
                 Assert.That(agent.RouteSnapshot.Stage, Is.EqualTo(AgentRouteStage.Completed));
                 Assert.That(first.GetSavedItems().Count, Is.EqualTo(2));
                 Assert.That(second.GetSavedItems().Count, Is.EqualTo(2));
+                ContractCompleted = true;
+            }
+            finally { AgentResourceInteractionChannel.Published -= Observe; }
+        }
+
+        [UnityTest]
+        public IEnumerator BoxesOpenedWithoutTheWaitingAgentAreNotRevisited()
+        {
+            TestNavMeshBuilder.Flat(World);
+            var idle = AgentFactory.Create(World, "1", new Vector3(0, 0, -4), 0, false, false);
+            var searcher = AgentFactory.Create(World, "2", Vector3.zero, 8, false, false);
+            var screen = InventoryFactory.Create(World);
+            var early = Box("Opened before arrival", Vector3.right * 3);
+            var shared = Box("Opened for another agent", Vector3.right * 6);
+            var last = Box("Waited box", Vector3.right * 9);
+            var other = Box("Opened instead of the waited box", Vector3.right * 12);
+            var cluster = TargetFactory.ResourceBoxes(World, early, shared, last, other);
+            var waits = new List<GameObject>();
+            GameObject waiting = null;
+            void Observe(AgentResourceInteractionEvent value)
+            {
+                if (value.AgentId != searcher.AgentIdValue) return;
+                if (value.Stage == AgentResourceInteractionStage.WaitingForInventory && waiting != value.Resource) waits.Add(value.Resource);
+                waiting = value.Stage == AgentResourceInteractionStage.WaitingForInventory ? value.Resource : null;
+            }
+            AgentResourceInteractionChannel.Published += Observe;
+            try
+            {
+                yield return null;
+                Focus(idle.AgentIdValue);
+                yield return null;
+                // 智能体还没出发就被玩家打开过
+                early.Interact(); yield return null;
+                screen.CloseInventory();
+                Assert.That(AgentSearchedResourceRegistry.IsSearched(early.gameObject), Is.True);
+
+                Time.timeScale = 4;
+                Order(cluster, searcher, false);
+                yield return RuntimeWait.Until(() => waiting == shared.gameObject, "skip the box opened before arrival");
+                // 2 号在等，玩家却用聚焦的 1 号打开了这个箱子
+                shared.Interact(); yield return null;
+                Assert.That(screen.ActiveSessionContext.AgentId, Is.EqualTo(idle.AgentIdValue));
+                screen.CloseInventory();
+                yield return RuntimeWait.Until(() => waiting == last.gameObject, "a box opened through another agent releases the waiting agent");
+
+                // 2 号在等 last，玩家打开的是旁边另一个箱子
+                Focus(searcher.AgentIdValue);
+                yield return null;
+                other.Interact(); yield return null;
+                screen.CloseInventory();
+                yield return null;
+                Assert.That(AgentSearchedResourceRegistry.IsSearched(other.gameObject), Is.True);
+                Assert.That(waiting, Is.SameAs(last.gameObject), "Another box cannot complete the waited one.");
+                last.Interact(); yield return null;
+                screen.CloseInventory();
+                yield return RuntimeWait.Until(() => Finished(searcher, false), "closing the waited box finishes the group");
+
+                Assert.That(waits, Is.EqualTo(new[] { shared.gameObject, last.gameObject }),
+                    "The agent never waits at a box the player has already opened.");
+                Assert.That(cluster.HasBeenCompleted, Is.True);
+                foreach (var box in new[] { early, shared, last, other })
+                    Assert.That(box.GetSavedItems().Count, Is.EqualTo(2), "Opening without taking keeps the loot.");
                 ContractCompleted = true;
             }
             finally { AgentResourceInteractionChannel.Published -= Observe; }

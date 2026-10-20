@@ -42,9 +42,9 @@ namespace Gameplay.MapGraph.View
             _identity.rectTransform.sizeDelta=new Vector2(72,14); _identity.fontSize=expanded?11:8;
             RefreshLabelSize();
         }
-        public void Refresh(bool available,bool completed,string targets,bool pending,bool hasRemainingLoot=false)
+        public void Refresh(bool available,bool completed,string targets,bool pending)
         {
-            _symbol.color=!available?_theme.Inactive:completed?Color.Lerp(_theme.KindColor(_kind),_theme.Inactive,hasRemainingLoot ? .35f : .7f):_theme.KindColor(_kind);
+            _symbol.color=!available?_theme.Inactive:completed?Color.Lerp(_theme.KindColor(_kind),_theme.Inactive,.7f):_theme.KindColor(_kind);
             bool targeted=!string.IsNullOrEmpty(targets); _targetRing.gameObject.SetActive(targeted||pending);
             _targetRing.color=pending&&!targeted?_theme.MutedText:_theme.Route;
             string text=targets??string.Empty;

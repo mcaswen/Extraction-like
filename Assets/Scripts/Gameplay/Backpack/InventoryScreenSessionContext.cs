@@ -12,6 +12,8 @@ public sealed class InventoryScreenSessionContext
     public string AgentId { get; internal set; } = string.Empty;
     public bool IsClosed { get; internal set; }
     public InventoryScreenSessionResult CloseResult { get; internal set; }
+    /// <summary>有 Agent 正在资源旁等这个会话关闭，由它处理关闭结果（含容量不足）并登记资源</summary>
+    public bool AwaitedByAgent { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public bool UseCustomPlayerInventory { get; set; }
     public int PlayerColumns { get; set; } = 1;

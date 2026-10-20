@@ -8,7 +8,6 @@ using Gameplay.Agent.Runtime;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Navigation;
 using Gameplay.Targets.Authoring;
-using Gameplay.Targets.Data;
 using Gameplay.Targets.Runtime;
 using UnityEngine;
 
@@ -27,7 +26,6 @@ namespace Gameplay.Agent.AI.Actions
         private bool _hasPlayedSearchCompleteSfx;
         private AgentResourceInteractionEvent? _reportedInteraction;
         private Vector3 _observedNavigationPosition;
-        private ResourceSearchPass _resourceSearch;
 
         /// <summary>
         /// 创建资源搜索行为节点
@@ -52,7 +50,6 @@ namespace Gameplay.Agent.AI.Actions
                 return FailMissingDirective(AgentDirectiveType.Search);
 
             SyncActiveResourceTarget(directiveRequest);
-            _resourceSearch = directiveRequest.ResourceSearch;
 
             if (TryGetTargetComponent(
                     directiveRequest.TargetRef,
@@ -120,9 +117,9 @@ namespace Gameplay.Agent.AI.Actions
                     agent.Position,
                     agent.NavMeshAgent,
                     out GameObject resourceObject,
-                    out Vector3 resourceNavigationPosition, _resourceSearch))
+                    out Vector3 resourceNavigationPosition))
             {
-                if (!resourceCluster.HasPendingResources(_resourceSearch))
+                if (!resourceCluster.HasPendingResources())
                 {
                     CompleteResourceSearch(context);
                     return Succeed();
@@ -148,7 +145,7 @@ namespace Gameplay.Agent.AI.Actions
             if (result.Status != BehaviorNodeStatus.Success)
                 return result;
 
-            if (!resourceCluster.HasPendingResources(_resourceSearch))
+            if (!resourceCluster.HasPendingResources())
             {
                 CompleteResourceSearch(context);
                 return Succeed();
@@ -301,8 +298,7 @@ namespace Gameplay.Agent.AI.Actions
                     return Succeed();
                 }
             }
-            if (_resourceSearch != null ? _resourceSearch.HasProcessed(lootBox.gameObject) :
-                AgentSearchedResourceRegistry.IsSearched(lootBox.gameObject))
+            if (AgentSearchedResourceRegistry.IsSearched(lootBox.gameObject))
             {
                 CompleteConcreteResourceSearch(context, lootBox.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -334,8 +330,7 @@ namespace Gameplay.Agent.AI.Actions
             global::WorldLootItem worldItem,
             bool clearDirectiveOnComplete)
         {
-            if (_resourceSearch != null ? _resourceSearch.HasProcessed(worldItem.gameObject) :
-                AgentSearchedResourceRegistry.IsSearched(worldItem.gameObject))
+            if (AgentSearchedResourceRegistry.IsSearched(worldItem.gameObject))
             {
                 CompleteConcreteResourceSearch(context, worldItem.gameObject, clearDirectiveOnComplete);
                 return Succeed();
@@ -451,6 +446,7 @@ namespace Gameplay.Agent.AI.Actions
                 activeSession.AgentId == agent.AgentIdValue && !activeSession.UseCustomPlayerInventory)
             {
                 _observedInventorySession = activeSession;
+                activeSession.AwaitedByAgent = true;
             }
 
             if (_observedInventorySession == null || !_observedInventorySession.IsClosed)
@@ -466,7 +462,7 @@ namespace Gameplay.Agent.AI.Actions
                 return Succeed();
             }
 
-            // 关闭匹配会话表示这次处理结束；箱内余物与物品揭示进度保持原样，供玩家重访。
+            // 关闭匹配会话即算搜刮过，箱内余物与物品揭示进度保持原样，不再回来处理。
             AgentSearchedResourceRegistry.MarkSearched(resourceObject);
             CompleteConcreteResourceSearch(context, resourceObject, clearDirectiveOnComplete);
             return Succeed();
@@ -477,6 +473,8 @@ namespace Gameplay.Agent.AI.Actions
             if (_reportedInteraction?.Stage == AgentResourceInteractionStage.WaitingForInventory ||
                 _reportedInteraction?.Stage == AgentResourceInteractionStage.OpeningContainer)
                 EndReportedInteraction(AgentResourceInteractionStage.Left);
+            if (_observedInventorySession != null)
+                _observedInventorySession.AwaitedByAgent = false;
             _waitingResourceObject = null;
             _observedInventorySession = null;
         }
@@ -518,7 +516,6 @@ namespace Gameplay.Agent.AI.Actions
         private void ResetSearchState()
         {
             EndReportedInteraction(AgentResourceInteractionStage.Left);
-            _resourceSearch = null;
             _activeResourceTargetId = string.Empty;
             _activeConcreteResourceObject = null;
             _hasReachedInteractionRange = false;

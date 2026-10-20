@@ -6,7 +6,6 @@ using Gameplay.Agent.Navigation;
 using Gameplay.Agent.Runtime;
 using Gameplay.MapGraph.Config;
 using Gameplay.Perception;
-using Gameplay.Targets.Data;
 using UnityEngine;
 
 namespace Gameplay.Agent.Routes
@@ -19,7 +18,6 @@ namespace Gameplay.Agent.Routes
         private readonly IAgentRouteTargetResolver _resolver;
         private readonly AgentNavigationQuery.Buffer _arrivalBuffer = new AgentNavigationQuery.Buffer();
         private AgentDirectiveRouteContext _context;
-        private ResourceSearchPass _resourceSearch;
         private AgentClusterStepPhase _phase;
         private AgentRouteFailure _failure;
         private Vector3 _anchor;
@@ -45,12 +43,10 @@ namespace Gameplay.Agent.Routes
         }
 
         /// <summary>新实例先接受实际移动，失败不取消旧实例拥有的步骤，供根任务原子改令。</summary>
-        public bool TryBegin(AgentDirectiveRouteContext context, bool final, bool skipResources = false,
-            ResourceSearchPass resourceSearch = null)
+        public bool TryBegin(AgentDirectiveRouteContext context, bool final, bool skipResources = false)
         {
             if (_disposed || _phase != AgentClusterStepPhase.None || !context.IsValid) return false;
             _context = context; _final = final; _skipResources = skipResources;
-            _resourceSearch = context.IsPlayerRoute && final ? resourceSearch ?? new ResourceSearchPass() : null;
             if (!ReadFacts(out var facts)) return false;
             _anchor = facts.Anchor;
             return SubmitTravel();
@@ -117,7 +113,7 @@ namespace Gameplay.Agent.Routes
             // 等待背包不受重试限时约束；没有可执行成员才启动有限重试。
             _commandId = NextCommandId();
             if (!_resolver.TryCreateProcessingDirective(_context.NodeId, _agent.AgentId, _commandId,
-                    _context.IsPlayerRoute ? 1000 : 0, out var directive, out var failure, _resourceSearch))
+                    _context.IsPlayerRoute ? 1000 : 0, out var directive, out var failure))
             { RetryOrFail(now, MapFailure(failure)); return; }
             _terminalResult = null;
             var accepted = _lifecycle.SubmitRouteStep(directive.WithRouteContext(_context));
@@ -161,7 +157,7 @@ namespace Gameplay.Agent.Routes
         }
         private bool ReadFacts(out AgentRouteTargetFacts facts)
         {
-            if (!_resolver.TryGetFacts(_context.NodeId, out facts, _resourceSearch) || facts.Status == AgentRouteTargetStatus.Missing)
+            if (!_resolver.TryGetFacts(_context.NodeId, out facts) || facts.Status == AgentRouteTargetStatus.Missing)
             { End(AgentClusterStepPhase.Failed, AgentRouteFailure.MissingTarget); return false; }
             _alive = facts.AliveMembers;
             if (!facts.CanTraverse) { End(AgentClusterStepPhase.Failed, AgentRouteFailure.TargetUnavailable); return false; }

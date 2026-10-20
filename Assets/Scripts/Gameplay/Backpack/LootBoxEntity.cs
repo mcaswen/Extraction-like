@@ -200,7 +200,7 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
     /// </summary>
     public InventoryScreenSessionContext CreateInventorySessionContext()
     {
-        return new InventoryScreenSessionContext
+        InventoryScreenSessionContext sessionContext = new InventoryScreenSessionContext
         {
             SourceObject = gameObject,
             DisplayName = ResolvedBoxName,
@@ -210,17 +210,35 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
             ExternalBlockedCells = GetBlockedCells(),
             ExternalItems = GetSavedItems(),
             ExternalCellStates = GetSavedCellStates(),
-            BeforeOpen = EnsureLootGeneratedIfNeeded,
-            OnClose = result =>
+            BeforeOpen = EnsureLootGeneratedIfNeeded
+        };
+        sessionContext.OnClose = result =>
+        {
+            if (result == null)
             {
-                if (result == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                SaveRuntimeState(result.ExternalItems, result.ExternalCellStates);
+            SaveRuntimeState(result.ExternalItems, result.ExternalCellStates);
+            // 玩家打开过的箱子不管剩没剩东西都算搜刮过，Agent 不再回来。
+            // 在旁边等这个会话的 Agent 自己收尾（要读容量不足）；没人在等时（为别的 Agent 打开、到达前就打开）由箱子登记
+            if (!sessionContext.AwaitedByAgent)
+            {
+                MarkSearchedByPlayer();
             }
         };
+        return sessionContext;
+    }
+
+    private void MarkSearchedByPlayer()
+    {
+        Gameplay.Agent.Runtime.AgentSearchedResourceRegistry.MarkSearched(gameObject);
+        Gameplay.Targets.Runtime.GameplayTargetRegistry registry =
+            Gameplay.Targets.Runtime.GameplayTargetRegistry.ActiveInstance;
+        if (registry != null)
+        {
+            registry.NotifyResourceCompleted(gameObject);
+        }
     }
 
     /// <summary>

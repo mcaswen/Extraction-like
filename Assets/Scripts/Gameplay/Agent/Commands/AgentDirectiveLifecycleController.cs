@@ -162,7 +162,7 @@ namespace Gameplay.Agent.Commands
         private AgentDirectiveRequest WithIdentity(AgentDirectiveRequest request) => new AgentDirectiveRequest(
             request.DirectiveType, request.TargetRef, request.PayloadId, _agent.AgentId,
             string.IsNullOrEmpty(request.CommandId) ? "Auto_" + System.Guid.NewGuid().ToString("N") : request.CommandId,
-            request.Priority, request.RouteContext, request.ResourceSearch);
+            request.Priority, request.RouteContext);
         private static bool SameTarget(AgentDirectiveRequest a, AgentDirectiveRequest b) =>
             a.RouteContext.Equals(b.RouteContext) && a.DirectiveType == b.DirectiveType && a.TargetObject == b.TargetObject && a.TargetId == b.TargetId &&
             (a.TargetObject != null || a.TargetPosition == b.TargetPosition) &&
