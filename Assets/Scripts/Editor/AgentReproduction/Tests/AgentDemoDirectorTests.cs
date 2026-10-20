@@ -17,7 +17,7 @@ namespace AgentReproduction.Tests
 {
     /// <summary>
     /// 现场导演：三个场景在正式场景里各连续成功 3 次，每次都写出完整的事件记录（场景头、三步达成、结局）；
-    /// 第一次运行到最后一步时截一张图（面板、字幕和叠加层同时打开）。测试按 4 倍速运行，每步停留缩短到半秒。
+    /// 第一次运行到最后一步时截一张图（面板、字幕和叠加层同时打开）。导演布景后按 4 倍速运行，每步停留缩短到半秒。
     /// </summary>
     public sealed class AgentDemoDirectorTests : ReproductionTestFixture
     {
@@ -38,7 +38,7 @@ namespace AgentReproduction.Tests
             while (!load.isDone) yield return null;
             var director = AgentDemoDirector.Ensure();
             director.DwellSeconds = .5f;
-            Time.timeScale = 4f;
+            director.TimeScale = 4f;
             try
             {
                 for (int run = 1; run <= Runs; run++)

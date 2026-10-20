@@ -40,6 +40,9 @@ namespace Gameplay.Demo
         /// <summary>每步条件达成后至少停留的秒数（不受暂停影响），给解说留时间</summary>
         public float DwellSeconds { get; set; } = 3f;
 
+        /// <summary>布景完成后设置的游戏时间倍率（排练和测试可加速）；0 表示不改</summary>
+        public float TimeScale { get; set; }
+
         /// <summary>重新载入后等智能体和地图就绪的上限</summary>
         public float ReadySeconds { get; set; } = 30f;
 
@@ -141,6 +144,7 @@ namespace Gameplay.Demo
             }
 
             AgentRuntimeRegistry.ActiveInstance.TrySetFocusedAgent(pawn.AgentIdValue);
+            if (TimeScale > 0f) Time.timeScale = TimeScale;
             AgentBrainOverlay.Ensure().SetMode(AgentBrainOverlay.Mode.Focused);
             run.Attach(pawn, recorder, binding);
             log.Begin("staged").Field("agent", pawn.AgentIdValue).Field("x", pawn.Position.x).Field("z", pawn.Position.z).End();

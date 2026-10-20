@@ -21,7 +21,7 @@ namespace Gameplay.Demo
     public sealed class AgentDemoRun
     {
         private const float AlertTriggerRange = 35f, StationaryAlertRange = 80f, StationarySeconds = 1f, RealertSeconds = 6f, ScanSeconds = .25f,
-            MinimumRouteMeters = 25f;
+            MinimumRouteMeters = 25f, NearbyEnemyMeters = 30f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private readonly List<global::EnemyHealthController> _alerted = new List<global::EnemyHealthController>();
@@ -144,19 +144,22 @@ namespace Gameplay.Demo
         // —— 导演操作（正式入口） ——
 
         /// <summary>
-        /// 选一个资源群，经地图正式入口给焦点智能体下达路线。优先选图上路程至少 25 米里最近的；
-        /// avoidEnemyNodes 时避开途经敌人群的路线，免得途中被路线本身派去交战；excludeCurrentTarget 时不选当前路线的目标群。
+        /// 选一个资源群，经地图正式入口给焦点智能体下达路线。依次比较：
+        /// enemyNearby 时目标群 30 米内有没有能被叫来的敌人（遇袭场景要让敌人很快赶到）；avoidEnemyNodes 时是否途经敌人群
+        /// （免得途中被路线本身派去交战）；路程是否短于 25 米；图上路程。excludeCurrentTarget 时不选当前路线的目标群。
         /// </summary>
-        public void SubmitCommanderRoute(bool avoidEnemyNodes, bool excludeCurrentTarget = false)
+        public void SubmitCommanderRoute(bool avoidEnemyNodes, bool excludeCurrentTarget = false, bool enemyNearby = false)
         {
             if (Binding == null) { Fail("场景没有就绪"); return; }
             var kinds = new Dictionary<string, MapGraphNodeKind>();
             foreach (MapGraphNodeDefinition node in Binding.MapDefinition.Nodes)
                 if (node != null) kinds[node.NodeId] = node.NodeKind;
+            var enemies = new List<Vector3>();
+            foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
+                if (enemy != null && enemy.IsAlive && enemy.GetComponent<global::IEnemyCombatAlertReceiver>() != null) enemies.Add(enemy.transform.position);
 
-            // 依次比较：是否途经敌人群（需要避开时）、是否短于 25 米、图上路程
             string best = string.Empty;
-            float bestRank = float.PositiveInfinity, bestLength = 0f;
+            float bestRank = float.PositiveInfinity, bestLength = 0f, bestEnemy = 0f;
             bool bestPassesEnemies = false;
             int estimated = 0;
             foreach (MapGraphTargetBinding binding in Binding.TargetBindings)
@@ -166,12 +169,17 @@ namespace Gameplay.Demo
                 if (!Pawn.TryEstimateRoute(AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, cluster.gameObject, cluster.TargetId), _routeNodes, out float length)) continue;
                 estimated++;
                 bool passesEnemies = PassesEnemies(kinds);
-                float rank = (avoidEnemyNodes && passesEnemies ? 2000000f : 0f) + (length < MinimumRouteMeters ? 1000000f : 0f) + length;
+                Vector3 anchor = binding.TryGetNavigationAnchor(out Vector3 value) ? value : cluster.transform.position;
+                float enemyDistance = float.PositiveInfinity;
+                foreach (Vector3 enemy in enemies) enemyDistance = Mathf.Min(enemyDistance, Planar(enemy - anchor));
+                float rank = (enemyNearby && enemyDistance > NearbyEnemyMeters ? 4000000f : 0f) + (avoidEnemyNodes && passesEnemies ? 2000000f : 0f) +
+                             (length < MinimumRouteMeters ? 1000000f : 0f) + length;
                 if (rank >= bestRank) continue;
                 best = binding.NodeId;
                 bestRank = rank;
                 bestLength = length;
                 bestPassesEnemies = passesEnemies;
+                bestEnemy = enemyDistance;
             }
 
             _submittedNode = best;
@@ -181,7 +189,7 @@ namespace Gameplay.Demo
             if (viaMap) presenter.SubmitNode(_submittedNode);
             else AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(_submittedNode, AgentRouteSource.Player, Pawn.AgentId));
             Log.Begin("commander-route").Field("node", _submittedNode).Field("length", bestLength).Field("passesEnemies", bestPassesEnemies)
-                .Field("candidates", estimated).Field("viaMap", viaMap).End();
+                .Field("nearestEnemy", float.IsInfinity(bestEnemy) ? -1f : bestEnemy).Field("candidates", estimated).Field("viaMap", viaMap).End();
         }
 
         /// <summary>开始等智能体走近敌人：进入 35 米内时让最近的敌人察觉它（敌人走自己的追击和开火）</summary>
