@@ -1513,6 +1513,17 @@
       ]
     },
     {
+      "name": "DemoDirector",
+      "suite": "Core",
+      "graphics": true,
+      "filter": "AgentReproduction.Tests.AgentDemoDirectorTests",
+      "expected": [
+        "AutonomousSelectionSucceedsThreeTimes",
+        "AmbushResumeSucceedsThreeTimes",
+        "CommanderReassignSucceedsThreeTimes"
+      ]
+    },
+    {
       "name": "TelemetryBuildGating",
       "suite": "Regression",
       "filter": "AgentReproduction.Tests.TelemetryBuildGatingTests",

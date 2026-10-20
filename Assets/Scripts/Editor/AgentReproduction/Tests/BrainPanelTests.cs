@@ -254,11 +254,11 @@ namespace AgentReproduction.Tests
             yield return null;
         }
 
-        // 面板和叠加层代码里的字符串、各棵树的节点名、地图定义里的区域名
+        // 面板、叠加层和导演代码里的字符串、各棵树的节点名、地图定义里的区域名
         private static string RequiredCharacters()
         {
             var text = new StringBuilder();
-            foreach (string folder in new[] { "Assets/Scripts/Gameplay/Agent/Telemetry/UI", "Assets/Scripts/Gameplay/Agent/Telemetry/Overlay" })
+            foreach (string folder in new[] { "Assets/Scripts/Gameplay/Agent/Telemetry/UI", "Assets/Scripts/Gameplay/Agent/Telemetry/Overlay", "Assets/Scripts/Gameplay/Demo" })
                 foreach (string file in Directory.GetFiles(folder, "*.cs"))
                     foreach (Match literal in Regex.Matches(File.ReadAllText(file), "\"((?:[^\"\\\\]|\\\\.)*)\""))
                         text.Append(literal.Groups[1].Value);

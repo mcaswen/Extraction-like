@@ -18,10 +18,10 @@ namespace AgentReproduction.Tests
         {
             "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentApproachProbeLog", "AgentLegacyBrainTrees", "EngageEnemyActionNode",
             "AgentBrainPanel", "AgentBrainVectorGraphic", "TelemetryConfig", "TelemetryNextAttackTime",
-            "AgentBrainOverlay", "AgentBrainOverlayDrawer", "LastShotBlocker"
+            "AgentBrainOverlay", "AgentBrainOverlayDrawer", "LastShotBlocker", "AgentDemoDirector", "ShowDemoStep"
         };
 
-        private static readonly string[] DevelopmentMustContain = { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentBrainPanel", "AgentBrainOverlay" };
+        private static readonly string[] DevelopmentMustContain = { "AgentBrainTelemetryHub", "AgentBrainRecorder", "ExplainScore", "AgentBrainPanel", "AgentBrainOverlay", "AgentDemoDirector" };
 
         private static readonly string[] BothMustContain = { "AgentBrainTrees", "AgentEngageMemory", "AgentSearchMemory" };
 
