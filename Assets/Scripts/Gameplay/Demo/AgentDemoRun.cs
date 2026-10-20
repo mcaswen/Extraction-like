@@ -20,14 +20,16 @@ namespace Gameplay.Demo
     /// </summary>
     public sealed class AgentDemoRun
     {
-        private const float AlertTriggerRange = 35f, RealertSeconds = 6f, ScanSeconds = .25f, MinimumRouteMeters = 25f;
+        private const float AlertTriggerRange = 35f, StationaryAlertRange = 80f, StationarySeconds = 1f, RealertSeconds = 6f, ScanSeconds = .25f,
+            MinimumRouteMeters = 25f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private readonly List<global::EnemyHealthController> _alerted = new List<global::EnemyHealthController>();
         private Vector3 _startPosition, _stepPosition;
         private string _rememberedRoute = string.Empty, _rememberedTarget = string.Empty, _submittedNode = string.Empty;
         private bool _resumedSeen, _supersededSeen, _alerting;
-        private float _nextAlertTime;
+        private float _nextAlertTime, _stationarySince;
+        private Vector3 _lastScanPosition;
 
         public AgentDemoRun(AgentDemoScene scene, int seed, AgentDemoLog log)
         {
@@ -69,12 +71,23 @@ namespace Gameplay.Demo
 
         internal void BeginStep() => _stepPosition = Pawn.Position;
 
-        /// <summary>每帧由导演调用：智能体走近敌人时让它察觉；迟迟没打起来就换下一个；反击开始后不再叫敌人</summary>
+        /// <summary>
+        /// 每帧由导演调用：智能体走到敌人 35 米内时让它察觉；智能体停下来（例如在箱旁等背包）时把范围放到 80 米，
+        /// 敌人会被引到它现在的位置。迟迟没打起来就再叫一次；反击开始后不再叫敌人。
+        /// </summary>
         internal void Tick()
         {
             if (!_alerting) return;
-            if (IsRetaliatingOverRememberedCommand()) _alerting = false;
-            else if (Time.unscaledTime >= _nextAlertTime) _nextAlertTime = Time.unscaledTime + (AlertNearestEnemy() ? RealertSeconds : ScanSeconds);
+            if (IsRetaliatingOverRememberedCommand())
+            {
+                _alerting = false;
+                return;
+            }
+            if (Time.unscaledTime < _nextAlertTime) return;
+            if (Planar(Pawn.Position - _lastScanPosition) > .1f) _stationarySince = Time.unscaledTime;
+            _lastScanPosition = Pawn.Position;
+            bool stationary = Time.unscaledTime - _stationarySince >= StationarySeconds;
+            _nextAlertTime = Time.unscaledTime + (AlertNearestEnemy(stationary ? StationaryAlertRange : AlertTriggerRange, !stationary) ? RealertSeconds : ScanSeconds);
         }
 
         // —— 推进条件 ——
@@ -175,17 +188,19 @@ namespace Gameplay.Demo
         public void ArmEnemyAlert()
         {
             _alerting = true;
-            _nextAlertTime = Time.unscaledTime;
+            _nextAlertTime = _stationarySince = Time.unscaledTime;
+            _lastScanPosition = Pawn.Position;
         }
 
-        // 让 35 米内离智能体最近、还没被叫过的存活敌人察觉智能体；没有这样的敌人时返回假
-        private bool AlertNearestEnemy()
+        // 让给定范围内离智能体最近的存活敌人察觉智能体（skipAlerted 时跳过叫过的）；没有这样的敌人时返回假
+        private bool AlertNearestEnemy(float range, bool skipAlerted)
         {
             global::EnemyHealthController nearest = null;
-            float nearestDistance = AlertTriggerRange;
+            float nearestDistance = range;
             foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
             {
-                if (enemy == null || !enemy.IsAlive || _alerted.Contains(enemy) || enemy.GetComponent<global::IEnemyCombatAlertReceiver>() == null) continue;
+                if (enemy == null || !enemy.IsAlive || (skipAlerted && _alerted.Contains(enemy)) ||
+                    enemy.GetComponent<global::IEnemyCombatAlertReceiver>() == null) continue;
                 float distance = Vector3.Distance(enemy.transform.position, Pawn.Position);
                 if (distance >= nearestDistance) continue;
                 nearest = enemy;
@@ -193,7 +208,7 @@ namespace Gameplay.Demo
             }
 
             if (nearest == null) return false;
-            _alerted.Add(nearest);
+            if (!_alerted.Contains(nearest)) _alerted.Add(nearest);
             foreach (global::IEnemyCombatAlertReceiver receiver in nearest.GetComponents<global::IEnemyCombatAlertReceiver>())
                 receiver.NotifyCombatAlert(Pawn.CachedTransform);
             Log.Begin("enemy-alert").Field("enemy", nearest.name).Field("distance", nearestDistance).End();
