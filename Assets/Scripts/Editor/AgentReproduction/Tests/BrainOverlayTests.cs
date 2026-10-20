@@ -131,7 +131,8 @@ namespace AgentReproduction.Tests
                 {
                     for (int i = 0; i < 200; i++) overlay.TickFrame();
                 }, value => allocated = value);
-                CaseArtifactWriter.Trace("brain-overlay-allocation", "bytes=" + allocated + " for 200 frames; lines=" + overlay.Drawers[0].Lines.UsedCount);
+                CaseArtifactWriter.Trace("brain-overlay-allocation", "bytes=" + allocated + " for 200 frames; lines=" + overlay.Drawers[0].Lines.UsedCount +
+                    "; screen=" + Screen.width + "x" + Screen.height + "; pixel=" + AgentBrainOverlayDrawer.PixelSize(agent.Position));
                 if (allocated != ManagedAllocation.Unavailable) Assert.That(allocated, Is.LessThan(1024), "叠加层逐帧更新不应分配内存");
                 ContractCompleted = true;
             }
@@ -230,7 +231,7 @@ namespace AgentReproduction.Tests
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(.16f, .2f, .14f);
             Vector3 middle = (a + b) * .5f;
-            go.transform.position = middle + new Vector3(0, 14, -8);
+            go.transform.position = middle + new Vector3(0, 26, -15);
             go.transform.LookAt(middle);
             return camera;
         }

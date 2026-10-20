@@ -26,7 +26,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
         public const float ProbeHoldSeconds = 3f;
 
         // 线宽按屏幕像素给出，每帧按智能体处的像素尺寸换算成米，镜头拉远拉近时粗细不变
-        public const float PathWidth = 4f, RouteWidth = 5f, SightWidth = 4f, MarkWidth = 3f, GuideWidth = 2f;
+        public const float PathWidth = 3f, RouteWidth = 3f, SightWidth = 3f, MarkWidth = 2f, GuideWidth = 1.5f;
         public const float PathLift = .1f, RouteLift = .3f, MarkLift = .05f;
 
         public static readonly Color SightClear = Style.Success;
