@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Gameplay.Agent.Runtime;
+using Gameplay.MapGraph.Binding;
 using Gameplay.Targets.Authoring;
 using UnityEngine;
 using UnityEngine.AI;
@@ -25,11 +26,16 @@ namespace ExtractionLike.Aerospace
         public static AerospaceCollectionRuntime Instance { get; private set; }
         public const int PartCount = 5;
         public const int PreferredSearchStride = 3;
-        public sealed class Reservation { public string code; public int searchNumber; public bool placed; public LootBoxEntity box; public ResourceClusterAuthoring cluster; public Vector3 approach; public string agentId; }
+        public const string GridFinCode = "R04";
+        // Rainforest's southwest resource node, directly connected to its extraction node.
+        // Use the map's stable direct binding: prefab runtime TargetIds may be regenerated.
+        public const string GridFinMapNodeId = "cluster_e351d521b0b236a2292a54c00835880b";
+        public sealed class Reservation { public string code; public int searchNumber; public bool placed; public LootBoxEntity box; public ResourceClusterAuthoring cluster; public ResourceClusterAuthoring requiredCluster; public Vector3 approach; public string agentId; }
         public readonly List<Reservation> Reservations = new List<Reservation>();
         private readonly Dictionary<LootBoxEntity, Reservation> eligibleBoxes = new Dictionary<LootBoxEntity, Reservation>();
         private readonly HashSet<LootBoxEntity> searchedBoxes = new HashSet<LootBoxEntity>();
         private InventoryItemData[] reservedItems;
+        private int[] searchMilestones;
         private readonly HashSet<string> collected = new HashSet<string>();
         private readonly HashSet<string> discoveriesSeen = new HashSet<string>();
         private sealed class DiscoveryRequest { public string code; public Rect? origin; }
@@ -92,7 +98,7 @@ namespace ExtractionLike.Aerospace
                 if (TryReserveAll()) break;
                 yield return new WaitForSecondsRealtime(.5f);
             }
-            if (!IsReady) { Status = "搜索点核验未通过，请查看 Console"; Debug.LogError("[Aerospace] Cannot prepare five parts: fewer than five reachable boxes or missing item assets. No inaccessible or physical props were created."); }
+            if (!IsReady) { Status = "搜索点核验未通过，请查看 Console"; Debug.LogError("[Aerospace] Cannot prepare five parts: check reachable boxes, the rainforest grid-fin node binding and item assets. No inaccessible or physical props were created."); }
         }
 
         /// <summary>Silent Shift+F8 demonstration shortcut; each Agent can receive each part once per run.</summary>
@@ -151,22 +157,40 @@ namespace ExtractionLike.Aerospace
             }
             // Atomic preflight: don't partially alter boxes if assets/navigation are incomplete.
             if (candidates.Count < PartCount) return false;
+            if (!TryResolveGridFinCluster(out var gridFinCluster) ||
+                (gridFinCluster != null && !candidates.Values.Any(c => c.cluster == gridFinCluster))) return false;
             var catalog = AerospaceCatalog.Load();
             if (catalog == null || catalog.models == null || catalog.models.Length != PartCount) return false;
             var items = catalog.models.Select(p => Resources.Load<InventoryItemData>("Aerospace/Items/" + p.code)).ToArray();
             if (items.Any(i => i == null) || catalog.models.Select(p => p.code).Distinct().Count() != PartCount) return false;
-            int[] milestones = BuildSearchMilestones(candidates.Count);
+            searchMilestones = BuildSearchMilestones(candidates.Count);
             foreach (var candidate in candidates) eligibleBoxes.Add(candidate.Key, candidate.Value);
             reservedItems = items;
             for (int i = 0; i < PartCount; i++)
             {
-                Reservations.Add(new Reservation { code = catalog.models[i].code, searchNumber = milestones[i] });
+                Reservations.Add(new Reservation { code = catalog.models[i].code, searchNumber = searchMilestones[i],
+                    requiredCluster = catalog.models[i].code == GridFinCode ? gridFinCluster : null });
             }
             IsReady = true;
-            Status = "首搜保底 · 沿实际探索路线分批投放";
-            Debug.Log("[Aerospace] Prepared five distinct parts for new-box searches " + string.Join(",", milestones) +
-                " across " + EligibleBoxCount + " reachable boxes; no NavMesh/AI changes.");
+            Status = gridFinCluster != null ? "栅格舵固定雨林搜索点 · 其余样件分批投放" : "首搜保底 · 沿实际探索路线分批投放";
+            Debug.Log("[Aerospace] Prepared five distinct parts for new-box searches " + string.Join(",", searchMilestones) +
+                " across " + EligibleBoxCount + " reachable boxes; grid fin node=" +
+                (gridFinCluster != null ? GridFinMapNodeId : "unbound test/other scene") + "; no NavMesh/AI changes.");
             return true;
+        }
+
+        private bool TryResolveGridFinCluster(out ResourceClusterAuthoring cluster)
+        {
+            cluster = null;
+            var bindings = FindObjectsOfType<MapGraphBindingAuthoring>()
+                .Where(b => b.gameObject.scene == gameObject.scene)
+                .SelectMany(b => b.TargetBindings)
+                .Where(b => b != null && b.NodeId == GridFinMapNodeId).ToArray();
+            // The formal map must never silently put R04 elsewhere if its binding breaks.
+            if (bindings.Length == 0) return gameObject.scene.path != FormalScene;
+            if (bindings.Length != 1) return false;
+            cluster = bindings[0].DirectTarget as ResourceClusterAuthoring;
+            return cluster != null && cluster.isActiveAndEnabled && cluster.gameObject.scene == gameObject.scene;
         }
 
         public static int[] BuildSearchMilestones(int reachableBoxCount)
@@ -188,12 +212,19 @@ namespace ExtractionLike.Aerospace
             if (!IsReady && !TryReserveAll()) return false;
             if (!eligibleBoxes.TryGetValue(box, out var candidate) || !searchedBoxes.Add(box)) return false;
 
-            int index = Reservations.FindIndex(r => !r.placed);
-            if (index < 0 || SearchedBoxCount < Reservations[index].searchNumber) return false;
+            // First actual search in the designated group owns R04, even on the first
+            // search of a run. No preview, preflight or other group can consume it.
+            int index = Reservations.FindIndex(r => !r.placed && r.requiredCluster != null && r.requiredCluster == candidate.cluster);
+            if (index < 0)
+            {
+                index = Reservations.FindIndex(r => !r.placed && r.requiredCluster == null);
+                if (index < 0 || SearchedBoxCount < searchMilestones[PlacedPartCount]) return false;
+            }
 
             var reservation = Reservations[index];
             AddReservedLoot(box, reservedItems[index]);
             reservation.placed = true;
+            reservation.searchNumber = SearchedBoxCount;
             reservation.box = box;
             reservation.cluster = candidate.cluster;
             reservation.approach = candidate.approach;

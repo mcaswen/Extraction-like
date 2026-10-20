@@ -7,6 +7,7 @@ using AgentReproduction.Infrastructure;
 using AgentReproduction.World;
 using ExtractionLike.Aerospace;
 using Gameplay.Agent.Runtime;
+using Gameplay.MapGraph.Binding;
 using Gameplay.Targets.Authoring;
 using Gameplay.Targets.Input;
 using NUnit.Framework;
@@ -58,6 +59,87 @@ namespace AgentReproduction.Tests
             }).ToArray();
             TargetFactory.ResourceBoxes(World, boxes);
             return boxes;
+        }
+
+        ResourceClusterAuthoring BindRainforest(params LootBoxEntity[] boxes)
+        {
+            var original = UnityEngine.Object.FindObjectOfType<ResourceClusterAuthoring>();
+            RuntimeFixtureAccess.Configure(original, "_resourceMembers",
+                original.ResourceMembers.Where(m => !boxes.Any(b => b.gameObject == m.EntityObject)).ToList());
+            var rainforest = TargetFactory.ResourceBoxes(World, boxes);
+            rainforest.name = "ResourceCluster_C";
+            var binding = World.Root("Rainforest map binding").AddComponent<MapGraphBindingAuthoring>();
+            // Only direct references are relevant to loot; graph validation is separately tested.
+            binding.Configure(null, new[] { new MapGraphTargetBinding(AerospaceCollectionRuntime.GridFinMapNodeId,
+                rainforest, Vector3.zero, "rainforest-fixture") }, Array.Empty<MapGraphZoneBinding>());
+            return rainforest;
+        }
+
+        [UnityTest] public IEnumerator RainforestFirstSearchGetsGridFinAndOtherPartsRemainPaced() => CheckRainforestPlacement(0);
+        [UnityTest] public IEnumerator RainforestEarlyVisitDoesNotDuplicateOrSkipRemainingParts() => CheckRainforestPlacement(1);
+        [UnityTest] public IEnumerator RainforestMilestoneVisitGetsOnlyGridFin() => CheckRainforestPlacement(9);
+        [UnityTest] public IEnumerator RainforestLateVisitKeepsGridFinOutOfEveryOtherBox() => CheckRainforestPlacement(14);
+
+        IEnumerator CheckRainforestPlacement(int visitIndex)
+        {
+            TestNavMeshBuilder.Flat(World);
+            AgentFactory.Create(World, "1", Vector3.zero); AgentFactory.Create(World, "2", Vector3.forward * 4);
+            var boxes = PacingBoxes(17);
+            var rainforest = BindRainforest(boxes[15], boxes[16]);
+            var runtime = Runtime(); yield return null;
+            Assert.That(runtime.TryReserveAll(), Is.True);
+            Assert.That(runtime.Reservations.Single(r => r.code == "R04").requiredCluster, Is.SameAs(rainforest));
+            Assert.That(runtime.PlacedPartCount, Is.Zero);
+            var order = boxes.Take(15).ToList();
+            order.Insert(visitIndex, boxes[16]); // Not member order: whichever case is actually searched first.
+            order.Add(boxes[15]);
+            string[] ordinaryCodes = { "R01", "R02", "R03", "R05" };
+            int[] milestones = { 1, 4, 7, 10, 13 };
+            int placements = 0, ordinaryIndex = 0;
+            for (int i = 0; i < order.Count; i++)
+            {
+                var box = order[i];
+                box.GetSavedItems(); box.CreateInventorySessionContext();
+                Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i), "Previews must not place samples.");
+                string expected = i == visitIndex ? "R04" :
+                    ordinaryIndex < 4 && i + 1 >= milestones[placements] ? ordinaryCodes[ordinaryIndex++] : null;
+                Assert.That(runtime.PrepareSearchedBox(box), Is.EqualTo(expected != null));
+                var parts = box.GetSavedItems().Where(v => AerospaceCatalog.CodeFor(v.ItemData) != null).ToArray();
+                Assert.That(parts.Length, Is.EqualTo(expected == null ? 0 : 1), "Search " + (i + 1));
+                if (expected != null)
+                {
+                    placements++;
+                    Assert.That(AerospaceCatalog.CodeFor(parts[0].ItemData), Is.EqualTo(expected));
+                    Assert.That(parts[0].RequiresSearch && !parts[0].IsSearched, Is.True);
+                }
+                Assert.That(runtime.PrepareSearchedBox(box), Is.False, "Reopening/second Agent cannot place a duplicate.");
+                Assert.That(runtime.SearchedBoxCount, Is.EqualTo(i + 1));
+                Assert.That(box.ContainerRows, Is.EqualTo(expected == null ? 3 : 4));
+                Assert.That(box.GetSavedItems().Single(v => v.RuntimeItemId.StartsWith("ordinary-")).Amount, Is.EqualTo(1));
+            }
+            Assert.That(runtime.PlacedPartCount, Is.EqualTo(5));
+            Assert.That(runtime.Reservations.Single(r => r.code == "R04").box, Is.SameAs(boxes[16]));
+            Assert.That(runtime.Reservations.Select(r => r.box).Distinct().Count(), Is.EqualTo(5));
+            Assert.That(runtime.CollectedCount, Is.Zero);
+            Assert.That(runtime.IsUnlocked("R04"), Is.False, "Placement is not backpack pickup.");
+            Assert.That(runtime.GetComponent<AerospaceScienceUI>().IsOpen, Is.False);
+            ContractCompleted = true;
+        }
+
+        [UnityTest]
+        public IEnumerator UnreachableRainforestGroupDoesNotSilentlyPlaceGridFinElsewhere()
+        {
+            TestNavMeshBuilder.Flat(World); AgentFactory.Create(World, "1", Vector3.zero);
+            var boxes = PacingBoxes(16);
+            BindRainforest(boxes[15]);
+            boxes[15].gameObject.SetActive(false);
+            var runtime = Runtime(); yield return null;
+            Assert.That(runtime.TryReserveAll(), Is.False);
+            Assert.That(runtime.Reservations, Is.Empty);
+            Assert.That(runtime.PrepareSearchedBox(boxes[0]), Is.False);
+            Assert.That(runtime.SearchedBoxCount, Is.Zero);
+            Assert.That(boxes[0].GetSavedItems().Any(v => AerospaceCatalog.CodeFor(v.ItemData) != null), Is.False);
+            ContractCompleted = true;
         }
 
         [UnityTest]
@@ -437,11 +519,18 @@ namespace AgentReproduction.Tests
             Assert.That(runtime.EligibleBoxCount, Is.GreaterThanOrEqualTo(13));
             Assert.That(runtime.SearchedBoxCount, Is.Zero);
             Assert.That(runtime.PlacedPartCount, Is.Zero);
-            var boxes = UnityEngine.Object.FindObjectsOfType<ResourceClusterAuthoring>()
+            var designated = runtime.Reservations.Single(r => r.code == "R04").requiredCluster;
+            Assert.That(designated, Is.Not.Null, "Formal map must resolve the rainforest node.");
+            Assert.That(designated.name, Is.EqualTo("ResourceCluster_C"));
+            Assert.That(designated.Zone.name, Is.EqualTo("Zone-雨林"));
+            var reachable = UnityEngine.Object.FindObjectsOfType<ResourceClusterAuthoring>()
                 .SelectMany(c => c.ResourceMembers.Select(m => new { cluster = c, box = m.EntityObject != null ? m.EntityObject.GetComponent<LootBoxEntity>() : null }))
                 .Where(p => p.box != null && p.box.isActiveAndEnabled && !p.box.IsResourcePointLooted &&
                     AerospaceCollectionRuntime.TryReach(p.cluster, p.box, agents, out _, out _))
-                .Select(p => p.box).Distinct().Take(13).ToArray();
+                .ToArray();
+            var orderedBoxes = reachable.Where(p => p.cluster != designated).Select(p => p.box).Distinct().Take(12).ToList();
+            orderedBoxes.Insert(9, reachable.First(p => p.cluster == designated).box);
+            var boxes = orderedBoxes.ToArray();
             Assert.That(boxes.Length, Is.EqualTo(13));
             var before = NavMesh.CalculateTriangulation();
             var screen = InventoryScreenController.Instance;
