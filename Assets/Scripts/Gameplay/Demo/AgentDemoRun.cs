@@ -20,7 +20,7 @@ namespace Gameplay.Demo
     /// </summary>
     public sealed class AgentDemoRun
     {
-        private const float EnemyAlertRange = 90f, RealertSeconds = 8f, MinimumRouteMeters = 25f;
+        private const float AlertTriggerRange = 35f, RealertSeconds = 6f, ScanSeconds = .25f, MinimumRouteMeters = 25f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private readonly List<global::EnemyHealthController> _alerted = new List<global::EnemyHealthController>();
@@ -69,12 +69,12 @@ namespace Gameplay.Demo
 
         internal void BeginStep() => _stepPosition = Pawn.Position;
 
-        /// <summary>每帧由导演调用：被察觉的敌人迟迟没打到智能体时换下一个最近的敌人；反击开始后不再叫敌人</summary>
+        /// <summary>每帧由导演调用：智能体走近敌人时让它察觉；迟迟没打起来就换下一个；反击开始后不再叫敌人</summary>
         internal void Tick()
         {
             if (!_alerting) return;
             if (IsRetaliatingOverRememberedCommand()) _alerting = false;
-            else if (Time.unscaledTime >= _nextAlertTime) AlertNearestEnemy();
+            else if (Time.unscaledTime >= _nextAlertTime) _nextAlertTime = Time.unscaledTime + (AlertNearestEnemy() ? RealertSeconds : ScanSeconds);
         }
 
         // —— 推进条件 ——
@@ -171,13 +171,18 @@ namespace Gameplay.Demo
                 .Field("candidates", estimated).Field("viaMap", viaMap).End();
         }
 
-        /// <summary>让离智能体最近、还没被叫过的存活敌人察觉智能体（敌人走自己的追击和开火）；之后由 Tick 视情况换下一个</summary>
-        public void AlertNearestEnemy()
+        /// <summary>开始等智能体走近敌人：进入 35 米内时让最近的敌人察觉它（敌人走自己的追击和开火）</summary>
+        public void ArmEnemyAlert()
         {
             _alerting = true;
-            _nextAlertTime = Time.unscaledTime + RealertSeconds;
+            _nextAlertTime = Time.unscaledTime;
+        }
+
+        // 让 35 米内离智能体最近、还没被叫过的存活敌人察觉智能体；没有这样的敌人时返回假
+        private bool AlertNearestEnemy()
+        {
             global::EnemyHealthController nearest = null;
-            float nearestDistance = EnemyAlertRange;
+            float nearestDistance = AlertTriggerRange;
             foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
             {
                 if (enemy == null || !enemy.IsAlive || _alerted.Contains(enemy) || enemy.GetComponent<global::IEnemyCombatAlertReceiver>() == null) continue;
@@ -187,16 +192,12 @@ namespace Gameplay.Demo
                 nearestDistance = distance;
             }
 
-            if (nearest == null)
-            {
-                if (_alerted.Count == 0) Fail("没有可用的敌人");
-                return;
-            }
-
+            if (nearest == null) return false;
             _alerted.Add(nearest);
             foreach (global::IEnemyCombatAlertReceiver receiver in nearest.GetComponents<global::IEnemyCombatAlertReceiver>())
                 receiver.NotifyCombatAlert(Pawn.CachedTransform);
             Log.Begin("enemy-alert").Field("enemy", nearest.name).Field("distance", nearestDistance).End();
+            return true;
         }
 
         private bool PassesEnemies(Dictionary<string, MapGraphNodeKind> kinds)
