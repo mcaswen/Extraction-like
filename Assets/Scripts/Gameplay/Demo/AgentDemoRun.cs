@@ -20,11 +20,10 @@ namespace Gameplay.Demo
     /// </summary>
     public sealed class AgentDemoRun
     {
-        private const float AlertTriggerRange = 35f, StationaryAlertRange = 80f, StationarySeconds = 1f, RealertSeconds = 6f, ScanSeconds = .25f,
-            MinimumRouteMeters = 25f, NearbyEnemyMeters = 30f;
+        private const float NearAlertRange = 30f, FarAlertRange = 80f, StationarySeconds = 1f, FarAfterSeconds = 10f, RealertSeconds = 6f,
+            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f;
 
         private readonly List<string> _routeNodes = new List<string>();
-        private readonly List<global::EnemyHealthController> _alerted = new List<global::EnemyHealthController>();
         private Vector3 _startPosition, _stepPosition;
         private string _rememberedRoute = string.Empty, _rememberedTarget = string.Empty, _submittedNode = string.Empty;
         private bool _resumedSeen, _supersededSeen, _alerting;
@@ -72,8 +71,8 @@ namespace Gameplay.Demo
         internal void BeginStep() => _stepPosition = Pawn.Position;
 
         /// <summary>
-        /// 每帧由导演调用：智能体走到敌人 35 米内时让它察觉；智能体停下来（例如在箱旁等背包）时把范围放到 80 米，
-        /// 敌人会被引到它现在的位置。迟迟没打起来就再叫一次；反击开始后不再叫敌人。
+        /// 每帧由导演调用：智能体停下来（在箱旁等背包）后，让 30 米内最近的敌人察觉它，敌人会追到它现在的位置；
+        /// 停了 10 秒还没有近处的敌人就放宽到 80 米。迟迟没打起来就再叫一次；反击开始后不再叫敌人。
         /// </summary>
         internal void Tick()
         {
@@ -86,8 +85,9 @@ namespace Gameplay.Demo
             if (Time.unscaledTime < _nextAlertTime) return;
             if (Planar(Pawn.Position - _lastScanPosition) > .1f) _stationarySince = Time.unscaledTime;
             _lastScanPosition = Pawn.Position;
-            bool stationary = Time.unscaledTime - _stationarySince >= StationarySeconds;
-            _nextAlertTime = Time.unscaledTime + (AlertNearestEnemy(stationary ? StationaryAlertRange : AlertTriggerRange, !stationary) ? RealertSeconds : ScanSeconds);
+            float stationary = Time.unscaledTime - _stationarySince;
+            bool alerted = stationary >= StationarySeconds && AlertNearestEnemy(stationary >= FarAfterSeconds ? FarAlertRange : NearAlertRange);
+            _nextAlertTime = Time.unscaledTime + (alerted ? RealertSeconds : ScanSeconds);
         }
 
         // —— 推进条件 ——
@@ -168,8 +168,10 @@ namespace Gameplay.Demo
                 if (excludeCurrentTarget && (binding.NodeId == _rememberedTarget)) continue;
                 if (!Pawn.TryEstimateRoute(AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, cluster.gameObject, cluster.TargetId), _routeNodes, out float length)) continue;
                 estimated++;
-                bool passesEnemies = PassesEnemies(kinds);
-                Vector3 anchor = binding.TryGetNavigationAnchor(out Vector3 value) ? value : cluster.transform.position;
+                // 路线上第一个资源群就是智能体停下来等背包的地方（中间的资源群也会被处理）
+                int stop = FirstResourceNode(kinds);
+                bool passesEnemies = PassesEnemies(kinds, stop);
+                Vector3 anchor = Binding.TryGetNavigationAnchor(_routeNodes[stop], out Vector3 value) ? value : cluster.transform.position;
                 float enemyDistance = float.PositiveInfinity;
                 foreach (Vector3 enemy in enemies) enemyDistance = Mathf.Min(enemyDistance, Planar(enemy - anchor));
                 float rank = (enemyNearby && enemyDistance > NearbyEnemyMeters ? 4000000f : 0f) + (avoidEnemyNodes && passesEnemies ? 2000000f : 0f) +
@@ -192,7 +194,7 @@ namespace Gameplay.Demo
                 .Field("nearestEnemy", float.IsInfinity(bestEnemy) ? -1f : bestEnemy).Field("candidates", estimated).Field("viaMap", viaMap).End();
         }
 
-        /// <summary>开始等智能体走近敌人：进入 35 米内时让最近的敌人察觉它（敌人走自己的追击和开火）</summary>
+        /// <summary>开始等智能体停下来，再让附近的敌人察觉它（敌人走自己的追击和开火）</summary>
         public void ArmEnemyAlert()
         {
             _alerting = true;
@@ -200,15 +202,14 @@ namespace Gameplay.Demo
             _lastScanPosition = Pawn.Position;
         }
 
-        // 让给定范围内离智能体最近的存活敌人察觉智能体（skipAlerted 时跳过叫过的）；没有这样的敌人时返回假
-        private bool AlertNearestEnemy(float range, bool skipAlerted)
+        // 让给定范围内离智能体最近的存活敌人察觉智能体；没有这样的敌人时返回假
+        private bool AlertNearestEnemy(float range)
         {
             global::EnemyHealthController nearest = null;
             float nearestDistance = range;
             foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
             {
-                if (enemy == null || !enemy.IsAlive || (skipAlerted && _alerted.Contains(enemy)) ||
-                    enemy.GetComponent<global::IEnemyCombatAlertReceiver>() == null) continue;
+                if (enemy == null || !enemy.IsAlive || enemy.GetComponent<global::IEnemyCombatAlertReceiver>() == null) continue;
                 float distance = Vector3.Distance(enemy.transform.position, Pawn.Position);
                 if (distance >= nearestDistance) continue;
                 nearest = enemy;
@@ -216,17 +217,25 @@ namespace Gameplay.Demo
             }
 
             if (nearest == null) return false;
-            if (!_alerted.Contains(nearest)) _alerted.Add(nearest);
             foreach (global::IEnemyCombatAlertReceiver receiver in nearest.GetComponents<global::IEnemyCombatAlertReceiver>())
                 receiver.NotifyCombatAlert(Pawn.CachedTransform);
             Log.Begin("enemy-alert").Field("enemy", nearest.name).Field("distance", nearestDistance).End();
             return true;
         }
 
-        private bool PassesEnemies(Dictionary<string, MapGraphNodeKind> kinds)
+        // 估算路线里第一个资源群的位置；没有时取终点
+        private int FirstResourceNode(Dictionary<string, MapGraphNodeKind> kinds)
         {
-            foreach (string node in _routeNodes)
-                if (kinds.TryGetValue(node, out MapGraphNodeKind kind) && (kind == MapGraphNodeKind.EnemySource || kind == MapGraphNodeKind.ActiveEnemy))
+            for (int index = 0; index < _routeNodes.Count; index++)
+                if (kinds.TryGetValue(_routeNodes[index], out MapGraphNodeKind kind) && kind == MapGraphNodeKind.Resource) return index;
+            return _routeNodes.Count - 1;
+        }
+
+        // 走到 stop 之前是否经过敌人群
+        private bool PassesEnemies(Dictionary<string, MapGraphNodeKind> kinds, int stop)
+        {
+            for (int index = 0; index < stop; index++)
+                if (kinds.TryGetValue(_routeNodes[index], out MapGraphNodeKind kind) && (kind == MapGraphNodeKind.EnemySource || kind == MapGraphNodeKind.ActiveEnemy))
                     return true;
             return false;
         }
