@@ -156,8 +156,8 @@ namespace Gameplay.Demo
                 StepIndex = index + 1;
                 panel.ShowDemoStep(index + 1, steps.Length, step.Title, step.Narration);
                 log.Begin("step").Field("index", index + 1).Field("title", step.Title).Field("stage", "enter").End();
-                run.BeginStep();
                 step.Enter?.Invoke(run);
+                run.BeginStep();
 
                 float started = Time.unscaledTime;
                 bool reached = false;

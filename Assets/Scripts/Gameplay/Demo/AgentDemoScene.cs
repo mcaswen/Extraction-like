@@ -72,8 +72,9 @@ namespace Gameplay.Demo
         public static readonly AgentDemoScene AmbushResume = new AgentDemoScene("ambush-resume", "遇袭挂起恢复",
             new AgentDemoStep("指挥员命令执行",
                 "指挥员经地图给智能体下达一条路线，指令槽里是指挥员命令，状态机进入导航。",
+                // 布景：把智能体移到一个附近有敌人的资源群前方，再下达去这个群的路线
                 30f, run => run.RouteActive(AgentRouteSource.Player) && run.MovedSinceStep(MoveMeters) && run.RememberCommand(),
-                run => run.SubmitCommanderRoute(avoidEnemyNodes: true, enemyNearby: true)),
+                run => run.SubmitAmbushRoute()),
             new AgentDemoStep("遇袭挂起与反击",
                 "智能体正在执行指挥员下达的命令。受到攻击时，这条命令被移进挂起槽，反击命令接管行为树。",
                 60f, run => run.IsRetaliatingOverRememberedCommand(),
@@ -89,7 +90,7 @@ namespace Gameplay.Demo
             new AgentDemoStep("指挥员改派",
                 "指挥员在地图上点了另一个群，新的路线请求优先于自主路线。",
                 15f, run => run.CommanderRouteReplacedRemembered(),
-                run => run.SubmitCommanderRoute(avoidEnemyNodes: false, excludeCurrentTarget: true)),
+                run => run.SubmitReassignRoute()),
             new AgentDemoStep("新路线执行",
                 "原来的自主路线被替换，智能体转向指挥员指定的群。",
                 30f, run => run.RouteActive(AgentRouteSource.Player) && run.MovedSinceStep(MoveMeters)));

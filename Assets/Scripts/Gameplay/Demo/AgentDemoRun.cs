@@ -7,7 +7,6 @@ using Gameplay.Agent.Routes;
 using Gameplay.Agent.Runtime;
 using Gameplay.Agent.Telemetry;
 using Gameplay.MapGraph.Binding;
-using Gameplay.MapGraph.Config;
 using Gameplay.MapGraph.View;
 using Gameplay.Targets.Authoring;
 using UnityEngine;
@@ -21,7 +20,7 @@ namespace Gameplay.Demo
     public sealed class AgentDemoRun
     {
         private const float NearAlertRange = 30f, FarAlertRange = 80f, StationarySeconds = 1f, FarAfterSeconds = 10f, RealertSeconds = 6f,
-            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f;
+            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private Vector3 _startPosition, _stepPosition;
@@ -144,54 +143,85 @@ namespace Gameplay.Demo
         // —— 导演操作（正式入口） ——
 
         /// <summary>
-        /// 选一个资源群，经地图正式入口给焦点智能体下达路线。依次比较：
-        /// enemyNearby 时目标群 30 米内有没有能被叫来的敌人（遇袭场景要让敌人很快赶到）；avoidEnemyNodes 时是否途经敌人群
-        /// （免得途中被路线本身派去交战）；路程是否短于 25 米；图上路程。excludeCurrentTarget 时不选当前路线的目标群。
+        /// 改派场景：选一个不是当前目标的资源群，经地图正式入口给焦点智能体下达路线。优先选图上路程至少 25 米里最近的。
         /// </summary>
-        public void SubmitCommanderRoute(bool avoidEnemyNodes, bool excludeCurrentTarget = false, bool enemyNearby = false)
+        public void SubmitReassignRoute()
         {
             if (Binding == null) { Fail("场景没有就绪"); return; }
-            var kinds = new Dictionary<string, MapGraphNodeKind>();
-            foreach (MapGraphNodeDefinition node in Binding.MapDefinition.Nodes)
-                if (node != null) kinds[node.NodeId] = node.NodeKind;
-            var enemies = new List<Vector3>();
-            foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
-                if (enemy != null && enemy.IsAlive && enemy.GetComponent<global::IEnemyCombatAlertReceiver>() != null) enemies.Add(enemy.transform.position);
-
             string best = string.Empty;
-            float bestRank = float.PositiveInfinity, bestLength = 0f, bestEnemy = 0f;
-            bool bestPassesEnemies = false;
-            int estimated = 0;
+            float bestRank = float.PositiveInfinity, bestLength = 0f;
             foreach (MapGraphTargetBinding binding in Binding.TargetBindings)
             {
-                if (binding == null || !(binding.DirectTarget is ResourceClusterAuthoring cluster) || !cluster.isActiveAndEnabled || cluster.HasBeenCompleted) continue;
-                if (excludeCurrentTarget && (binding.NodeId == _rememberedTarget)) continue;
+                if (binding == null || !(binding.DirectTarget is ResourceClusterAuthoring cluster) || !cluster.isActiveAndEnabled || cluster.HasBeenCompleted ||
+                    binding.NodeId == _rememberedTarget) continue;
                 if (!Pawn.TryEstimateRoute(AgentTargetRef.FromConcreteObject(AgentTargetKind.Resource, cluster.gameObject, cluster.TargetId), _routeNodes, out float length)) continue;
-                estimated++;
-                // 路线上第一个资源群就是智能体停下来等背包的地方（中间的资源群也会被处理）
-                int stop = FirstResourceNode(kinds);
-                bool passesEnemies = PassesEnemies(kinds, stop);
-                Vector3 anchor = Binding.TryGetNavigationAnchor(_routeNodes[stop], out Vector3 value) ? value : cluster.transform.position;
-                float enemyDistance = float.PositiveInfinity;
-                foreach (Vector3 enemy in enemies) enemyDistance = Mathf.Min(enemyDistance, Planar(enemy - anchor));
-                float rank = (enemyNearby && enemyDistance > NearbyEnemyMeters ? 4000000f : 0f) + (avoidEnemyNodes && passesEnemies ? 2000000f : 0f) +
-                             (length < MinimumRouteMeters ? 1000000f : 0f) + length;
+                float rank = (length < MinimumRouteMeters ? 1000000f : 0f) + length;
                 if (rank >= bestRank) continue;
                 best = binding.NodeId;
                 bestRank = rank;
                 bestLength = length;
-                bestPassesEnemies = passesEnemies;
-                bestEnemy = enemyDistance;
             }
+            if (best.Length == 0) { Fail("找不到合适的资源群"); return; }
+            Submit(best, bestLength);
+        }
 
-            _submittedNode = best;
-            if (_submittedNode.Length == 0) { Fail("找不到合适的资源群"); return; }
+        // 经地图正式入口下达路线；地图界面不可用时走命令路由
+        private void Submit(string node, float detail)
+        {
+            _submittedNode = node;
             MapGraphPresenter presenter = Object.FindObjectOfType<MapGraphPresenter>();
             bool viaMap = presenter != null && presenter.isActiveAndEnabled;
-            if (viaMap) presenter.SubmitNode(_submittedNode);
-            else AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(_submittedNode, AgentRouteSource.Player, Pawn.AgentId));
-            Log.Begin("commander-route").Field("node", _submittedNode).Field("length", bestLength).Field("passesEnemies", bestPassesEnemies)
-                .Field("nearestEnemy", float.IsInfinity(bestEnemy) ? -1f : bestEnemy).Field("candidates", estimated).Field("viaMap", viaMap).End();
+            if (viaMap) presenter.SubmitNode(node);
+            else AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(node, AgentRouteSource.Player, Pawn.AgentId));
+            Log.Begin("commander-route").Field("node", node).Field("detail", detail).Field("viaMap", viaMap).End();
+        }
+
+        /// <summary>
+        /// 遇袭场景的布景和命令：找一个 25 米内有可察觉敌人的资源群，把智能体经导航瞬移到它前方 30 米左右（随后同步物理），
+        /// 再经地图正式入口下达去这个群的路线。智能体到群里等背包时，附近的敌人被叫来。
+        /// </summary>
+        public void SubmitAmbushRoute()
+        {
+            if (Binding == null) { Fail("场景没有就绪"); return; }
+            var enemies = new List<global::EnemyHealthController>();
+            foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
+                if (enemy != null && enemy.IsAlive && enemy.GetComponent<global::IEnemyCombatAlertReceiver>() != null) enemies.Add(enemy);
+
+            string node = string.Empty;
+            Vector3 anchor = default;
+            float bestDistance = NearbyEnemyMeters;
+            global::EnemyHealthController ambusher = null;
+            foreach (MapGraphTargetBinding binding in Binding.TargetBindings)
+            {
+                if (binding == null || !(binding.DirectTarget is ResourceClusterAuthoring cluster) || !cluster.isActiveAndEnabled || cluster.HasBeenCompleted ||
+                    !binding.TryGetNavigationAnchor(out Vector3 position)) continue;
+                foreach (global::EnemyHealthController enemy in enemies)
+                {
+                    float distance = Planar(enemy.transform.position - position);
+                    if (distance >= bestDistance) continue;
+                    bestDistance = distance;
+                    node = binding.NodeId;
+                    anchor = position;
+                    ambusher = enemy;
+                }
+            }
+            if (node.Length == 0) { Fail("找不到合适的资源群"); return; }
+
+            // 从群锚点朝敌人的反方向退 30 米，取最近的导航点
+            Vector3 away = anchor - ambusher.transform.position;
+            away.y = 0f;
+            away = away.sqrMagnitude > .01f ? away.normalized : Vector3.forward;
+            UnityEngine.AI.NavMeshAgent navigation = Pawn.NavMeshAgent;
+            var filter = new UnityEngine.AI.NavMeshQueryFilter { agentTypeID = navigation.agentTypeID, areaMask = navigation.areaMask };
+            if (!UnityEngine.AI.NavMesh.SamplePosition(anchor + away * StageMeters, out UnityEngine.AI.NavMeshHit hit, 8f, filter) || !navigation.Warp(hit.position))
+            {
+                Fail("场景没有就绪");
+                return;
+            }
+            Physics.SyncTransforms();
+            Log.Begin("stage-ambush").Field("node", node).Field("enemy", ambusher.name).Field("enemyToGroup", bestDistance)
+                .Field("x", hit.position.x).Field("z", hit.position.z).End();
+            Submit(node, bestDistance);
         }
 
         /// <summary>开始等智能体停下来，再让附近的敌人察觉它（敌人走自己的追击和开火）</summary>
@@ -221,23 +251,6 @@ namespace Gameplay.Demo
                 receiver.NotifyCombatAlert(Pawn.CachedTransform);
             Log.Begin("enemy-alert").Field("enemy", nearest.name).Field("distance", nearestDistance).End();
             return true;
-        }
-
-        // 估算路线里第一个资源群的位置；没有时取终点
-        private int FirstResourceNode(Dictionary<string, MapGraphNodeKind> kinds)
-        {
-            for (int index = 0; index < _routeNodes.Count; index++)
-                if (kinds.TryGetValue(_routeNodes[index], out MapGraphNodeKind kind) && kind == MapGraphNodeKind.Resource) return index;
-            return _routeNodes.Count - 1;
-        }
-
-        // 走到 stop 之前是否经过敌人群
-        private bool PassesEnemies(Dictionary<string, MapGraphNodeKind> kinds, int stop)
-        {
-            for (int index = 0; index < stop; index++)
-                if (kinds.TryGetValue(_routeNodes[index], out MapGraphNodeKind kind) && (kind == MapGraphNodeKind.EnemySource || kind == MapGraphNodeKind.ActiveEnemy))
-                    return true;
-            return false;
         }
 
         private void OnDirective(AgentDirectiveResult result)
