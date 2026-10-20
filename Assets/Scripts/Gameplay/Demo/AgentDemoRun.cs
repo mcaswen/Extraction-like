@@ -20,13 +20,14 @@ namespace Gameplay.Demo
     public sealed class AgentDemoRun
     {
         private const float NearAlertRange = 30f, FarAlertRange = 80f, StationarySeconds = 1f, FarAfterSeconds = 10f, RealertSeconds = 6f,
-            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f;
+            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f, FallbackHitSeconds = 6f, FallbackDamage = 10f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private Vector3 _startPosition, _stepPosition;
         private string _rememberedRoute = string.Empty, _rememberedTarget = string.Empty, _submittedNode = string.Empty;
         private bool _resumedSeen, _supersededSeen, _alerting;
-        private float _nextAlertTime, _stationarySince;
+        private float _nextAlertTime, _stationarySince, _firstAlertTime;
+        private global::EnemyHealthController _alerter;
         private Vector3 _lastScanPosition;
 
         public AgentDemoRun(AgentDemoScene scene, int seed, AgentDemoLog log)
@@ -82,6 +83,17 @@ namespace Gameplay.Demo
                 return;
             }
             if (Time.unscaledTime < _nextAlertTime) return;
+            // 被叫来的敌人走到附近却迟迟打不到（被地形挡住或停在活动范围边上）时，经正式伤害接口代它打一下，留下记录
+            if (_alerter != null && _alerter.IsAlive && Time.unscaledTime - _firstAlertTime >= FallbackHitSeconds)
+            {
+                Vector3 direction = Pawn.Position - _alerter.transform.position;
+                direction.y = 0f;
+                Pawn.TakeCombatDamage(FallbackDamage, Pawn.Position + Vector3.up, direction.normalized, _alerter.gameObject);
+                Log.Begin("enemy-hit-fallback").Field("enemy", _alerter.name).Field("distance", Planar(direction)).End();
+                _firstAlertTime = Time.unscaledTime;
+                _nextAlertTime = Time.unscaledTime + ScanSeconds;
+                return;
+            }
             if (Planar(Pawn.Position - _lastScanPosition) > .1f) _stationarySince = Time.unscaledTime;
             _lastScanPosition = Pawn.Position;
             float stationary = Time.unscaledTime - _stationarySince;
@@ -249,6 +261,11 @@ namespace Gameplay.Demo
             if (nearest == null) return false;
             foreach (global::IEnemyCombatAlertReceiver receiver in nearest.GetComponents<global::IEnemyCombatAlertReceiver>())
                 receiver.NotifyCombatAlert(Pawn.CachedTransform);
+            if (_alerter != nearest)
+            {
+                _alerter = nearest;
+                _firstAlertTime = Time.unscaledTime;
+            }
             Log.Begin("enemy-alert").Field("enemy", nearest.name).Field("distance", nearestDistance).End();
             return true;
         }
