@@ -156,6 +156,7 @@ namespace AgentReproduction.Tests
             {
                 panel.SetOpen(true);
                 overlay.SetMode(Gameplay.Agent.Telemetry.Overlay.AgentBrainOverlay.Mode.Focused);
+                overlay.OutputHeight = 1080;
                 yield return null;
                 AgentBrainRecorder recorder = null;
                 float deadline = Time.realtimeSinceStartup + 60f;

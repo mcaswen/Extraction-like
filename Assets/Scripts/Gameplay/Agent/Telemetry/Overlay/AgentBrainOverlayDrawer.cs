@@ -64,7 +64,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
         /// <summary>本帧路线折线经过的群锚点数（测试读取）</summary>
         public int RouteAnchorCount { get; private set; }
 
-        public void Draw(AgentBrainRecorder recorder, MapGraphBindingAuthoring binding, float now)
+        public void Draw(AgentBrainRecorder recorder, MapGraphBindingAuthoring binding, float now, int screenHeight)
         {
             if (!ReferenceEquals(recorder, _recorder))
             {
@@ -79,7 +79,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
             AgentPawnRoot pawn = recorder != null ? recorder.Pawn : null;
             if (pawn != null && recorder.IsAttached && !pawn.IsDead)
             {
-                _pixel = PixelSize(pawn.Position);
+                _pixel = PixelSize(pawn.Position, screenHeight);
                 DrawRange(pawn);
                 DrawPath(recorder);
                 DrawRoute(pawn, binding);
@@ -89,11 +89,11 @@ namespace Gameplay.Agent.Telemetry.Overlay
             _lines.End();
         }
 
-        /// <summary>主相机在该点处一个屏幕像素对应的米数；没有主相机时按 2 厘米</summary>
-        public static float PixelSize(Vector3 at)
+        /// <summary>主相机在该点处一个屏幕像素对应的米数（按给定的画面高度）；没有主相机时按 2 厘米</summary>
+        public static float PixelSize(Vector3 at, int screenHeight)
         {
             Camera camera = Camera.main;
-            int height = Screen.height > 0 ? Screen.height : 1080;
+            int height = screenHeight > 0 ? screenHeight : 1080;
             if (camera == null) return .02f;
             if (camera.orthographic) return 2f * camera.orthographicSize / height;
             float depth = Mathf.Max(.1f, Vector3.Dot(at - camera.transform.position, camera.transform.forward));

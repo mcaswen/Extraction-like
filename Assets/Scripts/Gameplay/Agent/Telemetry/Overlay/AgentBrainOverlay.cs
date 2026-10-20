@@ -46,6 +46,9 @@ namespace Gameplay.Agent.Telemetry.Overlay
 
         public IReadOnlyList<AgentBrainOverlayDrawer> Drawers => _drawers;
 
+        /// <summary>录制或截图的输出高度（像素），线宽按它换算；0 表示按当前屏幕</summary>
+        public int OutputHeight { get; set; }
+
         /// <summary>线是否穿墙显示（默认是）；导演拍摄需要真实遮挡关系时可关闭</summary>
         public bool ThroughWalls
         {
@@ -129,7 +132,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
                 root.SetParent(transform, false);
                 _drawers.Add(new AgentBrainOverlayDrawer(new AgentBrainOverlayLines(root, LineMaterial())));
             }
-            _drawers[slot].Draw(recorder, _binding, Time.unscaledTime);
+            _drawers[slot].Draw(recorder, _binding, Time.unscaledTime, OutputHeight > 0 ? OutputHeight : Screen.height);
         }
 
         // 只读选择：焦点智能体，没有焦点时取第一台
