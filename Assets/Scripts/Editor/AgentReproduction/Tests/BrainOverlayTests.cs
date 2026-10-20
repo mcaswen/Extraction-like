@@ -203,15 +203,16 @@ namespace AgentReproduction.Tests
                 Physics.SyncTransforms();
                 Vector3 origin = new Vector3(0, 1, 0);
                 var plain = TargetVisibilityQuery.Check(viewer, origin, target, range);
-                var detailed = TargetVisibilityQuery.Check(viewer, origin, target, range, 360f, Physics.DefaultRaycastLayers, out Collider blocker, out Vector3 point);
+                var detailed = TargetVisibilityQuery.Check(viewer, origin, target, range, 360f, Physics.DefaultRaycastLayers, out TargetVisibilityDetail detail);
                 Assert.That(plain, Is.EqualTo(expected));
                 Assert.That(detailed, Is.EqualTo(plain), "带挡点输出的判定与原判定一致");
+                Assert.That((detail.AimPoint - CombatAimPointResolver.Resolve(target)).sqrMagnitude, Is.LessThan(1e-6f), "给出判定用的瞄准点");
                 if (expected == TargetVisibilityResult.Occluded)
                 {
-                    Assert.That(blocker, Is.SameAs(wall));
-                    Assert.That(point.z, Is.EqualTo(wallZ - .15f).Within(.01f), "挡点在墙面上");
+                    Assert.That(detail.Blocker, Is.SameAs(wall));
+                    Assert.That(detail.BlockPoint.z, Is.EqualTo(wallZ - .15f).Within(.01f), "挡点在墙面上");
                 }
-                else Assert.That(blocker, Is.Null);
+                else Assert.That(detail.Blocker, Is.Null);
                 Assert.That(TargetVisibilityQuery.ClearSegment(viewer, target, origin, target.position, Physics.DefaultRaycastLayers, null, out _, out _),
                     Is.EqualTo(TargetVisibilityQuery.ClearSegment(viewer, target, origin, target.position)));
             }

@@ -2,25 +2,34 @@ using UnityEngine;
 
 namespace Gameplay.Perception
 {
+    /// <summary>可见性判定用到的瞄准点；判定为受阻时还有挡住视线的碰撞体和挡点</summary>
+    public struct TargetVisibilityDetail
+    {
+        public Vector3 AimPoint;
+        public Collider Blocker;
+        public Vector3 BlockPoint;
+    }
+
     public static class TargetVisibilityQuery
     {
         public static TargetVisibilityResult Check(Transform viewer, Vector3 origin, Transform target, float range,
             float angle = 360f, int mask = Physics.DefaultRaycastLayers)
-            => Check(viewer, origin, target, range, angle, mask, out _, out _);
+            => Check(viewer, origin, target, range, angle, mask, out _);
 
-        /// <summary>同上，另外给出判定为受阻时挡住视线的碰撞体和挡点；未受阻时碰撞体为空</summary>
+        /// <summary>同上，另外给出判定用到的瞄准点和挡住视线的碰撞体</summary>
         public static TargetVisibilityResult Check(Transform viewer, Vector3 origin, Transform target, float range,
-            float angle, int mask, out Collider blocker, out Vector3 blockPoint)
+            float angle, int mask, out TargetVisibilityDetail detail)
         {
-            blocker = null; blockPoint = origin;
+            detail = new TargetVisibilityDetail { AimPoint = origin, BlockPoint = origin };
             if (viewer == null || target == null || !target.gameObject.activeInHierarchy) return TargetVisibilityResult.Invalid;
             Vector3 aim = CombatAimPointResolver.Resolve(target);
+            detail.AimPoint = aim;
             Vector3 offset = aim - origin;
             if (offset.sqrMagnitude > range * range) return TargetVisibilityResult.OutOfRange;
             Vector3 planar = new Vector3(offset.x, 0f, offset.z);
             if (angle < 360f && planar.sqrMagnitude > 0.001f && Vector3.Angle(viewer.forward, planar) > angle * 0.5f)
                 return TargetVisibilityResult.OutsideView;
-            return ClearSegment(viewer, target, origin, aim, mask, null, out blocker, out blockPoint)
+            return ClearSegment(viewer, target, origin, aim, mask, null, out detail.Blocker, out detail.BlockPoint)
                 ? TargetVisibilityResult.Visible : TargetVisibilityResult.Occluded;
         }
 

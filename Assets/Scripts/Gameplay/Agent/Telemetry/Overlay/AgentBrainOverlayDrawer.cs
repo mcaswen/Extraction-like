@@ -189,7 +189,7 @@ namespace Gameplay.Agent.Telemetry.Overlay
             if (now - _shotTime > SightHoldSeconds || shooter.LastShotTarget == null) return;
 
             Vector3 origin = shooter.LastShotOrigin;
-            Vector3 aim = CombatAimPointResolver.Resolve(shooter.LastShotTarget.transform);
+            Vector3 aim = shooter.LastShotAimPoint;
             switch (shooter.LastShotResult)
             {
                 case TargetVisibilityResult.Visible:

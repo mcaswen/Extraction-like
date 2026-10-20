@@ -18,6 +18,8 @@ namespace Gameplay.Agent.Combat
         public Vector3 LastShotOrigin { get; private set; }
         public global::EnemyHealthController LastShotTarget { get; private set; }
         public long LastShotVersion { get; private set; }
+        /// <summary>最近一次判定用到的瞄准点</summary>
+        public Vector3 LastShotAimPoint { get; private set; }
         /// <summary>最近一次判定受阻时挡住视线或弹道的碰撞体和挡点；通畅时碰撞体为空</summary>
         public Collider LastShotBlocker { get; private set; }
         public Vector3 LastShotBlockPoint { get; private set; }
@@ -44,15 +46,16 @@ namespace Gameplay.Agent.Combat
             if (targetEnemy == null || !targetEnemy.IsAlive)
             { LastShotResult = TargetVisibilityResult.Invalid; LastShotFailure = AgentShotFailure.InvalidTarget; return false; }
             LastShotResult = TargetVisibilityQuery.Check(transform, ResolveFirePosition(), targetEnemy.transform, range,
-                360f, Physics.DefaultRaycastLayers, out Collider blocker, out Vector3 blockPoint);
+                360f, Physics.DefaultRaycastLayers, out TargetVisibilityDetail detail);
             if (LastShotResult == TargetVisibilityResult.Visible &&
-                !HasProjectileClearance(ResolveFirePosition(), targetEnemy.transform, out blocker, out blockPoint))
+                !HasProjectileClearance(ResolveFirePosition(), targetEnemy.transform, out detail.Blocker, out detail.BlockPoint))
                 LastShotResult = TargetVisibilityResult.Occluded;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             LastShotOrigin = ResolveFirePosition();
             LastShotTarget = targetEnemy;
-            LastShotBlocker = blocker;
-            LastShotBlockPoint = blockPoint;
+            LastShotAimPoint = detail.AimPoint;
+            LastShotBlocker = detail.Blocker;
+            LastShotBlockPoint = detail.BlockPoint;
             LastShotVersion++;
 #endif
             if (LastShotResult != TargetVisibilityResult.Visible)
