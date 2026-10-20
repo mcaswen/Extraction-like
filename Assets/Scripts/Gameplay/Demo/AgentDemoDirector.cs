@@ -116,8 +116,12 @@ namespace Gameplay.Demo
             panel.ShowDemoStep(0, 0, scene.Title, "准备中");
 
             Random.InitState(seed);
-            Scene active = SceneManager.GetActiveScene();
-            AsyncOperation load = SceneManager.LoadSceneAsync(active.buildIndex);
+            AsyncOperation load = ReloadRaidScene();
+            if (load == null)
+            {
+                Finish(run, false, "场景没有就绪");
+                yield break;
+            }
             while (!load.isDone) yield return null;
             _loadTime = Time.timeAsDouble;
 
@@ -174,6 +178,26 @@ namespace Gameplay.Demo
             }
 
             Finish(run, true, string.Empty);
+        }
+
+        // 重新载入智能体所在的场景（不一定是当前活动场景）；不在构建列表里时只有编辑器能按路径载入
+        private static AsyncOperation ReloadRaidScene()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+            if (registry != null)
+                foreach (AgentRuntimeHandle handle in registry.RegisteredAgents)
+                    if (handle.IsValid)
+                    {
+                        scene = handle.PawnRoot.gameObject.scene;
+                        break;
+                    }
+            if (scene.buildIndex >= 0) return SceneManager.LoadSceneAsync(scene.buildIndex, LoadSceneMode.Single);
+#if UNITY_EDITOR
+            if (!string.IsNullOrEmpty(scene.path))
+                return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(scene.path, new LoadSceneParameters(LoadSceneMode.Single));
+#endif
+            return null;
         }
 
         // 焦点智能体（编号 1，没有时取第一台）已注册、路线已安装、站在导航网格上，地图绑定和记录器都在
