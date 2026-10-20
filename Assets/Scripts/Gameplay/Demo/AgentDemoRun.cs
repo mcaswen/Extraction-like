@@ -15,19 +15,18 @@ namespace Gameplay.Demo
 {
     /// <summary>
     /// 一次导演运行的现场：焦点智能体、它的记录器和地图绑定，推进条件用到的记忆，以及导演经正式入口做的操作
-    /// （地图提交路线、让敌人察觉智能体）。指令、路线结果和关键时刻写进事件记录。
+    /// （地图提交路线、让附近的敌人察觉并偷袭智能体）。指令、路线结果和关键时刻写进事件记录。
     /// </summary>
     public sealed class AgentDemoRun
     {
-        private const float NearAlertRange = 30f, FarAlertRange = 80f, StationarySeconds = 1f, FarAfterSeconds = 10f, RealertSeconds = 6f,
-            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f, FallbackHitSeconds = 10f, FallbackDamage = 10f;
+        private const float NearAmbushRange = 30f, FarAmbushRange = 80f, StationarySeconds = 1f, FarAfterSeconds = 10f, RetrySeconds = 6f,
+            ScanSeconds = .25f, MinimumRouteMeters = 25f, NearbyEnemyMeters = 25f, StageMeters = 30f, AmbushDamage = 10f;
 
         private readonly List<string> _routeNodes = new List<string>();
         private Vector3 _startPosition, _stepPosition;
         private string _rememberedRoute = string.Empty, _rememberedTarget = string.Empty, _submittedNode = string.Empty;
-        private bool _resumedSeen, _supersededSeen, _alerting;
-        private float _nextAlertTime, _stationarySince, _firstAlertTime;
-        private global::EnemyHealthController _alerter;
+        private bool _resumedSeen, _supersededSeen, _ambushing;
+        private float _nextAmbushTime, _stationarySince;
         private Vector3 _lastScanPosition;
 
         public AgentDemoRun(AgentDemoScene scene, int seed, AgentDemoLog log)
@@ -71,34 +70,23 @@ namespace Gameplay.Demo
         internal void BeginStep() => _stepPosition = Pawn.Position;
 
         /// <summary>
-        /// 每帧由导演调用：智能体停下来（在箱旁等背包）后，让 30 米内最近的敌人察觉它，敌人会追到它现在的位置；
-        /// 停了 10 秒还没有近处的敌人就放宽到 80 米。迟迟没打起来就再叫一次；反击开始后不再叫敌人。
+        /// 每帧由导演调用：智能体停下来（在箱旁等背包）后，30 米内最近的敌人察觉它并立即打它一下（停了 10 秒还没有近处的敌人就放宽到 80 米）。
+        /// 6 秒后还没进入反击就再来一次；反击开始后不再动敌人。
         /// </summary>
         internal void Tick()
         {
-            if (!_alerting) return;
+            if (!_ambushing) return;
             if (IsRetaliatingOverRememberedCommand())
             {
-                _alerting = false;
+                _ambushing = false;
                 return;
             }
-            if (Time.unscaledTime < _nextAlertTime) return;
-            // 被叫来的敌人 10 秒内打不到智能体（被箱子等挡住或停在活动范围边上）时，经正式伤害接口代它打一下，留下记录
-            if (_alerter != null && _alerter.IsAlive && Time.unscaledTime - _firstAlertTime >= FallbackHitSeconds)
-            {
-                Vector3 direction = Pawn.Position - _alerter.transform.position;
-                direction.y = 0f;
-                Pawn.TakeCombatDamage(FallbackDamage, Pawn.Position + Vector3.up, direction.normalized, _alerter.gameObject);
-                Log.Begin("enemy-hit-fallback").Field("enemy", _alerter.name).Field("distance", Planar(direction)).End();
-                _firstAlertTime = Time.unscaledTime;
-                _nextAlertTime = Time.unscaledTime + ScanSeconds;
-                return;
-            }
+            if (Time.unscaledTime < _nextAmbushTime) return;
             if (Planar(Pawn.Position - _lastScanPosition) > .1f) _stationarySince = Time.unscaledTime;
             _lastScanPosition = Pawn.Position;
             float stationary = Time.unscaledTime - _stationarySince;
-            bool alerted = stationary >= StationarySeconds && AlertNearestEnemy(stationary >= FarAfterSeconds ? FarAlertRange : NearAlertRange);
-            _nextAlertTime = Time.unscaledTime + (alerted ? RealertSeconds : ScanSeconds);
+            bool struck = stationary >= StationarySeconds && AmbushByNearestEnemy(stationary >= FarAfterSeconds ? FarAmbushRange : NearAmbushRange);
+            _nextAmbushTime = Time.unscaledTime + (struck ? RetrySeconds : ScanSeconds);
         }
 
         // —— 推进条件 ——
@@ -236,16 +224,17 @@ namespace Gameplay.Demo
             Submit(node, bestDistance);
         }
 
-        /// <summary>开始等智能体停下来，再让附近的敌人察觉它（敌人走自己的追击和开火）</summary>
-        public void ArmEnemyAlert()
+        /// <summary>开始等智能体停下来，再让附近的敌人偷袭它</summary>
+        public void ArmAmbush()
         {
-            _alerting = true;
-            _nextAlertTime = _stationarySince = Time.unscaledTime;
+            _ambushing = true;
+            _nextAmbushTime = _stationarySince = Time.unscaledTime;
             _lastScanPosition = Pawn.Position;
         }
 
-        // 让给定范围内离智能体最近的存活敌人察觉智能体；没有这样的敌人时返回假
-        private bool AlertNearestEnemy(float range)
+        // 给定范围内离智能体最近的存活敌人：经同群警报接口察觉智能体，并以它为来源经正式伤害接口立即打一下（不等它自己出手）。
+        // 没有这样的敌人时返回假
+        private bool AmbushByNearestEnemy(float range)
         {
             global::EnemyHealthController nearest = null;
             float nearestDistance = range;
@@ -261,12 +250,10 @@ namespace Gameplay.Demo
             if (nearest == null) return false;
             foreach (global::IEnemyCombatAlertReceiver receiver in nearest.GetComponents<global::IEnemyCombatAlertReceiver>())
                 receiver.NotifyCombatAlert(Pawn.CachedTransform);
-            if (_alerter != nearest)
-            {
-                _alerter = nearest;
-                _firstAlertTime = Time.unscaledTime;
-            }
-            Log.Begin("enemy-alert").Field("enemy", nearest.name).Field("distance", nearestDistance).End();
+            Vector3 direction = Pawn.Position - nearest.transform.position;
+            direction.y = 0f;
+            Pawn.TakeCombatDamage(AmbushDamage, Pawn.Position + Vector3.up, direction.normalized, nearest.gameObject);
+            Log.Begin("enemy-ambush").Field("enemy", nearest.name).Field("distance", nearestDistance).Field("damage", AmbushDamage).End();
             return true;
         }
 

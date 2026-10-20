@@ -77,8 +77,8 @@ namespace Gameplay.Demo
                 run => run.SubmitAmbushRoute()),
             new AgentDemoStep("遇袭挂起与反击",
                 "智能体正在执行指挥员下达的命令。受到攻击时，这条命令被移进挂起槽，反击命令接管行为树。",
-                60f, run => run.IsRetaliatingOverRememberedCommand(),
-                run => run.ArmEnemyAlert()),
+                30f, run => run.IsRetaliatingOverRememberedCommand(),
+                run => run.ArmAmbush()),
             new AgentDemoStep("同一条命令恢复",
                 "战斗结束后，挂起槽里的同一条命令回到活动槽，路线从中断处继续执行。",
                 90f, run => run.RememberedCommandResumed()));
