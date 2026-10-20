@@ -1055,8 +1055,9 @@ namespace Gameplay.Targets.Authoring
 
             if (member.TryGetComponent(out global::WorldLootItem worldItem))
             {
-                // 地面掉落失效或数量归零后，资源成员同步完成
+                // 地面掉落失效、数量归零或已被处理过后，资源成员同步完成
                 if (!worldItem.gameObject.activeInHierarchy ||
+                    Gameplay.Agent.Runtime.AgentSearchedResourceRegistry.IsSearched(worldItem.gameObject) ||
                     worldItem.ItemData == null ||
                     worldItem.CurrentAmount <= 0)
                 {

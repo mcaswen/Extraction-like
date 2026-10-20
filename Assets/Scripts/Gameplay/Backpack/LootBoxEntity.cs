@@ -221,8 +221,9 @@ public class LootBoxEntity : MonoBehaviour, IInteractableContainer, IInteractabl
 
             SaveRuntimeState(result.ExternalItems, result.ExternalCellStates);
             // 玩家打开过的箱子不管剩没剩东西都算搜刮过，Agent 不再回来。
-            // 在旁边等这个会话的 Agent 自己收尾（要读容量不足）；没人在等时（为别的 Agent 打开、到达前就打开）由箱子登记
-            if (!sessionContext.AwaitedByAgent)
+            // 在旁边等这个会话的 Agent 自己收尾（要读容量不足）；没人在等时（为别的 Agent 打开、到达前就打开）由箱子登记。
+            // 箱子在打开期间被禁用而被迫关闭的不算，重新启用后仍可搜索
+            if (!sessionContext.AwaitedByAgent && gameObject.activeInHierarchy)
             {
                 MarkSearchedByPlayer();
             }
