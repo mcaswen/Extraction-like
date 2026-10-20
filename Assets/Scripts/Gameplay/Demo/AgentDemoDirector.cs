@@ -129,6 +129,7 @@ namespace Gameplay.Demo
             {
                 if (Time.unscaledTime > deadline)
                 {
+                    log.Begin("not-ready").Field("detail", ReadyDiagnosis()).End();
                     Finish(run, false, "场景没有就绪");
                     yield break;
                 }
@@ -195,6 +196,24 @@ namespace Gameplay.Demo
             binding = FindObjectOfType<MapGraphBindingAuthoring>();
             recorder = hub.Find(pawn);
             return binding != null && recorder != null;
+        }
+
+        private static string ReadyDiagnosis()
+        {
+            AgentRuntimeRegistry registry = AgentRuntimeRegistry.ActiveInstance;
+            AgentBrainTelemetryHub hub = AgentBrainTelemetryHub.Instance;
+            var text = new System.Text.StringBuilder();
+            text.Append("scene=").Append(SceneManager.GetActiveScene().name).Append(" registry=").Append(registry != null)
+                .Append(" hub=").Append(hub != null).Append(" binding=").Append(FindObjectOfType<MapGraphBindingAuthoring>() != null);
+            if (registry != null)
+                foreach (AgentRuntimeHandle handle in registry.RegisteredAgents)
+                {
+                    if (!handle.IsValid) { text.Append(" | invalid"); continue; }
+                    AgentPawnRoot pawn = handle.PawnRoot;
+                    text.Append(" | ").Append(pawn.AgentIdValue).Append(" route=").Append(pawn.RouteSnapshot.IsInstalled)
+                        .Append(" nav=").Append(AgentNavigationQuery.IsReady(pawn.NavMeshAgent)).Append(" recorder=").Append(hub != null && hub.Find(pawn) != null);
+                }
+            return text.ToString();
         }
 
         private void Finish(AgentDemoRun run, bool succeeded, string reason)
