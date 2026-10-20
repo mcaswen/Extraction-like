@@ -17,7 +17,8 @@ namespace Gameplay.Demo
     /// <summary>
     /// 现场导演：在正式场景里真实触发三个演示场景，面板底部字幕逐步讲解，同时写事件记录。
     /// F5、F6、F7 分别开始"自主选目标""遇袭挂起恢复""指挥员改派"，F9 中断。每次先固定随机种子再重新载入当前场景，
-    /// 两台智能体回到起点、切好焦点，打开 B 面板和 U 叠加层。导演只走正式入口：地图提交路线、命令路由、焦点切换、敌人同群警报和以敌人为来源的受伤接口。
+    /// 两台智能体回到起点、切好焦点，打开 B 面板和 U 叠加层。指挥员下令时导演模拟一遍地图操作：展开地图、指针点群、收起地图。
+    /// 导演只走正式入口：地图群图标的点击、命令路由、焦点切换、敌人同群警报和以敌人为来源的受伤接口。
     /// 只在编辑器和开发构建中存在。
     /// </summary>
     [DefaultExecutionOrder(10020)]
@@ -97,6 +98,7 @@ namespace Gameplay.Demo
         private void OnDestroy()
         {
             if (CurrentRun != null) Finish(CurrentRun, false, "手动中断");
+            if (AgentDemoMapPointer.Instance != null) Destroy(AgentDemoMapPointer.Instance.gameObject);
             if (_instance == this) _instance = null;
         }
 
@@ -156,7 +158,12 @@ namespace Gameplay.Demo
                 StepIndex = index + 1;
                 panel.ShowDemoStep(index + 1, steps.Length, step.Title, step.Narration);
                 log.Begin("step").Field("index", index + 1).Field("title", step.Title).Field("stage", "enter").End();
-                step.Enter?.Invoke(run);
+                if (step.Enter != null) yield return step.Enter(run);
+                if (run.Failed)
+                {
+                    Finish(run, false, run.FailureReason);
+                    yield break;
+                }
                 run.BeginStep();
 
                 float started = Time.unscaledTime;
@@ -254,6 +261,7 @@ namespace Gameplay.Demo
             log.Dispose();
             LastOutcome = succeeded ? Outcome.Succeeded : Outcome.Failed;
             LastFailure = reason;
+            if (AgentDemoMapPointer.Instance != null) AgentDemoMapPointer.Instance.Hide();
             CurrentRun = null;
             _routine = null;
             if (!succeeded && AgentBrainPanel.Instance != null) AgentBrainPanel.Instance.ShowDemoStep(0, 0, "演示中断", reason);

@@ -1,4 +1,5 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System.Collections;
 using System.Collections.Generic;
 using Gameplay.Agent.Commands;
 using Gameplay.Agent.Core;
@@ -143,11 +144,11 @@ namespace Gameplay.Demo
         // —— 导演操作（正式入口） ——
 
         /// <summary>
-        /// 改派场景：选一个不是当前目标的资源群，经地图正式入口给焦点智能体下达路线。优先选图上路程至少 25 米里最近的。
+        /// 改派场景：选一个不是当前目标的资源群，像指挥员一样经地图给焦点智能体下达路线。优先选图上路程至少 25 米里最近的。
         /// </summary>
-        public void SubmitReassignRoute()
+        public IEnumerator SubmitReassignRoute()
         {
-            if (Binding == null) { Fail("场景没有就绪"); return; }
+            if (Binding == null) { Fail("场景没有就绪"); yield break; }
             string best = string.Empty;
             float bestRank = float.PositiveInfinity, bestLength = 0f;
             foreach (MapGraphTargetBinding binding in Binding.TargetBindings)
@@ -161,28 +162,28 @@ namespace Gameplay.Demo
                 bestRank = rank;
                 bestLength = length;
             }
-            if (best.Length == 0) { Fail("找不到合适的资源群"); return; }
-            Submit(best, bestLength);
+            if (best.Length == 0) { Fail("找不到合适的资源群"); yield break; }
+            yield return SubmitViaMap(best, bestLength);
         }
 
-        // 经地图正式入口下达路线；地图界面不可用时走命令路由
-        private void Submit(string node, float detail)
+        // 像指挥员一样经地图下令：展开地图，指针移到群上点击，再收起地图；地图界面不可用时走命令路由
+        private IEnumerator SubmitViaMap(string node, float detail)
         {
             _submittedNode = node;
             MapGraphPresenter presenter = Object.FindObjectOfType<MapGraphPresenter>();
             bool viaMap = presenter != null && presenter.isActiveAndEnabled;
-            if (viaMap) presenter.SubmitNode(node);
-            else AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(node, AgentRouteSource.Player, Pawn.AgentId));
             Log.Begin("commander-route").Field("node", node).Field("detail", detail).Field("viaMap", viaMap).End();
+            if (viaMap) yield return AgentDemoMapPointer.Ensure().ClickNode(presenter, node, Log);
+            else AgentCommandRouter.GetOrCreate().TrySubmitRoute(new AgentRouteRequest(node, AgentRouteSource.Player, Pawn.AgentId));
         }
 
         /// <summary>
         /// 遇袭场景的布景和命令：找一个 25 米内有可察觉敌人的资源群，把智能体经导航瞬移到它前方 30 米左右（随后同步物理），
-        /// 再经地图正式入口下达去这个群的路线。智能体到群里等背包时，附近的敌人被叫来。
+        /// 再像指挥员一样经地图下达去这个群的路线。智能体到群里停下后，附近的敌人偷袭它。
         /// </summary>
-        public void SubmitAmbushRoute()
+        public IEnumerator SubmitAmbushRoute()
         {
-            if (Binding == null) { Fail("场景没有就绪"); return; }
+            if (Binding == null) { Fail("场景没有就绪"); yield break; }
             var enemies = new List<global::EnemyHealthController>();
             foreach (global::EnemyHealthController enemy in Object.FindObjectsOfType<global::EnemyHealthController>())
                 if (enemy != null && enemy.IsAlive && enemy.GetComponent<global::IEnemyCombatAlertReceiver>() != null) enemies.Add(enemy);
@@ -205,7 +206,7 @@ namespace Gameplay.Demo
                     ambusher = enemy;
                 }
             }
-            if (node.Length == 0) { Fail("找不到合适的资源群"); return; }
+            if (node.Length == 0) { Fail("找不到合适的资源群"); yield break; }
 
             // 从群锚点朝敌人的反方向退 30 米，取最近的导航点
             Vector3 away = anchor - ambusher.transform.position;
@@ -216,20 +217,21 @@ namespace Gameplay.Demo
             if (!UnityEngine.AI.NavMesh.SamplePosition(anchor + away * StageMeters, out UnityEngine.AI.NavMeshHit hit, 8f, filter) || !navigation.Warp(hit.position))
             {
                 Fail("场景没有就绪");
-                return;
+                yield break;
             }
             Physics.SyncTransforms();
             Log.Begin("stage-ambush").Field("node", node).Field("enemy", ambusher.name).Field("enemyToGroup", bestDistance)
                 .Field("x", hit.position.x).Field("z", hit.position.z).End();
-            Submit(node, bestDistance);
+            yield return SubmitViaMap(node, bestDistance);
         }
 
         /// <summary>开始等智能体停下来，再让附近的敌人偷袭它</summary>
-        public void ArmAmbush()
+        public IEnumerator ArmAmbush()
         {
             _ambushing = true;
             _nextAmbushTime = _stationarySince = Time.unscaledTime;
             _lastScanPosition = Pawn.Position;
+            yield break;
         }
 
         // 给定范围内离智能体最近的存活敌人：经同群警报接口察觉智能体，并以它为来源经正式伤害接口立即打一下（不等它自己出手）。

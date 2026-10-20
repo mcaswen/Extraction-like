@@ -66,6 +66,16 @@ namespace AgentReproduction.Tests
                     Assert.That(lines.Count(l => l.Contains("\"kind\":\"step\"") && l.Contains("\"stage\":\"reached\"")), Is.EqualTo(scene.Steps.Length));
                     Assert.That(lines.Any(l => l.Contains("\"kind\":\"timeline\"")), Is.True, "事件记录应包含面板时间线");
                     Assert.That(lines.Last(), Does.Contain("\"result\":\"succeeded\""));
+                    if (scene != AgentDemoScenes.AutonomousSelection)
+                    {
+                        // 指挥员下令要像玩家一样：展开地图、指针点群、收起地图
+                        Assert.That(lines.Any(l => l.Contains("\"kind\":\"map-open\"")), Is.True, "下令前应展开地图");
+                        Assert.That(lines.Any(l => l.Contains("\"kind\":\"map-click\"") && l.Contains("\"pointer\":true")), Is.True, "应用指针点击地图上的群");
+                        Assert.That(lines.Any(l => l.Contains("\"kind\":\"map-close\"")), Is.True, "下令后应收起地图");
+                        var presenter = Object.FindObjectOfType<Gameplay.MapGraph.View.MapGraphPresenter>();
+                        Assert.That(presenter != null && !presenter.Viewport.IsExpanded, Is.True, "演示结束时地图应已收起");
+                        Assert.That(presenter.SubmittedCommandCount, Is.EqualTo(1), "路线由地图上的点击下达");
+                    }
                 }
                 ContractCompleted = true;
             }

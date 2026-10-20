@@ -1,14 +1,15 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System;
+using System.Collections;
 using System.Text;
 using Gameplay.Agent.Routes;
 
 namespace Gameplay.Demo
 {
-    /// <summary>导演场景的一步：进入时做的事、推进条件、超时（不受暂停影响的秒数）和字幕</summary>
+    /// <summary>导演场景的一步：进入时做的事（可以跨帧，例如模拟在地图上点群）、推进条件、超时（不受暂停影响的秒数）和字幕</summary>
     public sealed class AgentDemoStep
     {
-        public AgentDemoStep(string title, string narration, float timeoutSeconds, Func<AgentDemoRun, bool> done, Action<AgentDemoRun> enter = null)
+        public AgentDemoStep(string title, string narration, float timeoutSeconds, Func<AgentDemoRun, bool> done, Func<AgentDemoRun, IEnumerator> enter = null)
         {
             Title = title;
             Narration = narration;
@@ -21,7 +22,7 @@ namespace Gameplay.Demo
         public string Narration { get; }
         public float TimeoutSeconds { get; }
         public Func<AgentDemoRun, bool> Done { get; }
-        public Action<AgentDemoRun> Enter { get; }
+        public Func<AgentDemoRun, IEnumerator> Enter { get; }
     }
 
     /// <summary>一个导演场景：重新载入正式场景后按步骤真实触发，步骤由推进条件切换</summary>
